@@ -14,6 +14,8 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.util.introspection.SecureUberspector;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.slf4j.Logger;
@@ -26,17 +28,32 @@ import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.FieldExtractor;
 import fr.opensagres.xdocreport.template.FieldsExtractor;
 import fr.opensagres.xdocreport.template.IContext;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import fr.opensagres.xdocreport.template.velocity.internal.VelocityTemplateEngine;
 
 @Stateless
 @LocalBean
 public class TemplateEngineService {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(TemplateEngineService.class);
 	private static Pattern variablePattern = Pattern.compile("([{] *([A-Za-z0-9.]+) *[}]| *([A-Za-z0-9.]+) *)");
 
 	@EJB
 	private ConfigFacadeEjb.ConfigFacadeEjbLocal configFacade;
+
+	private Properties xdocVelocityProperties;
+
+	public TemplateEngineService() {
+		xdocVelocityProperties = new Properties();
+		try {
+			xdocVelocityProperties.load(VelocityTemplateEngine.class.getClassLoader().getResourceAsStream("xdocreport-velocity.properties"));
+		} catch (IOException e) {
+			logger.error("Could not read velocity properties.", e);
+		}
+		// Disable Reflection and Classloader related methods
+		xdocVelocityProperties.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME, SecureUberspector.class.getCanonicalName());
+		// Disable Includes
+		xdocVelocityProperties.setProperty(RuntimeConstants.EVENTHANDLER_INCLUDE, NoIncludesEventHandler.class.getCanonicalName());
+	}
 
 	public Set<String> extractTemplateVariables(InputStream templateFile) throws IOException, XDocReportException {
 		IXDocReport report = readXDocReport(templateFile);
@@ -104,7 +121,7 @@ public class TemplateEngineService {
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			wordMLPackage.save(outStream);
 			ByteArrayInputStream inStream1 = new ByteArrayInputStream(outStream.toByteArray());
-			return XDocReportRegistry.getRegistry().loadReport(inStream1, TemplateEngineKind.Velocity);
+			return XDocReportRegistry.getRegistry().loadReport(inStream1, new XDocTemplateEngine(xdocVelocityProperties));
 		} catch (Docx4JException e) {
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
