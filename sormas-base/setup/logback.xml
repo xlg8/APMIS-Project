@@ -53,7 +53,13 @@
                     <!-- send just 20 log entries per email -->
                     <bufferSize>20</bufferSize>
             </cyclicBufferTracker>
-            <smtpHost>MAIL_HOST</smtpHost>
+            <smtpHost>SMTP_HOST</smtpHost>
+            <smtpPort>SMTP_PORT</smtpPort>
+            <username>SMTP_USER</username>
+            <password>SMTP_PASSWORD</password>
+            <STARTTLS>SMTP_STARTTLS</STARTTLS>
+            <SSL>SMTP_SSL</SSL>
+            <asynchronousSending>SMTP_ASYNC_SENDING</asynchronousSending>
             <to>LOG_RECIPIENT_ADDRESS</to>
             <from>LOG_SENDER_ADDRESS</from>
             <subject>LOG_SUBJECT</subject>
