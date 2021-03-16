@@ -59,7 +59,10 @@ public class ExternalVisitsResource extends EntityDtoResource {
 					"]")))
 	//@formatter:off
 	public JournalPersonDto getPersonByUuid(@PathParam("personUuid") String personUuid) {
-		return FacadeProvider.getPersonFacade().getPersonForJournal(personUuid);
+		System.out.println("retrieving journal person with uuid " + personUuid);
+		JournalPersonDto personForJournal = FacadeProvider.getPersonFacade().getPersonForJournal(personUuid);
+		System.out.println("journal person with uuid " + personUuid + "has follow up date " + personForJournal.getLatestFollowUpEndDate());
+		return personForJournal;
 	}
 
 	@GET
