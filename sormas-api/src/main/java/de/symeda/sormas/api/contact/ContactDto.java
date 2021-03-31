@@ -169,6 +169,7 @@ public class ContactDto extends PseudonymizableDto implements SormasToSormasEnti
 	@SensitiveData
 	private String contactProximityDetails;
 	private ContactCategory contactCategory;
+	@NotNull
 	private ContactClassification contactClassification;
 	private ContactStatus contactStatus;
 	private FollowUpStatus followUpStatus;
