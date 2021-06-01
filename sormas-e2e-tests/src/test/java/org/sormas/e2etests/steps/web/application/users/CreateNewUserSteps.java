@@ -45,11 +45,12 @@ public class CreateNewUserSteps implements En {
           selectLanguage(user.getLanguage());
           selectCountry(user.getCountry());
           selectRegion(user.getRegion());
-          // selectDistrict(user.getDistrict()); //TODO: must be manually added on configuration nav section
-          // selectCommunity(user.getCommunity());
+          selectDistrict(user.getDistrict());
+          selectCommunity(user.getCommunity());
           selectFacilityCategory(user.getFacilityCategory());
           selectFacilityType(user.getFacilityType());
-          // selectFacility(user.getFacility());
+          selectFacility(user.getFacility());
+          fillFacilityNameAndDescription(user.getFacilityNameAndDescription());
           fillStreet(user.getStreet());
           fillHouseNr(user.getHouseNumber());
           fillAdditionalInformation(user.getAdditionalInformation());
@@ -99,6 +100,7 @@ public class CreateNewUserSteps implements En {
   }
 
   public void selectDistrict(String district) {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(DISTRICT_COMBOBOX);
     webDriverHelpers.selectFromCombobox(DISTRICT_COMBOBOX, district);
   }
 
@@ -107,15 +109,22 @@ public class CreateNewUserSteps implements En {
   }
 
   public void selectFacilityCategory(String facilityCategory) {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(FACILITY_CATEGORY_COMBOBOX);
     webDriverHelpers.selectFromCombobox(FACILITY_CATEGORY_COMBOBOX, facilityCategory);
   }
 
   public void selectFacilityType(String facilityType) {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(FACILITY_TYPE_COMBOBOX);
     webDriverHelpers.selectFromCombobox(FACILITY_TYPE_COMBOBOX, facilityType);
   }
 
   public void selectFacility(String facility) {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(FACILITY_COMBOBOX);
     webDriverHelpers.selectFromCombobox(FACILITY_COMBOBOX, facility);
+  }
+
+  public void fillFacilityNameAndDescription(String facilityName) {
+    webDriverHelpers.fillInWebElement(FACILITY_NAME_DESCRIPTION, facilityName);
   }
 
   public void fillStreet(String street) {

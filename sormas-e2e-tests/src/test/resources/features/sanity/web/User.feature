@@ -19,7 +19,6 @@ Feature: Create user
 #      | Hospital Informant            |
 #      | Community Officer             |
 #      | Community Informant           |
-#      | Clinician                     |
 #      | Case Officer                  |
 #      | Contact Supervisor            |
 #      | Contact Officer               |

@@ -77,6 +77,9 @@ public class EditUserSteps implements En {
               .assertThat(aUser.getFacility())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacility());
           softly
+              .assertThat(aUser.getFacilityNameAndDescription())
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityNameAndDescription());
+          softly
               .assertThat(aUser.getStreet())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getStreet());
           softly
@@ -134,6 +137,8 @@ public class EditUserSteps implements En {
         .facilityCategory(webDriverHelpers.getValueFromWebElement(FACILITY_CATEGORY_COMBOBOX_INPUT))
         .facilityType(webDriverHelpers.getValueFromWebElement(FACILITY_TYPE_COMBOBOX_INPUT))
         .facility(webDriverHelpers.getValueFromWebElement(FACILITY_COMBOBOX_INPUT))
+        .facilityNameAndDescription(
+            webDriverHelpers.getValueFromWebElement(FACILITY_NAME_DESCRIPTION_VALUE))
         .street(webDriverHelpers.getValueFromWebElement(STREET_INPUT))
         .houseNumber(webDriverHelpers.getValueFromWebElement(HOUSE_NUMBER_INPUT))
         .additionalInformation(
@@ -141,6 +146,7 @@ public class EditUserSteps implements En {
         .postalCode(webDriverHelpers.getValueFromWebElement(POSTAL_CODE_INPUT))
         .city(webDriverHelpers.getValueFromWebElement(CITY_INPUT))
         .areaType(webDriverHelpers.getValueFromWebElement(AREA_TYPE_COMBOBOX_INPUT))
+
         // .communityContactPerson(webDriverHelpers.getValueFromWebElement(COMMUNITY_CONTACT_PERSON))
         .gpsLatitude(webDriverHelpers.getValueFromWebElement(LATITUDE_INPUT))
         .gpsLongitude(webDriverHelpers.getValueFromWebElement(LONGITUDE_INPUT))
