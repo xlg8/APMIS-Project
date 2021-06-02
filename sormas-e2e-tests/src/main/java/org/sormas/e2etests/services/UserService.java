@@ -53,13 +53,11 @@ public class UserService {
         .postalCode(faker.address().zipCode())
         .city(faker.address().city())
         .areaType("Urban")
-        // .community("CommunityContact".concat(faker.name().firstName()))
         .gpsLatitude("22")
         .gpsLongitude("44")
         .gpsAccuracy("1")
         .active("yes")
         .userName("userName".concat(LocalTime.now().toString()))
-        .userRole("National User")
         .limitedDisease("Anthrax")
         .build();
   }

@@ -36,8 +36,8 @@ public class EditUserSteps implements En {
     this.webDriverHelpers = webDriverHelpers;
 
     When(
-        "I check the created data is correctly displayed on Edit User Page",
-        () -> {
+        "^I check the created data is correctly displayed on Edit User Page for selected ([^\"]*)$",
+        (String role) -> {
           aUser = collectUserData();
 
           softly
@@ -97,10 +97,6 @@ public class EditUserSteps implements En {
           softly
               .assertThat(aUser.getAreaType())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getAreaType());
-          //          softly
-          //              .assertThat(aUser.getCommunityContactPerson())
-          //
-          // .isEqualToIgnoringCase(CreateNewUserSteps.user.getCommunityContactPerson());
           softly
               .assertThat(aUser.getGpsLongitude())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsLongitude());
@@ -113,9 +109,7 @@ public class EditUserSteps implements En {
           softly
               .assertThat(aUser.getUserName())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserName());
-          softly
-              .assertThat(aUser.getUserRole())
-              .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserRole());
+          softly.assertThat(aUser.getUserRole()).isEqualToIgnoringCase(role);
           softly
               .assertThat(aUser.getLimitedDisease())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getLimitedDisease());
@@ -146,8 +140,6 @@ public class EditUserSteps implements En {
         .postalCode(webDriverHelpers.getValueFromWebElement(POSTAL_CODE_INPUT))
         .city(webDriverHelpers.getValueFromWebElement(CITY_INPUT))
         .areaType(webDriverHelpers.getValueFromWebElement(AREA_TYPE_COMBOBOX_INPUT))
-
-        // .communityContactPerson(webDriverHelpers.getValueFromWebElement(COMMUNITY_CONTACT_PERSON))
         .gpsLatitude(webDriverHelpers.getValueFromWebElement(LATITUDE_INPUT))
         .gpsLongitude(webDriverHelpers.getValueFromWebElement(LONGITUDE_INPUT))
         .gpsAccuracy(webDriverHelpers.getValueFromWebElement(LAT_LON_ACCURACY_INPUT))

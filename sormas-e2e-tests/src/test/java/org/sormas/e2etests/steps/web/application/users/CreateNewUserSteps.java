@@ -57,16 +57,15 @@ public class CreateNewUserSteps implements En {
           fillPostalCode(user.getPostalCode());
           fillCity(user.getCity());
           selectAreaType(user.getAreaType());
-          // fillCommunityContactPerson(user.getCommunityContactPerson());
           fillGpsLatitude(user.getGpsLatitude());
           fillGpsLongitude(user.getGpsLongitude());
           fillGpsAccuracy(user.getGpsAccuracy());
-          //   clickActive();
           fillUserName(user.getUserName());
-          selectUserRole(user.getUserRole());
+          selectUserRole(rights);
           selectLimitedDisease(user.getLimitedDisease());
           webDriverHelpers.scrollToElement(SAVE_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(SAVE_BUTTON);
+          webDriverHelpers.waitUntilElementIsVisibleAndClickable(CLOSE_DIALOG_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(CLOSE_DIALOG_BUTTON);
         });
   }
@@ -105,6 +104,7 @@ public class CreateNewUserSteps implements En {
   }
 
   public void selectCommunity(String community) {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(COMMUNITY_COMBOBOX);
     webDriverHelpers.selectFromCombobox(COMMUNITY_COMBOBOX, community);
   }
 
@@ -172,7 +172,7 @@ public class CreateNewUserSteps implements En {
   }
 
   public void fillUserName(String userName) {
-    webDriverHelpers.fillInWebElement(USER_NAME_INPUT, userName);
+    webDriverHelpers.clearAndFillInWebElement(USER_NAME_INPUT, userName);
   }
 
   public void selectUserRole(String role) {
