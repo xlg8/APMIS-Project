@@ -27,9 +27,8 @@ import org.sormas.e2etests.helpers.WebDriverHelpers;
 import org.sormas.e2etests.pojo.User;
 
 public class EditUserSteps implements En {
-
   private final WebDriverHelpers webDriverHelpers;
-  protected User aUser;
+  public static User aUser;
 
   @Inject
   public EditUserSteps(final WebDriverHelpers webDriverHelpers, final SoftAssertions softly) {
@@ -113,6 +112,79 @@ public class EditUserSteps implements En {
           softly
               .assertThat(aUser.getLimitedDisease())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getLimitedDisease());
+          softly.assertAll();
+        });
+
+    Then(
+        "^I check the edited data is correctly displayed on Edit User page$",
+        () -> {
+          User editUser = collectUserData();
+          softly
+              .assertThat(editUser.getFirstName())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFirstName());
+          softly
+              .assertThat(editUser.getLastName())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLastName());
+          softly
+              .assertThat(editUser.getEmailAddress())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getEmailAddress());
+          softly
+              .assertThat(editUser.getPhoneNumber())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getPhoneNumber());
+          softly
+              .assertThat(editUser.getLanguage())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLanguage());
+          softly
+              .assertThat(editUser.getCountry())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getCountry());
+          softly
+              .assertThat(editUser.getFacilityCategory())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityCategory());
+          softly
+              .assertThat(editUser.getFacilityType())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityType());
+          softly
+              .assertThat(editUser.getFacility())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacility());
+          softly
+              .assertThat(editUser.getFacilityNameAndDescription())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityNameAndDescription());
+          softly
+              .assertThat(editUser.getStreet())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getStreet());
+          softly
+              .assertThat(editUser.getHouseNumber())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getHouseNumber());
+          softly
+              .assertThat(editUser.getAdditionalInformation())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getAdditionalInformation());
+          softly
+              .assertThat(editUser.getPostalCode())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getPostalCode());
+          softly
+              .assertThat(editUser.getCity())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getCity());
+          softly
+              .assertThat(editUser.getAreaType())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getAreaType());
+          softly
+              .assertThat(editUser.getGpsLongitude())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsLongitude());
+          softly
+              .assertThat(editUser.getGpsLatitude())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsLatitude());
+          softly
+              .assertThat(editUser.getGpsAccuracy())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsAccuracy());
+          softly
+              .assertThat(editUser.getUserName())
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserName());
+          softly
+              .assertThat(editUser.getUserRole())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getUserRole());
+          softly
+              .assertThat(editUser.getLimitedDisease())
+              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLimitedDisease());
           softly.assertAll();
         });
   }

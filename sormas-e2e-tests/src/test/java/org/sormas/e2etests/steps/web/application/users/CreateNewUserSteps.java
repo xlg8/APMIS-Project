@@ -23,13 +23,14 @@ import static org.sormas.e2etests.pages.application.users.CreateNewUserPage.*;
 import cucumber.api.java8.En;
 import javax.inject.Inject;
 import org.sormas.e2etests.helpers.WebDriverHelpers;
+import org.sormas.e2etests.pages.application.users.CreateNewUserPage;
 import org.sormas.e2etests.pojo.User;
 import org.sormas.e2etests.services.UserService;
 
 public class CreateNewUserSteps implements En {
-
   private final WebDriverHelpers webDriverHelpers;
   protected static User user;
+  protected static User editUser;
 
   @Inject
   public CreateNewUserSteps(WebDriverHelpers webDriverHelpers, UserService userService) {
@@ -67,6 +68,36 @@ public class CreateNewUserSteps implements En {
           webDriverHelpers.clickOnWebElementBySelector(SAVE_BUTTON);
           webDriverHelpers.waitUntilElementIsVisibleAndClickable(CLOSE_DIALOG_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(CLOSE_DIALOG_BUTTON);
+        });
+    And(
+        "^I change user data and save the changes$",
+        () -> {
+          editUser = userService.buildEditUser();
+          fillFirstName(editUser.getFirstName());
+          fillLastName(editUser.getLastName());
+          fillEmailAddress(editUser.getEmailAddress());
+          fillPhoneNumber(editUser.getPhoneNumber());
+          selectLanguage(editUser.getLanguage());
+          selectCountry(editUser.getCountry());
+          selectFacilityCategory(editUser.getFacilityCategory());
+          selectFacilityType(editUser.getFacilityType());
+          selectFacility(editUser.getFacility());
+          fillFacilityNameAndDescription(editUser.getFacilityNameAndDescription());
+          fillStreet(editUser.getStreet());
+          fillHouseNr(editUser.getHouseNumber());
+          fillAdditionalInformation(editUser.getAdditionalInformation());
+          fillPostalCode(editUser.getPostalCode());
+          fillCity(editUser.getCity());
+          selectAreaType(editUser.getAreaType());
+          fillGpsLatitude(editUser.getGpsLatitude());
+          fillGpsLongitude(editUser.getGpsLongitude());
+          fillGpsAccuracy(editUser.getGpsAccuracy());
+          selectActive();
+          selectActiveUserRole();
+          selectUserRole(editUser.getUserRole());
+          selectLimitedDisease(editUser.getLimitedDisease());
+          webDriverHelpers.scrollToElement(CreateNewUserPage.SAVE_BUTTON);
+          webDriverHelpers.clickOnWebElementBySelector(CreateNewUserPage.SAVE_BUTTON);
         });
   }
 
@@ -167,8 +198,14 @@ public class CreateNewUserSteps implements En {
     webDriverHelpers.fillInWebElement(LAT_LON_ACCURACY_INPUT, gpsAccuracy);
   }
 
-  public void clickActive() {
+  public void selectActive() {
     webDriverHelpers.clickOnWebElementBySelector(ACTIVE_CHECKBOX);
+  }
+
+  public void selectActiveUserRole() {
+    webDriverHelpers.clickWebElementByText(
+        USER_ROLE_CHECKBOX,
+        webDriverHelpers.getCheckedOptionFromHorizontalOptionGroup(USER_ROLE_CHECKBOX));
   }
 
   public void fillUserName(String userName) {

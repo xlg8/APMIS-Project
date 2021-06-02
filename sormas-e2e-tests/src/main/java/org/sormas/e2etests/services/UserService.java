@@ -61,4 +61,33 @@ public class UserService {
         .limitedDisease("Anthrax")
         .build();
   }
+
+  public User buildEditUser() {
+    long currentTimeMillis = System.currentTimeMillis();
+    return User.builder()
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .emailAddress(faker.internet().emailAddress())
+        .phoneNumber("+49-4178-12345678")
+        .language("Deutsch")
+        .country("Germany")
+        .facilityCategory("Care facility")
+        .facilityType("Elderly day care")
+        .facility("Other facility")
+        .facilityNameAndDescription("description edit-case" + currentTimeMillis)
+        .street(faker.address().streetAddress())
+        .houseNumber(faker.address().buildingNumber())
+        .additionalInformation("Additional Information" + currentTimeMillis)
+        .postalCode(faker.address().zipCode())
+        .city(faker.address().city())
+        .areaType("Urban")
+        .gpsLatitude(faker.random().nextInt(10, 20).toString())
+        .gpsLongitude(faker.random().nextInt(20, 40).toString())
+        .gpsAccuracy(faker.random().nextInt(2, 5).toString())
+        .active("no")
+        .userRole("ReST User")
+        .userName("userName" + currentTimeMillis)
+        .limitedDisease("COVID-19")
+        .build();
+  }
 }
