@@ -55,6 +55,7 @@ public class NavBarSteps implements En {
     When(
         "^I click on the Users from navbar$",
         () -> {
+          webDriverHelpers.waitUntilElementIsVisibleAndClickable(NavBarPage.USERS_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(NavBarPage.USERS_BUTTON);
         });
   }

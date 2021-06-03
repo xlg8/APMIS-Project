@@ -209,7 +209,7 @@ public class CreateNewUserSteps implements En {
   }
 
   public void fillUserName(String userName) {
-    webDriverHelpers.clearAndFillInWebElement(USER_NAME_INPUT, userName);
+    webDriverHelpers.fillInWebElement(USER_NAME_INPUT, userName);
   }
 
   public void selectUserRole(String role) {

@@ -8,12 +8,11 @@ Feature: Create user
     And I click on the NEW USER button
     And I create a new user with <rights>
     When I search for created user
-    And I open created user
     Then I check the created data is correctly displayed on Edit User Page for selected <rights>
 
     Examples:
-      | rights        |
-      | National User |
+      | rights                  |
+      | National User           |
       | POE National User       |
       | Import User             |
       | External Visits User    |
@@ -28,10 +27,8 @@ Feature: Create user
     And I click on the NEW USER button
     And I create a new user with <rights>
     When I search for created user
-    And I open created user
     And I change user data and save the changes
     And I search for created user
-    And I open created user
     Then I check the edited data is correctly displayed on Edit User page
 
     Examples:
