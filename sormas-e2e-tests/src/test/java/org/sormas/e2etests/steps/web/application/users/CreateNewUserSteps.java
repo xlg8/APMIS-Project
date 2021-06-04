@@ -30,7 +30,6 @@ import org.sormas.e2etests.services.UserService;
 public class CreateNewUserSteps implements En {
   private final WebDriverHelpers webDriverHelpers;
   protected static User user;
-  protected static User editUser;
 
   @Inject
   public CreateNewUserSteps(WebDriverHelpers webDriverHelpers, UserService userService) {
@@ -62,40 +61,41 @@ public class CreateNewUserSteps implements En {
           fillGpsLongitude(user.getGpsLongitude());
           fillGpsAccuracy(user.getGpsAccuracy());
           fillUserName(user.getUserName());
+          selectActive();
           selectUserRole(rights);
           selectLimitedDisease(user.getLimitedDisease());
           webDriverHelpers.scrollToElement(SAVE_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(SAVE_BUTTON);
-          webDriverHelpers.waitUntilElementIsVisibleAndClickable(CLOSE_DIALOG_BUTTON);
-          webDriverHelpers.clickOnWebElementBySelector(CLOSE_DIALOG_BUTTON);
+          closeNewPasswordPopUp();
         });
     And(
         "^I change user data and save the changes$",
         () -> {
-          editUser = userService.buildEditUser();
-          fillFirstName(editUser.getFirstName());
-          fillLastName(editUser.getLastName());
-          fillEmailAddress(editUser.getEmailAddress());
-          fillPhoneNumber(editUser.getPhoneNumber());
-          selectLanguage(editUser.getLanguage());
-          selectCountry(editUser.getCountry());
-          selectFacilityCategory(editUser.getFacilityCategory());
-          selectFacilityType(editUser.getFacilityType());
-          selectFacility(editUser.getFacility());
-          fillFacilityNameAndDescription(editUser.getFacilityNameAndDescription());
-          fillStreet(editUser.getStreet());
-          fillHouseNr(editUser.getHouseNumber());
-          fillAdditionalInformation(editUser.getAdditionalInformation());
-          fillPostalCode(editUser.getPostalCode());
-          fillCity(editUser.getCity());
-          selectAreaType(editUser.getAreaType());
-          fillGpsLatitude(editUser.getGpsLatitude());
-          fillGpsLongitude(editUser.getGpsLongitude());
-          fillGpsAccuracy(editUser.getGpsAccuracy());
+          user = userService.buildEditUser();
+          fillFirstName(user.getFirstName());
+          fillLastName(user.getLastName());
+          fillEmailAddress(user.getEmailAddress());
+          fillPhoneNumber(user.getPhoneNumber());
+          selectLanguage(user.getLanguage());
+          selectCountry(user.getCountry());
+          selectFacilityCategory(user.getFacilityCategory());
+          selectFacilityType(user.getFacilityType());
+          selectFacility(user.getFacility());
+          fillFacilityNameAndDescription(user.getFacilityNameAndDescription());
+          fillStreet(user.getStreet());
+          fillHouseNr(user.getHouseNumber());
+          fillAdditionalInformation(user.getAdditionalInformation());
+          fillPostalCode(user.getPostalCode());
+          fillCity(user.getCity());
+          selectAreaType(user.getAreaType());
+          fillGpsLatitude(user.getGpsLatitude());
+          fillGpsLongitude(user.getGpsLongitude());
+          fillGpsAccuracy(user.getGpsAccuracy());
           selectActive();
+          fillUserName(user.getUserName());
           selectActiveUserRole();
-          selectUserRole(editUser.getUserRole());
-          selectLimitedDisease(editUser.getLimitedDisease());
+          selectUserRole(user.getUserRole());
+          selectLimitedDisease(user.getLimitedDisease());
           webDriverHelpers.scrollToElement(CreateNewUserPage.SAVE_BUTTON);
           webDriverHelpers.clickOnWebElementBySelector(CreateNewUserPage.SAVE_BUTTON);
         });
@@ -179,6 +179,7 @@ public class CreateNewUserSteps implements En {
   }
 
   public void selectAreaType(String areaType) {
+    webDriverHelpers.waitForPageLoaded();
     webDriverHelpers.selectFromCombobox(AREA_TYPE_COMBOBOX, areaType);
   }
 
@@ -214,6 +215,11 @@ public class CreateNewUserSteps implements En {
 
   public void selectUserRole(String role) {
     webDriverHelpers.clickWebElementByText(USER_ROLE_CHECKBOX, role);
+  }
+
+  public void closeNewPasswordPopUp() {
+    webDriverHelpers.waitUntilElementIsVisibleAndClickable(CLOSE_DIALOG_BUTTON);
+    webDriverHelpers.clickOnWebElementBySelector(CLOSE_DIALOG_BUTTON);
   }
 
   public void selectLimitedDisease(String limitedDisease) {

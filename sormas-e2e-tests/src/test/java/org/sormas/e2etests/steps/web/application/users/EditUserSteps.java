@@ -28,7 +28,7 @@ import org.sormas.e2etests.pojo.User;
 
 public class EditUserSteps implements En {
   private final WebDriverHelpers webDriverHelpers;
-  public static User aUser;
+  public static User user;
 
   @Inject
   public EditUserSteps(final WebDriverHelpers webDriverHelpers, final SoftAssertions softly) {
@@ -37,80 +37,80 @@ public class EditUserSteps implements En {
     When(
         "^I check the created data is correctly displayed on Edit User Page for selected ([^\"]*)$",
         (String role) -> {
-          aUser = collectUserData();
+          user = collectUserData();
 
           softly
-              .assertThat(aUser.getFirstName())
+              .assertThat(user.getFirstName())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFirstName());
           softly
-              .assertThat(aUser.getLastName())
+              .assertThat(user.getLastName())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getLastName());
           softly
-              .assertThat(aUser.getEmailAddress())
+              .assertThat(user.getEmailAddress())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getEmailAddress());
           softly
-              .assertThat(aUser.getPhoneNumber())
+              .assertThat(user.getPhoneNumber())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getPhoneNumber());
           softly
-              .assertThat(aUser.getLanguage())
+              .assertThat(user.getLanguage())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getLanguage());
           softly
-              .assertThat(aUser.getCountry())
+              .assertThat(user.getCountry())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getCountry());
           softly
-              .assertThat(aUser.getRegion())
+              .assertThat(user.getRegion())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getRegion());
           softly
-              .assertThat(aUser.getDistrict())
+              .assertThat(user.getDistrict())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getDistrict());
           softly
-              .assertThat(aUser.getCommunity())
+              .assertThat(user.getCommunity())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getCommunity());
           softly
-              .assertThat(aUser.getFacilityCategory())
+              .assertThat(user.getFacilityCategory())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityCategory());
           softly
-              .assertThat(aUser.getFacilityType())
+              .assertThat(user.getFacilityType())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityType());
           softly
-              .assertThat(aUser.getFacility())
+              .assertThat(user.getFacility())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacility());
           softly
-              .assertThat(aUser.getFacilityNameAndDescription())
+              .assertThat(user.getFacilityNameAndDescription())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityNameAndDescription());
           softly
-              .assertThat(aUser.getStreet())
+              .assertThat(user.getStreet())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getStreet());
           softly
-              .assertThat(aUser.getHouseNumber())
+              .assertThat(user.getHouseNumber())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getHouseNumber());
           softly
-              .assertThat(aUser.getAdditionalInformation())
+              .assertThat(user.getAdditionalInformation())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getAdditionalInformation());
           softly
-              .assertThat(aUser.getPostalCode())
+              .assertThat(user.getPostalCode())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getPostalCode());
           softly
-              .assertThat(aUser.getCity())
+              .assertThat(user.getCity())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getCity());
           softly
-              .assertThat(aUser.getAreaType())
+              .assertThat(user.getAreaType())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getAreaType());
           softly
-              .assertThat(aUser.getGpsLongitude())
+              .assertThat(user.getGpsLongitude())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsLongitude());
           softly
-              .assertThat(aUser.getGpsLatitude())
+              .assertThat(user.getGpsLatitude())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsLatitude());
           softly
-              .assertThat(aUser.getGpsAccuracy())
+              .assertThat(user.getGpsAccuracy())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsAccuracy());
           softly
-              .assertThat(aUser.getUserName())
+              .assertThat(user.getUserName())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserName());
-          softly.assertThat(aUser.getUserRole()).isEqualToIgnoringCase(role);
+          softly.assertThat(user.getUserRole()).isEqualToIgnoringCase(role);
           softly
-              .assertThat(aUser.getLimitedDisease())
+              .assertThat(user.getLimitedDisease())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getLimitedDisease());
           softly.assertAll();
         });
@@ -118,73 +118,73 @@ public class EditUserSteps implements En {
     Then(
         "^I check the edited data is correctly displayed on Edit User page$",
         () -> {
-          User editUser = collectUserData();
+          final User editUser = collectUserData();
           softly
               .assertThat(editUser.getFirstName())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFirstName());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFirstName());
           softly
               .assertThat(editUser.getLastName())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLastName());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getLastName());
           softly
               .assertThat(editUser.getEmailAddress())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getEmailAddress());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getEmailAddress());
           softly
               .assertThat(editUser.getPhoneNumber())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getPhoneNumber());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getPhoneNumber());
           softly
               .assertThat(editUser.getLanguage())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLanguage());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getLanguage());
           softly
               .assertThat(editUser.getCountry())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getCountry());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getCountry());
           softly
               .assertThat(editUser.getFacilityCategory())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityCategory());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityCategory());
           softly
               .assertThat(editUser.getFacilityType())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityType());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityType());
           softly
               .assertThat(editUser.getFacility())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacility());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacility());
           softly
               .assertThat(editUser.getFacilityNameAndDescription())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getFacilityNameAndDescription());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getFacilityNameAndDescription());
           softly
               .assertThat(editUser.getStreet())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getStreet());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getStreet());
           softly
               .assertThat(editUser.getHouseNumber())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getHouseNumber());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getHouseNumber());
           softly
               .assertThat(editUser.getAdditionalInformation())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getAdditionalInformation());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getAdditionalInformation());
           softly
               .assertThat(editUser.getPostalCode())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getPostalCode());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getPostalCode());
           softly
               .assertThat(editUser.getCity())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getCity());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getCity());
           softly
               .assertThat(editUser.getAreaType())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getAreaType());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getAreaType());
           softly
               .assertThat(editUser.getGpsLongitude())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsLongitude());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsLongitude());
           softly
               .assertThat(editUser.getGpsLatitude())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsLatitude());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsLatitude());
           softly
               .assertThat(editUser.getGpsAccuracy())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getGpsAccuracy());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getGpsAccuracy());
           softly
               .assertThat(editUser.getUserName())
               .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserName());
           softly
               .assertThat(editUser.getUserRole())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getUserRole());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getUserRole());
           softly
               .assertThat(editUser.getLimitedDisease())
-              .isEqualToIgnoringCase(CreateNewUserSteps.editUser.getLimitedDisease());
+              .isEqualToIgnoringCase(CreateNewUserSteps.user.getLimitedDisease());
           softly.assertAll();
         });
   }
