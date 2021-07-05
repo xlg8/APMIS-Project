@@ -253,6 +253,15 @@ public class CaseCreateForm extends AbstractEditForm<CaseDataDto> {
 		communityCombo = addInfrastructureField(CaseDataDto.COMMUNITY);
 		communityCombo.setNullSelectionAllowed(true);
 
+		// initialize jurisdiction fields
+		ComboBox responsibleRegion = addField(CaseDataDto.RESPONSIBLE_REGION);
+		responsibleRegion.setRequired(true);
+		responsibleDistrictCombo = addField(CaseDataDto.RESPONSIBLE_DISTRICT);
+		responsibleDistrictCombo.setRequired(true);
+		responsibleCommunityCombo = addField(CaseDataDto.RESPONSIBLE_COMMUNITY);
+		responsibleCommunityCombo.setNullSelectionAllowed(true);
+		responsibleCommunityCombo.addStyleName(SOFT_REQUIRED);
+
 		FieldHelper.setVisibleWhen(
 			differentPlaceOfStayJurisdiction,
 			Arrays.asList(region, districtCombo, communityCombo),
@@ -405,6 +414,8 @@ public class CaseCreateForm extends AbstractEditForm<CaseDataDto> {
 			region.setReadOnly(true);
 			districtCombo.setReadOnly(true);
 			communityCombo.setReadOnly(true);
+			differentPlaceOfStayJurisdiction.setVisible(false);
+			differentPlaceOfStayJurisdiction.setEnabled(false);
 
 			facilityOrHome.setImmediate(true);
 			facilityOrHome.setValue(Sets.newHashSet(TypeOfPlace.FACILITY)); // [FACILITY]
@@ -436,18 +447,10 @@ public class CaseCreateForm extends AbstractEditForm<CaseDataDto> {
 			});
 		}
 
-		// jurisdiction fields
+		// initialize jurisdiction field handlers
 		Label jurisdictionHeadingLabel = new Label(I18nProperties.getString(Strings.headingCaseResponsibleJurisidction));
 		jurisdictionHeadingLabel.addStyleName(H3);
 		getContent().addComponent(jurisdictionHeadingLabel, RESPONSIBLE_JURISDICTION_HEADING_LOC);
-
-		ComboBox responsibleRegion = addField(CaseDataDto.RESPONSIBLE_REGION);
-		responsibleRegion.setRequired(true);
-		responsibleDistrictCombo = addField(CaseDataDto.RESPONSIBLE_DISTRICT);
-		responsibleDistrictCombo.setRequired(true);
-		responsibleCommunityCombo = addField(CaseDataDto.RESPONSIBLE_COMMUNITY);
-		responsibleCommunityCombo.setNullSelectionAllowed(true);
-		responsibleCommunityCombo.addStyleName(SOFT_REQUIRED);
 
 		InfrastructureFieldsHelper.initInfrastructureFields(responsibleRegion, responsibleDistrictCombo, responsibleCommunityCombo);
 
@@ -545,6 +548,10 @@ public class CaseCreateForm extends AbstractEditForm<CaseDataDto> {
 	private void updateFacility() {
 		final DistrictReferenceDto district;
 		final CommunityReferenceDto community;
+
+		if (UserRole.getJurisdictionLevel(UserProvider.getCurrent().getUserRoles()) == JurisdictionLevel.HEALTH_FACILITY) {
+			return;
+		}
 
 		if (Boolean.TRUE.equals(differentPlaceOfStayJurisdiction.getValue())) {
 			district = (DistrictReferenceDto) districtCombo.getValue();
