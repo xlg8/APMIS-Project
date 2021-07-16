@@ -104,4 +104,28 @@
 			 -->
 		</properties>
 	</persistence-unit>
+
+	<persistence-unit name="jpaTestPU" transaction-type="RESOURCE_LOCAL">
+
+		<!-- As beanTestPU without automatic schema creation, but to execute SQL scripts -->
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+		<shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+		<validation-mode>CALLBACK</validation-mode>
+		<properties>
+      		<property name="hibernate.dialect" value="de.symeda.sormas.backend.ExtendedH2Dialect"/>
+			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE" />
+<!--			<property name="javax.persistence.jdbc.driver" value="com.p6spy.engine.spy.P6SpyDriver" />-->
+<!--			<property name="javax.persistence.jdbc.url" value="jdbc:p6spy:h2:mem:test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE" />-->
+	    	<property name="javax.persistence.jdbc.user" value="sa" />
+	    	<property name="javax.persistence.jdbc.password" value="" />
+
+			<property name="hibernate.temp.use_jdbc_metadata_defaults" value="false"/>
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.format_sql" value="false" />
+		</properties>
+	</persistence-unit>
 </persistence>
