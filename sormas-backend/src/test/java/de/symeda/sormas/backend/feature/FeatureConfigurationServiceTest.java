@@ -1,7 +1,6 @@
 package de.symeda.sormas.backend.feature;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Collectors;
@@ -26,18 +25,31 @@ public class FeatureConfigurationServiceTest extends AbstractBeanTest {
 		assertTrue(featureConfigurationService.getAll().stream().map(e -> e.getFeatureType()).collect(Collectors.toList()).containsAll(FeatureType.getAllServerFeatures()));
 	}
 
+	// FIXME Test fails: Do I get the feature wrong or is there a bug?
 	@Test
 	public void testUpdateFeatureConfigurations() {
 
 		createConfigurations();
-		FeatureConfigurationService featureConfigurationService = getBean(FeatureConfigurationService.class);
+		FeatureConfigurationService cut = getBean(FeatureConfigurationService.class);
+
+		FeatureConfiguration taskManagement = build(FeatureType.TASK_MANAGEMENT, false);
+		FeatureConfiguration taskNotify = build(FeatureType.ASSIGN_TASKS_TO_HIGHER_LEVEL);
+
+		assertFalse(cut.getByUuid(taskManagement.getUuid()).isEnabled());
+		assertTrue(cut.getByUuid(taskNotify.getUuid()).isEnabled());
+
+		assertFalse(getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.TASK_MANAGEMENT));
 
 		/*
 		 * update relies on that all serverFeature configurations are already present,
 		 * that's why the createMissing needs to be run before.
 		 */
-		featureConfigurationService.createMissingFeatureConfigurations();
-		featureConfigurationService.updateFeatureConfigurations();
+		cut.createMissingFeatureConfigurations();
+		cut.updateFeatureConfigurations();
+		assertFalse(getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.TASK_MANAGEMENT));
+		assertFalse(getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.ASSIGN_TASKS_TO_HIGHER_LEVEL));
+		assertFalse(cut.getByUuid(taskManagement.getUuid()).isEnabled());
+		assertFalse(cut.getByUuid(taskNotify.getUuid()).isEnabled());
 	}
 
 	private void createConfigurations() {
@@ -58,13 +70,23 @@ public class FeatureConfigurationServiceTest extends AbstractBeanTest {
 		return build(type, null, null, null);
 	}
 
+	private FeatureConfiguration build(FeatureType type, boolean enabled) {
+
+		return build(type, null, null, null, enabled);
+	}
+
 	private FeatureConfiguration build(FeatureType type, Disease disease, Region region, District district) {
+
+		return build(type, disease, region, district, type.isEnabledDefault());
+	}
+
+	private FeatureConfiguration build(FeatureType type, Disease disease, Region region, District district, boolean enabled) {
 
 		FeatureConfigurationService featureConfigurationService = getBean(FeatureConfigurationService.class);
 
 		FeatureConfiguration entity = new FeatureConfiguration();
 		entity.setFeatureType(type);
-		entity.setEnabled(type.isEnabledDefault());
+		entity.setEnabled(enabled);
 		entity.setDisease(disease);
 		entity.setRegion(region);
 		entity.setDistrict(district);
