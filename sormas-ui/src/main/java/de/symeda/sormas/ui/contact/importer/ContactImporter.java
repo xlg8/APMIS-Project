@@ -314,7 +314,12 @@ public class ContactImporter extends DataImporter {
 						continue;
 					} else if (propertyType.isAssignableFrom(DistrictReferenceDto.class)) {
 						List<DistrictReferenceDto> district = FacadeProvider.getDistrictFacade()
-							.getByName(entry, ImporterPersonHelper.getRegionBasedOnDistrict(pd.getName(), contact, person, currentElement), false);
+							.getByName(
+								entry,
+								((ContactDto) currentElement).getRegion() != null
+									? ((ContactDto) currentElement).getRegion()
+									: ImporterPersonHelper.getRegionBasedOnDistrict(pd.getName(), contact, person, currentElement),
+								false);
 						if (district.isEmpty()) {
 							throw new ImportErrorException(
 								I18nProperties
@@ -326,8 +331,13 @@ public class ContactImporter extends DataImporter {
 							pd.getWriteMethod().invoke(currentElement, district.get(0));
 						}
 					} else if (propertyType.isAssignableFrom(CommunityReferenceDto.class)) {
-						List<CommunityReferenceDto> community =
-							FacadeProvider.getCommunityFacade().getByName(entry, ImporterPersonHelper.getPersonDistrict(pd.getName(), person), false);
+						List<CommunityReferenceDto> community = FacadeProvider.getCommunityFacade()
+							.getByName(
+								entry,
+								((ContactDto) currentElement).getDistrict() != null
+									? ((ContactDto) currentElement).getDistrict()
+									: ImporterPersonHelper.getPersonDistrict(pd.getName(), person),
+								false);
 						if (community.isEmpty()) {
 							throw new ImportErrorException(
 								I18nProperties.getValidationError(
