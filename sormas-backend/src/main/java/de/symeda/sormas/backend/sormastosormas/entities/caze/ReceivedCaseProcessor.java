@@ -107,25 +107,27 @@ public class ReceivedCaseProcessor
 
 		ValidationErrors caseValidationErrors = new ValidationErrors();
 
-		DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> infrastructureAndErrors = infraValidator.loadLocalInfrastructure(
-			preview.getRegion(),
-			preview.getDistrict(),
-			preview.getCommunity(),
-			preview.getFacilityType(),
-			preview.getHealthFacility(),
-			preview.getHealthFacilityDetails(),
-			preview.getPointOfEntry(),
-			preview.getPointOfEntryDetails());
-
-		infraValidator.handleInfraStructure(infrastructureAndErrors, Captions.CaseData, caseValidationErrors, infrastructureData -> {
-			preview.setRegion(infrastructureData.getRegion());
-			preview.setDistrict(infrastructureData.getDistrict());
-			preview.setCommunity(infrastructureData.getCommunity());
-			preview.setHealthFacility(infrastructureData.getFacility());
-			preview.setHealthFacilityDetails(infrastructureData.getFacilityDetails());
-			preview.setPointOfEntry(infrastructureData.getPointOfEntry());
-			preview.setPointOfEntryDetails(infrastructureData.getPointOfEntryDetails());
-		});
+		/*
+		 * DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> infrastructureAndErrors =
+		 * infraValidator.processCaseInfrastructure(
+		 * preview.getRegion(),
+		 * preview.getDistrict(),
+		 * preview.getCommunity(),
+		 * preview.getFacilityType(),
+		 * preview.getHealthFacility(),
+		 * preview.getHealthFacilityDetails(),
+		 * preview.getPointOfEntry(),
+		 * preview.getPointOfEntryDetails());
+		 * infraValidator.handleInfraStructure(infrastructureAndErrors, Captions.CaseData, caseValidationErrors, infrastructureData -> {
+		 * preview.setRegion(infrastructureData.getRegion());
+		 * preview.setDistrict(infrastructureData.getDistrict());
+		 * preview.setCommunity(infrastructureData.getCommunity());
+		 * preview.setHealthFacility(infrastructureData.getFacility());
+		 * preview.setHealthFacilityDetails(infrastructureData.getFacilityDetails());
+		 * preview.setPointOfEntry(infrastructureData.getPointOfEntry());
+		 * preview.setPointOfEntryDetails(infrastructureData.getPointOfEntryDetails());
+		 * });
+		 */
 
 		if (caseValidationErrors.hasError()) {
 			validationErrors.add(new ValidationErrors(buildCaseValidationGroupName(preview), caseValidationErrors));
@@ -156,20 +158,41 @@ public class ReceivedCaseProcessor
 		caze.setPerson(person.toReference());
 		dataProcessorHelper.updateReportingUser(caze, existingCaseData);
 
-		DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> infrastructureAndErrors = infraValidator.loadLocalInfrastructure(caze);
 
-		infraValidator.handleInfraStructure(infrastructureAndErrors, Captions.CaseData, caseValidationErrors, infrastructureData -> {
-			caze.setResponsibleRegion(infrastructureData.getResponsibleRegion());
-			caze.setResponsibleDistrict(infrastructureData.getResponsibleDistrict());
-			caze.setResponsibleCommunity(infrastructureData.getResponsibleCommunity());
-			caze.setRegion(infrastructureData.getRegion());
-			caze.setDistrict(infrastructureData.getDistrict());
-			caze.setCommunity(infrastructureData.getCommunity());
-			caze.setHealthFacility(infrastructureData.getFacility());
-			caze.setHealthFacilityDetails(infrastructureData.getFacilityDetails());
-			caze.setPointOfEntry(infrastructureData.getPointOfEntry());
-			caze.setPointOfEntryDetails(infrastructureData.getPointOfEntryDetails());
-		});
+
+		/*
+		 * caze.getRegion(),
+		 * caze.getDistrict(),
+		 * caze.getCommunity(),
+		 * caze.getFacilityType(),
+		 * caze.getHealthFacility(),
+		 * caze.getHealthFacilityDetails(),
+		 * caze.getPointOfEntry(),
+		 * caze.getPointOfEntryDetails()
+		 * InfrastructureValidator.InfrastructureData infrastructureData = infrastructureAndErrors.getElement0();
+		 * List<ValidationErrorMessage> unmatchedFields = infrastructureAndErrors.getElement1();
+		 * RegionReferenceDto responsibleRegion = caze.getResponsibleRegion();
+		 * infrastructureData.responsibleRegion = processRegion(responsibleRegion);
+		 * if (responsibleRegion != null && infrastructureData.responsibleRegion == null) {
+		 * unmatchedFields.add(new ValidationErrorMessage(Validations.sormasToSormasResponsibleRegion, responsibleRegion.getCaption()));
+		 * }
+		 * DistrictReferenceDto responsibleDistrict = caze.getResponsibleDistrict();
+		 * infrastructureData.responsibleDistrict = processDistrict(responsibleDistrict);
+		 * if (responsibleDistrict != null && infrastructureData.responsibleDistrict == null) {
+		 * unmatchedFields.add(new ValidationErrorMessage(Validations.sormasToSormasResponsibleDistrict, responsibleDistrict.getCaption()));
+		 * }
+		 * CommunityReferenceDto responsibleCommunity = caze.getResponsibleCommunity();
+		 * infrastructureData.responsibleCommunity = processCommunity(responsibleCommunity);
+		 * if (responsibleCommunity != null && infrastructureData.responsibleCommunity == null) {
+		 * unmatchedFields.add(new ValidationErrorMessage(Validations.sormasToSormasResponsibleCommunity,
+		 * responsibleCommunity.getCaption()));
+		 * }
+		 * return infrastructureAndErrors;
+		 */
+
+
+
+		caseValidationErrors.addAll(infraValidator.processCaseInfrastructure(caze, Captions.CaseData));
 
 		ValidationErrors embeddedObjectErrors = processEmbeddedObjects(caze);
 		caseValidationErrors.addAll(embeddedObjectErrors);
@@ -183,52 +206,42 @@ public class ReceivedCaseProcessor
 		if (caze.getHospitalization() != null) {
 
 			caze.getHospitalization().getPreviousHospitalizations().forEach(ph -> {
-
-				DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> phInfrastructureAndErrors = infraValidator.loadLocalInfrastructure(
-					ph.getRegion(),
-					ph.getDistrict(),
-					ph.getCommunity(),
-					FacilityType.HOSPITAL,
-					ph.getHealthFacility(),
-					ph.getHealthFacilityDetails(),
-					null,
-					null);
-
-				infraValidator.handleInfraStructure(
-					phInfrastructureAndErrors,
-					Captions.CaseHospitalization_previousHospitalizations,
-					validationErrors,
-					(phInfrastructure) -> {
-						ph.setRegion(phInfrastructure.getRegion());
-						ph.setDistrict(phInfrastructure.getDistrict());
-						ph.setCommunity(phInfrastructure.getCommunity());
-						ph.setHealthFacility(phInfrastructure.getFacility());
-						ph.setHealthFacilityDetails(phInfrastructure.getFacilityDetails());
-					});
+				/*
+				 * DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> phInfrastructureAndErrors =
+				 * infraValidator.processCaseInfrastructure(
+				 * ph.getRegion(),
+				 * ph.getDistrict(),
+				 * ph.getCommunity(),
+				 * FacilityType.HOSPITAL,
+				 * ph.getHealthFacility(),
+				 * ph.getHealthFacilityDetails(),
+				 * null,
+				 * null);
+				 * infraValidator.handleInfraStructure(
+				 * phInfrastructureAndErrors,
+				 * Captions.CaseHospitalization_previousHospitalizations,
+				 * validationErrors,
+				 * (phInfrastructure) -> {
+				 * ph.setRegion(phInfrastructure.getRegion());
+				 * ph.setDistrict(phInfrastructure.getDistrict());
+				 * ph.setCommunity(phInfrastructure.getCommunity());
+				 * ph.setHealthFacility(phInfrastructure.getFacility());
+				 * ph.setHealthFacilityDetails(phInfrastructure.getFacilityDetails());
+				 * });
+				 */
 			});
 		}
 
 		MaternalHistoryDto maternalHistory = caze.getMaternalHistory();
 		if (maternalHistory != null) {
 
-			DataHelper.Pair<InfrastructureValidator.InfrastructureData, List<ValidationErrorMessage>> rashExposureInfrastructureAndErrors = infraValidator.loadLocalInfrastructure(
-				maternalHistory.getRashExposureRegion(),
-				maternalHistory.getRashExposureDistrict(),
-				maternalHistory.getRashExposureCommunity());
+			validationErrors.addAll(infraValidator.processRegion(maternalHistory.getRashExposureRegion(), Captions.MaternalHistory_rashExposure));
+			validationErrors.addAll(infraValidator.processDistrict(maternalHistory.getRashExposureDistrict(), Captions.MaternalHistory_rashExposure));
+			validationErrors
+				.addAll(infraValidator.processCommunity(maternalHistory.getRashExposureCommunity(), Captions.MaternalHistory_rashExposure));
 
-			infraValidator.handleInfraStructure(
-				rashExposureInfrastructureAndErrors,
-				Captions.MaternalHistory_rashExposure,
-				validationErrors,
-				(rashExposureInfrastructure) -> {
-					maternalHistory.setRashExposureRegion(rashExposureInfrastructure.getRegion());
-					maternalHistory.setRashExposureDistrict(rashExposureInfrastructure.getDistrict());
-					maternalHistory.setRashExposureCommunity(rashExposureInfrastructure.getCommunity());
-				});
+			dataProcessorHelper.processEpiData(caze.getEpiData(), validationErrors);
 		}
-
-		dataProcessorHelper.processEpiData(caze.getEpiData(), validationErrors);
-
 		return validationErrors;
 	}
 
