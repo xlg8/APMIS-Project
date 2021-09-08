@@ -267,7 +267,7 @@
 			<dependency>
 				<groupId>org.glassfish.soteria</groupId>
 				<artifactId>javax.security.enterprise</artifactId>
-				<version>1.0</version>
+				<version>1.1-b01.payara-p4</version>
 				<scope>provided</scope>
 				<!-- Avoid problems with finding the dependencies in Maven repos fixed by Payara -->
 			</dependency>
