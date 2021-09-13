@@ -162,41 +162,44 @@ public class InfrastructureValidator {
 
 	public ValidationErrors processInfrastructure(CentralInfra type, InfrastructureDataReferenceDto referenceDto, String errorCaption) {
 		ValidationErrors validationErrors = new ValidationErrors();
+		if (referenceDto == null) {
+			return validationErrors;
+		}
+
+		String errorMessage = null;
 		InfrastructureAdo loadedInfra = null;
-		String errorMessage = "";
 		switch (type) {
 
 		case CONTINENT:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Continent.class);
-			errorMessage = ((Continent) loadedInfra).getDefaultName();
+			errorMessage = Validations.sormasToSormasContinent;
 			break;
 		case SUB_CONTINENT:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Subcontinent.class);
-			errorMessage = ((Subcontinent) loadedInfra).getDefaultName();
+			errorMessage = Validations.sormasToSormasSubcontinent;
 			break;
 		case COUNTRY:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Country.class);
-			errorMessage = ((Country) loadedInfra).getDefaultName();
 			break;
 		case REGION:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Region.class);
-			errorMessage = ((Region) loadedInfra).getName();
+			errorMessage = Validations.sormasToSormasRegion;
 			break;
 		case DISTRICT:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), District.class);
-			errorMessage = ((District) loadedInfra).getName();
+			errorMessage = Validations.sormasToSormasDistrict;
 			break;
 		case COMMUNITY:
 			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Community.class);
-			errorMessage = ((Community) loadedInfra).getName();
+			errorMessage = Validations.sormasToSormasCommunity;
 			break;
 		default:
 			throw new IllegalStateException("Unexpected value: " + type);
 		}
 
 		// todo equality check missing
-		if (referenceDto != null && loadedInfra == null) {
-			validationErrors.add(new ValidationErrorGroup(errorCaption), new ValidationErrorMessage(Validations.sormasToSormasCountry, errorMessage));
+		if (loadedInfra == null) {
+			validationErrors.add(new ValidationErrorGroup(errorCaption), new ValidationErrorMessage(errorMessage, referenceDto.getCaption()));
 		}
 		return validationErrors;
 	}
@@ -205,6 +208,7 @@ public class InfrastructureValidator {
 		FacilityReferenceDto facility,
 		FacilityType facilityType,
 		String facilityDetails) {
+
 		String facilityUuid = facility.getUuid();
 
 		if (FacilityDto.CONSTANT_FACILITY_UUIDS.contains(facilityUuid)) {
@@ -241,9 +245,14 @@ public class InfrastructureValidator {
 	}
 
 	public ValidationErrors processFacility(FacilityReferenceDto facility, FacilityType facilityType, String facilityDetails, String errorCaption) {
+		ValidationErrors validationErrors = new ValidationErrors();
+		if (facility == null) {
+			return validationErrors;
+		}
+
 		// todo set details correctly
 		// call all setters correctly
-		ValidationErrors validationErrors = new ValidationErrors();
+
 		WithDetails<FacilityReferenceDto> tmp = loadFacility(facility, facilityType, facilityDetails);
 		FacilityReferenceDto localFacility = tmp.entity;
 		if (facility != null && localFacility == null) {
@@ -294,6 +303,10 @@ public class InfrastructureValidator {
 
 	public ValidationErrors processPointOfEntry(PointOfEntryReferenceDto pointOfEntry, String pointOfEntryDetails, String errorCaption) {
 		ValidationErrors validationErrors = new ValidationErrors();
+		if (pointOfEntry == null) {
+			return validationErrors;
+		}
+
 		WithDetails<PointOfEntryReferenceDto> tmp = loadPointOfEntry(pointOfEntry, pointOfEntryDetails);
 		PointOfEntryReferenceDto localPointOfEntry = tmp.entity;
 		if (pointOfEntry != null && localPointOfEntry == null) {
