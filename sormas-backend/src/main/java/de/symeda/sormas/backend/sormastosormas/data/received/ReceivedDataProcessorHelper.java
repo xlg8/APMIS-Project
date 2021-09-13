@@ -122,9 +122,12 @@ public class ReceivedDataProcessorHelper {
 			validationErrors.addAll(infraValidator.processLocation(address, Captions.Person));
 		});
 
-		validationErrors.addAll(infraValidator.processCountry(person.getBirthCountry(), Captions.Person_birthCountry));
+		validationErrors.addAll(
+			infraValidator
+				.processInfrastructure(InfrastructureValidator.CentralInfra.COUNTRY, person.getBirthCountry(), Captions.Person_birthCountry));
 
-		validationErrors.addAll(infraValidator.processCountry(person.getCitizenship(), Captions.Person_citizenship));
+		validationErrors.addAll(
+			infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.COUNTRY, person.getCitizenship(), Captions.Person_citizenship));
 
 		return validationErrors;
 	}
@@ -181,9 +184,12 @@ public class ReceivedDataProcessorHelper {
 
 		contact.setPerson(person.toReference());
 		updateReportingUser(contact, existingContact);
-		validationErrors.addAll(infraValidator.processRegion(contact.getRegion(), Captions.Contact));
-		validationErrors.addAll(infraValidator.processDistrict(contact.getDistrict(), Captions.Contact));
-		validationErrors.addAll(infraValidator.processCommunity(contact.getCommunity(), Captions.Contact));
+		validationErrors
+			.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, contact.getRegion(), Captions.Contact));
+		validationErrors
+			.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.DISTRICT, contact.getDistrict(), Captions.Contact));
+		validationErrors
+			.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.COMMUNITY, contact.getCommunity(), Captions.Contact));
 
 		processEpiData(contact.getEpiData(), validationErrors);
 
@@ -193,9 +199,12 @@ public class ReceivedDataProcessorHelper {
 	public ValidationErrors processContactPreview(SormasToSormasContactPreview contact) {
 		ValidationErrors validationErrors = new ValidationErrors();
 
-		validationErrors.addAll(infraValidator.processRegion(contact.getRegion(), Captions.Contact));
-		validationErrors.addAll(infraValidator.processDistrict(contact.getDistrict(), Captions.Contact));
-		validationErrors.addAll(infraValidator.processCommunity(contact.getCommunity(), Captions.Contact));
+		validationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, contact.getRegion(), Captions.Contact));
+		validationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.DISTRICT, contact.getDistrict(), Captions.Contact));
+		validationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.COMMUNITY, contact.getCommunity(), Captions.Contact));
 
 		return validationErrors;
 	}

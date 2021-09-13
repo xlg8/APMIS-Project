@@ -144,8 +144,12 @@ public class ReceivedEventProcessor
 			ValidationErrors personValidationErrors = dataProcessorHelper.processPerson(eventParticipant.getPerson());
 			validationErrors.addAll(personValidationErrors);
 
-			validationErrors.addAll(infraValidator.processRegion(eventParticipant.getRegion(), Captions.EventParticipant));
-			validationErrors.addAll(infraValidator.processDistrict(eventParticipant.getDistrict(), Captions.EventParticipant));
+			validationErrors.addAll(
+				infraValidator
+					.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, eventParticipant.getRegion(), Captions.EventParticipant));
+			validationErrors.addAll(
+				infraValidator
+					.processInfrastructure(InfrastructureValidator.CentralInfra.DISTRICT, eventParticipant.getDistrict(), Captions.EventParticipant));
 
 			if (validationErrors.hasError()) {
 				errors.add(new ValidationErrors(buildEventParticipantValidationGroupName(eventParticipant), validationErrors));
