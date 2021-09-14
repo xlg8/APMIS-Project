@@ -107,6 +107,8 @@ public class ReceivedCaseProcessor
 
 		ValidationErrors caseValidationErrors = new ValidationErrors();
 
+
+
 		caseValidationErrors
 			.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, preview.getRegion(), Captions.CaseData));
 		caseValidationErrors
@@ -147,6 +149,13 @@ public class ReceivedCaseProcessor
 
 		caze.setPerson(person.toReference());
 		dataProcessorHelper.updateReportingUser(caze, existingCaseData);
+
+		caseValidationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, caze.getResponsibleRegion(), Captions.CaseData));
+		caseValidationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.DISTRICT, caze.getResponsibleDistrict(), Captions.CaseData));
+		caseValidationErrors
+				.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.COMMUNITY, caze.getResponsibleCommunity(), Captions.CaseData));
 
 		caseValidationErrors
 			.addAll(infraValidator.processInfrastructure(InfrastructureValidator.CentralInfra.REGION, caze.getRegion(), Captions.CaseData));

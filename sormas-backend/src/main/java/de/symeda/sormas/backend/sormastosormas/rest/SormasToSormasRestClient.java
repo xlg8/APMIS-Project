@@ -86,7 +86,6 @@ public class SormasToSormasRestClient {
 
 	public <T> T post(String receiverId, String endpoint, Object body, Class<T> responseType) throws SormasToSormasException {
 		return sendRequest(receiverId, endpoint, body, responseType, HttpMethod.POST);
-
 	}
 
 	public <T> T put(String receiverId, String endpoint, Object body, Class<T> responseType) throws SormasToSormasException {

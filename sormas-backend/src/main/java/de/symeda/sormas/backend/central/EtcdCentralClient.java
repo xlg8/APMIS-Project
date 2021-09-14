@@ -3,10 +3,10 @@ package de.symeda.sormas.backend.central;
 import com.google.common.io.Resources;
 import com.google.protobuf.ByteString;
 
+import com.ibm.etcd.api.RangeResponse;
 import com.ibm.etcd.client.EtcdClient;
 import com.ibm.etcd.client.KvStoreClient;
 import com.ibm.etcd.client.kv.KvClient;
-
 
 import de.symeda.sormas.backend.common.ConfigFacadeEjb;
 
@@ -33,7 +33,6 @@ public class EtcdCentralClient {
 
 	private KvStoreClient createEtcdClient() throws IOException {
 		String[] hostPort = configFacadeEjb.getCentralEtcdHost().split(":");
-
 
 		URL truststorePath;
 		try {
@@ -70,7 +69,26 @@ public class EtcdCentralClient {
 			return etcd.get(ByteString.copyFromUtf8(path)).asPrefix().sync().getKvsList().stream().map(KeyValue::new).collect(Collectors.toList());
 
 		}
+	}
 
+	public KeyValue get(String key) throws IOException {
+		// use resource auto-close
+		try (KvStoreClient etcdClient = createEtcdClient()) {
+			KvClient etcd = etcdClient.getKvClient();
+
+			if (etcd == null) {
+				LOGGER.error("Could not create an etcd KV client.");
+				return null;
+			}
+
+			RangeResponse range = etcd.get(ByteString.copyFromUtf8(key)).sync();
+			if (range.getCount() == 0) {
+				LOGGER.error("There is no value available for key {}", key);
+				return null;
+			}
+			return new KeyValue(range.getKvs(0));
+
+		}
 	}
 
 	public static class KeyValue {

@@ -62,7 +62,7 @@ public class SormasToSormasDiscoveryService {
 
 		try {
 			String key = String.format(configFacadeEjb.getS2SConfig().getKeyPrefixTemplate(), id);
-			EtcdCentralClient.KeyValue result = centralClient.getWithPrefix(key).get(0);
+			EtcdCentralClient.KeyValue result = centralClient.get(key);
 
 			SormasServerDescriptor descriptor = buildSormasServerDescriptor(result);
 			LOGGER.info("Fetched SormasServerDescriptor for {}.", id);

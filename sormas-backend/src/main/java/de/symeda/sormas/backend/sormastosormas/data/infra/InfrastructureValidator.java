@@ -4,34 +4,19 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Resources;
-import com.google.protobuf.ByteString;
-import com.ibm.etcd.api.KeyValue;
-import com.ibm.etcd.client.EtcdClient;
-import com.ibm.etcd.client.KvStoreClient;
-import com.ibm.etcd.client.kv.KvClient;
+
 import de.symeda.sormas.api.InfrastructureDataReferenceDto;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.infrastructure.continent.ContinentDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryDto;
 import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryReferenceDto;
-import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
 import de.symeda.sormas.api.location.LocationDto;
-import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
-import de.symeda.sormas.api.infrastructure.continent.ContinentReferenceDto;
-import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.sormastosormas.SormasServerDescriptor;
-import de.symeda.sormas.api.sormastosormas.SormasToSormasConfig;
 import de.symeda.sormas.api.sormastosormas.validation.ValidationErrorGroup;
 import de.symeda.sormas.api.sormastosormas.validation.ValidationErrorMessage;
 import de.symeda.sormas.api.sormastosormas.validation.ValidationErrors;
+import de.symeda.sormas.backend.central.EtcdCentralClient;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb;
 import de.symeda.sormas.backend.common.InfrastructureAdo;
 import de.symeda.sormas.backend.infrastructure.community.Community;
@@ -48,16 +33,17 @@ import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.subcontinent.Subcontinent;
 import de.symeda.sormas.backend.infrastructure.subcontinent.SubcontinentFacadeEjb;
-import de.symeda.sormas.backend.location.Location;
 import de.symeda.sormas.backend.sample.SampleFacadeEjb;
 import de.symeda.sormas.backend.sormastosormas.access.SormasToSormasDiscoveryService;
 import de.symeda.sormas.backend.user.UserService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -91,6 +77,8 @@ public class InfrastructureValidator {
 	private SampleFacadeEjb.SampleFacadeEjbLocal sampleFacade;
 	@EJB
 	private ConfigFacadeEjb.ConfigFacadeEjbLocal configFacadeEjb;
+	@Inject
+	private EtcdCentralClient centralClient;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SormasToSormasDiscoveryService.class);
 
@@ -103,61 +91,27 @@ public class InfrastructureValidator {
 		COMMUNITY
 	}
 
-	private KvStoreClient createEtcdClient() throws IOException {
-		String[] hostPort = configFacadeEjb.getCentralEtcdHost().split(":");
-		SormasToSormasConfig sormasToSormasConfig = configFacadeEjb.getS2SConfig();
-
-		URL truststorePath;
-		try {
-			truststorePath = Paths.get(configFacadeEjb.getCentralEtcdCaPath()).toUri().toURL();
-		} catch (MalformedURLException e) {
-			LOGGER.error("Etcd Url is malformed: %s", e);
-			throw e;
-		}
-
-		KvStoreClient client;
-		try {
-			client = EtcdClient.forEndpoint(hostPort[0], Integer.parseInt(hostPort[1]))
-				.withCredentials(sormasToSormasConfig.getEtcdClientName(), sormasToSormasConfig.getEtcdClientPassword())
-				.withCaCert(Resources.asByteSource(truststorePath))
-				.build();
-		} catch (IOException e) {
-			LOGGER.error("Could not load Etcd CA cert: %s", e);
-			throw e;
-		}
-
-		LOGGER.info("Etcd client created successfully.");
-		return client;
-	}
-
 	private <T> T loadFromEtcd(String uuid, Class<T> clazz) {
-		// use resource auto-close
-		try (KvStoreClient etcdClient = createEtcdClient()) {
-			KvClient etcd = etcdClient.getKvClient();
 
-			if (etcd == null) {
-				//LOGGER.error((I18nProperties.getString(Strings.errorSormasToSormasServerAccess)));
-				return null;
-			}
-
-			String key = String.format("/central/location/%s/%s", clazz.getSimpleName().toLowerCase(Locale.ROOT), uuid);
-			KeyValue result = etcd.get(ByteString.copyFromUtf8(key)).sync().getKvsList().get(0);
-
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-			mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-			try {
-				return mapper.readValue(result.getValue().toStringUtf8(), clazz);
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Could not serialize location object.");
-				return null;
-			}
-
-		} catch (Exception e) {
-			LOGGER.error((I18nProperties.getString(Strings.errorSormasToSormasServerAccess)));
-			LOGGER.error("Unexpected error while reading SormasServerDescriptor data.", e);
+		String key = String.format("/central/location/%s/%s", clazz.getSimpleName().toLowerCase(Locale.ROOT), uuid);
+		EtcdCentralClient.KeyValue result = null;
+		try {
+			result = centralClient.get(key);
+		} catch (IOException e) {
+			LOGGER.error("Could not load data for UUID {} of type {}: %s", uuid, clazz.getSimpleName(), e);
 			return null;
 		}
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+		try {
+			return mapper.readValue(result.getValue(), clazz);
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Could not serialize location object.");
+			return null;
+		}
+
 	}
 
 	public ValidationErrors processInfrastructure(CentralInfra type, InfrastructureDataReferenceDto referenceDto, String errorCaption) {
