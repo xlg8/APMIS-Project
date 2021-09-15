@@ -102,6 +102,8 @@ import de.symeda.sormas.backend.user.event.UserUpdateEvent;
 import de.symeda.sormas.backend.util.MockDataGenerator;
 import de.symeda.sormas.backend.util.ModelConstants;
 
+import static de.symeda.sormas.api.utils.DataHelper.createNilUuid;
+
 @Singleton(name = "StartupShutdownService")
 @Startup
 @RunAs(UserRole._SYSTEM)
@@ -224,12 +226,13 @@ public class StartupShutdownService {
 			logger.info("Skipping the creation of default infrastructure data");
 			return;
 		}
+		final String nilUuid = createNilUuid();
 
 		// Region
 		Region region = null;
 		if (regionService.count() == 0) {
 			region = new Region();
-			region.setUuid(DataHelper.createUuid());
+			region.setUuid(nilUuid);
 			region.setName(I18nProperties.getCaption(Captions.defaultRegion, "Default Region"));
 			region.setEpidCode("DEF-REG");
 			region.setDistricts(new ArrayList<District>());
@@ -240,7 +243,7 @@ public class StartupShutdownService {
 		District district = null;
 		if (districtService.count() == 0) {
 			district = new District();
-			district.setUuid(DataHelper.createUuid());
+			district.setUuid(nilUuid);
 			district.setName(I18nProperties.getCaption(Captions.defaultDistrict, "Default District"));
 			if (region == null) {
 				region = regionService.getAll().get(0);
@@ -256,7 +259,7 @@ public class StartupShutdownService {
 		Community community = null;
 		if (communityService.count() == 0) {
 			community = new Community();
-			community.setUuid(DataHelper.createUuid());
+			community.setUuid(nilUuid);
 			community.setName(I18nProperties.getCaption(Captions.defaultCommunity, "Default Community"));
 			if (district == null) {
 				district = districtService.getAll().get(0);

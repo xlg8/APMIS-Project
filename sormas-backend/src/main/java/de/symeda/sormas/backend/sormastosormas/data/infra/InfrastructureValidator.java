@@ -97,8 +97,12 @@ public class InfrastructureValidator {
 		EtcdCentralClient.KeyValue result = null;
 		try {
 			result = centralClient.get(key);
+			if (result == null) {
+				LOGGER.error("Not value for key {} found", key);
+				return null;
+			}
 		} catch (IOException e) {
-			LOGGER.error("Could not load data for UUID {} of type {}: %s", uuid, clazz.getSimpleName(), e);
+			LOGGER.error("Could not load data for UUID {} of type {} due to IO: %s", uuid, clazz.getSimpleName(), e);
 			return null;
 		}
 
@@ -108,43 +112,45 @@ public class InfrastructureValidator {
 		try {
 			return mapper.readValue(result.getValue(), clazz);
 		} catch (JsonProcessingException e) {
-			LOGGER.error("Could not serialize location object.");
+			LOGGER.error("Could not serialize location object: %s", e);
 			return null;
 		}
 
 	}
 
-	public ValidationErrors processInfrastructure(CentralInfra type, InfrastructureDataReferenceDto referenceDto, String errorCaption) {
+	public ValidationErrors processInfrastructure(CentralInfra type, InfrastructureDataReferenceDto refToCheck, String errorCaption) {
 		ValidationErrors validationErrors = new ValidationErrors();
-		if (referenceDto == null) {
+		if (refToCheck == null) {
 			return validationErrors;
 		}
 
 		String errorMessage = null;
-		InfrastructureAdo loadedInfra = null;
+		InfrastructureAdo centralInfra;
+		final String checkUuid = refToCheck.getUuid();
+
 		switch (type) {
 
 		case CONTINENT:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Continent.class);
+			centralInfra = loadFromEtcd(checkUuid, Continent.class);
 			errorMessage = Validations.sormasToSormasContinent;
 			break;
 		case SUB_CONTINENT:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Subcontinent.class);
+			centralInfra = loadFromEtcd(checkUuid, Subcontinent.class);
 			errorMessage = Validations.sormasToSormasSubcontinent;
 			break;
 		case COUNTRY:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Country.class);
+			centralInfra = loadFromEtcd(checkUuid, Country.class);
 			break;
 		case REGION:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Region.class);
+			centralInfra = loadFromEtcd(checkUuid, Region.class);
 			errorMessage = Validations.sormasToSormasRegion;
 			break;
 		case DISTRICT:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), District.class);
+			centralInfra = loadFromEtcd(checkUuid, District.class);
 			errorMessage = Validations.sormasToSormasDistrict;
 			break;
 		case COMMUNITY:
-			loadedInfra = loadFromEtcd(referenceDto.getUuid(), Community.class);
+			centralInfra = loadFromEtcd(checkUuid, Community.class);
 			errorMessage = Validations.sormasToSormasCommunity;
 			break;
 		default:
@@ -152,8 +158,8 @@ public class InfrastructureValidator {
 		}
 
 		// todo equality check missing
-		if (loadedInfra == null) {
-			validationErrors.add(new ValidationErrorGroup(errorCaption), new ValidationErrorMessage(errorMessage, referenceDto.getCaption()));
+		if (centralInfra == null) {
+			validationErrors.add(new ValidationErrorGroup(errorCaption), new ValidationErrorMessage(errorMessage, refToCheck.getCaption()));
 		}
 		return validationErrors;
 	}
