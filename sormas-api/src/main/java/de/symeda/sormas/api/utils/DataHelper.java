@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -64,6 +65,11 @@ public final class DataHelper {
 		byte[] bytes = longToBytes(randomUuid.getLeastSignificantBits(), randomUuid.getMostSignificantBits());
 		String uuid = Base32.encode(bytes, 6);
 		return uuid;
+	}
+
+	public static String createNilUuid() {
+		// see https://datatracker.ietf.org/doc/html/rfc4122.html#section-4.1.7
+		return new UUID(0, 0).toString();
 	}
 
 	public static boolean isSame(HasUuid left, HasUuid right) {

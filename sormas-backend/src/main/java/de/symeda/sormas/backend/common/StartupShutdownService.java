@@ -53,6 +53,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
+import de.symeda.sormas.backend.central.EtcdCentralClient;
+import de.symeda.sormas.backend.infrastructure.district.DistrictFacadeEjb;
+import de.symeda.sormas.backend.infrastructure.region.RegionFacadeEjb;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +137,11 @@ public class StartupShutdownService {
 	@EJB
 	private ContactService contactService;
 	@EJB
+	private RegionFacadeEjb.RegionFacadeEjbLocal regionFacadeEjb;
+	@EJB
 	private RegionService regionService;
+	@EJB
+	private DistrictFacadeEjb.DistrictFacadeEjbLocal districtFacadeEjb;
 	@EJB
 	private DistrictService districtService;
 	@EJB
@@ -162,6 +171,9 @@ public class StartupShutdownService {
 	@Inject
 	private Event<PasswordResetEvent> passwordResetEvent;
 
+	@Inject
+	private EtcdCentralClient centralClient;
+
 	static boolean isBlankOrSqlComment(String sqlLine) {
 		return SQL_COMMENT_PATTERN.matcher(sqlLine).matches();
 	}
@@ -190,6 +202,8 @@ public class StartupShutdownService {
 		I18nProperties.setDefaultLanguage(Language.fromLocaleString(configFacade.getCountryLocale()));
 
 		createDefaultInfrastructureData();
+
+		syncWithCentral();
 
 		facilityService.createConstantFacilities();
 
@@ -229,7 +243,7 @@ public class StartupShutdownService {
 		Region region = null;
 		if (regionService.count() == 0) {
 			region = new Region();
-			region.setUuid(DataHelper.createUuid());
+			region.setUuid(DataHelper.createNilUuid());
 			region.setName(I18nProperties.getCaption(Captions.defaultRegion, "Default Region"));
 			region.setEpidCode("DEF-REG");
 			region.setDistricts(new ArrayList<District>());
@@ -240,7 +254,7 @@ public class StartupShutdownService {
 		District district = null;
 		if (districtService.count() == 0) {
 			district = new District();
-			district.setUuid(DataHelper.createUuid());
+			district.setUuid(DataHelper.createNilUuid());
 			district.setName(I18nProperties.getCaption(Captions.defaultDistrict, "Default District"));
 			if (region == null) {
 				region = regionService.getAll().get(0);
@@ -256,7 +270,7 @@ public class StartupShutdownService {
 		Community community = null;
 		if (communityService.count() == 0) {
 			community = new Community();
-			community.setUuid(DataHelper.createUuid());
+			community.setUuid(DataHelper.createNilUuid());
 			community.setName(I18nProperties.getCaption(Captions.defaultCommunity, "Default Community"));
 			if (district == null) {
 				district = districtService.getAll().get(0);
@@ -331,6 +345,26 @@ public class StartupShutdownService {
 		}
 	}
 
+	private void syncWithCentral() {
+		if (!configFacade.isCentralLocationSync()) {
+			logger.info("Skipping synchronization with central as feature is disabled.");
+			return;
+		}
+
+		try {
+			List<RegionDto> regions = centralClient.getWithPrefix("/central/location/region/", RegionDto.class);
+			logger.info("Loaded {} regions", regions.size());
+			List<DistrictDto> districts = centralClient.getWithPrefix("/central/location/district/", DistrictDto.class);
+			logger.info("Loaded {} districts", districts.size());
+
+			regions.forEach(regionFacadeEjb::save);
+			//districts.forEach(districtFacadeEjb::save);
+		} catch (IOException e) {
+			logger.error("Connecting to etcd central failed: %s", e);
+		}
+
+	}
+
 	private void createDefaultUsers() {
 
 		if (userService.count() == 0) {
@@ -351,7 +385,7 @@ public class StartupShutdownService {
 				return;
 			}
 
-			Region region = regionService.getAll().get(0);
+			Region region = regionService.getByUuid(DataHelper.createNilUuid());
 			District district = region.getDistricts().get(0);
 			Community community = district.getCommunities().get(0);
 			List<Facility> healthFacilities = facilityService.getActiveFacilitiesByCommunityAndType(community, FacilityType.HOSPITAL, false, false);
