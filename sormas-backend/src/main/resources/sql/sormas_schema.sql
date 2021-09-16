@@ -7940,4 +7940,11 @@ ALTER TABLE task_history ADD COLUMN travelentry_id bigint;
 
 INSERT INTO schema_version (version_number, comment) VALUES (404, 'Add TravelEntries to tasks #5844');
 
+-- 2021-09-16 - Make Person.sex required #6673
+UPDATE person SET sex = 'UNKNOWN' WHERE sex IS NULL;
+ALTER TABLE person ALTER COLUMN sex DROP DEFAULT;
+ALTER TABLE person ALTER COLUMN sex SET NOT NULL;
+
+INSERT INTO schema_version (version_number, comment) VALUES (405, 'Make Person.sex required #6673');
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
