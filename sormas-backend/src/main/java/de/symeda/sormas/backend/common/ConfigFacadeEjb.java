@@ -70,6 +70,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	public static final String DEV_MODE = "devmode";
 
 	public static final String CUSTOM_BRANDING = "custombranding";
+	public static final String CAMPAIGN = "campaign";
 	public static final String CUSTOM_BRANDING_NAME = "custombranding.name";
 	public static final String CUSTOM_BRANDING_LOGO_PATH = "custombranding.logo.path";
 	public static final String CUSTOM_BRANDING_USE_LOGIN_SIDEBAR = "custombranding.useloginsidebar";
@@ -301,6 +302,11 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	}
 
 	@Override
+	public boolean isCampaign() {
+		return getBoolean(CAMPAIGN, false);
+	}
+	
+	@Override
 	public String getCustomBrandingName() {
 		return getProperty(CUSTOM_BRANDING_NAME, "SORMAS");
 	}
@@ -324,7 +330,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	public String getSormasInstanceName() {
 		return isCustomBranding() ? getCustomBrandingName() : "SORMAS";
 	}
-
+	
 	@Override
 	public String getAppUrl() {
 

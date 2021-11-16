@@ -10,7 +10,7 @@ public interface Captions {
 	 * 1. java:S115: Violation of name convention for constants of this class is accepted: Close as false positive.
 	 */
 
-	String about = "about";
+	String about = "APMIS About";
 	String aboutAdditionalInfo = "aboutAdditionalInfo";
 	String aboutBrandedSormasVersion = "aboutBrandedSormasVersion";
 	String aboutCaseClassificationRules = "aboutCaseClassificationRules";
@@ -19,6 +19,7 @@ public interface Captions {
 	String aboutDataDictionary = "aboutDataDictionary";
 	String aboutDocuments = "aboutDocuments";
 	String aboutSormasVersion = "aboutSormasVersion";
+	String aboutApmisVersion = "APMIS Version:";
 	String aboutSormasWebsite = "aboutSormasWebsite";
 	String aboutTechnicalManual = "aboutTechnicalManual";
 	String aboutWhatsNew = "aboutWhatsNew";
@@ -1427,6 +1428,7 @@ public interface Captions {
 	String Location_postalCode = "Location.postalCode";
 	String Location_street = "Location.street";
 	String Login_doLogIn = "Login.doLogIn";
+	String Login_APMIScaption = "APMIS";
 	String Login_login = "Login.login";
 	String Login_password = "Login.password";
 	String Login_username = "Login.username";
