@@ -18,11 +18,9 @@ import com.vaadin.v7.ui.AbstractSelect;
 import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.CustomField;
 import com.vaadin.v7.ui.DateField;
 import com.vaadin.v7.ui.Field;
 import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.v7.ui.TextArea;
 
 import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
@@ -31,11 +29,16 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementEnumOptions;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementOptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.symptoms.SymptomState;
+import de.symeda.sormas.api.utils.DateFormatHelper;
 import de.symeda.sormas.api.utils.FieldConstraints;
 import de.symeda.sormas.api.utils.YesNoUnknown;
 import de.symeda.sormas.api.utils.fieldaccess.UiFieldAccessCheckers;
 import de.symeda.sormas.api.utils.fieldvisibility.FieldVisibilityCheckers;
 import de.symeda.sormas.ui.ActivityAsCase.ActivityAsCaseField;
+import de.symeda.sormas.ui.campaign.jsonHelpers.BasicRadioGroupHelper;
+import de.symeda.sormas.ui.campaign.jsonHelpers.BasicCheckboxHelper;
+import de.symeda.sormas.ui.campaign.jsonHelpers.CheckboxBasicGroup;
+import de.symeda.sormas.ui.campaign.jsonHelpers.RadioBasicGroup;
 import de.symeda.sormas.ui.clinicalcourse.HealthConditionsForm;
 import de.symeda.sormas.ui.exposure.ExposuresField;
 import de.symeda.sormas.ui.hospitalization.PreviousHospitalizationsField;
@@ -71,35 +74,50 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 				populateWithEnumData(field, (Class<? extends Enum>) type);
 				CssStyles.style(field, ValoTheme.OPTIONGROUP_HORIZONTAL, CssStyles.OPTIONGROUP_CAPTION_INLINE);
 				return (T) field;
-				//remember that the class used here are just dummies-hack
-			} else if ((CustomField.class.isAssignableFrom(fieldType) && CampaignFormElementEnumOptions.class.isAssignableFrom(type))
-					|| (TextArea.class.isAssignableFrom(fieldType) && CampaignFormElementEnumOptions.class.isAssignableFrom(type))) {
-				//Flash class is only use as a placeholder
+				// remember that the class used here are just dummies-hack
+			} else if ((RadioBasicGroup.class.isAssignableFrom(fieldType)
+					&& CampaignFormElementEnumOptions.class.isAssignableFrom(type))
+					|| (CheckboxBasicGroup.class.isAssignableFrom(fieldType)
+							&& CampaignFormElementEnumOptions.class.isAssignableFrom(type))
+					|| (BasicRadioGroupHelper.class.isAssignableFrom(fieldType)
+							&& CampaignFormElementEnumOptions.class.isAssignableFrom(type))
+					|| (BasicCheckboxHelper.class.isAssignableFrom(fieldType)
+							&& CampaignFormElementEnumOptions.class.isAssignableFrom(type))) {
+				// Flash class is only use as a placeholder
 				Boolean swt = false;
-				if (TextArea.class.isAssignableFrom(fieldType)) {
+				if (CheckboxBasicGroup.class.isAssignableFrom(fieldType)
+						|| BasicCheckboxHelper.class.isAssignableFrom(fieldType)) {
 					swt = true;
 				}
-			//	fieldType = (Class<T>) RadioButtonGroup.class;
-				
+				// fieldType = (Class<T>) RadioButtonGroup.class;
+
 				OptionGroup field = new OptionGroup();
 
 				CampaignFormElementOptions campaignFormElementOptions = new CampaignFormElementOptions();
 				List<String> data = campaignFormElementOptions.getOptionsListValues();
- 
-				field.addItems(data);
-				
 
-				if (swt) { 
+				field.addItems(data);
+				field.setNullSelectionAllowed(false);
+
+				if (swt) {
 					field.setMultiSelect(true);
 					CssStyles.style(field, "width: 50%");
-				} 
-				
+				}
+
 				CssStyles.style(field, CssStyles.OPTIONGROUP_CAPTION_INLINE, CssStyles.FLOAT_RIGHT);
 
-				
-				
-
 				return (T) field;
+			} else if (DateField.class.isAssignableFrom(fieldType)
+					&& CampaignFormElementEnumOptions.class.isAssignableFrom(type)) {
+				
+				DateField field = new DateField();
+				field.setDateFormat(DateFormatHelper.getDateFormatPattern());
+				field.setLenient(true);
+				field.setImmediate(true);
+				field.setConverter(new SormasDefaultConverterFactory().createDateConverter(Date.class));
+				return (T) field;
+				
+				
 			} else {
 				if (Disease.class.isAssignableFrom(type)) {
 					fieldType = (Class<T>) ComboBox.class;
@@ -110,46 +128,45 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 					return (T) field;
 				} else {
 
-					
-						if (!AbstractSelect.class.isAssignableFrom(fieldType)) {
-							fieldType = (Class<T>) ComboBox.class;
-						}
-						T field = super.createField(type, fieldType);
-						if (field instanceof OptionGroup) {
-							CssStyles.style(field, ValoTheme.OPTIONGROUP_HORIZONTAL);
-						} else if (fieldType.isAssignableFrom(NullableOptionGroup.class)) {
-							NullableOptionGroup select = new NullableOptionGroup();
-							select.setImmediate(true);
-							populateWithEnumData(select, (Class<? extends Enum>) type);
-							CssStyles.style(select, ValoTheme.OPTIONGROUP_HORIZONTAL);
-							field = (T) select;
-						} else if (field instanceof ComboBox) {
-							((ComboBox) field).setFilteringMode(FilteringMode.CONTAINS);
-							((ComboBox) field).setNullSelectionAllowed(true);
-						}
-						return field;
+					if (!AbstractSelect.class.isAssignableFrom(fieldType)) {
+						fieldType = (Class<T>) ComboBox.class;
 					}
-				
+					T field = super.createField(type, fieldType);
+					if (field instanceof OptionGroup) {
+						CssStyles.style(field, ValoTheme.OPTIONGROUP_HORIZONTAL);
+					} else if (fieldType.isAssignableFrom(NullableOptionGroup.class)) {
+						NullableOptionGroup select = new NullableOptionGroup();
+						select.setImmediate(true);
+						populateWithEnumData(select, (Class<? extends Enum>) type);
+						CssStyles.style(select, ValoTheme.OPTIONGROUP_HORIZONTAL);
+						field = (T) select;
+					} else if (field instanceof ComboBox) {
+						((ComboBox) field).setFilteringMode(FilteringMode.CONTAINS);
+						((ComboBox) field).setNullSelectionAllowed(true);
+					}
+					return field;
+				}
+
 			}
-		} else if (CampaignFormElementOptions.class.isAssignableFrom(type) && ComboBox.class.isAssignableFrom(fieldType)) {
-			
-			T field = super.createField(type, fieldType); 
-			
+		} else if (CampaignFormElementOptions.class.isAssignableFrom(type)
+				&& ComboBox.class.isAssignableFrom(fieldType)) {
+
+			T field = super.createField(type, fieldType);
+
 			ComboBox select = new ComboBox();
-			
-				CampaignFormElementOptions campaignFormElementOptions = new CampaignFormElementOptions();
-				List<String> data = campaignFormElementOptions.getOptionsListValues();
-				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>  "+data);
-				select.addItems(data);
-				CssStyles.style(select, ValoTheme.OPTIONGROUP_HORIZONTAL);
-				field = (T) select;
-			
-				((ComboBox) field).setFilteringMode(FilteringMode.CONTAINS);
-				((ComboBox) field).setNullSelectionAllowed(true);
-			
-			
+
+			CampaignFormElementOptions campaignFormElementOptions = new CampaignFormElementOptions();
+			List<String> data = campaignFormElementOptions.getOptionsListValues();
+			// System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> "+data);
+			select.addItems(data);
+			CssStyles.style(select, ValoTheme.OPTIONGROUP_HORIZONTAL);
+			field = (T) select;
+
+			((ComboBox) field).setFilteringMode(FilteringMode.CONTAINS);
+			((ComboBox) field).setNullSelectionAllowed(true);
+
 			return field;
-			
+
 		} else if (Boolean.class.isAssignableFrom(type)) {
 			fieldType = CheckBox.class.isAssignableFrom(fieldType) ? (Class<T>) CheckBox.class
 					: (Class<T>) NullableOptionGroup.class;

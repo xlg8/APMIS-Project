@@ -23,12 +23,12 @@ android {
         setProperty("archivesBaseName", "sormas-$versionName")
         multiDexEnabled true
     }
-    signingConfigs {
+   signingConfigs {
         release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+          //  storeFile file(keystoreProperties['storeFile'])
+           // storePassword keystoreProperties['storePassword']
+          //  keyAlias keystoreProperties['keyAlias']
+           // keyPassword keystoreProperties['keyPassword']
         }
     }
     buildTypes {
@@ -38,7 +38,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            signingConfig signingConfigs.release
+          //  signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

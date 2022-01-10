@@ -10,7 +10,14 @@ public enum CampaignFormElementType {
 	DROPDOWN,
 	CHECKBOX,
 	RADIO,
-	TEXTBOX;
+	CHECKBOXBASIC,
+	RADIOBASIC,
+	TEXTBOX,
+	
+	DATE,
+	DECIMAL,
+	RANGE,
+	ARRAY;
 	
 
 	private final String[] allowedValues;

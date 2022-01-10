@@ -103,7 +103,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 
 		Expression<String> userNameExpression = from.get(User.USER_NAME);
 		String userNameParamValue = userName;
-		if (!AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
+		if (AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
 			userNameExpression = cb.lower(userNameExpression);
 			userNameParamValue = userName.toLowerCase();
 		}
@@ -393,7 +393,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 
 		Expression<String> userNameExpression = from.get(User.USER_NAME);
 		String userNameParamValue = userName;
-		if (!AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
+		if (AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
 			userNameExpression = cb.lower(userNameExpression);
 			userNameParamValue = userName.toLowerCase();
 		}
