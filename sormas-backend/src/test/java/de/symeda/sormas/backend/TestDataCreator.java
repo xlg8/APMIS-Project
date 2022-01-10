@@ -170,10 +170,10 @@ public class TestDataCreator {
 		user1.setUserName(firstName + lastName);
 		user1.setUserRoles(new HashSet<UserRole>(Arrays.asList(roles)));
 		UserDto user = user1;
-		user.setRegion(beanTest.getRegionFacade().getRegionReferenceByUuid(regionUuid));
-		user.setDistrict(beanTest.getDistrictFacade().getDistrictReferenceByUuid(districtUuid));
-		user.setCommunity(beanTest.getCommunityFacade().getCommunityReferenceByUuid(communityUuid));
-		user.setHealthFacility(beanTest.getFacilityFacade().getFacilityReferenceByUuid(facilityUuid));
+		user.setRegion(beanTest.getRegionFacade().getReferenceByUuid(regionUuid));
+		user.setDistrict(beanTest.getDistrictFacade().getReferenceByUuid(districtUuid));
+		user.setCommunity(beanTest.getCommunityFacade().getReferenceByUuid(communityUuid));
+		user.setHealthFacility(beanTest.getFacilityFacade().getReferenceByUuid(facilityUuid));
 		user = beanTest.getUserFacade().saveUser(user);
 
 		return user;
@@ -463,6 +463,34 @@ public class TestDataCreator {
 		return beanTest.getImmunizationFacade().save(immunization);
 	}
 
+	public ImmunizationDto createImmunization(Disease disease, PersonReferenceDto person, UserReferenceDto reportingUser, RDCF rdcf) {
+
+		return createImmunization(disease, person, reportingUser, rdcf, null);
+	}
+
+	public ImmunizationDto createImmunization(
+		Disease disease,
+		PersonReferenceDto person,
+		UserReferenceDto reportingUser,
+		RDCF rdcf,
+		Consumer<ImmunizationDto> extraConfig) {
+
+		ImmunizationDto immunization = createImmunizationDto(
+			disease,
+			person,
+			reportingUser,
+			ImmunizationStatus.PENDING,
+			MeansOfImmunization.VACCINATION,
+			ImmunizationManagementStatus.ONGOING,
+			rdcf);
+
+		if (extraConfig != null) {
+			extraConfig.accept(immunization);
+		}
+
+		return beanTest.getImmunizationFacade().save(immunization);
+	}
+
 	@NotNull
 	public ImmunizationDto createImmunizationDto(
 		Disease disease,
@@ -494,6 +522,10 @@ public class TestDataCreator {
 		HealthConditionsDto healthConditions) {
 
 		return createVaccination(reportingUser, immunization, healthConditions, new Date(), null, null);
+	}
+
+	public VaccinationDto createVaccination(UserReferenceDto reportingUser, ImmunizationReferenceDto immunization) {
+		return createVaccination(reportingUser, immunization, new HealthConditionsDto());
 	}
 
 	@NotNull
@@ -792,6 +824,16 @@ public class TestDataCreator {
 			null);
 	}
 
+	public EventDto createEvent(UserReferenceDto reportingUser, Disease disease, Consumer<EventDto> customConfig) {
+
+		return createEvent(EventStatus.SIGNAL, EventInvestigationStatus.PENDING, "title", "description", reportingUser, (event) -> {
+			event.setReportDateTime(new Date());
+			event.setReportingUser(reportingUser);
+			event.setDisease(disease);
+			customConfig.accept(event);
+		});
+	}
+
 	public EventDto createEvent(UserReferenceDto reportingUser, Date eventDate) {
 
 		return createEvent(
@@ -944,7 +986,7 @@ public class TestDataCreator {
 		sample.setReportDateTime(new Date());
 		sample.setSampleMaterial(SampleMaterial.BLOOD);
 		sample.setSamplePurpose(SamplePurpose.EXTERNAL);
-		sample.setLab(beanTest.getFacilityFacade().getFacilityReferenceByUuid(lab.getUuid()));
+		sample.setLab(beanTest.getFacilityFacade().getReferenceByUuid(lab.getUuid()));
 
 		if (customSettings != null) {
 			customSettings.accept(sample);
@@ -978,7 +1020,7 @@ public class TestDataCreator {
 		sample.setReportDateTime(reportDateTime);
 		sample.setSampleMaterial(sampleMaterial);
 		sample.setSamplePurpose(SamplePurpose.EXTERNAL);
-		sample.setLab(beanTest.getFacilityFacade().getFacilityReferenceByUuid(lab.getUuid()));
+		sample.setLab(beanTest.getFacilityFacade().getReferenceByUuid(lab.getUuid()));
 
 		if (customConfig != null) {
 			customConfig.accept(sample);
@@ -1022,7 +1064,7 @@ public class TestDataCreator {
 		sample.setReportDateTime(reportDateTime);
 		sample.setSampleMaterial(sampleMaterial);
 		sample.setSamplePurpose(SamplePurpose.EXTERNAL);
-		sample.setLab(beanTest.getFacilityFacade().getFacilityReferenceByUuid(lab.getUuid()));
+		sample.setLab(beanTest.getFacilityFacade().getReferenceByUuid(lab.getUuid()));
 
 		sample = beanTest.getSampleFacade().saveSample(sample);
 		return sample;
@@ -1058,7 +1100,7 @@ public class TestDataCreator {
 		sample.setReportDateTime(new Date());
 		sample.setSampleMaterial(SampleMaterial.BLOOD);
 		sample.setSamplePurpose(SamplePurpose.EXTERNAL);
-		sample.setLab(beanTest.getFacilityFacade().getFacilityReferenceByUuid(lab.getUuid()));
+		sample.setLab(beanTest.getFacilityFacade().getReferenceByUuid(lab.getUuid()));
 
 		if (customSettings != null) {
 			customSettings.accept(sample);
@@ -1117,7 +1159,7 @@ public class TestDataCreator {
 		sampleTest.setTestedDisease(testedDisease);
 		sampleTest.setTestType(testType);
 		sampleTest.setTestDateTime(testDateTime);
-		sampleTest.setLab(lab != null ? beanTest.getFacilityFacade().getFacilityReferenceByUuid(lab.getUuid()) : null);
+		sampleTest.setLab(lab != null ? beanTest.getFacilityFacade().getReferenceByUuid(lab.getUuid()) : null);
 		sampleTest.setTestResult(testResult);
 		sampleTest.setTestResultText(testResultText);
 		sampleTest.setTestResultVerified(verified);
@@ -1617,9 +1659,8 @@ public class TestDataCreator {
 		return labMessage;
 	}
 
-	public TestReportDto createTestReport(PathogenTestReferenceDto pathogenTest, LabMessageReferenceDto labMessage) {
+	public TestReportDto createTestReport(LabMessageReferenceDto labMessage) {
 		TestReportDto testReport = TestReportDto.build();
-		testReport.setPathogenTest(pathogenTest);
 		testReport.setLabMessage(labMessage);
 
 		beanTest.getTestReportFacade().saveTestReport(testReport);

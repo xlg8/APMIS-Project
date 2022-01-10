@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import com.vaadin.v7.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.DateField;
@@ -64,9 +65,10 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 	//@formatter:off
 	private static final String HTML_LAYOUT = 
 			fluidRowLocs(PathogenTestDto.REPORT_DATE, PathogenTestDto.VIA_LIMS) +
+			fluidRowLocs(PathogenTestDto.EXTERNAL_ID, PathogenTestDto.EXTERNAL_ORDER_ID) +
 			fluidRowLocs(PathogenTestDto.TEST_TYPE, PathogenTestDto.TEST_TYPE_TEXT) +
 			fluidRowLocs(PathogenTestDto.PCR_TEST_SPECIFICATION, "") +
-			fluidRowLocs(PathogenTestDto.TESTED_DISEASE, PathogenTestDto.TESTED_DISEASE_DETAILS) + 
+			fluidRowLocs(PathogenTestDto.TESTED_DISEASE, PathogenTestDto.TESTED_DISEASE_DETAILS) +
 			fluidRowLocs(PathogenTestDto.TESTED_DISEASE_VARIANT, PathogenTestDto.TESTED_DISEASE_VARIANT_DETAILS) +
 			fluidRowLocs(PathogenTestDto.TYPING_ID, "") +
 			fluidRowLocs(PathogenTestDto.TEST_DATE_TIME, PathogenTestDto.LAB) +
@@ -87,13 +89,13 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 			PathogenTestDto.class,
 			PathogenTestDto.I18N_PREFIX,
 			false,
-			FieldVisibilityCheckers.withCountry(FacadeProvider.getConfigFacade().getCountryLocale()),
+			FieldVisibilityCheckers.withDisease(null).andWithCountry(FacadeProvider.getConfigFacade().getCountryLocale()),
 			UiFieldAccessCheckers.forSensitiveData(!create && isPseudonymized));
 
 		this.sample = sample;
 		this.caseSampleCount = caseSampleCount;
 		this.create = create;
-		setWidth(600, Unit.PIXELS);
+		setWidth(900, Unit.PIXELS);
 
 		addFields();
 		if (create) {
@@ -109,7 +111,11 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 
 		addDateField(PathogenTestDto.REPORT_DATE, DateField.class, 0);
 		addField(PathogenTestDto.VIA_LIMS);
+		addField(PathogenTestDto.EXTERNAL_ID);
+		addField(PathogenTestDto.EXTERNAL_ORDER_ID);
 		ComboBox testTypeField = addField(PathogenTestDto.TEST_TYPE, ComboBox.class);
+		testTypeField.setItemCaptionMode(ItemCaptionMode.ID_TOSTRING);
+		testTypeField.setImmediate(true);
 		ComboBox pcrTestSpecification = addField(PathogenTestDto.PCR_TEST_SPECIFICATION, ComboBox.class);
 		TextField testTypeTextField = addField(PathogenTestDto.TEST_TYPE_TEXT, TextField.class);
 		FieldHelper.addSoftRequiredStyle(testTypeTextField);
@@ -208,6 +214,12 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 			FieldHelper.updateItems(diseaseVariantField, diseaseVariants);
 			diseaseVariantField.setVisible(
 				disease != null && isVisibleAllowed(PathogenTestDto.TESTED_DISEASE_VARIANT) && CollectionUtils.isNotEmpty(diseaseVariants));
+
+			FieldHelper.updateItems(
+				testTypeField,
+				Arrays.asList(PathogenTestType.values()),
+				FieldVisibilityCheckers.withDisease(disease),
+				PathogenTestType.class);
 		});
 		diseaseVariantField.addValueChangeListener(
 			e -> diseaseVariantDetailsField

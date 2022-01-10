@@ -100,4 +100,10 @@ public interface EventFacade {
 	Set<RegionReferenceDto> getAllRegionsRelatedToEventUuids(List<String> uuids);
 
 	void updateExternalData(@Valid List<ExternalDataDto> externalData) throws ExternalDataUpdateException;
+
+	List<String> getSubordinateEventUuids(List<String> uuids);
+
+	boolean hasRegionAndDistrict(String eventUuid);
+
+	boolean hasAnyEventParticipantWithoutJurisdiction(String eventUuid);
 }

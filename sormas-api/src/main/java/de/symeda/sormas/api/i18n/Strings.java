@@ -267,6 +267,7 @@ public interface Strings {
 	String errorFileNotFound = "errorFileNotFound";
 	String errorFormIdPopulationAgeGroup = "errorFormIdPopulationAgeGroup";
 	String errorIllegalFilename = "errorIllegalFilename";
+	String errorImmunizationNotEditable = "errorImmunizationNotEditable";
 	String errorIntegerFieldValidationFailed = "errorIntegerFieldValidationFailed";
 	String errorInvalidValue = "errorInvalidValue";
 	String errorLabResultsAdapterNotFound = "errorLabResultsAdapterNotFound";
@@ -282,7 +283,6 @@ public interface Strings {
 	String errorReadingDocument = "errorReadingDocument";
 	String errorReadingTemplate = "errorReadingTemplate";
 	String errorSampleNotEditable = "errorSampleNotEditable";
-	String errorSetFeverRequired = "errorSetFeverRequired";
 	String errorSormasToSormasAccept = "errorSormasToSormasAccept";
 	String errorSormasToSormasAcceptNotPending = "errorSormasToSormasAcceptNotPending";
 	String errorSormasToSormasCertNotGenerated = "errorSormasToSormasCertNotGenerated";
@@ -292,7 +292,6 @@ public interface Strings {
 	String errorSormasToSormasEncrypt = "errorSormasToSormasEncrypt";
 	String errorSormasToSormasInvalidRequestMethod = "errorSormasToSormasInvalidRequestMethod";
 	String errorSormasToSormasLoadShares = "errorSormasToSormasLoadShares";
-	String errorSormasToSormasOwnershipAlreadyHandedOver = "errorSormasToSormasOwnershipAlreadyHandedOver";
 	String errorSormasToSormasRejectNotPending = "errorSormasToSormasRejectNotPending";
 	String errorSormasToSormasRequestToken = "errorSormasToSormasRequestToken";
 	String errorSormasToSormasResult = "errorSormasToSormasResult";
@@ -300,6 +299,7 @@ public interface Strings {
 	String errorSormasToSormasSend = "errorSormasToSormasSend";
 	String errorSormasToSormasServerAccess = "errorSormasToSormasServerAccess";
 	String errorSormasToSormasShare = "errorSormasToSormasShare";
+	String errorSormasToSormasUpdateNotPending = "errorSormasToSormasUpdateNotPending";
 	String errorTemplateFileCorrupt = "errorTemplateFileCorrupt";
 	String errorViewNotFound = "errorViewNotFound";
 	String errorWasReported = "errorWasReported";
@@ -421,6 +421,7 @@ public interface Strings {
 	String headingCreateNewVisit = "headingCreateNewVisit";
 	String headingCreatePathogenTestResult = "headingCreatePathogenTestResult";
 	String headingCreateSurveillanceReport = "headingCreateSurveillanceReport";
+	String headingCurrentHospitalization = "headingCurrentHospitalization";
 	String headingDatabaseExportFailed = "headingDatabaseExportFailed";
 	String headingDataImport = "headingDataImport";
 	String headingDearchiveCampaign = "headingDearchiveCampaign";
@@ -453,6 +454,7 @@ public interface Strings {
 	String headingEditLineListing = "headingEditLineListing";
 	String headingEditPathogenTestResult = "headingEditPathogenTestResult";
 	String headingEditPrescription = "headingEditPrescription";
+	String headingEditSample = "headingEditSample";
 	String headingEditSubcontinent = "headingEditSubcontinent";
 	String headingEditSurveillanceReport = "headingEditSurveillanceReport";
 	String headingEditTask = "headingEditTask";
@@ -578,6 +580,7 @@ public interface Strings {
 	String headingPickOrCreatePathogenTest = "headingPickOrCreatePathogenTest";
 	String headingPickOrCreatePerson = "headingPickOrCreatePerson";
 	String headingPickOrCreateSample = "headingPickOrCreateSample";
+	String headingPlaceOfStayInHospital = "headingPlaceOfStayInHospital";
 	String headingPointOfEntryImport = "headingPointOfEntryImport";
 	String headingPointOfEntryInformation = "headingPointOfEntryInformation";
 	String headingPrescriptionsDeleted = "headingPrescriptionsDeleted";
@@ -683,6 +686,7 @@ public interface Strings {
 	String infoConvertToCaseContactsAndEventParticipants = "infoConvertToCaseContactsAndEventParticipants";
 	String infoConvertToCaseEventParticipants = "infoConvertToCaseEventParticipants";
 	String infoConvertToCaseSelect = "infoConvertToCaseSelect";
+	String infoCountryNotEditableEventParticipantsWithoutJurisdiction = "infoCountryNotEditableEventParticipantsWithoutJurisdiction";
 	String infoCreateEntry = "infoCreateEntry";
 	String infoCreateNewContactDiscardsChanges = "infoCreateNewContactDiscardsChanges";
 	String infoCreateNewSampleDiscardsChanges = "infoCreateNewSampleDiscardsChanges";
@@ -707,6 +711,7 @@ public interface Strings {
 	String infoEpiDataFieldsHint = "infoEpiDataFieldsHint";
 	String infoEpiDataSourceCaseContacts = "infoEpiDataSourceCaseContacts";
 	String infoEventParticipantAlreadyExisting = "infoEventParticipantAlreadyExisting";
+	String infoEventResponsibleUserFilter = "infoEventResponsibleUserFilter";
 	String infoExistingImmunizationPeriod = "infoExistingImmunizationPeriod";
 	String infoExpectedFollowUpUntilDateCase = "infoExpectedFollowUpUntilDateCase";
 	String infoExpectedFollowUpUntilDateContact = "infoExpectedFollowUpUntilDateContact";
@@ -738,6 +743,7 @@ public interface Strings {
 	String infoMergingHideDescription = "infoMergingHideDescription";
 	String infoMergingMergeDescription = "infoMergingMergeDescription";
 	String infoMergingPickDescription = "infoMergingPickDescription";
+	String infoMoreDetailsAboutHospitalization = "infoMoreDetailsAboutHospitalization";
 	String infoNoAdditionalTests = "infoNoAdditionalTests";
 	String infoNoCasesFoundStatistics = "infoNoCasesFoundStatistics";
 	String infoNoDiseaseSelected = "infoNoDiseaseSelected";
@@ -763,6 +769,7 @@ public interface Strings {
 	String infoPickOrCreatePathogenTest = "infoPickOrCreatePathogenTest";
 	String infoPickOrCreateSample = "infoPickOrCreateSample";
 	String infoPickOrCreateSuperordinateEventForEvent = "infoPickOrCreateSuperordinateEventForEvent";
+	String infoPlaceOfStayInHospital = "infoPlaceOfStayInHospital";
 	String infoPopulationCollectionDate = "infoPopulationCollectionDate";
 	String infoPopulationDataView = "infoPopulationDataView";
 	String infoPopulationReferenceYear = "infoPopulationReferenceYear";
@@ -973,6 +980,7 @@ public interface Strings {
 	String messageFollowUpCanceled = "messageFollowUpCanceled";
 	String messageFollowUpStatusChanged = "messageFollowUpStatusChanged";
 	String messageFormHasErrorsPathogenTest = "messageFormHasErrorsPathogenTest";
+	String messageForwardedLabMessageFound = "messageForwardedLabMessageFound";
 	String messageGdpr = "messageGdpr";
 	String messageGdprCheck = "messageGdprCheck";
 	String messageImmunizationArchived = "messageImmunizationArchived";
@@ -1055,6 +1063,8 @@ public interface Strings {
 	String messageRegionsArchived = "messageRegionsArchived";
 	String messageRegionsArchivingNotPossible = "messageRegionsArchivingNotPossible";
 	String messageRegionsDearchived = "messageRegionsDearchived";
+	String messageRelatedSampleAndLabMessagesFound = "messageRelatedSampleAndLabMessagesFound";
+	String messageRelatedSampleFound = "messageRelatedSampleFound";
 	String messageSampleErrors = "messageSampleErrors";
 	String messageSampleOpened = "messageSampleOpened";
 	String messageSampleSaved = "messageSampleSaved";

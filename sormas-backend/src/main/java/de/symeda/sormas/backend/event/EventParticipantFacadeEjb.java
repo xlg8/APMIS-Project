@@ -719,7 +719,7 @@ public class EventParticipantFacadeEjb implements EventParticipantFacade {
 					Optional.ofNullable(immunizations.get(exportDto.getPersonId())).ifPresent(epImmunizations -> {
 						List<Immunization> filteredImmunizations =
 							epImmunizations.stream().filter(i -> i.getDisease() == exportDto.getEventDisease()).collect(Collectors.toList());
-						filteredImmunizations.sort(Comparator.comparing(ImmunizationEntityHelper::getDateForComparison));
+						filteredImmunizations.sort(Comparator.comparing(i -> ImmunizationEntityHelper.getDateForComparison(i, false)));
 						Immunization mostRecentImmunization = filteredImmunizations.get(filteredImmunizations.size() - 1);
 						exportDto.setVaccinationDoses(String.valueOf(mostRecentImmunization.getNumberOfDoses()));
 
@@ -945,7 +945,7 @@ public class EventParticipantFacadeEjb implements EventParticipantFacade {
 		target.setVaccinationStatus(source.getVaccinationStatus());
 
 		target.setSormasToSormasOriginInfo(SormasToSormasOriginInfoFacadeEjb.toDto(source.getSormasToSormasOriginInfo()));
-		target.setOwnershipHandedOver(source.getShareInfoEventParticipants().stream().anyMatch(ShareInfoHelper::isOwnerShipHandedOver));
+		target.setOwnershipHandedOver(source.getSormasToSormasShares().stream().anyMatch(ShareInfoHelper::isOwnerShipHandedOver));
 
 		return target;
 	}

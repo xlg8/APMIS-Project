@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -40,6 +41,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Type;
 
 import de.symeda.auditlog.api.Audited;
 import de.symeda.auditlog.api.AuditedIgnore;
@@ -86,18 +89,19 @@ import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.person.Person;
 import de.symeda.sormas.backend.sample.Sample;
 import de.symeda.sormas.backend.share.ExternalShareInfo;
-import de.symeda.sormas.backend.sormastosormas.entities.SormasToSormasEntity;
+import de.symeda.sormas.backend.sormastosormas.entities.SormasToSormasShareable;
 import de.symeda.sormas.backend.sormastosormas.origin.SormasToSormasOriginInfo;
-import de.symeda.sormas.backend.sormastosormas.share.shareinfo.ShareInfoCase;
+import de.symeda.sormas.backend.sormastosormas.share.shareinfo.SormasToSormasShareInfo;
 import de.symeda.sormas.backend.symptoms.Symptoms;
 import de.symeda.sormas.backend.task.Task;
 import de.symeda.sormas.backend.therapy.Therapy;
 import de.symeda.sormas.backend.user.User;
+import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.visit.Visit;
 
 @Entity(name = "cases")
 @Audited
-public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalData {
+public class Case extends CoreAdo implements SormasToSormasShareable, HasExternalData {
 
 	private static final long serialVersionUID = -2697795184663562129L;
 
@@ -112,6 +116,7 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 	public static final String SYSTEM_CASE_CLASSIFICATION = "systemCaseClassification";
 	public static final String INVESTIGATION_STATUS = "investigationStatus";
 	public static final String PERSON = "person";
+	public static final String PERSON_ID = "personId";
 	public static final String DISEASE = "disease";
 	public static final String DISEASE_VARIANT = "diseaseVariant";
 	public static final String DISEASE_DETAILS = "diseaseDetails";
@@ -198,8 +203,8 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 	public static final String CONTACTS = "contacts";
 	public static final String CONVERTED_FROM_CONTACT = "convertedContact";
 	public static final String EVENT_PARTICIPANTS = "eventParticipants";
-	public static final String SHARE_INFO_CASES = "shareInfoCases";
 	public static final String SORMAS_TO_SORMAS_ORIGIN_INFO = "sormasToSormasOriginInfo";
+	public static final String SORMAS_TO_SORMAS_SHARES = "sormasToSormasShares";
 	public static final String EXTERNAL_SHARES = "externalShares";
 
 	public static final String CASE_ID_ISM = "caseIdIsm";
@@ -223,6 +228,8 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 	public static final String FOLLOW_UP_STATUS_CHANGE_USER = "followUpStatusChangeUser";
 	public static final String DONT_SHARE_WITH_REPORTING_TOOL = "dontShareWithReportingTool";
 	public static final String CASE_REFERENCE_DEFINITION = "caseReferenceDefinition";
+	public static final String PREVIOUS_QUARANTINE_TO = "previousQuarantineTo";
+	public static final String QUARANTINE_CHANGE_COMMENT = "quarantineChangeComment";
 
 	private Person person;
 	private String description;
@@ -386,10 +393,25 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 	private boolean dontShareWithReportingTool;
 
 	private SormasToSormasOriginInfo sormasToSormasOriginInfo;
-	private List<ShareInfoCase> shareInfoCases = new ArrayList<>(0);
+	private List<SormasToSormasShareInfo> sormasToSormasShares = new ArrayList<>(0);
 	private List<ExternalShareInfo> externalShares = new ArrayList<>(0);
 
 	private CaseReferenceDefinition caseReferenceDefinition;
+	private Date previousQuarantineTo;
+	private String quarantineChangeComment;
+
+	private Long personId;
+
+	private Map<String, String> externalData;
+
+	@Column(name = "person_id", updatable = false, insertable = false)
+	public Long getPersonId() {
+		return personId;
+	}
+
+	public void setPersonId(Long personId) {
+		this.personId = personId;
+	}
 
 	@ManyToOne(cascade = {})
 	@JoinColumn(nullable = false)
@@ -1596,14 +1618,14 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 		this.sormasToSormasOriginInfo = originInfo;
 	}
 
-	@OneToMany(mappedBy = ShareInfoCase.CAZE, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = SormasToSormasShareInfo.CAZE, fetch = FetchType.LAZY)
 	@AuditedIgnore
-	public List<ShareInfoCase> getShareInfoCases() {
-		return shareInfoCases;
+	public List<SormasToSormasShareInfo> getSormasToSormasShares() {
+		return sormasToSormasShares;
 	}
 
-	public void setShareInfoCases(List<ShareInfoCase> shareInfoCases) {
-		this.shareInfoCases = shareInfoCases;
+	public void setSormasToSormasShares(List<SormasToSormasShareInfo> sormasToSormasShares) {
+		this.sormasToSormasShares = sormasToSormasShares;
 	}
 
 	@OneToMany(mappedBy = ExternalShareInfo.CAZE, fetch = FetchType.LAZY)
@@ -1648,5 +1670,33 @@ public class Case extends CoreAdo implements SormasToSormasEntity, HasExternalDa
 
 	public void setCaseReferenceDefinition(CaseReferenceDefinition caseReferenceDefinition) {
 		this.caseReferenceDefinition = caseReferenceDefinition;
+	}
+
+	@Temporal(TemporalType.DATE)
+	public Date getPreviousQuarantineTo() {
+		return previousQuarantineTo;
+	}
+
+	public void setPreviousQuarantineTo(Date previousQuarantineTo) {
+		this.previousQuarantineTo = previousQuarantineTo;
+	}
+
+	@Column(length = CHARACTER_LIMIT_BIG)
+	public String getQuarantineChangeComment() {
+		return quarantineChangeComment;
+	}
+
+	public void setQuarantineChangeComment(String quarantineChangeComment) {
+		this.quarantineChangeComment = quarantineChangeComment;
+	}
+
+	@Type(type = ModelConstants.HIBERNATE_TYPE_JSON)
+	@Column(columnDefinition = ModelConstants.COLUMN_DEFINITION_JSON)
+	public Map<String, String> getExternalData() {
+		return externalData;
+	}
+
+	public void setExternalData(Map<String, String> externalData) {
+		this.externalData = externalData;
 	}
 }

@@ -8,7 +8,8 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -20,10 +21,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.ui.UI;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.person.PersonDto;
+import de.symeda.sormas.api.person.PersonHelper;
+import de.symeda.sormas.api.person.PersonSimilarityCriteria;
 import de.symeda.sormas.api.person.SimilarPersonDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
@@ -84,6 +88,7 @@ public class CaseImporterTest extends AbstractBeanTest {
 		assertEquals("ABC-DEF-GHI-19-5", getCaseFacade().getAllActiveCasesAfter(null).get(0).getEpidNumber());
 
 		// Similarity: pick
+		List<SimilarPersonDto> persons = FacadeProvider.getPersonFacade().getSimilarPersonDtos(user.toReference(), new PersonSimilarityCriteria());
 		csvFile = new File(getClass().getClassLoader().getResource("sormas_import_test_similarities.csv").toURI());
 		caseImporter = new CaseImporterExtension(csvFile, true, user) {
 
@@ -94,11 +99,15 @@ public class CaseImporterTest extends AbstractBeanTest {
 				BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
 				String infoText,
 				UI currentUI) {
-				resultConsumer.accept(
-					(T) new CaseImportSimilarityResult(
-						getPersonFacade().getSimilarPersonsByUuids(Collections.singletonList(getPersonFacade().getAllUuids().get(0))).get(0),
-						null,
-						ImportSimilarityResultOption.PICK));
+
+				List<SimilarPersonDto> entries = new ArrayList<>();
+				for (SimilarPersonDto person : persons) {
+					if (PersonHelper
+						.areNamesSimilar(newPerson.getFirstName(), newPerson.getLastName(), person.getFirstName(), person.getLastName(), null)) {
+						entries.add(person);
+					}
+				}
+				resultConsumer.accept((T) new CaseImportSimilarityResult(entries.get(0), null, ImportSimilarityResultOption.PICK));
 			}
 
 			@Override
@@ -143,11 +152,15 @@ public class CaseImporterTest extends AbstractBeanTest {
 				BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
 				String infoText,
 				UI currentUI) {
-				resultConsumer.accept(
-					(T) new CaseImportSimilarityResult(
-						getPersonFacade().getSimilarPersonsByUuids(Collections.singletonList(getPersonFacade().getAllUuids().get(0))).get(0),
-						null,
-						ImportSimilarityResultOption.PICK));
+
+				List<SimilarPersonDto> entries = new ArrayList<>();
+				for (SimilarPersonDto person : persons) {
+					if (PersonHelper
+						.areNamesSimilar(newPerson.getFirstName(), newPerson.getLastName(), person.getFirstName(), person.getLastName(), null)) {
+						entries.add(person);
+					}
+				}
+				resultConsumer.accept((T) new CaseImportSimilarityResult(entries.get(0), null, ImportSimilarityResultOption.PICK));
 			}
 
 			@Override
@@ -172,11 +185,15 @@ public class CaseImporterTest extends AbstractBeanTest {
 				BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
 				String infoText,
 				UI currentUI) {
-				resultConsumer.accept(
-					(T) new CaseImportSimilarityResult(
-						getPersonFacade().getSimilarPersonsByUuids(Collections.singletonList(getPersonFacade().getAllUuids().get(0))).get(0),
-						null,
-						ImportSimilarityResultOption.PICK));
+
+				List<SimilarPersonDto> entries = new ArrayList<>();
+				for (SimilarPersonDto person : persons) {
+					if (PersonHelper
+						.areNamesSimilar(newPerson.getFirstName(), newPerson.getLastName(), person.getFirstName(), person.getLastName(), null)) {
+						entries.add(person);
+					}
+				}
+				resultConsumer.accept((T) new CaseImportSimilarityResult(entries.get(0), null, ImportSimilarityResultOption.PICK));
 			}
 
 			@Override
@@ -249,13 +266,41 @@ public class CaseImporterTest extends AbstractBeanTest {
 		assertEquals(10, getCaseFacade().count(null));
 	}
 
+	@Test
+	public void testImportWithInvalidCsvContent()
+		throws InterruptedException, InvalidColumnException, CsvValidationException, IOException, URISyntaxException {
+		TestDataCreator.RDCF rdcf = creator.createRDCF("Abia", "Umuahia North", "Urban Ward 2", "Anelechi Hospital");
+		UserDto user = creator
+			.createUser(rdcf.region.getUuid(), rdcf.district.getUuid(), rdcf.facility.getUuid(), "Surv", "Sup", UserRole.SURVEILLANCE_SUPERVISOR);
+
+		// csv with missing header
+		File csvFile = new File(getClass().getClassLoader().getResource("sormas_case_import_test_one_data_line_missing_header.csv").toURI());
+		CaseImporterExtension caseImporter = new CaseImporterExtension(csvFile, true, user);
+		ImportResultStatus importResult = caseImporter.runImport();
+
+		assertEquals(ImportResultStatus.CANCELED_WITH_ERRORS, importResult);
+
+		// csv with wrong separator
+		csvFile = new File(getClass().getClassLoader().getResource("sormas_case_contact_import_test_success.csv").toURI());
+		caseImporter = new CaseImporterExtension(csvFile, true, user, ValueSeparator.SEMICOLON);
+		importResult = caseImporter.runImport();
+
+		assertEquals(ImportResultStatus.CANCELED_WITH_ERRORS, importResult);
+
+	}
+
 	public static class CaseImporterExtension extends CaseImporter {
 
 		public StringBuilder stringBuilder = new StringBuilder("");
 		private StringBuilderWriter writer = new StringBuilderWriter(stringBuilder);
 
 		public CaseImporterExtension(File inputFile, boolean hasEntityClassRow, UserDto currentUser) throws IOException {
-			super(inputFile, hasEntityClassRow, currentUser, ValueSeparator.DEFAULT);
+			this(inputFile, hasEntityClassRow, currentUser, ValueSeparator.DEFAULT);
+		}
+
+		public CaseImporterExtension(File inputFile, boolean hasEntityClassRow, UserDto currentUser, ValueSeparator valueSeparator)
+			throws IOException {
+			super(inputFile, hasEntityClassRow, currentUser, valueSeparator);
 		}
 
 		@Override

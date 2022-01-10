@@ -32,11 +32,12 @@ import de.symeda.sormas.ui.immunization.components.fields.pickorcreate.Immunizat
 import de.symeda.sormas.ui.immunization.components.fields.popup.SimilarImmunizationPopup;
 import de.symeda.sormas.ui.immunization.components.form.ImmunizationCreationForm;
 import de.symeda.sormas.ui.immunization.components.form.ImmunizationDataForm;
-import de.symeda.sormas.ui.immunization.components.layout.MainHeaderLayout;
 import de.symeda.sormas.ui.utils.ButtonHelper;
 import de.symeda.sormas.ui.utils.CommitDiscardWrapperComponent;
 import de.symeda.sormas.ui.utils.NotificationHelper;
 import de.symeda.sormas.ui.utils.VaadinUiUtil;
+import de.symeda.sormas.ui.utils.components.page.title.TitleLayout;
+import de.symeda.sormas.ui.utils.components.page.title.TitleLayoutHelper;
 
 public class ImmunizationController {
 
@@ -122,9 +123,7 @@ public class ImmunizationController {
 		return null;
 	}
 
-	public CommitDiscardWrapperComponent<ImmunizationDataForm> getImmunizationDataEditComponent(String immunizationUuid) {
-
-		ImmunizationDto immunizationDto = findImmunization(immunizationUuid);
+	public CommitDiscardWrapperComponent<ImmunizationDataForm> getImmunizationDataEditComponent(ImmunizationDto immunizationDto) {
 
 		ImmunizationDataForm immunizationDataForm = new ImmunizationDataForm(immunizationDto.isPseudonymized(), immunizationDto.getRelatedCase());
 		immunizationDataForm.setValue(immunizationDto);
@@ -166,10 +165,10 @@ public class ImmunizationController {
 
 		// Initialize 'Archive' button
 		if (UserProvider.getCurrent().hasUserRight(UserRight.IMMUNIZATION_ARCHIVE)) {
-			boolean archived = FacadeProvider.getImmunizationFacade().isArchived(immunizationUuid);
+			boolean archived = FacadeProvider.getImmunizationFacade().isArchived(immunizationDto.getUuid());
 			Button archiveButton = ButtonHelper.createButton(archived ? Captions.actionDearchive : Captions.actionArchive, e -> {
 				editComponent.commit();
-				archiveOrDearchiveImmunization(immunizationUuid, !archived);
+				archiveOrDearchiveImmunization(immunizationDto.getUuid(), !archived);
 			}, ValoTheme.BUTTON_LINK);
 
 			editComponent.getButtonsPanel().addComponentAsFirst(archiveButton);
@@ -185,14 +184,18 @@ public class ImmunizationController {
 		SormasUI.refreshView();
 	}
 
-	public MainHeaderLayout getImmunizationMainHeaderLayout(String uuid) {
+	public TitleLayout getImmunizationViewTitleLayout(String uuid) {
 		ImmunizationDto immunizationDto = findImmunization(uuid);
 
-		String shortUuid = DataHelper.getShortUuid(immunizationDto.getUuid());
-		PersonReferenceDto person = immunizationDto.getPerson();
-		String text = person.getFirstName() + " " + person.getLastName() + " (" + shortUuid + ")";
+		TitleLayout titleLayout = new TitleLayout();
 
-		return new MainHeaderLayout(text);
+		String shortUuid = DataHelper.getShortUuid(immunizationDto.getUuid());
+		PersonDto person = FacadeProvider.getPersonFacade().getPersonByUuid(immunizationDto.getPerson().getUuid());
+		StringBuilder mainRowText = TitleLayoutHelper.buildPersonString(person);
+		mainRowText.append(mainRowText.length() > 0 ? " (" + shortUuid + ")" : shortUuid);
+		titleLayout.addMainRow(mainRowText.toString());
+
+		return titleLayout;
 	}
 
 	private ImmunizationDto findImmunization(String uuid) {

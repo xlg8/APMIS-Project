@@ -92,9 +92,14 @@ public abstract class AbstractCaseGrid<IndexDto extends CaseIndexDto> extends Fi
 
 		initColumns();
 
+		addItemClickListener(new ShowDetailsListener<>(CaseIndexDto.PERSON_UUID, e -> {
+			if (FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.PERSON_MANAGEMENT)) {
+				ControllerProvider.getPersonController().navigateToPerson(e.getPersonUuid());
+			} else {
+				ControllerProvider.getCaseController().navigateToView(CasePersonView.VIEW_NAME, e.getUuid(), null);
+			}
+		}));
 		addItemClickListener(new ShowDetailsListener<>(CaseIndexDto.UUID, e -> ControllerProvider.getCaseController().navigateToCase(e.getUuid())));
-		addItemClickListener(new ShowDetailsListener<>(CaseIndexDto.PERSON_UUID, e ->
-			ControllerProvider.getCaseController().navigateToView(CasePersonView.VIEW_NAME, e.getUuid(), null)));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -264,12 +269,6 @@ public abstract class AbstractCaseGrid<IndexDto extends CaseIndexDto> extends Fi
 
 		if (getSelectionModel().isUserSelectionAllowed()) {
 			deselectAll();
-		}
-
-		if (getCriteria().getOutcome() == null) {
-			this.getColumn(CaseIndexDto.OUTCOME).setHidden(false);
-		} else if (this.getColumn(CaseIndexDto.OUTCOME) != null) {
-			this.getColumn(CaseIndexDto.OUTCOME).setHidden(true);
 		}
 
 		if (caseFollowUpEnabled) {

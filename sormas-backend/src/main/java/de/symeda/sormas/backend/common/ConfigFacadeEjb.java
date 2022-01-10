@@ -17,8 +17,11 @@ package de.symeda.sormas.backend.common;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -130,6 +133,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	private static final String CENTRAL_ETCD_CLIENT_NAME = "central.etcd.clientName";
 	private static final String CENTRAL_ETCD_CLIENT_PASSWORD = "central.etcd.clientPassword";
 	private static final String CENTRAL_ETCD_CA_PATH = "central.etcd.caPath";
+	private static final String CENTRAL_LOCATION_SYNC= "central.location.sync";
 
 	public static final String SORMAS2SORMAS_FILES_PATH = "sormas2sormas.path";
 	public static final String SORMAS2SORMAS_ID = "sormas2sormas.id";
@@ -139,13 +143,13 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	public static final String SORMAS2SORMAS_TRUSTSTORE_NAME = "sormas2sormas.truststoreName";
 	public static final String SORMAS2SORMAS_TRUSTSTORE_PASS = "sormas2sormas.truststorePass";
 
+	private static final String SORMAS2SORMAS_IGNORE_PROPERTY_PREFIX = "sormas2sormas.ignoreProperty.";
+
 	private static final String SORMAS2SORMAS_OIDC_REALM = "sormas2sormas.oidc.realm";
 	private static final String SORMAS2SORMAS_OIDC_CLIENT_ID = "sormas2sormas.oidc.clientId";
 	private static final String SORMAS2SORMAS_OIDC_CLIENT_SECRET = "sormas2sormas.oidc.clientSecret";
 
 	private static final String SORMAS2SORMAS_ETCD_KEY_PREFIX = "sormas2sormas.etcd.keyPrefix";
-
-	private static final String SORMAS2SORMAS_RETAIN_CASE_EXTERNAL_TOKEN = "sormas2sormas.retainCaseExternalToken";
 
 	private static final String EXTERNAL_SURVEILLANCE_TOOL_GATEWAY_URL = "survnet.url";
 
@@ -179,44 +183,39 @@ public class ConfigFacadeEjb implements ConfigFacade {
 		}
 	}
 
-	protected boolean getBoolean(String name, boolean defaultValue) {
+	private <T> T parseProperty(String propertyName, T defaultValue, Function<String, T> parse) {
 
-		try {
-			return Boolean.parseBoolean(getProperty(name, Boolean.toString(defaultValue)));
-		} catch (Exception e) {
-			logger.error("Could not parse boolean value of property '" + name + "': " + e.getMessage());
+		String prop = props.getProperty(propertyName);
+		if (prop == null) {
 			return defaultValue;
 		}
+
+		try {
+			if (prop.isEmpty()) {
+				logger.debug("The property '" + propertyName + "' is set to empty value");
+			}
+
+			return parse.apply(prop);
+		} catch (Exception e) {
+			logger.error("Could not parse value of property '" + propertyName + "': " + e.getMessage());
+			return defaultValue;
+		}
+	}
+
+	protected boolean getBoolean(String name, boolean defaultValue) {
+		return parseProperty(name, defaultValue, Boolean::parseBoolean);
 	}
 
 	protected double getDouble(String name, double defaultValue) {
-
-		try {
-			return Double.parseDouble(getProperty(name, Double.toString(defaultValue)));
-		} catch (Exception e) {
-			logger.error("Could not parse numeric value of property '" + name + "': " + e.getMessage());
-			return defaultValue;
-		}
+		return parseProperty(name, defaultValue, Double::parseDouble);
 	}
 
 	protected int getInt(String name, int defaultValue) {
-
-		try {
-			return Integer.parseInt(getProperty(name, Integer.toString(defaultValue)));
-		} catch (Exception e) {
-			logger.error("Could not parse integer value of property '" + name + "': " + e.getMessage());
-			return defaultValue;
-		}
+		return parseProperty(name, defaultValue, Integer::parseInt);
 	}
 
-	protected long getLong(String name, int defaultValue) {
-
-		try {
-			return Long.parseLong(getProperty(name, Long.toString(defaultValue)));
-		} catch (Exception e) {
-			logger.error("Could not parse long value of property '" + name + "': " + e.getMessage());
-			return defaultValue;
-		}
+	protected long getLong(String name, long defaultValue) {
+		return parseProperty(name, defaultValue, Long::parseLong);
 	}
 
 	@Override
@@ -224,7 +223,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 
 		String countryName = getProperty(COUNTRY_NAME, "");
 		if (countryName.isEmpty()) {
-			logger.info("No country name is specified in sormas.properties.");
+			logger.debug("No country name is specified in sormas.properties.");
 		}
 		return new String(countryName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 	}
@@ -522,14 +521,22 @@ public class ConfigFacadeEjb implements ConfigFacade {
 		config.setTruststoreName(getProperty(SORMAS2SORMAS_TRUSTSTORE_NAME, null));
 		config.setTruststorePass(getProperty(SORMAS2SORMAS_TRUSTSTORE_PASS, null));
 		config.setRootCaAlias(getProperty(SORMAS2SORMAS_ROOT_CA_ALIAS, null));
-		config.setRetainCaseExternalToken(getBoolean(SORMAS2SORMAS_RETAIN_CASE_EXTERNAL_TOKEN, true));
 		config.setId(getProperty(SORMAS2SORMAS_ID, null));
 		config.setOidcServer(getProperty(CENTRAL_OIDC_URL, null));
 		config.setOidcRealm(getProperty(SORMAS2SORMAS_OIDC_REALM, null));
 		config.setOidcClientId(getProperty(SORMAS2SORMAS_OIDC_CLIENT_ID, null));
 		config.setOidcClientSecret(getProperty(SORMAS2SORMAS_OIDC_CLIENT_SECRET, null));
 		config.setKeyPrefix(getProperty(SORMAS2SORMAS_ETCD_KEY_PREFIX, null));
+		config.getIgnoreProperties().putAll(getS2SIgnoreProperties());
 		return config;
+	}
+
+	private Map<String, Boolean> getS2SIgnoreProperties() {
+		return props.stringPropertyNames()
+			.stream()
+			.filter(property -> property.startsWith(SORMAS2SORMAS_IGNORE_PROPERTY_PREFIX))
+			.collect(Collectors.toMap(property -> property, property -> getBoolean(property, true)));
+
 	}
 
 	@Override
@@ -659,6 +666,10 @@ public class ConfigFacadeEjb implements ConfigFacade {
 
 	public String getCentralEtcdCaPath() {
 		return getProperty(CENTRAL_ETCD_CA_PATH, null);
+	}
+
+	public boolean isCentralLocationSync(){
+		return getBoolean(CENTRAL_LOCATION_SYNC, false);
 	}
 
 	@Override

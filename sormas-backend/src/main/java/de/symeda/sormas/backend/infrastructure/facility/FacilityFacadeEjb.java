@@ -1,25 +1,21 @@
-/*******************************************************************************
+/*
  * SORMAS® - Surveillance Outbreak Response Management & Analysis System
  * Copyright © 2016-2018 Helmholtz-Zentrum für Infektionsforschung GmbH (HZI)
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *******************************************************************************/
+ */
 package de.symeda.sormas.backend.infrastructure.facility;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +26,6 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -45,6 +39,7 @@ import javax.validation.constraints.NotNull;
 
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureEjb;
+import de.symeda.sormas.backend.user.UserService;
 import org.apache.commons.collections.CollectionUtils;
 
 import de.symeda.sormas.api.ReferenceDto;
@@ -72,19 +67,14 @@ import de.symeda.sormas.backend.infrastructure.district.DistrictService;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
-import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
-import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
 
 @Stateless(name = "FacilityFacade")
-public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, FacilityService> implements FacilityFacade {
+public class FacilityFacadeEjb
+	extends AbstractInfrastructureEjb<Facility, FacilityDto, FacilityIndexDto, FacilityReferenceDto, FacilityService, FacilityCriteria>
+	implements FacilityFacade {
 
-	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
-	private EntityManager em;
-
-	@EJB
-	private UserService userService;
 	@EJB
 	private CommunityService communityService;
 	@EJB
@@ -96,8 +86,8 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 	}
 
 	@Inject
-	protected FacilityFacadeEjb(FacilityService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
-		super(service, featureConfiguration);
+	protected FacilityFacadeEjb(FacilityService service, FeatureConfigurationFacadeEjbLocal featureConfiguration, UserService userService) {
+		super(Facility.class, FacilityDto.class, service, featureConfiguration, userService);
 	}
 
 	@Override
@@ -143,34 +133,6 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 
 		List<Facility> laboratories = service.getAllActiveLaboratories(includeOtherFacility);
 		return laboratories.stream().map(FacilityFacadeEjb::toReferenceDto).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<String> getAllUuids() {
-
-		if (userService.getCurrentUser() == null) {
-			return Collections.emptyList();
-		}
-
-		return service.getAllUuids();
-	}
-
-	@Override
-	public List<FacilityDto> getAllAfter(Date date) {
-
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<FacilityDto> cq = cb.createQuery(FacilityDto.class);
-		Root<Facility> facility = cq.from(Facility.class);
-
-		selectDtoFields(cq, facility);
-
-		Predicate filter = service.createChangeDateFilter(cb, facility, date);
-
-		if (filter != null) {
-			cq.where(filter);
-		}
-
-		return em.createQuery(cq).getResultList();
 	}
 
 	@Override
@@ -226,13 +188,13 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 			.collect(Collectors.toList());
 	}
 
-	// Need to be in the same order as in the constructor
-	private void selectDtoFields(CriteriaQuery<FacilityDto> cq, Root<Facility> root) {
+	@Override
+	protected void selectDtoFields(CriteriaQuery<FacilityDto> cq, Root<Facility> root) {
 
 		Join<Facility, Community> community = root.join(Facility.COMMUNITY, JoinType.LEFT);
 		Join<Facility, District> district = root.join(Facility.DISTRICT, JoinType.LEFT);
 		Join<Facility, Region> region = root.join(Facility.REGION, JoinType.LEFT);
-
+		// Need to be in the same order as in the constructor
 		cq.multiselect(
 			root.get(Facility.CREATION_DATE),
 			root.get(Facility.CHANGE_DATE),
@@ -263,21 +225,6 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 			root.get(Facility.TYPE),
 			root.get(Facility.PUBLIC_OWNERSHIP),
 			root.get(Facility.EXTERNAL_ID));
-	}
-
-	@Override
-	public FacilityDto getByUuid(String uuid) {
-		return toDto(service.getByUuid(uuid));
-	}
-
-	@Override
-	public List<FacilityDto> getByUuids(List<String> uuids) {
-		return service.getByUuids(uuids).stream().map(c -> toDto(c)).collect(Collectors.toList());
-	}
-
-	@Override
-	public FacilityReferenceDto getFacilityReferenceByUuid(String uuid) {
-		return toReferenceDto(service.getByUuid(uuid));
 	}
 
 	@Override
@@ -329,10 +276,11 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 	public List<FacilityReferenceDto> getByExternalIdAndType(String id, FacilityType type, boolean includeArchivedEntities) {
 		return service.getFacilitiesByExternalIdAndType(id, type, includeArchivedEntities)
 			.stream()
-			.map(f -> toReferenceDto(f))
+			.map(FacilityFacadeEjb::toReferenceDto)
 			.collect(Collectors.toList());
 	}
 
+	@Override
 	public Page<FacilityIndexDto> getIndexPage(FacilityCriteria criteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
 		List<FacilityIndexDto> facilityIndexList = getIndexList(criteria, offset, size, sortProperties);
 		long totalElementCount = count(criteria);
@@ -355,7 +303,7 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 				type,
 				includeArchivedEntities)
 			.stream()
-			.map(f -> toReferenceDto(f))
+			.map(FacilityFacadeEjb::toReferenceDto)
 			.collect(Collectors.toList());
 	}
 
@@ -363,7 +311,7 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 	public List<FacilityReferenceDto> getLaboratoriesByName(String name, boolean includeArchivedEntities) {
 		return service.getFacilitiesByNameAndType(name, null, null, FacilityType.LABORATORY, includeArchivedEntities)
 			.stream()
-			.map(f -> toReferenceDto(f))
+			.map(FacilityFacadeEjb::toReferenceDto)
 			.collect(Collectors.toList());
 	}
 
@@ -404,7 +352,8 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 		return new FacilityReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalID());
 	}
 
-	private FacilityDto toDto(Facility entity) {
+	@Override
+	public FacilityDto toDto(Facility entity) {
 
 		if (entity == null) {
 			return null;
@@ -438,6 +387,11 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 	}
 
 	@Override
+	public FacilityReferenceDto toRefDto(Facility facility) {
+		return toReferenceDto(facility);
+	}
+
+	@Override
 	public List<FacilityIndexDto> getIndexList(FacilityCriteria facilityCriteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -461,8 +415,8 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 			cq.where(filter);
 		}
 
-		if (sortProperties != null && sortProperties.size() > 0) {
-			List<Order> order = new ArrayList<Order>(sortProperties.size());
+		if (CollectionUtils.isNotEmpty(sortProperties)) {
+			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
@@ -590,34 +544,19 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 	}
 
 	@Override
-	public FacilityDto save(@Valid FacilityDto dto) throws ValidationRuntimeException {
-		return save(dto, false);
+	public FacilityDto save(FacilityDto dtoToSave, boolean allowMerge) throws ValidationRuntimeException {
+		validateFacilityDto(dtoToSave);
+		return save(dtoToSave, allowMerge, Validations.importFacilityAlreadyExists);
 	}
 
 	@Override
-	public FacilityDto save(@Valid FacilityDto dto, boolean allowMerge) throws ValidationRuntimeException {
-
-		validateFacilityDto(dto);
-
-		Facility facility = service.getByUuid(dto.getUuid());
-
-		if (facility == null) {
-			List<FacilityReferenceDto> duplicates = getByNameAndType(dto.getName(), dto.getDistrict(), dto.getCommunity(), dto.getType(), true);
-			if (!duplicates.isEmpty()) {
-				if (allowMerge) {
-					String uuid = duplicates.get(0).getUuid();
-					facility = service.getByUuid(uuid);
-					FacilityDto dtoToMerge = getByUuid(uuid);
-					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
-				} else {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.importFacilityAlreadyExists));
-				}
-			}
-		}
-
-		facility = fillOrBuildEntity(dto, facility, true);
-		service.ensurePersisted(facility);
-		return toDto(facility);
+	protected List<Facility> findDuplicates(FacilityDto dto) {
+		return service.getFacilitiesByNameAndType(
+			dto.getName(),
+			districtService.getByReferenceDto(dto.getDistrict()),
+			communityService.getByReferenceDto(dto.getCommunity()),
+			dto.getType(),
+			true);
 	}
 
 	@Override
@@ -642,7 +581,8 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 		}
 	}
 
-	private Facility fillOrBuildEntity(@NotNull FacilityDto source, Facility target, boolean checkChangeDate) {
+	@Override
+	protected Facility fillOrBuildEntity(@NotNull FacilityDto source, Facility target, boolean checkChangeDate) {
 
 		target = DtoHelper.fillOrBuildEntity(source, target, Facility::new, checkChangeDate);
 
@@ -668,7 +608,6 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 		target.setType(source.getType());
 		target.setArchived(source.isArchived());
 		target.setExternalID(source.getExternalID());
-
 		return target;
 	}
 
@@ -680,8 +619,8 @@ public class FacilityFacadeEjb extends AbstractInfrastructureEjb<Facility, Facil
 		}
 
 		@Inject
-		protected FacilityFacadeEjbLocal(FacilityService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
-			super(service, featureConfiguration);
+		protected FacilityFacadeEjbLocal(FacilityService service, FeatureConfigurationFacadeEjbLocal featureConfiguration, UserService userService) {
+			super(service, featureConfiguration, userService);
 		}
 	}
 }

@@ -63,6 +63,8 @@ public interface Validations {
 	String externalMessageDisplayError = "externalMessageDisplayError";
 	String externalMessageFetchError = "externalMessageFetchError";
 	String externalMessageInitError = "externalMessageInitError";
+	String feverTemperatureAboveThreshold = "feverTemperatureAboveThreshold";
+	String feverTemperatureBelowThreshold = "feverTemperatureBelowThreshold";
 	String fileTooBig = "fileTooBig";
 	String futureDate = "futureDate";
 	String futureDateStrict = "futureDateStrict";
@@ -95,6 +97,7 @@ public interface Validations {
 	String importFacilityAlreadyExists = "importFacilityAlreadyExists";
 	String importFacilityNotUniqueInCommunity = "importFacilityNotUniqueInCommunity";
 	String importFacilityNotUniqueInDistrict = "importFacilityNotUniqueInDistrict";
+	String importIncompleteContent = "importIncompleteContent";
 	String importInvalidDate = "importInvalidDate";
 	String importLabNotUnique = "importLabNotUnique";
 	String importLaboratoryAlreadyExists = "importLaboratoryAlreadyExists";
@@ -102,6 +105,7 @@ public interface Validations {
 	String importPersonContactDetailsWithoutFacilityType = "importPersonContactDetailsWithoutFacilityType";
 	String importPointOfEntryAlreadyExists = "importPointOfEntryAlreadyExists";
 	String importPointOfEntryNotUniqueInDistrict = "importPointOfEntryNotUniqueInDistrict";
+	String importProbablyInvalidSeparator = "importProbablyInvalidSeparator";
 	String importPropertyTypeNotAllowed = "importPropertyTypeNotAllowed";
 	String importRegionAlreadyExists = "importRegionAlreadyExists";
 	String importRegionNotInServerCountry = "importRegionNotInServerCountry";
@@ -138,6 +142,7 @@ public interface Validations {
 	String numberTooSmall = "numberTooSmall";
 	String onlyDecimalNumbersAllowed = "onlyDecimalNumbersAllowed";
 	String onlyGeoCoordinatesAllowed = "onlyGeoCoordinatesAllowed";
+	String onlyIntegerNumbersAllowed = "onlyIntegerNumbersAllowed";
 	String onlyNumbersAllowed = "onlyNumbersAllowed";
 	String patchNoSuchFieldException = "patchNoSuchFieldException";
 	String patchUnsupportedCollectionFieldType = "patchUnsupportedCollectionFieldType";
@@ -157,11 +162,14 @@ public interface Validations {
 	String sormasToSormasCountry = "sormasToSormasCountry";
 	String sormasToSormasDistrict = "sormasToSormasDistrict";
 	String sormasToSormasEventExists = "sormasToSormasEventExists";
+	String sormasToSormasEventParticipantExists = "sormasToSormasEventParticipantExists";
 	String sormasToSormasFacility = "sormasToSormasFacility";
+	String sormasToSormasImmunizationExists = "sormasToSormasImmunizationExists";
 	String sormasToSormasInfrastructure = "sormasToSormasInfrastructure";
 	String sormasToSormasLabMessageExists = "sormasToSormasLabMessageExists";
 	String sormasToSormasNotEditable = "sormasToSormasNotEditable";
 	String sormasToSormasOrganizationIdMissing = "sormasToSormasOrganizationIdMissing";
+	String sormasToSormasOwnershipAlreadyHandedOver = "sormasToSormasOwnershipAlreadyHandedOver";
 	String sormasToSormasPersonEnrolled = "sormasToSormasPersonEnrolled";
 	String sormasToSormasPointOfEntry = "sormasToSormasPointOfEntry";
 	String sormasToSormasRegion = "sormasToSormasRegion";

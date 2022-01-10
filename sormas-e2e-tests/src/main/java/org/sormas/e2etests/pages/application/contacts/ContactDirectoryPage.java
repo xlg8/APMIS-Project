@@ -23,14 +23,14 @@ import org.openqa.selenium.By;
 public class ContactDirectoryPage {
   public static final By NEW_CONTACT_BUTTON = By.id("contactNewContact");
   public static final By LINE_LISTING = By.cssSelector("[id='lineListing']");
-  public static final By MULTIPLE_OPTIONS_SEARCH_INPUT = By.cssSelector("#nameUuidCaseLike");
+  public static final By MULTIPLE_OPTIONS_SEARCH_INPUT = By.cssSelector("#contactOrCaseLike");
   public static final By APPLY_FILTERS_BUTTON = By.id("actionApplyFilters");
   public static final String CONTACT_RESULTS_UUID_LOCATOR = "[title = '%s']";
   public static final By CONTACT_GRID_RESULTS_ROWS = By.cssSelector("[role=rowgroup] tr a");
   public static final By CONTACT_DIRECTORY_DETAILED_RADIOBUTTON =
       By.cssSelector("div#contactsViewSwitcher span:nth-child(2) > label");
   public static final By CONTACT_DIRECTORY_DETAILED_PAGE_FILTER_INPUT =
-      By.cssSelector("input#nameUuidCaseLike");
+      By.cssSelector("input#contactOrCaseLike");
   public static final By CONTACTS_DETAILED_COLUMN_HEADERS =
       By.cssSelector("thead .v-grid-column-default-header-content");
   public static final By CONTACTS_DETAILED_FIRST_TABLE_ROW =
@@ -45,4 +45,6 @@ public class ContactDirectoryPage {
       By.cssSelector("#contactsViewSwitcher span:nth-child(3)");
   public static final By FROM_INPUT = By.cssSelector("#fromReferenceDateField input");
   public static final By TO_INPUT = By.cssSelector("#toReferenceDateField input");
+  public static final By GRID_HEADERS = By.xpath("//thead//tr//th");
+  public static final String RESULTS_GRID_HEADER = "//div[contains(text(), '%s')]";
 }

@@ -77,6 +77,7 @@ import de.symeda.sormas.api.event.EventParticipantCriteria;
 import de.symeda.sormas.api.externaldata.ExternalDataDto;
 import de.symeda.sormas.api.externaldata.ExternalDataUpdateException;
 import de.symeda.sormas.api.feature.FeatureType;
+import de.symeda.sormas.api.feature.FeatureTypeProperty;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
@@ -97,7 +98,6 @@ import de.symeda.sormas.api.person.PersonFacade;
 import de.symeda.sormas.api.person.PersonFollowUpEndDto;
 import de.symeda.sormas.api.person.PersonHelper;
 import de.symeda.sormas.api.person.PersonIndexDto;
-import de.symeda.sormas.api.person.PersonNameDto;
 import de.symeda.sormas.api.person.PersonReferenceDto;
 import de.symeda.sormas.api.person.PersonSimilarityCriteria;
 import de.symeda.sormas.api.person.PresentCondition;
@@ -218,14 +218,14 @@ public class PersonFacadeEjb implements PersonFacade {
 	}
 
 	@Override
-	public List<PersonNameDto> getMatchingNameDtos(UserReferenceDto userRef, PersonSimilarityCriteria criteria) {
+	public List<SimilarPersonDto> getSimilarPersonDtos(UserReferenceDto userRef, PersonSimilarityCriteria criteria) {
 
 		User user = userService.getByReferenceDto(userRef);
 		if (user == null) {
 			return Collections.emptyList();
 		}
 
-		return new ArrayList<>(personService.getMatchingNameDtos(criteria, null));
+		return personService.getSimilarPersonDtos(criteria, null);
 	}
 
 	@Override
@@ -236,17 +236,7 @@ public class PersonFacadeEjb implements PersonFacade {
 			return false;
 		}
 
-		return personService.getMatchingNameDtos(criteria, 1).size() > 0;
-	}
-
-	@Override
-	public List<SimilarPersonDto> getSimilarPersonsByUuids(List<String> personUuids) {
-		List<Person> persons = personService.getByUuids(personUuids);
-		if (persons == null) {
-			return new ArrayList<>();
-		} else {
-			return persons.stream().map(PersonFacadeEjb::toSimilarPersonDto).collect(Collectors.toList());
-		}
+		return personService.getSimilarPersonDtos(criteria, 1).size() > 0;
 	}
 
 	@Override
@@ -357,7 +347,7 @@ public class PersonFacadeEjb implements PersonFacade {
 		}
 	}
 
-	public String getEmailAddress(PersonDto person, boolean onlyPrimary) {
+	private String getEmailAddress(PersonDto person, boolean onlyPrimary) {
 		try {
 			return person.getEmailAddress(onlyPrimary);
 		} catch (PersonDto.SeveralNonPrimaryContactDetailsException e) {
@@ -365,7 +355,7 @@ public class PersonFacadeEjb implements PersonFacade {
 		}
 	}
 
-	public String getPhone(PersonDto person, boolean onlyPrimary) {
+	private String getPhone(PersonDto person, boolean onlyPrimary) {
 		try {
 			return person.getPhone(onlyPrimary);
 		} catch (PersonDto.SeveralNonPrimaryContactDetailsException e) {
@@ -385,7 +375,12 @@ public class PersonFacadeEjb implements PersonFacade {
 
 	@Override
 	public PersonDto savePerson(@Valid PersonDto source) throws ValidationRuntimeException {
-		return savePerson(source, true);
+		return savePerson(source, true, true, false);
+	}
+
+	@Override
+	public PersonDto savePerson(@Valid PersonDto source, boolean skipValidation) throws ValidationRuntimeException {
+		return savePerson(source, true, true, skipValidation);
 	}
 
 	/**
@@ -404,18 +399,17 @@ public class PersonFacadeEjb implements PersonFacade {
 	 * @throws ValidationRuntimeException
 	 *             if the passed source person to be saved contains invalid data
 	 */
-	public PersonDto savePerson(@Valid PersonDto source, boolean checkChangeDate) throws ValidationRuntimeException {
-		return savePerson(source, checkChangeDate, true);
-	}
-
-	public PersonDto savePerson(@Valid PersonDto source, boolean checkChangeDate, boolean syncShares) throws ValidationRuntimeException {
+	public PersonDto savePerson(@Valid PersonDto source, boolean checkChangeDate, boolean syncShares, boolean skipValidation)
+		throws ValidationRuntimeException {
 		Person person = personService.getByUuid(source.getUuid());
 
 		PersonDto existingPerson = toDto(person);
 
 		restorePseudonymizedDto(source, person, existingPerson);
 
-		validate(source);
+		if (!skipValidation) {
+			validate(source);
+		}
 
 		if (existingPerson != null && existingPerson.isEnrolledInExternalJournal()) {
 			if (source.isEnrolledInExternalJournal()) {
@@ -547,9 +541,7 @@ public class PersonFacadeEjb implements PersonFacade {
 		if (source.getAddress() != null) {
 			if (source.getAddress().getRegion() != null
 				&& source.getAddress().getDistrict() != null
-				&& !districtFacade.getDistrictByUuid(source.getAddress().getDistrict().getUuid())
-					.getRegion()
-					.equals(source.getAddress().getRegion())) {
+				&& !districtFacade.getByUuid(source.getAddress().getDistrict().getUuid()).getRegion().equals(source.getAddress().getRegion())) {
 				throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.noAddressDistrictInAddressRegion));
 			}
 			if (source.getAddress().getDistrict() != null
@@ -838,45 +830,6 @@ public class PersonFacadeEjb implements PersonFacade {
 		return true;
 	}
 
-	public static SimilarPersonDto toSimilarPersonDto(Person entity) {
-
-		Integer approximateAge = entity.getApproximateAge();
-		ApproximateAgeType approximateAgeType = entity.getApproximateAgeType();
-		if (entity.getBirthdateYYYY() != null) {
-			Pair<Integer, ApproximateAgeType> pair = ApproximateAgeHelper
-				.getApproximateAge(entity.getBirthdateYYYY(), entity.getBirthdateMM(), entity.getBirthdateDD(), entity.getDeathDate());
-			approximateAge = pair.getElement0();
-			approximateAgeType = pair.getElement1();
-		}
-
-		SimilarPersonDto similarPersonDto = new SimilarPersonDto();
-		similarPersonDto.setUuid(entity.getUuid());
-		similarPersonDto.setFirstName(entity.getFirstName());
-		similarPersonDto.setLastName(entity.getLastName());
-		similarPersonDto.setNickname(entity.getNickname());
-		similarPersonDto.setAgeAndBirthDate(
-			PersonHelper.getAgeAndBirthdateString(
-				approximateAge,
-				approximateAgeType,
-				entity.getBirthdateDD(),
-				entity.getBirthdateMM(),
-				entity.getBirthdateYYYY(),
-				I18nProperties.getUserLanguage()));
-		similarPersonDto.setSex(entity.getSex());
-		similarPersonDto.setPresentCondition(entity.getPresentCondition());
-		similarPersonDto.setPhone(entity.getPhone());
-		similarPersonDto.setDistrictName(entity.getAddress().getDistrict() != null ? entity.getAddress().getDistrict().getName() : null);
-		similarPersonDto.setCommunityName(entity.getAddress().getCommunity() != null ? entity.getAddress().getCommunity().getName() : null);
-		similarPersonDto.setPostalCode(entity.getAddress().getPostalCode());
-		similarPersonDto.setCity(entity.getAddress().getCity());
-		similarPersonDto.setStreet(entity.getAddress().getStreet());
-		similarPersonDto.setHouseNumber(entity.getAddress().getHouseNumber());
-		similarPersonDto.setNationalHealthId(entity.getNationalHealthId());
-		similarPersonDto.setPassportNumber(entity.getPassportNumber());
-
-		return similarPersonDto;
-	}
-
 	public static PersonDto toDto(Person source) {
 
 		if (source == null) {
@@ -999,9 +952,12 @@ public class PersonFacadeEjb implements PersonFacade {
 		if (nullSafeCriteria.getPersonAssociation() == PersonAssociation.ALL) {
 			// Fetch Person.id per association and find the distinct count.
 			Set<Long> distinctPersonIds = new HashSet<>();
+			boolean immunizationModuleReduced =
+				featureConfigurationFacade.isPropertyValueTrue(FeatureType.IMMUNIZATION_MANAGEMENT, FeatureTypeProperty.REDUCED);
 			Arrays.stream(PersonAssociation.getSingleAssociations())
+				.filter(e -> !(immunizationModuleReduced && e == PersonAssociation.IMMUNIZATION))
 				.map(e -> getPersonIds(SerializationUtils.clone(nullSafeCriteria).personAssociation(e)))
-				.forEach(e -> distinctPersonIds.addAll(e));
+				.forEach(distinctPersonIds::addAll);
 			count = distinctPersonIds.size();
 		} else {
 			// Directly fetch the count for the only required association
@@ -1047,7 +1003,7 @@ public class PersonFacadeEjb implements PersonFacade {
 	@Override
 	public boolean doesExternalTokenExist(String externalToken, String personUuid) {
 		return personService.exists(
-			(cb, personRoot) -> CriteriaBuilderHelper
+			(cb, personRoot, cq) -> CriteriaBuilderHelper
 				.and(cb, cb.equal(personRoot.get(Person.EXTERNAL_TOKEN), externalToken), cb.notEqual(personRoot.get(Person.UUID), personUuid)));
 	}
 
@@ -1293,10 +1249,11 @@ public class PersonFacadeEjb implements PersonFacade {
 		final Root<Person> person = cq.from(Person.class);
 
 		final PersonQueryContext personQueryContext = new PersonQueryContext(cb, cq, person);
-		((PersonJoins) personQueryContext.getJoins()).configure(criteria);
+		final PersonJoins personJoins = (PersonJoins) personQueryContext.getJoins();
+		personJoins.configure(criteria);
 
-		final Join<Person, Location> location = person.join(Person.ADDRESS, JoinType.LEFT);
-		final Join<Location, District> district = location.join(Location.DISTRICT, JoinType.LEFT);
+		final Join<Person, Location> location = personJoins.getAddress();
+		final Join<Location, District> district = personJoins.getAddressJoins().getDistrict();
 
 		final Subquery<String> phoneSubQuery = cq.subquery(String.class);
 		final Root<PersonContactDetail> phoneRoot = phoneSubQuery.from(PersonContactDetail.class);

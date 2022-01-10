@@ -18,7 +18,6 @@ package de.symeda.sormas.backend.infrastructure.subcontinent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +25,6 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -40,7 +37,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import de.symeda.sormas.api.common.Page;
-import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
@@ -50,7 +46,6 @@ import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentFacade;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentIndexDto;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
-import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureEjb;
 import de.symeda.sormas.backend.infrastructure.continent.Continent;
@@ -58,15 +53,16 @@ import de.symeda.sormas.backend.infrastructure.continent.ContinentFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.continent.ContinentService;
 import de.symeda.sormas.backend.infrastructure.country.Country;
 import de.symeda.sormas.backend.infrastructure.country.CountryService;
+import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
-import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
+import org.apache.commons.collections.CollectionUtils;
 
 @Stateless(name = "SubcontinentFacade")
-public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinent, SubcontinentService> implements SubcontinentFacade {
-
-	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
-	private EntityManager em;
+public class SubcontinentFacadeEjb
+	extends
+	AbstractInfrastructureEjb<Subcontinent, SubcontinentDto, SubcontinentIndexDto, SubcontinentReferenceDto, SubcontinentService, SubcontinentCriteria>
+	implements SubcontinentFacade {
 
 	@EJB
 	private ContinentService continentService;
@@ -77,8 +73,8 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 	}
 
 	@Inject
-	protected SubcontinentFacadeEjb(SubcontinentService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
-		super(service, featureConfiguration);
+	protected SubcontinentFacadeEjb(SubcontinentService service, FeatureConfigurationFacadeEjbLocal featureConfiguration, UserService userService) {
+		super(Subcontinent.class, SubcontinentDto.class, service, featureConfiguration, userService);
 	}
 
 	public static SubcontinentReferenceDto toReferenceDto(Subcontinent entity) {
@@ -139,11 +135,6 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 	}
 
 	@Override
-	public SubcontinentDto getByUuid(String uuid) {
-		return toDto(service.getByUuid(uuid));
-	}
-
-	@Override
 	public List<SubcontinentIndexDto> getIndexList(SubcontinentCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Subcontinent> cq = cb.createQuery(Subcontinent.class);
@@ -159,7 +150,7 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 			cq.where(filter);
 		}
 
-		if (sortProperties != null && sortProperties.size() > 0) {
+		if (CollectionUtils.isNotEmpty(sortProperties)) {
 			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
 				Expression<?> expression;
@@ -189,21 +180,6 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 	}
 
 	@Override
-	public List<SubcontinentDto> getAllAfter(Date date) {
-		return service.getAll((cb, root) -> service.createChangeDateFilter(cb, root, date)).stream().map(this::toDto).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<SubcontinentDto> getByUuids(List<String> uuids) {
-		return service.getByUuids(uuids).stream().map(this::toDto).collect(Collectors.toList());
-	}
-
-	@Override
-	public List<String> getAllUuids() {
-		return service.getAllUuids();
-	}
-
-	@Override
 	public Page<SubcontinentIndexDto> getIndexPage(SubcontinentCriteria criteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
 		List<SubcontinentIndexDto> subcontinentIndexList = getIndexList(criteria, offset, size, sortProperties);
 		long totalElementCount = count(criteria);
@@ -220,39 +196,19 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 	}
 
 	@Override
-	public SubcontinentDto save(@Valid SubcontinentDto dto) {
-		return save(dto, false);
-	}
-
-	@Override
-	public SubcontinentDto save(@Valid SubcontinentDto dto, boolean allowMerge) {
+	public SubcontinentDto save(SubcontinentDto dtoToSave, boolean allowMerge) {
 		checkInfraDataLocked();
-
-		Subcontinent subcontinent = service.getByUuid(dto.getUuid());
-
-		if (subcontinent == null) {
-			List<SubcontinentReferenceDto> duplicates = getByDefaultName(dto.getDefaultName(), true);
-			if (!duplicates.isEmpty()) {
-				if (allowMerge) {
-					String uuid = duplicates.get(0).getUuid();
-					subcontinent = service.getByUuid(uuid);
-					SubcontinentDto dtoToMerge = getByUuid(uuid);
-					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
-				} else {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.importSubcontinentAlreadyExists));
-				}
-			}
-		}
-
-		subcontinent = fillOrBuildEntity(dto, subcontinent, true);
-		service.ensurePersisted(subcontinent);
-
-		return toDto(subcontinent);
+		return save(dtoToSave, allowMerge, Validations.importSubcontinentAlreadyExists);
 	}
 
 	@Override
-	public long count(SubcontinentCriteria criteria) {
-		return service.count((cb, root) -> service.buildCriteriaFilter(criteria, cb, root));
+	protected void selectDtoFields(CriteriaQuery<SubcontinentDto> cq, Root<Subcontinent> root) {
+		// we do not select DTO fields in getAllAfter query
+	}
+
+	@Override
+	protected List<Subcontinent> findDuplicates(SubcontinentDto dto) {
+		return service.getByDefaultName(dto.getDefaultName(), true);
 	}
 
 	public SubcontinentDto toDto(Subcontinent entity) {
@@ -269,6 +225,11 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 		dto.setContinent(ContinentFacadeEjb.toReferenceDto(entity.getContinent()));
 
 		return dto;
+	}
+
+	@Override
+	public SubcontinentReferenceDto toRefDto(Subcontinent subcontinent) {
+		return toReferenceDto(subcontinent);
 	}
 
 	public SubcontinentIndexDto toIndexDto(Subcontinent entity) {
@@ -288,22 +249,24 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 		return dto;
 	}
 
+	@Override
 	public List<SubcontinentReferenceDto> getByExternalId(String externalId, boolean includeArchived) {
 		return service.getByExternalId(externalId, includeArchived).stream().map(SubcontinentFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
+	@Override
 	public List<SubcontinentReferenceDto> getReferencesByName(String caption, boolean includeArchived) {
 		return service.getByDefaultName(caption, includeArchived).stream().map(SubcontinentFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
-	private Subcontinent fillOrBuildEntity(@NotNull SubcontinentDto source, Subcontinent target, boolean checkChangeDate) {
+	@Override
+	protected Subcontinent fillOrBuildEntity(@NotNull SubcontinentDto source, Subcontinent target, boolean checkChangeDate) {
 		target = DtoHelper.fillOrBuildEntity(source, target, Subcontinent::new, checkChangeDate);
 
 		target.setDefaultName(source.getDefaultName());
 		target.setArchived(source.isArchived());
 		target.setExternalId(source.getExternalId());
 		target.setContinent(continentService.getByReferenceDto(source.getContinent()));
-
 		return target;
 	}
 
@@ -316,8 +279,11 @@ public class SubcontinentFacadeEjb extends AbstractInfrastructureEjb<Subcontinen
 		}
 
 		@Inject
-		protected SubcontinentFacadeEjbLocal(SubcontinentService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
-			super(service, featureConfiguration);
+		protected SubcontinentFacadeEjbLocal(
+			SubcontinentService service,
+			FeatureConfigurationFacadeEjbLocal featureConfiguration,
+			UserService userService) {
+			super(service, featureConfiguration, userService);
 		}
 	}
 }
