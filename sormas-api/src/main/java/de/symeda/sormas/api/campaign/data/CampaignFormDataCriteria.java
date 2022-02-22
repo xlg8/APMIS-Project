@@ -20,6 +20,7 @@ import java.util.Date;
 
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -30,18 +31,24 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String CAMPAIGN = "campaign";
 	public static final String CAMPAIGN_FORM_META = "campaignFormMeta";
 	public static final String REGION = "region";
+	public static final String AREA = "area";
 	public static final String DISTRICT = "district";
 	public static final String COMMUNITY = "community";
 	public static final String FORM_DATE = "formDate";
+	public static final String FORM_TYPE = "formType";
 
 	private static final long serialVersionUID = 8124072093160133408L;
 
 	private CampaignReferenceDto campaign;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
+	private AreaReferenceDto area;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
 	private CommunityReferenceDto community;
 	private Date formDate;
+	private String formType;
+
+	
 
 	public CampaignReferenceDto getCampaign() {
 		return campaign;
@@ -66,6 +73,19 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public CampaignFormDataCriteria campaignFormMeta(CampaignFormMetaReferenceDto campaignFormMeta) {
 		this.campaignFormMeta = campaignFormMeta;
+		return this;
+	}
+	
+	public AreaReferenceDto getArea() {
+		return area;
+	}
+
+	public void setArea(AreaReferenceDto area) {
+		this.area = area;
+	}
+	
+	public CampaignFormDataCriteria area(AreaReferenceDto area) {
+		this.area = area;
 		return this;
 	}
 
@@ -120,4 +140,15 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 		this.formDate = formDate;
 		return this;
 	}
+
+	public String getFormType() {
+		return formType;
+	}
+
+	public void setFormType(String formType) {
+		this.formType = formType;
+	}
+	
+	
+	
 }

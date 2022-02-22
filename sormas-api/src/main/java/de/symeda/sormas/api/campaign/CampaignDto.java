@@ -22,14 +22,18 @@ public class CampaignDto extends EntityDto {
 	public static final String I18N_PREFIX = "Campaign";
 
 	public static final String NAME = "name";
+	public static final String ROUND = "round";
 	public static final String DESCRIPTION = "description";
 	public static final String START_DATE = "startDate";
 	public static final String END_DATE = "endDate";
 	public static final String CREATING_USER = "creatingUser";
 	public static final String CAMPAIGN_FORM_METAS = "campaignFormMetas";
+	public static final String CAMPAIGN_TYPES = "campaignTypes";
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String name;
+	private String round;
+	private String campaignTypes;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_BIG, message = Validations.textTooLong)
 	private String description;
 	private Date startDate;
@@ -51,6 +55,26 @@ public class CampaignDto extends EntityDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	
+
+	public String getRound() {
+		return round;
+	}
+
+	public void setRound(String round) {
+		this.round = round;
+	}
+
+	
+	
+	public String getCampaignTypes() {
+		return campaignTypes;
+	}
+
+	public void setCampaignTypes(String campaignTypes) {
+		this.campaignTypes = campaignTypes;
 	}
 
 	public String getDescription() {
