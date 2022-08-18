@@ -35,8 +35,8 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 	@Pattern(regexp = UUID_REGEX, message = Validations.uuidPatternNotMatching)
 	private String uuid;
 	private String caption;
-	private String formtype;
-	private Long externalId;
+	private String formType;
+//	private Long externalId;
 
 	public ReferenceDto() {
 
@@ -54,10 +54,10 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 	public ReferenceDto(String uuid, String caption, String type) {
 		this.uuid = uuid;
 		this.caption = caption;
-		this.formtype = type; 
+		this.formType = type; 
 	}
 	
-	public ReferenceDto(String uuid, Long externalId) {
+	/*public ReferenceDto(String uuid, Long externalId) {
 		this.uuid = uuid;
 		this.externalId = externalId;
 	}
@@ -68,7 +68,7 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 		this.externalId = externalId;
 	}
 	
-	
+	*/
 	
 
 	@Override
@@ -90,26 +90,26 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 	
 	
 
-	public String getFormtype() {
-		return formtype;
+	public String getFormType() {
+		return formType;
 	}
 
-	public void setFormtype(String formtype) {
-		this.formtype = formtype;
+	public void setFormtype(String formType) {
+		this.formType = formType;
 	}
 
-	public Long getExternalID() {
+	/*public Long getExternalID() {
 		return externalId;
 	}
 
 	public void setExternalID(Long externalId) {
 		this.externalId = externalId;
 	}
-
+*/
 	
 
-	public void setFormType(String formtype) {
-		this.formtype = formtype;
+	public void setFormType(String formType) {
+		this.formType = formType;
 	}
 
 	@Override

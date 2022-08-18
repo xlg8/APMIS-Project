@@ -38,10 +38,12 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
-import de.symeda.sormas.api.infrastructure.community.CommunityCriteria;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.ui.ControllerProvider;
@@ -66,12 +68,13 @@ public class CommunitiesView extends AbstractConfigurationView {
 
 	public static final String VIEW_NAME = ROOT_VIEW_NAME + "/communities";
 
-	private CommunityCriteria criteria;
+	private CommunityCriteriaNew criteria;
 	private ViewConfiguration viewConfiguration;
 
 	// Filter
 	private SearchField searchField;
 	private ComboBox countryFilter;
+	private ComboBox areaFilter;
 	private ComboBox regionFilter;
 	private ComboBox districtFilter;
 	private ComboBox relevanceStatusFilter;
@@ -81,7 +84,7 @@ public class CommunitiesView extends AbstractConfigurationView {
 	private VerticalLayout gridLayout;
 	private CommunitiesGrid grid;
 	protected Button importButton;
-	protected Button createButton;
+	protected Button createButton; 
 	private MenuBar bulkOperationsDropdown;
 
 	public CommunitiesView() {
@@ -90,7 +93,7 @@ public class CommunitiesView extends AbstractConfigurationView {
 
 		viewConfiguration = ViewModelProviders.of(CommunitiesView.class).get(ViewConfiguration.class);
 		criteria = ViewModelProviders.of(CommunitiesView.class)
-			.get(CommunityCriteria.class, new CommunityCriteria().country(FacadeProvider.getCountryFacade().getServerCountry()));
+			.get(CommunityCriteriaNew.class, new CommunityCriteriaNew().country(FacadeProvider.getCountryFacade().getServerCountry()));
 		if (criteria.getRelevanceStatus() == null) {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
@@ -131,7 +134,7 @@ public class CommunitiesView extends AbstractConfigurationView {
 			addHeaderComponent(exportButton);
 
 			StreamResource streamResource =
-				GridExportStreamResource.createStreamResource(grid, ExportEntityName.COMMUNITIES, CommunitiesGrid.EDIT_BTN_ID);
+				GridExportStreamResource.createStreamResource("","",grid, ExportEntityName.COMMUNITIES, CommunitiesGrid.EDIT_BTN_ID);
 			FileDownloader fileDownloader = new FileDownloader(streamResource);
 			fileDownloader.extend(exportButton);
 		}
@@ -195,7 +198,22 @@ public class CommunitiesView extends AbstractConfigurationView {
 		countryFilter = addCountryFilter(filterLayout, country -> {
 			criteria.country(country);
 			grid.reload();
-		}, regionFilter);
+		}, areaFilter);
+		
+		areaFilter = ComboBoxHelper.createComboBoxV7();
+		areaFilter.setId(RegionDto.AREA);
+		areaFilter.setWidth(140, Unit.PIXELS);
+		areaFilter.setCaption(I18nProperties.getPrefixCaption(RegionDto.I18N_PREFIX, RegionDto.AREA));
+		areaFilter.addItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		areaFilter.addValueChangeListener(e -> {
+			AreaReferenceDto area = (AreaReferenceDto) e.getProperty().getValue();
+			criteria.area(area);
+			navigateTo(criteria);
+			FieldHelper
+				.updateItems(regionFilter, area != null ? FacadeProvider.getRegionFacade().getAllActiveByArea(area.getUuid()) : null);
+			//grid.reload();
+		});
+		filterLayout.addComponent(areaFilter);
 
 		regionFilter = ComboBoxHelper.createComboBoxV7();
 		regionFilter.setId(DistrictDto.REGION);
@@ -208,7 +226,7 @@ public class CommunitiesView extends AbstractConfigurationView {
 			navigateTo(criteria);
 			FieldHelper
 				.updateItems(districtFilter, region != null ? FacadeProvider.getDistrictFacade().getAllActiveByRegion(region.getUuid()) : null);
-
+			//grid.reload();
 		});
 		filterLayout.addComponent(regionFilter);
 
@@ -218,12 +236,12 @@ public class CommunitiesView extends AbstractConfigurationView {
 		districtFilter.setCaption(I18nProperties.getPrefixCaption(CommunityDto.I18N_PREFIX, CommunityDto.DISTRICT));
 		districtFilter.addValueChangeListener(e -> {
 			criteria.district((DistrictReferenceDto) e.getProperty().getValue());
-			navigateTo(criteria);
+			grid.reload();
 		});
 		filterLayout.addComponent(districtFilter);
 
 		resetButton = ButtonHelper.createButton(Captions.actionResetFilters, event -> {
-			ViewModelProviders.of(CommunitiesView.class).remove(CommunityCriteria.class);
+			ViewModelProviders.of(CommunitiesView.class).remove(CommunityCriteriaNew.class);
 			navigateTo(null);
 		}, CssStyles.FORCE_CAPTION);
 		resetButton.setVisible(false);
@@ -318,6 +336,7 @@ public class CommunitiesView extends AbstractConfigurationView {
 		}
 		searchField.setValue(criteria.getNameLike());
 		countryFilter.setValue(criteria.getCountry());
+		areaFilter.setValue(criteria.getArea());
 		regionFilter.setValue(criteria.getRegion());
 		districtFilter.setValue(criteria.getDistrict());
 

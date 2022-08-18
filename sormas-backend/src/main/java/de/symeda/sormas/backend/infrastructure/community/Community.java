@@ -39,14 +39,16 @@ public class Community extends InfrastructureAdo {
 	public static final String DISTRICT = "district";
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String EXTERNAL_ID = "externalId";
+	public static final String CLUSTER_NUMBER = "clusterNumber";
 
 	private String name;
 	private District district;
 	private Float growthRate;
 	private Long externalId;
+	private Integer clusterNumber;
 
 	public String getName() {
-		return name;
+			return name;
 	}
 
 	public void setName(String name) {
@@ -77,7 +79,15 @@ public class Community extends InfrastructureAdo {
 	}
 
 	public void setExternalId(Long externalId) {
-		this.externalId = externalId;
+		this.externalId = this.getId();
+	}
+
+	public Integer getClusterNumber() {
+		return clusterNumber;
+	}
+
+	public void setClusterNumber(Integer clusterNumber) {
+		this.clusterNumber = clusterNumber;
 	}
 
 	@Override

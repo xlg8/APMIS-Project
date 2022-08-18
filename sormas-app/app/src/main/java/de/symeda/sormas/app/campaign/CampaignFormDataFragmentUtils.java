@@ -35,6 +35,10 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentFactory;
+import androidx.fragment.app.FragmentManager;
+
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
@@ -43,11 +47,14 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.utils.YesNoUnknown;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.component.controls.ControlCheckBoxField;
+import de.symeda.sormas.app.component.controls.ControlDateField;
 import de.symeda.sormas.app.component.controls.ControlPropertyField;
+import de.symeda.sormas.app.component.controls.ControlSpinnerField;
 import de.symeda.sormas.app.component.controls.ControlTextEditField;
 import de.symeda.sormas.app.component.controls.ControlTextReadField;
 
 public class CampaignFormDataFragmentUtils {
+	public static final int DEFAULT_MIN_LENGTH = 1;
 
 	private CampaignFormDataFragmentUtils() {
 	}
@@ -63,7 +70,7 @@ public class CampaignFormDataFragmentUtils {
 			if (type == CampaignFormElementType.YES_NO) {
 				ControlCheckBoxField.setValue((ControlCheckBoxField) dynamicField, (Boolean) expressionValue);
 			} else {
-				ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString());
+				ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue == null ? null: expressionValue.toString());
 			}
 			dynamicField.setEnabled(false);
 		} catch (SpelEvaluationException e) {
@@ -156,7 +163,9 @@ public class CampaignFormDataFragmentUtils {
 	public static ControlTextEditField createControlTextEditField(
 		CampaignFormElement campaignFormElement,
 		Context context,
-		Map<String, String> userTranslations) {
+		Map<String, String> userTranslations,
+		Boolean isIntegerField,
+		Boolean isRequired) {
 		return new ControlTextEditField(context) {
 
 			@Override
@@ -189,15 +198,105 @@ public class CampaignFormDataFragmentUtils {
 				return CHARACTER_LIMIT_DEFAULT;
 			}
 
+		//	@Override
+		//	public int getMinLength() {
+		//		return DEFAULT_MIN_LENGTH;
+		//	}
+//
 			@Override
 			protected void inflateView(Context context, AttributeSet attrs, int defStyle) {
 				super.inflateView(context, attrs, defStyle);
 				initLabel();
 				initLabelAndValidationListeners();
-				initInput();
+				initInput(isIntegerField, isRequired);
 			}
 		};
 	}
+
+
+
+	public static ControlSpinnerField createControlSpinnerFieldEditField(
+			CampaignFormElement campaignFormElement,
+			Context context,
+			Map<String, String> userTranslations,
+			Map<String, String> isIntegerField) {
+		return new ControlSpinnerField(context) {
+
+			@Override
+			protected String getPrefixDescription() {
+				return getUserLanguageCaption(userTranslations, campaignFormElement);
+			}
+
+			@Override
+			protected String getPrefixCaption() {
+				return getUserLanguageCaption(userTranslations, campaignFormElement);
+			}
+
+			@Override
+			public int getTextAlignment() {
+				return View.TEXT_ALIGNMENT_VIEW_START;
+			}
+
+			@Override
+			public int getGravity() {
+				return Gravity.CENTER_VERTICAL;
+			}
+
+			@Override
+			protected void inflateView(Context context, AttributeSet attrs, int defStyle) {
+				super.inflateView(context, attrs, defStyle);
+				initLabel();
+				initLabelAndValidationListeners();
+				initInput(isIntegerField);
+			}
+		};
+	}
+
+
+
+	public static ControlDateField createControlDateEditField(
+			CampaignFormElement campaignFormElement,
+			Context context,
+			Map<String, String> userTranslations,
+			Boolean isIntegerField,
+			FragmentManager fm, boolean isRequired) {
+		return new ControlDateField(context) {
+
+			@Override
+			protected String getPrefixDescription() {
+				return getUserLanguageCaption(userTranslations, campaignFormElement);
+			}
+
+			@Override
+			protected String getPrefixCaption() {
+				return getUserLanguageCaption(userTranslations, campaignFormElement);
+			}
+
+			@Override
+			public int getTextAlignment() {
+				return View.TEXT_ALIGNMENT_VIEW_START;
+			}
+
+			@Override
+			public int getGravity() {
+				return Gravity.CENTER_VERTICAL;
+			}
+
+
+
+			@Override
+			protected void inflateView(Context context, AttributeSet attrs, int defStyle) {
+				super.inflateView(context, attrs, defStyle);
+				initLabel();
+				initLabelAndValidationListeners();
+
+				initializeDateField(fm);
+				initInput(true, isRequired);
+			}
+		};
+	}
+
+
 
 	public static ControlCheckBoxField createControlCheckBoxField(
 		CampaignFormElement campaignFormElement,
@@ -230,6 +329,8 @@ public class CampaignFormDataFragmentUtils {
 				super.inflateView(context, attrs, defStyle);
 				initLabel();
 				initLabelAndValidationListeners();
+				//required = true;
+
 				initInput();
 			}
 		};

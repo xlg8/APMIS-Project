@@ -42,6 +42,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.ui.dashboard.surveillance.SurveillanceDashboardView;
 import de.symeda.sormas.ui.login.LoginHelper;
+import de.symeda.sormas.ui.user.UserAccountView;
 import de.symeda.sormas.ui.user.UserSettingsForm;
 import de.symeda.sormas.ui.utils.ButtonHelper;
 import de.symeda.sormas.ui.utils.CommitDiscardWrapperComponent;
@@ -74,16 +75,17 @@ public class Menu extends CssLayout {
 		this.navigator = navigator;
 		setPrimaryStyleName(ValoTheme.MENU_ROOT);
 		menuPart = new CssLayout();
-		menuPart.setPrimaryStyleName(VALO_MENUITEMS);
+		menuPart.addStyleName(ValoTheme.MENU_PART);
 
 		// header of the menu
 		final HorizontalLayout top = new HorizontalLayout();
 		top.setDefaultComponentAlignment(Alignment.MIDDLE_CENTER);
 		top.addStyleName(ValoTheme.MENU_TITLE);
 		top.setSpacing(true);
-		// Label title = new
-		// Label(FacadeProvider.getConfigFacade().getSormasInstanceName());
-		// title.setSizeUndefined();
+		
+		 Label title = new
+		 Label("APMIS");
+		 title.setSizeUndefined();
 
 		Image image;
 		if (FacadeProvider.getConfigFacade().isCustomBranding()
@@ -91,13 +93,12 @@ public class Menu extends CssLayout {
 			Path logoPath = Paths.get(FacadeProvider.getConfigFacade().getCustomBrandingLogoPath());
 			image = new Image(null, new FileResource(logoPath.toFile()));
 		} else {
-			image = new Image(null, new ThemeResource("img/sormsasd-logo.png"));
+			image = new Image(null, new ThemeResource("img/apmis-logo.png"));
 		}
 		CssStyles.style(image, ValoTheme.MENU_LOGO, ValoTheme.BUTTON_LINK);
 		top.addComponent(image);
-		// top.addComponent(title);
-		top.addLayoutClickListener(
-				listener -> SormasUI.get().getNavigator().navigateTo(SurveillanceDashboardView.VIEW_NAME));
+		top.addComponent(title);
+		top.addLayoutClickListener(listener -> SormasUI.get().getNavigator().navigateTo(SurveillanceDashboardView.VIEW_NAME));
 		menuPart.addComponent(top);
 
 		// button for toggling the visibility of the menu when on a small screen
@@ -114,8 +115,7 @@ public class Menu extends CssLayout {
 		// container for the navigation buttons, which are added by addView()
 		menuItemsLayout = new CssLayout();
 		menuItemsLayout.setPrimaryStyleName(VALO_MENUITEMS);
-		
-		
+		//menuPart.addComponent(menuItemsLayout);
 
 		// settings menu item
 		MenuBar settingsMenu = new MenuBar();
@@ -182,6 +182,18 @@ public class Menu extends CssLayout {
 		window.setContent(component);
 		UI.getCurrent().addWindow(window);
 	}
+	
+	private void showUserAccountPopup() {
+		Window window = VaadinUiUtil.createPopupWindow();
+		window.setCaption(I18nProperties.getString(Strings.headingUserSettings));
+		window.setModal(true);
+
+		CommitDiscardWrapperComponent<UserAccountView> component = ControllerProvider.getUserController()
+				.getUserAccountSettingsComponent(() -> window.close());
+
+		window.setContent(component);
+		UI.getCurrent().addWindow(window);
+	}
 
 	/**
 	 * Register a pre-created view instance in the navigation menu and in the
@@ -234,6 +246,16 @@ public class Menu extends CssLayout {
 
 		Button button = ButtonHelper.createIconButtonWithCaption(name, caption, icon,
 				event -> showSettingsPopup());
+		button.setPrimaryStyleName(ValoTheme.MENU_ITEM);
+
+		menuItemsLayout.addComponent(button);
+		viewButtons.put(name, button);
+	}
+	
+	public void createAccountViewButton(final String name, String caption, Resource icon) {
+
+		Button button = ButtonHelper.createIconButtonWithCaption(name, caption, icon,
+				event -> showUserAccountPopup());
 		button.setPrimaryStyleName(ValoTheme.MENU_ITEM);
 
 		menuItemsLayout.addComponent(button);

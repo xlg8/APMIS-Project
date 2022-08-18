@@ -4,6 +4,7 @@ public enum CampaignFormElementType {
 
 	LABEL,
 	SECTION,
+	DAYWISE,
 	NUMBER,
 	TEXT,
 	YES_NO("yes", "no", "true", "false"),
@@ -13,7 +14,7 @@ public enum CampaignFormElementType {
 	CHECKBOXBASIC,
 	RADIOBASIC,
 	TEXTBOX,
-	
+	COMMENT,
 	DATE,
 	DECIMAL,
 	RANGE,

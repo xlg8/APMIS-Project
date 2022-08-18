@@ -33,13 +33,15 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
-import de.symeda.sormas.api.infrastructure.community.CommunityCriteria;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.backend.common.AbstractInfrastructureAdoService;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
+import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.country.Country;
 import de.symeda.sormas.backend.infrastructure.country.CountryFacadeEjb.CountryFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.district.District;
@@ -75,13 +77,13 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 		return em.createQuery(cq).getResultList();
 	}
 	
-	public List<Community> getByExternalID(Long ext_id, District district_ext, boolean includeArchivedEntities) {
+	public List<Community> getByExternalId(Long ext_id, District district_ext, boolean includeArchivedEntities) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(getElementClass());
 		Root<Community> from = cq.from(getElementClass());
 
-		Predicate filter = cb.equal(from.get("externalID"), ext_id);
+		Predicate filter = cb.equal(from.get("externalId"), ext_id);
 		
 		if (!includeArchivedEntities) {
 			filter = cb.and(filter, createBasicFilter(cb, from));
@@ -106,9 +108,10 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 		return null;
 	}
 
-	public Predicate buildCriteriaFilter(CommunityCriteria criteria, CriteriaBuilder cb, Root<Community> from) {
+	public Predicate buildCriteriaFilter(CommunityCriteriaNew criteria, CriteriaBuilder cb, Root<Community> from) {
 		Join<Community, District> district = from.join(Community.DISTRICT, JoinType.LEFT);
 		Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
+		Join<Region, Area> area = region.join(Region.AREA, JoinType.LEFT);
 		Predicate filter = null;
 
 		CountryReferenceDto country = criteria.getCountry();
@@ -126,6 +129,15 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			} else {
 				filter = CriteriaBuilderHelper.and(cb, filter, countryFilter);
 			}
+		}
+		
+		System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz ");
+		
+		AreaReferenceDto aread = criteria.getArea();
+		
+		if (aread != null) {
+			System.out.println("zzzzzzzzzzzzzzzzzzzz");
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(area.get(Area.UUID), aread.getUuid()));
 		}
 
 		if (criteria.getRegion() != null) {

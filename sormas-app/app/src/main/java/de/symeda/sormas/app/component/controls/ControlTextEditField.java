@@ -52,6 +52,7 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 	private boolean singleLine;
 	private int maxLines;
 	private int maxLength;
+	private int minLength;
 	private boolean textArea;
 	private int inputType;
 
@@ -226,7 +227,11 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 				textArea = a.getBoolean(R.styleable.ControlTextEditField_textArea, false);
 				maxLength = a.getInt(
 					R.styleable.ControlTextEditField_maxLength,
-					textArea ? FieldConstraints.CHARACTER_LIMIT_BIG : FieldConstraints.CHARACTER_LIMIT_DEFAULT);
+					textArea ? FieldConstraints.CHARACTER_LIMIT_BIG : FieldConstraints.CHARACTER_LIMIT_UUID_MIN);
+
+				minLength = a.getInt(
+						R.styleable.ControlTextEditField_minLength,
+						textArea ? FieldConstraints.CHARACTER_LIMIT_BIG : FieldConstraints.CHARACTER_LIMIT_DEFAULT);
 				inputType = a.getInt(R.styleable.ControlTextEditField_inputType, InputType.TYPE_CLASS_TEXT);
 			} finally {
 				a.recycle();
@@ -255,10 +260,10 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 	protected void onFinishInflate() {
 		super.onFinishInflate();
 
-		initInput();
+		initInput(false, false);
 	}
 
-	protected void initInput() {
+	protected void initInput(boolean isIntegerFlag, boolean isRequired) {
 		input = (EditText) this.findViewById(R.id.text_input);
 		if (getImeOptions() == EditorInfo.IME_NULL) {
 			setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -269,13 +274,38 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 		if (getTextAlignment() == View.TEXT_ALIGNMENT_GRAVITY) {
 			input.setGravity(getGravity());
 		}
-		input.setInputType(inputType);
+		if(isIntegerFlag) {
+			input.setInputType(InputType.TYPE_CLASS_NUMBER |
+					InputType.TYPE_NUMBER_FLAG_DECIMAL |
+					InputType.TYPE_NUMBER_FLAG_SIGNED);
+		} else {
+
+			input.setInputType(inputType);
+		}
 		setSingleLine(singleLine);
 		if (getMaxLength() >= 0) {
 			input.setFilters(
 				new InputFilter[] {
-					new InputFilter.LengthFilter(getMaxLength()) });
+					new InputFilter.LengthFilter(240) });
 		}
+
+		required = isRequired;
+/*
+		if (getMinLength() >= 0) {
+			input.setFilters(
+					new InputFilter[] {
+							new InputFilter.LengthFilter(getMinLength()) });
+		}
+*/
+
+		CharSequence valx = input.getText();
+		if(valx == null && required){
+			setSoftRequired(true);
+
+			input.setError("!");
+			return;
+		}
+
 
 		input.addTextChangedListener(new TextWatcher() {
 
@@ -299,6 +329,9 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 		setUpOnEditorActionListener();
 		setUpOnFocusChangeListener();
 		initializeOnClickListener();
+
+
+
 	}
 
 	@Override
@@ -490,5 +523,13 @@ public class ControlTextEditField extends ControlPropertyEditField<String> {
 
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
+	}
+
+	public int getMinLength() {
+		return minLength;
+	}
+
+	public void setMinLength(int minLength) {
+		this.minLength = minLength;
 	}
 }

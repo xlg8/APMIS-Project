@@ -45,7 +45,7 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
-import de.symeda.sormas.api.infrastructure.community.CommunityCriteria;
+import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -128,11 +128,14 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			district.get(District.UUID),
 			district.get(District.NAME),
 			district.get(District.EXTERNAL_ID),
-			root.get(Community.EXTERNAL_ID));
+			root.get(Community.EXTERNAL_ID),
+			root.get(Community.CLUSTER_NUMBER));
 	}
 
 	@Override
-	public List<CommunityDto> getIndexList(CommunityCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
+	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
+		
+		System.out.println("22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea());
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -157,6 +160,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 				case Community.NAME:
 				case Community.GROWTH_RATE:
 				case Community.EXTERNAL_ID:
+				case Community.CLUSTER_NUMBER:
 					expression = community.get(sortProperty.propertyName);
 					break;
 				case District.REGION:
@@ -185,14 +189,14 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		return QueryHelper.getResultList(em, cq, first, max, this::toDto);
 	}
 
-	public Page<CommunityDto> getIndexPage(CommunityCriteria communityCriteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
+	public Page<CommunityDto> getIndexPage(CommunityCriteriaNew communityCriteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
 		List<CommunityDto> communityList = getIndexList(communityCriteria, offset, size, sortProperties);
 		long totalElementCount = count(communityCriteria);
 		return new Page<>(communityList, offset, size, totalElementCount);
 	}
 
 	@Override
-	public long count(CommunityCriteria criteria) {
+	public long count(CommunityCriteriaNew criteria) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -306,7 +310,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public List<CommunityReferenceDto> getByExternalID(Long ext_id, DistrictReferenceDto districtRef, boolean includeArchivedEntities) {
 
-		return service.getByExternalID(ext_id, districtService.getByReferenceDto(districtRef), includeArchivedEntities)
+		return service.getByExternalId(ext_id, districtService.getByReferenceDto(districtRef), includeArchivedEntities)
 			.stream()
 			.map(CommunityFacadeEjb::toReferenceDto)
 			.collect(Collectors.toList());
@@ -356,7 +360,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			return null;
 		}
 		
-		CommunityReferenceDto dto = new CommunityReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
+		CommunityReferenceDto dto = new CommunityReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId(), entity.getClusterNumber());
 		return dto;
 	}
 
@@ -374,6 +378,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		dto.setRegion(RegionFacadeEjb.toReferenceDto(entity.getDistrict().getRegion()));
 		dto.setArchived(entity.isArchived());
 		dto.setExternalId(entity.getExternalId());
+		dto.setClusterNumber(entity.getClusterNumber());
 
 		return dto;
 	}
@@ -387,6 +392,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
 		target.setArchived(source.isArchived());
 		target.setExternalId(source.getExternalId());
+		target.setClusterNumber(source.getClusterNumber());
 
 		return target;
 	}

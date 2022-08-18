@@ -26,9 +26,13 @@ import java.util.List;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
+import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramCriteria;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDataDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramSeries;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
 
 
@@ -65,6 +69,11 @@ public interface CampaignFormDataFacade {
 		CampaignDiagramSeries diagramSeriesTotal,
 		CampaignDiagramSeries diagramSeries,
 		CampaignDiagramCriteria campaignDiagramCriteria);
+	
+	List<CampaignDiagramDataDto> getDiagramDataByAgeGroupCard(
+			CampaignDiagramSeries diagramSeriesTotal,
+			CampaignDiagramSeries diagramSeries,
+			CampaignDiagramCriteria campaignDiagramCriteria);
 
 	List<String> getAllActiveUuids();
 
@@ -75,5 +84,9 @@ public interface CampaignFormDataFacade {
 	void overwriteCampaignFormData(CampaignFormDataDto existingData, CampaignFormDataDto newData);
 	
 	List<CampaignFormDataDto> getCampaignFormData(String campaignformuuid, String formuuid);
+	
+	List<MapCampaignDataDto> getCampaignDataforMaps();
+	
+	String getByClusterDropDown(CommunityReferenceDto community, CampaignFormMetaDto campaignForm, CampaignDto campaign);
 	
 }

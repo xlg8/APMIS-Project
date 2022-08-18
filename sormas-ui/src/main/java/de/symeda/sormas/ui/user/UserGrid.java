@@ -61,12 +61,9 @@ public class UserGrid extends FilteredGrid<UserDto, UserCriteria> {
 			setLazyDataProvider();
 			setCriteria(getCriteria());
 		}
-		
-		
-
 		//addEditColumn(e -> ControllerProvider.getUserController().edit(e));
 		
-	//	addItemClickListener(new ShowDetailsListener<>(UserDto.UUID, e -> ControllerProvider.getUserController().edit(e)));
+		//addItemClickListener(new ShowDetailsListener<>(UserDto.UUID, e -> ControllerProvider.getUserController().edit(e)));
 		addItemClickListener(new ShowDetailsListener<>(UserDto.ACTIVE, e -> ControllerProvider.getUserController().edit(e)));
 		addItemClickListener(new ShowDetailsListener<>(UserDto.USER_ROLES, e -> ControllerProvider.getUserController().edit(e)));
 		addItemClickListener(new ShowDetailsListener<>(UserDto.USER_NAME, e -> ControllerProvider.getUserController().edit(e)));
