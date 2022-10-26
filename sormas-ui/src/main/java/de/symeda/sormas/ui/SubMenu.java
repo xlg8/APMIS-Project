@@ -76,6 +76,7 @@ public class SubMenu extends CssLayout {
 		}
 		tabItemCell.addComponent(tabItem);
 
+
 		Link link = new Link(caption, new ExternalResource(target));
 		link.addStyleName("v-caption");
 		if (isBackNavigation)
