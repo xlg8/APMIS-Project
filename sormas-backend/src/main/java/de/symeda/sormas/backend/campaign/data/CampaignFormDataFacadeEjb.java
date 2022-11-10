@@ -412,6 +412,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		return campaignFormDataService.getAllActiveAfter(date).stream().map(c -> convertToDto(c))
 				.collect(Collectors.toList());
 	}
+	
+	@Override
+	public String getAllCampaignFormDataAfterPivot() {
+		if (userService.getCurrentUser() == null) {
+			return "";
+		}
+		return campaignFormDataService.getAllCampaignFormDataAfterPivot();
+	}
 
 	@Override
 	public List<CampaignFormDataDto> getAllActive() {

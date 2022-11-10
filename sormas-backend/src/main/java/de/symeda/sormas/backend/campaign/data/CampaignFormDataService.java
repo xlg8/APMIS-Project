@@ -20,6 +20,7 @@
 
 package de.symeda.sormas.backend.campaign.data;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
 import de.symeda.sormas.api.campaign.data.MapCampaignDataDto;
 import de.symeda.sormas.api.caze.MapCaseDto;
@@ -293,4 +295,32 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return result;
 	}
 
+	//@SuppressWarnings("unchecked")
+	public String getAllCampaignFormDataAfterPivot() {
+
+String giantSql = "begin;\r\n"
+		+ "CREATE TEMP TABLE pivottables AS\r\n"
+		+ "\r\n"
+		+ "SELECT areas.name as Regions, region.name as Provinces, community.name as Clusters, \r\n"
+		+ "community.clusternumber as ClusterNumbers, district.name as Districts, \r\n"
+		+ "				   campaigns.name as Campaign, formdate, formtype, jsonMeta ->> 'id' as FormFieldId ,  jsonMeta ->> 'value' as FieldValue \r\n"
+		+ "FROM campaignformdata\r\n"
+		+ "inner join region on region.id = campaignformdata.region_id\r\n"
+		+ "inner join community on community.id = campaignformdata.community_id\r\n"
+		+ "inner join areas on areas.id = campaignformdata.area_id\r\n"
+		+ "inner join district on district.id = campaignformdata.district_id\r\n"
+		+ "inner join campaigns on campaigns.id = campaignformdata.campaign_id,\r\n"
+		+ "json_array_elements(\"formvalues\") as jsonMeta\r\n"
+		+ "WHERE campaigns.archived = false and campaigns.deleted = false;\r\n"
+		+ "\r\n"
+		+ "COMMIT;\r\n"
+		+ "SELECT array_to_json(array_agg(pivottables), FALSE) AS json_result FROM pivottables;\r\n"
+		+ "";
+
+			return em.createNativeQuery(giantSql).toString();
+
 }
+}
+
+
+
