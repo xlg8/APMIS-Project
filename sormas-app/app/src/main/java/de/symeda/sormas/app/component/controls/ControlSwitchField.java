@@ -45,6 +45,7 @@ import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.component.VisualState;
 import de.symeda.sormas.app.core.StateDrawableBuilder;
 import de.symeda.sormas.app.util.DataUtils;
+import de.symeda.sormas.app.util.YesNo;
 
 public class ControlSwitchField extends ControlPropertyEditField<Object> {
 
@@ -143,6 +144,7 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 
 	private void removeAllItems() {
 		input.removeAllViews();
+		radioGroupElements = new ArrayList<>();
 		radioGroupElements.clear();
 	}
 
@@ -207,10 +209,10 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 
 	private Drawable getButtonDrawable(boolean lastButton, boolean hasError) {
 		return new StateDrawableBuilder().setCheckedAndDisabledDrawable(ControlSwitchState.DISABLED.getDrawable(lastButton, hasError, getResources()))
-			.setPressedDrawable(ControlSwitchState.PRESSED.getDrawable(lastButton, hasError, getResources()))
-			.setCheckedDrawable(ControlSwitchState.CHECKED.getDrawable(lastButton, hasError, getResources()))
-			.setNormalDrawable(ControlSwitchState.NORMAL.getDrawable(lastButton, hasError, getResources()))
-			.build();
+				.setPressedDrawable(ControlSwitchState.PRESSED.getDrawable(lastButton, hasError, getResources()))
+				.setCheckedDrawable(ControlSwitchState.CHECKED.getDrawable(lastButton, hasError, getResources()))
+				.setNormalDrawable(ControlSwitchState.NORMAL.getDrawable(lastButton, hasError, getResources()))
+				.build();
 	}
 
 	private void setUpOnClickListener(RadioButton button, ControlSwitchField field) {
@@ -266,7 +268,10 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 	@Override
 	protected void onFinishInflate() {
 		super.onFinishInflate();
+		initInputFirst();
+	}
 
+	protected void initInputFirst(){
 		input = (RadioGroup) this.findViewById(R.id.switch_input);
 		input.setOrientation(HORIZONTAL);
 		background = getResources().getDrawable(R.drawable.control_switch_background_border);
@@ -276,10 +281,13 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 		if (useBoolean) {
 			setBooleanContent();
 		} else if (enumClass == null) {
-			setEnumClass(YesNoUnknown.class);
+			setEnumClass(YesNo.class);
 		}
 
 		input.setOnCheckedChangeListener((radioGroup, i) -> {
+
+			setEnumClass(YesNo.class);
+
 			if (inverseBindingListener != null) {
 				inverseBindingListener.onChange();
 			}
@@ -304,6 +312,7 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 			View selectedValue = input.findViewById(selectedValueId);
 			if (selectedValue != null) {
 				int selectedValueIndex = input.indexOfChild(selectedValue);
+				//setEnumClass(YesNo.class);
 				return radioGroupElements.get(selectedValueIndex);
 			}
 
@@ -320,9 +329,10 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 		if (value == null) {
 			input.clearCheck();
 		} else {
-			int selectedValueIndex = radioGroupElements.indexOf(value);
+
+			int selectedValueIndex = Integer.parseInt(value.toString());
 			if (selectedValueIndex >= 0) {
-				RadioButton button = (RadioButton) input.getChildAt(selectedValueIndex);
+					RadioButton button = (RadioButton) input.getChildAt(selectedValueIndex);
 				if (!button.isChecked()) {
 					input.check(button.getId());
 				}
@@ -410,20 +420,22 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 	}
 
 	@BindingAdapter(value = {
-		"value",
-		"useBoolean",
-		"enumClass",
-		"defaultValue" }, requireAll = false)
+			"value",
+			"useBoolean",
+			"enumClass",
+			"defaultValue" }, requireAll = false)
 	public static void setValue(ControlSwitchField view, Object value, Boolean useBoolean, Class enumClass, Object defaultValue) {
-		if (enumClass != null) {
+			if (enumClass != null) {
 			view.setEnumClass((Class<? extends Enum>) enumClass);
 		}
 
-		if (value == null) {
+		if (value != null) {
+			value = value.equals("YES") ? 0 : 1;
+		} else{
 			value = defaultValue;
 		}
 
-		view.setFieldValue(value);
+			view.setFieldValue(value);
 	}
 
 	public void setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener onCheckedChangeListener) {
