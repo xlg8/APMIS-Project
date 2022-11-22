@@ -28,6 +28,12 @@ public class CampaignFormDataResource extends EntityDtoResource {
 	public List<CampaignFormDataDto> getAllCampaignFormData(@PathParam("since") long since) {
 		return FacadeProvider.getCampaignFormDataFacade().getAllActiveAfter(new Date(since));
 	}
+	
+	@GET
+	@Path("/pivot")
+	public String getAllCampaignFormDataIntoPivot() {
+		return FacadeProvider.getCampaignFormDataFacade().getAllCampaignFormDataAfterPivot();
+	}
 
 	@POST
 	@Path("/query")

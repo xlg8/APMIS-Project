@@ -79,6 +79,8 @@ public interface CampaignFormDataFacade {
 
 	List<CampaignFormDataDto> getAllActiveAfter(Date date);
 	
+	String getAllCampaignFormDataAfterPivot();
+	
 	List<CampaignFormDataDto> getAllActive();
 
 	void overwriteCampaignFormData(CampaignFormDataDto existingData, CampaignFormDataDto newData);
