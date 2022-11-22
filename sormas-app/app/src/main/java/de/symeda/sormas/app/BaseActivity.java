@@ -41,6 +41,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -358,14 +359,15 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 		case R.id.action_readAll:
 			// TODO
+			restartAndUpdateApplication();
 			return true;
 
-		case R.id.action_help:
-			StringBuilder helpStringBuilder = new StringBuilder();
-			extendHelpString(helpStringBuilder, (ViewGroup) this.findViewById(R.id.main_content));
-			InfoDialog infoDialog = new InfoDialog(getContext(), R.layout.dialog_screen_help_layout, Html.fromHtml(helpStringBuilder.toString()));
-			infoDialog.show();
-			return true;
+//		case R.id.action_help:
+//			StringBuilder helpStringBuilder = new StringBuilder();
+//			extendHelpString(helpStringBuilder, (ViewGroup) this.findViewById(R.id.main_content));
+//			InfoDialog infoDialog = new InfoDialog(getContext(), R.layout.dialog_screen_help_layout, Html.fromHtml(helpStringBuilder.toString()));
+//			infoDialog.show();
+//			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -736,6 +738,13 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	public void goToNewView() {
 		throw new NotImplementedException("goToNewView");
 	}
+
+	public void restartAndUpdateApplication() {
+		ProcessPhoenix.triggerRebirth(getApplicationContext());
+		ProcessPhoenix.triggerRebirth(getActiveActivity());
+	}
+
+
 
 	@Override
 	public View getRootView() {
