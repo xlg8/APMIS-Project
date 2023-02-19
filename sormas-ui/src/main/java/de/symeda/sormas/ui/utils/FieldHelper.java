@@ -42,13 +42,9 @@ import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.v7.ui.AbstractSelect;
 import com.vaadin.v7.ui.Field;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.symptoms.SymptomsDto;
 import de.symeda.sormas.api.user.UserRole;
-import de.symeda.sormas.api.utils.Diseases;
 import de.symeda.sormas.api.utils.fieldvisibility.FieldVisibilityCheckers;
 
 public final class FieldHelper {
@@ -381,24 +377,24 @@ public final class FieldHelper {
 		setRequiredWhen(fieldGroup, fieldGroup.getField(sourcePropertyId), targetPropertyIds, sourceValues);
 	}
 
-	public static void setRequiredWhenNotNull(FieldGroup fieldGroup, Object sourcePropertyId, String targetPropertyId) {
-		setRequiredWhen(fieldGroup, fieldGroup.getField(sourcePropertyId), Arrays.asList(targetPropertyId), Arrays.asList((Object) null), true, null);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void setRequiredWhen(FieldGroup fieldGroup, Field sourceField, List<String> targetPropertyIds, final List<?> sourceValues) {
-		setRequiredWhen(fieldGroup, sourceField, targetPropertyIds, sourceValues, false, null);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void setRequiredWhen(
-		FieldGroup fieldGroup,
-		Field sourceField,
-		List<String> targetPropertyIds,
-		final List<?> sourceValues,
-		Disease disease) {
-		setRequiredWhen(fieldGroup, sourceField, targetPropertyIds, sourceValues, false, disease);
-	}
+//	public static void setRequiredWhenNotNull(FieldGroup fieldGroup, Object sourcePropertyId, String targetPropertyId) {
+//		setRequiredWhen(fieldGroup, fieldGroup.getField(sourcePropertyId), Arrays.asList(targetPropertyId), Arrays.asList((Object) null), true, null);
+//	}
+//
+//	@SuppressWarnings("rawtypes")
+//	public static void setRequiredWhen(FieldGroup fieldGroup, Field sourceField, List<String> targetPropertyIds, final List<?> sourceValues) {
+//		setRequiredWhen(fieldGroup, sourceField, targetPropertyIds, sourceValues, false, null);
+//	}
+//
+//	@SuppressWarnings("rawtypes")
+//	public static void setRequiredWhen(
+//		FieldGroup fieldGroup,
+//		Field sourceField,
+//		List<String> targetPropertyIds,
+//		final List<?> sourceValues,
+//		Disease disease) {
+//		setRequiredWhen(fieldGroup, sourceField, targetPropertyIds, sourceValues, false, disease);
+//	}
 
 	/**
 	 * Sets the target fields to required when the sourceField has a value that's
@@ -406,65 +402,65 @@ public final class FieldHelper {
 	 * no fields are set to required that are not visible and therefore cannot be
 	 * edited by the user.
 	 */
-	@SuppressWarnings("rawtypes")
-	public static void setRequiredWhen(
-		FieldGroup fieldGroup,
-		Field sourceField,
-		List<String> targetPropertyIds,
-		final List<?> sourceValues,
-		boolean requiredWhenNot,
-		Disease disease) {
-
-		final List<? extends Field<?>> targetFields = targetPropertyIds.stream().map(id -> fieldGroup.getField(id)).collect(Collectors.toList());
-
-		setRequiredWhen(sourceField, targetFields, sourceValues, requiredWhenNot, disease);
-	}
-
-	@SuppressWarnings("rawtypes")
-	public static void setRequiredWhen(
-		Field sourceField,
-		List<? extends Field<?>> targetFields,
-		List<?> sourceValues,
-		boolean requiredWhenNot,
-		Disease disease) {
-
-		if (sourceField != null) {
-			if (sourceField instanceof AbstractField<?>) {
-				((AbstractField) sourceField).setImmediate(true);
-			}
-
-			// initialize
-			{
-				boolean required = sourceValues.contains(getNullableSourceFieldValue(sourceField));
-
-				for (Field targetField : targetFields) {
-					if (!targetField.isVisible()) {
-						targetField.setRequired(false);
-						continue;
-					}
-
-					if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, targetField.getId(), disease)) {
-						targetField.setRequired(required);
-					}
-				}
-			}
-
-			sourceField.addValueChangeListener(event -> {
-				boolean required = sourceValues.contains(getNullableSourceFieldValue(((Field) event.getProperty())));
-				required = required != requiredWhenNot;
-				for (Field targetField : targetFields) {
-					if (!targetField.isVisible()) {
-						targetField.setRequired(false);
-						continue;
-					}
-
-					if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, targetField.getId(), disease)) {
-						targetField.setRequired(required);
-					}
-				}
-			});
-		}
-	}
+//	@SuppressWarnings("rawtypes")
+//	public static void setRequiredWhen(
+//		FieldGroup fieldGroup,
+//		Field sourceField,
+//		List<String> targetPropertyIds,
+//		final List<?> sourceValues,
+//		boolean requiredWhenNot,
+//		Disease disease) {
+//
+//		final List<? extends Field<?>> targetFields = targetPropertyIds.stream().map(id -> fieldGroup.getField(id)).collect(Collectors.toList());
+//
+//		setRequiredWhen(sourceField, targetFields, sourceValues, requiredWhenNot, disease);
+//	}
+//
+//	@SuppressWarnings("rawtypes")
+//	public static void setRequiredWhen(
+//		Field sourceField,
+//		List<? extends Field<?>> targetFields,
+//		List<?> sourceValues,
+//		boolean requiredWhenNot,
+//		Disease disease) {
+//
+//		if (sourceField != null) {
+//			if (sourceField instanceof AbstractField<?>) {
+//				((AbstractField) sourceField).setImmediate(true);
+//			}
+//
+//			// initialize
+//			{
+//				boolean required = sourceValues.contains(getNullableSourceFieldValue(sourceField));
+//
+//				for (Field targetField : targetFields) {
+//					if (!targetField.isVisible()) {
+//						targetField.setRequired(false);
+//						continue;
+//					}
+//
+//					if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, targetField.getId(), disease)) {
+//						targetField.setRequired(required);
+//					}
+//				}
+//			}
+//
+//			sourceField.addValueChangeListener(event -> {
+//				boolean required = sourceValues.contains(getNullableSourceFieldValue(((Field) event.getProperty())));
+//				required = required != requiredWhenNot;
+//				for (Field targetField : targetFields) {
+//					if (!targetField.isVisible()) {
+//						targetField.setRequired(false);
+//						continue;
+//					}
+//
+//					if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, targetField.getId(), disease)) {
+//						targetField.setRequired(required);
+//					}
+//				}
+//			});
+//		}
+//	}
 
 	public static <T> void setValueWhen(
 			FieldGroup fieldGroup,
@@ -710,46 +706,46 @@ public final class FieldHelper {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static void addSoftRequiredStyleWhen(
-		FieldGroup fieldGroup,
-		Field sourceField,
-		List<String> targetPropertyIds,
-		final List<?> sourceValues,
-		Disease disease) {
-
-		if (sourceField instanceof AbstractField<?>) {
-			((AbstractField) sourceField).setImmediate(true);
-		}
-
-		// initialize
-		{
-			boolean required = sourceValues.contains(getNullableSourceFieldValue(sourceField));
-			for (Object targetPropertyId : targetPropertyIds) {
-				Field targetField = fieldGroup.getField(targetPropertyId);
-				if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, (String) targetPropertyId, disease)) {
-					if (required) {
-						addSoftRequiredStyle(targetField);
-					} else {
-						removeSoftRequiredStyle(targetField);
-					}
-				}
-			}
-		}
-
-		sourceField.addValueChangeListener(event -> {
-			boolean required = sourceValues.contains(getNullableSourceFieldValue(((Field) event.getProperty())));
-			for (Object targetPropertyId : targetPropertyIds) {
-				Field targetField = fieldGroup.getField(targetPropertyId);
-				if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, (String) targetPropertyId, disease)) {
-					if (required) {
-						addSoftRequiredStyle(targetField);
-					} else {
-						removeSoftRequiredStyle(targetField);
-					}
-				}
-			}
-		});
-	}
+//	public static void addSoftRequiredStyleWhen(
+//		FieldGroup fieldGroup,
+//		Field sourceField,
+//		List<String> targetPropertyIds,
+//		final List<?> sourceValues,
+//		Disease disease) {
+//
+//		if (sourceField instanceof AbstractField<?>) {
+//			((AbstractField) sourceField).setImmediate(true);
+//		}
+//
+//		// initialize
+//		{
+//			boolean required = sourceValues.contains(getNullableSourceFieldValue(sourceField));
+//			for (Object targetPropertyId : targetPropertyIds) {
+//				Field targetField = fieldGroup.getField(targetPropertyId);
+//				if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, (String) targetPropertyId, disease)) {
+//					if (required) {
+//						addSoftRequiredStyle(targetField);
+//					} else {
+//						removeSoftRequiredStyle(targetField);
+//					}
+//				}
+//			}
+//		}
+//
+//		sourceField.addValueChangeListener(event -> {
+//			boolean required = sourceValues.contains(getNullableSourceFieldValue(((Field) event.getProperty())));
+//			for (Object targetPropertyId : targetPropertyIds) {
+//				Field targetField = fieldGroup.getField(targetPropertyId);
+//				if (disease == null || Diseases.DiseasesConfiguration.isDefined(SymptomsDto.class, (String) targetPropertyId, disease)) {
+//					if (required) {
+//						addSoftRequiredStyle(targetField);
+//					} else {
+//						removeSoftRequiredStyle(targetField);
+//					}
+//				}
+//			}
+//		});
+//	}
 
 	public static Stream<Component> stream(Component parent) {
 
@@ -781,12 +777,4 @@ public final class FieldHelper {
 		}
 	}
 
-	public static void updateOfficersField(AbstractSelect officerField, CaseDataDto caze, UserRole role) {
-		List<DistrictReferenceDto> officerDistricts =
-			Stream.of(caze.getResponsibleDistrict(), caze.getDistrict()).filter(Objects::nonNull).collect(Collectors.toList());
-		FieldHelper.updateItems(
-			officerField,
-			officerDistricts.size() > 0 ? FacadeProvider.getUserFacade().getUserRefsByDistricts(officerDistricts, false, role) : null);
-
-	}
 }

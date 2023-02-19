@@ -3,7 +3,6 @@ package de.symeda.sormas.api.dashboard;
 import java.io.Serializable;
 import java.util.Date;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
@@ -13,7 +12,6 @@ public class DashboardCriteria extends BaseCriteria implements Serializable {
 
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
-	private Disease disease;
 	private CriteriaDateType newCaseDateType;
 	private Date dateFrom;
 	private Date dateTo;
@@ -35,15 +33,6 @@ public class DashboardCriteria extends BaseCriteria implements Serializable {
 
 	public DashboardCriteria district(DistrictReferenceDto district) {
 		this.district = district;
-		return this;
-	}
-
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public DashboardCriteria disease(Disease disease) {
-		this.disease = disease;
 		return this;
 	}
 

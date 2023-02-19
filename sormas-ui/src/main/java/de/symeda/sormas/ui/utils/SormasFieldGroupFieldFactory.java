@@ -1,18 +1,12 @@
 package de.symeda.sormas.ui.utils;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
-import com.vaadin.ui.CheckBoxGroup;
-import com.vaadin.ui.Flash;
-import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.data.Item;
 import com.vaadin.v7.data.fieldgroup.DefaultFieldGroupFieldFactory;
@@ -26,29 +20,21 @@ import com.vaadin.v7.ui.DateField;
 import com.vaadin.v7.ui.Field;
 import com.vaadin.v7.ui.OptionGroup;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementEnumOptions;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementOptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.symptoms.SymptomState;
 import de.symeda.sormas.api.utils.DateFormatHelper;
 import de.symeda.sormas.api.utils.FieldConstraints;
 import de.symeda.sormas.api.utils.YesNoUnknown;
 import de.symeda.sormas.api.utils.fieldaccess.UiFieldAccessCheckers;
 import de.symeda.sormas.api.utils.fieldvisibility.FieldVisibilityCheckers;
-import de.symeda.sormas.ui.ActivityAsCase.ActivityAsCaseField;
-import de.symeda.sormas.ui.campaign.jsonHelpers.BasicRadioGroupHelper;
 import de.symeda.sormas.ui.campaign.jsonHelpers.BasicCheckboxHelper;
+import de.symeda.sormas.ui.campaign.jsonHelpers.BasicRadioGroupHelper;
 import de.symeda.sormas.ui.campaign.jsonHelpers.CheckboxBasicGroup;
 import de.symeda.sormas.ui.campaign.jsonHelpers.RadioBasicGroup;
-import de.symeda.sormas.ui.clinicalcourse.HealthConditionsForm;
-import de.symeda.sormas.ui.exposure.ExposuresField;
-import de.symeda.sormas.ui.hospitalization.PreviousHospitalizationsField;
 import de.symeda.sormas.ui.location.LocationEditForm;
-import de.symeda.sormas.ui.person.LocationsField;
-import de.symeda.sormas.ui.vaccination.VaccinationsField;
 
 public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory {
 
@@ -71,7 +57,7 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 	public <T extends Field> T createField(Class<?> type, Class<T> fieldType) {
 		if (type.isEnum()) {
 			if (fieldType.isAssignableFrom(Field.class) // no specific fieldType defined?
-					&& (SymptomState.class.isAssignableFrom(type) || YesNoUnknown.class.isAssignableFrom(type))) {
+					&&  YesNoUnknown.class.isAssignableFrom(type)) {
 				NullableOptionGroup field = new NullableOptionGroup();
 				field.setImmediate(true);
 				populateWithEnumData(field, (Class<? extends Enum>) type);
@@ -125,14 +111,6 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 				
 				
 			} else {
-				if (Disease.class.isAssignableFrom(type)) {
-					fieldType = (Class<T>) ComboBox.class;
-					ComboBox field = ComboBoxHelper.createComboBoxV7();
-					field.setImmediate(true);
-					field.setNullSelectionAllowed(true);
-					populateWithDiseaseData(field);
-					return (T) field;
-				} else {
 
 					if (!AbstractSelect.class.isAssignableFrom(fieldType)) {
 						fieldType = (Class<T>) ComboBox.class;
@@ -151,7 +129,7 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 						((ComboBox) field).setNullSelectionAllowed(true);
 					}
 					return field;
-				}
+				
 
 			}
 		} else if (CampaignFormElementOptions.class.isAssignableFrom(type)
@@ -195,8 +173,6 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 			return (T) field;
 		} else if (LocationEditForm.class.isAssignableFrom(fieldType)) {
 			return (T) new LocationEditForm(fieldVisibilityCheckers, fieldAccessCheckers);
-		} else if (HealthConditionsForm.class.isAssignableFrom(fieldType)) {
-			return (T) new HealthConditionsForm(fieldVisibilityCheckers, fieldAccessCheckers);
 		} else if (DateTimeField.class.isAssignableFrom(fieldType)) {
 			DateTimeField field = new DateTimeField();
 			field.setConverter(new SormasDefaultConverterFactory().createDateConverter(Date.class));
@@ -207,16 +183,6 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 			field.setLenient(true);
 			field.setConverter(new SormasDefaultConverterFactory().createDateConverter(Date.class));
 			return (T) field;
-		} else if (PreviousHospitalizationsField.class.isAssignableFrom(fieldType)) {
-			return (T) new PreviousHospitalizationsField(fieldVisibilityCheckers, fieldAccessCheckers);
-		} else if (ExposuresField.class.isAssignableFrom(fieldType)) {
-			return (T) new ExposuresField(fieldVisibilityCheckers, fieldAccessCheckers);
-		} else if (ActivityAsCaseField.class.isAssignableFrom(fieldType)) {
-			return (T) new ActivityAsCaseField(fieldVisibilityCheckers, fieldAccessCheckers);
-		} else if (LocationsField.class.isAssignableFrom(fieldType)) {
-			return (T) new LocationsField(fieldVisibilityCheckers, fieldAccessCheckers);
-		} else if (VaccinationsField.class.isAssignableFrom(fieldType)) {
-			return (T) new VaccinationsField(fieldVisibilityCheckers, fieldAccessCheckers);
 		} else if (fieldType.equals(Field.class)) {
 			// no specific field type defined -> fallbacks
 			if (Date.class.isAssignableFrom(type)) {
@@ -266,21 +232,7 @@ public class SormasFieldGroupFieldFactory extends DefaultFieldGroupFieldFactory 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void populateWithDiseaseData(ComboBox diseaseField) {
-
-		diseaseField.removeAllItems();
-		for (Object p : diseaseField.getContainerPropertyIds()) {
-			diseaseField.removeContainerProperty(p);
-		}
-		diseaseField.addContainerProperty(CAPTION_PROPERTY_ID, String.class, "");
-		diseaseField.setItemCaptionPropertyId(CAPTION_PROPERTY_ID);
-		List<Disease> diseases = FacadeProvider.getDiseaseConfigurationFacade().getAllDiseases(true, true, true);
-		for (Object r : diseases) {
-			Item newItem = diseaseField.addItem(r);
-			newItem.getItemProperty(CAPTION_PROPERTY_ID).setValue(r.toString());
-		}
-	}
+	
 
 	@SuppressWarnings("unchecked")
 	@Override

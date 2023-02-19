@@ -14,17 +14,11 @@
  */
 package de.symeda.sormas.backend.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
 import de.symeda.sormas.api.user.JurisdictionLevel;
-import de.symeda.sormas.backend.caze.Case;
-import de.symeda.sormas.backend.contact.Contact;
-import de.symeda.sormas.backend.infrastructure.region.Region;
 
 public class JurisdictionHelper {
 
@@ -52,29 +46,7 @@ public class JurisdictionHelper {
 		}
 	}
 
-	public static List<Region> getCaseRegions(Case caze) {
-		List<Region> regions = new ArrayList<>();
-		regions.add(caze.getResponsibleRegion());
-
-		if (caze.getRegion() != null) {
-			regions.add(caze.getRegion());
-		}
-
-		return regions;
-	}
-
-	public static List<Region> getContactRegions(Contact contact) {
-		Case contactCase = contact.getCaze();
-
-		List<Region> regions = new ArrayList<>();
-		if (contact.getRegion() != null) {
-			regions.add(contact.getRegion());
-		} else {
-			regions.addAll(getCaseRegions(contactCase));
-		}
-
-		return regions;
-	}
+	
 
 	public static Expression<Object> booleanSelector(CriteriaBuilder cb, Predicate jurisdictionPredicate) {
 		return cb.selectCase().when(jurisdictionPredicate, cb.literal(true)).otherwise(cb.literal(false));

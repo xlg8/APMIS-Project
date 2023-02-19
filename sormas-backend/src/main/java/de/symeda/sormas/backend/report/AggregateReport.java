@@ -2,16 +2,13 @@ package de.symeda.sormas.backend.report;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
+import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntry;
-import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.user.User;
 
@@ -33,7 +30,6 @@ public class AggregateReport extends AbstractDomainObject {
 	public static final String DEATHS = "deaths";
 
 	private User reportingUser;
-	private Disease disease;
 	private Integer year;
 	private Integer epiWeek;
 	private Region region;
@@ -54,14 +50,7 @@ public class AggregateReport extends AbstractDomainObject {
 		this.reportingUser = reportingUser;
 	}
 
-	@Enumerated(EnumType.STRING)
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public void setDisease(Disease disease) {
-		this.disease = disease;
-	}
+	
 
 	@Column
 	public Integer getYear() {

@@ -1,7 +1,6 @@
 package de.symeda.sormas.rest.swagger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.utils.*;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
@@ -63,13 +62,6 @@ public class AttributeConverter extends ModelResolver {
                 } else if (a.annotationType() == Complication.class) {
                     // Complications documentation
                     schema.addExtension(XPROP_COMPLICATIONS, true);
-
-                } else if (a.annotationType() == Diseases.class) {
-                    // Disease association documentation
-                    Disease[] diseases = ((Diseases) a).value();
-                    if (diseases.length > 0) {
-                        schema.addExtension(XPROP_DISEASES, diseases);
-                    }
 
                 } else if (a.annotationType() == DependantOn.class) {
                     // Field dependency documentation

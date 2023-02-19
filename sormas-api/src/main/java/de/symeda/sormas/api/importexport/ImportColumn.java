@@ -20,17 +20,15 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.ReferenceDto;
-import de.symeda.sormas.api.event.EventReferenceDto;
-import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
 /**
- * Detailed import template column entity with information like entity name, column name, caption and data type.
+ * Detailed import template column entity with information like entity name,
+ * column name, caption and data type.
  *
  * @author Alex Vidrean
  * @since 18-Sep-20
@@ -84,18 +82,17 @@ public class ImportColumn {
 	/**
 	 * Computes the captions based on the entity name and column name.
 	 * <p/>
-	 * Column name is composed (ex: <code>person.firstName</code> or <code>person.address.city</code>)
-	 * -> Split it in parts and use the last part as field name
-	 * -> Combine the entity name with the field name
+	 * Column name is composed (ex: <code>person.firstName</code> or
+	 * <code>person.address.city</code>) -> Split it in parts and use the last part
+	 * as field name -> Combine the entity name with the field name
 	 * <p/>
-	 * Column name is simple (ex: <code>diseaseDetails</code>) -> Combine the entity name with the column name
+	 * Column name is simple (ex: <code>diseaseDetails</code>) -> Combine the entity
+	 * name with the column name
 	 * <p/>
 	 * The result is a list with the same length as the <code>columnNames</code>
 	 *
-	 * @param entityName
-	 *            name of the entity from which the field is part of
-	 * @param columnName
-	 *            column name from the CSV
+	 * @param entityName name of the entity from which the field is part of
+	 * @param columnName column name from the CSV
 	 * @return list of captions for each column name.
 	 */
 	private static String computeCaption(String entityName, String columnName) {
@@ -109,13 +106,13 @@ public class ImportColumn {
 	}
 
 	/**
-	 * Computes the data type accepted for a certain field type. For values which cannot be determined at start a placeholder will be used
-	 * (ex: {@link ImportFacade#ACTIVE_DISEASES_PLACEHOLDER}).
+	 * Computes the data type accepted for a certain field type. For values which
+	 * cannot be determined at start a placeholder will be used (ex:
+	 * {@link ImportFacade#ACTIVE_DISEASES_PLACEHOLDER}).
 	 *
-	 * @param fieldType
-	 *            type of a CSV field (column)
-	 * @param currentSeparator
-	 *            current CSV configured separator, used to identify a different one for joining lists
+	 * @param fieldType        type of a CSV field (column)
+	 * @param currentSeparator current CSV configured separator, used to identify a
+	 *                         different one for joining lists
 	 * @return a data type description, example or placeholder
 	 */
 	private static String computeDataType(Class<?> fieldType, char currentSeparator) {
@@ -127,12 +124,13 @@ public class ImportColumn {
 			return I18nProperties.getString(Strings.date) + ": dd/MM/yyyy";
 		} else if (FacilityReferenceDto.class.isAssignableFrom(fieldType)) {
 			return I18nProperties.getString(Strings.infoFacilityCsvImport);
-		} else if (EventReferenceDto.class.isAssignableFrom(fieldType)) {
-			return String.format(I18nProperties.getString(Strings.uuidOf), DataHelper.getHumanClassCaption(fieldType));
 		} else if (ReferenceDto.class.isAssignableFrom(fieldType)) {
-			return String.format(I18nProperties.getString(Strings.nameOf), DataHelper.getHumanClassCaption(fieldType));//.equalsIgnoreCase("Region") ? "Province" : DataHelper.getHumanClassCaption(fieldType));
-		} else if (Disease.class.isAssignableFrom(fieldType)) {
-			return ImportFacade.ACTIVE_DISEASES_PLACEHOLDER;
+			return String.format(I18nProperties.getString(Strings.nameOf), DataHelper.getHumanClassCaption(fieldType));// .equalsIgnoreCase("Region")
+																														// ?
+																														// "Province"
+																														// :
+																														// DataHelper.getHumanClassCaption(fieldType));
+		
 		} else if (fieldType.isEnum()) {
 			List<String> enumNames = new ArrayList<>();
 			for (Object enumConstant : fieldType.getEnumConstants()) {

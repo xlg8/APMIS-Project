@@ -85,9 +85,6 @@ public class FeatureConfigurationService extends AdoServiceWithUserFilter<Featur
 				filter,
 				cb.equal(from.join(FeatureConfiguration.DISTRICT, JoinType.LEFT).get(District.UUID), criteria.getDistrict().getUuid()));
 		}
-		if (criteria.getDisease() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(FeatureConfiguration.DISEASE), criteria.getDisease()));
-		}
 		if (criteria.getEnabled() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(FeatureConfiguration.ENABLED), criteria.getEnabled()));
 		}

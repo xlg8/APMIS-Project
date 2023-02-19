@@ -22,7 +22,6 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Validations;
@@ -121,8 +120,6 @@ public class UserDto extends EntityDto {
 	private PointOfEntryReferenceDto pointOfEntry;
 
 	private UserReferenceDto associatedOfficer;
-
-	private Disease limitedDisease;
 
 	private Language language;
 
@@ -345,14 +342,6 @@ public class UserDto extends EntityDto {
 
 	public UserReferenceDto toReference() {
 		return new UserReferenceDto(getUuid(), getFirstName(), getLastName(), getUserRoles(), getFormAccess(), getUsertype());
-	}
-
-	public Disease getLimitedDisease() {
-		return limitedDisease;
-	}
-
-	public void setLimitedDisease(Disease limitedDisease) {
-		this.limitedDisease = limitedDisease;
 	}
 
 	public Language getLanguage() {

@@ -33,13 +33,8 @@ import com.google.common.collect.Lists;
 
 import de.symeda.sormas.api.ConfigFacade;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.externaljournal.PatientDiaryConfig;
-import de.symeda.sormas.api.externaljournal.SymptomJournalConfig;
-import de.symeda.sormas.api.externaljournal.UserConfig;
 import de.symeda.sormas.api.geo.GeoLatLon;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.person.PersonHelper;
-import de.symeda.sormas.api.sormastosormas.SormasToSormasConfig;
 import de.symeda.sormas.api.utils.CompatibilityCheckResponse;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.InfoProvider;
@@ -412,10 +407,10 @@ public class ConfigFacadeEjb implements ConfigFacade {
 		return getBoolean(DUPLICATE_CHECKS_EXCLUDE_PERSONS_OF_ACHIVED_ENTRIES, false);
 	}
 
-	@Override
-	public double getNameSimilarityThreshold() {
-		return getDouble(NAME_SIMILARITY_THRESHOLD, PersonHelper.DEFAULT_NAME_SIMILARITY_THRESHOLD);
-	}
+//	@Override
+//	public double getNameSimilarityThreshold() {
+//		return getDouble(NAME_SIMILARITY_THRESHOLD, PersonHelper.DEFAULT_NAME_SIMILARITY_THRESHOLD);
+//	}
 
 	@Override
 	public int getInfrastructureSyncThreshold() {
@@ -474,63 +469,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 			"GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.01745329251994328,AUTHORITY[\"EPSG\",\"9122\"]],AXIS[\"Long\",EAST],AXIS[\"Lat\",NORTH],AUTHORITY[\"EPSG\",\"4326\"]]");
 	}
 
-	@Override
-	public SymptomJournalConfig getSymptomJournalConfig() {
-		SymptomJournalConfig config = new SymptomJournalConfig();
-		config.setUrl(getProperty(INTERFACE_SYMPTOM_JOURNAL_URL, null));
-		config.setAuthUrl(getProperty(INTERFACE_SYMPTOM_JOURNAL_AUTH_URL, null));
-		config.setClientId(getProperty(INTERFACE_SYMPTOM_JOURNAL_CLIENT_ID, null));
-		config.setSecret(getProperty(INTERFACE_SYMPTOM_JOURNAL_SECRET, null));
-
-		UserConfig userConfig = new UserConfig();
-		userConfig.setUsername(getProperty(INTERFACE_SYMPTOM_JOURNAL_DEFAULT_USER_USERNAME, null));
-		userConfig.setPassword(getProperty(INTERFACE_SYMPTOM_JOURNAL_DEFAULT_USER_PASSWORD, null));
-
-		if (StringUtils.isNoneBlank(userConfig.getUsername(), userConfig.getPassword())) {
-			config.setDefaultUser(userConfig);
-		}
-
-		return config;
-	}
-
-	@Override
-	public PatientDiaryConfig getPatientDiaryConfig() {
-		PatientDiaryConfig config = new PatientDiaryConfig();
-		config.setUrl(getProperty(INTERFACE_PATIENT_DIARY_URL, null));
-		config.setProbandsUrl(getProperty(INTERFACE_PATIENT_DIARY_PROBANDS_URL, null));
-		config.setAuthUrl(getProperty(INTERFACE_PATIENT_DIARY_AUTH_URL, null));
-		config.setEmail(getProperty(INTERFACE_PATIENT_DIARY_EMAIL, null));
-		config.setPassword(getProperty(INTERFACE_PATIENT_DIARY_PASSWORD, null));
-
-		UserConfig userConfig = new UserConfig();
-		userConfig.setUsername(getProperty(INTERFACE_PATIENT_DIARY_DEFAULT_USER_USERNAME, null));
-		userConfig.setPassword(getProperty(INTERFACE_PATIENT_DIARY_DEFAULT_USER_PASSWORD, null));
-
-		if (StringUtils.isNoneBlank(userConfig.getUsername(), userConfig.getPassword())) {
-			config.setDefaultUser(userConfig);
-		}
-
-		return config;
-	}
-
-	@Override
-	public SormasToSormasConfig getS2SConfig() {
-		SormasToSormasConfig config = new SormasToSormasConfig();
-		config.setPath(getProperty(SORMAS2SORMAS_FILES_PATH, null));
-		config.setKeystoreName(getProperty(SORMAS2SORMAS_KEYSTORE_NAME, null));
-		config.setKeystorePass(getProperty(SORMAS2SORMAS_KEYSTORE_PASSWORD, null));
-		config.setTruststoreName(getProperty(SORMAS2SORMAS_TRUSTSTORE_NAME, null));
-		config.setTruststorePass(getProperty(SORMAS2SORMAS_TRUSTSTORE_PASS, null));
-		config.setRootCaAlias(getProperty(SORMAS2SORMAS_ROOT_CA_ALIAS, null));
-		config.setRetainCaseExternalToken(getBoolean(SORMAS2SORMAS_RETAIN_CASE_EXTERNAL_TOKEN, true));
-		config.setId(getProperty(SORMAS2SORMAS_ID, null));
-		config.setOidcServer(getProperty(CENTRAL_OIDC_URL, null));
-		config.setOidcRealm(getProperty(SORMAS2SORMAS_OIDC_REALM, null));
-		config.setOidcClientId(getProperty(SORMAS2SORMAS_OIDC_CLIENT_ID, null));
-		config.setOidcClientSecret(getProperty(SORMAS2SORMAS_OIDC_CLIENT_SECRET, null));
-		config.setKeyPrefix(getProperty(SORMAS2SORMAS_ETCD_KEY_PREFIX, null));
-		return config;
-	}
+	
 
 	@Override
 	public String getExternalSurveillanceToolGatewayUrl() {
@@ -540,21 +479,9 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	@Override
 	public void validateExternalUrls() {
 
-		List<String> urls = Lists.newArrayList(
-			getSymptomJournalConfig().getUrl(),
-			getSymptomJournalConfig().getAuthUrl(),
-			getPatientDiaryConfig().getUrl(),
-			getPatientDiaryConfig().getProbandsUrl(),
-			getPatientDiaryConfig().getAuthUrl());
+		List<String> urls = Lists.newArrayList();
 
-		SormasToSormasConfig s2sConfig = getS2SConfig();
-
-		if (s2sConfig.getOidcServer() != null && s2sConfig.getOidcRealm() != null) {
-			urls.add(s2sConfig.getOidcRealmCertEndpoint());
-			urls.add(s2sConfig.getOidcRealmTokenEndpoint());
-			urls.add(s2sConfig.getOidcRealmUrl());
-			urls.add(s2sConfig.getOidcServer());
-		}
+	
 
 		UrlValidator urlValidator = new UrlValidator(
 			new String[] {
@@ -695,5 +622,11 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	@Stateless
 	public static class ConfigFacadeEjbLocal extends ConfigFacadeEjb {
 
+	}
+
+	@Override
+	public double getNameSimilarityThreshold() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

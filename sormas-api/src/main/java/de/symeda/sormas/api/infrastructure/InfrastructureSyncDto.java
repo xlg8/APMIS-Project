@@ -6,8 +6,6 @@ import java.util.Set;
 
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
-import de.symeda.sormas.api.caze.classification.DiseaseClassificationCriteriaDto;
-import de.symeda.sormas.api.disease.DiseaseConfigurationDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
 import de.symeda.sormas.api.feature.FeatureConfigurationDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -37,8 +35,6 @@ public class InfrastructureSyncDto implements Serializable {
 	private List<FacilityDto> facilities;
 	private List<PointOfEntryDto> pointsOfEntry;
 	private List<UserDto> users;
-	private List<DiseaseClassificationCriteriaDto> diseaseClassifications;
-	private List<DiseaseConfigurationDto> diseaseConfigurations;
 	private List<UserRoleConfigDto> userRoleConfigurations;
 	private List<String> deletedUserRoleConfigurationUuids;
 	private List<FeatureConfigurationDto> featureConfigurations;
@@ -133,22 +129,6 @@ public class InfrastructureSyncDto implements Serializable {
 
 	public void setUsers(List<UserDto> users) {
 		this.users = users;
-	}
-
-	public List<DiseaseClassificationCriteriaDto> getDiseaseClassifications() {
-		return diseaseClassifications;
-	}
-
-	public void setDiseaseClassifications(List<DiseaseClassificationCriteriaDto> diseaseClassifications) {
-		this.diseaseClassifications = diseaseClassifications;
-	}
-
-	public List<DiseaseConfigurationDto> getDiseaseConfigurations() {
-		return diseaseConfigurations;
-	}
-
-	public void setDiseaseConfigurations(List<DiseaseConfigurationDto> diseaseConfigurations) {
-		this.diseaseConfigurations = diseaseConfigurations;
 	}
 
 	public List<UserRoleConfigDto> getUserRoleConfigurations() {

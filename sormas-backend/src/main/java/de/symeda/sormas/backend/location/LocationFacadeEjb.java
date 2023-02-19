@@ -86,7 +86,6 @@ public class LocationFacadeEjb implements LocationFacade {
 		target.setStreet(source.getStreet());
 		target.setHouseNumber(source.getHouseNumber());
 		target.setAdditionalInformation(source.getAdditionalInformation());
-		target.setAddressType(source.getAddressType());
 		target.setAddressTypeDetails(source.getAddressTypeDetails());
 		target.setFacility(facilityService.getByReferenceDto(source.getFacility()));
 		target.setFacilityDetails(source.getFacilityDetails());
@@ -127,7 +126,6 @@ public class LocationFacadeEjb implements LocationFacade {
 		target.setStreet(source.getStreet());
 		target.setHouseNumber(source.getHouseNumber());
 		target.setAdditionalInformation(source.getAdditionalInformation());
-		target.setAddressType(source.getAddressType());
 		target.setAddressTypeDetails(source.getAddressTypeDetails());
 		target.setFacility(FacilityFacadeEjb.toReferenceDto(source.getFacility()));
 		target.setFacilityDetails(source.getFacilityDetails());

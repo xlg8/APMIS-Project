@@ -4,7 +4,6 @@ import java.util.Date;
 
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.EntityDto;
-import de.symeda.sormas.api.person.Sex;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -20,7 +19,6 @@ public class PopulationDataDto extends EntityDto {
 	public static final String DISTRICT = "district";
 	public static final String COMMUNITY = "community";
 	public static final String COMMUNITY_EXTID = "CCode";
-	public static final String SEX = "sex";
 	public static final String AGE_GROUP = "ageGroup";
 	public static final String POPULATION = "population";
 	public static final String COLLECTION_DATE = "collectionDate";
@@ -28,7 +26,6 @@ public class PopulationDataDto extends EntityDto {
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
 	private CommunityReferenceDto community;
-	private Sex sex;
 	private AgeGroup ageGroup;
 	private Integer population;
 	private Date collectionDate;
@@ -63,14 +60,6 @@ public class PopulationDataDto extends EntityDto {
 
 	public void setCommunity(CommunityReferenceDto community) {
 		this.community = community;
-	}
-
-	public Sex getSex() {
-		return sex;
-	}
-
-	public void setSex(Sex sex) {
-		this.sex = sex;
 	}
 
 	public AgeGroup getAgeGroup() {

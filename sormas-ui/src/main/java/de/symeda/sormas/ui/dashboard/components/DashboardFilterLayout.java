@@ -28,30 +28,22 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.vaadin.hene.popupbutton.PopupButton;
 
 import com.vaadin.event.ShortcutAction;
-import com.vaadin.server.Page;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.ui.ComboBox;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.caze.NewCaseDateType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.utils.DateFilterOption;
 import de.symeda.sormas.api.utils.DateHelper;
-import de.symeda.sormas.api.utils.EpiWeek;
 import de.symeda.sormas.ui.UserProvider;
 import de.symeda.sormas.ui.dashboard.AbstractDashboardView;
 import de.symeda.sormas.ui.dashboard.DashboardDataProvider;
@@ -59,7 +51,6 @@ import de.symeda.sormas.ui.utils.ButtonHelper;
 import de.symeda.sormas.ui.utils.ComboBoxHelper;
 import de.symeda.sormas.ui.utils.CssStyles;
 import de.symeda.sormas.ui.utils.DateFormatHelper;
-import de.symeda.sormas.ui.utils.EpiWeekAndDateFilterComponent;
 
 @SuppressWarnings("serial")
 public abstract class DashboardFilterLayout extends HorizontalLayout {
@@ -125,7 +116,6 @@ public abstract class DashboardFilterLayout extends HorizontalLayout {
 	}
 
 	public void populateLayout() {
-		createDateFilters();
 		createResetAndApplyButtons();
 	};
 
@@ -177,43 +167,7 @@ public abstract class DashboardFilterLayout extends HorizontalLayout {
 		addCustomComponent(buttonLayout, RESET_AND_APPLY_BUTTONS);
 	}
 
-	public void createDateFilters() {
-		HorizontalLayout dateFilterLayout = new HorizontalLayout();
-		dateFilterLayout.setSpacing(true);
-		CssStyles.style(dateFilterLayout, CssStyles.VSPACE_3);
-		addCustomComponent(dateFilterLayout, DATE_FILTER);
-
-		btnCurrentPeriod = ButtonHelper.createIconPopupButton(
-			"currentPeriod",
-			null,
-			new VerticalLayout(createDateFilterButtonsLayout(), createCustomDateFilterLayout()),
-			CssStyles.BUTTON_FILTER,
-			CssStyles.BUTTON_FILTER_LIGHT);
-
-		Label lblComparedTo = new Label(I18nProperties.getCaption(Captions.dashboardComparedTo));
-		CssStyles.style(lblComparedTo, CssStyles.VSPACE_TOP_4, CssStyles.LABEL_BOLD);
-
-		btnComparisonPeriod = ButtonHelper.createIconPopupButton(
-			"comparisonPeriod",
-			null,
-			createDateComparisonButtonsLayout(),
-			ValoTheme.BUTTON_BORDERLESS,
-			CssStyles.BUTTON_FILTER,
-			CssStyles.BUTTON_FILTER_LIGHT);
-
-		dateFilterLayout.addComponents(btnCurrentPeriod, lblComparedTo, btnComparisonPeriod);
-
-		// Set initial date filter
-		CssStyles.style(btnThisWeek, CssStyles.BUTTON_FILTER_DARK);
-		CssStyles.removeStyles(btnThisWeek, CssStyles.BUTTON_FILTER_LIGHT);
-		CssStyles.style(btnPeriodBefore, CssStyles.BUTTON_FILTER_DARK);
-		CssStyles.removeStyles(btnPeriodBefore, CssStyles.BUTTON_FILTER_LIGHT);
-		activeComparisonButton = btnPeriodBefore;
-		currentDateFilterType = DateFilterType.THIS_WEEK;
-		setDateFilter(DateHelper.getStartOfWeek(new Date()), new Date());
-		updateComparisonButtons(DateFilterType.THIS_WEEK, DateHelper.getStartOfWeek(new Date()), new Date(), false);
-		btnCurrentPeriod.setCaption(btnThisWeek.getCaption());
-	}
+	
 
 	private HorizontalLayout createDateFilterButtonsLayout() {
 		HorizontalLayout layout = new HorizontalLayout();
@@ -305,89 +259,6 @@ public abstract class DashboardFilterLayout extends HorizontalLayout {
 		return layout;
 	}
 
-	private HorizontalLayout createCustomDateFilterLayout() {
-		// Custom filter
-		customDateFilterLayout = new HorizontalLayout();
-		customDateFilterLayout.setSpacing(true);
-		customDateFilterLayout.setVisible(false);
-
-		// 'Apply custom filter' button
-		Button applyButton =
-			ButtonHelper.createButton(Captions.dashboardApplyCustomFilter, null, CssStyles.FORCE_CAPTION, CssStyles.BUTTON_FILTER_LIGHT);
-
-		// Date & Epi Week filter
-		EpiWeekAndDateFilterComponent<NewCaseDateType> weekAndDateFilter =
-			new EpiWeekAndDateFilterComponent<>(true, true, I18nProperties.getString(Strings.infoCaseDate), null);
-		customDateFilterLayout.addComponents(weekAndDateFilter, applyButton);
-
-		// Apply button listener
-		applyButton.addClickListener(e -> {
-			currentDateFilterType = DateFilterType.CUSTOM;
-			DateFilterOption dateFilterOption = (DateFilterOption) weekAndDateFilter.getDateFilterOptionFilter().getValue();
-			Date fromDate = null;
-			Date toDate = null;
-			EpiWeek fromWeek = null;
-			EpiWeek toWeek = null;
-			if (dateFilterOption == DateFilterOption.DATE) {
-				fromDate = weekAndDateFilter.getDateFromFilter().getValue();
-				toDate = weekAndDateFilter.getDateToFilter().getValue();
-				setDateFilter(DateHelper.getStartOfDay(fromDate), DateHelper.getEndOfDay(toDate));
-			} else {
-				fromWeek = (EpiWeek) weekAndDateFilter.getWeekFromFilter().getValue();
-				toWeek = (EpiWeek) weekAndDateFilter.getWeekToFilter().getValue();
-				setDateFilter(DateHelper.getEpiWeekStart(fromWeek), DateHelper.getEpiWeekEnd(toWeek));
-			}
-
-			if ((fromDate != null && toDate != null) || (fromWeek != null && toWeek != null)) {
-				if (dateFilterOption == DateFilterOption.DATE) {
-					btnCurrentPeriod.setCaption(DateFormatHelper.buildPeriodString(fromDate, toDate));
-					int activePeriodLength = DateHelper.getDaysBetween(fromDate, toDate);
-					btnPeriodBefore.setCaption(
-						String.format(
-							I18nProperties.getCaption(Captions.dashboardPeriodBefore),
-							DateFormatHelper.buildPeriodString(
-								DateHelper.subtractDays(fromDate, activePeriodLength),
-								DateHelper.subtractDays(toDate, activePeriodLength))));
-					btnPeriodLastYear.setCaption(
-						String.format(
-							I18nProperties.getCaption(Captions.dashboardSamePeriodLastYear),
-							DateFormatHelper.buildPeriodString(DateHelper.subtractYears(fromDate, 1), DateHelper.subtractYears(toDate, 1))));
-				} else {
-					btnCurrentPeriod.setCaption(fromWeek.toShortString() + " - " + toWeek.toShortString());
-					Date firstEpiWeekStart = DateHelper.getEpiWeekStart(fromWeek);
-					Date lastEpiWeekStart = DateHelper.getEpiWeekStart(toWeek);
-					int epiWeeksBetween = DateHelper.getWeeksBetween(firstEpiWeekStart, lastEpiWeekStart);
-					btnPeriodBefore.setCaption(
-						String.format(
-							I18nProperties.getCaption(Captions.dashboardPeriodBefore),
-							DateHelper.getEpiWeek(DateHelper.subtractWeeks(firstEpiWeekStart, epiWeeksBetween)).toShortString() + " - "
-								+ DateHelper.getEpiWeek(DateHelper.subtractWeeks(lastEpiWeekStart, epiWeeksBetween)).toShortString()));
-					btnPeriodLastYear.setCaption(
-						String.format(
-							I18nProperties.getCaption(Captions.dashboardSamePeriodLastYear),
-							DateHelper.getEpiWeekYearBefore(fromWeek).toShortString() + " - "
-								+ DateHelper.getEpiWeekYearBefore(toWeek).toShortString()));
-				}
-				updateComparisonButtons(DateFilterType.CUSTOM, null, null, true);
-			} else {
-				if (dateFilterOption == DateFilterOption.DATE) {
-					new Notification(
-						I18nProperties.getString(Strings.headingMissingDateFilter),
-						I18nProperties.getString(Strings.messageMissingDateFilter),
-						Type.ERROR_MESSAGE,
-						false).show(Page.getCurrent());
-				} else {
-					new Notification(
-						I18nProperties.getString(Strings.headingMissingEpiWeekFilter),
-						I18nProperties.getString(Strings.messageMissingEpiWeekFilter),
-						Type.ERROR_MESSAGE,
-						false).show(Page.getCurrent());
-				}
-			}
-		});
-
-		return customDateFilterLayout;
-	}
 
 	private Component createDateComparisonButtonsLayout() {
 		HorizontalLayout layout = new HorizontalLayout();

@@ -126,12 +126,7 @@ public class UserAccountView extends AbstractEditForm<UserDto> {
 		TextField phone = addField(UserDto.PHONE, TextField.class);
 		phone.addValidator(
 				new UserPhoneNumberValidator(I18nProperties.getValidationError(Validations.phoneNumberValidation)));
-		if (FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.AGGREGATE_REPORTING)
-				|| FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.EVENT_SURVEILLANCE)
-				|| FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.WEEKLY_REPORTING)
-				|| FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.CASE_SURVEILANCE)) {
-			addDiseaseField(UserDto.LIMITED_DISEASE, false);
-		}
+
 
 		Label userEmailDesc = new Label(I18nProperties.getString(Strings.infoUserEmail));
 		getContent().addComponent(userEmailDesc, USER_EMAIL_DESC_LOC);

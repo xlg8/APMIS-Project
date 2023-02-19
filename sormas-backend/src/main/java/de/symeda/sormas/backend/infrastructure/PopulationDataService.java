@@ -45,11 +45,11 @@ public class PopulationDataService extends AdoServiceWithUserFilter<PopulationDa
 		} else if (criteria.getAgeGroup() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(PopulationData.AGE_GROUP), criteria.getAgeGroup()));
 		}
-		if (criteria.isSexIsNull()) {
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.isNull(from.get(PopulationData.SEX)));
-		} else if (criteria.getSex() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(PopulationData.SEX), criteria.getSex()));
-		}
+//		if (criteria.isSexIsNull()) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb.isNull(from.get(PopulationData.SEX)));
+//		} else if (criteria.getSex() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(PopulationData.SEX), criteria.getSex()));
+//		}
 
 		return filter;
 	}

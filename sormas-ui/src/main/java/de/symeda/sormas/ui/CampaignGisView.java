@@ -1,29 +1,21 @@
 package de.symeda.sormas.ui;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.script.ScriptException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.data.MapCampaignDataDto;
-import de.symeda.sormas.api.caze.MapCaseDto;
 import de.symeda.sormas.api.geo.GeoLatLon;
 import de.symeda.sormas.ui.dashboard.campaigns.CampaignDashboardDataProvider;
 import de.symeda.sormas.ui.dashboard.campaigns.CampaignDashboardFilterLayout;
-import de.symeda.sormas.ui.map.CampaignLeafletMap;
 import de.symeda.sormas.ui.map.LeafletMap;
 import de.symeda.sormas.ui.map.LeafletMarker;
-import de.symeda.sormas.ui.map.LeafletPolygon;
 import de.symeda.sormas.ui.map.MarkerIcon;
 
 public class CampaignGisView extends VerticalLayout implements View {

@@ -18,15 +18,10 @@
 package de.symeda.sormas.ui.location;
 
 import static de.symeda.sormas.ui.utils.LayoutUtil.divs;
-import static de.symeda.sormas.ui.utils.LayoutUtil.fluidColumnLoc;
-import static de.symeda.sormas.ui.utils.LayoutUtil.fluidRow;
 import static de.symeda.sormas.ui.utils.LayoutUtil.fluidRowLocs;
-import static de.symeda.sormas.ui.utils.LayoutUtil.loc;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -52,26 +47,25 @@ import com.vaadin.v7.ui.TextField;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
-import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
-import de.symeda.sormas.api.infrastructure.facility.FacilityType;
-import de.symeda.sormas.api.infrastructure.facility.FacilityTypeGroup;
+import de.symeda.sormas.api.geo.GeoLatLon;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
-import de.symeda.sormas.api.location.LocationDto;
-import de.symeda.sormas.api.person.PersonAddressType;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.continent.ContinentCriteria;
 import de.symeda.sormas.api.infrastructure.continent.ContinentReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.geo.GeoLatLon;
+import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityType;
+import de.symeda.sormas.api.infrastructure.facility.FacilityTypeGroup;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentCriteria;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
+import de.symeda.sormas.api.location.LocationDto;
 import de.symeda.sormas.api.utils.fieldaccess.UiFieldAccessCheckers;
 import de.symeda.sormas.api.utils.fieldvisibility.FieldVisibilityCheckers;
 import de.symeda.sormas.ui.map.LeafletMap;
@@ -113,10 +107,10 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 
 	private MapPopupView leafletMapPopup;
 	private ComboBox addressType;
-	private ComboBox facilityTypeGroup;
-	private ComboBox facilityType;
-	private ComboBox facility;
-	private TextField facilityDetails;
+	//private ComboBox facilityTypeGroup;
+	//private ComboBox facilityType;
+	//private ComboBox facility;
+	//private TextField facilityDetails;
 	private ComboBox continent;
 	private ComboBox subcontinent;
 	private TextField contactPersonFirstName;
@@ -139,13 +133,13 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 		}
 	}
 
-	public ComboBox getFacilityTypeGroup() {
-		return facilityTypeGroup;
-	}
-
-	public ComboBox getFacilityType() {
-		return facilityType;
-	}
+//	public ComboBox getFacilityTypeGroup() {
+//		return facilityTypeGroup;
+//	}
+//
+//	public ComboBox getFacilityType() {
+//		return facilityType;
+//	}
 
 	private void setConvertedValue(String propertyId, Object value) {
 		((AbstractField<?>) getField(propertyId)).setConvertedValue(value);
@@ -168,52 +162,52 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 	@Override
 	protected void addFields() {
 
-		addressType = addField(LocationDto.ADDRESS_TYPE, ComboBox.class);
-		addressType.setVisible(false);
-		final PersonAddressType[] personAddressTypeValues = PersonAddressType
-				.getValues(FacadeProvider.getConfigFacade().getCountryCode());
-		if (!isConfiguredServer("ch")) {
-			addressType.removeAllItems();
-			addressType.setItemCaptionMode(AbstractSelect.ItemCaptionMode.ID);
-			addressType.addItems(personAddressTypeValues);
-		}
-		TextField addressTypeDetails = addField(LocationDto.ADDRESS_TYPE_DETAILS, TextField.class);
-		addressTypeDetails.setVisible(false);
-		FieldHelper.setVisibleWhen(getFieldGroup(), LocationDto.ADDRESS_TYPE_DETAILS, addressType,
-				Arrays.stream(personAddressTypeValues).filter(pat -> !pat.equals(PersonAddressType.HOME))
-						.collect(Collectors.toList()),
-				true);
-		FieldHelper.setRequiredWhen(getFieldGroup(), addressType, Arrays.asList(LocationDto.ADDRESS_TYPE_DETAILS),
-				Arrays.asList(PersonAddressType.OTHER_ADDRESS));
-
-		facilityTypeGroup = ComboBoxHelper.createComboBoxV7();
-		;
-		facilityTypeGroup.setId("typeGroup");
-		facilityTypeGroup.setCaption(I18nProperties.getCaption(Captions.Facility_typeGroup));
-		facilityTypeGroup.setWidth(100, Unit.PERCENTAGE);
-		facilityTypeGroup.addItems(FacilityTypeGroup.values());
-		getContent().addComponent(facilityTypeGroup, FACILITY_TYPE_GROUP_LOC);
-		facilityType = addField(LocationDto.FACILITY_TYPE);
-		facility = addInfrastructureField(LocationDto.FACILITY);
-		facility.setImmediate(true);
-		facilityDetails = addField(LocationDto.FACILITY_DETAILS, TextField.class);
-		facilityDetails.setVisible(false);
-
-		addressType.addValueChangeListener(e -> {
-			FacilityTypeGroup oldGroup = (FacilityTypeGroup) facilityTypeGroup.getValue();
-			FacilityType oldType = (FacilityType) facilityType.getValue();
-			FacilityReferenceDto oldFacility = (FacilityReferenceDto) facility.getValue();
-			String oldDetails = facilityDetails.getValue();
-			if (PersonAddressType.HOME.equals(addressType.getValue())) {
-				facilityTypeGroup.removeAllItems();
-				facilityTypeGroup.addItems(FacilityTypeGroup.getAccomodationGroups());
-				setOldFacilityValuesIfPossible(oldGroup, oldType, oldFacility, oldDetails);
-			} else {
-				facilityTypeGroup.removeAllItems();
-				facilityTypeGroup.addItems(FacilityTypeGroup.values());
-				setOldFacilityValuesIfPossible(oldGroup, oldType, oldFacility, oldDetails);
-			}
-		});
+		//addressType = addField(LocationDto.ADDRESS_TYPE, ComboBox.class);
+//		addressType.setVisible(false);
+////		final PersonAddressType[] personAddressTypeValues = PersonAddressType
+////				.getValues(FacadeProvider.getConfigFacade().getCountryCode());
+//		if (!isConfiguredServer("ch")) {
+//			addressType.removeAllItems();
+//			addressType.setItemCaptionMode(AbstractSelect.ItemCaptionMode.ID);
+//			//addressType.addItems(personAddressTypeValues);
+//		}
+//		TextField addressTypeDetails = addField(LocationDto.ADDRESS_TYPE_DETAILS, TextField.class);
+//		addressTypeDetails.setVisible(false);
+////		FieldHelper.setVisibleWhen(getFieldGroup(), LocationDto.ADDRESS_TYPE_DETAILS, addressType,
+////				Arrays.stream(personAddressTypeValues).filter(pat -> !pat.equals(PersonAddressType.HOME))
+////						.collect(Collectors.toList()),
+////				true);
+////		FieldHelper.setRequiredWhen(getFieldGroup(), addressType, Arrays.asList(LocationDto.ADDRESS_TYPE_DETAILS),
+////				Arrays.asList(PersonAddressType.OTHER_ADDRESS));
+//
+//		facilityTypeGroup = ComboBoxHelper.createComboBoxV7();
+//		;
+//		facilityTypeGroup.setId("typeGroup");
+//		facilityTypeGroup.setCaption(I18nProperties.getCaption(Captions.Facility_typeGroup));
+//		facilityTypeGroup.setWidth(100, Unit.PERCENTAGE);
+//		facilityTypeGroup.addItems(FacilityTypeGroup.values());
+//		getContent().addComponent(facilityTypeGroup, FACILITY_TYPE_GROUP_LOC);
+//		facilityType = addField(LocationDto.FACILITY_TYPE);
+//		facility = addInfrastructureField(LocationDto.FACILITY);
+//		facility.setImmediate(true);
+//		facilityDetails = addField(LocationDto.FACILITY_DETAILS, TextField.class);
+//		facilityDetails.setVisible(false);
+//
+//		addressType.addValueChangeListener(e -> {
+//			FacilityTypeGroup oldGroup = (FacilityTypeGroup) facilityTypeGroup.getValue();
+//			FacilityType oldType = (FacilityType) facilityType.getValue();
+//			FacilityReferenceDto oldFacility = (FacilityReferenceDto) facility.getValue();
+//			String oldDetails = facilityDetails.getValue();
+////			if (PersonAddressType.HOME.equals(addressType.getValue())) {
+////				facilityTypeGroup.removeAllItems();
+////				facilityTypeGroup.addItems(FacilityTypeGroup.getAccomodationGroups());
+////				setOldFacilityValuesIfPossible(oldGroup, oldType, oldFacility, oldDetails);
+////			} else {
+//				facilityTypeGroup.removeAllItems();
+//				facilityTypeGroup.addItems(FacilityTypeGroup.values());
+//				setOldFacilityValuesIfPossible(oldGroup, oldType, oldFacility, oldDetails);
+//			//}
+		//});
 
 		TextField streetField = addField(LocationDto.STREET, TextField.class);
 		TextField houseNumberField = addField(LocationDto.HOUSE_NUMBER, TextField.class);
@@ -366,175 +360,175 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 					districtDto != null
 							? FacadeProvider.getCommunityFacade().getAllActiveByDistrict(districtDto.getUuid())
 							: null);
-			if (districtDto == null) {
-				FieldHelper.removeItems(facility);
-				// Add a visual indictator reminding the user to select a district
-				facility.setComponentError(new ErrorMessage() {
-
-					@Override
-					public ErrorLevel getErrorLevel() {
-						return ErrorLevel.INFO;
-					}
-
-					@Override
-					public String getFormattedHtmlMessage() {
-						return I18nProperties.getString(Strings.infoFacilityNeedsDistrict);
-					}
-				});
-			} else if (facilityType.getValue() != null) {
-				facility.setComponentError(null);
-				facility.markAsDirty();
-				FieldHelper.updateItems(facility,
-						FacadeProvider.getFacilityFacade().getActiveFacilitiesByDistrictAndType(districtDto,
-								(FacilityType) facilityType.getValue(), true, false));
-			}
+//			if (districtDto == null) {
+//				FieldHelper.removeItems(facility);
+//				// Add a visual indictator reminding the user to select a district
+//				facility.setComponentError(new ErrorMessage() {
+//
+//					@Override
+//					public ErrorLevel getErrorLevel() {
+//						return ErrorLevel.INFO;
+//					}
+//
+//					@Override
+//					public String getFormattedHtmlMessage() {
+//						return I18nProperties.getString(Strings.infoFacilityNeedsDistrict);
+//					}
+//				});
+//			} else if (facilityType.getValue() != null) {
+//				facility.setComponentError(null);
+//				facility.markAsDirty();
+//				FieldHelper.updateItems(facility,
+//						FacadeProvider.getFacilityFacade().getActiveFacilitiesByDistrictAndType(districtDto,
+//								(FacilityType) facilityType.getValue(), true, false));
+//			}
 		});
-		community.addValueChangeListener(e -> {
-			CommunityReferenceDto communityDto = (CommunityReferenceDto) e.getProperty().getValue();
-			if (facilityType.getValue() != null) {
-				FieldHelper.updateItems(facility, communityDto != null
-						? FacadeProvider.getFacilityFacade().getActiveFacilitiesByCommunityAndType(communityDto,
-								(FacilityType) facilityType.getValue(), true, true)
-						: district.getValue() != null ? FacadeProvider.getFacilityFacade()
-								.getActiveFacilitiesByDistrictAndType((DistrictReferenceDto) district.getValue(),
-										(FacilityType) facilityType.getValue(), true, false)
-								: null);
-			}
-		});
+//		community.addValueChangeListener(e -> {
+//			CommunityReferenceDto communityDto = (CommunityReferenceDto) e.getProperty().getValue();
+//			if (facilityType.getValue() != null) {
+//				FieldHelper.updateItems(facility, communityDto != null
+//						? FacadeProvider.getFacilityFacade().getActiveFacilitiesByCommunityAndType(communityDto,
+//								(FacilityType) facilityType.getValue(), true, true)
+//						: district.getValue() != null ? FacadeProvider.getFacilityFacade()
+//								.getActiveFacilitiesByDistrictAndType((DistrictReferenceDto) district.getValue(),
+//										(FacilityType) facilityType.getValue(), true, false)
+//								: null);
+//			}
+//		});
 		skipFacilityTypeUpdate = false;
-		facilityTypeGroup.addValueChangeListener(e -> {
-			if (!skipFacilityTypeUpdate) {
-				FieldHelper.removeItems(facility);
-				FieldHelper.updateEnumData(facilityType,
-						FacilityType.getTypes((FacilityTypeGroup) facilityTypeGroup.getValue()));
-				facilityType.setRequired(facilityTypeGroup.getValue() != null);
-			}
-		});
-		facilityType.addValueChangeListener(e -> {
-			FieldHelper.removeItems(facility);
-			facility.setComponentError(null);
-			facility.markAsDirty();
-			if (facilityType.getValue() != null && facilityTypeGroup.getValue() == null) {
-				facilityTypeGroup.setValue(((FacilityType) facilityType.getValue()).getFacilityTypeGroup());
-			}
-			if (facilityType.getValue() != null && district.getValue() != null) {
-				if (community.getValue() != null) {
-					FieldHelper.updateItems(facility,
-							FacadeProvider.getFacilityFacade().getActiveFacilitiesByCommunityAndType(
-									(CommunityReferenceDto) community.getValue(),
-									(FacilityType) facilityType.getValue(), true, false));
-				} else {
-					FieldHelper.updateItems(facility,
-							FacadeProvider.getFacilityFacade().getActiveFacilitiesByDistrictAndType(
-									(DistrictReferenceDto) district.getValue(), (FacilityType) facilityType.getValue(),
-									true, false));
-				}
-			} else if (facilityType.getValue() != null && district.getValue() == null) {
-				// Add a visual indictator reminding the user to select a district
-				facility.setComponentError(new ErrorMessage() {
-
-					@Override
-					public ErrorLevel getErrorLevel() {
-						return ErrorLevel.INFO;
-					}
-
-					@Override
-					public String getFormattedHtmlMessage() {
-						return I18nProperties.getString(Strings.infoFacilityNeedsDistrict);
-					}
-				});
-			}
-
-			// Only show contactperson-details if at least a faciltytype has been set
-			if (facilityType.getValue() != null) {
-				setFacilityContactPersonFieldsVisible(true, true);
-			} else {
-				setFacilityContactPersonFieldsVisible(false, true);
-			}
-		});
-		facility.addValueChangeListener(e -> {
-			if (facility.getValue() != null) {
-				boolean visibleAndRequired = areFacilityDetailsRequired();
-
-				facilityDetails.setVisible(visibleAndRequired);
-				facilityDetails.setRequired(visibleAndRequired);
-
-				if (!visibleAndRequired) {
-					facilityDetails.clear();
-				} else {
-					facilityDetails.setValue(getValue().getFacilityDetails());
-				}
-			} else {
-				facilityDetails.setVisible(false);
-				facilityDetails.setRequired(false);
-				facilityDetails.clear();
-			}
-
-			// Fill in the address fields based on the selected facility
-			// We don't want the location form to automatically change even if the
-			// facility's address is updated later
-			// on, so we only trigger it upon a manual change of the facility field
-			// We use isAttached() to avoid the fuss when initializing the form, it may
-			// seems a bit hacky, but it is
-			// necessary because isModified() will still return true for a short duration
-			// even if we keep the very same
-			// value because of this field dependencies to other fields and the way
-			// updateEnumValues works
-			if (facility.isAttached()) {
-				if (facility.getValue() != null) {
-					FacilityDto facilityDto = FacadeProvider.getFacilityFacade()
-							.getByUuid(((FacilityReferenceDto) getField(LocationDto.FACILITY).getValue()).getUuid());
-
-					// Only if the facility's address is set
-					if (StringUtils.isNotEmpty(facilityDto.getCity())
-							|| StringUtils.isNotEmpty(facilityDto.getPostalCode())
-							|| StringUtils.isNotEmpty(facilityDto.getStreet())
-							|| StringUtils.isNotEmpty(facilityDto.getHouseNumber())
-							|| StringUtils.isNotEmpty(facilityDto.getAdditionalInformation())
-							|| facilityDto.getAreaType() != null || facilityDto.getLatitude() != null
-							|| facilityDto.getLongitude() != null
-							|| (StringUtils.isNotEmpty(facilityDto.getContactPersonFirstName())
-									&& StringUtils.isNotEmpty(facilityDto.getContactPersonLastName()))) {
-
-						// Show a confirmation popup if the location's address is already set and
-						// different from the facility one
-						if ((StringUtils.isNotEmpty(cityField.getValue())
-								&& !cityField.getValue().equals(facilityDto.getCity()))
-								|| (StringUtils.isNotEmpty(postalCodeField.getValue())
-										&& !postalCodeField.getValue().equals(facilityDto.getPostalCode()))
-								|| (StringUtils.isNotEmpty(streetField.getValue())
-										&& !streetField.getValue().equals(facilityDto.getStreet()))
-								|| (StringUtils.isNotEmpty(houseNumberField.getValue())
-										&& !houseNumberField.getValue().equals(facilityDto.getHouseNumber()))
-								|| (StringUtils.isNotEmpty(additionalInformationField.getValue())
-										&& !additionalInformationField.getValue()
-												.equals(facilityDto.getAdditionalInformation()))
-								|| (areaType.getValue() != null && areaType.getValue() != facilityDto.getAreaType())
-								|| (StringUtils.isNotEmpty(contactPersonFirstName.getValue())
-										&& StringUtils.isNotEmpty(contactPersonLastName.getValue()))
-								|| (tfLatitude.getConvertedValue() != null
-										&& Double.compare((Double) tfLatitude.getConvertedValue(),
-												facilityDto.getLatitude()) != 0)
-								|| (tfLongitude.getConvertedValue() != null
-										&& Double.compare((Double) tfLongitude.getConvertedValue(),
-												facilityDto.getLongitude()) != 0)) {
-
-							VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingLocation),
-									new Label(I18nProperties
-											.getString(Strings.confirmationLocationFacilityAddressOverride)),
-									I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), 640,
-									confirmationEvent -> {
-										if (confirmationEvent) {
-											overrideLocationDetailsWithFacilityOnes(facilityDto);
-										}
-									});
-						} else {
-							overrideLocationDetailsWithFacilityOnes(facilityDto);
-						}
-					}
-				}
-			}
-		});
+//		facilityTypeGroup.addValueChangeListener(e -> {
+//			if (!skipFacilityTypeUpdate) {
+//				FieldHelper.removeItems(facility);
+//				FieldHelper.updateEnumData(facilityType,
+//						FacilityType.getTypes((FacilityTypeGroup) facilityTypeGroup.getValue()));
+//				facilityType.setRequired(facilityTypeGroup.getValue() != null);
+//			}
+//		});
+//		facilityType.addValueChangeListener(e -> {
+//			FieldHelper.removeItems(facility);
+//			facility.setComponentError(null);
+//			facility.markAsDirty();
+//			if (facilityType.getValue() != null && facilityTypeGroup.getValue() == null) {
+//				facilityTypeGroup.setValue(((FacilityType) facilityType.getValue()).getFacilityTypeGroup());
+//			}
+//			if (facilityType.getValue() != null && district.getValue() != null) {
+//				if (community.getValue() != null) {
+//					FieldHelper.updateItems(facility,
+//							FacadeProvider.getFacilityFacade().getActiveFacilitiesByCommunityAndType(
+//									(CommunityReferenceDto) community.getValue(),
+//									(FacilityType) facilityType.getValue(), true, false));
+//				} else {
+//					FieldHelper.updateItems(facility,
+//							FacadeProvider.getFacilityFacade().getActiveFacilitiesByDistrictAndType(
+//									(DistrictReferenceDto) district.getValue(), (FacilityType) facilityType.getValue(),
+//									true, false));
+//				}
+//			} else if (facilityType.getValue() != null && district.getValue() == null) {
+//				// Add a visual indictator reminding the user to select a district
+//				facility.setComponentError(new ErrorMessage() {
+//
+//					@Override
+//					public ErrorLevel getErrorLevel() {
+//						return ErrorLevel.INFO;
+//					}
+//
+//					@Override
+//					public String getFormattedHtmlMessage() {
+//						return I18nProperties.getString(Strings.infoFacilityNeedsDistrict);
+//					}
+//				});
+//			}
+//
+//			// Only show contactperson-details if at least a faciltytype has been set
+//			if (facilityType.getValue() != null) {
+//				setFacilityContactPersonFieldsVisible(true, true);
+//			} else {
+//				setFacilityContactPersonFieldsVisible(false, true);
+//			}
+//		});
+//		facility.addValueChangeListener(e -> {
+//			if (facility.getValue() != null) {
+//				boolean visibleAndRequired = areFacilityDetailsRequired();
+//
+//				facilityDetails.setVisible(visibleAndRequired);
+//				facilityDetails.setRequired(visibleAndRequired);
+//
+//				if (!visibleAndRequired) {
+//					facilityDetails.clear();
+//				} else {
+//					facilityDetails.setValue(getValue().getFacilityDetails());
+//				}
+//			} else {
+//				facilityDetails.setVisible(false);
+//				facilityDetails.setRequired(false);
+//				facilityDetails.clear();
+//			}
+//
+//			// Fill in the address fields based on the selected facility
+//			// We don't want the location form to automatically change even if the
+//			// facility's address is updated later
+//			// on, so we only trigger it upon a manual change of the facility field
+//			// We use isAttached() to avoid the fuss when initializing the form, it may
+//			// seems a bit hacky, but it is
+//			// necessary because isModified() will still return true for a short duration
+//			// even if we keep the very same
+//			// value because of this field dependencies to other fields and the way
+//			// updateEnumValues works
+//			if (facility.isAttached()) {
+//				if (facility.getValue() != null) {
+//					FacilityDto facilityDto = FacadeProvider.getFacilityFacade()
+//							.getByUuid(((FacilityReferenceDto) getField(LocationDto.FACILITY).getValue()).getUuid());
+//
+//					// Only if the facility's address is set
+//					if (StringUtils.isNotEmpty(facilityDto.getCity())
+//							|| StringUtils.isNotEmpty(facilityDto.getPostalCode())
+//							|| StringUtils.isNotEmpty(facilityDto.getStreet())
+//							|| StringUtils.isNotEmpty(facilityDto.getHouseNumber())
+//							|| StringUtils.isNotEmpty(facilityDto.getAdditionalInformation())
+//							|| facilityDto.getAreaType() != null || facilityDto.getLatitude() != null
+//							|| facilityDto.getLongitude() != null
+//							|| (StringUtils.isNotEmpty(facilityDto.getContactPersonFirstName())
+//									&& StringUtils.isNotEmpty(facilityDto.getContactPersonLastName()))) {
+//
+//						// Show a confirmation popup if the location's address is already set and
+//						// different from the facility one
+//						if ((StringUtils.isNotEmpty(cityField.getValue())
+//								&& !cityField.getValue().equals(facilityDto.getCity()))
+//								|| (StringUtils.isNotEmpty(postalCodeField.getValue())
+//										&& !postalCodeField.getValue().equals(facilityDto.getPostalCode()))
+//								|| (StringUtils.isNotEmpty(streetField.getValue())
+//										&& !streetField.getValue().equals(facilityDto.getStreet()))
+//								|| (StringUtils.isNotEmpty(houseNumberField.getValue())
+//										&& !houseNumberField.getValue().equals(facilityDto.getHouseNumber()))
+//								|| (StringUtils.isNotEmpty(additionalInformationField.getValue())
+//										&& !additionalInformationField.getValue()
+//												.equals(facilityDto.getAdditionalInformation()))
+//								|| (areaType.getValue() != null && areaType.getValue() != facilityDto.getAreaType())
+//								|| (StringUtils.isNotEmpty(contactPersonFirstName.getValue())
+//										&& StringUtils.isNotEmpty(contactPersonLastName.getValue()))
+//								|| (tfLatitude.getConvertedValue() != null
+//										&& Double.compare((Double) tfLatitude.getConvertedValue(),
+//												facilityDto.getLatitude()) != 0)
+//								|| (tfLongitude.getConvertedValue() != null
+//										&& Double.compare((Double) tfLongitude.getConvertedValue(),
+//												facilityDto.getLongitude()) != 0)) {
+//
+//							VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingLocation),
+//									new Label(I18nProperties
+//											.getString(Strings.confirmationLocationFacilityAddressOverride)),
+//									I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), 640,
+//									confirmationEvent -> {
+//										if (confirmationEvent) {
+//											overrideLocationDetailsWithFacilityOnes(facilityDto);
+//										}
+//									});
+//						} else {
+//							overrideLocationDetailsWithFacilityOnes(facilityDto);
+//						}
+//					}
+//				}
+//			}
+//		});
 		final List<ContinentReferenceDto> continents = FacadeProvider.getContinentFacade().getAllActiveAsReference();
 		if (continents.isEmpty()) {
 			continent.setVisible(false);
@@ -563,7 +557,7 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 
 		// Set initial visiblity of facility-contactperson-details (should only be DEBUG SQL running for criterial
 		// visible if at least a facilityType has been selected)
-		setFacilityContactPersonFieldsVisible(facilityType.getValue() != null, true);
+		//setFacilityContactPersonFieldsVisible(facilityType.getValue() != null, true);
 	}
 
 	private void updateAreaCombo(ComboBox area, ComboBox country) {
@@ -599,13 +593,13 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 		((AccessibleTextField) getField(LocationDto.LONGITUDE)).setConvertedValue(facilityDto.getLongitude());
 	}
 
-	private void setOldFacilityValuesIfPossible(FacilityTypeGroup oldGroup, FacilityType oldType,
-			FacilityReferenceDto oldFacility, String oldDetails) {
-		facilityTypeGroup.setValue(oldGroup);
-		facilityType.setValue(oldType);
-		facility.setValue(oldFacility);
-		facilityDetails.setValue(oldDetails);
-	}
+//	private void setOldFacilityValuesIfPossible(FacilityTypeGroup oldGroup, FacilityType oldType,
+//			FacilityReferenceDto oldFacility, String oldDetails) {
+//		facilityTypeGroup.setValue(oldGroup);
+//		facilityType.setValue(oldType);
+//		facility.setValue(oldFacility);
+//		facilityDetails.setValue(oldDetails);
+//	}
 
 	private HorizontalLayout createGeoButton() {
 		HorizontalLayout geoButtonLayout = new HorizontalLayout();
@@ -708,36 +702,36 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 		return super.addFieldToLayout(layout, propertyId, field);
 	}
 
-	public void setFacilityFieldsVisible(boolean visible, boolean clearOnHidden) {
-		facility.setVisible(visible);
-		facilityDetails.setVisible(visible && areFacilityDetailsRequired());
-		facilityType.setVisible(visible);
-		facilityTypeGroup.setVisible(visible);
+//	public void setFacilityFieldsVisible(boolean visible, boolean clearOnHidden) {
+//		facility.setVisible(visible);
+//		facilityDetails.setVisible(visible && areFacilityDetailsRequired());
+//		facilityType.setVisible(visible);
+//		facilityTypeGroup.setVisible(visible);
+//
+//		setFacilityContactPersonFieldsVisible(visible && (facilityType.getValue() != null), clearOnHidden);
+//
+//		if (!visible && clearOnHidden) {
+//			facility.clear();
+//			facilityDetails.clear();
+//			facilityType.clear();
+//			facilityTypeGroup.clear();
+//		}
+//	}
 
-		setFacilityContactPersonFieldsVisible(visible && (facilityType.getValue() != null), clearOnHidden);
-
-		if (!visible && clearOnHidden) {
-			facility.clear();
-			facilityDetails.clear();
-			facilityType.clear();
-			facilityTypeGroup.clear();
-		}
-	}
-
-	public void setFacilityFieldsVisibleExceptTypeGroupField(boolean visible, boolean clearOnHidden) {
-		facility.setVisible(visible);
-		facilityDetails.setVisible(visible && areFacilityDetailsRequired());
-		facilityType.setVisible(visible);
-		facilityTypeGroup.setVisible(false);
-
-		setFacilityContactPersonFieldsVisible(visible && (facilityType.getValue() != null), clearOnHidden);
-
-		if (!visible && clearOnHidden) {
-			facility.clear();
-			facilityDetails.clear();
-			facilityType.clear();
-		}
-	}
+//	public void setFacilityFieldsVisibleExceptTypeGroupField(boolean visible, boolean clearOnHidden) {
+//		facility.setVisible(visible);
+//		facilityDetails.setVisible(visible && areFacilityDetailsRequired());
+//		facilityType.setVisible(visible);
+//		facilityTypeGroup.setVisible(false);
+//
+//		setFacilityContactPersonFieldsVisible(visible && (facilityType.getValue() != null), clearOnHidden);
+//
+//		if (!visible && clearOnHidden) {
+//			facility.clear();
+//			facilityDetails.clear();
+//			facilityType.clear();
+//		}
+//	}
 
 	private void setFacilityContactPersonFieldsVisible(boolean visible, boolean clearOnHidden) {
 		contactPersonFirstName.setVisible(visible);
@@ -770,10 +764,10 @@ public class LocationEditForm extends AbstractEditForm<LocationDto> {
 		}
 	}
 
-	private boolean areFacilityDetailsRequired() {
-		return facility.getValue() != null
-				&& ((FacilityReferenceDto) facility.getValue()).getUuid().equals(FacilityDto.OTHER_FACILITY_UUID);
-	}
+//	private boolean areFacilityDetailsRequired() {
+//		return facility.getValue() != null
+//				&& ((FacilityReferenceDto) facility.getValue()).getUuid().equals(FacilityDto.OTHER_FACILITY_UUID);
+//	}
 
 	private static class MapPopupView extends PopupView {
 

@@ -29,12 +29,6 @@ import javax.validation.Valid;
 import de.symeda.sormas.api.document.DocumentDto;
 import de.symeda.sormas.api.document.DocumentFacade;
 import de.symeda.sormas.api.document.DocumentRelatedEntityType;
-import de.symeda.sormas.backend.caze.Case;
-import de.symeda.sormas.backend.caze.CaseService;
-import de.symeda.sormas.backend.contact.Contact;
-import de.symeda.sormas.backend.contact.ContactService;
-import de.symeda.sormas.backend.event.Event;
-import de.symeda.sormas.backend.event.EventService;
 import de.symeda.sormas.backend.user.UserFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
@@ -68,12 +62,7 @@ public class DocumentFacadeEjb implements DocumentFacade {
 	private DocumentService documentService;
 	@EJB
 	private DocumentStorageService documentStorageService;
-	@EJB
-	private CaseService caseService;
-	@EJB
-	private ContactService contactService;
-	@EJB
-	private EventService eventService;
+	
 
 	@Override
 	public DocumentDto getDocumentByUuid(String uuid) {
@@ -176,17 +165,7 @@ public class DocumentFacadeEjb implements DocumentFacade {
 	}
 
 	private boolean isInJurisdiction(DocumentDto dto) {
-		switch (dto.getRelatedEntityType()) {
-		case CASE:
-			Case caze = caseService.getByUuid(dto.getRelatedEntityUuid());
-			return caseService.inJurisdictionOrOwned(caze);
-		case CONTACT:
-			Contact contact = contactService.getByUuid(dto.getRelatedEntityUuid());
-			return contactService.inJurisdictionOrOwned(contact).getInJurisdiction();
-		case EVENT:
-			Event event = eventService.getByUuid(dto.getRelatedEntityUuid());
-			return eventService.inJurisdictionOrOwned(event);
-		}
+		
 		return true;
 	}
 

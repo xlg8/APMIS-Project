@@ -54,7 +54,7 @@ public class WeeklyReportDto extends EntityDto {
 	private Integer totalNumberOfCases;
 	private Integer year;
 	private Integer epiWeek;
-	private List<WeeklyReportEntryDto> reportEntries = new ArrayList<>();
+
 
 	public static WeeklyReportDto build(UserReferenceDto reportingUser) {
 
@@ -144,11 +144,4 @@ public class WeeklyReportDto extends EntityDto {
 		return new WeeklyReportReferenceDto(getUuid());
 	}
 
-	public List<WeeklyReportEntryDto> getReportEntries() {
-		return reportEntries;
-	}
-
-	public void setReportEntries(List<WeeklyReportEntryDto> reportEntries) {
-		this.reportEntries = reportEntries;
-	}
 }

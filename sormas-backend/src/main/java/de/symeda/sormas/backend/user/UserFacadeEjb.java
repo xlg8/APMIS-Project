@@ -17,7 +17,6 @@
  *******************************************************************************/
 package de.symeda.sormas.backend.user;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,13 +34,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
@@ -49,9 +46,6 @@ import javax.validation.ValidationException;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import com.vladmihalcea.hibernate.type.util.SQLExtractor;
-
-import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -68,18 +62,10 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserRole.UserRoleValidationException;
 import de.symeda.sormas.api.user.UserSyncResult;
-import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.api.utils.PasswordHelper;
 import de.symeda.sormas.api.utils.SortProperty;
-import de.symeda.sormas.backend.caze.Case;
-import de.symeda.sormas.backend.caze.CaseFacadeEjb.CaseFacadeEjbLocal;
-import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
-import de.symeda.sormas.backend.caze.CaseService;
-import de.symeda.sormas.backend.contact.Contact;
-import de.symeda.sormas.backend.contact.ContactService;
-import de.symeda.sormas.backend.event.EventService;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
@@ -129,14 +115,6 @@ public class UserFacadeEjb implements UserFacade {
 	@EJB
 	private FacilityService facilityService;
 	@EJB
-	private CaseFacadeEjbLocal caseFacade;
-	@EJB
-	private CaseService caseService;
-	@EJB
-	private ContactService contactService;
-	@EJB
-	private EventService eventService;
-	@EJB
 	private PointOfEntryService pointOfEntryService;
 	@Inject
 	private Event<UserCreateEvent> userCreateEvent;
@@ -171,7 +149,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
 		target.setLaboratory(FacilityFacadeEjb.toReferenceDto(source.getLaboratory()));
 		target.setPointOfEntry(PointOfEntryFacadeEjb.toReferenceDto(source.getPointOfEntry()));
-		target.setLimitedDisease(source.getLimitedDisease());
+	//	target.setLimitedDisease(source.getLimitedDisease());
 		target.setLanguage(source.getLanguage());
 		target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
 
@@ -734,7 +712,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setAssociatedOfficer(userService.getByReferenceDto(source.getAssociatedOfficer()));
 		target.setLaboratory(facilityService.getByReferenceDto(source.getLaboratory()));
 		target.setPointOfEntry(pointOfEntryService.getByReferenceDto(source.getPointOfEntry()));
-		target.setLimitedDisease(source.getLimitedDisease());
+		//target.setLimitedDisease(source.getLimitedDisease());
 		target.setLanguage(source.getLanguage());
 		target.setUsertype(source.getUsertype());
 		target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
@@ -779,33 +757,33 @@ public class UserFacadeEjb implements UserFacade {
 		return null;
 	}
 
-	@Override
-	public void removeUserAsSurveillanceAndContactOfficer(String userUuid) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<Case> caseQuery = cb.createQuery(Case.class);
-		Root<Case> caseRoot = caseQuery.from(Case.class);
-		Join<Case, User> surveillanceOfficerJoin = caseRoot.join(Case.SURVEILLANCE_OFFICER, JoinType.LEFT);
-
-		caseQuery.where(cb.equal(surveillanceOfficerJoin.get(User.UUID), userUuid));
-		List<Case> cases = em.createQuery(caseQuery).getResultList();
-		cases.forEach(c -> {
-			c.setSurveillanceOfficer(null);
-			caseFacade.setResponsibleSurveillanceOfficer(c);
-			caseService.ensurePersisted(c);
-			caseFacade.reassignTasksOfCase(c, true);
-		});
-
-		CriteriaQuery<Contact> contactQuery = cb.createQuery(Contact.class);
-		Root<Contact> contactRoot = contactQuery.from(Contact.class);
-		Join<Contact, User> contactOfficerJoin = contactRoot.join(Contact.CONTACT_OFFICER, JoinType.LEFT);
-
-		contactQuery.where(cb.equal(contactOfficerJoin.get(User.UUID), userUuid));
-		List<Contact> contacts = em.createQuery(contactQuery).getResultList();
-		contacts.forEach(c -> {
-			c.setContactOfficer(null);
-			contactService.ensurePersisted(c);
-		});
-	}
+//	@Override
+//	public void removeUserAsSurveillanceAndContactOfficer(String userUuid) {
+//		CriteriaBuilder cb = em.getCriteriaBuilder();
+//		CriteriaQuery<Case> caseQuery = cb.createQuery(Case.class);
+//		Root<Case> caseRoot = caseQuery.from(Case.class);
+//		Join<Case, User> surveillanceOfficerJoin = caseRoot.join(Case.SURVEILLANCE_OFFICER, JoinType.LEFT);
+//
+//		caseQuery.where(cb.equal(surveillanceOfficerJoin.get(User.UUID), userUuid));
+//		List<Case> cases = em.createQuery(caseQuery).getResultList();
+//		cases.forEach(c -> {
+//			c.setSurveillanceOfficer(null);
+//			caseFacade.setResponsibleSurveillanceOfficer(c);
+//			caseService.ensurePersisted(c);
+//			caseFacade.reassignTasksOfCase(c, true);
+//		});
+//
+//		CriteriaQuery<Contact> contactQuery = cb.createQuery(Contact.class);
+//		Root<Contact> contactRoot = contactQuery.from(Contact.class);
+//		Join<Contact, User> contactOfficerJoin = contactRoot.join(Contact.CONTACT_OFFICER, JoinType.LEFT);
+//
+//		contactQuery.where(cb.equal(contactOfficerJoin.get(User.UUID), userUuid));
+//		List<Contact> contacts = em.createQuery(contactQuery).getResultList();
+//		contacts.forEach(c -> {
+//			c.setContactOfficer(null);
+//			contactService.ensurePersisted(c);
+//		});
+//	}
 
 	@Override
 	public UserSyncResult syncUser(String uuid) {
@@ -892,6 +870,12 @@ public class UserFacadeEjb implements UserFacade {
 		user.setSeed(PasswordHelper.createPass(16));
 		user.setPassword(PasswordHelper.encodePassword(pass, user.getSeed()));
 		return "Changed";
+	}
+
+	@Override
+	public void removeUserAsSurveillanceAndContactOfficer(String userUuid) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

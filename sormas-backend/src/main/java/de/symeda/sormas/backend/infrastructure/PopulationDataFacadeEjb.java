@@ -225,9 +225,9 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			List<Long> districtIds = districtService.getIdsByReferenceDtos(criteria.getDistricts());
 			QueryHelper.appendInFilterValues(districtsIn, parameters, districtIds, entry -> entry);
 		}
-		if (!CollectionUtils.isEmpty(criteria.getSexes())) {
-			QueryHelper.appendInFilterValues(sexesIn, parameters, criteria.getSexes(), entry -> entry.name());
-		}
+//		if (!CollectionUtils.isEmpty(criteria.getSexes())) {
+//			QueryHelper.appendInFilterValues(sexesIn, parameters, criteria.getSexes(), entry -> entry.name());
+//		}
 		if (!CollectionUtils.isEmpty(criteria.getAgeGroups())) {
 			QueryHelper.appendInFilterValues(ageGroupsIn, parameters, criteria.getAgeGroups(), entry -> entry.name());
 		}
@@ -377,7 +377,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
 		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
 		target.setAgeGroup(source.getAgeGroup());
-		target.setSex(source.getSex());
+		//target.setSex(source.getSex());
 		target.setPopulation(source.getPopulation());
 		target.setCollectionDate(source.getCollectionDate());
 
@@ -396,7 +396,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
 		target.setCommunity(CommunityFacadeEjb.toReferenceDto(source.getCommunity()));
 		target.setAgeGroup(source.getAgeGroup());
-		target.setSex(source.getSex());
+		//target.setSex(source.getSex());
 		target.setPopulation(source.getPopulation());
 		target.setCollectionDate(source.getCollectionDate());
 

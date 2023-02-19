@@ -35,7 +35,6 @@ import com.vaadin.v7.ui.AbstractTextField;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.Field;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.InfrastructureDataReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
@@ -99,9 +98,9 @@ public abstract class AbstractEditForm<DTO> extends AbstractForm<DTO> implements
 	public void setValue(DTO newFieldValue) throws com.vaadin.v7.data.Property.ReadOnlyException, ConversionException {
 		super.setValue(newFieldValue);
 		// this method should only be called once upon initializing the form, thus allowing us to set the default disease here
-		if (diseaseField != null && diseaseField.getValue() == null && setServerDiseaseAsDefault) {
-			setDefaultDiseaseValue();
-		}
+//		if (diseaseField != null && diseaseField.getValue() == null && setServerDiseaseAsDefault) {
+//			setDefaultDiseaseValue();
+//		}
 	}
 
 	@Override
@@ -171,9 +170,9 @@ public abstract class AbstractEditForm<DTO> extends AbstractForm<DTO> implements
 		super.discard();
 	}
 
-	protected ComboBox addDiseaseField(String fieldId, boolean showNonPrimaryDiseases) {
-		return addDiseaseField(fieldId, showNonPrimaryDiseases, false);
-	}
+//	protected ComboBox addDiseaseField(String fieldId, boolean showNonPrimaryDiseases) {
+//		return addDiseaseField(fieldId, showNonPrimaryDiseases, false);
+//	}
 
 	/**
 	 * Adds the field to the form by using addField(fieldId, fieldType), but additionally sets up a ValueChangeListener
@@ -186,42 +185,42 @@ public abstract class AbstractEditForm<DTO> extends AbstractForm<DTO> implements
 	 * @param setServerDiseaseAsDefault
 	 *            If only a single diseases is active on the server, set it as the default value
 	 */
-	@SuppressWarnings("unchecked")
-	protected ComboBox addDiseaseField(String fieldId, boolean showNonPrimaryDiseases, boolean setServerDiseaseAsDefault) {
-
-		diseaseField = addField(fieldId, ComboBox.class);
-		this.setServerDiseaseAsDefault = setServerDiseaseAsDefault;
-		if (showNonPrimaryDiseases) {
-			addNonPrimaryDiseasesTo(diseaseField);
-		}
-
-		if (setServerDiseaseAsDefault) {
-			setDefaultDiseaseValue();
-		}
-
-		// Make sure that the ComboBox still contains a pre-selected inactive disease
-		diseaseField.addValueChangeListener(e -> {
-			Object value = e.getProperty().getValue();
-			if (value != null && !diseaseField.containsId(value)) {
-				Item newItem = diseaseField.addItem(value);
-				newItem.getItemProperty(SormasFieldGroupFieldFactory.CAPTION_PROPERTY_ID).setValue(value.toString());
-			}
-		});
-		return diseaseField;
-	}
+//	@SuppressWarnings("unchecked")
+//	protected ComboBox addDiseaseField(String fieldId, boolean showNonPrimaryDiseases, boolean setServerDiseaseAsDefault) {
+//
+//		diseaseField = addField(fieldId, ComboBox.class);
+//		this.setServerDiseaseAsDefault = setServerDiseaseAsDefault;
+//		if (showNonPrimaryDiseases) {
+//			addNonPrimaryDiseasesTo(diseaseField);
+//		}
+//
+//		if (setServerDiseaseAsDefault) {
+//			setDefaultDiseaseValue();
+//		}
+//
+//		// Make sure that the ComboBox still contains a pre-selected inactive disease
+//		diseaseField.addValueChangeListener(e -> {
+//			Object value = e.getProperty().getValue();
+//			if (value != null && !diseaseField.containsId(value)) {
+//				Item newItem = diseaseField.addItem(value);
+//				newItem.getItemProperty(SormasFieldGroupFieldFactory.CAPTION_PROPERTY_ID).setValue(value.toString());
+//			}
+//		});
+//		return diseaseField;
+//	}
 
 	/**
 	 * If the server is only configured for one disease, automatically set this as the default value of the disease field.
 	 * Disease.OTHER and Disease.UNDEFINED are not counted as disease
 	 */
-	private void setDefaultDiseaseValue() {
-		Disease defaultDisease = FacadeProvider.getDiseaseConfigurationFacade().getDefaultDisease();
-		if (defaultDisease != null) {
-			diseaseField.setValue(defaultDisease);
-		} else if (diseaseField.getItemIds().size() == 1) {
-			diseaseField.setValue(diseaseField.getItemIds().stream().findFirst().get());
-		}
-	}
+//	private void setDefaultDiseaseValue() {
+//		Disease defaultDisease = FacadeProvider.getDiseaseConfigurationFacade().getDefaultDisease();
+//		if (defaultDisease != null) {
+//			diseaseField.setValue(defaultDisease);
+//		} else if (diseaseField.getItemIds().size() == 1) {
+//			diseaseField.setValue(diseaseField.getItemIds().stream().findFirst().get());
+//		}
+//	}
 
 	protected ComboBox addInfrastructureField(String fieldId) { 
 		//System.out.println("=========================== "+fieldId);
@@ -423,19 +422,19 @@ public abstract class AbstractEditForm<DTO> extends AbstractForm<DTO> implements
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void addNonPrimaryDiseasesTo(ComboBox diseaseField) {
-
-		List<Disease> diseases = FacadeProvider.getDiseaseConfigurationFacade().getAllDiseases(true, false, true);
-		for (Disease disease : diseases) {
-			if (diseaseField.getItem(disease) != null) {
-				continue;
-			}
-
-			Item newItem = diseaseField.addItem(disease);
-			newItem.getItemProperty(SormasFieldGroupFieldFactory.CAPTION_PROPERTY_ID).setValue(disease.toString());
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	protected void addNonPrimaryDiseasesTo(ComboBox diseaseField) {
+//
+//		List<Disease> diseases = FacadeProvider.getDiseaseConfigurationFacade().getAllDiseases(true, false, true);
+//		for (Disease disease : diseases) {
+//			if (diseaseField.getItem(disease) != null) {
+//				continue;
+//			}
+//
+//			Item newItem = diseaseField.addItem(disease);
+//			newItem.getItemProperty(SormasFieldGroupFieldFactory.CAPTION_PROPERTY_ID).setValue(disease.toString());
+//		}
+//	}
 
 	/**
 	 * Sets the initial visibilities based on annotations and builds a list of all fields in a form that are allowed to be visible -

@@ -2,7 +2,6 @@ package de.symeda.sormas.api.feature;
 
 import java.util.Date;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -22,7 +21,6 @@ public class FeatureConfigurationDto extends EntityDto {
 	private FeatureType featureType;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
-	private Disease disease;
 	private Date endDate;
 	private boolean enabled;
 
@@ -54,14 +52,6 @@ public class FeatureConfigurationDto extends EntityDto {
 
 	public void setDistrict(DistrictReferenceDto district) {
 		this.district = district;
-	}
-
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public void setDisease(Disease disease) {
-		this.disease = disease;
 	}
 
 	public Date getEndDate() {

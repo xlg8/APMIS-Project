@@ -19,15 +19,11 @@ package de.symeda.sormas.backend.location;
 
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_BIG;
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_DEFAULT;
-import static de.symeda.sormas.backend.person.Person.PERSON_LOCATIONS_TABLE_NAME;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 
 import de.symeda.auditlog.api.Audited;
@@ -36,7 +32,6 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.location.LocationReferenceDto;
-import de.symeda.sormas.api.person.PersonAddressType;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.community.Community;
@@ -46,7 +41,6 @@ import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.subcontinent.Subcontinent;
-import de.symeda.sormas.backend.person.Person;
 
 @Entity
 @Audited
@@ -103,7 +97,6 @@ public class Location extends AbstractDomainObject {
 	private String street;
 	private String houseNumber;
 	private String additionalInformation;
-	private PersonAddressType addressType;
 	private String addressTypeDetails;
 	private FacilityType facilityType;
 	private Facility facility;
@@ -114,7 +107,6 @@ public class Location extends AbstractDomainObject {
 	private String contactPersonPhone;
 	private String contactPersonEmail;
 
-	private Person person;
 
 	@Column(length = CHARACTER_LIMIT_DEFAULT)
 	public String getDetails() {
@@ -266,14 +258,7 @@ public class Location extends AbstractDomainObject {
 		this.additionalInformation = additionalInformation;
 	}
 
-	@Enumerated(EnumType.STRING)
-	public PersonAddressType getAddressType() {
-		return addressType;
-	}
-
-	public void setAddressType(PersonAddressType addressType) {
-		this.addressType = addressType;
-	}
+	
 
 	@Column(length = CHARACTER_LIMIT_DEFAULT)
 	public String getAddressTypeDetails() {
@@ -347,17 +332,7 @@ public class Location extends AbstractDomainObject {
 		this.contactPersonEmail = contactPersonEmail;
 	}
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinTable(name = PERSON_LOCATIONS_TABLE_NAME,
-		joinColumns = @JoinColumn(name = "location_id"),
-		inverseJoinColumns = @JoinColumn(name = "person_id"))
-	public Person getPerson() {
-		return person;
-	}
-
-	public void setPerson(Person person) {
-		this.person = person;
-	}
+	
 
 	public String buildGpsCoordinatesCaption() {
 		if (latitude == null && longitude == null) {

@@ -33,7 +33,6 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import de.symeda.sormas.api.immunization.ImmunizationDto;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -46,58 +45,32 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.ReferenceDto;
-import de.symeda.sormas.api.action.ActionDto;
-import de.symeda.sormas.api.activityascase.ActivityAsCaseDto;
-import de.symeda.sormas.api.caze.CaseDataDto;
-import de.symeda.sormas.api.caze.surveillancereport.SurveillanceReportDto;
-import de.symeda.sormas.api.clinicalcourse.ClinicalVisitDto;
-import de.symeda.sormas.api.clinicalcourse.HealthConditionsDto;
-import de.symeda.sormas.api.contact.ContactDto;
-import de.symeda.sormas.api.epidata.EpiDataDto;
-import de.symeda.sormas.api.event.EventDto;
-import de.symeda.sormas.api.event.EventParticipantDto;
-import de.symeda.sormas.api.exposure.ExposureDto;
-import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
-import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
-import de.symeda.sormas.api.hospitalization.HospitalizationDto;
-import de.symeda.sormas.api.hospitalization.PreviousHospitalizationDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportExportUtils;
 import de.symeda.sormas.api.info.InfoFacade;
-import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryDto;
-import de.symeda.sormas.api.location.LocationDto;
-import de.symeda.sormas.api.person.PersonContactDetailDto;
-import de.symeda.sormas.api.person.PersonDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.continent.ContinentDto;
 import de.symeda.sormas.api.infrastructure.country.CountryDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
+import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentDto;
-import de.symeda.sormas.api.sample.AdditionalTestDto;
-import de.symeda.sormas.api.sample.PathogenTestDto;
-import de.symeda.sormas.api.sample.SampleDto;
-import de.symeda.sormas.api.symptoms.SymptomsDto;
-import de.symeda.sormas.api.task.TaskDto;
-import de.symeda.sormas.api.therapy.PrescriptionDto;
-import de.symeda.sormas.api.therapy.TreatmentDto;
-import de.symeda.sormas.api.travelentry.TravelEntryDto;
+import de.symeda.sormas.api.location.LocationDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
-import de.symeda.sormas.api.utils.Diseases;
 import de.symeda.sormas.api.utils.HideForCountries;
 import de.symeda.sormas.api.utils.HideForCountriesExcept;
 import de.symeda.sormas.api.utils.Outbreaks;
 import de.symeda.sormas.api.utils.PersonalData;
 import de.symeda.sormas.api.utils.Required;
 import de.symeda.sormas.api.utils.SensitiveData;
-import de.symeda.sormas.api.visit.VisitDto;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
 import de.symeda.sormas.backend.util.XssfHelper;
 
@@ -111,32 +84,8 @@ public class InfoFacadeEjb implements InfoFacade {
 	public String generateDataDictionary() throws IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 
-		createEntitySheet(workbook, PersonDto.class, PersonDto.I18N_PREFIX);
-		createEntitySheet(workbook, PersonContactDetailDto.class, PersonContactDetailDto.I18N_PREFIX);
+		
 		createEntitySheet(workbook, LocationDto.class, LocationDto.I18N_PREFIX);
-		createEntitySheet(workbook, CaseDataDto.class, CaseDataDto.I18N_PREFIX);
-		createEntitySheet(workbook, ActivityAsCaseDto.class, ActivityAsCaseDto.I18N_PREFIX);
-		createEntitySheet(workbook, HospitalizationDto.class, HospitalizationDto.I18N_PREFIX);
-		createEntitySheet(workbook, PreviousHospitalizationDto.class, PreviousHospitalizationDto.I18N_PREFIX);
-		createEntitySheet(workbook, SurveillanceReportDto.class, SurveillanceReportDto.I18N_PREFIX);
-		createEntitySheet(workbook, SymptomsDto.class, SymptomsDto.I18N_PREFIX);
-		createEntitySheet(workbook, EpiDataDto.class, EpiDataDto.I18N_PREFIX);
-		createEntitySheet(workbook, ExposureDto.class, ExposureDto.I18N_PREFIX);
-		createEntitySheet(workbook, HealthConditionsDto.class, HealthConditionsDto.I18N_PREFIX);
-		createEntitySheet(workbook, PrescriptionDto.class, PrescriptionDto.I18N_PREFIX);
-		createEntitySheet(workbook, TreatmentDto.class, TreatmentDto.I18N_PREFIX);
-		createEntitySheet(workbook, ClinicalVisitDto.class, ClinicalVisitDto.I18N_PREFIX);
-		createEntitySheet(workbook, ContactDto.class, ContactDto.I18N_PREFIX);
-		createEntitySheet(workbook, VisitDto.class, VisitDto.I18N_PREFIX);
-		createEntitySheet(workbook, SampleDto.class, SampleDto.I18N_PREFIX);
-		createEntitySheet(workbook, PathogenTestDto.class, PathogenTestDto.I18N_PREFIX);
-		createEntitySheet(workbook, AdditionalTestDto.class, AdditionalTestDto.I18N_PREFIX);
-		createEntitySheet(workbook, TaskDto.class, TaskDto.I18N_PREFIX);
-		createEntitySheet(workbook, EventDto.class, EventDto.I18N_PREFIX);
-		createEntitySheet(workbook, EventParticipantDto.class, EventParticipantDto.I18N_PREFIX);
-		createEntitySheet(workbook, ActionDto.class, ActionDto.I18N_PREFIX);
-		createEntitySheet(workbook, ImmunizationDto.class, ImmunizationDto.I18N_PREFIX);
-		createEntitySheet(workbook, TravelEntryDto.class, TravelEntryDto.I18N_PREFIX);
 		createEntitySheet(workbook, ContinentDto.class, ContinentDto.I18N_PREFIX);
 		createEntitySheet(workbook, SubcontinentDto.class, SubcontinentDto.I18N_PREFIX);
 		createEntitySheet(workbook, CountryDto.class, CountryDto.I18N_PREFIX);
@@ -297,21 +246,21 @@ public class InfoFacadeEjb implements InfoFacade {
 			if (field.getAnnotation(Required.class) != null)
 				requiredCell.setCellValue(true);
 
-			// diseases
-			XSSFCell diseasesCell = row.createCell(EntityColumn.DISEASES.ordinal());
-			diseasesCell.setCellStyle(defaultCellStyle);
-			Diseases diseases = field.getAnnotation(Diseases.class);
-			if (diseases != null) {
-				StringBuilder diseasesString = new StringBuilder();
-				for (Disease disease : diseases.value()) {
-					if (diseasesString.length() > 0)
-						diseasesString.append(", ");
-					diseasesString.append(disease.toShortString());
-				}
-				diseasesCell.setCellValue(diseasesString.toString());
-			} else {
-				diseasesCell.setCellValue("All");
-			}
+//			// diseases
+//			XSSFCell diseasesCell = row.createCell(EntityColumn.DISEASES.ordinal());
+//			diseasesCell.setCellStyle(defaultCellStyle);
+//			//Diseases diseases = field.getAnnotation(Diseases.class);
+//			if (diseases != null) {
+//				StringBuilder diseasesString = new StringBuilder();
+//				for (Disease disease : diseases.value()) {
+//					if (diseasesString.length() > 0)
+//						diseasesString.append(", ");
+//					diseasesString.append(disease.toShortString());
+//				}
+//				diseasesCell.setCellValue(diseasesString.toString());
+//			} else {
+//				diseasesCell.setCellValue("All");
+//			}
 
 			// outbreak
 			XSSFCell outbreakCell = row.createCell(EntityColumn.OUTBREAKS.ordinal());

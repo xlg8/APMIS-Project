@@ -42,16 +42,12 @@ import org.apache.commons.lang.StringUtils;
 import de.symeda.sormas.api.EntityDtoAccessHelper;
 import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.ReferenceDto;
-import de.symeda.sormas.api.caze.CaseReferenceDto;
-import de.symeda.sormas.api.contact.ContactReferenceDto;
 import de.symeda.sormas.api.docgeneneration.DocumentTemplateEntities;
 import de.symeda.sormas.api.docgeneneration.DocumentTemplateException;
 import de.symeda.sormas.api.docgeneneration.DocumentTemplateFacade;
 import de.symeda.sormas.api.docgeneneration.DocumentVariables;
 import de.symeda.sormas.api.docgeneneration.DocumentWorkflow;
 import de.symeda.sormas.api.docgeneneration.RootEntityType;
-import de.symeda.sormas.api.event.EventParticipantReferenceDto;
-import de.symeda.sormas.api.event.EventReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -59,23 +55,13 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.person.PersonReferenceDto;
-import de.symeda.sormas.api.sample.SampleReferenceDto;
-import de.symeda.sormas.api.travelentry.TravelEntryReferenceDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
-import de.symeda.sormas.backend.caze.CaseFacadeEjb.CaseFacadeEjbLocal;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
-import de.symeda.sormas.backend.contact.ContactFacadeEjb.ContactFacadeEjbLocal;
-import de.symeda.sormas.backend.event.EventFacadeEjb.EventFacadeEjbLocal;
-import de.symeda.sormas.backend.event.EventParticipantFacadeEjb.EventParticipantFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.community.CommunityFacadeEjb.CommunityFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.district.DistrictFacadeEjb.DistrictFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.facility.FacilityFacadeEjb.FacilityFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntryFacadeEjb.PointOfEntryFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.region.RegionFacadeEjb.RegionFacadeEjbLocal;
-import de.symeda.sormas.backend.person.PersonFacadeEjb.PersonFacadeEjbLocal;
-import de.symeda.sormas.backend.sample.SampleFacadeEjb.SampleFacadeEjbLocal;
-import de.symeda.sormas.backend.travelentry.TravelEntryFacadeEjb.TravelEntryFacadeEjbLocal;
 import de.symeda.sormas.backend.user.UserFacadeEjb.UserFacadeEjbLocal;
 
 @Stateless(name = "DocumentTemplateFacade")
@@ -85,15 +71,6 @@ public class DocumentTemplateFacadeEjb implements DocumentTemplateFacade {
 
 	@EJB
 	private ConfigFacadeEjbLocal configFacade;
-
-	@EJB
-	private PersonFacadeEjbLocal personFacade;
-
-	@EJB
-	private CaseFacadeEjbLocal caseFacade;
-
-	@EJB
-	private ContactFacadeEjbLocal contactFacade;
 
 	@EJB
 	private UserFacadeEjbLocal userFacade;
@@ -112,18 +89,6 @@ public class DocumentTemplateFacadeEjb implements DocumentTemplateFacade {
 
 	@EJB
 	private PointOfEntryFacadeEjbLocal pointOfEntryFacade;
-
-	@EJB
-	private EventFacadeEjbLocal eventFacade;
-
-	@EJB
-	private SampleFacadeEjbLocal sampleFacade;
-
-	@EJB
-	private EventParticipantFacadeEjbLocal eventParticipantFacade;
-
-	@EJB
-	private TravelEntryFacadeEjbLocal travelEntryFacade;
 
 	private TemplateEngine templateEngine = new TemplateEngine();
 
@@ -389,13 +354,7 @@ public class DocumentTemplateFacadeEjb implements DocumentTemplateFacade {
 			if (referenceDto != null) {
 				String uuid = referenceDto.getUuid();
 				Class<? extends ReferenceDto> referenceDtoClass = referenceDto.getClass();
-				if (PersonReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return personFacade.getPersonByUuid(uuid);
-				} else if (CaseReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return caseFacade.getCaseDataByUuid(uuid);
-				} else if (ContactReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return contactFacade.getContactByUuid(uuid);
-				} else if (UserReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
+				 if (UserReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
 					return userFacade.getByUuid(uuid);
 				} else if (RegionReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
 					return regionFacade.getByUuid(uuid);
@@ -407,15 +366,7 @@ public class DocumentTemplateFacadeEjb implements DocumentTemplateFacade {
 					return facilityFacade.getByUuid(uuid);
 				} else if (PointOfEntryReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
 					return pointOfEntryFacade.getByUuid(uuid);
-				} else if (EventReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return eventFacade.getEventByUuid(uuid, false);
-				} else if (EventParticipantReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return eventParticipantFacade.getByUuid(uuid);
-				} else if (SampleReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return sampleFacade.getSampleByUuid(uuid);
-				} else if (TravelEntryReferenceDto.class.isAssignableFrom(referenceDtoClass)) {
-					return travelEntryFacade.getByUuid(uuid);
-				}
+				} 
 
 			}
 			return null;

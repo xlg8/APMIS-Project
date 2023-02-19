@@ -10,7 +10,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import de.symeda.sormas.api.AgeGroup;
-import de.symeda.sormas.api.person.Sex;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.district.District;
@@ -34,7 +33,7 @@ public class PopulationData extends AbstractDomainObject {
 	private Region region;
 	private District district;
 	private Community community;
-	private Sex sex;
+	//private Sex sex;
 	private AgeGroup ageGroup;
 	private Integer population;
 	private Date collectionDate;
@@ -66,14 +65,14 @@ public class PopulationData extends AbstractDomainObject {
 		this.community = community;
 	}
 
-	@Enumerated(EnumType.STRING)
-	public Sex getSex() {
-		return sex;
-	}
-
-	public void setSex(Sex sex) {
-		this.sex = sex;
-	}
+//	@Enumerated(EnumType.STRING)
+//	public Sex getSex() {
+//		return sex;
+//	}
+//
+//	public void setSex(Sex sex) {
+//		this.sex = sex;
+//	}
 
 	@Enumerated(EnumType.STRING)
 	public AgeGroup getAgeGroup() {

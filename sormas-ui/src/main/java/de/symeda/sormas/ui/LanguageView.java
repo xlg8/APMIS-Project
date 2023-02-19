@@ -28,7 +28,7 @@ import com.vaadin.ui.VerticalLayout;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.ui.dashboard.DashboardCssStyles;
 import de.symeda.sormas.ui.dashboard.DashboardDataProvider;
-import de.symeda.sormas.ui.dashboard.map.DashboardMapComponent;
+
 
 
 /*
@@ -41,16 +41,13 @@ public class LanguageView extends VerticalLayout implements View {
 
 	public static final String VIEW_NAME = "language";
 	private Optional<VerticalLayout> mapLayout;
-	protected DashboardMapComponent mapComponent;
+	//protected DashboardMapComponent mapComponent;
 	private static final int ROW_HEIGHT = 555;
 	protected DashboardDataProvider dashboardDataProvider;
 	
 	
-	public LanguageView() throws IOException {
-			
-		//final Page page = Page.getCurrent();
-		
-		mapComponent = new DashboardMapComponent(dashboardDataProvider);
+	public LanguageView() throws IOException {		
+		//mapComponent = new DashboardMapComponent(dashboardDataProvider);
 		
 		
 		createEpiCurveAndMapLayout();
@@ -72,20 +69,20 @@ public class LanguageView extends VerticalLayout implements View {
 	
 	
 	protected Optional<VerticalLayout> createMapLayout() {
-		if (mapComponent == null) {
-			throw new UnsupportedOperationException("MapComponent needs to be initialized before calling createMapLayout");
-		}
+//		if (mapComponent == null) {
+//			throw new UnsupportedOperationException("MapComponent needs to be initialized before calling createMapLayout");
+//		}
 		VerticalLayout layout = new VerticalLayout();
 		layout.setMargin(false);
 		layout.setSpacing(false);
 		layout.setHeight(ROW_HEIGHT, Unit.PIXELS);
 
-		mapComponent.setSizeFull();
+		//mapComponent.setSizeFull();
 
-		layout.addComponent(mapComponent);
-		layout.setExpandRatio(mapComponent, 1);
+//		layout.addComponent(mapComponent);
+//		layout.setExpandRatio(mapComponent, 1);
 
-		mapComponent.setExpandListener(expanded -> {
+//		mapComponent.setExpandListener(expanded -> {
 
 		/*	if (expanded) {
 				rowsLayout.removeComponent(statisticsComponent);
@@ -109,9 +106,9 @@ public class LanguageView extends VerticalLayout implements View {
 			contactsStatisticsLayout.setVisible(!expanded);
 			*/
 			
-			layout.setSizeFull();
-			
-		});
+//			layout.setSizeFull();
+//			
+//		});
 
 		return Optional.of(layout);
 	}
@@ -128,14 +125,11 @@ public class LanguageView extends VerticalLayout implements View {
 		updateContactsInQuarantineData();
 */
 		// Update cases and contacts shown on the map
-		if (mapComponent != null) {
-			mapComponent.refreshMap();
-		}
+//		if (mapComponent != null) {
+//			mapComponent.refreshMap();
+//		}
 
 		// Update cases and contacts shown on the map
-		if (UserProvider.getCurrent().hasUserRight(UserRight.DASHBOARD_CONTACT_VIEW_TRANSMISSION_CHAINS)) {
-		boolean diseaseSelected = dashboardDataProvider.getDisease() != null;
-		}
 
 	//		networkDiagramLayout.get().setVisible(diseaseSelected);
 	//		noNetworkDiagramLayout.setVisible(!diseaseSelected);

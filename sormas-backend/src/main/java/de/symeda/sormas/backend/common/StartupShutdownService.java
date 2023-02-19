@@ -21,14 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -58,33 +54,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.symeda.sormas.api.AuthProvider;
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.externaljournal.PatientDiaryConfig;
-import de.symeda.sormas.api.externaljournal.SymptomJournalConfig;
-import de.symeda.sormas.api.externaljournal.UserConfig;
-import de.symeda.sormas.api.infrastructure.facility.FacilityCriteria;
-import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryType;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityCriteria;
+import de.symeda.sormas.api.infrastructure.facility.FacilityType;
+import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryType;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.api.utils.PasswordHelper;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
-import de.symeda.sormas.backend.contact.Contact;
-import de.symeda.sormas.backend.contact.ContactService;
-import de.symeda.sormas.backend.disease.DiseaseConfiguration;
-import de.symeda.sormas.backend.disease.DiseaseConfigurationService;
-import de.symeda.sormas.backend.infrastructure.facility.Facility;
-import de.symeda.sormas.backend.infrastructure.facility.FacilityFacadeEjb.FacilityFacadeEjbLocal;
-import de.symeda.sormas.backend.infrastructure.facility.FacilityService;
 import de.symeda.sormas.backend.feature.FeatureConfigurationService;
 import de.symeda.sormas.backend.importexport.ImportFacadeEjb.ImportFacadeEjbLocal;
-import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntry;
-import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntryService;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.country.Country;
@@ -92,9 +75,13 @@ import de.symeda.sormas.backend.infrastructure.country.CountryFacadeEjb.CountryF
 import de.symeda.sormas.backend.infrastructure.country.CountryService;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.district.DistrictService;
+import de.symeda.sormas.backend.infrastructure.facility.Facility;
+import de.symeda.sormas.backend.infrastructure.facility.FacilityFacadeEjb.FacilityFacadeEjbLocal;
+import de.symeda.sormas.backend.infrastructure.facility.FacilityService;
+import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntry;
+import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntryService;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
-import de.symeda.sormas.backend.sormastosormas.SormasToSormasFacadeEjb;
 import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.user.event.PasswordResetEvent;
@@ -129,8 +116,8 @@ public class StartupShutdownService {
 	private ConfigFacadeEjbLocal configFacade;
 	@EJB
 	private UserService userService;
-	@EJB
-	private ContactService contactService;
+//	@EJB
+//	private ContactService contactService;
 	@EJB
 	private RegionService regionService;
 	@EJB
@@ -145,16 +132,16 @@ public class StartupShutdownService {
 	private PointOfEntryService pointOfEntryService;
 	@EJB
 	private ImportFacadeEjbLocal importFacade;
-	@EJB
-	private DiseaseConfigurationService diseaseConfigurationService;
+//	@EJB
+//	private DiseaseConfigurationService diseaseConfigurationService;
 	@EJB
 	private FeatureConfigurationService featureConfigurationService;
 	@EJB
 	private CountryFacadeEjbLocal countryFacade;
 	@EJB
 	private CountryService countryService;
-	@EJB
-	private SormasToSormasFacadeEjb.SormasToSormasFacadeEjbLocal sormasToSormasFacadeEjb;
+//	@EJB
+//	private SormasToSormasFacadeEjb.SormasToSormasFacadeEjbLocal sormasToSormasFacadeEjb;
 
 	@Inject
 	private Event<UserUpdateEvent> userUpdateEvent;
@@ -197,11 +184,9 @@ public class StartupShutdownService {
 
 		createDefaultUsers();
 
-		createOrUpdateSormasToSormasUser();
+		//createOrUpdateSormasToSormasUser();
 
-		createOrUpdateSymptomJournalUser();
-
-		createOrUpdatePatientDiaryUser();
+		
 
 		syncUsers();
 
@@ -209,7 +194,7 @@ public class StartupShutdownService {
 
 		createImportTemplateFiles();
 
-		createMissingDiseaseConfigurations();
+
 
 		featureConfigurationService.createMissingFeatureConfigurations();
 		featureConfigurationService.updateFeatureConfigurations();
@@ -494,53 +479,24 @@ public class StartupShutdownService {
 		return user;
 	}
 
-	private void createOrUpdateSormasToSormasUser() {
-		if (sormasToSormasFacadeEjb.isFeatureConfigured()) {
-			// password is never used, just to prevent login as this user
-			byte[] pwd = new byte[64];
-			SecureRandom rnd = new SecureRandom();
-			rnd.nextBytes(pwd);
+//	private void createOrUpdateSormasToSormasUser() {
+//		if (sormasToSormasFacadeEjb.isFeatureConfigured()) {
+//			// password is never used, just to prevent login as this user
+//			byte[] pwd = new byte[64];
+//			SecureRandom rnd = new SecureRandom();
+//			rnd.nextBytes(pwd);
+//
+//			createOrUpdateDefaultUser(
+//				Collections.singleton(UserRole.REST_USER),//, UserRole.REST_EXTERNAL_VISITS_USER
+//				DefaultEntityHelper.SORMAS_TO_SORMAS_USER_NAME,
+//				new String(pwd),
+//				"Sormas to Sormas",
+//				"Client");
+//		}
+//	}
 
-			createOrUpdateDefaultUser(
-				Collections.singleton(UserRole.REST_USER),//, UserRole.REST_EXTERNAL_VISITS_USER
-				DefaultEntityHelper.SORMAS_TO_SORMAS_USER_NAME,
-				new String(pwd),
-				"Sormas to Sormas",
-				"Client");
-		}
-	}
+	
 
-	private void createOrUpdateSymptomJournalUser() {
-		SymptomJournalConfig symptomJournalConfig = configFacade.getSymptomJournalConfig();
-		UserConfig userConfig = symptomJournalConfig.getDefaultUser();
-		if (userConfig == null) {
-			logger.debug("Symptom journal default user not configured");
-			return;
-		}
-
-		createOrUpdateDefaultUser(
-			new HashSet<>(Arrays.asList(UserRole.REST_USER)),//, UserRole.REST_EXTERNAL_VISITS_USER
-			userConfig.getUsername(),
-			userConfig.getPassword(),
-			"Symptom",
-			"Journal");
-	}
-
-	private void createOrUpdatePatientDiaryUser() {
-		PatientDiaryConfig patientDiaryConfig = configFacade.getPatientDiaryConfig();
-		UserConfig userConfig = patientDiaryConfig.getDefaultUser();
-		if (userConfig == null) {
-			logger.debug("Patient diary default user not configured");
-			return;
-		}
-
-		createOrUpdateDefaultUser(
-			new HashSet<>(Arrays.asList(UserRole.REST_USER)),//, UserRole.REST_EXTERNAL_VISITS_USER
-			userConfig.getUsername(),
-			userConfig.getPassword(),
-			"Patient",
-			"Diary");
-	}
 
 	private void createOrUpdateDefaultUser(Set<UserRole> userRoles, String username, String password, String firstName, String lastName) {
 
@@ -727,13 +683,13 @@ public class StartupShutdownService {
 
 		for (Integer versionNeedingUpgrade : versionsNeedingUpgrade) {
 			switch (versionNeedingUpgrade) {
-			case 95:
-				// update follow up and status for all contacts
-				for (Contact contact : contactService.getAll()) {
-					contactService.updateFollowUpDetails(contact, false);
-					contactService.udpateContactStatus(contact);
-				}
-				break;
+//			case 95:
+//				// update follow up and status for all contacts
+//				for (Contact contact : contactService.getAll()) {
+//					contactService.updateFollowUpDetails(contact, false);
+//					contactService.udpateContactStatus(contact);
+//				}
+//				break;
 			case 354:
 				CountryReferenceDto serverCountry = countryFacade.getServerCountry();
 
@@ -854,14 +810,7 @@ public class StartupShutdownService {
 		}
 	}
 
-	private void createMissingDiseaseConfigurations() {
-		List<DiseaseConfiguration> diseaseConfigurations = diseaseConfigurationService.getAll();
-		List<Disease> configuredDiseases = diseaseConfigurations.stream().map(DiseaseConfiguration::getDisease).collect(Collectors.toList());
-		Arrays.stream(Disease.values()).filter(d -> !configuredDiseases.contains(d)).forEach(d -> {
-			DiseaseConfiguration configuration = DiseaseConfiguration.build(d);
-			diseaseConfigurationService.ensurePersisted(configuration);
-		});
-	}
+	
 
 	@PreDestroy
 	public void shutdown() {

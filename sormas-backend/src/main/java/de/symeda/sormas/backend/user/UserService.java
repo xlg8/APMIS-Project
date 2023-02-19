@@ -20,10 +20,7 @@ package de.symeda.sormas.backend.user;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -34,7 +31,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
@@ -45,7 +41,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.keycloak.representations.idm.UserFederationProviderFactoryRepresentation;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
@@ -60,18 +55,15 @@ import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.api.utils.PasswordHelper;
-import de.symeda.sormas.backend.caze.Case;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.AdoServiceWithUserFilter;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
-import de.symeda.sormas.backend.event.Event;
-import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.region.Region;
-import de.symeda.sormas.backend.util.IterableHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 
 @Stateless
@@ -431,26 +423,26 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 		return em.createQuery(cq).getResultList();
 	}
 
-	public Map<String, User> getResponsibleUsersByEventUuids(List<String> eventUuids) {
-
-		Map<String, User> responsibleUserByEventUuid = new HashMap<>();
-		IterableHelper.executeBatched(eventUuids, ModelConstants.PARAMETER_LIMIT, batchedEventUuids -> {
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
-			Root<Event> eventRoot = cq.from(Event.class);
-			Join<Event, User> responsibleUserJoin = eventRoot.join(Event.RESPONSIBLE_USER, JoinType.LEFT);
-
-			cq.where(cb.and(createDefaultFilter(cb, responsibleUserJoin),
-					eventRoot.get(Event.UUID).in(batchedEventUuids)));
-			cq.multiselect(eventRoot.get(Event.UUID), responsibleUserJoin);
-
-			cq.orderBy(cb.asc(eventRoot.get(Event.UUID)));
-
-			responsibleUserByEventUuid.putAll(em.createQuery(cq).getResultList().stream()
-					.collect(Collectors.toMap(row -> (String) row[0], row -> (User) row[1])));
-		});
-		return responsibleUserByEventUuid;
-	}
+//	public Map<String, User> getResponsibleUsersByEventUuids(List<String> eventUuids) {
+//
+//		Map<String, User> responsibleUserByEventUuid = new HashMap<>();
+//		IterableHelper.executeBatched(eventUuids, ModelConstants.PARAMETER_LIMIT, batchedEventUuids -> {
+//			CriteriaBuilder cb = em.getCriteriaBuilder();
+//			CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+//			Root<Event> eventRoot = cq.from(Event.class);
+//			Join<Event, User> responsibleUserJoin = eventRoot.join(Event.RESPONSIBLE_USER, JoinType.LEFT);
+//
+//			cq.where(cb.and(createDefaultFilter(cb, responsibleUserJoin),
+//					eventRoot.get(Event.UUID).in(batchedEventUuids)));
+//			cq.multiselect(eventRoot.get(Event.UUID), responsibleUserJoin);
+//
+//			cq.orderBy(cb.asc(eventRoot.get(Event.UUID)));
+//
+//			responsibleUserByEventUuid.putAll(em.createQuery(cq).getResultList().stream()
+//					.collect(Collectors.toMap(row -> (String) row[0], row -> (User) row[1])));
+//		});
+//		return responsibleUserByEventUuid;
+//	}
 
 	public boolean isLoginUnique(String uuid, String userName) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -501,18 +493,18 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRole())));
 		}
-		if (userCriteria.getArea() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.join(Case.AREA, JoinType.LEFT).get(Area.UUID), userCriteria.getArea().getUuid()));
-		}
-		if (userCriteria.getRegion() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter, cb
-					.equal(from.join(Case.REGION, JoinType.LEFT).get(Region.UUID), userCriteria.getRegion().getUuid()));
-		}
-		if (userCriteria.getDistrict() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(
-					from.join(Case.DISTRICT, JoinType.LEFT).get(District.UUID), userCriteria.getDistrict().getUuid()));
-		}
+//		if (userCriteria.getArea() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(from.join(Case.AREA, JoinType.LEFT).get(Area.UUID), userCriteria.getArea().getUuid()));
+//		}
+//		if (userCriteria.getRegion() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb
+//					.equal(from.join(Case.REGION, JoinType.LEFT).get(Region.UUID), userCriteria.getRegion().getUuid()));
+//		}
+//		if (userCriteria.getDistrict() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(
+//					from.join(Case.DISTRICT, JoinType.LEFT).get(District.UUID), userCriteria.getDistrict().getUuid()));
+//		}
 		if (userCriteria.getFreeText() != null) {
 			String[] textFilters = userCriteria.getFreeText().split("\\s+");
 			for (String textFilter : textFilters) {

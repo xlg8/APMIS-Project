@@ -1,6 +1,5 @@
 package de.symeda.sormas.api.feature;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
@@ -18,7 +17,6 @@ public class FeatureConfigurationCriteria extends BaseCriteria implements Clonea
 	private FeatureType[] featureTypes;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
-	private Disease disease;
 	private Boolean enabled;
 
 	public FeatureType[] getFeatureTypes() {
@@ -45,15 +43,6 @@ public class FeatureConfigurationCriteria extends BaseCriteria implements Clonea
 
 	public FeatureConfigurationCriteria district(DistrictReferenceDto district) {
 		this.district = district;
-		return this;
-	}
-
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public FeatureConfigurationCriteria disease(Disease disease) {
-		this.disease = disease;
 		return this;
 	}
 

@@ -21,7 +21,6 @@ import java.util.Collections;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
-import de.symeda.sormas.api.Disease;
 
 public final class CssStyles {
 
@@ -357,54 +356,4 @@ public final class CssStyles {
 		activeButton.addStyleName(CssStyles.LINK_ACTIVE);
 	}
 
-	/**
-	 * Returns CSS style name defined in VAADIN/themes/sormas/views/disease.scss
-	 */
-	public static String getDiseaseColor(Disease disease) {
-		switch (disease) {
-		case AFP:
-			return "background-disease-afp";
-		case CHOLERA:
-			return "background-disease-cholera";
-		case CSM:
-			return "background-disease-csm";
-		case DENGUE:
-			return "background-disease-dengue";
-		case EVD:
-			return "background-disease-evd";
-		case GUINEA_WORM:
-			return "background-disease-guinea-worm";
-		case LASSA:
-			return "background-disease-lassa";
-		case MEASLES:
-			return "background-disease-measles";
-		case MONKEYPOX:
-			return "background-disease-monkeypox";
-		case NEW_INFLUENZA:
-			return "background-disease-new-flu";
-		case OTHER:
-			return "background-disease-other";
-		case PLAGUE:
-			return "background-disease-plague";
-		case POLIO:
-			return "background-disease-polio";
-		case UNSPECIFIED_VHF:
-			return "background-disease-unspecified-vhf";
-		case WEST_NILE_FEVER:
-			return "background-disease-west-nile-fever";
-		case YELLOW_FEVER:
-			return "background-disease-yellow-fever";
-		case CONGENITAL_RUBELLA:
-			return "background-disease-congenital-rubella";
-		case ANTHRAX:
-			return "background-disease-anthrax";
-		case RABIES:
-			return "background-disease-rabies";
-		case CORONAVIRUS:
-			return "background-disease-coronavirus";
-		case UNDEFINED:
-		default:
-			return "background-disease-undefined";
-		}
-	}
 }

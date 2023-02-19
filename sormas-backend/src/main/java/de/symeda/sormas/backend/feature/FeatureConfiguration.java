@@ -11,7 +11,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import de.symeda.auditlog.api.Audited;
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.infrastructure.district.District;
@@ -35,7 +34,6 @@ public class FeatureConfiguration extends AbstractDomainObject {
 	private FeatureType featureType;
 	private Region region;
 	private District district;
-	private Disease disease;
 	private Date endDate;
 	private boolean enabled;
 
@@ -75,14 +73,7 @@ public class FeatureConfiguration extends AbstractDomainObject {
 		this.district = district;
 	}
 
-	@Enumerated(EnumType.STRING)
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public void setDisease(Disease disease) {
-		this.disease = disease;
-	}
+	
 
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getEndDate() {

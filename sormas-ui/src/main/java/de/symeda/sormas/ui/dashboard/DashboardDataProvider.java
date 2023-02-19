@@ -17,33 +17,15 @@
  *******************************************************************************/
 package de.symeda.sormas.ui.dashboard;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
 
-import de.symeda.sormas.api.Disease;
-import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.caze.CaseClassification;
-import de.symeda.sormas.api.caze.CaseReferenceDefinition;
-import de.symeda.sormas.api.caze.NewCaseDateType;
-import de.symeda.sormas.api.dashboard.DashboardCaseDto;
-import de.symeda.sormas.api.dashboard.DashboardContactDto;
-import de.symeda.sormas.api.dashboard.DashboardCriteria;
-import de.symeda.sormas.api.dashboard.DashboardEventDto;
 import de.symeda.sormas.api.dashboard.DashboardQuarantineDataDto;
-import de.symeda.sormas.api.disease.DiseaseBurdenDto;
-import de.symeda.sormas.api.event.EventStatus;
-import de.symeda.sormas.api.outbreak.OutbreakCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.sample.DashboardTestResultDto;
-import de.symeda.sormas.api.sample.PathogenTestResultType;
 
 // FIXME: 06/08/2020 this should be refactored into two specific data providers for case and contact dashboards
 public class DashboardDataProvider {
@@ -51,32 +33,16 @@ public class DashboardDataProvider {
 	private DashboardType dashboardType;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
-	private Disease disease;
 	private Date fromDate;
 	private Date toDate;
 	private Date previousFromDate;
 	private Date previousToDate;
 
-	private NewCaseDateType newCaseDateType = NewCaseDateType.MOST_RELEVANT;
 
-	// overall
-	private List<DiseaseBurdenDto> diseasesBurden = new ArrayList<>();
-
-	// TODO make disease specific when contact dashboard is updated
-	private List<DashboardContactDto> contacts = new ArrayList<>();
-	private List<DashboardContactDto> previousContacts = new ArrayList<>();
-
-	// disease specific
-	private List<DashboardCaseDto> cases = new ArrayList<>();
-	private List<DashboardCaseDto> previousCases = new ArrayList<>();
-	private Map<CaseClassification, Integer> casesCountByClassification = new HashMap<>();
+	
 	private Long outbreakDistrictCount = 0L;
 	private String lastReportedDistrict = "";
-	private List<DashboardEventDto> events = new ArrayList<>();
-	private Map<PathogenTestResultType, Long> testResultCountByResultType;
-	private Map<EventStatus, Long> eventCountByStatus;
-	private List<DashboardTestResultDto> testResults = new ArrayList<>();
-	private List<DashboardTestResultDto> previousTestResults = new ArrayList<>();
+	
 
 	private Long contactsInQuarantineCount = 0L;
 	private Long contactsPlacedInQuarantineCount = 0L;
@@ -86,43 +52,10 @@ public class DashboardDataProvider {
 	private Long caseWithReferenceDefinitionFulfilledCount = 0L;
 
 	public void refreshData() {
-
-		// Update the entities lists according to the filters
-		// Disease burden
-		setDiseasesBurden(
-			FacadeProvider.getDashboardFacade()
-				.getDiseaseBurden(region, district, fromDate, toDate, previousFromDate, previousToDate, newCaseDateType));
-
-		this.refreshDataForSelectedDisease();
+		
 	}
 
-	private void refreshDataForQuarantinedContacts() {
-
-		List<DashboardQuarantineDataDto> contactsInQuarantineDtos = getContacts().stream()
-			.map(DashboardContactDto::getDashboardQuarantineDataDto)
-			.filter(quarantineData(fromDate, toDate))
-			.collect(Collectors.toList());
-
-		setContactsInQuarantineCount((long) contactsInQuarantineDtos.size());
-
-		Long dashboardContactsPlacedInQuarantineCount = getPlacedInQuarantine(contactsInQuarantineDtos);
-
-		setContactsPlacedInQuarantineCount(dashboardContactsPlacedInQuarantineCount);
-	}
-
-	private void refreshDataForQuarantinedCases() {
-
-		List<DashboardQuarantineDataDto> casesInQuarantineDtos = getCases().stream()
-			.map(DashboardCaseDto::getDashboardQuarantineDataDto)
-			.filter(quarantineData(fromDate, toDate))
-			.collect(Collectors.toList());
-
-		setCasesInQuarantineCount((long) casesInQuarantineDtos.size());
-
-		Long dashboardCasesPlacedInQuarantineCount = getPlacedInQuarantine(casesInQuarantineDtos);
-
-		setCasesPlacedInQuarantineCount(dashboardCasesPlacedInQuarantineCount);
-	}
+	
 
 	private Predicate<DashboardQuarantineDataDto> quarantineData(Date fromDate, Date toDate) {
 		return p -> {
@@ -164,159 +97,6 @@ public class DashboardDataProvider {
 			.count();
 	}
 
-	private void refreshDataForConvertedContactsToCase() {
-		DashboardCriteria dashboardCriteria =
-			new DashboardCriteria().region(region).district(district).disease(disease).dateBetween(fromDate, toDate);
-		setContactsConvertedToCaseCount(FacadeProvider.getDashboardFacade().countCasesConvertedFromContacts(dashboardCriteria));
-	}
-
-	private void refreshDataForCasesWithReferenceDefinitionFulfilled() {
-		List<DashboardCaseDto> casesWithReferenceDefinitionFulfilled =
-			getCases().stream().filter(cases -> cases.getCaseReferenceDefinition() == CaseReferenceDefinition.FULFILLED).collect(Collectors.toList());
-		setCaseWithReferenceDefinitionFulfilledCount(Long.valueOf(casesWithReferenceDefinitionFulfilled.size()));
-	}
-
-	private void refreshDataForSelectedDisease() {
-
-		// Update the entities lists according to the filters
-
-		if (getDashboardType() == DashboardType.CONTACTS) {
-			// Contacts
-			setContacts(FacadeProvider.getContactFacade().getContactsForDashboard(region, district, disease, fromDate, toDate));
-			setPreviousContacts(
-				FacadeProvider.getContactFacade().getContactsForDashboard(region, district, disease, previousFromDate, previousToDate));
-
-			this.refreshDataForQuarantinedContacts();
-		}
-
-		if (getDashboardType() == DashboardType.CONTACTS || this.disease != null) {
-			// Cases
-			DashboardCriteria dashboardCriteria = new DashboardCriteria().region(region)
-				.district(district)
-				.disease(disease)
-				.newCaseDateType(newCaseDateType)
-				.dateBetween(fromDate, toDate);
-			setCases(FacadeProvider.getDashboardFacade().getCases(dashboardCriteria));
-			setLastReportedDistrict(FacadeProvider.getDashboardFacade().getLastReportedDistrictName(dashboardCriteria));
-
-			dashboardCriteria.dateBetween(previousFromDate, previousToDate);
-			setPreviousCases(FacadeProvider.getDashboardFacade().getCases(dashboardCriteria));
-
-			if (getDashboardType() != DashboardType.CONTACTS) {
-				setTestResultCountByResultType(FacadeProvider.getDashboardFacade().getTestResultCountByResultType(getCases()));
-			}
-
-			dashboardCriteria.dateBetween(fromDate, toDate).includeNotACaseClassification(true);
-			setCasesCountByClassification(FacadeProvider.getDashboardFacade().getCasesCountByClassification(dashboardCriteria));
-		}
-
-		if (this.disease == null || getDashboardType() == DashboardType.CONTACTS) {
-			return;
-		}
-
-		// Events
-		DashboardCriteria dashboardCriteria =
-			new DashboardCriteria().region(region).district(district).disease(disease).dateBetween(fromDate, toDate);
-		setEvents(FacadeProvider.getDashboardFacade().getNewEvents(dashboardCriteria));
-		setEventCountByStatus(FacadeProvider.getDashboardFacade().getEventCountByStatus(dashboardCriteria));
-
-		setOutbreakDistrictCount(
-			FacadeProvider.getOutbreakFacade()
-				.getOutbreakDistrictCount(
-					new OutbreakCriteria().region(region).district(district).disease(disease).reportedBetween(fromDate, toDate)));
-
-		refreshDataForQuarantinedCases();
-		refreshDataForConvertedContactsToCase();
-		refreshDataForCasesWithReferenceDefinitionFulfilled();
-	}
-
-	public List<DashboardCaseDto> getCases() {
-		return cases;
-	}
-
-	public void setCases(List<DashboardCaseDto> cases) {
-		this.cases = cases;
-	}
-
-	public List<DashboardCaseDto> getPreviousCases() {
-		return previousCases;
-	}
-
-	public void setPreviousCases(List<DashboardCaseDto> previousCases) {
-		this.previousCases = previousCases;
-	}
-
-	public Map<CaseClassification, Integer> getCasesCountByClassification() {
-		return casesCountByClassification;
-	}
-
-	public void setCasesCountByClassification(Map<CaseClassification, Integer> casesCountByClassification) {
-		this.casesCountByClassification = casesCountByClassification;
-	}
-
-	public List<DashboardEventDto> getEvents() {
-		return events;
-	}
-
-	public void setEvents(List<DashboardEventDto> events) {
-		this.events = events;
-	}
-
-	public Map<EventStatus, Long> getEventCountByStatus() {
-		return eventCountByStatus;
-	}
-
-	public void setEventCountByStatus(Map<EventStatus, Long> events) {
-		this.eventCountByStatus = events;
-	}
-
-	public Map<PathogenTestResultType, Long> getTestResultCountByResultType() {
-		return testResultCountByResultType;
-	}
-
-	public void setTestResultCountByResultType(Map<PathogenTestResultType, Long> testResults) {
-		this.testResultCountByResultType = testResults;
-	}
-
-	public List<DashboardTestResultDto> getTestResults() {
-		return testResults;
-	}
-
-	public void setTestResults(List<DashboardTestResultDto> testResults) {
-		this.testResults = testResults;
-	}
-
-	public List<DashboardTestResultDto> getPreviousTestResults() {
-		return previousTestResults;
-	}
-
-	public void setPreviousTestResults(List<DashboardTestResultDto> testResults) {
-		this.previousTestResults = testResults;
-	}
-
-	public List<DashboardContactDto> getContacts() {
-		return contacts;
-	}
-
-	public void setContacts(List<DashboardContactDto> contacts) {
-		this.contacts = contacts;
-	}
-
-	public List<DashboardContactDto> getPreviousContacts() {
-		return previousContacts;
-	}
-
-	public void setPreviousContacts(List<DashboardContactDto> previousContacts) {
-		this.previousContacts = previousContacts;
-	}
-
-	public List<DiseaseBurdenDto> getDiseasesBurden() {
-		return diseasesBurden;
-	}
-
-	public void setDiseasesBurden(List<DiseaseBurdenDto> diseasesBurden) {
-		this.diseasesBurden = diseasesBurden;
-	}
 
 	public Long getOutbreakDistrictCount() {
 		return outbreakDistrictCount;
@@ -350,16 +130,6 @@ public class DashboardDataProvider {
 		this.district = district;
 	}
 
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public void setDisease(Disease disease) {
-		this.disease = disease;
-
-		this.refreshDataForSelectedDisease();
-	}
-
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -390,17 +160,6 @@ public class DashboardDataProvider {
 
 	public void setPreviousToDate(Date previousToDate) {
 		this.previousToDate = previousToDate;
-	}
-
-	public NewCaseDateType getNewCaseDateType() {
-		if (newCaseDateType == null) {
-			return NewCaseDateType.MOST_RELEVANT;
-		}
-		return newCaseDateType;
-	}
-
-	public void setNewCaseDateType(NewCaseDateType newCaseDateType) {
-		this.newCaseDateType = newCaseDateType;
 	}
 
 	public DashboardType getDashboardType() {

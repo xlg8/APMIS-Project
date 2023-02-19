@@ -22,8 +22,6 @@ import java.util.List;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
-import de.symeda.sormas.api.task.TaskType;
-
 @Remote
 public interface FeatureConfigurationFacade {
 
@@ -52,8 +50,6 @@ public interface FeatureConfigurationFacade {
 	boolean isAnySurveillanceEnabled();
 
 	boolean isCountryEnabled();
-
-	boolean isTaskGenerationFeatureEnabled(TaskType taskType);
 
 	List<FeatureType> getActiveServerFeatureTypes();
 }

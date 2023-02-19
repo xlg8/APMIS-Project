@@ -40,17 +40,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.CharMatcher;
 
-import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.caze.AgeAndBirthDateDto;
-import de.symeda.sormas.api.caze.BirthDateDto;
-import de.symeda.sormas.api.caze.BurialInfoDto;
-import de.symeda.sormas.api.disease.DiseaseVariant;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.person.PersonHelper;
-import de.symeda.sormas.api.person.Sex;
 
 
 public final class DataHelper {
@@ -148,7 +141,7 @@ public final class DataHelper {
 		return (type.isPrimitive() && type != void.class) || type.isEnum() || type == Double.class
 				|| type == Float.class || type == Long.class || type == Integer.class || type == Short.class
 				|| type == Character.class || type == Byte.class || type == Boolean.class || type == String.class
-				|| type == Date.class || type.isAssignableFrom(DiseaseVariant.class);
+				|| type == Date.class;
 	}
 
 	public static byte[] longToBytes(long x, long y) {
@@ -313,14 +306,14 @@ public final class DataHelper {
 		return Boolean.parseBoolean(value);
 	}
 
-	public static String getSexAndAgeGroupString(AgeGroup ageGroup, Sex sex) {
-
-		if (sex == null) {
-			return I18nProperties.getString(Strings.total) + " " + ageGroup.toString();
-		} else {
-			return sex.toString() + " " + ageGroup.toString();
-		}
-	}
+//	public static String getSexAndAgeGroupString(AgeGroup ageGroup, Sex sex) {
+//
+//		if (sex == null) {
+//			return I18nProperties.getString(Strings.total) + " " + ageGroup.toString();
+//		} else {
+//			return sex.toString() + " " + ageGroup.toString();
+//		}
+//	}
 
 	public static String getHumanClassName(Class<?> classType) {
 
@@ -389,17 +382,6 @@ public final class DataHelper {
 				sb.append(o);
 			}
 			return sb.toString();
-		} else if (value instanceof BurialInfoDto) {
-			return PersonHelper.buildBurialInfoString((BurialInfoDto) value, userLanguage);
-		} else if (value instanceof AgeAndBirthDateDto) {
-			AgeAndBirthDateDto ageAndBirthDate = (AgeAndBirthDateDto) value;
-			return PersonHelper.getAgeAndBirthdateString(ageAndBirthDate.getAge(), ageAndBirthDate.getAgeType(),
-					ageAndBirthDate.getDateOfBirthDD(), ageAndBirthDate.getDateOfBirthMM(),
-					ageAndBirthDate.getDateOfBirthYYYY(), userLanguage);
-		} else if (value instanceof BirthDateDto) {
-			BirthDateDto birthDate = (BirthDateDto) value;
-			return PersonHelper.formatBirthdate(birthDate.getDateOfBirthDD(), birthDate.getDateOfBirthMM(),
-					birthDate.getDateOfBirthYYYY(), userLanguage);
 		} else {
 			return value.toString();
 		}

@@ -31,7 +31,6 @@ import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.ui.dashboard.DashboardDataProvider;
@@ -62,8 +61,7 @@ public abstract class AbstractDashboardStatisticsComponent extends VerticalLayou
 	private Button showMoreButton;
 	private Button showLessButton;
 
-	protected Disease previousDisease;
-	protected Disease currentDisease;
+
 
 	public AbstractDashboardStatisticsComponent(DashboardDataProvider dashboardDataProvider) {
 		this.dashboardDataProvider = dashboardDataProvider;
@@ -87,13 +85,7 @@ public abstract class AbstractDashboardStatisticsComponent extends VerticalLayou
 
 		addComponent(subComponentsLayout);
 
-		if (dashboardDataProvider.getDashboardType() == DashboardType.CONTACTS) {
-			if (FacadeProvider.getDiseaseConfigurationFacade().getAllDiseasesWithFollowUp().size() > 6) {
-				addShowMoreAndLessButtons();
-			}
-		} else if (FacadeProvider.getDiseaseConfigurationFacade().getAllDiseases(true, true, true).size() > 6) {
-			addShowMoreAndLessButtons();
-		}
+		
 	}
 
 	protected abstract void addFirstComponent();
@@ -118,95 +110,14 @@ public abstract class AbstractDashboardStatisticsComponent extends VerticalLayou
 
 	protected abstract int getFilteredHeight();
 
-	public void updateStatistics(Disease disease) {
-		previousDisease = currentDisease;
-		currentDisease = disease;
-
-		if (showMoreButton != null && showLessButton != null) {
-			if (currentDisease != null) {
-				showMoreButton.setVisible(false);
-				showLessButton.setVisible(false);
-			} else if (!showLessButton.isVisible() && !showMoreButton.isVisible()) {
-				showMoreButton.setVisible(true);
-			}
-		}
-
-		int visibleDiseasesCount =
-			currentDisease == null ? (isFullMode() ? FacadeProvider.getDiseaseConfigurationFacade().getAllDiseases(true, true, true).size() : 6) : 0;
-		updateFirstComponent(visibleDiseasesCount);
-		updateSecondComponent(visibleDiseasesCount);
-		updateThirdComponent(visibleDiseasesCount);
-		updateFourthComponent(visibleDiseasesCount);
-
-		// fixed height makes sure they stack correct when screen gets smaller
-		if (isFullMode()) {
-			firstComponent.setHeight(getFullHeight(), Unit.PIXELS);
-			secondComponent.setHeight(getFullHeight(), Unit.PIXELS);
-			thirdComponent.setHeight(getFullHeight(), Unit.PIXELS);
-			fourthComponent.setHeight(getFullHeight(), Unit.PIXELS);
-		} else if (currentDisease == null) {
-			firstComponent.setHeight(getNormalHeight(), Unit.PIXELS);
-			secondComponent.setHeight(getNormalHeight(), Unit.PIXELS);
-			thirdComponent.setHeight(getNormalHeight(), Unit.PIXELS);
-			fourthComponent.setHeight(getNormalHeight(), Unit.PIXELS);
-		} else {
-			firstComponent.setHeight(getFilteredHeight(), Unit.PIXELS);
-			secondComponent.setHeight(getFilteredHeight(), Unit.PIXELS);
-			thirdComponent.setHeight(getFilteredHeight(), Unit.PIXELS);
-			fourthComponent.setHeight(getFilteredHeight(), Unit.PIXELS);
-		}
-	}
-
-	private void addShowMoreAndLessButtons() {
-		showMoreButton = ButtonHelper.createIconButton(
-			Captions.dashboardShowAllDiseases,
-			VaadinIcons.CHEVRON_DOWN,
-			null,
-			ValoTheme.BUTTON_BORDERLESS,
-			CssStyles.VSPACE_TOP_NONE,
-			CssStyles.VSPACE_3);
-		showLessButton = ButtonHelper.createIconButton(
-			Captions.dashboardShowFirstDiseases,
-			VaadinIcons.CHEVRON_UP,
-			null,
-			ValoTheme.BUTTON_BORDERLESS,
-			CssStyles.VSPACE_TOP_NONE,
-			CssStyles.VSPACE_3);
-
-		showMoreButton.addClickListener(e -> {
-			showMoreButton.setVisible(false);
-			showLessButton.setVisible(true);
-			updateStatistics(currentDisease);
-		});
-
-		showLessButton.addClickListener(e -> {
-			showLessButton.setVisible(false);
-			showMoreButton.setVisible(true);
-			updateStatistics(currentDisease);
-		});
-
-		addComponent(showMoreButton);
-		addComponent(showLessButton);
-		setComponentAlignment(showMoreButton, Alignment.MIDDLE_CENTER);
-		setComponentAlignment(showLessButton, Alignment.MIDDLE_CENTER);
-		showLessButton.setVisible(false);
-	}
+	
+	
 
 	private boolean isFullMode() {
 		return showLessButton != null && showLessButton.isVisible();
 	}
 
-	protected List<Map.Entry<Disease, Integer>> createSortedDiseaseList(Map<Disease, Integer> diseaseMap) {
-		List<Map.Entry<Disease, Integer>> sortedDiseaseList = new ArrayList<>(diseaseMap.entrySet());
-		Collections.sort(sortedDiseaseList, new Comparator<Map.Entry<Disease, Integer>>() {
-
-			public int compare(Map.Entry<Disease, Integer> e1, Map.Entry<Disease, Integer> e2) {
-				return e2.getValue().compareTo(e1.getValue());
-			}
-		});
-
-		return sortedDiseaseList;
-	}
+	
 
 	public int calculateGrowth(int currentCount, int previousCount) {
 		return currentCount == 0

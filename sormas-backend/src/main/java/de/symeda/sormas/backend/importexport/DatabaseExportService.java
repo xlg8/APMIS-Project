@@ -34,7 +34,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import de.symeda.sormas.backend.user.User;
 import org.hibernate.Session;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
@@ -42,39 +41,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.symeda.sormas.api.importexport.DatabaseTable;
-import de.symeda.sormas.backend.action.Action;
-import de.symeda.sormas.backend.caze.Case;
-import de.symeda.sormas.backend.clinicalcourse.ClinicalCourse;
-import de.symeda.sormas.backend.clinicalcourse.ClinicalVisit;
-import de.symeda.sormas.backend.clinicalcourse.HealthConditions;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
-import de.symeda.sormas.backend.contact.Contact;
-import de.symeda.sormas.backend.customizableenum.CustomizableEnumValue;
-import de.symeda.sormas.backend.epidata.EpiData;
-import de.symeda.sormas.backend.event.Event;
-import de.symeda.sormas.backend.event.EventGroup;
-import de.symeda.sormas.backend.event.EventParticipant;
-import de.symeda.sormas.backend.exposure.Exposure;
-import de.symeda.sormas.backend.infrastructure.facility.Facility;
-import de.symeda.sormas.backend.hospitalization.Hospitalization;
-import de.symeda.sormas.backend.hospitalization.PreviousHospitalization;
-import de.symeda.sormas.backend.location.Location;
-import de.symeda.sormas.backend.outbreak.Outbreak;
-import de.symeda.sormas.backend.person.Person;
-import de.symeda.sormas.backend.person.PersonContactDetail;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.country.Country;
 import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.region.Region;
-import de.symeda.sormas.backend.sample.PathogenTest;
-import de.symeda.sormas.backend.sample.Sample;
-import de.symeda.sormas.backend.symptoms.Symptoms;
-import de.symeda.sormas.backend.task.Task;
-import de.symeda.sormas.backend.therapy.Prescription;
-import de.symeda.sormas.backend.therapy.Therapy;
-import de.symeda.sormas.backend.therapy.Treatment;
+import de.symeda.sormas.backend.location.Location;
+import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.util.ModelConstants;
-import de.symeda.sormas.backend.visit.Visit;
 
 /**
  * Exporting data directly from the PostgreSQL database with COPY commands as .csv files.
@@ -93,41 +68,12 @@ public class DatabaseExportService {
 	public static final String COUNT_TABLE_COLUMNS = "SELECT COUNT(column_name) FROM information_schema.columns WHERE table_name=:tableName";
 
 	static {
-		EXPORT_CONFIGS.put(DatabaseTable.CASES, new DatabaseExportConfiguration(Case.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.HOSPITALIZATIONS, new DatabaseExportConfiguration(Hospitalization.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.PREVIOUSHOSPITALIZATIONS, new DatabaseExportConfiguration(PreviousHospitalization.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.EPIDATA, new DatabaseExportConfiguration(EpiData.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.EXPOSURES, new DatabaseExportConfiguration(Exposure.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.THERAPIES, new DatabaseExportConfiguration(Therapy.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.PRESCRIPTIONS, new DatabaseExportConfiguration(Prescription.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.TREATMENTS, new DatabaseExportConfiguration(Treatment.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.CLINICAL_COURSES, new DatabaseExportConfiguration(ClinicalCourse.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.HEALTH_CONDITIONS, new DatabaseExportConfiguration(HealthConditions.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.CLINICAL_VISITS, new DatabaseExportConfiguration(ClinicalVisit.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.CONTACTS, new DatabaseExportConfiguration(Contact.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.VISITS, new DatabaseExportConfiguration(Visit.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.EVENTS, new DatabaseExportConfiguration(Event.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.EVENTGROUPS, new DatabaseExportConfiguration(EventGroup.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.EVENTPARTICIPANTS, new DatabaseExportConfiguration(EventParticipant.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.ACTIONS, new DatabaseExportConfiguration(Action.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.SAMPLES, new DatabaseExportConfiguration(Sample.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.SAMPLETESTS, new DatabaseExportConfiguration(PathogenTest.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.TASKS, new DatabaseExportConfiguration(Task.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.PERSONS, new DatabaseExportConfiguration(Person.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.PERSON_CONTACT_DETAILS, new DatabaseExportConfiguration(PersonContactDetail.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.LOCATIONS, new DatabaseExportConfiguration(Location.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.COUNTRIES, new DatabaseExportConfiguration(Country.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.REGIONS, new DatabaseExportConfiguration(Region.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.DISTRICTS, new DatabaseExportConfiguration(District.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.COMMUNITIES, new DatabaseExportConfiguration(Community.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.FACILITIES, new DatabaseExportConfiguration(Facility.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.OUTBREAKS, new DatabaseExportConfiguration(Outbreak.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.CASE_SYMPTOMS, new DatabaseExportConfiguration(Symptoms.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.CUSTOMIZABLE_ENUM_VALUES, new DatabaseExportConfiguration(CustomizableEnumValue.TABLE_NAME));
-		EXPORT_CONFIGS.put(DatabaseTable.VISIT_SYMPTOMS, new DatabaseExportConfiguration(Symptoms.TABLE_NAME, Visit.TABLE_NAME, "id", "symptoms_id"));
-		EXPORT_CONFIGS.put(
-			DatabaseTable.CLINICAL_VISIT_SYMPTOMS,
-			new DatabaseExportConfiguration(Symptoms.TABLE_NAME, ClinicalVisit.TABLE_NAME, "id", "symptoms_id"));
 		EXPORT_CONFIGS.put(DatabaseTable.USERS, new DatabaseExportConfiguration(User.TABLE_NAME));
 		EXPORT_CONFIGS.put(DatabaseTable.USER_ROLES, new DatabaseExportConfiguration(User.TABLE_NAME, User.TABLE_NAME_USERROLES, "id", "user_id"));
 	}

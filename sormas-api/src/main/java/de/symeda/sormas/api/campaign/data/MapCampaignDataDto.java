@@ -1,12 +1,7 @@
 package de.symeda.sormas.api.campaign.data;
 
 import java.io.Serializable;
-import java.util.Date;
 
-import de.symeda.sormas.api.Disease;
-import de.symeda.sormas.api.campaign.CampaignDto;
-import de.symeda.sormas.api.caze.CaseClassification;
-import de.symeda.sormas.api.person.PersonReferenceDto;
 import de.symeda.sormas.api.utils.SensitiveData;
 import de.symeda.sormas.api.utils.pseudonymization.Pseudonymizer;
 import de.symeda.sormas.api.utils.pseudonymization.valuepseudonymizers.LatitudePseudonymizer;

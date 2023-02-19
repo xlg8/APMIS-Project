@@ -24,8 +24,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import de.symeda.sormas.api.caze.BirthDateDto;
-import de.symeda.sormas.api.caze.BurialInfoDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
 public class EntityDtoAccessHelper {
@@ -111,8 +109,6 @@ public class EntityDtoAccessHelper {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Date
-			|| value instanceof BurialInfoDto
-			|| value instanceof BirthDateDto
 			|| value.getClass().equals(Boolean.class)) {
 			return DataHelper.valueToString(value);
 		} else {

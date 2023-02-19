@@ -10,7 +10,6 @@ import java.util.Date;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.i18n.Validations;
 
 public class FeatureConfigurationIndexDto implements Serializable {
@@ -35,7 +34,6 @@ public class FeatureConfigurationIndexDto implements Serializable {
 	@Size(min = CHARACTER_LIMIT_UUID_MIN, max = CHARACTER_LIMIT_UUID_MAX, message = Validations.textSizeNotInRange)
 	private String districtUuid;
 	private String districtName;
-	private Disease disease;
 	private boolean enabled;
 	private Date endDate;
 
@@ -45,7 +43,6 @@ public class FeatureConfigurationIndexDto implements Serializable {
 		String regionName,
 		String districtUuid,
 		String districtName,
-		Disease disease,
 		boolean enabled,
 		Date endDate) {
 
@@ -54,7 +51,6 @@ public class FeatureConfigurationIndexDto implements Serializable {
 		this.regionName = regionName;
 		this.districtUuid = districtUuid;
 		this.districtName = districtName;
-		this.disease = disease;
 		this.enabled = enabled;
 		this.endDate = endDate;
 	}
@@ -97,14 +93,6 @@ public class FeatureConfigurationIndexDto implements Serializable {
 
 	public void setDistrictName(String districtName) {
 		this.districtName = districtName;
-	}
-
-	public Disease getDisease() {
-		return disease;
-	}
-
-	public void setDisease(Disease disease) {
-		this.disease = disease;
 	}
 
 	public boolean isEnabled() {

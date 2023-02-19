@@ -17,8 +17,13 @@
  *******************************************************************************/
 package de.symeda.sormas.ui;
 
-import com.vaadin.event.ContextClickEvent;
-import com.vaadin.event.MouseEvents;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
@@ -40,7 +45,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.ui.dashboard.surveillance.SurveillanceDashboardView;
+import de.symeda.sormas.ui.dashboard.campaigns.CampaignDashboardView;
 import de.symeda.sormas.ui.login.LoginHelper;
 import de.symeda.sormas.ui.user.UserAccountView;
 import de.symeda.sormas.ui.user.UserSettingsForm;
@@ -48,12 +53,6 @@ import de.symeda.sormas.ui.utils.ButtonHelper;
 import de.symeda.sormas.ui.utils.CommitDiscardWrapperComponent;
 import de.symeda.sormas.ui.utils.CssStyles;
 import de.symeda.sormas.ui.utils.VaadinUiUtil;
-import org.apache.commons.lang3.StringUtils;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Responsive navigation menu presenting a list of available views to the user.
@@ -98,7 +97,7 @@ public class Menu extends CssLayout {
 		CssStyles.style(image, ValoTheme.MENU_LOGO, ValoTheme.BUTTON_LINK);
 		top.addComponent(image);
 		top.addComponent(title);
-		top.addLayoutClickListener(listener -> SormasUI.get().getNavigator().navigateTo(SurveillanceDashboardView.VIEW_NAME));
+		top.addLayoutClickListener(listener -> SormasUI.get().getNavigator().navigateTo(CampaignDashboardView.VIEW_NAME));
 		menuPart.addComponent(top);
 
 		// button for toggling the visibility of the menu when on a small screen
@@ -126,36 +125,8 @@ public class Menu extends CssLayout {
 		settingsMenu.addStyleNames("valo-menu-item", "v-widget");
 	//	menuItemsLayout.addComponent(settingsMenu);
 
-		
-		
 		menuPart.addComponent(menuItemsLayout);
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 		// logout menu item
 		MenuBar logoutMenu = new MenuBar();

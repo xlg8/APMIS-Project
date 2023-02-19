@@ -44,8 +44,6 @@ import de.symeda.sormas.api.feature.FeatureConfigurationIndexDto;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.task.TaskContext;
-import de.symeda.sormas.api.task.TaskType;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
 import de.symeda.sormas.backend.infrastructure.district.District;
@@ -147,7 +145,6 @@ public class FeatureConfigurationFacadeEjb implements FeatureConfigurationFacade
 							district.getRegion().getName(),
 							district.getUuid(),
 							district.getName(),
-							criteria.getDisease(),
 							false,
 							null));
 				}
@@ -194,7 +191,6 @@ public class FeatureConfigurationFacadeEjb implements FeatureConfigurationFacade
 		if (configurationDto == null) {
 			configurationDto = FeatureConfigurationDto.build();
 			configurationDto.setFeatureType(featureType);
-			configurationDto.setDisease(configuration.getDisease());
 			configurationDto.setRegion(new RegionReferenceDto(configuration.getRegionUuid(), null, null));
 			configurationDto.setDistrict(new DistrictReferenceDto(configuration.getDistrictUuid(), null, null));
 			configurationDto.setEnabled(configuration.isEnabled());
@@ -271,17 +267,6 @@ public class FeatureConfigurationFacadeEjb implements FeatureConfigurationFacade
 		return isAnySurveillanceEnabled();
 	}
 
-	@Override
-	public boolean isTaskGenerationFeatureEnabled(TaskType taskType) {
-
-		for (TaskContext context : taskType.getTaskContexts()) {
-			if (isFeatureEnabled(context.getFeatureType())) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 	@Override
 	public List<FeatureType> getActiveServerFeatureTypes() {
@@ -313,7 +298,6 @@ public class FeatureConfigurationFacadeEjb implements FeatureConfigurationFacade
 		target.setFeatureType(source.getFeatureType());
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
-		target.setDisease(source.getDisease());
 		target.setEndDate(source.getEndDate());
 		target.setEnabled(source.isEnabled());
 
@@ -328,7 +312,6 @@ public class FeatureConfigurationFacadeEjb implements FeatureConfigurationFacade
 		target.setFeatureType(source.getFeatureType());
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
-		target.setDisease(source.getDisease());
 		target.setEndDate(source.getEndDate());
 		target.setEnabled(source.isEnabled());
 

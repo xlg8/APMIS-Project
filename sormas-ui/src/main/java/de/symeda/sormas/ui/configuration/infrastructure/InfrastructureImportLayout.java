@@ -16,7 +16,6 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
-import de.symeda.sormas.ui.caze.importer.CountryImporter;
 import de.symeda.sormas.ui.importer.AbstractImportLayout;
 import de.symeda.sormas.ui.importer.DataImporter;
 import de.symeda.sormas.ui.importer.ImportReceiver;
@@ -156,9 +155,6 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 							InfrastructureType.POINT_OF_ENTRY,
 							allowOverwrite,
 							(ValueSeparator) separator.getValue());
-						break;
-					case COUNTRY:
-						importer = new CountryImporter(file, currentUser, allowOverwrite, (ValueSeparator) separator.getValue());
 						break;
 					case REGION:
 						importer = new InfrastructureImporter(

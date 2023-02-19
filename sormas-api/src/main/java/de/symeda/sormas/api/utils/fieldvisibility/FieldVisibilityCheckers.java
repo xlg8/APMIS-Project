@@ -23,10 +23,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.utils.fieldvisibility.checkers.CountryFieldVisibilityChecker;
-import de.symeda.sormas.api.utils.fieldvisibility.checkers.DiseaseFieldVisibilityChecker;
 import de.symeda.sormas.api.utils.fieldvisibility.checkers.FeatureTypeFieldVisibilityChecker;
 
 public class FieldVisibilityCheckers implements Serializable {
@@ -104,10 +102,7 @@ public class FieldVisibilityCheckers implements Serializable {
 		}
 	}
 
-	public static FieldVisibilityCheckers withDisease(Disease disease) {
-		return withCheckers(new DiseaseFieldVisibilityChecker(disease));
-	}
-
+	
 	public static FieldVisibilityCheckers withCountry(String countryLocale) {
 		return withCheckers(new CountryFieldVisibilityChecker(countryLocale));
 	}

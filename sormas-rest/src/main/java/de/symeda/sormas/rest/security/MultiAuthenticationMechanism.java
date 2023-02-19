@@ -33,7 +33,6 @@ import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.ConfigFacade;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.sormastosormas.SormasToSormasApiConstants;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.rest.security.config.KeycloakConfigResolver;
@@ -88,10 +87,7 @@ public class MultiAuthenticationMechanism implements HttpAuthenticationMechanism
 	@Override
 	public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext context)
 		throws AuthenticationException {
-		if (request.getPathInfo().startsWith(SormasToSormasApiConstants.RESOURCE_PATH)) {
-			// S2S auth will be handled by S2SAuthFilter
-			return validateRequestS2S(context);
-		}
+		
 		return authenticationMechanism.validateRequest(request, response, context);
 	}
 

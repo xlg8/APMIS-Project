@@ -19,10 +19,15 @@ package de.symeda.sormas.rest;
 
 import javax.ws.rs.ApplicationPath;
 
+import org.apache.commons.collections4.SetUtils;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+
 import de.symeda.sormas.api.utils.InfoProvider;
-import de.symeda.sormas.rest.externaljournal.ExternalVisitsResource;
 import de.symeda.sormas.rest.swagger.AttributeConverter;
 import de.symeda.sormas.rest.swagger.SormasSwaggerExtensions;
+import de.symeda.sormas.rest.swagger.SwaggerConfig;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
@@ -31,12 +36,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import org.apache.commons.collections4.SetUtils;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-
-import de.symeda.sormas.rest.swagger.SwaggerConfig;
 
 /**
  * @see <a href="https://jersey.github.io/documentation/latest/index.html">Jersey documentation</a>
@@ -73,8 +72,7 @@ public class RestConfig extends ResourceConfig {
 		ModelConverters.getInstance().addConverter(new AttributeConverter(Json.mapper()));
 		SwaggerConfiguration openAPIConfiguration = new SwaggerConfiguration().prettyPrint(true)
 			.openAPI(openAPI)
-			.readAllResources(false)
-			.resourceClasses(SetUtils.hashSet(ExternalVisitsResource.class.getSimpleName()));
+			.readAllResources(false);
 		OpenApiResource openApiResource = new OpenApiResource();
 		openApiResource.setOpenApiConfiguration(openAPIConfiguration);
 		register(openApiResource);

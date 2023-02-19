@@ -52,16 +52,11 @@ import de.symeda.sormas.api.importexport.ExportFacade;
 import de.symeda.sormas.api.importexport.ImportExportUtils;
 import de.symeda.sormas.api.utils.DateHelper;
 import de.symeda.sormas.api.utils.ExportErrorException;
-import de.symeda.sormas.backend.caze.CaseFacadeEjb.CaseFacadeEjbLocal;
-import de.symeda.sormas.backend.caze.CaseService;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
-import de.symeda.sormas.backend.epidata.EpiDataService;
-import de.symeda.sormas.backend.infrastructure.facility.FacilityService;
-import de.symeda.sormas.backend.hospitalization.HospitalizationService;
-import de.symeda.sormas.backend.person.PersonService;
 import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.district.DistrictService;
+import de.symeda.sormas.backend.infrastructure.facility.FacilityService;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
 import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserFacadeEjb;
@@ -80,10 +75,6 @@ public class ExportFacadeEjb implements ExportFacade {
 	@EJB
 	private ConfigFacadeEjbLocal configFacade;
 	@EJB
-	private CaseFacadeEjbLocal caseFacade;
-	@EJB
-	private CaseService caseService;
-	@EJB
 	private UserService userService;
 	@EJB
 	private RegionService regionService;
@@ -93,12 +84,6 @@ public class ExportFacadeEjb implements ExportFacade {
 	private CommunityService communityService;
 	@EJB
 	private FacilityService facilityService;
-	@EJB
-	private PersonService personService;
-	@EJB
-	private HospitalizationService hospitalizationService;
-	@EJB
-	private EpiDataService epiDataService;
 	@EJB
 	private ExportConfigurationService exportConfigurationService;
 	@EJB

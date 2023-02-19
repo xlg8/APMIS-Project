@@ -17,8 +17,6 @@
  *******************************************************************************/
 package de.symeda.sormas.ui.user;
 
-import static de.symeda.sormas.ui.utils.FilteredGrid.EDIT_BTN_ID;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,7 +42,6 @@ import com.vaadin.v7.ui.TextField;
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -60,7 +57,6 @@ import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.ui.ControllerProvider;
 import de.symeda.sormas.ui.UserProvider;
 import de.symeda.sormas.ui.ViewModelProviders;
-import de.symeda.sormas.ui.configuration.infrastructure.RegionsGrid;
 import de.symeda.sormas.ui.utils.AbstractView;
 import de.symeda.sormas.ui.utils.ButtonHelper;
 import de.symeda.sormas.ui.utils.ComboBoxHelper;
@@ -249,12 +245,12 @@ public class UsersView extends AbstractView {
 		UserDto user = UserProvider.getCurrent().getUser();
 		
 		areaFilter = ComboBoxHelper.createComboBoxV7();
-		areaFilter.setId(CaseDataDto.AREA);
+		areaFilter.setId(UserDto.AREA);
 
 		if (user.getArea() == null) {
 			areaFilter.setWidth(140, Unit.PIXELS);
-			areaFilter.setCaption(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
-			areaFilter.setInputPrompt(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
+			areaFilter.setCaption(I18nProperties.getCaption(Captions.area));
+			areaFilter.setInputPrompt(I18nProperties.getCaption(Captions.area));
 			areaFilter.addItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 			areaFilter.addValueChangeListener(e -> {
 				AreaReferenceDto area = (AreaReferenceDto) e.getProperty().getValue();
@@ -271,12 +267,12 @@ public class UsersView extends AbstractView {
 
 
 		regionFilter = ComboBoxHelper.createComboBoxV7();
-		regionFilter.setId(CaseDataDto.REGION);
+		regionFilter.setId(UserDto.REGION);
 
 		if (user.getRegion() == null) {
 			regionFilter.setWidth(140, Unit.PIXELS);
 			regionFilter.setInputPrompt(I18nProperties.getCaption(Captions.region));
-			regionFilter.setCaption(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
+			regionFilter.setCaption(I18nProperties.getCaption(Captions.region));
 			regionFilter.addItems(FacadeProvider.getRegionFacade().getAllActiveByArea(areaFilter.getId()));
 			regionFilter.addValueChangeListener(e -> {
 				RegionReferenceDto region = (RegionReferenceDto) e.getProperty().getValue();
@@ -292,7 +288,7 @@ public class UsersView extends AbstractView {
 		}
 		
 		districtFilter = ComboBoxHelper.createComboBoxV7();
-		districtFilter.setId(CaseDataDto.DISTRICT);
+		districtFilter.setId(UserDto.DISTRICT);
 /*
 		if (user.getDistrict() == null) {
 			districtFilter.setWidth(140, Unit.PIXELS);
@@ -316,7 +312,7 @@ public class UsersView extends AbstractView {
 		*/
 		
 		districtFilter = ComboBoxHelper.createComboBoxV7();
-		districtFilter.setId(CaseDataDto.DISTRICT);
+		districtFilter.setId(UserDto.DISTRICT);
 		districtFilter.setCaption(I18nProperties.getCaption(Captions.district));
 		districtFilter.setWidth(140, Unit.PIXELS);
 		districtFilter.setInputPrompt(I18nProperties.getCaption(Captions.district));

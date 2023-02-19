@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,7 +45,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -55,18 +53,11 @@ import de.symeda.sormas.api.importexport.ImportExportUtils;
 import de.symeda.sormas.api.importexport.ImportLineResultDto;
 import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
-import de.symeda.sormas.api.person.PersonDto;
-import de.symeda.sormas.api.person.SimilarPersonDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.infrastructure.continent.ContinentReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
-import de.symeda.sormas.api.person.PersonDto;
-import de.symeda.sormas.api.person.SimilarPersonDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.CSVCommentLineValidator;
@@ -75,8 +66,6 @@ import de.symeda.sormas.api.utils.CharsetHelper;
 import de.symeda.sormas.api.utils.ConstrainValidationHelper;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
-import de.symeda.sormas.ui.person.PersonSelectionField;
-import de.symeda.sormas.ui.utils.CommitDiscardWrapperComponent;
 import de.symeda.sormas.ui.utils.DownloadUtil;
 import de.symeda.sormas.ui.utils.VaadinUiUtil;
 
@@ -614,50 +603,46 @@ public abstract class DataImporter {
 	 * Presents a popup window to the user that allows them to deal with detected potentially duplicate persons.
 	 * By passing the desired result to the resultConsumer, the importer decided how to proceed with the import process.
 	 */
-	protected <T extends PersonImportSimilarityResult> void handlePersonSimilarity(
-		PersonDto newPerson,
-		Consumer<T> resultConsumer,
-		BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
-		String infoText,
-		UI currentUI) {
-		currentUI.accessSynchronously(() -> {
-			PersonSelectionField personSelect = new PersonSelectionField(newPerson, I18nProperties.getString(infoText));
-			personSelect.setWidth(1024, Unit.PIXELS);
-
-			if (personSelect.hasMatches()) {
-				final CommitDiscardWrapperComponent<PersonSelectionField> component = new CommitDiscardWrapperComponent<>(personSelect);
-				component.addCommitListener(() -> {
-					SimilarPersonDto person = personSelect.getValue();
-					if (person == null) {
-						resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
-					} else {
-						resultConsumer.accept(createSimilarityResult.apply(person, ImportSimilarityResultOption.PICK));
-					}
-				});
-
-				component.addDiscardListener(() -> resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.SKIP)));
-
-				personSelect.setSelectionChangeCallback((commitAllowed) -> {
-					component.getCommitButton().setEnabled(commitAllowed);
-				});
-
-				VaadinUiUtil.showModalPopupWindow(component, I18nProperties.getString(Strings.headingPickOrCreatePerson));
-
-				personSelect.selectBestMatch();
-			} else {
-				resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
-			}
-		});
-	}
+//	protected <T extends PersonImportSimilarityResult> void handlePersonSimilarity(
+//		PersonDto newPerson,
+//		Consumer<T> resultConsumer,
+//		BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
+//		String infoText,
+//		UI currentUI) {
+//		currentUI.accessSynchronously(() -> {
+//			PersonSelectionField personSelect = new PersonSelectionField(newPerson, I18nProperties.getString(infoText));
+//			personSelect.setWidth(1024, Unit.PIXELS);
+//
+//			if (personSelect.hasMatches()) {
+//				final CommitDiscardWrapperComponent<PersonSelectionField> component = new CommitDiscardWrapperComponent<>(personSelect);
+//				component.addCommitListener(() -> {
+//					SimilarPersonDto person = personSelect.getValue();
+//					if (person == null) {
+//						resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
+//					} else {
+//						resultConsumer.accept(createSimilarityResult.apply(person, ImportSimilarityResultOption.PICK));
+//					}
+//				});
+//
+//				component.addDiscardListener(() -> resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.SKIP)));
+//
+//				personSelect.setSelectionChangeCallback((commitAllowed) -> {
+//					component.getCommitButton().setEnabled(commitAllowed);
+//				});
+//
+//				VaadinUiUtil.showModalPopupWindow(component, I18nProperties.getString(Strings.headingPickOrCreatePerson));
+//
+//				personSelect.selectBestMatch();
+//			} else {
+//				resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
+//			}
+//		});
+//	}
 
 	protected FacilityType getTypeOfFacility(String propertyName, Object currentElement)
 		throws IntrospectionException, InvocationTargetException, IllegalAccessException {
 		String typeProperty;
-		if (CaseDataDto.class.equals(currentElement.getClass()) && CaseDataDto.HEALTH_FACILITY.equals(propertyName)) {
-			typeProperty = CaseDataDto.FACILITY_TYPE;
-		} else {
 			typeProperty = propertyName + "Type";
-		}
 		PropertyDescriptor pd = new PropertyDescriptor(typeProperty, currentElement.getClass());
 		return (FacilityType) pd.getReadMethod().invoke(currentElement);
 	}

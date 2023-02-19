@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import de.symeda.sormas.api.customizableenum.CustomizableEnum;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.format.ImportExportFormat;
@@ -71,7 +70,7 @@ public class ImportParserService {
 	public ImportParserService() {
 		classBasedParsers = PropertyTypeBasedParsers.Builder.of(PropertyTypeBasedParsers.class)
 			.withParser(Enum.class, this::parseEnum)
-			.withParser(CustomizableEnum.class, this::parseCustomizableEnum)
+			//.withParser(CustomizableEnum.class, this::parseCustomizableEnum)
 			.withParser(Date.class, this::parseDate)
 			.withParser(Integer.class, (v, clazz, path) -> Integer.parseInt(v))
 			.withParser(Double.class, (v, clazz, path) -> Double.parseDouble(v))
@@ -149,15 +148,15 @@ public class ImportParserService {
 		return enumValue;
 	}
 
-	private CustomizableEnum parseCustomizableEnum(String v, Class<CustomizableEnum> clazz, String path) throws ImportErrorException {
-		try {
-			CustomizableEnum customizableEnum = clazz.newInstance();
-			customizableEnum.setValue(v);
-			return customizableEnum;
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new ImportErrorException(I18nProperties.getValidationError(Validations.importErrorCustomizableEnumValue, v, path));
-		}
-	}
+//	private CustomizableEnum parseCustomizableEnum(String v, Class<CustomizableEnum> clazz, String path) throws ImportErrorException {
+//		try {
+//			CustomizableEnum customizableEnum = clazz.newInstance();
+//			customizableEnum.setValue(v);
+//			return customizableEnum;
+//		} catch (InstantiationException | IllegalAccessException e) {
+//			throw new ImportErrorException(I18nProperties.getValidationError(Validations.importErrorCustomizableEnumValue, v, path));
+//		}
+//	}
 
 	private Date parseDate(String v, Class<Date> clazz, String path) throws ImportErrorException {
 		// If the string is smaller than the length of the expected date format, throw an exception

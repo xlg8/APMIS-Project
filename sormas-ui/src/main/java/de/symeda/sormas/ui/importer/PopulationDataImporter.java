@@ -16,7 +16,6 @@ import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.PopulationDataCriteria;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
-import de.symeda.sormas.api.person.Sex;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
@@ -190,8 +189,8 @@ public class PopulationDataImporter extends DataImporter {
 
 							Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList.stream()
 								.filter(
-									populationData -> populationData.getAgeGroup() == newPopulationData.getAgeGroup()
-										&& populationData.getSex() == newPopulationData.getSex())
+									populationData -> populationData.getAgeGroup() == newPopulationData.getAgeGroup())
+										//&& populationData.getSex() == newPopulationData.getSex())
 								.findFirst();
 							// Check whether this population data set already exists in the database; if yes, override it
 							if (existingPopulationData.isPresent()) {
@@ -261,21 +260,21 @@ public class PopulationDataImporter extends DataImporter {
 			if (entityPropertyPath.equalsIgnoreCase("TOTAL")) {
 				insertPopulationIntoPopulationData(populationData, value);
 			} else if (entityPropertyPath.matches(TOTAL_HEADER_PATTERN)) {
-				try {
-					populationData.setSex(Sex.valueOf(entityPropertyPaths[0].substring(0, entityPropertyPaths[0].indexOf("_"))));
-				} catch (IllegalArgumentException e) {
-					throw new InvalidColumnException(entityProperty);
-				}
+//				try {
+//					populationData.setSex(Sex.valueOf(entityPropertyPaths[0].substring(0, entityPropertyPaths[0].indexOf("_"))));
+//				} catch (IllegalArgumentException e) {
+//					throw new InvalidColumnException(entityProperty);
+//				}
 				insertPopulationIntoPopulationData(populationData, value);
 			} else if (entityPropertyPath.matches(HEADER_PATTERN)) {
 				// Sex
 				String sexString = entityPropertyPath.substring(0, entityPropertyPaths[0].indexOf("_"));
 				if (!sexString.equals("TOTAL")) {
-					try {
-						populationData.setSex(Sex.valueOf(sexString));
-					} catch (IllegalArgumentException e) {
-						throw new InvalidColumnException(entityProperty);
-					}
+//					try {
+//						populationData.setSex(Sex.valueOf(sexString));
+//					} catch (IllegalArgumentException e) {
+//						throw new InvalidColumnException(entityProperty);
+//					}
 				}
 
 				// Age group

@@ -9,8 +9,6 @@ import com.vaadin.ui.CheckBox;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.importexport.ValueSeparator;
-import de.symeda.sormas.ui.caze.importer.CountryImporter;
 
 @SuppressWarnings("serial")
 public class ImportDefaultCountriesLayout extends AbstractImportDefaultCsvLayout {
@@ -27,13 +25,6 @@ public class ImportDefaultCountriesLayout extends AbstractImportDefaultCsvLayout
 	}
 
 	@Override
-	protected void doImport(File importFile) throws IOException, CsvValidationException {
-		CountryImporter importer = new CountryImporter(importFile, currentUser, isAllowOverwrite(), (ValueSeparator) separator.getValue());
-		importer.setCsvSeparator(',');
-		importer.startImport(this::extendDownloadErrorReportButton, currentUI);
-	}
-
-	@Override
 	protected String getHeadingImport() {
 		return Strings.infoImportAllCountries;
 	}
@@ -41,5 +32,11 @@ public class ImportDefaultCountriesLayout extends AbstractImportDefaultCsvLayout
 	@Override
 	protected String getInfoImport() {
 		return Strings.headingImportAllCountries;
+	}
+
+	@Override
+	protected void doImport(File subcontinentsFile) throws IOException, CsvValidationException {
+		// TODO Auto-generated method stub
+		
 	}
 }

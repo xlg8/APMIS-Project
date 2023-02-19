@@ -34,7 +34,6 @@ import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
-import de.symeda.sormas.api.person.PersonAddressType;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.FieldConstraints;
 import de.symeda.sormas.api.utils.PersonalData;
@@ -130,7 +129,7 @@ public class LocationDto extends PseudonymizableDto {
 	@SensitiveData
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String additionalInformation;
-	private PersonAddressType addressType;
+	//private PersonAddressType addressType;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String addressTypeDetails;
 	@PersonalData
@@ -290,13 +289,13 @@ public class LocationDto extends PseudonymizableDto {
 		this.additionalInformation = additionalInformation;
 	}
 
-	public PersonAddressType getAddressType() {
-		return addressType;
-	}
-
-	public void setAddressType(PersonAddressType addressType) {
-		this.addressType = addressType;
-	}
+//	public PersonAddressType getAddressType() {
+//		return addressType;
+//	}
+//
+//	public void setAddressType(PersonAddressType addressType) {
+//		this.addressType = addressType;
+//	}
 
 	public String getAddressTypeDetails() {
 		return addressTypeDetails;

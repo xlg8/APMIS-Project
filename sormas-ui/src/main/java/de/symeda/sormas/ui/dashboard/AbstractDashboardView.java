@@ -29,8 +29,6 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.ui.SormasUI;
 import de.symeda.sormas.ui.dashboard.campaigns.CampaignDashboardView;
-import de.symeda.sormas.ui.dashboard.contacts.ContactsDashboardView;
-import de.symeda.sormas.ui.dashboard.surveillance.SurveillanceDashboardView;
 import de.symeda.sormas.ui.utils.AbstractView;
 import de.symeda.sormas.ui.utils.CssStyles;
 
@@ -81,13 +79,7 @@ public abstract class AbstractDashboardView extends AbstractView {
 	}
 
 	protected void navigateToDashboardView(Property.ValueChangeEvent e) {
-		if (DashboardType.SURVEILLANCE.equals(e.getProperty().getValue())) {
-			SormasUI.get().getNavigator().navigateTo(SurveillanceDashboardView.VIEW_NAME);
-		} else if (DashboardType.CONTACTS.equals(e.getProperty().getValue())) {
-			SormasUI.get().getNavigator().navigateTo(ContactsDashboardView.VIEW_NAME);
-		} else {
 			SormasUI.get().getNavigator().navigateTo(CampaignDashboardView.VIEW_NAME);
-		}
 	}
 
 	public abstract void refreshDashboard();

@@ -7,7 +7,6 @@ import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.ReferenceDto;

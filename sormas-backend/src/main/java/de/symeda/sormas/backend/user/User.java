@@ -41,7 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import de.symeda.auditlog.api.Audited;
 import de.symeda.auditlog.api.AuditedAttribute;
-import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.JurisdictionLevel;
@@ -128,7 +127,7 @@ public class User extends AbstractDomainObject {
 
 	private User associatedOfficer;
 
-	private Disease limitedDisease;
+
 
 	private Language language;
 
@@ -373,15 +372,6 @@ public class User extends AbstractDomainObject {
 
 	public void setPointOfEntry(PointOfEntry pointOfEntry) {
 		this.pointOfEntry = pointOfEntry;
-	}
-
-	@Enumerated(EnumType.STRING)
-	public Disease getLimitedDisease() {
-		return limitedDisease;
-	}
-
-	public void setLimitedDisease(Disease limitedDisease) {
-		this.limitedDisease = limitedDisease;
 	}
 
 	@Enumerated(EnumType.STRING)

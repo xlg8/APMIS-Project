@@ -34,7 +34,6 @@ import org.apache.commons.text.StringSubstitutor;
 
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.ResourceBundle;
-import de.symeda.sormas.api.caze.InfectionSetting;
 
 public final class I18nProperties {
 
@@ -125,22 +124,7 @@ public final class I18nProperties {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static String getEnumCaption(Language language, InfectionSetting value) {
-		String caption = getEnumCaption(language, value, false);
-		if (value.getParent() != null) {
-			// Heavy Wide-Headed Rightwards Arrow U+2794
-			caption = getEnumCaption(language, value.getParent(), false) + " ➔ " + caption;
-		}
-
-		return caption;
-	}
-
-	@SuppressWarnings("rawtypes")
 	private static String getEnumCaption(Language language, Enum value, boolean handleParents) {
-		if (handleParents && value instanceof InfectionSetting) {
-			return getEnumCaption(language, (InfectionSetting) value);
-		}
-
 		String caption = getInstance(language).enumProperties.getString(value.getClass().getSimpleName() + "." + value.name());
 		if (caption != null) {
 			return caption;
