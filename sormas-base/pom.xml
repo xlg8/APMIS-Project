@@ -1342,5 +1342,6 @@
 		<module>../sormas-ui</module>
 		<module>./dependencies/serverlibs.pom</module>
 		<module>../sormas-cargoserver</module>
+		<module>../apmis-flow</module>
 	</modules>
 </project>
