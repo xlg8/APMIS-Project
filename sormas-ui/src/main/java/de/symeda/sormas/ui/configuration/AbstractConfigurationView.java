@@ -120,14 +120,7 @@ public abstract class AbstractConfigurationView extends AbstractSubNavigationVie
 		boolean isAnySurveillanceEnabled = FacadeProvider.getFeatureConfigurationFacade().isAnySurveillanceEnabled();
 
 		if (UserProvider.getCurrent().hasUserRight(UserRight.INFRASTRUCTURE_VIEW)) {
-			if (FacadeProvider.getFeatureConfigurationFacade().isCountryEnabled()) {
-				menu.addView(ContinentsView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
-						ContinentsView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-				menu.addView(SubcontinentsView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
-						SubcontinentsView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-				menu.addView(CountriesView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
-						CountriesView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-			}
+			
 			if (FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.INFRASTRUCTURE_TYPE_AREA)
 					&& (UserProvider.getCurrent().hasAreaJurisdictionLevel()
 							|| UserProvider.getCurrent().hasNationalJurisdictionLevel())) {

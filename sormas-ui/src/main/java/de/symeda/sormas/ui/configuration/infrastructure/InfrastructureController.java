@@ -173,42 +173,7 @@ public class InfrastructureController {
 		VaadinUiUtil.showModalPopupWindow(component, caption);
 	}
 
-	private CommitDiscardWrapperComponent<FacilityEditForm> getFacilityEditComponent(FacilityDto facility) {
-
-		boolean isNew = facility == null;
-		FacilityEditForm editForm = new FacilityEditForm(isNew);
-		if (isNew) {
-			facility = FacilityDto.build();
-		}
-
-		editForm.setValue(facility);
-
-		final CommitDiscardWrapperComponent<FacilityEditForm> editView = new CommitDiscardWrapperComponent<FacilityEditForm>(
-			editForm,
-			UserProvider.getCurrent().hasUserRight(isNew ? UserRight.INFRASTRUCTURE_CREATE : UserRight.INFRASTRUCTURE_EDIT),
-			editForm.getFieldGroup());
-
-		editView.addCommitListener(new CommitListener() {
-
-			@Override
-			public void onCommit() {
-				FacadeProvider.getFacilityFacade().save(editForm.getValue());
-				Notification.show(I18nProperties.getString(Strings.messageEntryCreated), Type.ASSISTIVE_NOTIFICATION);
-				SormasUI.get().getNavigator().navigateTo(FacilitiesView.VIEW_NAME);
-			}
-		});
-
-		if (!isNew) {
-			extendEditComponentWithArchiveButton(
-				editView,
-				facility.isArchived(),
-				facility.getUuid(),
-				InfrastructureType.FACILITY,
-				facility.getType());
-		}
-
-		return editView;
-	}
+	
 
 	private CommitDiscardWrapperComponent<AreaEditForm> getAreaEditComponent(AreaDto area) {
 		boolean isNew = area == null;
@@ -237,88 +202,7 @@ public class InfrastructureController {
 		return editComponent;
 	}
 
-	private CommitDiscardWrapperComponent<ContinentEditForm> getContinentEditComponent(ContinentDto continent) {
-		boolean isNew = continent == null;
-		ContinentEditForm editForm = new ContinentEditForm(isNew);
-		if (isNew) {
-			continent = ContinentDto.build();
-		}
-
-		editForm.setValue(continent);
-
-		final CommitDiscardWrapperComponent<ContinentEditForm> editView = new CommitDiscardWrapperComponent<>(
-			editForm,
-			UserProvider.getCurrent().hasUserRight(isNew ? UserRight.INFRASTRUCTURE_CREATE : UserRight.INFRASTRUCTURE_EDIT),
-			editForm.getFieldGroup());
-
-		editView.addCommitListener(() -> {
-			FacadeProvider.getContinentFacade().save(editForm.getValue());
-			Notification.show(I18nProperties.getString(Strings.messageEntryCreated), Type.ASSISTIVE_NOTIFICATION);
-			SormasUI.get().getNavigator().navigateTo(ContinentsView.VIEW_NAME);
-		});
-
-		if (!isNew) {
-			extendEditComponentWithArchiveButton(editView, continent.isArchived(), continent.getUuid(), InfrastructureType.CONTINENT, null);
-		}
-
-		return editView;
-	}
-
-	private CommitDiscardWrapperComponent<SubcontinentEditForm> getSubcontinentEditComponent(SubcontinentDto subcontinent) {
-		boolean isNew = subcontinent == null;
-		SubcontinentEditForm editForm = new SubcontinentEditForm(isNew);
-		if (isNew) {
-			subcontinent = SubcontinentDto.build();
-		}
-
-		editForm.setValue(subcontinent);
-
-		final CommitDiscardWrapperComponent<SubcontinentEditForm> editView = new CommitDiscardWrapperComponent<>(
-			editForm,
-			UserProvider.getCurrent().hasUserRight(isNew ? UserRight.INFRASTRUCTURE_CREATE : UserRight.INFRASTRUCTURE_EDIT),
-			editForm.getFieldGroup());
-
-		editView.addCommitListener(() -> {
-			FacadeProvider.getSubcontinentFacade().save(editForm.getValue());
-			Notification.show(I18nProperties.getString(Strings.messageEntryCreated), Type.ASSISTIVE_NOTIFICATION);
-			SormasUI.get().getNavigator().navigateTo(SubcontinentsView.VIEW_NAME);
-		});
-
-		if (!isNew) {
-			extendEditComponentWithArchiveButton(editView, subcontinent.isArchived(), subcontinent.getUuid(), InfrastructureType.SUBCONTINENT, null);
-		}
-
-		return editView;
-	}
-
-	private CommitDiscardWrapperComponent<CountryEditForm> getCountryEditComponent(CountryDto country) {
-
-		boolean isNew = country == null;
-		CountryEditForm editForm = new CountryEditForm(isNew);
-		if (isNew) {
-			country = CountryDto.build();
-		}
-
-		editForm.setValue(country);
-
-		final CommitDiscardWrapperComponent<CountryEditForm> editView = new CommitDiscardWrapperComponent<>(
-			editForm,
-			UserProvider.getCurrent().hasUserRight(isNew ? UserRight.INFRASTRUCTURE_CREATE : UserRight.INFRASTRUCTURE_EDIT),
-			editForm.getFieldGroup());
-
-		editView.addCommitListener(() -> {
-			FacadeProvider.getCountryFacade().save(editForm.getValue());
-			Notification.show(I18nProperties.getString(Strings.messageEntryCreated), Type.ASSISTIVE_NOTIFICATION);
-			SormasUI.get().getNavigator().navigateTo(CountriesView.VIEW_NAME);
-		});
-
-		if (!isNew) {
-			extendEditComponentWithArchiveButton(editView, country.isArchived(), country.getUuid(), InfrastructureType.COUNTRY, null);
-		}
-
-		return editView;
-	}
-
+	
 	private CommitDiscardWrapperComponent<RegionEditForm> getRegionEditComponent(RegionDto region) {
 
 		boolean isNew = region == null;
@@ -448,11 +332,7 @@ public class InfrastructureController {
 		if (UserProvider.getCurrent().hasUserRight(UserRight.INFRASTRUCTURE_ARCHIVE)) {
 			Button archiveButton = ButtonHelper.createButton(isArchived ? Captions.actionDearchive : Captions.actionArchive, e -> {
 				if (!isArchived) {
-					if (InfrastructureType.CONTINENT.equals(infrastructureType)
-						&& FacadeProvider.getContinentFacade().isUsedInOtherInfrastructureData(Arrays.asList(uuid))
-						|| InfrastructureType.SUBCONTINENT.equals(infrastructureType)
-							&& FacadeProvider.getSubcontinentFacade().isUsedInOtherInfrastructureData(Arrays.asList(uuid))
-						|| InfrastructureType.AREA.equals(infrastructureType)
+					if (InfrastructureType.AREA.equals(infrastructureType)
 							&& FacadeProvider.getAreaFacade().isUsedInOtherInfrastructureData(Arrays.asList(uuid))
 						|| InfrastructureType.REGION.equals(infrastructureType)
 							&& FacadeProvider.getRegionFacade().isUsedInOtherInfrastructureData(Arrays.asList(uuid))
@@ -464,18 +344,11 @@ public class InfrastructureController {
 						return;
 					}
 				} else {
-					if (InfrastructureType.COUNTRY.equals(infrastructureType)
-						&& FacadeProvider.getCountryFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))
-						|| InfrastructureType.SUBCONTINENT.equals(infrastructureType)
-							&& FacadeProvider.getSubcontinentFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))
-						|| InfrastructureType.DISTRICT.equals(infrastructureType)
+					if ( InfrastructureType.DISTRICT.equals(infrastructureType)
 							&& FacadeProvider.getDistrictFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))
 						|| InfrastructureType.COMMUNITY.equals(infrastructureType)
-							&& FacadeProvider.getCommunityFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))
-						|| InfrastructureType.FACILITY.equals(infrastructureType)
-							&& FacadeProvider.getFacilityFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))
-						|| InfrastructureType.POINT_OF_ENTRY.equals(infrastructureType)
-							&& FacadeProvider.getPointOfEntryFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid))) {
+							&& FacadeProvider.getCommunityFacade().hasArchivedParentInfrastructure(Arrays.asList(uuid)))
+					{
 						showDearchivingNotPossibleWindow(infrastructureType, false);
 						return;
 					}

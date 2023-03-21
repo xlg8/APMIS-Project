@@ -19,7 +19,7 @@ import com.vaadin.flow.router.Route;
 
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
-public class AboutView extends VerticalLayout {
+public class AboutView extends Div {
 
     public AboutView() {
         Div aboutView = new Div();

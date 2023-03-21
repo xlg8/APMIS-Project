@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 @JsModule("@vaadin-component-factory/vcf-nav")
 @Tag("vcf-nav")
-@CssImport(value = "./themes/my-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
+@CssImport(value = "./themes/apmis-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
 public class AppNav extends Component implements HasSize, HasStyle {
 
     /**
