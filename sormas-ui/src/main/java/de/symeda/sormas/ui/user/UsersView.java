@@ -38,6 +38,8 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.components.grid.HeaderCell;
+import com.vaadin.ui.components.grid.HeaderRow;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.TextField;
@@ -131,6 +133,30 @@ public class UsersView extends AbstractView {
 		gridLayout.setExpandRatio(grid, 1);
 		gridLayout.setStyleName("crud-main-layout");
 		
+		
+		HeaderRow mainHeader = grid.getDefaultHeaderRow();
+		
+		HeaderCell ractiveHeader = mainHeader.getCell("active");
+		ractiveHeader.setDescription("Active?");
+		HeaderCell userRolesHeader = mainHeader.getCell("userRoles");
+		userRolesHeader.setDescription("User Roles");
+		HeaderCell userNameHeader = mainHeader.getCell("userName");
+		userNameHeader.setDescription("Username");
+		HeaderCell nameHeader = mainHeader.getCell("name");
+		nameHeader.setDescription("Name");
+		HeaderCell userEmailHeader = mainHeader.getCell("userEmail");
+		userEmailHeader.setDescription("Email");
+		HeaderCell userOrganisationHeader = mainHeader.getCell("userOrganisation");
+		userOrganisationHeader.setDescription("Organisation");
+		HeaderCell userPositionHeader = mainHeader.getCell("userPosition");
+		userPositionHeader.setDescription("Position");
+		HeaderCell areaHeader = mainHeader.getCell("area");
+		areaHeader.setDescription("Region");
+		HeaderCell regionHeader = mainHeader.getCell("region");
+		regionHeader.setDescription("Province");
+		HeaderCell districtHeader = mainHeader.getCell("district");
+		districtHeader.setDescription("District");
+	
 		
 
 		addComponent(gridLayout);
@@ -293,28 +319,6 @@ public class UsersView extends AbstractView {
 		
 		districtFilter = ComboBoxHelper.createComboBoxV7();
 		districtFilter.setId(CaseDataDto.DISTRICT);
-/*
-		if (user.getDistrict() == null) {
-			districtFilter.setWidth(140, Unit.PIXELS);
-			districtFilter.setInputPrompt(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.DISTRICT));
-			districtFilter.addItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(regionFilter.getId()));
-			districtFilter.addValueChangeListener(e -> {
-				DistrictReferenceDto district = (DistrictReferenceDto) e.getProperty().getValue();
-				criteria.district(district);
-				navigateTo(criteria);
-				
-				if (!DataHelper.equal(district, criteria.getDistrict())) {
-					criteria.district(null);
-				}
-
-				criteria.district(district);
-				navigateTo(criteria);
-			});
-			filterLayout.addComponent(districtFilter);
-		}
-		
-		*/
-		
 		districtFilter = ComboBoxHelper.createComboBoxV7();
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		districtFilter.setCaption(I18nProperties.getCaption(Captions.district));
