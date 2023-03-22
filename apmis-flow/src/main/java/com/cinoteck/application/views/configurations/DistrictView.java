@@ -18,16 +18,16 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+
 
 @PageTitle("Districts")
 public class DistrictView extends Div { 
 
+	GridListDataView<DistrictIndexDto> dataView;
+	
 	public DistrictView() {
 		Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
 		
@@ -46,7 +46,7 @@ public class DistrictView extends Div {
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 		List<DistrictIndexDto> regions = FacadeProvider.getDistrictFacade().getAllDistricts();
-		GridListDataView<DistrictIndexDto> dataView = grid.setItems(regions);
+		this.dataView = grid.setItems(regions);
 		
 		addFilters();
 		add(grid);
@@ -66,15 +66,34 @@ public class DistrictView extends Div {
 		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		layout.add(provinceFilter);
 		
-		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
-		districtFilter.setPlaceholder("All Districts");
-		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
-		layout.add(districtFilter);
+		//TODO: Implement auto selection of filter values when User level restriction has been implemented
+//		if(UserProvider.getCurrent().getUser().getArea() != null) {
+//			regionFilter.setItems(UserProvider.getCurrent().getUser().getArea());
+//		}else {
+//			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+//		}
+		regionFilter.addValueChangeListener(e -> {
+			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+			dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+			//dataView.refreshAll();
+		});
 		
-		ComboBox<RegionIndexDto> communityFilter = new ComboBox<>("Cluster");
-		communityFilter.setPlaceholder("All Clusters");
-		//communityFilter.setItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(null));
-		layout.add(communityFilter);
+		provinceFilter.addValueChangeListener(e -> {
+			dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
+			//dataView.refreshAll();
+		});
+		
+		
+		//TODO: Confirm if cluster level and district filter need to be available for District view
+//		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
+//		districtFilter.setPlaceholder("All Districts");
+//		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+//		layout.add(districtFilter);
+//		
+//		ComboBox<RegionIndexDto> communityFilter = new ComboBox<>("Cluster");
+//		communityFilter.setPlaceholder("All Clusters");
+//		//communityFilter.setItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(null));
+//		layout.add(communityFilter);
 		
 		TextField searchField = new TextField();
 		searchField.setWidth("10%");
@@ -83,19 +102,47 @@ public class DistrictView extends Div {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> {
-
+			dataView.refreshAll();
 		});
-		
+
+        dataView.addFilter(e -> {
+            String searchTerm = searchField.getValue().trim();
+
+            if (searchTerm.isEmpty())
+                return true;
+
+            boolean matchesRegionName = matchesTerm(e.getAreaname(),
+                    searchTerm);
+            boolean matchesProvinceName = matchesTerm(e.getRegion().getCaption(),
+                    searchTerm);
+            boolean matchesDistrictName = matchesTerm(e.getName(),
+                    searchTerm);
+            return matchesRegionName || matchesProvinceName || matchesDistrictName;
+        });
+
 		layout.add(searchField);
-		
-		
+	
 		Button primaryButton = new Button("Reset Filters");
 		primaryButton.addClassName("resetButton");
 		primaryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(primaryButton);
-		
+		primaryButton.addClickListener(e ->{
+			dataView.removeFilters();
+			regionFilter.clear();
+			provinceFilter.clear();
+			dataView.refreshAll();
+		});
 		
 		
 		add(layout);
 	}
+	
+	
+	private boolean matchesTerm(String value, String searchTerm) {
+        return value.toLowerCase().contains(searchTerm.toLowerCase());
+    }
+	
+//	private boolean matchesCode(Long value, Long searchTerm) {
+//        return assertThat(value.equals(searchTerm)).isTrue();
+//    }
 }

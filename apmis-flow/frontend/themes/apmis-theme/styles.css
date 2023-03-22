@@ -106,6 +106,29 @@ vaadin-button[theme~="primary"]{
 	box-shadow: none;
 }
 
+vaadin-app-layout::part(drawer) {
+  width: 105px;
+}
+vaadin-app-layout[primary-section="navbar"]::part(navbar)::before {
+  background: var(--lumo-base-color) linear-gradient(var(--lumo-contrast-5pct), var(--lumo-contrast-5pct));
+}
+
+vaadin-app-layout[primary-section="drawer"]::part(navbar)::before {
+  background: var(--lumo-base-color);
+}
+
+vaadin-app-layout[primary-section="drawer"]::part(navbar) {
+  box-shadow: 0 1px 0 0 var(--lumo-contrast-10pct);
+}
+
+vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer) {
+  background: var(--lumo-shade-5pct);
+  border: 0;
+  box-shadow: 1px 0 0 0 var(--lumo-contrast-10pct), 1px 0 0 0 var(--lumo-base-color);
+  z-index: 1;
+}
+
+
 .filterBar{
 	margin-top: 1.9em;
 }
