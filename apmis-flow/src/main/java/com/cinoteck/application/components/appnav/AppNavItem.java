@@ -13,14 +13,6 @@ import com.vaadin.flow.router.Router;
 import com.vaadin.flow.server.VaadinService;
 import java.util.Optional;
 
-/**
- * A menu item for the {@link AppNav} component.
- * <p>
- * Can contain a label and/or an icon and links to a given {@code path}.
- */
-@JsModule("@vaadin-component-factory/vcf-nav")
-@Tag("vcf-nav-item")
-@CssImport(value = "./themes/apmis-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item") 
 public class AppNavItem extends Component {
 
     /**

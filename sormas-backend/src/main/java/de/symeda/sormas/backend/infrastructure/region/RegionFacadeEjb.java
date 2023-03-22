@@ -14,6 +14,7 @@
  */
 package de.symeda.sormas.backend.infrastructure.region;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -46,6 +48,7 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
@@ -89,10 +92,10 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	private PopulationDataFacadeEjbLocal populationDataFacade;
 	@EJB
 	private AreaService areaService;
-	@EJB
-	private CountryService countryService;
-	@EJB
-	private CountryFacadeEjbLocal countryFacade;
+//	@EJB
+//	private CountryService countryService;
+//	@EJB
+//	private CountryFacadeEjbLocal countryFacade;
 
 	public RegionFacadeEjb() {
 	}
@@ -102,23 +105,54 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		super(service, featureConfiguration);
 	}
 
+//	@Override
+//	public List<RegionReferenceDto> getAllActiveByServerCountry() {
+//		//CountryReferenceDto serverCountry = countryFacade.getServerCountry();
+//
+//		return getAllActiveByPredicate((cb, root) -> {
+//			if (serverCountry != null) {
+//				Path<Object> countryUuid = root.join(Region.COUNTRY, JoinType.LEFT).get(Country.UUID);
+//				return CriteriaBuilderHelper.or(cb, cb.isNull(countryUuid), cb.equal(countryUuid, serverCountry.getUuid()));
+//			}
+//
+//			return null;
+//		});
+//	}
+	
+
 	@Override
-	public List<RegionReferenceDto> getAllActiveByServerCountry() {
-		CountryReferenceDto serverCountry = countryFacade.getServerCountry();
-
-		return getAllActiveByPredicate((cb, root) -> {
-			if (serverCountry != null) {
-				Path<Object> countryUuid = root.join(Region.COUNTRY, JoinType.LEFT).get(Country.UUID);
-				return CriteriaBuilderHelper.or(cb, cb.isNull(countryUuid), cb.equal(countryUuid, serverCountry.getUuid()));
-			}
-
-			return null;
-		});
+	public List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId) {
+		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
+				+ "left outer join populationdata p on a.id = p.region_id\n"
+				+ "left outer join areas ar on ar.id = "+areaId+"\n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+"\n"
+				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
+		
+		
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
+		
+		List<RegionDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+		System.out.println("starting....");
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
+		
+		System.out.println("ending...." +resultData.size());
+	
+	
+	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	return resultData;
 	}
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveByCountry(String countryUuid) {
-		return getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.COUNTRY).get(Country.UUID), countryUuid));
+		return null;
+				//getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.COUNTRY).get(Country.UUID), countryUuid));
 	}
 
 	@Override
@@ -201,10 +235,6 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 				case Region.AREA:
 				case RegionIndexDto.REGION_EXTERNAL_ID:
 					expression = area.get(Area.NAME);
-					break;
-				
-				case RegionIndexDto.COUNTRY:
-					expression = country.get(Country.DEFAULT_NAME);
 					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -340,8 +370,10 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		dto.setGrowthRate(entity.getGrowthRate());
 		dto.setExternalId(entity.getExternalId());
 		dto.setArea(AreaFacadeEjb.toReferenceDtox(entity.getArea()));
+		
+		System.out.println(">>>>>>cccccccccccccccccccccccccccccccccc"+ entity.getArea());
 		dto.setAreaexternalId(entity.getArea().getExternalId());
-		dto.setCountry(CountryFacadeEjb.toReferenceDto(entity.getCountry()));
+		//dto.setCountry(CountryFacadeEjb.toReferenceDto(entity.getCountry()));
 
 		return dto;
 	}
@@ -419,7 +451,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		target.setArchived(source.isArchived());
 		target.setExternalId(source.getExternalId());
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
-		target.setCountry(countryService.getByReferenceDto(source.getCountry()));
+		//target.setCountry(countryService.getByReferenceDto(source.getCountry()));
 
 		return target;
 	}
@@ -444,5 +476,32 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 			dtos.add(regionDto);
 		}	
 		return dtos;
+	}
+	
+	@Override
+	public List<RegionIndexDto> getAllRegions() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
+		Root<Region> region = cq.from(Region.class);
+		Join<Region, Area> area = region.join(Region.AREA, JoinType.LEFT);
+		
+		Predicate filter = cb.equal(region.get(Region.ARCHIVED), false);
+		cq.where(filter);
+		cq.select(region); 
+		List<Region> regions = em.createQuery(cq).getResultList();
+		List<RegionIndexDto> dtos = new ArrayList();
+		
+		for (Region reg : regions) {
+			if (!reg.equals(null)) {
+				dtos.add(this.toIndexDto(reg));
+			}
+		}
+		return dtos;
+	}
+
+	@Override
+	public List<RegionReferenceDto> getAllActiveByServerCountry() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

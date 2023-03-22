@@ -29,7 +29,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     Html html = new Html(content);
     
-    private final LoginFormInput login = new LoginFormInput();
+
+    private final LoginForm login = new LoginForm();
     
     
 	
@@ -43,34 +44,36 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 		setAlignItems(Alignment.CENTER);
 		setJustifyContentMode(JustifyContentMode.CENTER);
 
+		login.setAction("login"); 
 		login.setClassName("loginfORM");
+
 
 		logoDiv.setClassName("logoContainer");
 		imgApmis.setWidth("20%");
 		addClassName("loginOverlay");
 		logoDiv.add(imgApmis);
 
+
+
+		
+		//containerDiv.setWidth("500px");
 		containerDiv.setClassName("loginContainer");
 		containerDiv.add(logoDiv, html, login);
-		add(containerDiv); 	
-	}
-
-
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		// TODO Auto-generated method stub
+		add(containerDiv); 
+		
+		
 		
 	}
 
-//	@Override
-//	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-//		// inform the user about an authentication error
-//		if(beforeEnterEvent.getLocation()  
-//        .getQueryParameters()
-//        .getParameters()
-////        .containsKey("error")) {
-////            login.setError(true);
-////        }
-//	}
+	@Override
+	public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+		// inform the user about an authentication error
+		if(beforeEnterEvent.getLocation()  
+        .getQueryParameters()
+        .getParameters()
+        .containsKey("error")) {
+            login.setError(true);
+        }
+	}
+
 }

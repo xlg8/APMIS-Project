@@ -62,20 +62,20 @@
    
 html{
 	--lumo-primary-color: #0D6938;
-	--lumo-primary-text-color: #FFFFFF;
-	--lumo-primary-contrast-color: #FFFFFF;
+	--lumo-primary-text-color: black;
+	--lumo-primary-contrast-color: black;
 	--lumo-contrast-10pct: #E0F0E0;
 	--lumo-contrast-20pct: #81CBA5;
 	--lumo-contrast-30pct: #475B51;
-	--lumo-contrast-60pct: #FFFFFF;
+	--lumo-contrast-60pct: black; /*#FFFFFF*/
 	--lumo-contrast-70pct: #F08F3E;
-	--lumo-contrast-50pct: #FFFFFF;
+	--lumo-contrast-50pct: black; /*#FFFFFF*/
 	--lumo-contrast-90pct: #F08F3E;
 	--lumo-primary-color-50pct: #0D6938;
 	--lumo-error-color: #C83000;
 	--lumo-error-color-10pct: #FFCCCC;
 	--lumo-success-color: #0D6938;
-	--lumo-tertiary-text-color: #FFFFFF;
+	--lumo-tertiary-text-color: black;
 	--lumo-header-text-color: #0D6938;
 	--lumo-body-text-color: #000000;
 	--lumo-border-radius-l: 6px;
@@ -86,21 +86,30 @@ html{
 	--lumo-box-shadow-m: hsla(0, 0%, 0%, 0);
 	--lumo-box-shadow-s: hsla(0, 0%, 0%, 0);
 	--lumo-box-shadow-xs: hsla(0, 0%, 0%, 0);
-	--lumo-secondary-text-color:  #FFFFFF;
+	--lumo-secondary-text-color:  black; /*#FFFFFF*/
 	--vaadin-app-layout-drawer-width: 10%;
 } 
 
 vaadin-tabs[orientation="horizontal"]{
 	background-color: #434343;
-	color:  #FFFFFF;
+	color: black; /*#FFFFFF*/
 	padding: 0;
 	margin: 0;
 }
-  
-.tabs{
-	
-}   
 
-:host([part='drawer']){
-	width: 20px;
+
+vaadin-button[theme~="primary"]{
+	text-shadow: 0 0px 0 0;
+	background-image: none;
+	background-color: #296647;
+	color: #FFFFFF;
+	box-shadow: none;
+}
+
+.filterBar{
+	margin-top: 1.9em;
+}
+
+.resetButton{
+	margin: var(--lumo-space-xl) 0;
 }

@@ -19,9 +19,12 @@ package de.symeda.sormas.api.infrastructure.region;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.Remote;
 
+
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.GeoLocationFacade;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -37,6 +40,8 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	List<RegionReferenceDto> getAllActiveByArea(String areaUuid);
 
 	List<RegionReferenceDto> getAllActiveAsReference();
+	
+	List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId);
 
 	Page<RegionIndexDto> getIndexPage(RegionCriteria regionCriteria, Integer offset, Integer size, List<SortProperty> sortProperties);
 
@@ -53,4 +58,6 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	List<String> getNamesByIds(List<Long> regionIds);
 
 	boolean isUsedInOtherInfrastructureData(Collection<String> regionUuids);
+	
+	List<RegionIndexDto> getAllRegions();
 }

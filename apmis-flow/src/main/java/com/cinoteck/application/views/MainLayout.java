@@ -1,5 +1,6 @@
 package com.cinoteck.application.views;
 
+
 import com.cinoteck.application.views.configurations.ConfigView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -104,8 +105,5 @@ public class MainLayout extends AppLayout implements AppShellConfigurator, HasDy
         }
     }
 	
-
-
-
 
 }

@@ -19,6 +19,7 @@ import com.vaadin.flow.router.Route;
 
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
+
 public class AboutView extends Div {
 
     public AboutView() {
@@ -78,7 +79,6 @@ public class AboutView extends Div {
         sendFeedback.getStyle().set("background", "green");
         sendFeedback.getStyle().set("width", "10%");
         sendFeedback.getStyle().set("border-radius", "8px");
-
         sendFeedback.addClickListener(click -> System.out.println("kkcvakvckavsckvackvakscvkasvckasvckasvckhavsckhavsckhv"));
      //   sendFeedback.setSuffixComponent(new Icon("vaadin", "building"));
 

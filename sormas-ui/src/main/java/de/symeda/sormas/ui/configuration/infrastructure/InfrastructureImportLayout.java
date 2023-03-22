@@ -53,25 +53,10 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 			templateFileName = importFacade.getDistrictImportTemplateFileName();
 			fileNameAddition = "_district_import_";
 			break;
-		case FACILITY:
-			templateFilePath = importFacade.getFacilityImportTemplateFilePath();
-			templateFileName = importFacade.getFacilityImportTemplateFileName();
-			fileNameAddition = "_facility_import_";
-			break;
-		case POINT_OF_ENTRY:
-			templateFilePath = importFacade.getPointOfEntryImportTemplateFilePath();
-			templateFileName = importFacade.getPointOfEntryImportTemplateFileName();
-			fileNameAddition = "_point_of_entry_import_";
-			break;
 		case POPULATION_DATA:
 			templateFilePath = importFacade.getPopulationDataImportTemplateFilePath();
 			templateFileName = importFacade.getPopulationDataImportTemplateFileName();
 			fileNameAddition = "_population_data_import_";
-			break;
-		case COUNTRY:
-			templateFilePath = importFacade.getCountryImportTemplateFilePath();
-			templateFileName = importFacade.getCountryImportTemplateFileName();
-			fileNameAddition = "_country_import_";
 			break;
 		case REGION:
 			templateFilePath = importFacade.getRegionImportTemplateFilePath();
@@ -82,16 +67,6 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 			templateFilePath = importFacade.getAreaImportTemplateFilePath();
 			templateFileName = importFacade.getAreaImportTemplateFileName();
 			fileNameAddition = "_area_import_";
-			break;
-		case SUBCONTINENT:
-			templateFilePath = importFacade.getSubcontinentImportTemplateFilePath();
-			templateFileName = importFacade.getSubcontinentImportTemplateFileName();
-			fileNameAddition = "_subcontinent_import_";
-			break;
-		case CONTINENT:
-			templateFilePath = importFacade.getContinentImportTemplateFilePath();
-			templateFileName = importFacade.getContinentImportTemplateFileName();
-			fileNameAddition = "_continent_import_";
 			break;
 		default:
 			throw new UnsupportedOperationException("Import is currently not implemented for infrastructure type " + infrastructureType.name());
@@ -140,22 +115,7 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 							allowOverwrite,
 							(ValueSeparator) separator.getValue());
 						break;
-					case FACILITY:
-						importer = new InfrastructureImporter(
-							file,
-							currentUser,
-							InfrastructureType.FACILITY,
-							allowOverwrite,
-							(ValueSeparator) separator.getValue());
-						break;
-					case POINT_OF_ENTRY:
-						importer = new InfrastructureImporter(
-							file,
-							currentUser,
-							InfrastructureType.POINT_OF_ENTRY,
-							allowOverwrite,
-							(ValueSeparator) separator.getValue());
-						break;
+					
 					case REGION:
 						importer = new InfrastructureImporter(
 							file,
@@ -172,22 +132,7 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 							allowOverwrite,
 							(ValueSeparator) separator.getValue());
 						break;
-					case SUBCONTINENT:
-						importer = new InfrastructureImporter(
-							file,
-							currentUser,
-							InfrastructureType.SUBCONTINENT,
-							allowOverwrite,
-							(ValueSeparator) separator.getValue());
-						break;
-					case CONTINENT:
-						importer = new InfrastructureImporter(
-							file,
-							currentUser,
-							InfrastructureType.CONTINENT,
-							allowOverwrite,
-							(ValueSeparator) separator.getValue());
-						break;
+					
 					default:
 						throw new UnsupportedOperationException(
 							"Import is currently not implemented for infrastructure type " + infrastructureType.name());

@@ -91,7 +91,8 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
                     fluidRowLocs(UserDto.ADDRESS) +
                     
                     loc(USER_TYPE_HEADING_LOC) +
-                    fluidRowLocs(UserDto.TABLE_NAME_USERTYPES) +
+                    fluidRowLocs(UserDto.COMMON_USER) +
+                 //  fluidRowLocs(UserDto.TABLE_NAME_USERTYPES) +
 					
                     loc(USER_DATA_HEADING_LOC) +
                     fluidRowLocs(UserDto.ACTIVE) +
@@ -144,22 +145,21 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
         phone.addValidator(new UserPhoneNumberValidator(I18nProperties.getValidationError(Validations.phoneNumberValidation)));
         
         
+        CheckBox commusr = addField(UserDto.COMMON_USER, CheckBox.class);
+        
         ComboBox userTypes = addField(UserDto.TABLE_NAME_USERTYPES, ComboBox.class);
+        userTypes.setNullSelectionAllowed(true);
         
-        if (UserProvider.getCurrent().getUser().getUsertype().equals(UserType.EOC_USER)) {
-        	 userTypes.removeItem(UserType.UNICEF_USER);
-        	 userTypes.removeItem(UserType.WHO_USER);
-		}
-		else {
-			 userTypes.removeItem(UserType.UNICEF_USER);
-			 userTypes.removeItem(UserType.EOC_USER);
-		}
+        commusr.addValueChangeListener(e -> {
+        	System.out.println((boolean) e.getProperty().getValue());
+        	if ((boolean) e.getProperty().getValue() ==  true ) {
+            	 userTypes.setValue(UserType.COMMON_USER);
+    		}
+    		else {
+    			 userTypes.setValue(UserProvider.getCurrent().getUser().getUsertype());
+    		} 	
         	
-       
-        
-        
-               // usersType.setDescription(I18nProperties.getDescription(getPropertyI18nPrefix() + "." + UserDto.TABLE_NAME_USERTYPES));
-
+        });
         
         Label userEmailDesc = new Label(I18nProperties.getString(Strings.infoUserEmail));
         getContent().addComponent(userEmailDesc, USER_EMAIL_DESC_LOC);
@@ -176,9 +176,9 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
         addField(UserDto.ACTIVE, CheckBox.class);
         addField(UserDto.USER_NAME, TextField.class);
         
-        addField(UserDto.FORM_ACCESS, OptionGroup.class).setCaption(I18nProperties.getCaption(Captions.formAccess)); 
-        OptionGroup formAccess = (OptionGroup) getFieldGroup().getField(UserDto.FORM_ACCESS);
-        formAccess.setMultiSelect(true);
+  	  	addField(UserDto.FORM_ACCESS, OptionGroup.class).setCaption(I18nProperties.getCaption(Captions.formAccess)); 
+  	  	OptionGroup formAccess = (OptionGroup) getFieldGroup().getField(UserDto.FORM_ACCESS);
+  	  	formAccess.setMultiSelect(true);
         
         addField(UserDto.USER_ROLES, OptionGroup.class).addValidator(new UserRolesValidator());
         OptionGroup userRoles = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
@@ -265,7 +265,7 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
 
          area.addItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
-        setRequired(true, UserDto.FIRST_NAME, UserDto.LAST_NAME, UserDto.USER_NAME, UserDto.USER_ROLES, UserDto.FORM_ACCESS, UserDto.TABLE_NAME_USERTYPES);
+        setRequired(true, UserDto.FIRST_NAME, UserDto.LAST_NAME, UserDto.USER_NAME, UserDto.USER_ROLES, UserDto.FORM_ACCESS);
         addValidators(UserDto.USER_NAME, new UserNameValidator());
 
         addFieldListeners(UserDto.FIRST_NAME, e -> suggestUserName());
@@ -410,10 +410,20 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
         userRoles.addItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles()));
         
         OptionGroup formAccess = (OptionGroup) getFieldGroup().getField(UserDto.FORM_ACCESS);
-        formAccess.removeAllItems();
-        formAccess.addItems(UserUiHelper.getAssignableForms());
-        
+       // formAccess.removeAllItems();
 
+       formAccess.addItems(UserUiHelper.getAssignableForms());
+        
+       if ((UserProvider.getCurrent().getUser().getUsertype().equals(UserType.EOC_USER))) {
+           
+       	formAccess.removeItem(FormAccess.TRAINING);
+       	formAccess.removeItem(FormAccess.PCA);
+       	formAccess.removeItem(FormAccess.FLW);
+       	formAccess.removeItem(FormAccess.FMS);
+       	formAccess.removeItem(FormAccess.LQAS);
+       	
+       	
+       }
         super.setValue(userDto);
     }
 }

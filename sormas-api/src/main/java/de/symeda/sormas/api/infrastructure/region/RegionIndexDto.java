@@ -34,7 +34,7 @@ public class RegionIndexDto extends EntityDto {
 	public static final String EXTERNAL_ID = "externalId";
 	public static final String REGION_EXTERNAL_ID = "areaexternalId";
 	public static final String AREA = "area";
-	public static final String COUNTRY = "country"; //AREA
+	//public static final String COUNTRY = "country"; //AREA
 
 	private String name;
 	private String epidCode;
@@ -43,7 +43,7 @@ public class RegionIndexDto extends EntityDto {
 	private Long externalId;
 	private Long areaexternalId;
 	private AreaReferenceDto area;
-	private CountryReferenceDto country;
+	//private CountryReferenceDto country;
 
 	public String getName() {
 		return name;
@@ -106,13 +106,13 @@ public class RegionIndexDto extends EntityDto {
 		this.areaexternalId = areaexternalId;
 	}
 
-	public CountryReferenceDto getCountry() {
-		return country;
-	}
-
-	public void setCountry(CountryReferenceDto country) {
-		this.country = country;
-	}
+//	public CountryReferenceDto getCountry() {
+//		return country;
+//	}
+//
+//	public void setCountry(CountryReferenceDto country) {
+//		this.country = country;
+//	}
 
 	public RegionReferenceDto toReference() {
 		return new RegionReferenceDto(getUuid(), name, externalId);

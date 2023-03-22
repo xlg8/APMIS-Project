@@ -33,14 +33,12 @@ import de.symeda.sormas.ui.UserProvider;
 import de.symeda.sormas.ui.configuration.docgeneration.DocumentTemplatesView;
 import de.symeda.sormas.ui.configuration.infrastructure.AreasView;
 import de.symeda.sormas.ui.configuration.infrastructure.CommunitiesView;
-import de.symeda.sormas.ui.configuration.infrastructure.ContinentsView;
-import de.symeda.sormas.ui.configuration.infrastructure.CountriesView;
+
 import de.symeda.sormas.ui.configuration.infrastructure.DistrictsView;
-import de.symeda.sormas.ui.configuration.infrastructure.FacilitiesView;
-import de.symeda.sormas.ui.configuration.infrastructure.PointsOfEntryView;
+
 import de.symeda.sormas.ui.configuration.infrastructure.PopulationDataView;
 import de.symeda.sormas.ui.configuration.infrastructure.RegionsView;
-import de.symeda.sormas.ui.configuration.infrastructure.SubcontinentsView;
+
 import de.symeda.sormas.ui.configuration.infrastructure.components.CountryCombo;
 import de.symeda.sormas.ui.utils.AbstractSubNavigationView;
 import de.symeda.sormas.ui.utils.ComboBoxHelper;
@@ -70,11 +68,7 @@ public abstract class AbstractConfigurationView extends AbstractSubNavigationVie
 							|| UserProvider.getCurrent().hasNationalJurisdictionLevel())) {
 				navigator.addView(AreasView.VIEW_NAME, AreasView.class);
 			}
-			if (FacadeProvider.getFeatureConfigurationFacade().isCountryEnabled()) {
-				navigator.addView(ContinentsView.VIEW_NAME, ContinentsView.class);
-				navigator.addView(SubcontinentsView.VIEW_NAME, SubcontinentsView.class);
-				navigator.addView(CountriesView.VIEW_NAME, CountriesView.class);
-			}
+			
 			if (UserProvider.getCurrent().hasNationalJurisdictionLevel()
 					|| UserProvider.getCurrent().hasAreaJurisdictionLevel()
 					|| UserProvider.getCurrent().hasRegionJurisdictionLevel()) {
@@ -87,12 +81,7 @@ public abstract class AbstractConfigurationView extends AbstractSubNavigationVie
 				navigator.addView(DistrictsView.VIEW_NAME, DistrictsView.class);
 			}
 			navigator.addView(CommunitiesView.VIEW_NAME, CommunitiesView.class);
-			if (isAnySurveillanceEnabled) {
-				navigator.addView(FacilitiesView.VIEW_NAME, FacilitiesView.class);
-			}
-			if (isCaseSurveillanceEnabled) {
-				navigator.addView(PointsOfEntryView.VIEW_NAME, PointsOfEntryView.class);
-			}
+			
 
 			if (UserProvider.getCurrent().hasUserRight(UserRight.POPULATION_MANAGE)) {
 				navigator.addView(PopulationDataView.VIEW_NAME, PopulationDataView.class);
@@ -142,14 +131,7 @@ public abstract class AbstractConfigurationView extends AbstractSubNavigationVie
 			}
 			menu.addView(CommunitiesView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
 					CommunitiesView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-			if (isAnySurveillanceEnabled) {
-				menu.addView(FacilitiesView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
-						FacilitiesView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-			}
-			if (isCaseSurveillanceEnabled) {
-				menu.addView(PointsOfEntryView.VIEW_NAME, I18nProperties.getPrefixCaption("View",
-						PointsOfEntryView.VIEW_NAME.replaceAll("/", ".") + ".short", ""), null, false);
-			}
+			
 
 			if (UserProvider.getCurrent().hasUserRight(UserRight.POPULATION_MANAGE)) {
 				menu.addView(PopulationDataView.VIEW_NAME, I18nProperties.getPrefixCaption("View",

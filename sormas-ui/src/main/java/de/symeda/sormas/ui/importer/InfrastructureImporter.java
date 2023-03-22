@@ -75,23 +75,12 @@ public class InfrastructureImporter extends DataImporter {
 			//System.out.println("$$$$$$$$$$$$$$==================55555%%%%%%%%%%%");		
 			newEntityDto = DistrictDto.build();
 			break;
-		case FACILITY:
-			newEntityDto = FacilityDto.build();
-			break;
-		case POINT_OF_ENTRY:
-			newEntityDto = PointOfEntryDto.build();
-			break;
+		
 		case REGION:
 			newEntityDto = RegionDto.build();
 			break;
 		case AREA:
 			newEntityDto = AreaDto.build();
-			break;
-		case SUBCONTINENT:
-			newEntityDto = SubcontinentDto.build();
-			break;
-		case CONTINENT:
-			newEntityDto = ContinentDto.build();
 			break;
 		default:
 			throw new IllegalArgumentException(type.toString());
@@ -126,24 +115,14 @@ public class InfrastructureImporter extends DataImporter {
 				case DISTRICT:
 					FacadeProvider.getDistrictFacade().save((DistrictDto) newEntityDto, allowOverwrite);
 					break;
-				case FACILITY:
-					FacadeProvider.getFacilityFacade().save((FacilityDto) newEntityDto, allowOverwrite);
-					break;
-				case POINT_OF_ENTRY:
-					FacadeProvider.getPointOfEntryFacade().save((PointOfEntryDto) newEntityDto, allowOverwrite);
-					break;
+				
 				case REGION:
 					FacadeProvider.getRegionFacade().save((RegionDto) newEntityDto, allowOverwrite);
 					break;
 				case AREA:
 					FacadeProvider.getAreaFacade().save((AreaDto) newEntityDto, allowOverwrite);
 					break;
-				case SUBCONTINENT:
-					FacadeProvider.getSubcontinentFacade().save((SubcontinentDto) newEntityDto, allowOverwrite);
-					break;
-				case CONTINENT:
-					FacadeProvider.getContinentFacade().save((ContinentDto) newEntityDto, allowOverwrite);
-					break;
+				
 				default:
 					throw new IllegalArgumentException(type.toString());
 				}
@@ -190,12 +169,7 @@ public class InfrastructureImporter extends DataImporter {
 								//System.out.println("c!!!!!!!!!");
 								district = FacadeProvider.getDistrictFacade().getByExternalID(Long.parseLong(value), ((CommunityDto) newEntityDto).getRegion(), false);
 								break;
-							case FACILITY:
-								district = FacadeProvider.getDistrictFacade().getByName(value, ((FacilityDto) newEntityDto).getRegion(), false);
-								break;
-							case POINT_OF_ENTRY:
-								district = FacadeProvider.getDistrictFacade().getByName(value, ((PointOfEntryDto) newEntityDto).getRegion(), false);
-								break;
+							
 							default:
 								throw new UnsupportedOperationException(
 									I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
@@ -217,27 +191,27 @@ public class InfrastructureImporter extends DataImporter {
 						} else if (propertyType.isAssignableFrom(CommunityReferenceDto.class)) {
 							//System.out.println("c!!!!!!!!!!!!!!!!!!!!!ome here to fix the uuid for comm..........................................");
 							
-							List<CommunityReferenceDto> community;
-							if (type == InfrastructureType.FACILITY) {
-								community = FacadeProvider.getCommunityFacade().getByName(value, ((FacilityDto) newEntityDto).getDistrict(), false);
-							} else {
-								throw new UnsupportedOperationException(
-									I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
-							}
-							if (community.isEmpty()) {
-								throw new ImportErrorException(
-									I18nProperties.getValidationError(
-										Validations.importEntryDoesNotExistDbOrRegion,
-										value,
-										buildEntityProperty(entityPropertyPath)));
-							} else if (community.size() > 1) {
-								//System.out.println("c!!!!!!!!!!!!!!!ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRr......................................");
-								throw new ImportErrorException(
-									I18nProperties
-										.getValidationError(Validations.importDistrictNotUnique, value, buildEntityProperty(entityPropertyPath)));
-							} else {
-								pd.getWriteMethod().invoke(currentElement, community.get(0));
-							}
+//							List<CommunityReferenceDto> community;
+//							if (type == InfrastructureType.FACILITY) {
+//								community = FacadeProvider.getCommunityFacade().getByName(value, ((FacilityDto) newEntityDto).getDistrict(), false);
+//							} else {
+//								throw new UnsupportedOperationException(
+//									I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
+//							}
+//							if (community.isEmpty()) {
+//								throw new ImportErrorException(
+//									I18nProperties.getValidationError(
+//										Validations.importEntryDoesNotExistDbOrRegion,
+//										value,
+//										buildEntityProperty(entityPropertyPath)));
+//							} else if (community.size() > 1) {
+//								//System.out.println("c!!!!!!!!!!!!!!!ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRr......................................");
+//								throw new ImportErrorException(
+//									I18nProperties
+//										.getValidationError(Validations.importDistrictNotUnique, value, buildEntityProperty(entityPropertyPath)));
+//							} else {
+//								pd.getWriteMethod().invoke(currentElement, community.get(0));
+	//						}
 						} else {
 							
 							

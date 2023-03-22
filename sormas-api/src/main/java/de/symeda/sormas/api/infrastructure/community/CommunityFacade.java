@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.ejb.Remote;
 
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.GeoLocationFacade;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -42,6 +43,9 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 	CommunityReferenceDto getCommunityReferenceById(long id);
 	
 	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerence(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
+	
+	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerencexx(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties,  FormAccess formacc);
+
 
 	// todo handle parent infra generically
 	List<CommunityReferenceDto> getByName(String name, DistrictReferenceDto districtRef, boolean includeArchivedEntities);
@@ -55,4 +59,6 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 	Map<String, String> getDistrictUuidsForCommunities(List<CommunityReferenceDto> communities);
 
 	long countReportGrid(CommunityCriteriaNew criteria, FormAccess formacc);
+	
+	List<CommunityDto> getAllCommunities();
 }

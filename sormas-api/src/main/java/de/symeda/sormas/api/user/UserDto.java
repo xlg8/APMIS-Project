@@ -62,6 +62,8 @@ public class UserDto extends EntityDto {
 	public static final String FORM_ACCESS = "formAccess";
 	public static final String TABLE_NAME_USERTYPES = "usertype";
 	
+	public static final String COMMON_USER = "commomUser";
+	
 	public static final String REGION = "region";
 	public static final String AREA = "area";
 	public static final String DISTRICT = "district";
@@ -106,6 +108,7 @@ public class UserDto extends EntityDto {
 	private Set<FormAccess> formAccess;
 	//can add a user type property to the user  
 	private UserType usertype;	
+	private boolean commomUser;
 		
 	private AreaReferenceDto area;
 	private RegionReferenceDto region;
@@ -359,6 +362,16 @@ public class UserDto extends EntityDto {
 	public void setHasConsentedToGdpr(boolean hasConsentedToGdpr) {
 		this.hasConsentedToGdpr = hasConsentedToGdpr;
 	}
+
+	public boolean isCommomUser() {
+		return commomUser;
+	}
+
+	public void setCommomUser(boolean commomUser) {
+		this.commomUser = commomUser;
+	}
+	
+	
 	
 	
 }

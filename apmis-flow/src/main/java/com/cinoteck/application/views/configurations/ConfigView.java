@@ -7,19 +7,14 @@ import com.cinoteck.application.utils.StringUtils;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.about.AboutView;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
-import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 
 @PageTitle("Configurations")
 @Route(value = "configurations", layout = MainLayout.class)
@@ -47,6 +42,15 @@ public class ConfigView extends VerticalLayout implements RouterLayout {
 	private Component createLazyLoadedGrid(String label) {
 		if(label.equalsIgnoreCase(InfrastructureType.AREA.name())) {
 			return new RegionView();
+		}
+		if(label.equalsIgnoreCase(InfrastructureType.REGION.name())) {
+			return new ProvinceView();
+		}
+		if(label.equalsIgnoreCase(InfrastructureType.DISTRICT.name())) {
+			return new DistrictView();
+		}
+		if(label.equalsIgnoreCase(InfrastructureType.COMMUNITY.name())) {
+			return new DistrictView();
 		}else {
 			return new AboutView();
 		}

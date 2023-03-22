@@ -65,7 +65,7 @@ public class CommunityReferenceDto extends InfrastructureDataReferenceDto implem
 		}
 	}
 
-	// Comparator for sorting the list by clusternumber
+	// Comparator for sorting the list by clusternumber /UtilDateFormatter
 	public static Comparator<CommunityReferenceDto> clusternumber = new Comparator<CommunityReferenceDto>() {
 
 		public int compare(CommunityReferenceDto comRef1, CommunityReferenceDto comRef2) {
