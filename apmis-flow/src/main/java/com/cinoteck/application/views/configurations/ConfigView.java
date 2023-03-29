@@ -26,6 +26,7 @@ public class ConfigView extends VerticalLayout implements RouterLayout {
 		// Create the TabSheet
 		tabSheet = new TabSheet();
 		tabSheet.setWidthFull();
+		tabSheet.setClassName("configbar");
 		// Create tabs for each Grid
 		List<InfrastructureType> tabLabels = Arrays.asList(InfrastructureType.values());
 		for (InfrastructureType label : tabLabels) {

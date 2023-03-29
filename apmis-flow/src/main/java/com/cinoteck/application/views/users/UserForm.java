@@ -1,6 +1,7 @@
 package com.cinoteck.application.views.users;
 
 import java.util.List;
+import java.util.Set;
 
 import com.cinoteck.application.utils.UserUiHelper;
 import com.vaadin.flow.component.ComponentEvent;
@@ -14,11 +15,20 @@ import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.theme.lumo.LumoUtility.IconSize;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
@@ -27,6 +37,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
@@ -54,7 +65,8 @@ public class UserForm extends FormLayout {
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>("District");
 	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
 
-	CheckboxGroup<UserRole> userRoles = new CheckboxGroup<>();
+	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
+	// CheckboxGroup<UserRole> userRoles = new CheckboxGroup<>();
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
@@ -69,15 +81,36 @@ public class UserForm extends FormLayout {
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts) {
 		addClassName("contact-form");
+		
+		HorizontalLayout hor = new HorizontalLayout();
+		Icon vaadinIcon = new Icon("lumo", "cross");
+		hor.setJustifyContentMode(JustifyContentMode.END);
+		hor.setWidthFull();
+		hor.add(vaadinIcon);
+		hor.setHeight("5px");
+		this.setColspan(hor, 2);
+		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
+		add(hor);
 		// Configure what is passed to the fields here
 		configureFields();
 	}
 
 	private void configureFields() {
+		H2 pInfo = new H2("Personal Information");
+		this.setColspan(pInfo, 2);
+
+		H2 fInfo = new H2("Field Information");
+		this.setColspan(fInfo, 2);
+
+		H2 userData = new H2("User Data");
+		this.setColspan(userData, 2);
+
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
 				UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
+		
+		binder.forField(userEmail).asRequired("Email is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
 
 		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
 				.bind(UserDto::getPhone, UserDto::setPhone);
@@ -112,44 +145,53 @@ public class UserForm extends FormLayout {
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 
-		userRoles.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		// TODO: Change implemenation to only add assignable roles sormas style.
+		// userRoles.setLabel("User Roles");
 		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRoles).bind(UserDto::getUserRoles, UserDto::setUserRoles);
+		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles, UserDto::setUserRoles);
+		this.setColspan(userRoles, 1);
+		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
-		formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+		formAccess.setLabel("Form Access");
+		// formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		formAccess.setItems(UserUiHelper.getAssignableForms());
 		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
-		activeCheck.setLabel("Active?");
+		this.setColspan(activeCheck, 2);
+		activeCheck.setLabel("Active ?");
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
-		usertype.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+		// usertype.addThemeVariants(CheckboxGroupVariant.LUMO_HELPER_ABOVE_FIELD);
 		usertype.setItems(UserType.values());
-
+		// this.setColspan(usertype, 2);
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
-		binder.forField(language).bind(UserDto::getLanguage, UserDto::setLanguage);
+		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
-		add(firstName, lastName, userEmail, phone, userPosition, userOrganisation, region, province, district,
-				community, userRoles, formAccess, usertype, language, createButtonsLayout());
+		add(activeCheck, pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, userData,
+				language, userRoles, usertype, formAccess, fInfo, region, province, district, community);
+		createButtonsLayout();
 	}
 
-	private HorizontalLayout createButtonsLayout() {
+	private void createButtonsLayout() {
 		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-		save.addClickShortcut(Key.ENTER);
+		// save.addClickShortcut(Key.ENTER);
 		close.addClickShortcut(Key.ESCAPE);
 
+		save.setEnabled(true);
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
 		binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
-		return new HorizontalLayout(save, delete, close);
+		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
+		horizontallayout.setMargin(true);
+		add(horizontallayout);
+		this.setColspan(horizontallayout, 2);
 	}
 
 	private void validateAndSave() {
@@ -205,5 +247,43 @@ public class UserForm extends FormLayout {
 
 	public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
 		return addListener(CloseEvent.class, listener);
+	}
+
+	// TODO: This algorithm can be written better for good time and space complexity
+	private void updateFieldsByUserRole(Set<UserRole> userRoles) {
+
+		final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(userRoles);
+		final boolean useCommunity = jurisdictionLevel == JurisdictionLevel.COMMUNITY;
+		final boolean useDistrict = jurisdictionLevel == JurisdictionLevel.DISTRICT || useCommunity;
+		final boolean useRegion = jurisdictionLevel == JurisdictionLevel.REGION || useDistrict;
+		final boolean useArea = jurisdictionLevel == JurisdictionLevel.AREA || useRegion;
+
+		if (useCommunity) {
+			community.setVisible(true);
+			district.setVisible(true);
+			province.setVisible(true);
+			region.setVisible(true);
+		} else if (useDistrict) {
+			community.setVisible(false);
+			district.setVisible(true);
+			province.setVisible(true);
+			region.setVisible(true);
+		} else if (useRegion) {
+			community.setVisible(false);
+			district.setVisible(false);
+			province.setVisible(true);
+			region.setVisible(true);
+		} else if (useArea) {
+			community.setVisible(false);
+			district.setVisible(false);
+			province.setVisible(false);
+			region.setVisible(true);
+		} else {
+			community.setVisible(false);
+			district.setVisible(false);
+			province.setVisible(false);
+			region.setVisible(false);
+		}
+
 	}
 }

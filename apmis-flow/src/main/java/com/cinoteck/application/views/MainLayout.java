@@ -53,8 +53,15 @@ public class MainLayout extends AppLayout implements AppShellConfigurator, HasDy
 
 	private Tabs getTabs() {
 	    Tabs tabs = new Tabs();
-	    tabs.add(createTab(VaadinIcon.COG, "Configurations", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.COG_O, "Dashboard", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigView.class));
 	    tabs.add(createTab(VaadinIcon.USERS, "Users", Users.class));
+	    tabs.add(createTab(VaadinIcon.CHART, "Report", Users.class));
+	    tabs.add(createTab(VaadinIcon.USER, "User Profile", Users.class));
+	    tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", Users.class));
+	    tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", Users.class));
 	    tabs.setOrientation(Tabs.Orientation.VERTICAL);
 	    tabs.addClassName("tabs");
 	    return tabs;
@@ -81,7 +88,10 @@ public class MainLayout extends AppLayout implements AppShellConfigurator, HasDy
 	    verticalLayout.getStyle().set("display", "flex")
 	        .set("flex-direction", "column")
 	        .set("align-items", "center")
-	        .set("justify-content", "center");
+	        .set("justify-content", "center")
+	        .set("color", "white")
+	        .set("font-weight", "normal")
+	        .set("margin", "8px 0px");
 
 	    link.add(verticalLayout);
 

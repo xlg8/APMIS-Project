@@ -88,15 +88,23 @@ html{
 	--lumo-box-shadow-xs: hsla(0, 0%, 0%, 0);
 	--lumo-secondary-text-color:  black; /*#FFFFFF*/
 	--vaadin-app-layout-drawer-width: 10%;
+
 } 
 
 vaadin-tabs[orientation="horizontal"]{
 	background-color: #434343;
-	color: black; /*#FFFFFF*/
+	font-color: #FFFFFF;
 	padding: 0;
 	margin: 0;
 }
 
+vaadin-tabs[orientation="horizontal"] vaadin-tab[selected]{
+	color: #F08F3E;
+} 
+
+vaadin-tab::before{
+	background: #F08F3E;
+}
 
 vaadin-button[theme~="primary"]{
 	text-shadow: 0 0px 0 0;
@@ -107,18 +115,22 @@ vaadin-button[theme~="primary"]{
 }
 
 vaadin-app-layout::part(drawer) {
-  width: 105px;
+  width: 150px;
+  background: #296647 !important;
+ 
 }
+
 vaadin-app-layout[primary-section="navbar"]::part(navbar)::before {
   background: var(--lumo-base-color) linear-gradient(var(--lumo-contrast-5pct), var(--lumo-contrast-5pct));
 }
 
 vaadin-app-layout[primary-section="drawer"]::part(navbar)::before {
-  background: var(--lumo-base-color);
+  background: #296647;
 }
 
 vaadin-app-layout[primary-section="drawer"]::part(navbar) {
-  box-shadow: 0 1px 0 0 var(--lumo-contrast-10pct);
+  box-shadow: 0 1px 0 0  #296647;
+  z-index: 10; 
 }
 
 vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer) {
@@ -128,7 +140,6 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer) {
   z-index: 1;
 }
 
-
 .filterBar{
 	margin-top: 1.9em;
 }
@@ -137,9 +148,25 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer) {
 	margin: var(--lumo-space-xl) 0;
 }
 
+vaadin-drawer-toggle::part(icon)::before{
+	color: #FFFFFF;
+}
+.tabs{
+	margin-top: 97px;
+}
+
+.tabs > vaadin-tab[selected]{
+	background: #F08F3E;
+}
+
+:host([orientation='horizontal']) [part='tabs'] ::slotted(vaadin-tab:not([theme~='icon-on-top'])) {
+	color:white;
+}
+
 @media all and (max-width: 1100px) {
   .list-view.editing .toolbar,
   .list-view.editing .contact-grid {
     display: none;
   }
+  
 }

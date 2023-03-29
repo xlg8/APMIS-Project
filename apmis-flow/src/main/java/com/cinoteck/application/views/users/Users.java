@@ -1,5 +1,9 @@
 package com.cinoteck.application.views.users;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Set;
@@ -7,11 +11,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.cinoteck.application.views.MainLayout;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -46,6 +52,14 @@ public class Users extends VerticalLayout {
 	Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 	private GridListDataView<UserDto> dataView;
 	UserForm form;
+	
+	Button createUserButton = new Button("New User");
+	Button exportUsersButton = new Button("Export Users");
+	Button exportRolesButton = new Button("Export User Roles");
+	Button bulkModeButton = new Button("Enter Bulk Mode");
+	TextField searchField = new TextField();
+	
+	private static final String CSV_FILE_PATH = "./result.csv";
 
 	public Users() {
 		addFilters();
@@ -104,7 +118,6 @@ public class Users extends VerticalLayout {
 	private void configureForm() {
 		form = new UserForm(regions, provinces, districts);
 		form.setSizeFull();
-
 		form.addSaveListener(this::saveContact);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> closeEditor());
@@ -114,33 +127,38 @@ public class Users extends VerticalLayout {
 	public void addFilters() {
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
-
-		Button createUserButton = new Button("New User");
+		layout.setSizeFull();
+		
 		createUserButton.addClassName("resetButton");
 		createUserButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(createUserButton);
-
-		Button exportUsersButton = new Button("Export Users");
+		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
+		createUserButton.setIcon(createIcon);
+		
 		exportUsersButton.addClassName("resetButton");
 		exportUsersButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(exportUsersButton);
 		exportUsersButton.addClickListener(e -> {
-			 this.export(grid);
+			
 		});
-
-		Button exportRolesButton = new Button("Export User Roles");
+		Icon exportUsersButtonIcon = new Icon(VaadinIcon.UPLOAD_ALT);
+		exportUsersButton.setIcon(exportUsersButtonIcon);
+		
 		exportRolesButton.addClassName("resetButton");
 		exportRolesButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		
+		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
+		exportRolesButton.setIcon(exportRolesButtonIcon);
 		layout.add(exportRolesButton);
 
-		Button bulkModeButton = new Button("Enter Bulk Mode");
+		
 		bulkModeButton.addClassName("resetButton");
 		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		bulkModeButton.setIcon(bulkModeButtonnIcon);
 		layout.add(bulkModeButton);
-
-		TextField searchField = new TextField();
-		searchField.setWidth("10%");
+		bulkModeButton.addClickListener(e -> grid.setSelectionMode(Grid.SelectionMode.MULTI));
+		
+		searchField.setWidth("20%");
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
@@ -163,6 +181,9 @@ public class Users extends VerticalLayout {
 		} else {
 			form.setUser(contact);
 			form.setVisible(true);
+			form.setSizeFull();
+			grid.setVisible(false);
+			setFiltersVisible(false);
 			addClassName("editing");
 		}
 	}
@@ -170,7 +191,17 @@ public class Users extends VerticalLayout {
 	private void closeEditor() {
 		form.setUser(null);
 		form.setVisible(false);
+		setFiltersVisible(true);
+		grid.setVisible(true);
 		removeClassName("editing");
+	}
+	
+	private void setFiltersVisible(boolean state) {
+		createUserButton.setVisible(state);
+		exportUsersButton.setVisible(state);
+		exportRolesButton.setVisible(state);
+		bulkModeButton.setVisible(state);
+		searchField.setVisible(state);
 	}
 
 	private void addContact() {
@@ -189,26 +220,5 @@ public class Users extends VerticalLayout {
 		// updateList();
 		closeEditor();
 	}
-
-	private void export(Grid<UserDto> grid) {
-        // Fetch all data from the grid in the current sorted order
-        Stream<UserDto> persons = null;
-        Set<UserDto> selection = grid.asMultiSelect().getValue();
-        if (selection != null && selection.size() > 0) {
-            persons = selection.stream();
-        } else {
-            persons = dataView.getItems();
-        }
-
-        StringWriter output = new StringWriter();
-        StatefulBeanToCsv<UserDto> writer = new StatefulBeanToCsvBuilder<UserDto>(output).build();
-        try {
-            writer.write(persons);
-        } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-            output.write("An error occured during writing: " + e.getMessage());
-        }
-
-        //result.setValue(output.toString());
-    }
 	
 }
