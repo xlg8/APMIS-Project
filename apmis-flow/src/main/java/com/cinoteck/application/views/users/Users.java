@@ -1,9 +1,16 @@
 package com.cinoteck.application.views.users;
 
+import java.io.StringWriter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.cinoteck.application.views.MainLayout;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,6 +22,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -26,6 +34,8 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 
+
+
 @Route(value = "users", layout = MainLayout.class)
 public class Users extends VerticalLayout {
 	List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
@@ -34,6 +44,7 @@ public class Users extends VerticalLayout {
 
 	
 	Grid<UserDto> grid = new Grid<>(UserDto.class, false);
+	private GridListDataView<UserDto> dataView;
 	UserForm form;
 
 	public Users() {
@@ -46,8 +57,8 @@ public class Users extends VerticalLayout {
 
 	private Component getContent() {
 		HorizontalLayout content = new HorizontalLayout();
-		content.setFlexGrow(2, grid);
-		content.setFlexGrow(1, form);
+		//content.setFlexGrow(2, grid);
+		content.setFlexGrow(4, form);
 		content.addClassNames("content");
 		content.setSizeFull();
 		content.add(grid, form);
@@ -85,14 +96,15 @@ public class Users extends VerticalLayout {
 
 		List<UserDto> regions = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 				.collect(Collectors.toList());
-		GridListDataView<UserDto> dataView = grid.setItems(regions);
+		dataView = grid.setItems(regions);
 
 		grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
 	}
 
 	private void configureForm() {
 		form = new UserForm(regions, provinces, districts);
-		form.setWidth("25em");
+		form.setSizeFull();
+
 		form.addSaveListener(this::saveContact);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> closeEditor());
@@ -112,10 +124,14 @@ public class Users extends VerticalLayout {
 		exportUsersButton.addClassName("resetButton");
 		exportUsersButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(exportUsersButton);
+		exportUsersButton.addClickListener(e -> {
+			 this.export(grid);
+		});
 
 		Button exportRolesButton = new Button("Export User Roles");
 		exportRolesButton.addClassName("resetButton");
 		exportRolesButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		
 		layout.add(exportRolesButton);
 
 		Button bulkModeButton = new Button("Enter Bulk Mode");
@@ -174,4 +190,25 @@ public class Users extends VerticalLayout {
 		closeEditor();
 	}
 
+	private void export(Grid<UserDto> grid) {
+        // Fetch all data from the grid in the current sorted order
+        Stream<UserDto> persons = null;
+        Set<UserDto> selection = grid.asMultiSelect().getValue();
+        if (selection != null && selection.size() > 0) {
+            persons = selection.stream();
+        } else {
+            persons = dataView.getItems();
+        }
+
+        StringWriter output = new StringWriter();
+        StatefulBeanToCsv<UserDto> writer = new StatefulBeanToCsvBuilder<UserDto>(output).build();
+        try {
+            writer.write(persons);
+        } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+            output.write("An error occured during writing: " + e.getMessage());
+        }
+
+        //result.setValue(output.toString());
+    }
+	
 }

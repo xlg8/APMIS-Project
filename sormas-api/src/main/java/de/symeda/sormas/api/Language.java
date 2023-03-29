@@ -1,12 +1,15 @@
 package de.symeda.sormas.api;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.user.FormAccess;
 
 public enum Language {
 
@@ -97,5 +100,11 @@ public enum Language {
 			}
 		}
 		return sb.toString();
+	}
+	
+	public static Set<Language> getAssignableLanguages() {
+		Set<Language> result = EnumSet.allOf(Language.class);
+
+		return result;
 	}
 }

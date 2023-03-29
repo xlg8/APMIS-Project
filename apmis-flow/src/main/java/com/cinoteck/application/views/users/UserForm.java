@@ -8,6 +8,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -25,14 +26,13 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
-
 public class UserForm extends FormLayout {
 
-	UserDto userDto = new UserDto();
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -55,10 +55,12 @@ public class UserForm extends FormLayout {
 	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
 
 	CheckboxGroup<UserRole> userRoles = new CheckboxGroup<>();
-	
-	ComboBox<UserType> usertype = new ComboBox<>("Company");
-	ComboBox<Language> language = new ComboBox<>("Company");
-	
+	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	Checkbox activeCheck = new Checkbox();
+	private boolean active = true;
+
+	CheckboxGroup<UserType> usertype = new CheckboxGroup("Common User?");
+	ComboBox<Language> language = new ComboBox<>("Language");
 
 	Button save = new Button("Save");
 	Button delete = new Button("Delete");
@@ -69,7 +71,6 @@ public class UserForm extends FormLayout {
 		addClassName("contact-form");
 		// Configure what is passed to the fields here
 		configureFields();
-
 	}
 
 	private void configureFields() {
@@ -110,21 +111,29 @@ public class UserForm extends FormLayout {
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-		
+
 		userRoles.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
-		userRoles.setItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles()));
-//		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-//				.bind(UserDto::getPhone, UserDto::setPhone);
-//		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-//				.bind(UserDto::getPhone, UserDto::setPhone);
-//		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-//				.bind(UserDto::getPhone, UserDto::setPhone);
+		// TODO: Change implemenation to only add assignable roles sormas style.
+		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		binder.forField(userRoles).bind(UserDto::getUserRoles, UserDto::setUserRoles);
+
+		formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+		formAccess.setItems(UserUiHelper.getAssignableForms());
+		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+
+		activeCheck.setLabel("Active?");
+		activeCheck.setValue(active);
+		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
+
+		usertype.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
+		usertype.setItems(UserType.values());
+
+		language.setItemLabelGenerator(Language::toString);
+		language.setItems(Language.getAssignableLanguages());
+		binder.forField(language).bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		add(firstName, lastName, userEmail, phone, userPosition, userOrganisation, region, province, district,
-				community, userRoles,
-//				usertype,
-//				language,
-				createButtonsLayout());
+				community, userRoles, formAccess, usertype, language, createButtonsLayout());
 	}
 
 	private HorizontalLayout createButtonsLayout() {
