@@ -2,6 +2,7 @@ package com.cinoteck.application.views;
 
 
 import com.cinoteck.application.views.configurations.ConfigView;
+import com.cinoteck.application.views.users.Users;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -52,7 +53,8 @@ public class MainLayout extends AppLayout implements AppShellConfigurator, HasDy
 
 	private Tabs getTabs() {
 	    Tabs tabs = new Tabs();
-	    tabs.add(createTab(VaadinIcon.DASHBOARD, "Dashboard", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.COG, "Configurations", ConfigView.class));
+	    tabs.add(createTab(VaadinIcon.USERS, "Users", Users.class));
 	    tabs.setOrientation(Tabs.Orientation.VERTICAL);
 	    tabs.addClassName("tabs");
 	    return tabs;

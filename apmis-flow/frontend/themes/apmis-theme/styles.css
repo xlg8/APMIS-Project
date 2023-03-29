@@ -136,3 +136,10 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer) {
 .resetButton{
 	margin: var(--lumo-space-xl) 0;
 }
+
+@media all and (max-width: 1100px) {
+  .list-view.editing .toolbar,
+  .list-view.editing .contact-grid {
+    display: none;
+  }
+}
