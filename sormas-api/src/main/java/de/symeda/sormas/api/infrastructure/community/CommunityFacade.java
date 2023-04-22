@@ -61,4 +61,6 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 	Map<String, String> getDistrictUuidsForCommunities(List<CommunityReferenceDto> communities);
 
 	long countReportGrid(CommunityCriteriaNew criteria, FormAccess formacc);
+	
+	List<CommunityDto> getAllCommunities();
 }
