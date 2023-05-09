@@ -139,20 +139,20 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public long countReportGrid(CommunityCriteriaNew criteria, FormAccess formacc) {
 
-		//System.out.println("zzzzzzzyyyyyyyejsrtykjstykstykstukszzzzzzzzzzzzzzzzzzzzzzzzz ");
+		System.out.println("zzzzzzzyyyyyyyejsrtykjstykstykstukszzzzzzzzzzzzzzzzzzzzzzzzz ");
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Community> root = cq.from(Community.class);
 
 		
 		Predicate filter = null;
-	//	if (criteria != null) {
+		if (criteria != null) {
 			
 			filter = service.buildCriteriaFilter(criteria, cb, root);
-		//}else {
-		//	criteria.fromUrlParams("area=W5R34K-APYPCA-4GZXDO-IVJWKGIM");
-	//		filter = service.buildCriteriaFilter(criteria, cb, root);
-		//}
+		}else {
+			criteria.fromUrlParams("area=W5R34K-APYPCA-4GZXDO-IVJWKGIM");
+			filter = service.buildCriteriaFilter(criteria, cb, root);
+		}
 
 		if (filter != null) {
 			cq.where(filter);
@@ -166,8 +166,10 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 	@Override
 	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerence(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-	System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
+//	System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
 		frmsAccess = formacc;
+		first = 1;
+		max = 100;
 		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -179,7 +181,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			Predicate filter = null;
 			if (criteria != null) {
 				filter = service.buildCriteriaFilter(criteria, cb, community);
-			} 
+			}else {
+				filter = cb.equal(community.get(Community.ARCHIVED), false);
+			}
 
 			if (filter != null) {
 				cq.where(filter);
@@ -191,45 +195,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 			//if(isCounter)
-			return QueryHelper.getResultList(em, cq, first, max, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 		}
-	
-	
-	
-	@Override
-	public Integer getAllActiveCommunitytoRerenceCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-	System.out.println(max+"----"+criteria.getArea().getUuid()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
-		frmsAccess = formacc;
-		
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
-			Root<Community> community = cq.from(Community.class);
-			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
-			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
-	
-					
-			Predicate filter = null;
-			if (criteria != null) {
-				filter = service.buildCriteriaFilter(criteria, cb, community);
-			} 
-
-			if (filter != null) {
-				cq.where(filter);
-			}
-			
-			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
-			
-			cq.select(community);
-			
-			Integer finalResult = QueryHelper.getResultList(em, cq, first, max, this::toDtoList).size();
-			System.out.println("================ "+finalResult);
-			
-			//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
-			//if(isCounter)
-			return finalResult;
-			//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
-		}
-	
 	
 	
 
@@ -512,7 +479,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		dto.setDistrict(entity.getDistrict().getName());
 		dto.setCommunity(entity.getName());
 		dto.setClusterNumber(entity.getClusterNumber().toString());
+
 		dto.setcCode(entity.getExternalId().toString());
+	
 		dto.setArea(entity.getDistrict().getRegion().getArea().getName());
 		
 		List<String> usersd = new ArrayList<>();
@@ -638,5 +607,37 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		}
 		return dtos;
 	}
+	
+	@Override
+	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceNew(Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
+//	System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
+		frmsAccess = formacc;
+		first = 1;
+		max = 100;
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
+			Root<Community> community = cq.from(Community.class);
+			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
+			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
+	
+					
+			Predicate filter = null;
+//			if (criteria != null) {
+//				filter = service.buildCriteriaFilter(criteria, cb, community);
+//			} 
+
+			if (filter != null) {
+				cq.where(filter);
+			}
+			
+			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
+			
+			cq.select(community);
+
+			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+			//if(isCounter)
+			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+		}
 
 }
