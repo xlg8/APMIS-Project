@@ -502,10 +502,10 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		return dtos;
 	}
 
-	@Override
-	public List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 }

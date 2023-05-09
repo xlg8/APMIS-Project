@@ -16,6 +16,8 @@ public interface AreaFacade extends GeoLocationFacade<AreaDto, AreaDto, AreaRefe
 	
 	List<AreaDto> getAllActiveAsReferenceAndPopulation();
 
+	List<AreaDto> getAllActiveAsReferenceAndPopulation();
+
 	boolean isUsedInOtherInfrastructureData(Collection<String> areaUuids);
 
 	List<AreaReferenceDto> getByName(String name, boolean includeArchived);

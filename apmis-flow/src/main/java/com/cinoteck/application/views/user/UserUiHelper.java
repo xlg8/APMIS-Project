@@ -22,7 +22,7 @@ import de.symeda.sormas.api.CountryHelper;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRole;
-import de.symeda.sormas.ui.UserProvider;
+import com.cinoteck.application.UserProvider;
 
 public class UserUiHelper {
 
