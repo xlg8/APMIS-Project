@@ -8,7 +8,6 @@
     <artifactId>apmis-flow</artifactId>
     <name>${project.artifactId}</name>
    <version>1.0.30</version>
-    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
