@@ -186,7 +186,7 @@
 								<info>
 									<title>SORMAS external visits journal API</title>
 									<description>
-										${externalVisitsDescription}
+										<!--${externalVisitsDescription}-->
 									</description>
 									<version>1.41.1</version>
 								</info>
