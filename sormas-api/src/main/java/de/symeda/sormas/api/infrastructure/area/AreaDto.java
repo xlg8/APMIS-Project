@@ -112,12 +112,7 @@ public class AreaDto extends EntityDto {
 //		this.regionData = regionData;
 //	}
   
-  //TODO check if you want to leave this here 
-	public List<RegionDto> getRegionData() {
-		List<RegionDto> regions_ = FacadeProvider.getRegionFacade().getAllActiveAsReferenceAndPopulation(getAreaid());
-		regionData.addAll(regions_);
-		return regionData;
-	}
+
 
 	public void setRegionData(List<RegionDto> regionData) {
 		this.regionData = regionData;
