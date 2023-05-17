@@ -43,6 +43,7 @@ public class UserReportGrid extends FilteredGrid<CommunityUserReportModelDto, Co
 		//To Do enable other loader
 		setLazyDataProvider(formacc);
 		
+		System.out.println(criteria.getErrorStatusEnum()+" = lkjhgfdfghyjukilo;'fghjk");
 		System.out.println("criteria criteria criteria = " +criteria == null);
 		setCriteria(criteria);
 	
@@ -74,7 +75,7 @@ public class UserReportGrid extends FilteredGrid<CommunityUserReportModelDto, Co
 		
 		
 	}
-
+	
 	public void setLazyDataProvider(FormAccess formacc) {
 		System.out.println("sdafasdfasddfgsdfhsdfg");
 		
@@ -88,7 +89,7 @@ public class UserReportGrid extends FilteredGrid<CommunityUserReportModelDto, Co
 							.stream()
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
 							.collect(Collectors.toList()), formacc)
-					.stream(),
+					.stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).stream(),
 				query -> FacadeProvider.getCommunityFacade()
 					.getAllActiveCommunitytoRerenceCount(
 						query.getFilter().orElse(null),
@@ -97,7 +98,8 @@ public class UserReportGrid extends FilteredGrid<CommunityUserReportModelDto, Co
 						query.getSortOrders()
 							.stream()
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
-							.collect(Collectors.toList()), formacc));
+							.collect(Collectors.toList()), formacc)
+					);
 				
 			//	{
 //					return (int) FacadeProvider.getCommunityFacade().countReportGrid(

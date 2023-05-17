@@ -423,6 +423,8 @@ public class UserEditForm extends AbstractEditForm<UserDto> {
 
     @Override
     public void setValue(UserDto userDto) throws com.vaadin.v7.data.Property.ReadOnlyException, Converter.ConversionException {
+    	
+    	
     	 
         OptionGroup userRoles = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
         userRoles.removeAllItems();

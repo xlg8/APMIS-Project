@@ -22,7 +22,7 @@ public class JurisdictionSelector extends ComboBox {
 //				,
 //				I18nProperties.getCaption(Captions.Campaign_community)
 				);
-		setEmptySelectionAllowed(true);
+		setEmptySelectionAllowed(false);
 //		setValue(JurisdictionLevel.NONE);
 	}
 }

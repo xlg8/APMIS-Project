@@ -24,7 +24,7 @@ public class JsonDictionaryGrid extends FilteredGrid<JsonDictionaryReportModelDt
 		setCriteria(criteria);
 		
 		setColumns(
-				JsonDictionaryReportModelDto.ID, JsonDictionaryReportModelDto.CAPTION,
+				JsonDictionaryReportModelDto.FORM_ID, JsonDictionaryReportModelDto.ID, JsonDictionaryReportModelDto.CAPTION,
 			 JsonDictionaryReportModelDto.FORM_TYPE,
 				JsonDictionaryReportModelDto.MODALITY,JsonDictionaryReportModelDto.DATATYPE
 				);
@@ -75,6 +75,11 @@ public class JsonDictionaryGrid extends FilteredGrid<JsonDictionaryReportModelDt
 	}
 
 	public static class ActiveRenderer extends HtmlRenderer {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 
 		@Override
 		public JsonValue encode(String value) {

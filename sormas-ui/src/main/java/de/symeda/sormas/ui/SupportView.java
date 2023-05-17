@@ -36,6 +36,7 @@ import de.symeda.sormas.api.utils.InfoProvider;
 public class SupportView extends VerticalLayout implements View {
 
 	public static final String VIEW_NAME = "support";
+	public static final String VIEW_NAME_ALT = "Support/Feedback";
 
 	public SupportView() {
 		super();

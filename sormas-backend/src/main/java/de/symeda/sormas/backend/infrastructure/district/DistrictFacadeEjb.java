@@ -555,4 +555,45 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		return dtos;
     
 	}
+
+	@Override
+	public boolean isDistrictAllowed(String campaignUUID, String uuid) {
+		
+		String selectBuilder = "select count(*) \n"
+				+ "from district d\n"
+				+ "inner join populationdata p on d.id = p.district_id\n"
+				+ "inner join campaigns c on p.campaign_id = c.id\n"
+				+ "where c.uuid = '"+campaignUUID+"' and p.selected = true and d.archived = false and d.uuid = '"+uuid+"';";
+		
+		List<Object> lstf = em.createNativeQuery(selectBuilder).getResultList();
+		
+		return lstf.size() > 0;
+	}
+
+	@Override
+	public List<DistrictReferenceDto> getAllActiveByRegionAndSelectedInCampaign(String regionUuid, String campaignUuid) {
+		String selectBuilder = "select distinct d.uuid, d.\"name\", d.externalid\r\n"
+				+ "from district d\r\n"
+				+ "inner join region r on r.id = d.region_id\r\n"
+				+ "inner join populationdata p on d.id = p.district_id\r\n"
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
+				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and d.archived = false and r.uuid = '"+regionUuid+"' ;";
+		
+		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+		List<DistrictReferenceDto> resultData = new ArrayList<>();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new DistrictReferenceDto(
+						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
+						
+						)).collect(Collectors.toList()));
+						
+		
+	
+		return resultData;
+	}
 }

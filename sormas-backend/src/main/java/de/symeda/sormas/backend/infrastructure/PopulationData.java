@@ -42,7 +42,7 @@ public class PopulationData extends AbstractDomainObject {
 	private Integer population;
 	private Date collectionDate;
 	private Campaign campaign;
-	private String selected;
+	private boolean selected;
 
 	@ManyToOne(cascade = {})
 	public Region getRegion() {
@@ -116,15 +116,14 @@ public class PopulationData extends AbstractDomainObject {
 		this.campaign = campaign;
 	}
 
-	
-	//selected default to false
-	public String getSelected() {
-		return "false";
+	public boolean isSelected() {
+		return selected;
 	}
 
-	public void setSelected(String selected) {
-		this.selected = "false";
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
+
 	
 	
 	

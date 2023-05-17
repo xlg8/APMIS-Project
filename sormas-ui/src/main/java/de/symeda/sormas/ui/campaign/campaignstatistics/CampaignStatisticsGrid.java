@@ -53,6 +53,7 @@ public class CampaignStatisticsGrid extends FilteredGrid<CampaignStatisticsDto, 
 	}
 
 	public void setColumnsVisibility(CampaignJurisdictionLevel groupingLevel) {
+		System.out.println(groupingLevel +"++++++++----------------++++++++++++" + (CampaignJurisdictionLevel.AREA.equals(groupingLevel) || CampaignJurisdictionLevel.REGION.equals(groupingLevel)));
 		setAreaColumnVisible(CampaignJurisdictionLevel.AREA.equals(groupingLevel) || CampaignJurisdictionLevel.REGION.equals(groupingLevel));
 		setRegionColumnVisible(
 			CampaignJurisdictionLevel.REGION.equals(groupingLevel)
@@ -72,7 +73,7 @@ public class CampaignStatisticsGrid extends FilteredGrid<CampaignStatisticsDto, 
 	}
 
 	private void setAreaColumnVisible(boolean visible) {
-		getColumn(CampaignStatisticsDto.AREA).setHidden(!visible);
+		//getColumn(CampaignStatisticsDto.AREA).setHidden(!visible);
 	}
 
 	private void setRegionColumnVisible(boolean visible) {

@@ -36,6 +36,8 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	List<RegionReferenceDto> getAllActiveByCountry(String countryUuid);
 
 	List<RegionReferenceDto> getAllActiveByArea(String areaUuid);
+	
+	List<RegionReferenceDto> getAllActiveByAreaAndSelectedInCampaign(String areaUuid, String campaignUUID);
 
 	List<RegionReferenceDto> getAllActiveAsReference();
 

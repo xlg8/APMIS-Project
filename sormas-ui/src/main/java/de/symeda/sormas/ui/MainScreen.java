@@ -218,7 +218,7 @@ public class MainScreen extends HorizontalLayout {
 
 		if (permitted(FeatureType.CAMPAIGNS, UserRight.CAMPAIGN_VIEW)) {
 			AbstractCampaignView.registerViews(navigator);
-			menu.addView(CampaignDataView.class, AbstractCampaignView.ROOT_VIEW_NAME,
+			menu.addView(CampaignStatisticsView.class, AbstractCampaignView.ROOT_VIEW_NAME,
 					I18nProperties.getCaption(Captions.mainMenuCampaigns), VaadinIcons.CLIPBOARD_CHECK);
 		}
 
@@ -268,7 +268,7 @@ public class MainScreen extends HorizontalLayout {
 		// menu.addView(LanguageView.class, LanguageView.VIEW_NAME, "DashboardTest",
 		// VaadinIcons.GLOBE_WIRE);
 		
-		menu.addView(SupportView.class, "Support/Feedback", I18nProperties.getCaption(Captions.mainMenuSupport),
+		menu.addView(SupportView.class, SupportView.VIEW_NAME_ALT, I18nProperties.getCaption(Captions.mainMenuSupport),
 				VaadinIcons.CHAT);
 
 		menu.addView(AboutView.class, AboutView.VIEW_NAME, I18nProperties.getCaption(Captions.mainMenuAbout),

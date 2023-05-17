@@ -20,6 +20,7 @@ package de.symeda.sormas.api.infrastructure.community;
 import java.io.Serializable;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -29,7 +30,7 @@ import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 
 public class CommunityCriteriaNew extends BaseCriteria implements Serializable, Cloneable {
 
-	private static final long serialVersionUID = 78151805085134182L;
+	private static final long serialVersionUID = 7880151805085134182L;
 
 	private CountryReferenceDto country;
 	private AreaReferenceDto area;
@@ -37,6 +38,7 @@ public class CommunityCriteriaNew extends BaseCriteria implements Serializable, 
 	private DistrictReferenceDto district;
 	private String nameLike;
 	private EntityRelevanceStatus relevanceStatus;
+	private ErrorStatusEnum errorStatusEnum;
 
 	public CountryReferenceDto getCountry() {
 		return country;
@@ -97,5 +99,15 @@ public class CommunityCriteriaNew extends BaseCriteria implements Serializable, 
 	@IgnoreForUrl
 	public EntityRelevanceStatus getRelevanceStatus() {
 		return relevanceStatus;
+	}
+	
+	public CommunityCriteriaNew errorStatusEnum(ErrorStatusEnum errorStatusEnum) {
+		this.errorStatusEnum = errorStatusEnum;
+		return this;
+	}
+
+	@IgnoreForUrl
+	public ErrorStatusEnum getErrorStatusEnum() {
+		return errorStatusEnum;
 	}
 }

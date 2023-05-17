@@ -49,26 +49,14 @@ public class CampaignFormsGridComponent extends AbstractEditableGrid<CampaignFor
 
 	public void ListnerCampaignFilter(TabSheet.SelectedTabChangeEvent event) {
 		final ArrayList<CampaignFormMetaReferenceDto> gridItemss = getItems();
-		// System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> --
-		// "+gridItemss);
 
 		final ArrayList<CampaignFormMetaReferenceDto> gridItems;
 
-		// gridItems.add(new CampaignFormMetaReferenceDto(null, " --Please select--"));
-		// tabsheetParent.addSelectedTabChangeListener(event ->
-		// Notification.show("changed "
-		// +event.getTabSheet().getSelectedTab().getCaption()));
-
-		// Notification.show("----" +
-		// event.getTabSheet().getSelectedTab().getCaption());
-
-		System.out.println(event.getTabSheet().getSelectedTab().getCaption() + " | ___________---______O___");
+		//System.out.println(event.getTabSheet().getSelectedTab().getCaption() + " | ___________---______O___");
 
 		if (event.getTabSheet().getSelectedTab().getCaption().equals("Pre-Campaign Phase")) {
 			gridItems = gridItemss;
 			gridItems.removeIf(n -> (n.getFormType().contains("Pre-Campaign")));
-			// System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> --
-			// "+gridItems);
 
 			grid.setItems(gridItems);
 
@@ -84,16 +72,7 @@ public class CampaignFormsGridComponent extends AbstractEditableGrid<CampaignFor
 
 		}
 
-		// grid.removeAllColumns();
 		grid.getDataProvider().refreshAll();
-
-		// grid.getDataProvider().refreshAll();
-
-		// grid.getEditor().editRow(gridItems.size() - 1);
-
-		// grid.removeAllColumns();
-
-		// Page.getCurrent().getJavaScript().execute("alert(gridItems.toString())");
 
 	}
 

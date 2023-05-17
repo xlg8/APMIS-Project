@@ -12,6 +12,7 @@ import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.VerticalLayout;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -30,7 +31,6 @@ public class CampaignReportView extends AbstractView {
 	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
 	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
 
-	private HorizontalLayout filterLayout;
 	private VerticalLayout gridLayout;
 
 	private CommunityCriteriaNew criteria;
@@ -64,6 +64,10 @@ public class CampaignReportView extends AbstractView {
 		if (criteria.getRelevanceStatus() == null) {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
+		
+		if (criteria.getErrorStatusEnum() == null) {
+			criteria.errorStatusEnum(ErrorStatusEnum.ERROR_REPORT);
+		}
 
 		TabSheet tabsheetx = new TabSheet();
 
@@ -72,6 +76,7 @@ public class CampaignReportView extends AbstractView {
 
 			gridLayout = new VerticalLayout();
 			gridLayout.setHeightFull();
+			
 			CampaignReportTabSheets sheet = new CampaignReportTabSheets(criteria, lopper);
 			gridLayout.addComponent(sheet);
 			tabsheetx.addTab(gridLayout, lopper.toString());

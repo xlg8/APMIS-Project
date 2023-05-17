@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.common.Page;
@@ -67,6 +68,7 @@ import de.symeda.sormas.backend.util.QueryHelper;
 public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, CommunityService> implements CommunityFacade {
 	
 	private FormAccess frmsAccess;
+	private ErrorStatusEnum errorStatusEnum;
 	
 
 
@@ -166,8 +168,14 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 	@Override
 	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerence(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-//	System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
+	System.out.println(criteria.getErrorStatusEnum() + "22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
 		frmsAccess = formacc;
+		errorStatusEnum = criteria.getErrorStatusEnum();
+		
+		if(max > 47483647) {
+			first = 1;
+			max = 100;
+			}
 		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -191,7 +199,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			
 			cq.select(community);
 
-			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+			System.out.println("DEBUGGER r567ujhgty8isdfasjyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 			//if(isCounter)
     
 //			return QueryHelper.getResultList(em, cq, first, max, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
@@ -204,8 +212,14 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	
 	@Override
 	public Integer getAllActiveCommunitytoRerenceCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-	System.out.println(max+"----"+criteria.getArea().getUuid()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
+	System.out.println(max+"----"+criteria.getErrorStatusEnum()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
 		frmsAccess = formacc;
+		errorStatusEnum = criteria.getErrorStatusEnum();
+		
+		if(max > 47483647) {
+			first = 1;
+			max = 100;
+		}
 		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -227,7 +241,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			
 			cq.select(community);
 			
-			Integer finalResult = QueryHelper.getResultList(em, cq, first, max, this::toDtoList).size();
+			Integer finalResult = QueryHelper.getResultList(em, cq, first, max, this::toDtoList).stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).size();
 			System.out.println("================ "+finalResult);
 			
 			//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
@@ -243,7 +257,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
 		System.out.println("2222222222222222222222222444444444444444444442222222222222222222222222222 "+criteria.getArea());
-
+		if(max > 47483647) {
+			max = 100;
+			}
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
 		Root<Community> community = cq.from(Community.class);
@@ -502,12 +518,11 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	
 	
 	private CommunityUserReportModelDto toDtoList(Community entity) {
-		
-//	System.out.println("22222222222222222222222222 "+frmsAccess);
-
+	
 		if (entity == null) {
 			return null;
 		}
+		
 		
 		//userService = new UserService();
 		
@@ -526,13 +541,16 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		List<String> usersd = new ArrayList<>();
 		Set<FormAccess> formss = new HashSet<>();
 		
+		//execution time will be slow
 		for(User usr : userService.getAllByCommunity()) {
-			if(usr.getFormAccess().contains(frmsAccess)) {
-			usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> usersd.add(usr.getUserName()));
-			usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> formss.add(frmsAccess));
-		}
+				if(usr.getFormAccess().contains(frmsAccess)) {
+				usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> usersd.add(usr.getUserName()));
+				usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> formss.add(frmsAccess));
+				}
 			}
+		dto.setFormAccess(formss);
 		
+		if(errorStatusEnum.equals(errorStatusEnum.ALL_REPORT)) {
 		if(usersd.isEmpty()) {
 			dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is not assigned to any user");
 			dto.setUsername("no user");
@@ -543,8 +561,21 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			dto.setMessage("Correctly assigned");
 			dto.setUsername(usersd.toString());
 		}
+		} else if(errorStatusEnum.equals(errorStatusEnum.ERROR_REPORT)) {
+			
+			if(usersd.isEmpty()) {
+				dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is not assigned to any user");
+				dto.setUsername("no user");
+			}else if(usersd.size() > 1){
+				dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is assigned to more than one user");
+				dto.setUsername(usersd.toString());
+			} else {
+				dto = new CommunityUserReportModelDto(); 
+			}	
 		
-		dto.setFormAccess(formss);
+		}
+		
+		
 		
 		return dto;
 		
@@ -596,8 +627,10 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
 		System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
 		frmsAccess = formacc;
-		first = 1;
-		max = 100;
+		if(max > 47483647) {
+			first = 1;
+			max = 100;
+			}
 		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -619,7 +652,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			
 			cq.select(community);
 
-			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+			System.out.println("DEBUGGER r567ujhgty8asdfaveijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 			//if(isCounter)
 			return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);
 		// TODO Auto-generated method stub
@@ -649,10 +682,13 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	
 	@Override
 	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceNew(Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-//	System.out.println("22222222222222222222222222222 1.0.3 222222222222222222222222222222222222222222222222222222222222 "+criteria.getArea().getUuid());
+	System.out.println("2222222222cccccccccccccccccccccccccccc22222222 ");
 		frmsAccess = formacc;
-		first = 1;
-		max = 100;
+		
+		if(max > 47483647) {
+			first = 1;
+			max = 100;
+			}
 		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -674,7 +710,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			
 			cq.select(community);
 
-			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+			System.out.println("DEBUGGER r56734rdujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 			//if(isCounter)
 			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 		}

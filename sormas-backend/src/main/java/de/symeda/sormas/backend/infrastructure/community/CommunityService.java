@@ -126,7 +126,10 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 		Predicate filter = null;
 
 		CountryReferenceDto country = criteria.getCountry();
+		
 		if (country != null) {
+			System.out.println("countrycountrycountryzzzzzzzzzzzz");
+			
 			CountryReferenceDto serverCountry = countryFacade.getServerCountry();
 
 			Path<Object> countryUuid = from.join(Community.DISTRICT, JoinType.LEFT).join(District.REGION, JoinType.LEFT)
@@ -142,14 +145,17 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			}
 		}
 
-		System.out.println("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz "+criteria.getArea());
+		
+		AreaReferenceDto aread = criteria.getArea();  //== null
 
-		AreaReferenceDto aread = criteria.getArea();
+		System.out.println(aread.getUuid() + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz "+criteria.getArea()); //== null
 
-		if (aread != null) {
-			System.out.println("zzzzzzzzzzzzzzzzzzzz");
+		if (criteria.getArea() != null) { //why passing?
+			System.out.println("zzzzzzzzzzzzzzzzzzzz"+aread.getUuid());
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(area.get(Area.UUID), aread.getUuid()));
 		}
+		
+		
 
 		if (criteria.getRegion() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,

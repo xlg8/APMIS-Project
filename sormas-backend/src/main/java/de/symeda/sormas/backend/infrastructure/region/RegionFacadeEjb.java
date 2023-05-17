@@ -502,5 +502,32 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		return dtos;
 	}
 
+	@Override
+	public List<RegionReferenceDto> getAllActiveByAreaAndSelectedInCampaign(String areaUuid, String campaignUuid) {
+		String selectBuilder = "select distinct r.uuid, r.\"name\", r.externalid\r\n"
+				+ "from region r\r\n"
+				+ "inner join areas a on a.id = r.area_id\r\n"
+				+ "inner join populationdata p on r.id = p.region_id\r\n"
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
+				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and r.archived = false and a.uuid = '"+areaUuid+"' ;";
+		
+		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+		List<RegionReferenceDto> resultData = new ArrayList<>();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new RegionReferenceDto(
+						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
+						
+						)).collect(Collectors.toList()));
+						
+		
+	
+		return resultData;
+	}
+
 
 }

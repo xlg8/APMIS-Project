@@ -17,6 +17,7 @@ import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -32,6 +33,7 @@ public class CampaignStatisticsFilterForm extends AbstractFilterForm<CampaignSta
 
 	private Consumer<CampaignFormMetaReferenceDto> formMetaChangedCallback;
 	private ComboBox cbCampaignForm;
+	private ComboBox areaFilter;
 	private ComboBox regionFilter;
 	private ComboBox districtFilter;
 //	private ComboBox communityFilter;
@@ -49,6 +51,7 @@ public class CampaignStatisticsFilterForm extends AbstractFilterForm<CampaignSta
 	protected String[] getMainFilterLocators() {
 		return new String[] {
 			CampaignStatisticsCriteria.CAMPAIGN_FORM_META,
+			CampaignStatisticsCriteria.AREA,
 			CampaignStatisticsCriteria.REGION,
 			CampaignStatisticsCriteria.DISTRICT,
 //			CampaignStatisticsCriteria.COMMUNITY 
@@ -74,6 +77,12 @@ public class CampaignStatisticsFilterForm extends AbstractFilterForm<CampaignSta
 				formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) e.getProperty().getValue());
 			});
 		}
+		
+		areaFilter = addField(
+				FieldConfiguration.withCaptionAndPixelSized(CampaignStatisticsCriteria.AREA, I18nProperties.getCaption(Captions.Campaign_area), 200));
+		areaFilter.setInputPrompt(I18nProperties.getString(Strings.promptAllAreas));
+		areaFilter.addItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+			
 
 		regionFilter = addField(
 			FieldConfiguration.withCaptionAndPixelSized(CampaignStatisticsCriteria.REGION, I18nProperties.getCaption(Captions.Campaign_region), 200));
@@ -91,19 +100,24 @@ public class CampaignStatisticsFilterForm extends AbstractFilterForm<CampaignSta
 //		communityFilter.setInputPrompt(I18nProperties.getString(Strings.promptAllCommunities));
 		
 		UserDto user = currentUserDto();
+		final AreaReferenceDto userArea = user.getArea();
 		final RegionReferenceDto userRegion = user.getRegion();
 		final DistrictReferenceDto userDistrict = user.getDistrict();
 		final CommunityReferenceDto userCommunity = null;
-		if (userRegion != null) {
-			regionFilter.setEnabled(false);
-			districtFilter.addItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(userRegion.getUuid()));
-			if (userDistrict != null) {
-				districtFilter.setEnabled(false);
-//				communityFilter.addItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(userDistrict.getUuid()));
-//				if (userCommunity != null) {
-//					communityFilter.setEnabled(false);
-//				}
+		if (userArea != null) {
+			areaFilter.setEnabled(false);
+			areaFilter.addItems(FacadeProvider.getRegionFacade().getAllActiveByArea(userArea.getUuid()));
+			if (userRegion != null) {
+				regionFilter.setEnabled(false);
+				districtFilter.addItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(userRegion.getUuid()));
+				if (userDistrict != null) {
+					districtFilter.setEnabled(false);
+	//				communityFilter.addItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(userDistrict.getUuid()));
+	//				if (userCommunity != null) {
+	//					communityFilter.setEnabled(false);
+	//				}
 			}
+		}
 		}
 	}
 

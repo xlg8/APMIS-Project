@@ -28,6 +28,7 @@ import java.net.URI;
 import java.util.List;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
@@ -89,9 +90,11 @@ public class CampaignReportTabSheets extends VerticalLayout implements View {
 //		private ComboBox relevanceStatusFilter;
 		private Button resetButton;
 		protected boolean applyingCriteria;
+		private ComboBox errorStatusFilter;
 //		private ClusterAssignmentFilterSwitcher clusterAssignmentFilterSwitcher;
 
 		private HorizontalLayout filterLayout;
+		private ErrorStatusEnum errorStatusEnum;
 		//private VerticalLayout gridLayout;
 	
 
@@ -101,6 +104,8 @@ public class CampaignReportTabSheets extends VerticalLayout implements View {
 	
 	public CampaignReportTabSheets(CommunityCriteriaNew criteriax, FormAccess formAccess) {
 			criteria = criteriax;
+			
+			
 			grid = new UserReportGrid(criteriax, formAccess);	
 			
 			
@@ -273,27 +278,32 @@ public class CampaignReportTabSheets extends VerticalLayout implements View {
 		HorizontalLayout actionButtonsLayout = new HorizontalLayout();
 		actionButtonsLayout.setSpacing(true);
 		{
-			// Show active/archived/all dropdown
-//			if (UserProvider.getCurrent().hasUserRight(UserRight.INFRASTRUCTURE_VIEW)) {
-//				relevanceStatusFilter = ComboBoxHelper.createComboBoxV7();
-//				relevanceStatusFilter.setId("relevanceStatus");
-//				relevanceStatusFilter.setWidth(220, Unit.PERCENTAGE);
-//				relevanceStatusFilter.setNullSelectionAllowed(false);
-//				relevanceStatusFilter.addItems((Object[]) EntityRelevanceStatus.values());
-//				relevanceStatusFilter.setItemCaption(EntityRelevanceStatus.ACTIVE, I18nProperties.getCaption(Captions.communityActiveCommunities));
-//				relevanceStatusFilter
-//					.setItemCaption(EntityRelevanceStatus.ARCHIVED, I18nProperties.getCaption(Captions.communityArchivedCommunities));
-//				relevanceStatusFilter.setItemCaption(EntityRelevanceStatus.ALL, I18nProperties.getCaption(Captions.communityAllCommunities));
-//				relevanceStatusFilter.addValueChangeListener(e -> {
-//					criteria.relevanceStatus((EntityRelevanceStatus) e.getProperty().getValue());
-//					navigateTo(criteria);
-//					//grid.reload();
-//				});
-//				actionButtonsLayout.addComponent(relevanceStatusFilter);
-//
-//			
-//			}
+					errorStatusFilter = ComboBoxHelper.createComboBoxV7();
+					errorStatusFilter.setId("errorStatusFilter");
+					errorStatusFilter.setWidth(220, Unit.PERCENTAGE);
+					errorStatusFilter.setNullSelectionAllowed(false);
+					errorStatusFilter.addItems((Object[]) ErrorStatusEnum.values());
+
+					errorStatusFilter.setItemCaption(ErrorStatusEnum.ERROR_REPORT, "Error Reports");
+					
+					//I18nProperties.getCaption(Captions.communityActiveCommunities));
+					errorStatusFilter.setItemCaption(ErrorStatusEnum.ALL_REPORT, "All Reports");
+					
+					errorStatusFilter.setValue(ErrorStatusEnum.ERROR_REPORT);
+					
+					criteria.errorStatusEnum(ErrorStatusEnum.ERROR_REPORT);
+					
+					errorStatusFilter.addValueChangeListener(e -> {
+						criteria.errorStatusEnum((ErrorStatusEnum) e.getProperty().getValue());
+						//navigateTo(criteria);
+						grid.reload();
+					});
+					actionButtonsLayout.addComponent(errorStatusFilter);
+
+				
+			
 		}
+		
 		filterLayout.addComponent(actionButtonsLayout);
 		filterLayout.setComponentAlignment(actionButtonsLayout, Alignment.BOTTOM_RIGHT);
 		filterLayout.setExpandRatio(actionButtonsLayout, 1);

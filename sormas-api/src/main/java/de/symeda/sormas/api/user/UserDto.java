@@ -64,6 +64,7 @@ public class UserDto extends EntityDto {
 	public static final String TABLE_NAME_USERTYPES = "usertype";
 	
 	public static final String COMMON_USER = "commomUser";
+	public static final String COMMON_USER_ALT = "COMMON_USER";
 	
 	public static final String REGION = "region";
 	public static final String AREA = "area";
@@ -87,6 +88,7 @@ public class UserDto extends EntityDto {
 	//public static final String COMMUNITY_NO = "clusterno";
 	
 	private boolean active = true;
+	
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String userName;

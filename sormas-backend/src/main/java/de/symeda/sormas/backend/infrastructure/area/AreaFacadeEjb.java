@@ -1,5 +1,6 @@
 package de.symeda.sormas.backend.infrastructure.area;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,13 +20,18 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.vladmihalcea.hibernate.type.util.SQLExtractor;
+
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.data.CampaignAggregateDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
@@ -37,9 +43,12 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
+import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureEjb;
+import de.symeda.sormas.backend.infrastructure.PopulationData;
 import de.symeda.sormas.backend.infrastructure.community.Community;
+import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
 import de.symeda.sormas.backend.util.DtoHelper;
@@ -66,6 +75,37 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		super(service, featureConfiguration);
 	}
 
+	@Override
+	public List<AreaReferenceDto> getAllActiveAndSelectedAsReference(String campaignUuid) {
+		
+		String selectBuilder = "select distinct a.uuid, a.\"name\", a.externalid\r\n"
+				+ "from areas a\r\n"
+				+ "inner join region r on a.id = r.area_id\r\n"
+				+ "inner join populationdata p on r.id = p.region_id\r\n"
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
+				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and a.archived = false;";
+		
+		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+		List<AreaReferenceDto> resultData = new ArrayList<>();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new AreaReferenceDto(
+						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
+						
+						)).collect(Collectors.toList()));
+						
+		
+	
+		return resultData;
+		//
+		
+		//return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+	}
+	
 	@Override
 	public List<AreaReferenceDto> getAllActiveAsReference() {
 		return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());

@@ -648,7 +648,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			ppData.setPopulation(popListx.getPopulation());
 			ppData.setRegion(popListx.getRegion());
 			ppData.setCollectionDate(popListx.getCollectionDate());
-			ppData.setSelected(popListx.getSelected());
+			ppData.setSelected(popListx.isSelected());
 			
 	       em.persist(ppData);
 

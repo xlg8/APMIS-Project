@@ -9,6 +9,7 @@ import org.vaadin.hene.popupbutton.PopupButton;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
@@ -52,6 +53,7 @@ public class CampaignStatisticsView extends AbstractCampaignView {
 	private CampaignStatisticsFilterForm filterForm;
 	private ImportanceFilterSwitcher importanceFilterSwitcher;
 
+	@SuppressWarnings("unchecked")
 	public CampaignStatisticsView() {
 		super(VIEW_NAME);
 
@@ -107,23 +109,29 @@ public class CampaignStatisticsView extends AbstractCampaignView {
 		HorizontalLayout jurisdictionLayout = new HorizontalLayout();
 
 		JurisdictionSelector jurisdictionSelector = new JurisdictionSelector();
+		
 		jurisdictionSelector.addValueChangeListener(e -> {
-			CampaignJurisdictionLevel groupingValue = null;
+			
+			//TODO: Improve the initialization of this code
+			CampaignJurisdictionLevel groupingValue = CampaignJurisdictionLevel.AREA;
+			if(e.getValue() != null) {
 			String selectorValue = e.getValue().toString();
-			System.out.println("++++++++++++++----+++++}}}}}}}}}}}}}}}} "+selectorValue);
-			switch (selectorValue) {
-			
-			case "I18nProperties.getCaption(Captions.Campaign_area)":
-				groupingValue = CampaignJurisdictionLevel.getByJurisdictionLevel(level.AREA);
-			case "I18nProperties.getCaption(Captions.Campaign_region)":
-				groupingValue = CampaignJurisdictionLevel.getByJurisdictionLevel(level.REGION);
-			case "I18nProperties.getCaption(Captions.Campaign_district)":
-				groupingValue = CampaignJurisdictionLevel.getByJurisdictionLevel(level.DISTRICT);
-			
+			System.out.println("++++++++++++++----+++++}}}}}}}}}}}}}}}} #"+selectorValue+"#");
+			if(selectorValue.equals("Region")) {
+				groupingValue = CampaignJurisdictionLevel.AREA;		
+				System.out.println("++++RegionRegionRegion");
+			}else if(selectorValue.equals("Province")) {
+				groupingValue = CampaignJurisdictionLevel.REGION;
+				System.out.println("++++ProvinceProvinceProvince");
+			}else if(selectorValue.equals("District")) {
+				groupingValue = CampaignJurisdictionLevel.DISTRICT;
+				System.out.println("++++DistrictDistrictDistrictDis");
+			} else {
+				//TODO add throwable here to make sure user does not inject insto the system
 			}
-
-			// CampaignJurisdictionLevel groupingValue = (CampaignJurisdictionLevel)
-			// e.getValue();
+			}
+			
+			System.out.println("+++++++++++-------"+groupingValue);
 			criteria.setGroupingLevel(groupingValue);
 			grid.setColumnsVisibility(groupingValue);
 			grid.reload();

@@ -155,6 +155,7 @@ public class UserFacadeEjb implements UserFacade {
 		DtoHelper.fillDto(target, source);
 
 		target.setActive(source.isActive());
+		target.setCommomUser(source.getUsertype() == UserType.COMMON_USER);
 		target.setUserName(source.getUserName());
 		target.setFirstName(source.getFirstName());
 		target.setLastName(source.getLastName());

@@ -229,7 +229,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
 		if(criteria.getCampaign() != null) {
 			Predicate filter_ = CriteriaBuilderHelper.and(cb, filter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()));
-			Predicate filterx = CriteriaBuilderHelper.and(cb, filter_, cb.equal(root.get("selected"), "true"));
+			Predicate filterx = CriteriaBuilderHelper.and(cb, filter_, cb.equal(root.get("selected"), true));
 			
 			cq.where(filterx);
 		}else {
@@ -380,7 +380,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Predicate areaFilter = cb.equal(areaJoin.get(Area.UUID), areaUuid);
 		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
-		Predicate filter_ = CriteriaBuilderHelper.and(cb, campaignFilter, cb.equal(root.get("selected"), "true"));
+		Predicate filter_ = CriteriaBuilderHelper.and(cb, campaignFilter, cb.equal(root.get("selected"), true));
 			
 		cq.where(areaFilter, ageFilter, filter_);
 		cq.select(root.get(PopulationData.POPULATION));
@@ -413,7 +413,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			System.out.println("DEBUGGERccccccccc -----============ "+criteria.getCampaign().getUuid());
 			//campaignService
 			Predicate filterx = CriteriaBuilderHelper.and(cb, ageFilter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()));
-			Predicate filter_ = CriteriaBuilderHelper.and(cb, filterx, cb.equal(root.get("selected"), "true"));
+			Predicate filter_ = CriteriaBuilderHelper.and(cb, filterx, cb.equal(root.get("selected"), true));
 			
 			cq.where(filterx, filter_);
 		}else {
