@@ -90,6 +90,8 @@ public class MainLayout extends AppLayout {
 		// AppNav is not yet an official component.
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme  
 		AppNav nav = new AppNav();
+		
+		
 		Button myButton = new Button();
 		
 		nav.addItem(new AppNavItem("Dashboard", DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
