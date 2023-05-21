@@ -206,6 +206,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 
+		//	return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 		}
 	
 	
@@ -712,7 +713,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 			System.out.println("DEBUGGER r56734rdujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 			//if(isCounter)
-			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+			return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 		}
 
 }
