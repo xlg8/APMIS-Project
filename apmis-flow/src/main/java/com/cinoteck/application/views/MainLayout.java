@@ -15,6 +15,8 @@ import com.cinoteck.application.views.support.SupportView;
 //import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -33,18 +35,22 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
-//@CssImport(value = "./themes/my-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
+//@CssImport(value = "./themes/apmis-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
+//@Theme(value = "apmis-theme")
 @NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @NpmPackage(value = "@vaadin-component-factory/vcf-nav", version = "1.0.6")
 @JavaScript(value = "https://code.jquery.com/jquery-3.6.4.min.js" )
 @StyleSheet("https://cdn.jsdelivr.net/npm/@vaadin/vaadin-lumo-styles@24.0.0/")
-@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+//https://demo.dashboardpack.com/architectui-html-free/main.css
+//@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+@StyleSheet("https://demo.dashboardpack.com/architectui-html-free/main.css")
 @JavaScript("https://code.jquery.com/jquery-3.6.3.min.js")
 @JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
 @StyleSheet("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css")
@@ -60,6 +66,8 @@ public class MainLayout extends AppLayout {
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
+		
+	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
 

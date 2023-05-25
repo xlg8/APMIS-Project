@@ -483,18 +483,18 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		
 		final List<CampaignDashboardElement> result = new ArrayList<>();
 		if (campaignUuid != null && formType != null) {
-		//	//System.out.println("dddddddddddddddddddddddddddd111111111111111111111112222222222222222222222222 "+formType);
 			final Campaign campaign = campaignService.getByUuid(campaignUuid);
 			
 			final List<CampaignDashboardElement> dashboardElements = campaign.getDashboardElements();
 			final List<CampaignDashboardElement> dashboardElements_1;
 			final List<CampaignDashboardElement> dashboardElements_2;
-			
+		
 			if (dashboardElements != null) {
 				dashboardElements_1 = dashboardElements.stream().filter(p -> p.getPhase() != null).collect(Collectors.toList());
 				dashboardElements_2 = dashboardElements_1.stream().filter(p -> p.getPhase().equals(formType)).collect(Collectors.toList());
 				result.addAll(dashboardElements_2);
 			}
+			
 			
 		} else if(campaignUuid == null && formType != null){
 			

@@ -301,7 +301,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	public List<CampaignFormDataIndexDto> getIndexList(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
 
-		System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl--- "+criteria.getCampaign());
+		//System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl--- "+criteria.getCampaign());
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
@@ -390,7 +390,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
     }
-System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
+//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
@@ -400,10 +400,10 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			List<SortProperty> sortProperties, FormAccess frms) {
 		
 
-		//System.out.println("======firstfirstfirstfirstfirst===== "+first);
+		////System.out.println("======firstfirstfirstfirstfirst===== "+first);
 		
-		//System.out.println("=====maxmaxmaxmaxmamaxmaxmaxx======= "+max);
-		//System.out.println("--------------");
+		////System.out.println("=====maxmaxmaxmaxmamaxmaxmaxx======= "+max);
+		////System.out.println("--------------");
 		final AreaReferenceDto area = criteria.getArea();
 		final RegionReferenceDto region = criteria.getRegion();
 		final DistrictReferenceDto district = criteria.getDistrict();
@@ -417,7 +417,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
 		final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign.getUuid()+"'" : "";
 		joiner = areaFilter + regionFilter + districtFilter;// +campaignFilter;
-		//System.out.println(campaignFilter+" ===================== "+joiner);
+		////System.out.println(campaignFilter+" ===================== "+joiner);
 		
 		
 		String joinBuilder = "select count(campaignfo0_x.id) from community campaignfo0_x\n"
@@ -444,9 +444,9 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 //								
 //								)).collect(Collectors.toList()));
 //	
-//		System.out.println("ending...." +resultData.size());
+//		//System.out.println("ending...." +resultData.size());
 		
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -455,10 +455,10 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
 		
-		System.out.println("======firstfirstfirstfirstfirst===== "+first);
+		//System.out.println("======firstfirstfirstfirstfirst===== "+first);
 		
-		System.out.println("=====maxmaxmaxmaxmamaxmaxmaxx======= "+max);
-		System.out.println("--------------");
+		//System.out.println("=====maxmaxmaxmaxmamaxmaxmaxx======= "+max);
+		//System.out.println("--------------");
 		final AreaReferenceDto area = criteria.getArea();
 		final RegionReferenceDto region = criteria.getRegion();
 		final DistrictReferenceDto district = criteria.getDistrict();
@@ -472,7 +472,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
 		final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign.getUuid()+"'" : "";
 		joiner = areaFilter + regionFilter + districtFilter;// +campaignFilter;
-		System.out.println(campaignFilter+" ===================== "+joiner);
+		//System.out.println(campaignFilter+" ===================== "+joiner);
 		
 		final String joinBuilder = "\n"
 				+ "select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, campaignfo0_x.clusternumber as clusternumber_, campaignfo0_x.externalid as ccode, COALESCE((\n"
@@ -518,7 +518,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				+ "where "+joiner+" and campaignfo0_x.archived = false\n"
 				+ "limit "+max+" offset "+first+";";
 		
-	//	System.out.println("=====seriesDataQuery======== "+joinBuilder);
+	//	//System.out.println("=====seriesDataQuery======== "+joinBuilder);
 		
 		
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
@@ -529,7 +529,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
 		
-	//	System.out.println("starting....");
+	//	//System.out.println("starting....");
 		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new CampaignFormDataIndexDto((String) result[0].toString(), (String) result[1].toString(),
@@ -541,10 +541,10 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 						((BigInteger) result[8]).longValue()
 				)).collect(Collectors.toList()));
 		
-	//	System.out.println("ending...." +resultData.size());
+	//	//System.out.println("ending...." +resultData.size());
 	
 	
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 
@@ -583,7 +583,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			
 			 List<CampaignFormData> filterednewlstLst = new ArrayList<>();
 				for (Community commm : userService.getCurrentUser().getCommunity()) {
-					//System.out.println(">>>>>>>>>>>>getCommunity>>>>>>>>>"+commm.getId());
+					////System.out.println(">>>>>>>>>>>>getCommunity>>>>>>>>>"+commm.getId());
 					boolean ynn = filterednewlst.stream().filter(comf -> comf.getCommunity().getId().equals(commm.getId())).collect(Collectors.toList()).size() > 0;
 						
 					if (ynn) {
@@ -596,14 +596,14 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			List<String> lstfinal = new ArrayList<>();
 			
 			 for(CampaignFormData dtfiltere : filterednewlstLst) {
-				 //System.out.println(">>>>>>>>>>>>>>>>>_____>>>>>>>>>>>>>>>>>>>"+dtfiltere.getUuid());
+				 ////System.out.println(">>>>>>>>>>>>>>>>>_____>>>>>>>>>>>>>>>>>>>"+dtfiltere.getUuid());
 				 lstfinal.addAll(campaignFormDataService.getAllActiveUuids().stream().filter(eed -> eed.equals(dtfiltere.getUuid())).collect(Collectors.toList()));
 				 }
 			 
 			 
 
 			 
-			 //System.out.println(">>>>>> "+lstfinal.size());
+			 ////System.out.println(">>>>>> "+lstfinal.size());
 
 		return lstfinal;
 	}
@@ -630,7 +630,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			List<CampaignFormData> newlst = campaignFormDataService.getAllActiveAfter(date);
 			List<CampaignFormData> filterednewlst = new ArrayList<>();
 			for (CampaignFormMeta met : filtered) {
-				//System.out.println(">>>>>>>CampaignFormMeta>>>>>>>>>>>"+met.getFormName());
+				////System.out.println(">>>>>>>CampaignFormMeta>>>>>>>>>>>"+met.getFormName());
 				boolean ynn = newlst.stream().filter(eee -> eee.getCampaignFormMeta().getId() != null).filter(ee -> ee.getCampaignFormMeta().getId().equals(met.getId())).collect(Collectors.toList()).size() > 0;
 				
 				if (ynn) {
@@ -641,7 +641,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			
 			List<CampaignFormData> filterednewlstLst = new ArrayList<>();
 			for (Community commm : userService.getCurrentUser().getCommunity()) {
-				//System.out.println(">>>>>>>>>>>>getCommunity>>>>>>>>>"+commm.getId());
+				////System.out.println(">>>>>>>>>>>>getCommunity>>>>>>>>>"+commm.getId());
 				boolean ynn = filterednewlst.stream().filter(comf -> comf.getCommunity().getId().equals(commm.getId())).collect(Collectors.toList()).size() > 0;
 					
 				if (ynn) {
@@ -657,12 +657,12 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 //				.collect(Collectors.toList());
 				filterednewlstLst.removeIf(ee -> ee.getCampaign().isOpenandclose() == false);
 			for (CampaignFormData medt : filterednewlstLst) {
-				//System.out.println(medt.getCampaign().isOpenandclose()+ " >>>>>>>>>---------"+medt.getUuid());
+				////System.out.println(medt.getCampaign().isOpenandclose()+ " >>>>>>>>>---------"+medt.getUuid());
 					
 			}
 			
 		
-			//System.out.println(">>>>>>>>>>>>final items from server>>>>>>>"+filterednewlstLst.size());
+			////System.out.println(">>>>>>>>>>>>final items from server>>>>>>>"+filterednewlstLst.size());
 		
 		return filterednewlstLst.stream().map(c -> convertToDto(c))
 				.collect(Collectors.toList());
@@ -705,7 +705,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 		
 		
 		
-		//////System.out.println("t"+resultData);
+		////////System.out.println("t"+resultData);
 		
 		return resultData;
 	}
@@ -727,7 +727,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			areas.forEach(areaItem -> {
 				Integer population = populationDataFacadeEjb.getAreaPopulation(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
-			//	//System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> "+population);
+			//	////System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> "+population);
 				if (population == 0) {
 					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
 							areaItem.getName(), diagramSeries.getFieldId(), diagramSeries.getFormId(), false));
@@ -806,7 +806,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 	public List<CampaignDiagramDataDto> getDiagramDataByAgeGroupCard(
 			CampaignDiagramSeries diagramSeriesTotal, CampaignDiagramSeries diagramSeries,
 			CampaignDiagramCriteria campaignDiagramCriteria) {
-		System.out.println(campaignDiagramCriteria.getArea() + " dddddddddddddddddddddd getDiagramDataByAgeGroupCard "+campaignDiagramCriteria.getCampaign());
+	//	//System.out.println(campaignDiagramCriteria.getArea() + " dddddddddddddddddddddd getDiagramDataByAgeGroupCard "+campaignDiagramCriteria.getCampaign());
 		List<CampaignDiagramDataDto> resultData = new ArrayList<>();
 		final AreaReferenceDto area = campaignDiagramCriteria.getArea();
 		final RegionReferenceDto region = campaignDiagramCriteria.getRegion();
@@ -830,14 +830,14 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				return;
 			});
 			
-			System.out.println(resultData.size());
+			//System.out.println(resultData.size());
 		}else if (grouping == CampaignJurisdictionLevel.AREA && area == null) {
 			List<Area> areas = areaService.getAll();
 			areas.forEach(areaItem -> {
 				Integer	population = populationDataFacadeEjb.getAreaPopulationParent(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				
-		System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+population);
+		//System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+population);
 				
 				if (population == 0) {
 					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
@@ -848,7 +848,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				}
 			});
 			
-			System.out.println(resultData.size());
+			//System.out.println(resultData.size());
 		} else if (region != null && district == null) {
 			List<RegionReferenceDto> regions = new ArrayList<>();
 			regions.add(region);
@@ -939,14 +939,14 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				.append("' as fieldCaption,");
 				
 				if(series.getReferenceValue() != null) {
-					////System.out.println("+==+ "+series.getReferenceValue());
+					//////System.out.println("+==+ "+series.getReferenceValue());
 					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
 					.append(CampaignFormDataEntry.VALUE)
 					.append("') = '").append(series.getReferenceValue())
 					.append("') THEN 1 ELSE 0 END)"); 
 				} else {
 						
-					////System.out.println("+==+ "+series.getReferenceValue());
+					//////System.out.println("+==+ "+series.getReferenceValue());
 				selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
 						.append(CampaignFormElement.TYPE).append("') = '")
 						.append(CampaignFormElementType.NUMBER.toString() + "') OR")
@@ -1077,7 +1077,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 
 		//	groupByBuilder.append(jurisdictionGrouping);
 
-	System.out.println("getDataDiagram----- "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+	//System.out.println("getDataDiagram----- "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
 			
 			// +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +
 			// joinBuilder
@@ -1105,7 +1105,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			System.out.println("getDiagramDataCard seriesDataQuery = "  +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+			//System.out.println("getDiagramDataCard seriesDataQuery = "  +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
 
 			
 			@SuppressWarnings("unchecked")
@@ -1122,7 +1122,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 							series.getStack()))
 					.collect(Collectors.toList()));
 		}
-		//System.out.println("resultData - "+ resultData.toString());//SQLExtractor.from(seriesDataQuery));
+		////System.out.println("resultData - "+ resultData.toString());//SQLExtractor.from(seriesDataQuery));
 		return resultData;
 	}
 	
@@ -1158,14 +1158,14 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				.append("' as fieldCaption,");
 				
 				if(series.getReferenceValue() != null) {
-					////System.out.println("+==+ "+series.getReferenceValue());
+					//////System.out.println("+==+ "+series.getReferenceValue());
 					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
 					.append(CampaignFormDataEntry.VALUE)
 					.append("') = '").append(series.getReferenceValue())
 					.append("') THEN 1 ELSE 0 END)"); 
 				} else {
 						
-					////System.out.println("+==+ "+series.getReferenceValue());
+					//////System.out.println("+==+ "+series.getReferenceValue());
 				selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
 						.append(CampaignFormElement.TYPE).append("') = '")
 						.append(CampaignFormElementType.NUMBER.toString() + "') OR")
@@ -1284,7 +1284,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 
 			groupByBuilder.append(jurisdictionGrouping);
 
-		//	//System.out.println("getDataDiagram "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+		//	////System.out.println("getDataDiagram "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
 			
 			// +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +
 			// joinBuilder
@@ -1312,7 +1312,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+			//System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
 
 
 			@SuppressWarnings("unchecked")
@@ -1328,7 +1328,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 							series.getStack()))
 					.collect(Collectors.toList()));
 		}
-		System.out.println("resultData - "+ resultData.toString());//SQLExtractor.from(seriesDataQuery));
+		//System.out.println("resultData - "+ resultData.toString());//SQLExtractor.from(seriesDataQuery));
 		return resultData;
 	}
 
@@ -1351,7 +1351,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				+ "AND campaigns.uuid = '"+campaing_uuid+"'\n"
 				+ "GROUP BY campaignformmeta.uuid, campaignformmeta.formId, jsonData->>'id', jsonMeta->>'caption', jsonMeta->>'type', areas.\"name\", region.\"name\", district.\"name\" ");
 		
-		System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
+		//System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
 		
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder.toString());
 				
@@ -1373,7 +1373,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 						((BigDecimal) result[4]).longValue()
 						)).collect(Collectors.toList()));
 
-	System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	//System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
@@ -1536,7 +1536,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 			}
 			
 
-	System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+//	//System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
 		
 			@SuppressWarnings("unchecked")
 			List<Object[]> resultList = seriesDataQuery.getResultList(); 
@@ -1650,9 +1650,9 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 	@Override
 	public String getByClusterDropDown(CommunityReferenceDto community, CampaignFormMetaDto campaignForm,
 			CampaignDto campaign) {
-//System.out.println(community.getUuid());
-//System.out.println(campaignForm.getUuid());	
-//System.out.println(campaign.getUuid());
+////System.out.println(community.getUuid());
+////System.out.println(campaignForm.getUuid());	
+////System.out.println(campaign.getUuid());
 		
 		String query = "select cb.uuid from campaignformdata cb left join community cm on cb.community_id = cm.id \r\n"
 				+ "left join campaignformmeta ff on cb.campaignformmeta_id = ff.id left join campaigns gn on cb.campaign_id = gn.id\r\n"
@@ -1670,7 +1670,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria, 
 			List<SortProperty> sortProperties, FormAccess frms) {
-	System.out.println("Query running puuurrrrr!!!!!!!");
+	//System.out.println("Query running puuurrrrr!!!!!!!");
 		String joinBuilder = "\n"
 				+ "select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, campaignfo0_x.clusternumber as clusternumber_, campaignfo0_x.externalid as ccode, COALESCE((\n"
 				+ "select count(campaignfo0_.formvalues)\n"
@@ -1723,7 +1723,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
 		
-		System.out.println("starting....");
+		//System.out.println("starting....");
 		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new CampaignFormDataIndexDto((String) result[0].toString(), (String) result[1].toString(),
@@ -1735,47 +1735,14 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 						((BigInteger) result[8]).longValue()
 				)).collect(Collectors.toList()));
 		
-		System.out.println("ending...." +resultData.size());
+		//System.out.println("ending...." +resultData.size());
 	
 	
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
-	@Override
-	public List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV() {
-		
-		System.err.println("now in db");
-		List<JsonDictionaryReportModelDto> resultData = new ArrayList<>();
-		StringBuilder selectBuilder = new StringBuilder("SELECT formid, fe->>'caption' as caption, fe->>'id' as id,  fe->>'type' as datatype, formtype, modality\r\n"
-				+ "FROM campaignformmeta c , \r\n"
-				+ "     json_array_elements(c.campaignformelements) AS fe \r\n"
-				+ "WHERE fe->>'caption' IS NOT NULL \r\n"
-				+ "  AND fe->>'caption' NOT LIKE '%<%';");
-		
-		System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
-		
-		Query seriesDataQuery = em.createNativeQuery(selectBuilder.toString());
-				
-				
-		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
-		//String formUuid, String formId, String formField, String formCaption, String area,String region, String district, Long sumValue
-		System.err.println("convertting to constructor at db");
-		resultData.addAll(resultList.stream()
-				.map((result) -> new JsonDictionaryReportModelDto(
-						(String) result[0],
-						(String) result[1],
-						(String) result[2], 
-						(String) result[3],
-						(String) result[4],
-						(String) result[5]
-						)).collect(Collectors.toList()));
-
-	System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData;
-	}
+	
 	
 	
 	@Override
@@ -1814,9 +1781,9 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 //								
 //								)).collect(Collectors.toList()));
 //	
-//		System.out.println("ending...." +resultData.size());
+//		//System.out.println("ending...." +resultData.size());
 		
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -1849,7 +1816,7 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 				+ "WHERE fe->>'caption' IS NOT NULL \r\n"
 				+ "  AND fe->>'caption' NOT LIKE '%<%';");
 		
-		System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
+		//System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
 		
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder.toString());
 				
@@ -1869,48 +1836,11 @@ System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.fr
 						(String) result[5]
 						)).collect(Collectors.toList()));
 
-	System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	//System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
-	@Override
-	public String getByJsonFormDefinitonToCSVCount() {
-    
-		//@formatter:off
-		
-		String joiner = "";
-		
-		
-		String joinBuilder = "SELECT COUNT(*) as count_result \r\n"
-				+ "FROM (\r\n"
-				+ "  SELECT formid, fe->>'caption' as caption, fe->>'id' as id, fe->>'type' as datatype, formtype, modality\r\n"
-				+ "  FROM campaignformmeta c , \r\n"
-				+ "       json_array_elements(c.campaignformelements) AS fe \r\n"
-				+ "  WHERE fe->>'caption' IS NOT NULL \r\n"
-				+ "    AND fe->>'caption' NOT LIKE '%<%'\r\n"
-				+ ") AS subquery;";
-		
-		
-	//	Query seriesDataQuery = em.createNativeQuery(joinBuilder);
-		
-	//	List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
-//		
-//		
-//		@SuppressWarnings("unchecked")
-//		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-//		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CampaignFormDataIndexDto(
-//						
-//						(String) result[0]
-//								
-//								)).collect(Collectors.toList()));
-//	
-//		System.out.println("ending...." +resultData.size());
-		
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
-	}
+	
 	
 
 }

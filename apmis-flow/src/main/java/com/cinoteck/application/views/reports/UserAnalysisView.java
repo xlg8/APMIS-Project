@@ -49,7 +49,7 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 	        // Set initial content
 	        contentContainer.add(userAnalysisComponentMap.get(tabs.getSelectedTab()));
 	        reportTabsheetLayout.add(tabs);
-	        add(reportTabsheetLayout,contentContainer);
+	        add(reportTabsheetLayout, contentContainer);
 
 	}
 

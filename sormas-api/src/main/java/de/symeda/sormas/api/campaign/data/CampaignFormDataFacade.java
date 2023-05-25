@@ -106,10 +106,4 @@ public interface CampaignFormDataFacade {
 	
 	String getByJsonFormDefinitonToCSVCount();
 	
-	List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV();
-	String getByJsonFormDefinitonToCSVCount();
-	
-
-	List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria, List<SortProperty> sortProperties, FormAccess frms);
-
 }

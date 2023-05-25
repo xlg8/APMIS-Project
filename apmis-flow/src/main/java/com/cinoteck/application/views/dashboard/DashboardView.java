@@ -1,41 +1,48 @@
 package com.cinoteck.application.views.dashboard;
 
+import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.AREA;
+import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
+import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
+import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
+
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
 
-import com.vaadin.flow.component.accordion.Accordion;
-import com.vaadin.flow.component.accordion.AccordionPanel;
+import org.apache.commons.text.WordUtils;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dnd.DragSource;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -45,63 +52,112 @@ import de.symeda.sormas.api.user.UserDto;
 @PageTitle("Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
-@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
-@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+@JavaScript("https://code.highcharts.com/highcharts.js")
+@JavaScript("https://code.highcharts.com/modules/exporting.js")
+@JavaScript("https://code.highcharts.com/modules/export-data.js")
+@JavaScript("https://code.highcharts.com/modules/accessibility.js")
+
+//@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+//@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
 public class DashboardView extends VerticalLayout implements RouterLayout {
+
+	protected CampaignDashboardDataProvider dataProvider;
 
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 	Binder<CampaignDto> campaignBinder = new BeanValidationBinder<>(CampaignDto.class);
 
-	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
+	CampaignSummaryGridView campaignSummaryGridView = new CampaignSummaryGridView();
+
+	private Map<TabSheet, Component> tabComponentMap = new LinkedHashMap<>();
 	ComboBox<CampaignReferenceDto> campaign = new ComboBox<>();
-	ComboBox<String> campaignPhase = new ComboBox<>();
+	ComboBox<CampaignPhase> campaignPhase = new ComboBox<>();
 	ComboBox<AreaReferenceDto> region = new ComboBox<>();
 	ComboBox<RegionReferenceDto> province = new ComboBox<>();
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>();
 	ComboBox<CommunityReferenceDto> cluster = new ComboBox<>();
-
+	Select<CampaignJurisdictionLevel> groupby = new Select<>();
+	
+	
 	List<CampaignReferenceDto> campaigns;
 	List<CampaignReferenceDto> campaignPhases;
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
-
-	private Tabs createTabs() {
-		tabComponentMap.put(new Tab("Campaign Summary"), new CampaignSummaryGridView());
-		tabComponentMap.put(new Tab("Admin Coverage By Day"), new AdminCovByDayGridView());
-		tabComponentMap.put(new Tab("Admin Coverage: Doses"), new AdminCovByDosesGridView());
-		tabComponentMap.put(new Tab("Coverage Summary"), new AdminCovByDosesGridView());
-		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
-
-	}
+	
+	private boolean isSubAvaialable = false;
+	private CampaignJurisdictionLevel campaignJurisdictionLevel;
 
 	public DashboardView() {
 		setSpacing(true);
 
+		dataProvider = new CampaignDashboardDataProvider();
+
 		campaign.setLabel("Campaign");
-		campaign.setId("jgcjgcjgcj");
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
 
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
 
+		campaign.addValueChangeListener(e -> {
+			dataProvider.setCampaign((CampaignReferenceDto) campaign.getValue());
+			Notification.show("Cmapaign has chnaged TODO = " + e.getValue().getCaption());
+			// dashboardView.refreshDashboard();
+		});
+
+		final CampaignReferenceDto lastStartedCampaign = dataProvider.getLastStartedCampaign();
+
 		campaignPhase.setLabel("Campaign Phase");
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
-		campaignPhase.setItems("Pre-Campaign", "Intra- Campaign", "Post- Campaign");
-		campaignPhase.setValue("");
+		campaignPhase.setItems(CampaignPhase.values());
 		campaignPhase.getStyle().set("padding-top", "0px");
 		campaignPhase.setClassName("col-sm-6, col-xs-6");
+
+		// campaignFormPhaseSelector = new
+		// CampaignFormPhaseSelector(lastStartedCampaign);
+
+		campaignPhase.addValueChangeListener(e -> {
+			dataProvider.setFormType(campaignPhase.getValue().toString().toLowerCase());
+			// dataProvider.refreshDashboard();
+		});
+
+		if (lastStartedCampaign != null) {
+			campaign.setValue(lastStartedCampaign);
+			campaignPhase.setValue(CampaignPhase.INTRA);
+		}
+
+		Notification.show(CampaignPhase.INTRA.toString().toLowerCase());
+
+		dataProvider.setCampaign(lastStartedCampaign);
+		dataProvider.setFormType(CampaignPhase.INTRA.toString().toLowerCase());
 
 		region.setLabel("Region");
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setItems(regions);
+		region.setValue(FacadeProvider.getAreaFacade().getAreaReferenceByUuid("W5R34K-APYPCA-4GZXDO-IVJWKGIM"));
 		region.addValueChangeListener(e -> {
+			Notification.show("area changing... " + e.getValue());
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
+			dataProvider.setArea(e.getValue());
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			province.setItems(provinces);
 		});
+		
+		
+		
+		
+		
+		//TODO: this is only for debugging purpose, please remove after test
+		dataProvider.setCampaignJurisdictionLevelGroupBy(campaignJurisdictionLevel.AREA);
+		dataProvider.setArea(FacadeProvider.getAreaFacade().getAreaReferenceByUuid("W5R34K-APYPCA-4GZXDO-IVJWKGIM"));
+		
+		
+		
+		
+		
+		
 		region.getStyle().set("padding-top", "0px");
 		region.setClassName("col-sm-6, col-xs-6");
 
@@ -110,6 +166,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		province.setItems(provinces);
 		province.addValueChangeListener(e -> {
+			Notification.show("Region changing... " + e.getValue());
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
+			dataProvider.setRegion(e.getValue());
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			district.setItems(districts);
 		});
@@ -121,6 +180,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		district.setItems(districts);
 		district.addValueChangeListener(e -> {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.DISTRICT);
+			dataProvider.setDistrict(e.getValue());
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			cluster.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 			cluster.setItems(communities);
@@ -130,36 +191,27 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 		cluster.setLabel("Cluster");
 
-//		communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(null);
-//		cluster.setItems(communities);
-
 		cluster.getStyle().set("padding-top", "0px");
 		cluster.setClassName("col-sm-6, col-xs-6");
 
-		Select<String> groupby = new Select<>();
+		
+		
+		
+		
 		groupby.setLabel("Group By");
-		groupby.setItems("Archived", "Active", "Closed", "Open");
-		groupby.setValue("");
+		groupby.setItems(campaignJurisdictionLevel.values());
 		groupby.getStyle().set("padding-top", "0px");
 		groupby.setClassName("col-sm-6, col-xs-6");
+		
+		groupby.addValueChangeListener(e -> {
+			dataProvider.setCampaignJurisdictionLevelGroupBy(e.getValue());
+		});
+		
+		
 
-		Tab details = new Tab("National Overview");
-		details.setId("tabsheetBBorder");
-		details.getStyle().set("border-radius", "15px 0px  0px 15px");
-		details.getStyle().set("border", "1px solid #e3b28a");
-
-		Tab payment = new Tab("Admin Coverage");
-		details.getStyle().set("border", "1px solid #e3b28a");
-
-		Tab shipping = new Tab("ICM Coverage");
-		shipping.getStyle().set("border-radius", "0px 15px 15px 0px");
-		shipping.getStyle().set("border", "1px solid #e3b28a");
-
-		Tabs overviewTabs = new Tabs(details, payment, shipping);
 		HorizontalLayout selectFilterLayout = new HorizontalLayout(campaign, campaignPhase, region, province, district,
-				cluster);
+				cluster, groupby);
 		selectFilterLayout.setClassName("row pl-3");
-		// HorizontalLayout selectFilterLayout2 = new HorizontalLayout(overviewTabs);
 		VerticalLayout selectFilterLayoutparent = new VerticalLayout(selectFilterLayout);
 		selectFilterLayoutparent.getStyle().set("padding", "0px");
 		selectFilterLayoutparent.getStyle().set("margin-left", "12px");
@@ -179,58 +231,136 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 				selectFilterLayoutparent.setVisible(false);
 				displayFilters.setText("Show Filters");
 			}
-
 		});
 
-		// filterAccordion.add("Filters", overviewTabs);
-		Tabs tabs = createTabs();
-		tabs.setId("overviewTab");
-		tabs.getStyle().set("background", "#434343");
-		tabs.getStyle().set("width", "100%");
+		Tabs mtabs = new Tabs();
+		mtabs.setId("maintab");
+		mtabs.getStyle().set("background", "#434343");
+		mtabs.getStyle().set("color", "#ffffff00");
+		mtabs.getStyle().set("width", "100%");
 
+		Tabs sTabs = new Tabs();
+		sTabs.setId("subtabs");
+		sTabs.getStyle().set("background", "#bbeec5");
 		Div contentContainer = new Div();
-		contentContainer.setWidthFull();
 
-		contentContainer.setId("tabsSheet");
-//        add(contentContainer);
-		tabs.addSelectedChangeListener(e -> {
+		// contentContainer.getStyle().set("background", "#f1f4f6");
+		final List<String> mainTabs = new ArrayList<>(dataProvider.getTabIds());
+		int ctr = 0;
+		
+		// creating bucket tabs to hold tabs and subtabs
+		for (String tabIdc : mainTabs) {
+			ctr++;
+
+			String mntabId = WordUtils.capitalizeFully(tabIdc);
+			Tab tabx = new Tab(mntabId);
+			tabx.setId("main_" + mntabId);
+			mtabs.add(tabx);
+
+			// this has to be moved to listener
+			if (ctr == 1) {
+				final List<String> subTabx = new ArrayList<>(dataProvider.getSubTabIds(mntabId));
+				sTabs.setVisible(subTabx.size() > 1);
+				isSubAvaialable = subTabx.size() > 1 ;
+				for (String sbTabId : subTabx) {
+//					String sbtabId = WordUtils.capitalizeFully(tabIdc);
+					Tab stabx = new Tab(sbTabId);
+					stabx.setId("submain_" + sbTabId);
+					sTabs.add(stabx);
+
+				}
+			}
+		}
+
+		mtabs.addSelectedChangeListener(e -> {
+			int listnrCtr = 0;
+			
+				final List<String> subTabx = new ArrayList<>(dataProvider.getSubTabIds(e.getSelectedTab().getId().get().toString().replaceAll("main_", "")));
+				isSubAvaialable = subTabx.size() > 1 ;
+				sTabs.setVisible(isSubAvaialable);
+				sTabs.removeAll();
+				String firstSbTabId = "";
+					
+						for (String sbTabId : subTabx) {
+							listnrCtr++;
+							if(listnrCtr == 1) {
+								firstSbTabId = sbTabId;
+							}
+		//					String sbtabId = WordUtils.capitalizeFully(tabIdc);
+							Tab stabx = new Tab(sbTabId);
+							stabx.setId("submain_" + sbTabId);
+							sTabs.add(stabx);
+		
+						}
+//						Notification.show(e.getSelectedTab().getId().get().toString().replaceAll("main_", ""));
+//						Notification.show(firstSbTabId);
+						
 			contentContainer.removeAll();
-			contentContainer.add(tabComponentMap.get(e.getSelectedTab()));
-
+			
+			
+			
+			contentContainer.add(campaignSummaryGridView.CampaignSummaryGridViewInit(
+					e.getSelectedTab().getId().get().replaceAll("main_", ""), dataProvider,
+					campaignPhase.getValue(), firstSbTabId));
+			
+			
+			
+		
 		});
-		// Set initial content
-		contentContainer.add(tabComponentMap.get(tabs.getSelectedTab())
 
-		);
+		contentContainer.setWidthFull();
+		contentContainer.setId("tabsSheet");
+		contentContainer.setSizeFull();
 
-		add(displayFilters, selectFilterLayoutparent, tabs, contentContainer);
+		add(displayFilters, selectFilterLayoutparent, mtabs, sTabs, contentContainer);
 		setSizeFull();
 	}
-//	private ComboBox campaignFilter;
-//	
-//	private void createCampaignFilter() {
-//		campaignFilter.setRequired(true);
-////		campaignFilter.setNullSelectionAllowed(false);
-////		campaignFilter.setCaption(I18nProperties.getCaption(Captions.Campaign));
+
+	//
 //		
-//		//campaignFilter.setWidth(200, Unit.PIXELS);
-////		campaignFilter.setInputPrompt(I18nProperties.getString(Strings.promptCampaign));
-//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference().toArray());
-//		campaignFilter.addValueChangeListener(e -> {
-////			dashboardDataProvider.setCampaign((CampaignReferenceDto) campaignFilter.getValue());
-////			dashboardView.refreshDashboard();
-//		});
-//		add(campaignFilter);
+//		contentContainer.add(tabComponentMap.get(this));
 //		
-//		createCampaignPhaseFilter();
 //
-//		final CampaignReferenceDto lastStartedCampaign = dashboardDataProvider.getLastStartedCampaign();
-//		if (lastStartedCampaign != null) {
-//			//System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.  "+lastStartedCampaign);
-//			campaignFilter.setValue(lastStartedCampaign);
-//			campaignPhaseFilter.setValue(CampaignPhase.INTRA.toString());
-//		}
-//		dashboardDataProvider.setCampaign((CampaignReferenceDto) campaignFilter.getValue());
+//	
+	// tabComponentMap.put(new Tab("Campaign Summary"), new
+	// CampaignSummaryGridView());
+////		tabComponentMap.put(new Tab("Admin Coverage By Day"), new AdminCovByDayGridView());
+////		tabComponentMap.put(new Tab("Admin Coverage: Doses"), new AdminCovByDosesGridView());
+////		tabComponentMap.put(new Tab("Coverage Summary"), new AdminCovByDosesGridView());
+//		return tabSheet;// new TabSheet(tabComponentMap.keySet().toArray(new Tab[] {}));
+//
 //	}
+//	
+
+	public class LazyComponent extends Div {
+		public LazyComponent(SerializableSupplier<? extends Component> supplier) {
+			addAttachListener(e -> {
+				if (getElement().getChildCount() == 0) {
+					add(supplier.get());
+				}
+			});
+		}
+	}
+	
+	
+	private void changeCampaignJuridictionLevel(CampaignJurisdictionLevel campaignJurisdictionLevelz) {
+		groupby.clear();
+		switch (campaignJurisdictionLevelz) {
+		case AREA:
+			groupby.setItems(AREA, REGION, DISTRICT);
+			break;
+		case REGION:
+			groupby.setItems(REGION, DISTRICT, COMMUNITY);
+			break;
+		case DISTRICT:
+			groupby.setItems(DISTRICT, COMMUNITY);
+			break;
+		case COMMUNITY:
+			groupby.setItems(COMMUNITY);
+			break;
+		}
+
+		
+	}
 
 }

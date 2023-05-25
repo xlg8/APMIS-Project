@@ -62,8 +62,12 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 
 	long countReportGrid(CommunityCriteriaNew criteria, FormAccess formacc);
 	
+	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceNew(Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
+	
 	List<CommunityDto> getAllCommunities();
 
-	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceNew(Integer first, Integer max,
-			List<SortProperty> sortProperties, FormAccess formacc);
+	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceFlow(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
+
+	Integer getAllActiveCommunitytoRerenceFLowCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
+	
 }

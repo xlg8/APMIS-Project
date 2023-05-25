@@ -74,6 +74,7 @@ import de.symeda.sormas.app.login.EnterPinActivity;
 import de.symeda.sormas.app.login.LoginActivity;
 import de.symeda.sormas.app.rest.RetroProvider;
 import de.symeda.sormas.app.rest.SynchronizeDataAsync;
+import de.symeda.sormas.app.settings.SettingsFragment;
 import de.symeda.sormas.app.util.Bundler;
 import de.symeda.sormas.app.util.Callback;
 import de.symeda.sormas.app.util.ExitActivity;
@@ -89,6 +90,8 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	private View rootView;
 	private ProgressBar preloader;
 	private View fragmentFrame;
+
+	private SettingsFragment scd;
 
 	// title & status
 	private View applicationTitleBar = null;
@@ -597,8 +600,13 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	}
 
 	public void synchronizeChangedData() {
-	//	SwipeRefreshLayout refreshLayout = findViewById(R.id.swiperefresh);
 		synchronizeData(SynchronizeDataAsync.SyncMode.Changes, true, true, null, getSynchronizeResultCallback(), null);
+
+	}
+
+	public void synchronizeDataAndReloadSetting() {
+		//	SwipeRefreshLayout refreshLayout = findViewById(R.id.swiperefresh);
+		synchronizeData(SynchronizeDataAsync.SyncMode.CompleteAndRepull, true, true, null, null, null);
 	}
 
 	private boolean checkActiveUser() {
@@ -750,11 +758,10 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	}
 
 	public void restartAndUpdateApplication() {
+		synchronizeDataAndReloadSetting();
+
 		ProcessPhoenix.triggerRebirth(getApplicationContext());
 		ProcessPhoenix.triggerRebirth(getActiveActivity());
-
-
-
 	}
 
 	public void exitApplication() {

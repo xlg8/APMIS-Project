@@ -15,6 +15,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
@@ -33,6 +35,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 	public ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>();
 	public ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>();
 	public Button resetButton;
+	private ComboBox errorStatusFilter;
+	private ErrorStatusEnum errorStatusEnum;
 
 	
 	List<AreaReferenceDto> regions;
@@ -46,7 +50,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 	
 	
 	public UserAnalysisGridView(CommunityCriteriaNew criteria, FormAccess formAccess) {
-		List<CommunityUserReportModelDto> analysis = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerence(criteria,
+		List<CommunityUserReportModelDto> analysis = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceFlow(criteria,
 				null,null, null, formAccess);
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
@@ -104,7 +108,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 
 	private void userAnalysisGrid(CommunityCriteriaNew criteria, FormAccess formAccess) {
-		List<CommunityUserReportModelDto> analysis = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerence(criteria,
+		List<CommunityUserReportModelDto> analysis = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceFlow(criteria,
 				null,null, null, formAccess);
 		
 		grid.setSelectionMode(SelectionMode.SINGLE);

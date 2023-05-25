@@ -4,8 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.dashboard.AdminCovByDayGridView;
-import com.cinoteck.application.views.dashboard.AdminCovByDosesGridView;
 import com.cinoteck.application.views.dashboard.CampaignSummaryGridView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.JavaScript;

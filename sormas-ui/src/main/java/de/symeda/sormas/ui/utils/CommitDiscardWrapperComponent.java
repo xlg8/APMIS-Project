@@ -298,7 +298,7 @@ public class CommitDiscardWrapperComponent<C extends Component> extends Vertical
 						dirty = false;// this
 					}
 				} else if (source instanceof AccessibleTextField) {
-					System.out.print("asdfddddddddddddddddddddddddddddddddddd");
+					//System.out.print("asdfddddddddddddddddddddddddddddddddddd");
 					final AccessibleTextField accessibleTextField = (AccessibleTextField) source;
 					if (accessibleTextField.isModified()) {
 						dirty = false;// this

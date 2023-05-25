@@ -200,15 +200,42 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			cq.select(community);
 
 			System.out.println("DEBUGGER r567ujhgty8isdfasjyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
-			//if(isCounter)
-    
-//			return QueryHelper.getResultList(em, cq, first, max, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+			
 
 			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
-
-		//	return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
-		}
+}
 	
+	
+	@Override
+	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceFlow(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
+		frmsAccess = formacc;
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
+			Root<Community> community = cq.from(Community.class);
+			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
+			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
+	
+					
+			Predicate filter = null;
+			if (criteria != null) {
+				filter = service.buildCriteriaFilter(criteria, cb, community);
+			}else {
+				filter = cb.equal(community.get(Community.ARCHIVED), false);
+			}
+
+			if (filter != null) {
+				cq.where(filter);
+			}
+			
+			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
+			
+			cq.select(community);
+
+			System.out.println("DEBUGGER r567ujhgty8isdfasjyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+		
+			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoListFlow);
+	}
 	
 	
 	@Override
@@ -252,6 +279,45 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		}
 	
 	
+	@Override
+	public Integer getAllActiveCommunitytoRerenceFLowCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
+	System.out.println(max+"----"+criteria.getErrorStatusEnum()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
+		frmsAccess = formacc;
+	//	errorStatusEnum = criteria.getErrorStatusEnum();
+		
+		if(max > 47483647) {
+			first = 1;
+			max = 100;
+		}
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
+			Root<Community> community = cq.from(Community.class);
+			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
+			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
+	
+					
+			Predicate filter = null;
+			if (criteria != null) {
+				filter = service.buildCriteriaFilter(criteria, cb, community);
+			} 
+
+			if (filter != null) {
+				cq.where(filter);
+			}
+			
+			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
+			
+			cq.select(community);
+			
+			Integer finalResult = QueryHelper.getResultList(em, cq, first, max, this::toDtoListFlow).stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).size();
+			System.out.println("================ "+finalResult);
+			
+			//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+			//if(isCounter)
+			return finalResult;
+			//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+		}
 	
 
 	@Override
@@ -575,6 +641,71 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			}	
 		
 		}
+		
+		
+		
+		return dto;
+		
+	}
+	
+	
+	private CommunityUserReportModelDto toDtoListFlow(Community entity) {
+		
+		if (entity == null) {
+			return null;
+		}
+		
+		
+		//userService = new UserService();
+		
+		CommunityUserReportModelDto dto = new CommunityUserReportModelDto();
+		DtoHelper.fillDto(dto, entity);
+
+		dto.setRegion(entity.getDistrict().getRegion().getName());
+		dto.setDistrict(entity.getDistrict().getName());
+		dto.setCommunity(entity.getName());
+		dto.setClusterNumber(entity.getClusterNumber().toString());
+
+		dto.setcCode(entity.getExternalId().toString());
+	
+		dto.setArea(entity.getDistrict().getRegion().getArea().getName());
+		
+		List<String> usersd = new ArrayList<>();
+		Set<FormAccess> formss = new HashSet<>();
+		
+		//execution time will be slow
+		for(User usr : userService.getAllByCommunity()) {
+				if(usr.getFormAccess().contains(frmsAccess)) {
+				usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> usersd.add(usr.getUserName()));
+				usr.getCommunity().stream().filter(ee -> ee.getUuid().equals(entity.getUuid())).findFirst().ifPresent(ef -> formss.add(frmsAccess));
+				}
+			}
+		dto.setFormAccess(formss);
+		
+//		if(errorStatusEnum.equals(errorStatusEnum.ALL_REPORT)) {
+//		if(usersd.isEmpty()) {
+//			dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is not assigned to any user");
+//			dto.setUsername("no user");
+//		}else if(usersd.size() > 1){
+//			dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is assigned to more than one user");
+//			dto.setUsername(usersd.toString());
+//		} else {
+//			dto.setMessage("Correctly assigned");
+//			dto.setUsername(usersd.toString());
+//		}
+//		} else if(errorStatusEnum.equals(errorStatusEnum.ERROR_REPORT)) {
+//			
+			if(usersd.isEmpty()) {
+				dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is not assigned to any user");
+				dto.setUsername("no user");
+			}else if(usersd.size() > 1){
+				dto.setMessage("ClusterNumber: "+ entity.getClusterNumber()+" is assigned to more than one user");
+				dto.setUsername(usersd.toString());
+			} else {
+				dto = new CommunityUserReportModelDto(); 
+			}	
+		
+	//	}
 		
 		
 		

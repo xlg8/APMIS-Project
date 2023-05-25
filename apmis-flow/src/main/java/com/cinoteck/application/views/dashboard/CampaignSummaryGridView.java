@@ -1,92 +1,80 @@
 package com.cinoteck.application.views.dashboard;
 
-import com.vaadin.flow.component.dnd.DragSource;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+
+import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDataDto;
+import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 
 @Route(layout = DashboardView.class)
 public class CampaignSummaryGridView extends VerticalLayout {
 
-    public CampaignSummaryGridView(){
+	/**
+	* 
+	*/
+	private static final long serialVersionUID = -1665531559323782811L;
 
-        Div chartsContainer = new Div();
-        chartsContainer.setClassName("container col");
-        
-        Div chartsRow = new Div();
-        chartsRow.setClassName("row col");
-        chartsRow.getStyle().set( "display", "flex");
-        chartsRow.getStyle().set("flex-direction" , "row");
+	public CampaignSummaryGridView() {
+	}
 
-        Div chartsRow2 = new Div();
-        chartsRow2.setClassName("row col");
-        chartsRow2.getStyle().set( "display", "flex");
-        chartsRow2.getStyle().set("flex-direction" , "row");
+	public Component CampaignSummaryGridViewInit(String mainTabIdCoded, CampaignDashboardDataProvider dataProvider,
+			CampaignPhase formTyp, String subTabIdCoded) {
+		// TODO
+		dataProvider.setFormType(formTyp.toString().toLowerCase());
 
-        Div chartsRow3 = new Div();
-        chartsRow3.setClassName("row col");
-        chartsRow3.getStyle().set( "display", "flex");
-        chartsRow3.getStyle().set("flex-direction" , "row");
+	//	System.out.println("ghjasndmfjbhaksjfla " + dataProvider.getCampaignDashboardDiagrams().size());
+		Div dashboardContainer = new Div();
+		dashboardContainer.setClassName("container col");
 
+		dashboardContainer.setClassName("row col");
+		dashboardContainer.getStyle().set("display", "flex");
+		dashboardContainer.getStyle().set("flex-direction", "row");
 
-        Div charts1 = new Div();
-        charts1.setClassName("card col-sm-12 col-md-6 col-lg-3");
-        Image img = new Image("images/missedchildren.png", "placeholder plant");
-       // charts1.setWidth("25%");
-        charts1.add(img);
-        DragSource<Div> box1DragSource = DragSource.create(charts1);
- 
-        Div charts2 = new Div();
-        charts2.setClassName("card col-sm-12 col-md-6 col-lg-3");
-        Image img2 = new Image("images/reportedmissed.png", "placeholder plant");
-      //  charts2.setWidth("25%");
-        charts2.add(img2);
-        DragSource<Div> box2DragSource = DragSource.create(charts2);
-        box2DragSource.setDraggable(true);
+		Map<CampaignDashboardDiagramDto, List<CampaignDiagramDataDto>> campaignFormDataMap = dataProvider
+				.getCampaignFormDataMap(mainTabIdCoded, subTabIdCoded);
 
-        Div charts3 = new Div();
-        charts3.setClassName("card col-sm-12 col-md-6 col-lg-3");
-        Image img3 = new Image("images/reportedmissed2.png", "placeholder plant");
-      //  charts3.setWidth("25%");
-        charts3.add(img3);
+		// Convert the map to a list of key-value pairs
+		List<Map.Entry<CampaignDashboardDiagramDto, List<CampaignDiagramDataDto>>> entryList = new ArrayList<>(
+				campaignFormDataMap.entrySet());
 
-        Div charts4 = new Div();
-        charts4.setClassName("card col-sm-12 col-md-6 col-lg-3");
-        Image img4 = new Image("images/reportedmissed3.png", "placeholder plant");
-       // charts4.setWidth("25%");
-        charts4.add(img4);
+		// Sort the list based on the keys
+		entryList.sort(Comparator.comparing(entry -> entry.getKey().getCampaignDashboardElement().getOrder()));
 
-        Div charts5 = new Div();
-        charts5.setClassName("card col-sm-12 col-md-12 col-lg-6");
-        Image img5 = new Image("images/columnbargraph.png", "placeholder plant");
-        img5.setWidth("100%");
-        charts5.setWidth("50%");
-        charts5.add(img5);
+		for (Map.Entry<CampaignDashboardDiagramDto, List<CampaignDiagramDataDto>> campaignDashboardDiagramDto_diagramData : entryList) {
 
-        Div charts6 = new Div();
-        charts6.setClassName("card col-sm-12 col-md-12 col-lg-6");
-        Image img6 = new Image("images/xolumndonut2.png", "placeholder plant");
-        img6.setWidth("100%");
-        charts6.setWidth("50%");
-        charts6.add(img6);
+			final CampaignDiagramDefinitionDto campaignDiagramDefinitionDto = campaignDashboardDiagramDto_diagramData
+					.getKey().getCampaignDiagramDefinitionDto();
+			final int chartWidth = campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement()
+					.getWidth();
 
-        Div charts7 = new Div();
-        charts7.setClassName("card col-sm-12 col-md-12 col-lg-12");
-        Image img7 = new Image("images/vactag2.png", "placeholder plant");
-        img7.setWidth("100%");
-        charts7.setWidth("100%");
-        charts7.add(img7);
+			int chartWidthBoostraped = (int) Math.ceil((double) chartWidth / 100 * 12);
+			
 
-        chartsRow.add(charts1, charts2, charts3, charts4);
-        chartsRow2.add(charts5, charts6);
-        chartsRow3.add(charts7);
+			System.out.println(campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramType() +" : " + campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement().getWidth() + "  ++++++++++++  " + chartWidthBoostraped);
 
-        chartsContainer.add(chartsRow, chartsRow2, chartsRow3);
-        chartsContainer.setWidth("100%");
+			campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramId();
 
-        add(chartsContainer);
-    }
+			final CampaignDashboardDiagramComponent diagramComponent = new CampaignDashboardDiagramComponent(
+					campaignDiagramDefinitionDto, campaignDashboardDiagramDto_diagramData.getValue(),
+					dataProvider.getCampaignFormTotalsMap(mainTabIdCoded, subTabIdCoded)
+							.get(campaignDashboardDiagramDto_diagramData.getKey()),
+					dataProvider.getCampaignJurisdictionLevelGroupBy(), chartWidthBoostraped);
 
+			dashboardContainer.add(diagramComponent);
+
+		}
+
+		return dashboardContainer;
+	}
 
 }

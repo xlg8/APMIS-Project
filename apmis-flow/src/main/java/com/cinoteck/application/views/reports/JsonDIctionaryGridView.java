@@ -14,7 +14,6 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
-import de.symeda.sormas.ui.utils.FilteredGrid;
 
 
 @SuppressWarnings("serial")
