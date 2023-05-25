@@ -66,6 +66,7 @@ public class AreasView extends AbstractConfigurationView {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
 
+		
 		grid = new AreasGrid(criteria);
 		VerticalLayout gridLayout = new VerticalLayout();
 		gridLayout.addComponent(createFilterBar());

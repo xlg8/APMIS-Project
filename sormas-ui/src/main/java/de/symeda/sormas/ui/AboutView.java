@@ -17,13 +17,18 @@
  *******************************************************************************/
 package de.symeda.sormas.ui;
 
+import java.io.File;
+
 import com.vaadin.annotations.HtmlImport;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.navigator.View;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import de.symeda.sormas.api.ConfigFacade;
@@ -41,15 +46,22 @@ public class AboutView extends VerticalLayout implements View {
 	public AboutView() {
 		super();
 		setMargin(true);
-		
-		CustomLayout content = new CustomLayout("about");
-		content.setSizeFull();
-		addComponent(content);
+		CustomLayout content2 = new CustomLayout("about-text");
+		content2.setSizeFull();
+		addComponent(content2);
 		
 		JsonDictionaryTabsheet jsonDictionaryTabsheet = new JsonDictionaryTabsheet();
 		jsonDictionaryTabsheet.setId("jsonDictionaryExport");
 //		jsonDictionaryTabsheet.setComponentAlignment(, ALIGNMENT_DEFAULT);
 		addComponent(jsonDictionaryTabsheet);
+		
+		CustomLayout content = new CustomLayout("about");
+		content.setSizeFull();
+		addComponent(content);
+		
+		
+		
+		
 //		SormasUI.getCurrent().getPage().getJavaScript().execute("        var form = document.getElementById('my-form');\n"
 //				+ "        form.addEventListener(\"submit\", e => {\n"
 //				+ "            e.preventDefault();\n"
@@ -69,6 +81,34 @@ public class AboutView extends VerticalLayout implements View {
 //				I18nProperties.getCaption(Captions.aboutApmisVersion) + " " + InfoProvider.InfoProvider_apmis(),
 //				ContentMode.HTML);
 //		addComponent(infoLabel);
+		
+//		ComboBox<String> comboBox = new ComboBox<>();
+//		comboBox.setItems(file1Link, file2Link, file3Link);
+//		
+//		
+//		
+//		comboBox.addValueChangeListener(event -> {
+//		    String selectedFile = event.getValue();
+//		    if (selectedFile != null) {
+//		        String filePath = "/path/to/pdf/files/" + selectedFile + ".pdf"; // Replace with the actual file path
+//		        File file = new File(filePath);
+//
+//		        // Create a temporary anchor element
+//		        Anchor anchor = new Anchor(new StreamResource(selectedFile + ".pdf", () -> {
+//		            try {
+//		                return new FileInputStream(file);
+//		            } catch (FileNotFoundException e) {
+//		                e.printStackTrace();
+//		                return null;
+//		            }
+//		        }), "");
+//
+//		        // Trigger the download when the anchor is clicked
+//		        anchor.getElement().setAttribute("download", true);
+//		        anchor.getElement().callJsFunction("click");
+//		    }
+//		});
+
 		
 	}
 	

@@ -19,6 +19,7 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.ui.ViewModelProviders;
+import de.symeda.sormas.ui.campaign.campaignstatistics.CampaignStatisticsView;
 import de.symeda.sormas.ui.campaign.components.CampaignFormPhaseSelector;
 import de.symeda.sormas.ui.configuration.infrastructure.CommunitiesView;
 import de.symeda.sormas.ui.utils.AbstractView;
@@ -46,8 +47,11 @@ public class CampaignReportView extends AbstractView {
 		layt.setSizeFull();
 		tabsheet.setHeightFull();
 
+		
+		
+		CampaignStatisticsView bview = new CampaignStatisticsView();
 		gridLayout = new VerticalLayout();
-		tabsheet.addTab(gridLayout, "Aggregate Report");
+		tabsheet.addTab(bview, "Aggregate Report");
 
 		
 		
@@ -85,9 +89,9 @@ public class CampaignReportView extends AbstractView {
 
 		tabsheetx.setHeightFull();
 		TabSheet tabsheetxr = new TabSheet();
-		tabsheet.addTab(tabsheetxr, "Completion Analysis");
+		tabsheet.addTab(tabsheetxr, "Data Completeness");
 
-		tabsheet.addTab(tabsheetx, "User Analysis");
+		tabsheet.addTab(tabsheetx, "Mobile Users");
 
 		FormAccess frmss[] = FormAccess.values();
 		// for (FormAccess lopper : frmss) {

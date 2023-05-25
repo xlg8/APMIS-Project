@@ -86,6 +86,8 @@ public class RegionsView extends AbstractConfigurationView {
 	protected Button createButton;
 	protected Button importButton;
 	private MenuBar bulkOperationsDropdown;
+	
+	private RowCount rowsCount;
 
 	public RegionsView() {
 
@@ -97,10 +99,15 @@ public class RegionsView extends AbstractConfigurationView {
 		if (criteria.getRelevanceStatus() == null) {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
+		
 		grid = new RegionsGrid(criteria);
+
+		
+
 		gridLayout = new VerticalLayout();
+		rowsCount = new RowCount(Strings.labelNumberOfUsers, grid.getItemCount());
 		gridLayout.addComponent(createFilterBar());
-		gridLayout.addComponent(new RowCount(Strings.labelNumberOfRegions, grid.getItemCount()));
+		gridLayout.addComponent(rowsCount);
 		gridLayout.addComponent(grid);
 		gridLayout.setMargin(true);
 		gridLayout.setSpacing(false);
@@ -229,6 +236,7 @@ public class RegionsView extends AbstractConfigurationView {
 			AreaReferenceDto area = (AreaReferenceDto) e.getProperty().getValue();
 			criteria.area(area);
 			grid.reload();
+			rowsCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(areaFilter);
 

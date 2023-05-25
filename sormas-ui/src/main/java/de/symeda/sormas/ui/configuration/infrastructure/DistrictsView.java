@@ -87,6 +87,8 @@ public class DistrictsView extends AbstractConfigurationView {
 	protected Button createButton;
 	protected Button importButton;
 	private MenuBar bulkOperationsDropdown;
+	
+	private RowCount rowCount;
 
 	public DistrictsView() {
 
@@ -99,10 +101,12 @@ public class DistrictsView extends AbstractConfigurationView {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
 
+		
 		grid = new DistrictsGrid(criteria);
 		gridLayout = new VerticalLayout();
+		rowCount = new RowCount(Strings.labelNumberOfDistricts, grid.getItemCount());
 		gridLayout.addComponent(createFilterBar());
-		gridLayout.addComponent(new RowCount(Strings.labelNumberOfDistricts, grid.getItemCount()));
+		gridLayout.addComponent(rowCount);
 		gridLayout.addComponent(grid);
 		gridLayout.setMargin(true);
 		gridLayout.setSpacing(false);
@@ -238,6 +242,7 @@ public class DistrictsView extends AbstractConfigurationView {
 			FieldHelper
 				.updateItems(regionFilter, area != null ? FacadeProvider.getRegionFacade().getAllActiveByArea(area.getUuid()) : null);
 			grid.reload();
+			rowCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(areaFilter);
 
@@ -250,6 +255,7 @@ public class DistrictsView extends AbstractConfigurationView {
 			criteria.region((RegionReferenceDto) e.getProperty().getValue());
 			//navigateTo(criteria);
 			grid.reload();
+			rowCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(regionFilter);
 		
@@ -274,6 +280,7 @@ public class DistrictsView extends AbstractConfigurationView {
 				criteria.risk(null);
 			}
 			grid.reload();
+			rowCount.update(grid.getItemCount());
 			
 		});
 		filterLayout.addComponent(riskFilter);

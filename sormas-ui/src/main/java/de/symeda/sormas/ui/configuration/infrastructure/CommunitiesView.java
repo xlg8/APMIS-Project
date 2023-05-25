@@ -89,6 +89,9 @@ public class CommunitiesView extends AbstractConfigurationView {
 	protected Button importButton;
 	protected Button createButton; 
 	private MenuBar bulkOperationsDropdown;
+	
+	private RowCount rowCount;
+	
 
 	public CommunitiesView() {
 
@@ -101,10 +104,12 @@ public class CommunitiesView extends AbstractConfigurationView {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
 
+		
 		grid = new CommunitiesGrid(criteria);
 		gridLayout = new VerticalLayout();
+		rowCount = new RowCount(Strings.labelNumberOfCommunities, grid.getItemCount());
 		gridLayout.addComponent(createFilterBar());
-		gridLayout.addComponent(new RowCount(Strings.labelNumberOfCommunities, grid.getItemCount()));
+		gridLayout.addComponent(rowCount);
 		gridLayout.addComponent(grid);
 		gridLayout.setMargin(true);
 		gridLayout.setSpacing(false);
@@ -241,6 +246,7 @@ HeaderRow mainHeader = grid.getDefaultHeaderRow();
 			FieldHelper
 				.updateItems(regionFilter, area != null ? FacadeProvider.getRegionFacade().getAllActiveByArea(area.getUuid()) : null);
 			//grid.reload();
+			rowCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(areaFilter);
 
@@ -256,6 +262,7 @@ HeaderRow mainHeader = grid.getDefaultHeaderRow();
 			FieldHelper
 				.updateItems(districtFilter, region != null ? FacadeProvider.getDistrictFacade().getAllActiveByRegion(region.getUuid()) : null);
 			//grid.reload();
+			rowCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(regionFilter);
 
@@ -266,6 +273,7 @@ HeaderRow mainHeader = grid.getDefaultHeaderRow();
 		districtFilter.addValueChangeListener(e -> {
 			criteria.district((DistrictReferenceDto) e.getProperty().getValue());
 			grid.reload();
+			rowCount.update(grid.getItemCount());
 		});
 		filterLayout.addComponent(districtFilter);
 

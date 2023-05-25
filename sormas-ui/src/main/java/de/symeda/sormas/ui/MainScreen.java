@@ -109,6 +109,7 @@ import de.symeda.sormas.ui.utils.VaadinUiUtil;
 //@StyleSheet("vaadin://map/trlImplementation.css")
 public class MainScreen extends HorizontalLayout {
 
+	
 	// Add new views to this set to make sure that the right error page is shown
 	private static final Set<String> KNOWN_VIEWS = initKnownViews();
 
@@ -218,7 +219,7 @@ public class MainScreen extends HorizontalLayout {
 
 		if (permitted(FeatureType.CAMPAIGNS, UserRight.CAMPAIGN_VIEW)) {
 			AbstractCampaignView.registerViews(navigator);
-			menu.addView(CampaignStatisticsView.class, AbstractCampaignView.ROOT_VIEW_NAME,
+			menu.addView(CampaignDataView.class, AbstractCampaignView.ROOT_VIEW_NAME,
 					I18nProperties.getCaption(Captions.mainMenuCampaigns), VaadinIcons.CLIPBOARD_CHECK);
 		}
 
