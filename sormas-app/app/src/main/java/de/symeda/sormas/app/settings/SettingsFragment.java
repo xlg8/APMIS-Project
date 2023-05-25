@@ -198,7 +198,7 @@ public class SettingsFragment extends BaseLandingFragment {
 		startActivity(intent);
 	}
 
-	private void repullData() {
+	public void repullData() {
 		checkAndShowUnsynchronizedChangesDialog(() -> showRepullDataConfirmationDialog(), "SYNC");
 	}
 

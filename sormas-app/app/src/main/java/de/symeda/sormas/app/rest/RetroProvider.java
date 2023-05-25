@@ -313,14 +313,14 @@ public final class RetroProvider {
 			throw new IllegalStateException("Connection already established.");
 		}
 		if (connecting) {
-			Toast.makeText(context, "Connection already established... now disconnecting...",
-					Toast.LENGTH_LONG).show();
+//			Toast.makeText(context, "Connection already established... now disconnecting...",
+//					Toast.LENGTH_LONG).show();
 
 			disconnect();
 		//	throw new IllegalStateException("Already connecting.");
-		}
+//		}
 
-		if (connecting) {
+//		if (connecting) {
 			throw new IllegalStateException("Already connecting.");
 		}
 		if (!isConnectedToNetwork(context)) {

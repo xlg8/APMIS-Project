@@ -118,29 +118,29 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 				// pull and remove deleted entities when the last time this has been done is more than 24 hours ago
 				if (ConfigProvider.getLastDeletedSyncDate() == null
 					|| DateHelper.getFullDaysBetween(ConfigProvider.getLastDeletedSyncDate(), new Date()) >= 1) {
+
 					pullAndRemoveDeletedUuidsSince(ConfigProvider.getLastDeletedSyncDate());
 				}
 				// pull and remove archived entities when the last time this has been done is more than 24 hours ago
 				if (ConfigProvider.getLastArchivedSyncDate() == null
 					|| DateHelper.getFullDaysBetween(ConfigProvider.getLastArchivedSyncDate(), new Date()) >= 1) {
+
 					pullAndRemoveArchivedUuidsSince(ConfigProvider.getLastArchivedSyncDate());
 				}
 				synchronizeChangedData();
 
-				syncModeTrace.stop();
-				break;
-			case Complete:
-				System.out.println("----------------------- complete");
-				syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteTrace");
-				syncModeTrace.start();
 
-				pullInfrastructure(); // do before missing, because we may have a completely empty database
 				pullMissingAndDeleteInvalidInfrastructure();
+				repullData();
 				pushNewPullMissingAndDeleteInvalidData();
 				synchronizeChangedData();
+				ConfigProvider.setRepullNeeded(false);
+
 
 				syncModeTrace.stop();
 				break;
+
+
 			case CompleteAndRepull:
 
 				System.out.println("----------------------- CompleteAndRepull");
@@ -156,6 +156,19 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 				syncModeTrace.stop();
 				break;
+
+				case Complete:
+					System.out.println("----------------------- complete");
+					syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteTrace");
+					syncModeTrace.start();
+
+					pullInfrastructure(); // do before missing, because we may have a completely empty database
+					pullMissingAndDeleteInvalidInfrastructure();
+					pushNewPullMissingAndDeleteInvalidData();
+					synchronizeChangedData();
+
+					syncModeTrace.stop();
+					break;
 			default:
 				throw new IllegalArgumentException(syncMode.toString());
 			}
