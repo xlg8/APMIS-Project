@@ -32,7 +32,6 @@ public class CampaignSummaryGridView extends VerticalLayout {
 		// TODO
 		dataProvider.setFormType(formTyp.toString().toLowerCase());
 
-	//	System.out.println("ghjasndmfjbhaksjfla " + dataProvider.getCampaignDashboardDiagrams().size());
 		Div dashboardContainer = new Div();
 		dashboardContainer.setClassName("container col");
 

@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -94,6 +95,10 @@ public class CampaignDashboardDiagramComponent extends Div {
 		
 		setId(randomx);
 		removeClassNames("col-lg-12","col-lg-11","col-lg-10","col-lg-9","col-lg-8","col-lg-7","col-lg-6","col-lg-5","col-lg-4","col-lg-3","col-lg-2","col-lg-1");
+
+		getStyle().set("padding-right", "1px!important");
+		getStyle().set("padding-left", "10px!important");
+		
 		addClassName("col-md-12");
 		addClassName("col-lg-"+cardWidth);
 		
@@ -102,7 +107,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 		final String chartrandom = generateShortUUID();
 		randomx = chartrandom;
 		
-		Notification.show(randomx);
+		//Notification.show(randomx);
 		
 		final Map<Object, String> axisInfo = new HashMap<>();
 		for (CampaignDiagramDataDto diagramData : diagramDataList) {
@@ -133,6 +138,60 @@ public class CampaignDashboardDiagramComponent extends Div {
 		// TODO would be cleaner to extend the HighChart class to provide customizable
 		// toggle options
 		
+		
+//		String funct =  "this.changeDiagramPercentage_" + diagramDefinition.getDiagramId()+" function(){"
+//				+ "alert($1);"
+////				+ "$server.buildDiagramChart($0,$1);"
+////				+ "setShowPercentages($2);"
+//				+ "}";
+//		
+//	//	Notification.show(funct);	
+//		 
+//		getElement().executeJs("window."+diagramDefinition.getDiagramId()+" = function "+diagramDefinition.getDiagramId()+"(name, element) {\n"
+//				+ "   console.log('Hi, = '+ name );\n"
+//			//	+ "   element.$server.greetxc('server');\n"
+//				+ "}"
+//				+ "");//, getDiagramCaption(), campaignJurisdictionLevelGroupBy.toString(), !isShowPercentages());
+//		
+	//	getElement().executeJs(""+diagramDefinition.getDiagramId()+"('"+diagramDefinition.getDiagramId()+"')");
+
+//		getElement().executeJs("changeDiagramPercentage_" + diagramDefinition.getDiagramId()+"()",
+//				(JavaScriptFunction) jsonArray -> {
+//					setShowPercentages(!isShowPercentages());
+//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
+//				});
+		
+
+//		JavaScript.getCurrent().addFunction("changeDiagramLabels_" + diagramDefinition.getDiagramId(),
+//				(JavaScriptFunction) jsonArray -> {
+//					setShowDataLabels(!isShowDataLabels());
+//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
+//				});
+//
+//		JavaScript.getCurrent().addFunction("changeDiagramChartType_" + diagramDefinition.getDiagramId(),
+//				(JavaScriptFunction) jsonArray -> {
+//					setShowAsColumnChart(!isShowAsColumnChart());
+//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
+//				});
+//		// JavaScript.getCurrent().execute("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js");
+//
+//		JavaScript.getCurrent().execute(" var el = document.getElementsByClassName('highcharts-data-table');"
+//
+//				+ "  window.onclick = function(event) {\n"
+//
+//				+ " var divsToHide = document.getElementsByClassName(\"highcharts-data-table\"); //divsToHide is an array\n"
+//				+ "    for(var i = 0; i < divsToHide.length; i++){\n"
+//
+//				+ "        divsToHide[i].style.display = \"none\"; \n" + "    };"
+//
+//				+ "}");
+//		
+//		
+		
+		
+		
+		
+		
 //		 String javascriptCode = "<script>\n" +
 //	                "  function myFunction() {\n" +
 //	                "    console.log('Hello from JavaScript!');\n" +
@@ -142,35 +201,30 @@ public class CampaignDashboardDiagramComponent extends Div {
 //	        Html html = new Html(javascriptCode);
 //	        add(html);
 	        
-	        String script = "function changeDiagramPercentage_"+ diagramDefinition.getDiagramId()+"() {" +
-	                "    console.log('Dynamic Function Invoked');" +
-	                "}";
-	        
-	        String functionName = "changeDiagramPercentage_" + diagramDefinition.getDiagramId();
-
+//	        String script = "function changeDiagramPercentage_"+ diagramDefinition.getDiagramId()+"() {" +
+//	                "    console.log('Dynamic Function Invoked');" +
+//	                "}";
+//	        
+//	        String functionName = "changeDiagramPercentage_" + diagramDefinition.getDiagramId();
+	        				
 	      
-		getElement().executeJs(" var el = document.getElementsByClassName('highcharts-data-table');"
+//		getElement().executeJs(" var el = document.getElementsByClassName('highcharts-data-table');"
+//
+//				+ "  window.onclick = function(event) {\n"
+//
+//				+ " var divsToHide = document.getElementsByClassName(\"highcharts-data-table\"); //divsToHide is an array\n"
+//				+ "    for(var i = 0; i < divsToHide.length; i++){\n"
+//
+//				+ "        divsToHide[i].style.display = \"none\"; \n" + "    };"
+//
+//				+ "}");
 
-				+ "  window.onclick = function(event) {\n"
-
-				+ " var divsToHide = document.getElementsByClassName(\"highcharts-data-table\"); //divsToHide is an array\n"
-				+ "    for(var i = 0; i < divsToHide.length; i++){\n"
-
-				+ "        divsToHide[i].style.display = \"none\"; \n" + "    };"
-
-				+ "}");
-
-		getElement().executeJs("Highcharts.seriesTypes.wordcloud.prototype.deriveFontSize = function(\n"
-						+ "  relativeWeight\n" + ") {\n" + "  var maxFontSize = 10;\n"
-						+ "  // Will return a fontSize between 0px and 25px.\n"
-						+ "  return Math.floor(maxFontSize * 1);\n" + "};");
 
 		buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
 		
-		
-		////////////////////
 	}
-
+	
+	@ClientCallable
 	public void buildDiagramChart(String title, CampaignJurisdictionLevel campaignJurisdictionLevelGroupBy) {
 		final StringBuilder hcjs = new StringBuilder();
 		if (chartType.equalsIgnoreCase(DiagramType.CARD.toString())) {
@@ -208,11 +262,15 @@ public class CampaignDashboardDiagramComponent extends Div {
 					+ "                    })\n" + "                },\n" + "                text: 'Switch Charts'\n"
 					+ "            }\n");
 
-			hcjs.append(",  toggleLabels: { onclick: function() { window.changeDiagramLabels_"
+			hcjs.append(",  toggleLabels: { onclick: function() { changeDiagramLabels_"
 					+ diagramDefinition.getDiagramId() + "(); }, text: '"
 					+ (showDataLabels ? I18nProperties.getCaption(Captions.dashboardHideDataLabels)
 							: I18nProperties.getCaption(Captions.dashboardShowDataLabels))
 					+ "' } ");
+			
+			//getElement().callJsFunction("changeDiagramPercentage_" + diagramDefinition.getDiagramId());
+			
+			
 			if (totalValuesMap != null) {
 				hcjs.append(", togglePercentages: { onclick: function() { window.changeDiagramPercentage_"
 						+ diagramDefinition.getDiagramId() + "(); }, text: '"
@@ -258,9 +316,16 @@ public class CampaignDashboardDiagramComponent extends Div {
 			
 			//addClassName("col-md-12");
 			//addClassName("col-lg-6");
+			
+			System.out.println(hcjs.toString());
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx);
 			this.add(chartComponent);
 		}
+	}
+	
+	@ClientCallable
+	public void greetxc(String name) {
+	System.out.println("--------------------------------------------------------------------Hi, " + name);
 	}
 
 	private void appendAxisInformation(StringBuilder hcjs, Map<String, Long> stackMap,

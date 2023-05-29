@@ -200,10 +200,10 @@ header {
 #pageHeader {
 	color: green;
 	width: 100%;
-	font-size: 31px;
+	font-size: 21px;
 	font-family: 'Lato';
-	padding-top: 16px;
-	padding-bottom: 16px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	display: flex;
 	align-items: center;
 	justify-content: center;

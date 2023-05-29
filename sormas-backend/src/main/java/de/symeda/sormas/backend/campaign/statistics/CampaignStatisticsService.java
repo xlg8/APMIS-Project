@@ -390,7 +390,7 @@ public class CampaignStatisticsService {
 			.append("') = 'true' THEN 1 ELSE 0 END)")
 			
 			
-			*/	
+			*/	 
 			
 			.append(" END as sumValue");
 		

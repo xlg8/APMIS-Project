@@ -17,11 +17,12 @@ public class ProgressBarCardComponent extends Div {
 		// System.out.println(singleChartJsString);
 		System.out.println("-------------END-----------------");
 
-		setSizeFull();
+		//setSizeFull();
+		setWidthFull();
 
 		Div card = new Div();
 		card.addClassName("shadow");
-		card.addClassName("mb-3");
+		card.addClassName("mb-2");
 		card.addClassName("widget-chart");
 		card.addClassName("widget-chart2");
 		card.addClassName("text-left");
@@ -54,10 +55,14 @@ public class ProgressBarCardComponent extends Div {
 		widgetNumbers.addClassName("mt-0");
 		widgetNumbers.addClassName("fsize-3");
 		
-		if (color.isEmpty() || color.isBlank()) {
-			widgetNumbers.addClassName("text-success");
+		if(color != null) {
+			if (color.isEmpty() || color.isBlank()) {
+				widgetNumbers.addClassName("text-success");
+			} else {
+				widgetNumbers.getStyle().set("color", color);
+			}
 		} else {
-			widgetNumbers.getStyle().set("color", color);
+				widgetNumbers.addClassName("text-success");
 		}
 		
 		if(isPercentage) {
@@ -92,7 +97,7 @@ public class ProgressBarCardComponent extends Div {
 		}
 		
 		progressBar.getStyle().set("width", "100%");
-		progressBar.getStyle().set("height", "1.2rem");
+		progressBar.getStyle().set("height", "0.9rem");
 		widgetContentRight.add(progressBar);
 
 		}
