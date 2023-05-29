@@ -241,7 +241,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 		Tabs sTabs = new Tabs();
 		sTabs.setId("subtabs");
-		sTabs.getStyle().set("background", "#bbeec5");
+		sTabs.getStyle().set("background", "#0D6938");
 		Div contentContainer = new Div();
 
 		// contentContainer.getStyle().set("background", "#f1f4f6");
