@@ -89,6 +89,7 @@ public class DistrictsView extends AbstractConfigurationView {
 	private MenuBar bulkOperationsDropdown;
 	
 	private RowCount rowCount;
+	
 
 	public DistrictsView() {
 

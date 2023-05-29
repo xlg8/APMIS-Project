@@ -148,7 +148,7 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 		
 		AreaReferenceDto aread = criteria.getArea();  //== null
 
-		System.out.println(aread.getUuid() + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz "+criteria.getArea()); //== null
+//		System.out.println(aread.getUuid() + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz "+criteria.getArea()); //== null
 
 		if (criteria.getArea() != null) { //why passing?
 			System.out.println("zzzzzzzzzzzzzzzzzzzz"+aread.getUuid());
