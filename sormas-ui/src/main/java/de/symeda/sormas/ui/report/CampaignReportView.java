@@ -49,9 +49,9 @@ public class CampaignReportView extends AbstractView {
 
 		
 		
-		CampaignStatisticsView bview = new CampaignStatisticsView();
+		CampaignStatisticsView campaignStatisticsView = new CampaignStatisticsView();
 		gridLayout = new VerticalLayout();
-		tabsheet.addTab(bview, "Aggregate Report");
+		tabsheet.addTab(campaignStatisticsView, "Aggregate Report");
 
 		
 		
