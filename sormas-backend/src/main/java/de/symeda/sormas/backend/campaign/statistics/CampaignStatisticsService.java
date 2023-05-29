@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -21,6 +22,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsCriteria;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsGroupingDto;
+import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
@@ -28,19 +30,24 @@ import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.region.Region;
+import de.symeda.sormas.backend.user.User;
+import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.ModelConstants;
 
 @Stateless
 @LocalBean
 public class CampaignStatisticsService {
 
+	@EJB
+	private UserService userService;
+	
+	
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
-	private boolean isCampaingFormMetaChanged = false;
+	
 
 	public List<CampaignStatisticsDto> getCampaignStatistics(CampaignStatisticsCriteria criteria) {
-		isCampaingFormMetaChanged = (criteria.getCampaignFormMeta() != null);
-		
+		//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + buildStatisticsQuery(criteria));//SQLExtractor.from(em.createNativeQuery(buildStatisticsQuery(criteria))));
 		Query campaignsStatisticsQuery = em.createNativeQuery(buildStatisticsQuery(criteria));
 		final CampaignJurisdictionLevel groupingLevel = criteria.getGroupingLevel();
 		Map<CampaignStatisticsGroupingDto, CampaignStatisticsDto> results = new LinkedHashMap<>();
@@ -76,34 +83,18 @@ public class CampaignStatisticsService {
 			.append(" FROM ")
 			.append(CampaignFormData.TABLE_NAME)
 			.toString();
-		String joinExpression = "";
-		if(isCampaingFormMetaChanged) {
-			joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
-		} else {
-			joinExpression = new StringBuilder().append(buildJoinExpression()).toString();
-		} 
-	
+		String joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
 		StringBuilder queryBuilder = new StringBuilder();
 		queryBuilder.append(selectExpression).append(joinExpression);
 		queryBuilder.append(" WHERE ");
 		String whereExpression = buildWhereExpression(criteria);
-		
-		
-		
-		
-		if(isCampaingFormMetaChanged) {
-			if (!whereExpression.isEmpty()) {
-				queryBuilder.append(whereExpression).append(" AND ");
-			}
-			queryBuilder.append(buildJsonWhereExpression());
-			queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
-		}else {
-			if (!whereExpression.isEmpty()) {
-				queryBuilder.append(whereExpression);
-			}
-			queryBuilder.append(buildGroupByExpression(criteria)).append(buildOrderByExpression(criteria));
+		if (!whereExpression.isEmpty()) {
+			queryBuilder.append(whereExpression).append(" AND ");
 		}
-		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + queryBuilder.toString());//SQLExtractor.from(em.createNativeQuery(buildStatisticsQuery(criteria))));
+		queryBuilder.append(buildJsonWhereExpression());
+		
+		queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
+		
 		
 		return queryBuilder.toString();
 	}
@@ -190,27 +181,57 @@ public class CampaignStatisticsService {
 				.append(criteria.getCampaign().getUuid())
 				.append("'");
 		}
-		
-		if (whereBuilder.length() > 0) {
-			whereBuilder.append(" AND ");
+			
+		final User usr = userService.getCurrentUser();
+		usr.getUsertype();
+		System.out.println(usr.getUsertype() + "getttttttttt current user ");
+//		whereBuilder.append(Campaign.TABLE_NAME)
+//		.append(".")
+//		.append(Campaign.PUBLISHED)
+//		.append(" = true");
+//		
+		if(usr.getUsertype().equals(UserType.EOC_USER)) {
+			if (whereBuilder.length() > 0) {
+				whereBuilder.append(" AND ");
+			}
+			whereBuilder
+			.append(" (")
+			.append(CampaignFormMeta.TABLE_NAME)
+			.append(".")
+			.append(CampaignFormMeta.FORM_TYPE)
+			.append(" = 'post-campaign'")
+			.append(" AND ")
+			.append(Campaign.TABLE_NAME)
+			.append(".")
+			.append(Campaign.PUBLISHED)
+			.append(" = true")
+			.append(") OR (")
+			
+			.append(CampaignFormMeta.TABLE_NAME)
+			.append(".")
+			.append(CampaignFormMeta.FORM_TYPE)
+			.append(" != 'post-campaign'")
+			.append(")")
+			;
 		}
 		
-		
-		whereBuilder.append(Campaign.TABLE_NAME)
-		.append(".")
-		.append(Campaign.PUBLISHED)
-		.append(" = true");
 		
 		if (criteria.getCampaignFormMeta() != null) {
 			if (whereBuilder.length() > 0) {
 				whereBuilder.append(" AND ");
 			}
+			
 			whereBuilder.append(CampaignFormMeta.TABLE_NAME)
-				.append(".")
-				.append(CampaignFormMeta.UUID)
-				.append(" = '")
-				.append(criteria.getCampaignFormMeta().getUuid())
-				.append("'");
+			.append(".").append(CampaignFormMeta.UUID)
+			.append(" = '")
+					.append(criteria.getCampaignFormMeta().getUuid())
+					.append("'");
+
+//					.append(" AND ")
+//					.append(CampaignFormMeta.TABLE_NAME)
+//					.append(".")
+//					.append(CampaignFormMeta.FORM_TYPE)
+//					.append(" = 'post-campaign'");
 		}		
 		
 		if (criteria.getRegion() != null) {
@@ -394,11 +415,8 @@ public class CampaignStatisticsService {
 			
 			.append(" END as sumValue");
 		
-		if(isCampaingFormMetaChanged) {
+		System.out.println("))))))))))))))))))))))))))))))))))))))))))))))))))))) "+jsonQueryExpression);
 		return jsonQueryExpression.toString();
-		}else {
-		return "";
-		}
 	}
 	
 	
