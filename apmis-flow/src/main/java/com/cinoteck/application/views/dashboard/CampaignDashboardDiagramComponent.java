@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -97,12 +98,13 @@ public class CampaignDashboardDiagramComponent extends Div {
 		addClassName("col-md-12");
 		addClassName("col-lg-"+cardWidth);
 		
-		
+		getStyle().set("padding-right", "1px!important");
+		getStyle().set("padding-left", "10px!important");
 		
 		final String chartrandom = generateShortUUID();
 		randomx = chartrandom;
 		
-		Notification.show(randomx);
+//		Notification.show(randomx);
 		
 		final Map<Object, String> axisInfo = new HashMap<>();
 		for (CampaignDiagramDataDto diagramData : diagramDataList) {
@@ -171,6 +173,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 		////////////////////
 	}
 
+	@ClientCallable
 	public void buildDiagramChart(String title, CampaignJurisdictionLevel campaignJurisdictionLevelGroupBy) {
 		final StringBuilder hcjs = new StringBuilder();
 		if (chartType.equalsIgnoreCase(DiagramType.CARD.toString())) {
@@ -208,7 +211,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 					+ "                    })\n" + "                },\n" + "                text: 'Switch Charts'\n"
 					+ "            }\n");
 
-			hcjs.append(",  toggleLabels: { onclick: function() { window.changeDiagramLabels_"
+			hcjs.append(",  toggleLabels: { onclick: function() { changeDiagramLabels_"
 					+ diagramDefinition.getDiagramId() + "(); }, text: '"
 					+ (showDataLabels ? I18nProperties.getCaption(Captions.dashboardHideDataLabels)
 							: I18nProperties.getCaption(Captions.dashboardShowDataLabels))
@@ -261,6 +264,11 @@ public class CampaignDashboardDiagramComponent extends Div {
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx);
 			this.add(chartComponent);
 		}
+	}
+	
+	@ClientCallable
+	public void greetxc(String name) {
+//	System.out.println("--------------------------------------------------------------------Hi, " + name);
 	}
 
 	private void appendAxisInformation(StringBuilder hcjs, Map<String, Long> stackMap,
