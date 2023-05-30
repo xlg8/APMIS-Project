@@ -44,9 +44,11 @@ public class CampaignStatisticsService {
 	
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
+	private boolean isCampaingFormMetaChanged = false;
 	
 
 	public List<CampaignStatisticsDto> getCampaignStatistics(CampaignStatisticsCriteria criteria) {
+		isCampaingFormMetaChanged = (criteria.getCampaignFormMeta() != null);
 		//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + buildStatisticsQuery(criteria));//SQLExtractor.from(em.createNativeQuery(buildStatisticsQuery(criteria))));
 		Query campaignsStatisticsQuery = em.createNativeQuery(buildStatisticsQuery(criteria));
 		final CampaignJurisdictionLevel groupingLevel = criteria.getGroupingLevel();
@@ -73,7 +75,7 @@ public class CampaignStatisticsService {
 	}
 
 	private String buildStatisticsQuery(CampaignStatisticsCriteria criteria) {
-		String selectExpression = new StringBuilder("SELECT COUNT(").append(CampaignFormMeta.TABLE_NAME)
+			String selectExpression = new StringBuilder("SELECT COUNT(").append(CampaignFormMeta.TABLE_NAME)
 			.append(".")
 			.append(CampaignFormMeta.UUID)
 			.append(")")
@@ -83,20 +85,49 @@ public class CampaignStatisticsService {
 			.append(" FROM ")
 			.append(CampaignFormData.TABLE_NAME)
 			.toString();
-		String joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
+		String joinExpression = "";
+		if(isCampaingFormMetaChanged) {
+			joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
+		} else {
+			joinExpression = new StringBuilder().append(buildJoinExpression()).toString();
+		} 
+		
 		StringBuilder queryBuilder = new StringBuilder();
 		queryBuilder.append(selectExpression).append(joinExpression);
 		queryBuilder.append(" WHERE ");
 		String whereExpression = buildWhereExpression(criteria);
-		if (!whereExpression.isEmpty()) {
-			queryBuilder.append(whereExpression).append(" AND ");
+		
+		if(isCampaingFormMetaChanged) {
+			if (!whereExpression.isEmpty()) {
+				queryBuilder.append(whereExpression).append(" AND ");
+			}
+			queryBuilder.append(buildJsonWhereExpression());
+			queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
+		}else {
+			if (!whereExpression.isEmpty()) {
+				queryBuilder.append(whereExpression);
+			}
+			queryBuilder.append(buildGroupByExpression(criteria)).append(buildOrderByExpression(criteria));
 		}
-		queryBuilder.append(buildJsonWhereExpression());
-		
-		queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
-		
+		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + queryBuilder.toString());//SQLExtractor.from(em.createNativeQuery(buildStatisticsQuery(criteria))));
 		
 		return queryBuilder.toString();
+		
+		//////
+//		String joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
+//		StringBuilder queryBuilder = new StringBuilder();
+//		queryBuilder.append(selectExpression).append(joinExpression);
+//		queryBuilder.append(" WHERE ");
+//		String whereExpression = buildWhereExpression(criteria);
+//		if (!whereExpression.isEmpty()) {
+//			queryBuilder.append(whereExpression).append(" AND ");
+//		}
+//		queryBuilder.append(buildJsonWhereExpression());
+//		
+//		queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
+//		
+//		
+//		return queryBuilder.toString();
 	}
 	
 	
@@ -181,7 +212,11 @@ public class CampaignStatisticsService {
 				.append(criteria.getCampaign().getUuid())
 				.append("'");
 		}
-			
+		
+//		if (whereBuilder.length() > 0) {
+//			whereBuilder.append(" AND ");
+//		}
+	
 		final User usr = userService.getCurrentUser();
 		usr.getUsertype();
 		System.out.println(usr.getUsertype() + "getttttttttt current user ");
@@ -211,8 +246,7 @@ public class CampaignStatisticsService {
 			.append(".")
 			.append(CampaignFormMeta.FORM_TYPE)
 			.append(" != 'post-campaign'")
-			.append(")")
-			;
+			.append(")");
 		}
 		
 		
@@ -227,11 +261,7 @@ public class CampaignStatisticsService {
 					.append(criteria.getCampaignFormMeta().getUuid())
 					.append("'");
 
-//					.append(" AND ")
-//					.append(CampaignFormMeta.TABLE_NAME)
-//					.append(".")
-//					.append(CampaignFormMeta.FORM_TYPE)
-//					.append(" = 'post-campaign'");
+
 		}		
 		
 		if (criteria.getRegion() != null) {
@@ -411,12 +441,16 @@ public class CampaignStatisticsService {
 			.append("') = 'true' THEN 1 ELSE 0 END)")
 			
 			
-			*/	
+			*/	 
 			
 			.append(" END as sumValue");
 		
-		System.out.println("))))))))))))))))))))))))))))))))))))))))))))))))))))) "+jsonQueryExpression);
-		return jsonQueryExpression.toString();
+//		System.out.println("))))))))))))))))))))))))))))))))))))))))))))))))))))) "+jsonQueryExpression);
+		if(isCampaingFormMetaChanged) {
+			return jsonQueryExpression.toString();
+			}else {
+			return "";
+			}
 	}
 	
 	
