@@ -31,7 +31,7 @@ setSizeFull();
 
 		// Create the outer div
 		Div outerDiv = new Div();
-		outerDiv.addClassNames("mb-3", "card");
+		outerDiv.addClassNames("mb-2", "card");
 
 		// Create the card header tab div
 		Div cardHeaderTabDiv = new Div();
