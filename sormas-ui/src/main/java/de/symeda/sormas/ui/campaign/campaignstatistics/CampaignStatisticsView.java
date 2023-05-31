@@ -45,6 +45,7 @@ import de.symeda.sormas.ui.utils.GridExportStreamResource;
 public class CampaignStatisticsView extends AbstractCampaignView {
 
 	public static final String VIEW_NAME = ROOT_VIEW_NAME + "/campaignstatistics";
+	public static final String VIEW_NAME_ALT = "";
 
 	private final CampaignSelector campaignSelector;
 	private final CampaignStatisticsCriteria criteria;
@@ -55,7 +56,7 @@ public class CampaignStatisticsView extends AbstractCampaignView {
 
 	@SuppressWarnings("unchecked")
 	public CampaignStatisticsView() {
-		super(VIEW_NAME);
+		super(VIEW_NAME_ALT);
 
 		criteria = ViewModelProviders.of(getClass()).get(CampaignStatisticsCriteria.class);
 

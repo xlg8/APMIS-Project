@@ -120,7 +120,6 @@ public class CampaignDashboardDataProvider {
 	}
 
 	public void setCampaignJurisdictionLevelGroupBy(CampaignJurisdictionLevel campaignJurisdictionLevelGroupBy) {
-		
 		if (this.campaignJurisdictionLevelGroupBy != campaignJurisdictionLevelGroupBy) {
 			campaignDashboardDiagrams.clear();
 			this.campaignJurisdictionLevelGroupBy = campaignJurisdictionLevelGroupBy;

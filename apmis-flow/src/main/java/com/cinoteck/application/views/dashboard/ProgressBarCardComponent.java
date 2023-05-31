@@ -13,9 +13,9 @@ public class ProgressBarCardComponent extends Div {
 
 	public ProgressBarCardComponent(String randomxx, String value, String title, String color, boolean isPercentage) {
 
-		System.out.println(randomxx + "-------------BEGIN-----------------" + value);
-		// System.out.println(singleChartJsString);
-		System.out.println("-------------END-----------------");
+//		System.out.println(randomxx + "-------------BEGIN-----------------" + value);
+//		// System.out.println(singleChartJsString);
+//		System.out.println("-------------END-----------------");
 
 		//setSizeFull();
 		setWidthFull();
