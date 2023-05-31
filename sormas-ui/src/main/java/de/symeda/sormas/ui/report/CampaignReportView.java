@@ -49,9 +49,9 @@ public class CampaignReportView extends AbstractView {
 
 		
 		
-		CampaignStatisticsView bview = new CampaignStatisticsView();
+		CampaignStatisticsView campaignStatisticsView = new CampaignStatisticsView();
 		gridLayout = new VerticalLayout();
-		tabsheet.addTab(bview, "Aggregate Report");
+		tabsheet.addTab(campaignStatisticsView, "Aggregate Report"); 
 
 		
 		
@@ -89,9 +89,9 @@ public class CampaignReportView extends AbstractView {
 
 		tabsheetx.setHeightFull();
 		TabSheet tabsheetxr = new TabSheet();
-		tabsheet.addTab(tabsheetxr, "Data Completeness");
+		tabsheet.addTab(tabsheetxr, "Data Completeness"); 
 
-		tabsheet.addTab(tabsheetx, "Mobile Users");
+		tabsheet.addTab(tabsheetx, "Mobile Users"); 
 
 		FormAccess frmss[] = FormAccess.values();
 		// for (FormAccess lopper : frmss) {

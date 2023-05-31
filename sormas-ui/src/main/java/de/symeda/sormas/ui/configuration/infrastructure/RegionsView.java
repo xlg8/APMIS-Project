@@ -88,6 +88,7 @@ public class RegionsView extends AbstractConfigurationView {
 	private MenuBar bulkOperationsDropdown;
 	
 	private RowCount rowsCount;
+	
 
 	public RegionsView() {
 
