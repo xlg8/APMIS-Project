@@ -237,7 +237,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 		} else {
 		//@formatter:off
 		hcjs.append(""
-				+ "var stuffx = ['column', 'bar', 'line', 'area', 'scatter'],\n"
+				+ "var stuffx = ['column', 'bar', 'line', 'pie'],\n"
 				+ "        counterx = 0;\n"
 				+ "var "+randomx+" = new Highcharts.Chart({"
 				+ "chart:{ "
@@ -253,7 +253,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ " enabled: true,");
 		//@formatter:on
 
-			hcjs.append(" menuItemDefinitions: {  switchChart: {\n" + "                onclick: function() {\n"
+			hcjs.append(" menuItemDefinitions: { switchChart: {\n" + "                onclick: function() {\n"
 					+ " 			counterx = (counterx + 1) % stuffx.length;\n"
 					+ "                    var chartType = this.options.chart.type;\n" + "\n"
 
@@ -262,31 +262,31 @@ public class CampaignDashboardDiagramComponent extends Div {
 					+ "                    })\n" + "                },\n" + "                text: 'Switch Charts'\n"
 					+ "            }\n");
 
-			hcjs.append(",  toggleLabels: { onclick: function() { changeDiagramLabels_"
-					+ diagramDefinition.getDiagramId() + "(); }, text: '"
-					+ (showDataLabels ? I18nProperties.getCaption(Captions.dashboardHideDataLabels)
-							: I18nProperties.getCaption(Captions.dashboardShowDataLabels))
-					+ "' } ");
+//			hcjs.append(",  toggleLabels: { onclick: function() { changeDiagramLabels_"
+//					+ diagramDefinition.getDiagramId() + "(); }, text: '"
+//					+ (showDataLabels ? I18nProperties.getCaption(Captions.dashboardHideDataLabels)
+//							: I18nProperties.getCaption(Captions.dashboardShowDataLabels))
+//					+ "' } ");
 			
 			//getElement().callJsFunction("changeDiagramPercentage_" + diagramDefinition.getDiagramId());
 			
 			
-			if (totalValuesMap != null) {
-				hcjs.append(", togglePercentages: { onclick: function() { window.changeDiagramPercentage_"
-						+ diagramDefinition.getDiagramId() + "(); }, text: '"
-						+ (showPercentages ? I18nProperties.getCaption(Captions.dashboardShowTotalValues)
-								: I18nProperties.getCaption(Captions.dashboardShowPercentageValues))
-						+ "' } ");
-			}
+//			if (totalValuesMap != null) {
+//				hcjs.append(", togglePercentages: { onclick: function() { window.changeDiagramPercentage_"
+//						+ diagramDefinition.getDiagramId() + "(); }, text: '"
+//						+ (showPercentages ? I18nProperties.getCaption(Captions.dashboardShowTotalValues)
+//								: I18nProperties.getCaption(Captions.dashboardShowPercentageValues))
+//						+ "' } ");
+//			}
 
 			hcjs.append(" }, ");
 
 			hcjs.append(" buttons:{ contextButton:{ theme:{ fill: 'transparent' }, ").append(
-					"menuItems: ['switchChart','viewFullscreen', 'printChart', 'separator', 'downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS', 'View data table'");
+					"menuItems: ['switchChart','viewFullscreen', 'printChart', 'separator', 'downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS', 'viewData'");
 
-			hcjs.append(", 'separator', 'toggleLabels'");
+			//hcjs.append(", 'separator', 'toggleLabels'");
 			if (totalValuesMap != null) {
-				hcjs.append(", 'togglePercentages'");
+			//	hcjs.append(", 'togglePercentages'");
 			}
 
 			// hcjs.append(", 'toggleChartType'");
@@ -299,7 +299,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 		//@formatter:off
 		final int legendMargin = stackMap.size() > 1 ? 60 : 30;
 		hcjs.append("} } }," 
-				+ "legend: { backgroundColor: 'transparent', margin: " + legendMargin + " },"
+				//+ "legend: { backgroundColor: 'transparent', margin: " + legendMargin + " },"
 				+ "colors: ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5', '#70AD47', '#FF0000', '#6691C4','#ffba08','#519e8a','#ed254e','#39a0ed','#FF8C00','#344055','#D36135','#82d173'],"
 				+ "title:{ text: '" + StringEscapeUtils.escapeEcmaScript(title) + "', style: { fontSize: '15px' } },");
 		//@formatter:on
@@ -317,11 +317,11 @@ public class CampaignDashboardDiagramComponent extends Div {
 			//addClassName("col-md-12");
 			//addClassName("col-lg-6");
 			
-			System.out.println(hcjs.toString());
+			System.out.println(hcjs.toString());	
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx);
 			this.add(chartComponent);
 		}
-	}
+	}	
 	
 	@ClientCallable
 	public void greetxc(String name) {
@@ -831,7 +831,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				hcjs.append(" pie: {\n" + "            allowPointSelect: true,\n" + "            cursor: 'pointer',\n"
 						+ "            dataLabels: {\n" + "                enabled: true,\n"
 						+ "                format: '<b>{point.name}</b>: {point.percentage:.1f} %'\n"
-						+ "            }\n" + "        }");
+						+ "            },  showInLegend: "+showDataLabels+"\n" + "        }");
 			} else if (pieChart && secondaryChartType.equalsIgnoreCase(DiagramType.DOUGHNUT.toString())) {
 
 				hcjs.append(", pie: {\n" + "            dataLabels: {\n" + "                enabled: true,\n"

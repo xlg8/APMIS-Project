@@ -51,6 +51,7 @@ import de.symeda.sormas.api.user.UserDto;
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")
+@JavaScript("https://code.highcharts.com/modules/variable-pie.js")
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")

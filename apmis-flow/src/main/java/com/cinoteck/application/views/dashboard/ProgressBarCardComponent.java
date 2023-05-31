@@ -66,39 +66,48 @@ public class ProgressBarCardComponent extends Div {
 		}
 		
 		if(isPercentage) {
+			if(value.contains(".")) {
 			widgetNumbers.setText(value + "%");
+			}else {
+				widgetNumbers.setText(value);
+			}
 		} else {
 				widgetNumbers.setText(value);
 		}
 		widgetContentLeft.add(widgetNumbers);
-
+			
+		if(isPercentage) {
+			
+			
 		Div widgetContentRight = new Div();
 		widgetContentRight.addClassName("widget-content-right");
 		widgetContentRight.addClassName("w-100");
+		widgetContentRight.getStyle().set("width", "70%!important");
+		if(value.contains(".")) {
 		widgetContentWrapper.add(widgetContentRight);
-		
-		if(isPercentage) {
+		}
+		if(value.contains(".")) {
 		ProgressBar progressBar = new ProgressBar();
 		progressBar.addClassName("progress-bar-xs");
 		progressBar.setMin(0);
 		progressBar.setMax(100);
 		Float fnl = 111.0f;
 		
-		if(value.contains(".")) {
+		
 			String result = value.substring(0, value.indexOf("."));
 			if(Integer.parseInt(result) < 100) {
 				fnl = Float.parseFloat(value);
 				progressBar.setValue(fnl);
 			}else if(Integer.parseInt(result) > 100) {
 				progressBar.setValue(100.0);
-			}			
-		}else {
-			progressBar.setValue(0.0);
+			}		
+			
+			progressBar.getStyle().set("width", "100%");
+			progressBar.getStyle().set("height", "0.9rem");
+			widgetContentRight.add(progressBar);
 		}
 		
-		progressBar.getStyle().set("width", "100%");
-		progressBar.getStyle().set("height", "0.9rem");
-		widgetContentRight.add(progressBar);
+		
 
 		}
 		
