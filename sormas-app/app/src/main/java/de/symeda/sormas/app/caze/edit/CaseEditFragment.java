@@ -697,7 +697,8 @@ public class CaseEditFragment extends BaseEditFragment<FragmentCaseEditLayoutBin
 		return false;
 	}
 
-	public CaseConfirmationBasis getCaseConfirmationBasis() {
+
+    public CaseConfirmationBasis getCaseConfirmationBasis() {
 		return caseConfirmationBasis;
 	}
 

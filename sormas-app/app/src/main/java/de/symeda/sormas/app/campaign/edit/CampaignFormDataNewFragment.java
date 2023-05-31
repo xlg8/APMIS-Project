@@ -232,8 +232,9 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                             isdependingOn = true;
                         }
                         Boolean finalIsdependingOn = isdependingOn;
-
                         dynamicField.addValueChangedListener(field -> {
+
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -325,6 +326,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                         }
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -414,6 +416,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                         }
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -502,6 +505,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                         }
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -593,6 +597,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
 
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -683,6 +688,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
 
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -772,6 +778,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
 
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -862,6 +869,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
 
                         Boolean finalIsdependingOn = isdependingOn;
                         dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
                             final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
@@ -955,18 +963,15 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                     Boolean isdependingOn = false;
                     if (dependingOn != null) {
                         isdependingOn = true;
-                        System.out.println(">>>>>>>>>>>>>>>>> is depending on on? >>> TRUE");
                     }
 
                     Boolean finalIsdependingOn = isdependingOn;
                     dynamicField.addValueChangedListener(field -> {
-                            final Boolean isRangeandExpressionx = finalIsRangeandExpression;
-                            System.out.println(isRangeandExpressionx+">>>>>>>>>>>>>>>>>finalIsdependingOn>>>>>>> "+finalIsdependingOn);
-
+                        baseEditActivity.setDataModified(true);
+                        final Boolean isRangeandExpressionx = finalIsRangeandExpression;
                             Boolean okk = field.getFocusedChild() != null ? true : false;
                             final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
                             campaignFormDataEntry.setValue(field.getValue());
-
                                 if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
                                     for(CampaignFormDataEntry det : formValues){
                                         if(det.getValue() != null) {
