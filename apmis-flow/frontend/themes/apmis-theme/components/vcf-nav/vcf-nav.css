@@ -1,0 +1,80 @@
+       :host {
+      display: block;
+      font-family: var(--lumo-font-family);
+      font-size: var(--lumo-font-size-m);
+      font-weight: 500;
+      line-height: var(--lumo-line-height-xs);
+      color: var(--lumo-body-text-color);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    summary {
+      cursor: var(--lumo-clickable-cursor, default);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: var(--lumo-border-radius-m);
+    }
+
+    summary ::slotted([slot='label']) {
+      display: block;
+      font-size: var(--lumo-font-size-s);
+      color: var(--lumo-secondary-text-color);
+      margin: var(--lumo-space-s);
+      border-radius: inherit;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::marker {
+      content: '';
+    }
+
+    summary::after {
+      font-family: lumo-icons;
+      color: var(--lumo-tertiary-text-color);
+      font-size: var(--lumo-icon-size-m);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--lumo-size-s);
+      height: var(--lumo-size-s);
+      transition: transform 140ms;
+      margin: 0 var(--lumo-space-xs);
+    }
+
+    :host([collapsible]) summary::after {
+      content: var(--lumo-icons-dropdown);
+    }
+
+    @media (any-hover: hover) {
+      summary:hover::after {
+        color: var(--lumo-body-text-color);
+      }
+    }
+
+    :host([collapsed]) summary::after {
+      transform: rotate(-90deg);
+    }
+
+    @supports selector(:focus-visible) {
+      summary {
+        outline: none;
+      }
+
+      summary:focus-visible {
+        box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
+      }
+    }
+
+    slot {
+      /* Needed to make role="list" work */
+      display: block;
+    }
+ 

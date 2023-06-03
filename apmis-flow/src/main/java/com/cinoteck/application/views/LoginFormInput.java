@@ -38,6 +38,7 @@ public class LoginFormInput extends VerticalLayout {
 		username = new TextField();
 		username.setPlaceholder("Username");
 		username.setClassName("loginUsername");
+		username.setId("loginUsername");
 		username.setLabel("Username");
 		username.getStyle().set("width", "100%");
 		username.getStyle().set("font-weight", "200");

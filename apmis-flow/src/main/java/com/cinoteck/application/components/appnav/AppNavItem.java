@@ -337,6 +337,7 @@ public class AppNavItem extends Component {
     public AppNavItem setExpanded(boolean value) {
         if (value) {
             getElement().setAttribute("expanded", "");
+//            getElement().getStyle().set("@active", "color", "red");
         } else {
             getElement().removeAttribute("expanded");
         }
