@@ -20,6 +20,11 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer)
 	z-index: 1;
 }
 
+rect {
+	stroke:none;
+	fill: white;
+}
+
 .card-header-tab {
 	display: none !important;
 }

@@ -248,8 +248,9 @@ public class CampaignEditForm extends AbstractEditForm<CampaignDto> {
 		VerticalLayout tab1 = new VerticalLayout();
 
 		campaignFormsGridComponent = new CampaignFormsGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-						: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
+//				this.campaignDto == null ? Collections.EMPTY_LIST
+//						: 
+							new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
 				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN));
 		getContent().addComponent(campaignFormsGridComponent, CAMPAIGN_DATA_LOC);
 		tab1.addComponent(campaignFormsGridComponent);

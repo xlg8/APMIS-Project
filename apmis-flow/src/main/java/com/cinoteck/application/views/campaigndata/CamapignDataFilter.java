@@ -23,6 +23,7 @@ import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
@@ -33,6 +34,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+
 
 public class CamapignDataFilter extends VerticalLayout {
 
@@ -66,6 +68,8 @@ public class CamapignDataFilter extends VerticalLayout {
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
+	
+//	private CampaignFormPhaseSelector campaignFormPhaseSelector;
 
 	public final TextField filterr = new TextField();
 
@@ -97,8 +101,8 @@ public class CamapignDataFilter extends VerticalLayout {
 
 		campaignPhase.setLabel("Campaign Phase");
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
-		campaignPhase.setItems("Pre-Campaign", "Intra- Campaign", "Post- Campaign");
-		campaignPhase.setValue("");
+		campaignPhase.setItems(CampaignPhase.values().toString());
+//		campaignPhase.setValue("");
 		campaignPhase.getStyle().set("padding-top", "0px");
 		campaignPhase.setClassName("col-sm-6, col-xs-6");
 

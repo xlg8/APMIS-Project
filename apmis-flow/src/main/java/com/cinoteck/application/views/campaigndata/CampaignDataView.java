@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.views.MainLayout;
+
 import com.vaadin.flow.component.accordion.Accordion;
 //import com.cinoteck.application.views.campaign.MonthlyExpense.DailyExpenses;
 import com.vaadin.flow.component.button.Button;
@@ -30,11 +31,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Display;
+
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -45,6 +49,7 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
@@ -55,11 +60,11 @@ public class CampaignDataView extends VerticalLayout {
 //	campaignStartDate, campaignEndDate, campaignDescription;
 	Grid<CampaignFormDataIndexDto> grid = new Grid<>(CampaignFormDataIndexDto.class, false);
 	private GridListDataView<CampaignFormDataIndexDto> dataView;
-
+	CampaignFormDataCriteria criteria;
 	
 	
 	public CampaignDataView() {
-		CampaignFormDataCriteria criteria;
+		
 		criteria = new CampaignFormDataCriteria();
 		add(camapignDataFilter);
 		configureGrid(criteria);
@@ -85,7 +90,7 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
 ////
 		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
 ////		
 		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Proince").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true);
@@ -96,17 +101,34 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true);
-////
-////		
-////		
+		
 		
 		grid.setVisible(true);
+//		grid.setDataProvider();
 		grid.setAllRowsVisible(true);
 
 //		List<CampaignFormDataIndexDto> campaigns = FacadeProvider.getCampaignFormDataFacade().getIndexList(criteria, null, null, null);
 //		grid.setItems(campaigns);
 //		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
 add(grid);
+	}
+	
+	public void setDataProvider() {
+		System.out.println("  %%%%%%%%%%%%%%%%%%%%%%%%%%% ");
+		DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider = DataProvider
+				.fromFilteringCallbacks(
+						query -> FacadeProvider.getCampaignFormDataFacade()
+								.getIndexList(null, query.getOffset(), query.getLimit(),
+										query.getSortOrders().stream()
+												// .map(sortOrder -> new SortProperty(sortOrder.getSorted()))
+												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+														sortOrder.getDirection() == SortDirection.ASCENDING))
+												.collect(Collectors.toList()))
+								.stream(),
+						query -> (int) FacadeProvider.getCampaignFormDataFacade()
+								.count(query.getFilter().orElse(null)));
+		setDataProvider();
+		//setSelectionMode(SelectionMode.MULTI);
 	}
 
 }
