@@ -60,7 +60,7 @@ public class CampaignSummaryGridView extends VerticalLayout {
 			int chartWidthBoostraped = (int) Math.ceil((double) chartWidth / 100 * 12);
 			
 
-			System.out.println(campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramType() +" : " + campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement().getWidth() + "  ++++++++++++  " + chartWidthBoostraped);
+		//	System.out.println(campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramType() +" : " + campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement().getWidth() + "  ++++++++++++  " + chartWidthBoostraped);
 
 			campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramId();
 

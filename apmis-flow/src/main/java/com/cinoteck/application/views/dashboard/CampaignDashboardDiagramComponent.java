@@ -69,7 +69,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 	private Map mapSeries = new HashMap();
 
 	private BarChartCardComponent chartComponent;
-	private NumberCardComponent cardComponent;
+	//private NumberCardComponent cardComponent;
 	private ProgressBarCardComponent percentageCardComponent;
 	private String randomx = "";
 
@@ -243,9 +243,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "chart:{ "
 				+ " renderTo: '"+randomx+"', "
 				+ " type: '"+chartType+"', "
-				+ " backgroundColor: 'transparent', "
-				+ " borderRadius: '1', "
-				+ " borderWidth: '1', "
+				+ " backgroundColor: 'white', "
+//				+ " borderRadius: '1', "
+//				+ " borderWidth: '1', "
 				+ " spacing: [20, 20, 20, 20], "
 				+ "},"
 				+ "credits:{ enabled: false },"
@@ -299,7 +299,8 @@ public class CampaignDashboardDiagramComponent extends Div {
 		//@formatter:off
 		final int legendMargin = stackMap.size() > 1 ? 60 : 30;
 		hcjs.append("} } }," 
-				//+ "legend: { backgroundColor: 'transparent', margin: " + legendMargin + " },"
+				+ "borderColor: 'transparent',"
+				+ "legend: { backgroundColor: 'transparent', margin: " + legendMargin + " },"
 				+ "colors: ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5', '#70AD47', '#FF0000', '#6691C4','#ffba08','#519e8a','#ed254e','#39a0ed','#FF8C00','#344055','#D36135','#82d173'],"
 				+ "title:{ text: '" + StringEscapeUtils.escapeEcmaScript(title) + "', style: { fontSize: '15px' } },");
 		//@formatter:on
@@ -311,13 +312,13 @@ public class CampaignDashboardDiagramComponent extends Div {
 			hcjs.append("});");
 
 			//TODO This should have all the JAVASCRIPT String for the entire card.
-		//	System.out.println(hcjs.toString());
+			System.out.println(hcjs.toString());
 			
 			
 			//addClassName("col-md-12");
 			//addClassName("col-lg-6");
 			
-			System.out.println(hcjs.toString());	
+		//	System.out.println(hcjs.toString());	
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx);
 			this.add(chartComponent);
 		}
@@ -325,7 +326,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 	
 	@ClientCallable
 	public void greetxc(String name) {
-	System.out.println("--------------------------------------------------------------------Hi, " + name);
+	//System.out.println("--------------------------------------------------------------------Hi, " + name);
 	}
 
 	private void appendAxisInformation(StringBuilder hcjs, Map<String, Long> stackMap,
@@ -630,9 +631,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 					
 					if ((showPercentages && totalValuesMap != null) && cardChart) {
 
-						for (Object axisKeddy : totalValuesMap.keySet()) {
-							System.out.println(totalValuesMap.get(axisKey));
-						}
+//						for (Object axisKeddy : totalValuesMap.keySet()) {
+//							System.out.println(totalValuesMap.get(axisKey));
+//						}
 
 //						System.out.println(seriesData.get(axisKey).getValueSum() + "_____check point 1a_________"
 //								+ totalValuesWithoutStacks + " 0000 " + series.getStack());

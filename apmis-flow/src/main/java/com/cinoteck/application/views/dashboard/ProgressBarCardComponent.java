@@ -57,12 +57,12 @@ public class ProgressBarCardComponent extends Div {
 		
 		if(color != null) {
 			if (color.isEmpty() || color.isBlank()) {
-				widgetNumbers.addClassName("text-success");
+				widgetNumbers.getStyle().set("color", "green");
 			} else {
 				widgetNumbers.getStyle().set("color", color);
 			}
 		} else {
-				widgetNumbers.addClassName("text-success");
+			widgetNumbers.getStyle().set("color", "green");
 		}
 		
 		if(isPercentage) {

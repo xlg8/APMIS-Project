@@ -22,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -36,7 +37,7 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
-
+@Route(value = "/edit-user")
 public class UserForm  extends FormLayout{
 	
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
@@ -73,9 +74,10 @@ public class UserForm  extends FormLayout{
 	Button delete = new Button("Delete");
 	Button close = new Button("Cancel");
 	
-	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts) {
-addClassName("contact-form");
+	public UserForm() {}
+	
+	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces, List<DistrictReferenceDto> districts) {
+		addClassName("contact-form");
 		
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
