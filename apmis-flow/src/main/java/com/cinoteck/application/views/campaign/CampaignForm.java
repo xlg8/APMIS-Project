@@ -82,10 +82,22 @@ public class CampaignForm extends FormLayout {
 	private Set<CommunityReferenceDto> community = new HashSet<>();
 	private Set<PopulationDataDto> popopulationDataDtoSet = new HashSet<>();
 
-	CampaignDto campaignDto;
+	private final VerticalLayout statusChangeLayout;
+	private Boolean isCreateForm = null;
+	private CampaignDto campaignDto;
 	CampaignFormMetaReferenceDto xx;
 
 	public CampaignForm(CampaignDto campaignDto) {
+
+		this.statusChangeLayout = new VerticalLayout();
+		
+		isCreateForm = campaignDto == null;
+//		if (isCreateForm) {
+//			hideValidationUntilNextCommit();
+//		}
+		statusChangeLayout.setSpacing(false);
+        statusChangeLayout.setMargin(false);
+        add(statusChangeLayout);
 
 		addClassName("campaign-form");
 
@@ -184,6 +196,7 @@ public class CampaignForm extends FormLayout {
 //		tab2.addComponent(campaignDashboardGridComponent);
 //		tab2.setCaption("Pre Campaign Dashboard");
 		tabsheet.add("Pre Campaign Dashboard", tab2);
+		tabsheet.setWidthFull();
 		parentTab1.add(layout);
 		tabsheetParent.add("Pre-Campaign Phase", parentTab1);
 

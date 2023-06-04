@@ -79,10 +79,4 @@
       display: block;
     }
  
-=======
-:host([active]) a:hover{
-	background: red !important;
-    color: #ffffff !important;
-    text-shadow: none !important;
-}
->>>>>>> stash
+

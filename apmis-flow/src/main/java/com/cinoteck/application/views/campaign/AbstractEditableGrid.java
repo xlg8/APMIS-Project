@@ -65,13 +65,13 @@ public abstract class AbstractEditableGrid<T> extends VerticalLayout {
 
 		final Binder<T> binder = addColumnsBinder(allElements);
 
-		Column<T> deleteColumn =
-				grid.addColumn(t -> VaadinIcon.TRASH).setKey(DELETE).setHeader(I18nProperties.getCaption(Captions.remove))
-						.setWidth("50px").setFlexGrow(0).setResizable(false).setSortable(false);
-
-		grid.getColumns().forEach(col -> {
-			col.setSortable(false);
-		});
+//		Column<T> deleteColumn =
+//				grid.addColumn(t -> VaadinIcon.TRASH).setKey(DELETE).setHeader(I18nProperties.getCaption(Captions.remove))
+//						.setWidth("50px").setFlexGrow(0).setResizable(false).setSortable(false);
+//
+//		grid.getColumns().forEach(col -> {
+//			col.setSortable(false);
+//		});
 
 		grid.addItemClickListener(e -> {
 			final List<T> items = getItems();
