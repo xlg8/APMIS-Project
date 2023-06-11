@@ -163,7 +163,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		province.setItems(provinces);
 		province.getStyle().set("padding-top", "0px");
 		province.setClassName("col-sm-6, col-xs-6");
-		province.setEnabled(false);
+	//	province.setEnabled(false);
 
 		district.setLabel("District");
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
@@ -171,7 +171,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		district.setItems(districts);
 		district.getStyle().set("padding-top", "0px");
 		district.setClassName("col-sm-6, col-xs-6");
-		district.setEnabled(false);
+	//	district.setEnabled(false);
 
 		groupby.setLabel("Group By");
 		groupby.setItems(campaignJurisdictionLevel.values());
@@ -195,18 +195,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
 
-		displayFilters.addClickListener(e -> {
-			
-			if (!selectFilterLayoutparent.isVisible()) {	
-				selectFilterLayoutparent.setVisible(true);
-				displayFilters.setText("Hide Filters");
-
-			} else {
-				selectFilterLayoutparent.setVisible(false);
-				displayFilters.setText("Show Filters");
-			}
-		});
-
+		
 		
 		
 		
@@ -291,7 +280,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			
 		});
 
-		
+		displayFilters.addClickListener(e -> {
+			
+			if (!selectFilterLayoutparent.isVisible()) {	
+				selectFilterLayoutparent.setVisible(true);
+				displayFilters.setText("Hide Filters");
+				province.setEnabled(false);
+				district.setEnabled(false);
+
+			} else {
+				selectFilterLayoutparent.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
+
+
+
 		UUID uuid = UUID.randomUUID();
 		
 		add(displayFilters, selectFilterLayoutparent);//, mtabs, sTabs, contentContainer);
