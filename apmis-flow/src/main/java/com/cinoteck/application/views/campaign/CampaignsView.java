@@ -16,6 +16,8 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -25,12 +27,17 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
 @PageTitle("All Campaigns")
 @Route(value = "campaign", layout = MainLayout.class)
@@ -44,7 +51,7 @@ public class CampaignsView extends VerticalLayout {
 	VerticalLayout campaignsFilterLayout = new VerticalLayout();
 	private Grid<CampaignDto> grid = new Grid<>(CampaignDto.class, false);
 	private GridListDataView<CampaignDto> dataView;
-	Details details = new Details();
+	
 	
 	private CampaignForm campaignForm;
 	CampaignDto camp;
@@ -79,8 +86,6 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void campaignsGrid() {
-		
-		
 		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
@@ -180,8 +185,24 @@ public class CampaignsView extends VerticalLayout {
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		validateFormsButton = new Button("Validate Forms", new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton.addClickListener(e -> {
+			try {
+			FacadeProvider.getCampaignFormMetaFacade().validateAllFormMetas();
+			Notification.show(I18nProperties.getString(Strings.messageAllCampaignFormsValid), 3000, Position.TOP_CENTER);
+			}catch(ValidationRuntimeException ee) {
+				
+				Notification.show("All Camapaign Forms are not Valid, Please look through the Log", 8000, Position.MIDDLE);
+				
+				
+			}
+	
+		});
 
 		createButton = new Button("Add New Forms", new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton.addClickListener(e-> {
+			CreateCampaignDialog dialog = new CreateCampaignDialog();
+			dialog.open();
+		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 		filterToggleLayout.add(filterDisplayToggle,filterLayout, validateFormsButton, createButton);
 		
@@ -235,14 +256,11 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
-		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign()); // .getUserFacade().saveUser(event.getContact());
-		// updateList();
+		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign()); 
 		closeEditor();
 	}
 
 	private void deleteCampaign(CampaignForm.DeleteEvent event) {
-		// FacadeProvider.getUserFacade(). .getContact());
-		// updateList();
 		closeEditor();
 	}
 

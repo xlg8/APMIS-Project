@@ -39,6 +39,8 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
+import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -54,6 +56,9 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 @PageTitle("Edit Campaign")
 @Route(value = "/data")
 public class CampaignForm extends FormLayout {
+	private static final String PRE_CAMPAIGN = "pre-campaign";
+	private static final String INTRA_CAMPAIGN = "intra-campaign";
+	private static final String POST_CAMPAIGN = "post-campaign";
 
 	Binder<CampaignDto> binder = new BeanValidationBinder<>(CampaignDto.class);
 
@@ -70,9 +75,6 @@ public class CampaignForm extends FormLayout {
 
 	TextArea description = new TextArea("Description");
 
-//	CampaignTabsheetComponent campaignTab = new CampaignTabsheetComponent();
-//
-//	CampaignFormGridComponent campaignFormGridComponent;
 
 	TreeGrid<CampaignTreeGridDto> treeGrid = new TreeGrid<>();
 
@@ -176,7 +178,7 @@ public class CampaignForm extends FormLayout {
 		layout.add(tabsheet);
 
 		VerticalLayout tab1 = new VerticalLayout();
-		H1 text = new H1("Content Goes Here");
+//		H1 text = new H1("Content Goes Here");
 //		campaignFormGridComponent = new CampaignFormGridComponent(
 //				this.campaignDto == null ? Collections.EMPTY_LIST
 //						: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
@@ -184,17 +186,25 @@ public class CampaignForm extends FormLayout {
 //		tab1.add(campaignFormGridComponent);
 //		tab1.setCaption("Pre Campaign Forms");
 		
-		CampaignFormGridComponent comp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-				: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
-		FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound("pre-campaign")
-		);
+//		CampaignFormGridComponent comp = new CampaignFormGridComponent(
+//				this.campaignDto == null ? Collections.EMPTY_LIST
+//						: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign"))
+//						,FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound("pre-campaign"));
+		CampaignFormGridComponent comp = new CampaignFormGridComponent("pre-campaign");
 		tab1.add(comp);
+		
 		tabsheet.add("Pre Campaign Forms", tab1);
 
 		VerticalLayout tab2 = new VerticalLayout();
 //		tab2.addComponent(campaignDashboardGridComponent);
 //		tab2.setCaption("Pre Campaign Dashboard");
+		final List<CampaignDashboardElement> campaignDashboardElements = FacadeProvider.getCampaignFacade()
+				.getCampaignDashboardElements(null, PRE_CAMPAIGN);
+		CampaignDashboardGridElementComponent comp1 = new CampaignDashboardGridElementComponent(this.campaignDto == null
+				? Collections.EMPTY_LIST
+				: FacadeProvider.getCampaignFacade().getCampaignDashboardElements(campaignDto.getUuid(), PRE_CAMPAIGN),
+				campaignDashboardElements);
+		tab2.add(comp1);
 		tabsheet.add("Pre Campaign Dashboard", tab2);
 		tabsheet.setWidthFull();
 		parentTab1.add(layout);
@@ -211,7 +221,13 @@ public class CampaignForm extends FormLayout {
 		VerticalLayout tab1Intra = new VerticalLayout();
 //		tab1.addComponent(campaignFormsGridComponent);
 //		tab1.setCaption("Pre Campaign Forms");
+		
+		H1 text = new H1("Content Goes Here");
+//		System.out.println(campaignDto.getCampaignFormMetas() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuurrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+		CampaignFormGridComponent compp = new CampaignFormGridComponent("intra-campaign");
+		tab1Intra.add(compp);
 		tabsheetIntra.add("Intra Campaign Forms", tab1Intra);
+		tabsheetIntra.setWidthFull();
 
 		VerticalLayout tab2Intra = new VerticalLayout();
 //		tab2.addComponent(campaignDashboardGridComponent);
@@ -231,12 +247,19 @@ public class CampaignForm extends FormLayout {
 		VerticalLayout tab1Post = new VerticalLayout();
 //		tab1.addComponent(campaignFormsGridComponent);
 //		tab1.setCaption("Pre Campaign Forms");
+//		CampaignFormMetaFacade campaignFormMetaFacade = FacadeProvider.getCampaignFormMetaFacade();
+//		List<CampaignFormMetaReferenceDto> campaignFormMetas = campaignFormMetaFacade.getAllCampaignFormMetasAsReferencesByRound("post-campaign");
+		CampaignFormGridComponent comppp = new CampaignFormGridComponent("post-campaign");
+//		System.out.println(this.campaignDto.getUuid() + "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt");
+		tab1Post.add(comppp);
 		tabsheetPost.add("Post Campaign Forms", tab1Post);
+		
 
 		VerticalLayout tab2Post = new VerticalLayout();
 //		tab2.addComponent(campaignDashboardGridComponent);
 //		tab2.setCaption("Pre Campaign Dashboard");
 		tabsheetPost.add("Post Campaign Dashboard", tab2Post);
+		tabsheetPost.setWidthFull();
 		parentTab3.add(layoutPost);
 		tabsheetParent.add("Post-Campaign Phase", parentTab3);
 
@@ -245,7 +268,7 @@ public class CampaignForm extends FormLayout {
 		layoutAssocCamp.setWidthFull();
 
 		treeGrid.setWidthFull();
-		treeGrid.setHeightFull();
+//		treeGrid.setHeightFull();
 
 //		List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
 //		// List<RegionDto> regions_ =
@@ -260,7 +283,7 @@ public class CampaignForm extends FormLayout {
 //		// district:"+campaignDto.getRegion().size());
 
 		treeGrid.setWidthFull();
-		treeGrid.setHeightFull();
+//		treeGrid.setHeightFull();
 
 //		List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation(campaignDto);
 		// List<RegionDto> regions_ =
@@ -488,7 +511,7 @@ public class CampaignForm extends FormLayout {
 		parentTab5.add(poplayout);
 
 		// parentTab5.addComponent(treeGrid);
-
+//		parentTab5.getStyle().set("background", "red");
 		tabsheetParent.add("Population Data", parentTab5);
 		tabsheetParent.setWidthFull();
 		tabsheetParent.setId("tabsheetParent");
