@@ -57,6 +57,8 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
+	
+	private boolean tray;
 
 	@EJB
 	private CampaignFormMetaService service;
@@ -249,7 +251,10 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				CampaignFormMetaDto formDto = toDto(form);
 				validateAndClean(formDto);
 			} catch (ValidationRuntimeException e) {
+				
 				throw new ValidationRuntimeException(form.getFormId() + ": " + e.getMessage());
+				
+				
 			} catch (Exception e) {
 				throw new ValidationRuntimeException(form.getFormId() + ": " + I18nProperties
 						.getValidationError(Validations.campaignFormMetaValidationUnexpectedError, e.getMessage()));

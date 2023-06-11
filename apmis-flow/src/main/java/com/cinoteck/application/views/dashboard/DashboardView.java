@@ -89,7 +89,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 	private CampaignJurisdictionLevel campaignJurisdictionLevel;
 
 	public DashboardView() {
-		setSpacing(true);
+		setSpacing(false);
 
 		dataProvider = new CampaignDashboardDataProvider();
 
@@ -207,8 +207,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			dataProvider.setCampaignJurisdictionLevelGroupBy(e.getValue());
 		});
 		
+		HorizontalLayout vlayout = new HorizontalLayout();
 		
-
 		HorizontalLayout selectFilterLayout = new HorizontalLayout(campaign, campaignPhase, region, province, district,
 				cluster, groupby);
 		selectFilterLayout.setClassName("row pl-3");
@@ -237,11 +237,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		mtabs.setId("maintab");
 		mtabs.getStyle().set("background", "#434343");
 		mtabs.getStyle().set("color", "#ffffff00");
-		mtabs.getStyle().set("width", "100%");
-
+		mtabs.setWidthFull();
 		Tabs sTabs = new Tabs();
 		sTabs.setId("subtabs");
-		sTabs.getStyle().set("background", "#0D6938");
+		
+		sTabs.setWidthFull();
 		Div contentContainer = new Div();
 
 		// contentContainer.getStyle().set("background", "#f1f4f6");
@@ -255,6 +255,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			String mntabId = WordUtils.capitalizeFully(tabIdc);
 			Tab tabx = new Tab(mntabId);
 			tabx.setId("main_" + mntabId);
+			tabx.getStyle().set("font-weight", "600");
 			mtabs.add(tabx);
 
 			// this has to be moved to listener
@@ -267,6 +268,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 					Tab stabx = new Tab(sbTabId);
 					stabx.setId("submain_" + sbTabId);
 					sTabs.add(stabx);
+					sTabs.getStyle().set("margin-bottom", "1em");
+					stabx.getStyle().set("color", "#0D6938");
+					stabx.getStyle().set("font-weight", "500");
+					sTabs.getStyle().set("background", "white");
+					
 
 				}
 			}
@@ -289,6 +295,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		//					String sbtabId = WordUtils.capitalizeFully(tabIdc);
 							Tab stabx = new Tab(sbTabId);
 							stabx.setId("submain_" + sbTabId);
+							stabx.getStyle().set("color", "#0D6938");
+							stabx.getStyle().set("font-weight", "600");
+							sTabs.getStyle().set("margin-bottom", "1em");
+							sTabs.getStyle().set("background", "white");
 							sTabs.add(stabx);
 		
 						}
@@ -311,8 +321,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		contentContainer.setWidthFull();
 		contentContainer.setId("tabsSheet");
 		contentContainer.setSizeFull();
+		
+		vlayout.setAlignItems(Alignment.END);
+		vlayout.add(displayFilters,selectFilterLayoutparent);
 
-		add(displayFilters, selectFilterLayoutparent, mtabs, sTabs, contentContainer);
+		add(vlayout, mtabs, sTabs, contentContainer);
 		setSizeFull();
 	}
 

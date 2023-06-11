@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
@@ -36,6 +37,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -46,6 +49,9 @@ import de.symeda.sormas.api.user.UserDto;
 @Route(value = "user", layout = MainLayout.class)
  
 public class UserView extends VerticalLayout {
+	
+	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
+	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
  
 	List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 	List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
@@ -225,7 +231,12 @@ public class UserView extends VerticalLayout {
 		});
  
 		layout.add(searchField);
- 
+		
+		ComboBox activeBox = new ComboBox<>("Active?");
+		activeBox.setPlaceholder("Active?");
+		activeBox.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
+		layout.add(activeBox);
+		
 		add(layout);
  
 		createUserButton.addClickListener(click -> 
