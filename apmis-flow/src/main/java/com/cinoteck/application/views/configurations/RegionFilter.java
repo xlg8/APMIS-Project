@@ -43,6 +43,7 @@ public class RegionFilter extends VerticalLayout {
 		searchField.addValueChangeListener(e -> {
 
 		});
+		
 
 		Button clear = new Button("Clear Search");
 		clear.getStyle().set("color", "white");
