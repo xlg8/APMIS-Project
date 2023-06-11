@@ -175,6 +175,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		province.getStyle().set("padding-top", "0px");
 		province.setClassName("col-sm-6, col-xs-6");
 
+	//	province.setEnabled(false);
+
 		district.setLabel("District");
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
@@ -188,6 +190,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		});
 		district.getStyle().set("padding-top", "0px");
 		district.setClassName("col-sm-6, col-xs-6");
+
+	//	district.setEnabled(false);
 
 		cluster.setLabel("Cluster");
 
@@ -222,16 +226,122 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
 
+
+		
+		//filter listeners
+		campaign.addValueChangeListener(e -> {
+			UUID uuid = UUID.randomUUID();
+			VaadinSession.getCurrent().getSession().setAttribute("campaignPhase", campaignPhase.getValue().toString().toLowerCase());
+			 VaadinSession.getCurrent().getSession().setAttribute("campaign", campaign.getValue().getUuid());
+			// UI.getCurrent().getPage().reload();
+			 
+			dataProvider.setCampaign((CampaignReferenceDto) campaign.getValue());
+			
+			remove(mainContentContainerx);
+			mainContentContainerx = drawDashboardAndTabs(uuid.toString());
+			add(mainContentContainerx);
+		});
+		
+		
+
+		campaignPhase.addValueChangeListener(e -> {
+			
+			UUID uuid = UUID.randomUUID();
+			dataProvider.setFormType(campaignPhase.getValue().toString().toLowerCase());
+			dataProvider.setCampaignFormPhase(campaignPhase.getValue().toString().toLowerCase());
+			
+			VaadinSession.getCurrent().getSession().setAttribute("campaignPhase", campaignPhase.getValue().toString().toLowerCase());
+			VaadinSession.getCurrent().getSession().setAttribute("campaign", campaign.getValue().getUuid());
+		//	UI.getCurrent().getPage().reload();
+			
+			remove(mainContentContainerx);
+			mainContentContainerx.removeAll();
+			mainContentContainerx = drawDashboardAndTabs(uuid.toString());
+			add(mainContentContainerx);
+				
+		});
+
+		region.addValueChangeListener(e -> {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
+			
+			dataProvider.setArea(e.getValue());
+			if (e.getValue() != null) {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				province.setEnabled(true);
+				province.setItems(provinces);
+				groupby.setValue(campaignJurisdictionLevel.REGION);
+			} else {
+				groupby.setValue(campaignJurisdictionLevel.AREA);
+
+			}
+			
+		});
+	
+		province.addValueChangeListener(e -> {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
+			groupby.setValue(campaignJurisdictionLevel.REGION);
+			dataProvider.setRegion(e.getValue());
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+			district.setEnabled(true);
+			district.setItems(districts);
+			
+			groupby.setValue(campaignJurisdictionLevel.DISTRICT);
+			
+		});
+		
+		district.addValueChangeListener(e -> {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.DISTRICT);
+			groupby.setValue(campaignJurisdictionLevel.DISTRICT);
+			dataProvider.setDistrict(e.getValue());
+			groupby.setValue(campaignJurisdictionLevel.COMMUNITY);
+		});
+		
+		groupby.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
+			dataProvider.setCampaignJurisdictionLevelGroupBy(e.getValue());
+			UUID uuid = UUID.randomUUID();
+			remove(mainContentContainerx);
+			mainContentContainerx.removeAll();
+			mainContentContainerx = drawDashboardAndTabs(uuid.toString());
+			add(mainContentContainerx);
+			}
+			
+		});
+
 		displayFilters.addClickListener(e -> {
-			if (!selectFilterLayoutparent.isVisible()) {
+			
+			if (!selectFilterLayoutparent.isVisible()) {	
 				selectFilterLayoutparent.setVisible(true);
 				displayFilters.setText("Hide Filters");
+				province.setEnabled(false);
+				district.setEnabled(false);
+
 
 			} else {
 				selectFilterLayoutparent.setVisible(false);
 				displayFilters.setText("Show Filters");
 			}
 		});
+
+		UUID uuid = UUID.randomUUID();
+		
+		add(displayFilters, selectFilterLayoutparent);//, mtabs, sTabs, contentContainer);
+		mainContentContainerx = drawDashboardAndTabs(uuid.toString());
+		
+		add(mainContentContainerx);
+		
+		setSizeFull();
+	}
+	
+	
+	private Div drawDashboardAndTabs(String UIs) {
+		Div mainContentContainer = new Div();
+		mainContentContainer.setId(UIs);
+		Div contentContainer = new Div();
+		
+		mainContentContainer.removeAll();
+		mainContentContainer.setWidthFull();
 
 		Tabs mtabs = new Tabs();
 		mtabs.setId("maintab");
