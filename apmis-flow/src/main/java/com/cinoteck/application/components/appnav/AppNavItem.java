@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 @JsModule("@vaadin-component-factory/vcf-nav")
 @Tag("vcf-nav-item")
-@CssImport(value = "./themes/apmis-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
+@CssImport(value = "./themes/apmis-theme/components/vcf-nav.css", themeFor = "vcf-nav-item")
 public class AppNavItem extends Component {
 	 private Button buttonComponent;
     /**
@@ -337,6 +337,7 @@ public class AppNavItem extends Component {
     public AppNavItem setExpanded(boolean value) {
         if (value) {
             getElement().setAttribute("expanded", "");
+//            getElement().getStyle().set("@active", "color", "red");
         } else {
             getElement().removeAttribute("expanded");
         }
