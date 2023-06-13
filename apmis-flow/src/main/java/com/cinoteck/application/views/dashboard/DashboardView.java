@@ -15,6 +15,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -51,6 +53,7 @@ import de.symeda.sormas.api.user.UserDto;
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
+@JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
 //@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
 //@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
@@ -93,6 +96,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 	public DashboardView() {
 		setSpacing(true);
+		
+	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
 
