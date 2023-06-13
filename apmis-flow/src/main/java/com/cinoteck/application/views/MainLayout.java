@@ -1,5 +1,8 @@
 package com.cinoteck.application.views;
 
+import java.util.Locale;
+
+import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
 import com.cinoteck.application.views.about.AboutView;
@@ -92,7 +95,15 @@ public class MainLayout extends AppLayout {
 
 		Header header = new Header(imgApmis);
 
-		addToDrawer(header, scroller, createFooter());
+		
+		addToDrawer(header, scroller);
+		
+		addToDrawer(new LanguageSwitcher(Locale.ENGLISH,
+                        new Locale("fa","IR", "فارسی")));
+		addToDrawer(createFooter());
+		
+		
+	//	addToDrawer(header, scroller, createFooter());
 	}
    
 	private AppNav createNavigation() {
