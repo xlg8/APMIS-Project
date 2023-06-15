@@ -17,6 +17,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
@@ -456,6 +457,19 @@ public class UserView extends VerticalLayout {
 
 			vlayout.add(displayFilters, filterLayout);
 			add(layout, vlayout);
+ 
+		createUserButton.addClickListener(click -> 
+//		addContact()
+		{
+			Dialog dialog = new Dialog();
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		Paragraph tect = new  Paragraph("dialog");
+		dialog.add(form);
+		dialog.open();
+		add(dialog);
+		}
+		);
 	}
 	 
 	private String formatDataAsCsv(String data) {

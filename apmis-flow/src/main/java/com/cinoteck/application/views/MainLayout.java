@@ -86,7 +86,7 @@ public class MainLayout extends AppLayout {
 	}
 
 	private void addDrawerContent() {
-		Image imgApmis = new Image("images/apmis_horizontal_logo.png", "APMIS-LOGO");
+		Image imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
 		imgApmis.setMaxWidth("100%");
 		Scroller scroller = new Scroller(createNavigation());
 
@@ -99,7 +99,6 @@ public class MainLayout extends AppLayout {
 		// AppNav is not yet an official component.
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme  
 		AppNav nav = new AppNav();
-		
 		
 		Button myButton = new Button();
 		
@@ -116,10 +115,12 @@ public class MainLayout extends AppLayout {
 		
 //		nav.addItem(new AppNavItem("Test", TestPageView.class, "la la-info-circle", "navitem"));
 		nav.addItem(new AppNavItem("Sign Out", LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
-
+		if (nav != null) {
+		    nav.addClassName("active");
+		}
 		return nav;
 		
-
+		
 	}
 	
 	 private Button createPopup() {
