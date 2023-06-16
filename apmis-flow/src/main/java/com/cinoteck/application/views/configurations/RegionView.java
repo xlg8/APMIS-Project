@@ -1,6 +1,5 @@
 package com.cinoteck.application.views.configurations;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -12,7 +11,6 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -27,8 +25,6 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
-import de.symeda.sormas.api.user.UserDto;
-
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -36,7 +32,12 @@ import java.util.stream.Stream;
 @Route(value = "regions", layout = ConfigurationsView.class)
 public class RegionView extends VerticalLayout implements RouterLayout {
 
-    GridListDataView<AreaDto> dataView;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7091198805223773269L;
+	
+	GridListDataView<AreaDto> dataView;
     final static TextField regionField = new TextField("Region");
     final static TextField rcodeField = new TextField("RCode");
     Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
