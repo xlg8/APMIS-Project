@@ -18,7 +18,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -51,6 +50,7 @@ import de.symeda.sormas.api.user.UserDto;
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
+@JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
 //@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
 //@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
@@ -92,7 +92,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 	private Div mainContentContainerx;
 
 	public DashboardView() {
-		setSpacing(true);
+		setSpacing(false);
+		
+	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
 
@@ -163,7 +165,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		province.setItems(provinces);
 		province.getStyle().set("padding-top", "0px");
 		province.setClassName("col-sm-6, col-xs-6");
-		province.setEnabled(false);
+	//	province.setEnabled(false);
 
 		district.setLabel("District");
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
@@ -171,7 +173,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		district.setItems(districts);
 		district.getStyle().set("padding-top", "0px");
 		district.setClassName("col-sm-6, col-xs-6");
-		district.setEnabled(false);
+	//	district.setEnabled(false);
 
 		groupby.setLabel("Group By");
 		groupby.setItems(campaignJurisdictionLevel.values());
@@ -195,18 +197,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
 
-		displayFilters.addClickListener(e -> {
-			
-			if (!selectFilterLayoutparent.isVisible()) {	
-				selectFilterLayoutparent.setVisible(true);
-				displayFilters.setText("Hide Filters");
-
-			} else {
-				selectFilterLayoutparent.setVisible(false);
-				displayFilters.setText("Show Filters");
-			}
-		});
-
+		
 		
 		
 		
@@ -291,7 +282,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			
 		});
 
-		
+		displayFilters.addClickListener(e -> {
+			
+			if (!selectFilterLayoutparent.isVisible()) {	
+				selectFilterLayoutparent.setVisible(true);
+				displayFilters.setText("Hide Filters");
+				province.setEnabled(false);
+				district.setEnabled(false);
+
+			} else {
+				selectFilterLayoutparent.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
+
+
+
 		UUID uuid = UUID.randomUUID();
 		
 		add(displayFilters, selectFilterLayoutparent);//, mtabs, sTabs, contentContainer);

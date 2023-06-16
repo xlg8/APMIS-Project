@@ -1,31 +1,33 @@
 package com.cinoteck.application.views.configurations;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.stream.Collectors;
 
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.utils.SortProperty;
 
 
 @PageTitle("Districts")
@@ -33,7 +35,9 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 public class DistrictView extends VerticalLayout { 
 
 //	private DistrictFilter districtFilter = new DistrictFilter();
-	GridListDataView<DistrictIndexDto> dataView;
+	//TODO: Due to LAzY LoadinDING GridListDataView<DistrictIndexDto> dataView;
+	
+	private DistrictCriteria criteria;
 	
 	public DistrictView() {
 		setHeightFull();
@@ -42,7 +46,7 @@ public class DistrictView extends VerticalLayout {
 		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
-//		grid.setSizeFull();
+		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
@@ -53,11 +57,38 @@ public class DistrictView extends VerticalLayout {
 
 		
 		grid.setVisible(true);
-		grid.setHeightFull();
-		grid.setAllRowsVisible(true);
-		List<DistrictIndexDto> regions = FacadeProvider.getDistrictFacade().getAllDistricts();
-		this.dataView = grid.setItems(regions);
+		//grid.setHeightFull();
+		//grid.setAllRowsVisible(true);
+		
+		//criteria.region(null);
+		
+		DataProvider<DistrictIndexDto, DistrictCriteria> dataProvider = 
+	            DataProvider
+	            .fromFilteringCallbacks(
+	                    query -> FacadeProvider.getDistrictFacade()
+	                            .getIndexList(criteria, query.getOffset(), query.getLimit(),
+	                                    query.getSortOrders().stream()
+	                                            .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+	                                                    sortOrder.getDirection() == SortDirection.ASCENDING))
+	                                            .collect(Collectors.toList()))
+	                            .stream(),
+	                    query -> (int) FacadeProvider.getDistrictFacade().count(criteria));
+	                    
+	                    grid.setDataProvider(dataProvider);
+	                    
+	                    
+		
+	//	List<DistrictIndexDto> regions = FacadeProvider.getDistrictFacade().getAllDistricts();
+		//TODO: Due to LAzY LoadinDING this.dataView = grid.setItems(regions);
 		addFilters();
+		
+		
+		GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
+//	    exporter.setExportValue(budgetCol, item -> "" + item.getBudget());
+//	    exporter.setColumnPosition(lastNameCol, 1);
+	    exporter.setTitle("People information");
+	    exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+	   
 
 		add(grid);
 	}
@@ -106,12 +137,12 @@ public class DistrictView extends VerticalLayout {
 //		}
 		regionFilter.addValueChangeListener(e -> {
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-			dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+			//TODO: Due to LAzY LoadinDING 	dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 			//dataView.refreshAlsl();
 		});
 		
 		provinceFilter.addValueChangeListener(e -> {
-			dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
+			//TODO: Due to LAzY LoadinDING 	dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
 //			dataView.refreshAll();
 		});
 		
@@ -134,21 +165,22 @@ public class DistrictView extends VerticalLayout {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 
-        searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
-			String searchTerm = searchField.getValue().trim();
-
-			if (searchTerm.isEmpty())
-				return true;
-
-			boolean matchesRegionName = String.valueOf(search.getAreaname()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchesProvinceName = String.valueOf(search.getRegion()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
-
-			return matchesRegionName || matchesProvinceName || matchesDistrictName ;
-
-		}));
+//        searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
+//			String searchTerm = searchField.getValue().trim();
+//
+//			if (searchTerm.isEmpty())
+//				return true;
+//
+//			boolean matchesRegionName = String.valueOf(search.getAreaname()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchesProvinceName = String.valueOf(search.getRegion()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
+//
+//			return matchesRegionName || matchesProvinceName || matchesDistrictName ;
+//
+//		}
+//        ));
 
 		layout.add(searchField);
 	
@@ -157,11 +189,11 @@ public class DistrictView extends VerticalLayout {
 //		primaryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(primaryButton);
 		primaryButton.addClickListener(e ->{
-			dataView.removeFilters();
+			//TODO: Due to LAzY LoadinDING 	dataView.removeFilters();
 			regionFilter.clear();
 			provinceFilter.clear();
 			searchField.clear();
-			dataView.refreshAll();
+			//TODO: Due to LAzY LoadinDING 		dataView.refreshAll();
 		});
 		
 		vlayout.add(displayFilters, layout);
@@ -174,7 +206,38 @@ public class DistrictView extends VerticalLayout {
         return value.toLowerCase().contains(searchTerm.toLowerCase());
     }
 	
-//	private boolean matchesCode(Long value, Long searchTerm) {
-//        return assertThat(value.equals(searchTerm)).isTrue();
-//    }
+
+//	public void reload() {
+//		getDataProvider().refreshAll();
+//	}
+//
+//	public void setLazyDataProvider() {
+//
+//		BackEndDataProvider<DistrictIndexDto, DistrictCriteria> dataProvider = BackEndDataProvider.fromFilteringCallbacks(
+//			query -> FacadeProvider.getDistrictFacade()
+//				.getIndexList(
+//					query.getFilter().orElse(null),
+//					query.getOffset(),
+//					query.getLimit(),
+//					query.getSortOrders()
+//						.stream()
+//						.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
+//						.collect(Collectors.toList()))
+//				.stream(),
+//			query -> {
+//				return (int) FacadeProvider.getDistrictFacade().count(query.getFilter().orElse(null));
+//			});
+//		setDataProvider(dataProvider);
+//		setSelectionMode(SelectionMode.NONE);
+//	}
+//
+//	public void setEagerDataProvider() {
+//
+//		ListDataProvider<DistrictIndexDto> dataProvider =
+//			DataProvider.fromStream(FacadeProvider.getDistrictFacade().getIndexList(getCriteria(), null, null, null).stream());
+//		setDataProvider(dataProvider);
+//		setSelectionMode(SelectionMode.MULTI);
+//	}
+	
+	
 }

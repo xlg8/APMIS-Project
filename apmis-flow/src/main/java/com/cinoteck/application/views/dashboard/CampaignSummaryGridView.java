@@ -39,6 +39,7 @@ public class CampaignSummaryGridView extends VerticalLayout {
 		dashboardContainer.setClassName("row col");
 		dashboardContainer.getStyle().set("display", "flex");
 		dashboardContainer.getStyle().set("flex-direction", "row");
+		dashboardContainer.getStyle().set("padding-top", "0.2rem");//padding-top: 0.2rem
 
 		Map<CampaignDashboardDiagramDto, List<CampaignDiagramDataDto>> campaignFormDataMap = dataProvider
 				.getCampaignFormDataMap(mainTabIdCoded, subTabIdCoded);

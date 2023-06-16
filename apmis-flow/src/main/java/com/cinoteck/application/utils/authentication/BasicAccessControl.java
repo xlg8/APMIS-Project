@@ -1,19 +1,4 @@
-/*
- * SORMAS® - Surveillance Outbreak Response Management & Analysis System
- * Copyright © 2016-2021 Helmholtz-Zentrum für Infektionsforschung GmbH (HZI)
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
-package de.symeda.sormas.ui.login;
+package com.cinoteck.application.utils.authentication;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
@@ -26,43 +11,62 @@ import javax.security.enterprise.authentication.mechanism.http.AuthenticationPar
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.servlet.ServletException;
 
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinServletService;
-import com.vaadin.server.VaadinSession;
+import com.cinoteck.application.views.admin.LoginHelper.LogoutEvent;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinServletService;
+import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRole;
 
-public final class LoginHelper {
+/**
+ * Default mock implementation of {@link AccessControl}. This implementation
+ * accepts any string as a user if the password is the same string, and
+ * considers the user "admin" as the only administrator.
+ */
+public class BasicAccessControl implements AccessControl {
 
-	private LoginHelper() {
-		// Hide Utility Class Constructor
-	}
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -884441673838115907L;
 
-	public static boolean login(String username, String password) {
-
+	@Override
+    public boolean signIn(String username, String password) {
+//        if (username == null || username.isEmpty()) {
+//            return false;
+//        }
+//
+//        if (!username.equals(password)) {
+//            return false;
+//        }
+		
+		
+		
+		System.out.println(username+"___________________________________step 2"+password);
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
-
+		System.out.println("___________________________________step 3");
 		BeanManager bm = CDI.current().getBeanManager();
 		@SuppressWarnings("unchecked")
 		Bean<SecurityContext> securityContextBean = (Bean<SecurityContext>) bm.getBeans(SecurityContext.class).iterator().next();
 		CreationalContext<SecurityContext> ctx = bm.createCreationalContext(securityContextBean);
 		SecurityContext securityContext = (SecurityContext) bm.getReference(securityContextBean, SecurityContext.class, ctx);
-
+		System.out.println("___________________________________step 4");
 		AuthenticationParameters authentication = new AuthenticationParameters();
 		authentication.credential(new UsernamePasswordCredential(username, password));
 		authentication.newAuthentication(true);
 		authentication.setRememberMe(true);
+		System.out.println(authentication+"___________________________________stattus up");
 		AuthenticationStatus status = securityContext.authenticate(
 			VaadinServletService.getCurrentServletRequest(),
 			VaadinServletService.getCurrentResponse().getHttpServletResponse(),
 			authentication);
 		
-		System.out.println("___________________________________+++___+_+_+: "+status);
+		System.out.println(status);
 		
 		if (status == AuthenticationStatus.SUCCESS) {
 			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
@@ -73,23 +77,54 @@ public final class LoginHelper {
 				}
 				return false;
 			}
+			
+			
 			Language userLanguage = FacadeProvider.getUserFacade().getByUserName(username).getLanguage();
 			I18nProperties.setUserLanguage(userLanguage);
 			FacadeProvider.getI18nFacade().setUserLanguage(userLanguage);
 			
+			
+			System.out.println("+++++++++++++++" +FacadeProvider.getUserFacade().getCurrentUser().getUserName());
+			 CurrentUser.set(username);
 			return true;
 		}
 
 		return false;
-	}
 
-	/**
-	 * Trigger logout event for Authentication Mechanism or other components to react.
-	 */
-	@SuppressWarnings("unchecked")
-	public static boolean logout() {
+       
+       // return true;
+    }
 
-		BeanManager bm = CDI.current().getBeanManager();
+    @Override
+    public boolean isUserSignedIn() {
+    	System.out.println(!CurrentUser.get().isEmpty()+"_____:check if has log in");
+        return !CurrentUser.get().isEmpty();
+    }
+
+//    @Override
+//    public boolean isUserInRole(String role) {
+//        if ("admin".equals(role)) {
+//            // Only the "admin" user is in the "admin" role
+//            return getPrincipalName().equals("admin");
+//        }
+//
+//        // All users are in all non-admin roles
+//        return true;
+//    }
+
+//    @Override
+//    public String getPrincipalName() {
+//        return CurrentUser.get();
+//    }
+
+    @Override
+    public void signOut() {
+//        VaadinSession.getCurrent().getSession().invalidate();
+//        UI.getCurrent().navigate("");
+    	
+    	
+    	
+    	BeanManager bm = CDI.current().getBeanManager();
 		Bean<Event> eventBean = (Bean<Event>) bm.getBeans(Event.class).iterator().next();
 		CreationalContext<Event> ctx = bm.createCreationalContext(eventBean);
 		Event<LogoutEvent> event = (Event<LogoutEvent>) bm.getReference(eventBean, Event.class, ctx);
@@ -97,18 +132,19 @@ public final class LoginHelper {
 
 		try {
 			VaadinServletService.getCurrentServletRequest().logout();
-		} catch (ServletException e) {
-			return false;
+		} catch (javax.servlet.ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		VaadinSession.getCurrent().getSession().invalidate();
-		Page.getCurrent().reload();
+		CurrentUser.set("");
+		System.out.println(CurrentUser.get().isEmpty()+ " :______________XXXSingOUT_____________________NOT SUCCESSFUL: remember to reload");
+		UI.getCurrent().getPage().executeJs("window.location.reload();");
 
-		return true;
-	}
-
-	public static class LogoutEvent {
-
-	}
-
+		
+		//return true;
+		
+		
+    }
 }

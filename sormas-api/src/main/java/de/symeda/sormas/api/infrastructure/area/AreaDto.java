@@ -48,11 +48,12 @@ public class AreaDto extends EntityDto {
 		
 	};
 
-	public AreaDto(@Size(max = 512, message = "textTooLong") String name, Long populationData, Long areaid, String uuid_) {
+	public AreaDto(@Size(max = 512, message = "textTooLong") String name, Long populationData, Long areaid, String uuid_, Long cxternalID) {
 		this.name = name;
 		this.populationData = populationData;
 		this.areaid = areaid;
 		this.uuid_ = uuid_;
+		this.externalId = cxternalID;
 	}
 
 
