@@ -11,5 +11,5 @@ import com.vaadin.flow.theme.Theme;
 @PWA(name = "APMIS Project", shortName = "APMIS")
 @Theme("apmis-theme")
 public class AppShell implements AppShellConfigurator {
-	
+	//extends VaadinServlet
 }
