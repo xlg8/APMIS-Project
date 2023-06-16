@@ -5,6 +5,8 @@ import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.admin.TestView3;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Anchor;
@@ -18,11 +20,28 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+//import com.vaadin.ui.themes.ValoTheme;
+
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.location.LocationDto;
+import de.symeda.sormas.api.user.UserDto;
+//import de.symeda.sormas.ui.utils.InternalPasswordChangeComponent;
+//import de.symeda.sormas.ui.utils.VaadinUiUtil;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @PageTitle("My Account")
@@ -32,7 +51,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
 
 	public MyAccountView() {
-
 
 //
 //        Image img = new Image("images/empty-plant.png", "placeholder plant");
@@ -211,7 +229,16 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 //
 //
 //
-//
+		Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
+		//Binder<LocationDto> binderLocale = new BeanValidationBinder<>(LocationDto.class);
+		List<AreaReferenceDto> regionss;
+		List<RegionReferenceDto> provincess;
+		List<DistrictReferenceDto> districtss;
+		List<CommunityReferenceDto> communitiess;
+
+		UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+		//currentUser.getFirstName();
+
 		Div userentry = new Div();
 		userentry.setClassName("subtabBackground");
 
@@ -221,7 +248,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infooo.getStyle().set("font-weight", "600");
 		infooo.getStyle().set("margin", "20px");
 
-		Paragraph infoood = new Paragraph("Admin Admin");
+		Paragraph infoood = new Paragraph(currentUser.getUserName());
 		infoood.getStyle().set("margin", "20px");
 
 		Div personalInfoo = new Div();
@@ -233,29 +260,39 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		TextField firstnamee = new TextField("");
 		firstnamee.setLabel("First Name");
-	
+		binder.forField(firstnamee).asRequired("First Name is Required").bind(UserDto::getFirstName, UserDto::setFirstName);
 
 		TextField lastnamee = new TextField("");
 		lastnamee.setLabel("Last Name");
+		binder.forField(lastnamee).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
 
 		EmailField emailAddresss = new EmailField();
 		emailAddresss.setLabel("Email address");
+		binder.forField(emailAddresss).asRequired("Email Address is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
 
 		TextField phoneNumberr = new TextField();
 		phoneNumberr.setLabel("Phone number");
+		binder.forField(phoneNumberr).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
+		.bind(UserDto::getPhone, UserDto::setPhone);
 
-		Select<String> positionn = new Select<>();
+//		Select<String> positionn = new Select<>();
+//		positionn.setLabel("Position");
+//		positionn.setItems("");
+//		positionn.setValue("");
+
+		TextField positionn = new TextField();
 		positionn.setLabel("Position");
-		positionn.setItems("");
-		positionn.setValue("");
+		binder.forField(positionn).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
+//TODO:: add a model for address in userDto
 		TextField addresss = new TextField();
 		addresss.setLabel("Address");
+		// binder.forField(addresss).bind(UserDto::getAddress,UserDto::setAddress);
 
 		FormLayout dataVieww = new FormLayout();
 		dataVieww.add(firstnamee, lastnamee, emailAddresss, phoneNumberr, positionn, addresss);
 		dataVieww.getStyle().set("margin", "20px");
-		
+
 		Div fieldInfoo = new Div();
 		Paragraph infodataa = new Paragraph("Field Information");
 		infodataa.getStyle().set("color", "green");
@@ -263,24 +300,44 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infodataa.getStyle().set("font-weight", "600");
 		infodataa.getStyle().set("margin", "20px");
 
-		Select<String> provincee = new Select<>();
-		provincee.setLabel("Province");
-		provincee.setItems("", "Province", "Province", "Province", "Province", "Province");
-		provincee.setValue("");
+		// Select<String> regionn = new Select<>();
+		ComboBox<AreaReferenceDto> regionn = new ComboBox<>("Region");
+		// regionn.setLabel("Region");
+		binder.forField(regionn).bind(UserDto::getArea, UserDto::setArea);
+		regionss = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+		regionn.setItems(regionss);
+		regionn.setItemLabelGenerator(AreaReferenceDto::getCaption);
+		// TODO: come back to add valuechangelistener
+		
+//		regionn.setItems("", "Region", "Region", "Region", "Region", "Region", "Region");
+//		regionn.setValue("");
 
-		Select<String> regionn = new Select<>();
-		regionn.setLabel("Region");
-		regionn.setItems("", "Region", "Region", "Region", "Region", "Region", "Region");
-		regionn.setValue("");
+		// Select<String> provincee = new Select<>();
+		ComboBox<RegionReferenceDto> provincee = new ComboBox<>("Province");
+		//provincee.setLabel("Province");
+		binder.forField(provincee).bind(UserDto::getRegion, UserDto::setRegion);
+		provincee.setItemLabelGenerator(RegionReferenceDto::getCaption);
+		// provincee.setItems("", "Province", "Province", "Province", "Province",
+		// "Province");
+//		provincee.setValue("");
 
-		Select<String> districtt = new Select<>();
-		districtt.setLabel("District");
-		districtt.setItems("", "District", "District", "District", "District", "District");
-		districtt.setValue("");
+		// TODO: find how flow pulls data into select
+		// Select<String> districtt = new Select<>();
+		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>("District");
+		// districtt.setLabel("District");
+		binder.forField(districtt).bind(UserDto::getDistrict, UserDto::setDistrict);
+		districtt.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 
-		Select<String> clusterr = new Select();
-		clusterr.setLabel("Cluster");
-		clusterr.setItems("", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster");
+//		districtt.setItems("", "District", "District", "District", "District", "District");
+//		districtt.setValue("");
+
+		// Select<String> clusterr = new Select();
+
+		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>("Community");
+		cluster.setLabel("Cluster");
+		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
+
+		// clusterr.setItems("", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster");
 
 		TextField streett = new TextField();
 		streett.setLabel("Street");
@@ -342,10 +399,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				new ResponsiveStep("320px", 2),
 				// Use three columns, if the layout's width exceeds 500px
 				new ResponsiveStep("500px", 3));
-		fielddataVieww.add(provincee, regionn, districtt, clusterr, streett, houseNumm, addInfoo, postalCodee, cityy,
+		fielddataVieww.add(provincee, regionn, districtt, cluster, streett, houseNumm, addInfoo, postalCodee, cityy,
 				areaTypee, contacPersonn);
 		fielddataVieww.getStyle().set("margin", "20px");
-		
+
 		Paragraph security = new Paragraph("Password & Security");
 		security.getStyle().set("color", "green");
 		security.getStyle().set("font-size", "20px");
@@ -354,17 +411,47 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		Div pwdSecc = new Div();
 		pwdSecc.setClassName("superDiv");
+		
+//		Button changePasswordButton = new Button();
+//		changePasswordButton.setIcon(VaadinIcons.UNLOCK);
+//		changePasswordButton.setCaption("Change Password");
+//		InternalPasswordChangeComponent PasswordChangeConfirmationComponent = getPasswordChangeConfirmationComponent(
+//				this.getField(UserDto.USER_NAME).getValue().toString());
+//
+//		changePasswordButton.addClickListener(e -> {
+//			Window popupWindow = VaadinUiUtil.showPopupWindow(PasswordChangeConfirmationComponent); // Password Changed
+//																									// Successfully
+//			PasswordChangeConfirmationComponent.addDoneListener(() -> popupWindow.close());
+//			PasswordChangeConfirmationComponent.getCancelButton().addClickListener(new ClickListener() {
+//
+//				private static final long serialVersionUID = 1L;
+//
+//				@Override
+//				public void buttonClick(ClickEvent event) {
+//					popupWindow.close();
+//				}
+//			});
+//			popupWindow.setCaption(I18nProperties.getString(Strings.headingUpdatePassword));
+//		});
+//		changePasswordButton.addStyleName(ValoTheme.BUTTON_LINK);
+//		getContent().addComponent(changePasswordButton, PASSWORD_BUTTON);
 
 		Div lang = new Div();
 		lang.setClassName("langDiv");
-		Select<String> language = new Select<>();
-		language.setLabel("Language");
-		language.setItems("", "English", "Dari", "Pashto");
-		language.setValue("");
-		language.getStyle().set("width", "350%");
+		//Select<String> language = new Select<>();
+		ComboBox<Language> languagee = new ComboBox<>("Language");
+
+		//language.setLabel("Language");
+//		language.setItems("", "English", "Dari", "Pashto");
+//		language.setValue("");
+		languagee.setItemLabelGenerator(Language::toString);
+		languagee.setItems(Language.getAssignableLanguages());
+		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+
+		languagee.getStyle().set("width", "350%");
 		lang.getStyle().set("margin", "20px");
 
-		lang.add(language);
+		lang.add(languagee);
 		Div anch = new Div();
 		anch.setClassName("anchDiv");
 		Anchor changePwd = new Anchor();
