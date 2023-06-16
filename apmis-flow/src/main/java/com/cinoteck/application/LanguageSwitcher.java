@@ -20,7 +20,11 @@ import java.util.stream.Collectors;
 
 public class LanguageSwitcher extends HorizontalLayout implements LocaleChangeObserver {
 
-    private static final Set<String> rtlSet;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2950056247206192888L;
+	private static final Set<String> rtlSet;
 
     static {
         Set<String> lang = new HashSet<>();
