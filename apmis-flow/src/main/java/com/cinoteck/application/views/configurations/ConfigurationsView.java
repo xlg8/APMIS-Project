@@ -31,6 +31,7 @@ import java.util.Map;
 @Route(value = "configurations", layout = MainLayout.class)
 public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
+    
 
     private Tabs createTabss() {
         tabComponentMap.put(new Tab("Regions"), new RegionView());
@@ -48,11 +49,10 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 
         Tabs tabs = createTabss();
         tabs.getStyle().set("background", "#434343");
-        tabs.getStyle().set("width", "100%");
+        tabs.setSizeFull();
         Div contentContainer = new Div();
-        contentContainer.setWidthFull();
-
-
+        contentContainer.setSizeFull();
+        setSizeFull();
         tabs.addSelectedChangeListener(e -> {
             contentContainer.removeAll();
             contentContainer.add(tabComponentMap.get(e.getSelectedTab()));
