@@ -1,19 +1,16 @@
-/*
- * SORMAS® - Surveillance Outbreak Response Management & Analysis System
- * Copyright © 2016-2021 Helmholtz-Zentrum für Infektionsforschung GmbH (HZI)
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
 
-package de.symeda.sormas.ui.login;
+package com.cinoteck.application.views.admin;
+
+
+
+import com.cinoteck.application.utils.authentication.CurrentUser;
+import com.vaadin.flow.server.VaadinServletService;
+import com.vaadin.flow.server.VaadinSession;
+
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.user.UserRole;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Event;
@@ -26,15 +23,6 @@ import javax.security.enterprise.authentication.mechanism.http.AuthenticationPar
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.servlet.ServletException;
 
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinServletService;
-import com.vaadin.server.VaadinSession;
-
-import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.user.UserRole;
-
 public final class LoginHelper {
 
 	private LoginHelper() {
@@ -42,27 +30,26 @@ public final class LoginHelper {
 	}
 
 	public static boolean login(String username, String password) {
-
+		System.out.println("___________________________________step 2");
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
-
+		System.out.println("___________________________________step 3");
 		BeanManager bm = CDI.current().getBeanManager();
 		@SuppressWarnings("unchecked")
 		Bean<SecurityContext> securityContextBean = (Bean<SecurityContext>) bm.getBeans(SecurityContext.class).iterator().next();
 		CreationalContext<SecurityContext> ctx = bm.createCreationalContext(securityContextBean);
 		SecurityContext securityContext = (SecurityContext) bm.getReference(securityContextBean, SecurityContext.class, ctx);
-
+		System.out.println("___________________________________step 4");
 		AuthenticationParameters authentication = new AuthenticationParameters();
 		authentication.credential(new UsernamePasswordCredential(username, password));
 		authentication.newAuthentication(true);
 		authentication.setRememberMe(true);
+		System.out.println("___________________________________stattus up");
 		AuthenticationStatus status = securityContext.authenticate(
 			VaadinServletService.getCurrentServletRequest(),
 			VaadinServletService.getCurrentResponse().getHttpServletResponse(),
 			authentication);
-		
-		System.out.println("___________________________________+++___+_+_+: "+status);
 		
 		if (status == AuthenticationStatus.SUCCESS) {
 			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
@@ -97,18 +84,21 @@ public final class LoginHelper {
 
 		try {
 			VaadinServletService.getCurrentServletRequest().logout();
-		} catch (ServletException e) {
-			return false;
+		} catch (javax.servlet.ServletException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		VaadinSession.getCurrent().getSession().invalidate();
-		Page.getCurrent().reload();
-
+		
+System.out.println("___________________________________NOT SUCCESSFUL: remember to reload");
+	//	UI.getCurrent().getPage().executeJs("window.location.reload();");
+CurrentUser.set("");
 		return true;
 	}
 
 	public static class LogoutEvent {
-
+		
 	}
 
 }
