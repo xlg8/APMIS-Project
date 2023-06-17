@@ -103,8 +103,8 @@ public class CampaignDataView extends VerticalLayout {
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 
-//		List<CampaignFormDataIndexDto> campaigns = FacadeProvider.getCampaignFormDataFacade().getIndexList(criteria, null, null, null);
-//		grid.setItems(campaigns);
+		//List<CampaignFormDataIndexDto> campaigns = FacadeProvider.getCampaignFormDataFacade().getIndexList(criteria, 1, 20, null);
+	//	grid.setItems(campaigns);
 //		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
 add(grid);
 	}
