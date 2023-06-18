@@ -1,5 +1,10 @@
 package com.cinoteck.application.views;
 
+import java.util.Locale;
+
+import com.cinoteck.application.LanguageSwitcher;
+import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
 import com.cinoteck.application.views.about.AboutView;
@@ -39,17 +44,15 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 /**
- * The main view is a top-level placeholder for other views.
- */
-//@CssImport(value = "./themes/apmis-theme/components/vcf-nav-item.css", themeFor = "vcf-nav-item")
-//@Theme(value = "apmis-theme")
+ * The main view is a top-level placeholder for other views. //password
+*/
+
 @NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @NpmPackage(value = "@vaadin-component-factory/vcf-nav", version = "1.0.6")
 @JavaScript(value = "https://code.jquery.com/jquery-3.6.4.min.js" )
 @StyleSheet("https://cdn.jsdelivr.net/npm/@vaadin/vaadin-lumo-styles@24.0.0/")
-//https://demo.dashboardpack.com/architectui-html-free/main.css
-//@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+
 @StyleSheet("https://demo.dashboardpack.com/architectui-html-free/main.css")
 @JavaScript("https://code.jquery.com/jquery-3.6.3.min.js")
 @JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
@@ -61,6 +64,9 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class MainLayout extends AppLayout {
 
 	private H1 viewTitle;
+	
+	private final UserProvider userProvider = new UserProvider();
+	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 
 	public MainLayout() {
 		setPrimarySection(Section.DRAWER);
@@ -86,20 +92,27 @@ public class MainLayout extends AppLayout {
 	}
 
 	private void addDrawerContent() {
-		Image imgApmis = new Image("images/apmis_horizontal_logo.png", "APMIS-LOGO");
+		Image imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
 		imgApmis.setMaxWidth("100%");
 		Scroller scroller = new Scroller(createNavigation());
 
 		Header header = new Header(imgApmis);
 
-		addToDrawer(header, scroller, createFooter());
+		
+		addToDrawer(header, scroller);
+		
+		addToDrawer(new LanguageSwitcher(Locale.ENGLISH,
+                        new Locale("fa","IR", "فارسی")));
+		addToDrawer(createFooter());
+		
+		
+	//	addToDrawer(header, scroller, createFooter());
 	}
    
 	private AppNav createNavigation() {
 		// AppNav is not yet an official component.
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme  
 		AppNav nav = new AppNav();
-		
 		
 		Button myButton = new Button();
 		
@@ -116,10 +129,12 @@ public class MainLayout extends AppLayout {
 		
 //		nav.addItem(new AppNavItem("Test", TestPageView.class, "la la-info-circle", "navitem"));
 		nav.addItem(new AppNavItem("Sign Out", LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
-
+		if (nav != null) {
+		    nav.addClassName("active");
+		}
 		return nav;
 		
-
+		
 	}
 	
 	 private Button createPopup() {

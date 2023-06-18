@@ -1,7 +1,9 @@
-package com.cinoteck.application.views;
+package com.cinoteck.application.utils.authentication;
 
+import com.cinoteck.application.views.admin.LoginHelper;
 import com.nimbusds.jose.shaded.ow2asm.Label;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,13 +27,23 @@ import com.vaadin.flow.router.NavigationEvent;
 
 public class LoginFormInput extends VerticalLayout {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5414191151831756239L;
 	private TextField username;
 	private PasswordField password;
 	private Button loginButton;
 	private Icon signInIcon;
 	private Anchor resetPassword;
+	
+	 private AccessControl accessControl;
 
 	public LoginFormInput() {
+		
+		 accessControl = AccessControlFactory.getInstance().createAccessControl();
+		  
+		  
 		setAlignItems(Alignment.CENTER);
 		setJustifyContentMode(JustifyContentMode.CENTER);
 
@@ -38,6 +51,7 @@ public class LoginFormInput extends VerticalLayout {
 		username = new TextField();
 		username.setPlaceholder("Username");
 		username.setClassName("loginUsername");
+		username.setId("loginUsername");
 		username.setLabel("Username");
 		username.getStyle().set("width", "100%");
 		username.getStyle().set("font-weight", "200");
@@ -72,11 +86,22 @@ public class LoginFormInput extends VerticalLayout {
 		loginButton.addClickListener(event -> {
 			String usernameValue = username.getValue();
 			String passwordValue = password.getValue();
-			if (isValidCredentials(usernameValue, passwordValue)) {
-				Notification.show("Login successful!");
-				loginButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
-
-			} else {
+			if(usernameValue != null || username.getValue().isEmpty()) {
+				
+			
+		//	if (isValidCredentials(usernameValue, passwordValue)) {
+			System.out.println("___________________________________step 1");
+				if (accessControl.signIn(usernameValue, passwordValue)) {
+//					
+//		        Notification.show("Login successful!");
+//
+//		        loginButton.getUI().ifPresent(ui -> {
+//		            Page page = ui.getPage();
+//		            page.setLocation("dashboard");
+//		        });
+					
+					Notification.show("YEAHHHH");
+		    } else {
 				Notification notification = new Notification();
 				notification.setPosition(Position.MIDDLE);
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -95,7 +120,11 @@ public class LoginFormInput extends VerticalLayout {
 				notification.add(layout);
 				notification.open();
 			}
+			}else {
+			System.out.println("___________________________________username empty");
+			}
 		});
+	
 		
 		resetPassword = new Anchor("#", "Reset Password");
 		resetPassword.getStyle().set("color", "white");

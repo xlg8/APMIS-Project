@@ -184,7 +184,11 @@ vaadin-vertical-layout {
     padding: 0 !important;
 }
 
-vcf-nav-item#navitem:active, vcf-nav-item#menuItems:active {
+vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a{
+	background: #F08F3E !important;
+	color: white !important;
+}
+vcf-nav-item#navitem@active, vcf-nav-item#menuItems@active {
 	background: #F08F3E !important;
 	color: white !important;
 }
@@ -200,10 +204,10 @@ header {
 #pageHeader {
 	color: green;
 	width: 100%;
-	font-size: 31px;
+	font-size: 21px;
 	font-family: 'Lato';
-	padding-top: 16px;
-	padding-bottom: 16px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -439,3 +443,32 @@ text.highcharts-credits {
     display: none !important;
 }
 
+vaadin-text-field#loginUsername .vaadin-field-container vaadin-input-container {
+	border : none!important;
+}
+
+
+html {
+  --vcf-nav-child-indent: var(--lumo-space-m);
+}
+
+vcf-nav {
+  padding: 0;
+  font-size: var(--lumo-font-size-m);
+  color: var(--lumo-body-text-color);
+}
+
+vcf-nav::part(label) {
+  text-transform: uppercase;
+  font-size: var(--lumo-font-size-xs);
+}
+
+vcf-nav-item::part(item) {
+  border-inline-start: 2px solid transparent;
+}
+
+vcf-nav-item[active]::part(item) {
+  border-inline-start-color: var(--lumo-primary-color);
+  color: white !important;
+  background: #F08F3E !important;
+}

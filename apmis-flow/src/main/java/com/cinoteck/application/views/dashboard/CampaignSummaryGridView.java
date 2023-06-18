@@ -39,6 +39,7 @@ public class CampaignSummaryGridView extends VerticalLayout {
 		dashboardContainer.setClassName("row col");
 		dashboardContainer.getStyle().set("display", "flex");
 		dashboardContainer.getStyle().set("flex-direction", "row");
+		dashboardContainer.getStyle().set("padding-top", "0.2rem");//padding-top: 0.2rem
 
 		Map<CampaignDashboardDiagramDto, List<CampaignDiagramDataDto>> campaignFormDataMap = dataProvider
 				.getCampaignFormDataMap(mainTabIdCoded, subTabIdCoded);
@@ -60,7 +61,7 @@ public class CampaignSummaryGridView extends VerticalLayout {
 			int chartWidthBoostraped = (int) Math.ceil((double) chartWidth / 100 * 12);
 			
 
-			System.out.println(campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramType() +" : " + campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement().getWidth() + "  ++++++++++++  " + chartWidthBoostraped);
+		//	System.out.println(campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramType() +" : " + campaignDashboardDiagramDto_diagramData.getKey().getCampaignDashboardElement().getWidth() + "  ++++++++++++  " + chartWidthBoostraped);
 
 			campaignDashboardDiagramDto_diagramData.getKey().getCampaignDiagramDefinitionDto().getDiagramId();
 

@@ -46,7 +46,7 @@ public abstract class BaseEditFragment<TBinding extends ViewDataBinding, TData, 
 	public static final String TAG = BaseEditFragment.class.getSimpleName();
 
 //    private AsyncTask jobTask;
-	private BaseEditActivity baseEditActivity;
+	public BaseEditActivity baseEditActivity;
 	private IUpdateSubHeadingTitle subHeadingHandler;
 	private NotificationContext notificationCommunicator;
 
@@ -97,6 +97,7 @@ public abstract class BaseEditFragment<TBinding extends ViewDataBinding, TData, 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
 		if (getActivity() instanceof BaseEditActivity) {
 			this.baseEditActivity = (BaseEditActivity) this.getActivity();
+
 		} else {
 			throw new NotImplementedException("The edit activity for fragment must implement BaseEditActivity");
 		}
@@ -274,6 +275,8 @@ public abstract class BaseEditFragment<TBinding extends ViewDataBinding, TData, 
 	public boolean isShowNewAction() {
 		return false;
 	}
+
+
 
 //    @Override
 //    public void onDestroy() {

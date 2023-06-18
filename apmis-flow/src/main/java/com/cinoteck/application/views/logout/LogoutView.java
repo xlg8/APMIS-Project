@@ -2,6 +2,8 @@ package com.cinoteck.application.views.logout;
 
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.cinoteck.application.utils.authentication.AccessControl;
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -60,9 +62,16 @@ public class LogoutView extends VerticalLayout {
 		logoutButtons.getStyle().set("justify-content", "space-evenly");
 		logoutButtons.getStyle().set("width", "100%");
 	   
+		final AccessControl accessControl = AccessControlFactory.getInstance()
+                .createAccessControl();
+		//TODO make this check the sesssion and invalidate it... it terms of Spring.. let use another method
 		confirmButton = new Button("Confirm", event -> {
-			confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
+			accessControl.signOut();
+			
+			//confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
 		});
+		
+		
 		confirmButton.getStyle().set("width", "35%");
 		cancelButton = new Button("Cancel", event -> {
 			dialog.close();

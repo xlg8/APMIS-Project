@@ -15,7 +15,11 @@ import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 
 public class RegionDataProvider extends AbstractBackEndDataProvider<RegionIndexDto, RegionFilter> {
 	
-	 final List<RegionIndexDto> regionList = new ArrayList<>(FacadeProvider.getRegionFacade().getAllRegions());
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1152945214310841479L;
+	final List<RegionIndexDto> regionList = new ArrayList<>(FacadeProvider.getRegionFacade().getAllRegions());
 
 	@Override
 	protected Stream<RegionIndexDto> fetchFromBackEnd(Query<RegionIndexDto, RegionFilter> query) {

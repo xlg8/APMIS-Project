@@ -16,6 +16,7 @@ import com.vaadin.flow.server.VaadinSession;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDataDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
+import de.symeda.sormas.api.campaign.diagram.DiagramType;
 
 public class BarChartCardComponent extends Div {
 
@@ -25,13 +26,13 @@ public class BarChartCardComponent extends Div {
 	private static final long serialVersionUID = -1469748692188293859L;
 
 	@SuppressWarnings("deprecation")
-	public BarChartCardComponent(String singleChartJsString, String randomxx) {
+	public BarChartCardComponent(String singleChartJsString, String randomxx, DiagramType diagramType) {
 	
 setSizeFull();
 
 		// Create the outer div
 		Div outerDiv = new Div();
-		outerDiv.addClassNames("mb-3", "card");
+		outerDiv.addClassNames("mb-2", "card");
 
 		// Create the card header tab div
 		Div cardHeaderTabDiv = new Div();

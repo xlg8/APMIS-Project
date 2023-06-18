@@ -75,6 +75,7 @@ public class CampaignDashboardDataProvider {
 
 	public void setArea(AreaReferenceDto area) {
 		if (this.area != area) {
+			campaignDashboardDiagrams.clear();
 			this.area = area;
 			requestDiagramsData();
 		}
@@ -86,6 +87,7 @@ public class CampaignDashboardDataProvider {
 
 	public void setRegion(RegionReferenceDto region) {
 		if (this.region != region) {
+			campaignDashboardDiagrams.clear();
 			this.region = region;
 			requestDiagramsData();
 		}
@@ -97,6 +99,7 @@ public class CampaignDashboardDataProvider {
 
 	public void setDistrict(DistrictReferenceDto district) {
 		if (this.district != district) {
+			campaignDashboardDiagrams.clear();
 			this.district = district;
 			requestDiagramsData();
 		}
@@ -118,6 +121,7 @@ public class CampaignDashboardDataProvider {
 
 	public void setCampaignJurisdictionLevelGroupBy(CampaignJurisdictionLevel campaignJurisdictionLevelGroupBy) {
 		if (this.campaignJurisdictionLevelGroupBy != campaignJurisdictionLevelGroupBy) {
+			campaignDashboardDiagrams.clear();
 			this.campaignJurisdictionLevelGroupBy = campaignJurisdictionLevelGroupBy;
 			requestDiagramsData();
 		}

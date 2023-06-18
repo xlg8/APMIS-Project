@@ -222,6 +222,7 @@ public class MainScreen extends HorizontalLayout {
 			menu.addView(CampaignDataView.class, AbstractCampaignView.ROOT_VIEW_NAME,
 					I18nProperties.getCaption(Captions.mainMenuCampaigns), VaadinIcons.CLIPBOARD_CHECK);
 		}
+	
 
 		if ((permitted(UserType.WHO_USER) || permitted(UserType.EOC_USER)) && permitted(UserRight.REPORT_VIEW)) {
 			

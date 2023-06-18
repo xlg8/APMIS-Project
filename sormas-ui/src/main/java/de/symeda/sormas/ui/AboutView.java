@@ -46,9 +46,9 @@ public class AboutView extends VerticalLayout implements View {
 	public AboutView() {
 		super();
 		setMargin(true);
-		CustomLayout content2 = new CustomLayout("about-text");
-		content2.setSizeFull();
-		addComponent(content2);
+		CustomLayout headerText = new CustomLayout("about-text");
+		headerText.setSizeFull();
+		addComponent(headerText);
 		
 		JsonDictionaryTabsheet jsonDictionaryTabsheet = new JsonDictionaryTabsheet();
 		jsonDictionaryTabsheet.setId("jsonDictionaryExport");
@@ -62,6 +62,7 @@ public class AboutView extends VerticalLayout implements View {
 		
 		
 		
+		
 //		SormasUI.getCurrent().getPage().getJavaScript().execute("        var form = document.getElementById('my-form');\n"
 //				+ "        form.addEventListener(\"submit\", e => {\n"
 //				+ "            e.preventDefault();\n"
@@ -71,7 +72,7 @@ public class AboutView extends VerticalLayout implements View {
 //				+ "            }).then((response) => {\n"
 //				+ "   \n"
 //				+ "    alert(\"You have submitted this form \");\n"
-//				+ "    window.location.reload();\n"
+//				+ "    window.location.reload();\n" Select either of the Documentations
 //				+ "\n"
 //				+ "  \n"
 //				+ "});\n"
@@ -83,7 +84,7 @@ public class AboutView extends VerticalLayout implements View {
 //		addComponent(infoLabel);
 		
 //		ComboBox<String> comboBox = new ComboBox<>();
-//		comboBox.setItems(file1Link, file2Link, file3Link);
+//		comboBox.setItems(file1Link, file2Link, file3Link); About APMIS
 //		
 //		
 //		

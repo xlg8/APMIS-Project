@@ -29,6 +29,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.app.backend.common.AbstractDomainObject;
+import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.component.menu.PageMenuItem;
 import de.symeda.sormas.app.core.IUpdateSubHeadingTitle;
 import de.symeda.sormas.app.core.notification.NotificationHelper;
@@ -50,6 +51,9 @@ public abstract class BaseEditActivity<ActivityRootEntity extends AbstractDomain
 
 	private MenuItem saveMenu = null;
 	private MenuItem newMenu = null;
+
+	protected boolean isDataModified;
+	private boolean changedData = false;
 
 	@Override
 	protected boolean isSubActivity() {
@@ -112,10 +116,12 @@ public abstract class BaseEditActivity<ActivityRootEntity extends AbstractDomain
 
 		requestRootData(new Consumer<ActivityRootEntity>() {
 
-			@Override
-			public void accept(ActivityRootEntity result) {
-				replaceFragment(buildEditFragment(getActivePage(), result), false);
-			}
+				@Override
+				public void accept (ActivityRootEntity result) {
+					if (!changedData) {
+						replaceFragment(buildEditFragment(getActivePage(), result), false);
+					}
+				}
 		});
 
 		updatePageMenu();
@@ -146,12 +152,15 @@ public abstract class BaseEditActivity<ActivityRootEntity extends AbstractDomain
 		// This should not happen; however, it still might under certain circumstances
 		// (user clicking a notification for a task they have no access to anymore); in
 		// this case, the activity should be closed.
+
 		if (storedRootEntity == null) {
 			finish();
 		} else if (previousRootEntity != null) {
 			if (DataHelper.equal(previousRootEntity.getLocalChangeDate(), storedRootEntity.getLocalChangeDate())) {
 				// not changed -> keep existing that possibly has unsaved changes
+				changedData = true;
 				storedRootEntity = previousRootEntity;
+
 			} else {
 				NotificationHelper.showNotification(
 					BaseEditActivity.this,
@@ -161,9 +170,12 @@ public abstract class BaseEditActivity<ActivityRootEntity extends AbstractDomain
 		}
 
 		// TODO #704 do in background and retrieve entity again
-		// DatabaseHelper.getAdoDao(storedRootEntity.getClass()).markAsReadWithCast(storedRootEntity);
-
-		callback.accept(storedRootEntity);
+		 //DatabaseHelper.getAdoDao(storedRootEntity.getClass()).markAsReadWithCast(storedRootEntity);
+		if(changedData) {
+			return;
+		}else{
+			callback.accept(storedRootEntity);
+		}
 	}
 
 	protected abstract ActivityRootEntity queryRootEntity(String recordUuid);
@@ -297,5 +309,13 @@ public abstract class BaseEditActivity<ActivityRootEntity extends AbstractDomain
 
 		if (getRootEntityTask != null && !getRootEntityTask.isCancelled())
 			getRootEntityTask.cancel(true);
+	}
+
+	public boolean isDataModified() {
+		return isDataModified;
+	}
+
+	public void setDataModified(boolean dataModified) {
+		isDataModified = dataModified;
 	}
 }

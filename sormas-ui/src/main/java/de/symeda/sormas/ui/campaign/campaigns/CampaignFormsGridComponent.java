@@ -1,9 +1,12 @@
 package de.symeda.sormas.ui.campaign.campaigns;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import com.vaadin.data.Binder;
 import com.vaadin.data.Binder.Binding;
+import com.vaadin.data.provider.DataCommunicator;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Grid;
@@ -20,7 +23,7 @@ import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.ui.utils.AbstractEditableGrid;
 
 @SuppressWarnings("serial")
-public class CampaignFormsGridComponent extends AbstractEditableGrid<CampaignFormMetaReferenceDto> {
+public class CampaignFormsGridComponent<T> extends AbstractEditableGrid<CampaignFormMetaReferenceDto> {
 
 	public CampaignFormsGridComponent(List<CampaignFormMetaReferenceDto> savedCampaignFormMetas,
 			List<CampaignFormMetaReferenceDto> allCampaignFormMetas) {
@@ -44,7 +47,6 @@ public class CampaignFormsGridComponent extends AbstractEditableGrid<CampaignFor
 
 		};
 	}
-
 
 
 	public void ListnerCampaignFilter(TabSheet.SelectedTabChangeEvent event) {

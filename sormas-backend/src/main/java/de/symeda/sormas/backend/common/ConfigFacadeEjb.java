@@ -162,7 +162,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	private static final String DOCUMENT_UPLOAD_SIZE_LIMIT_MB = "documentUploadSizeLimitMb";
 	public static final int DEFAULT_DOCUMENT_UPLOAD_SIZE_LIMIT_MB = 20;
 	public static final String IMPORT_FILE_SIZE_LIMIT_MB = "importFileSizeLimitMb";
-	public static final int DEFAULT_IMPOR_FILE_SIZE_LIMIT_MB = 20;
+	public static final int DEFAULT_IMPOR_FILE_SIZE_LIMIT_MB = 25;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
