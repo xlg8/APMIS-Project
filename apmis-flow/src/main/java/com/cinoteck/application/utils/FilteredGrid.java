@@ -1,18 +1,19 @@
-package de.symeda.sormas.ui.utils;
+package com.cinoteck.application.utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.vaadin.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.Query;
-import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.SerializableSupplier;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.renderers.HtmlRenderer;
+import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.utils.VaadinUiUtil;
+import com.vaadin.flow.component.combobox.ComboBox.FetchItemsCallback;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.function.SerializableSupplier;
 
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -20,7 +21,6 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 import de.symeda.sormas.api.utils.pseudonymization.PseudonymizableIndexDto;
-import de.symeda.sormas.ui.UserProvider;
 
 public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 
@@ -41,7 +41,7 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 
 	public FilteredGrid(Class<T> beanType) {
 		super(beanType);
-		getDataCommunicator().setMinPushSize(LAZY_BATCH_SIZE);
+		getDataCommunicator().setPageSize(LAZY_BATCH_SIZE);
 	}
 
 	public C getCriteria() {
@@ -82,8 +82,9 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 		super.setDataProvider(dataProvider);
 	}
 
-//	@Override
+////	@Override
 //	public void setDataProvider(FetchItemsCallback<T> fetchItems, SerializableSupplier<Integer> sizeCallback) {
+//		
 //		throw new UnsupportedOperationException();
 //	}
 
@@ -94,18 +95,20 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 		if (PseudonymizableIndexDto.class.isAssignableFrom(getBeanType())
 			&& getSelectedItems().stream().anyMatch(item -> ((PseudonymizableIndexDto) item).isPseudonymized())) {
 
-			VaadinUiUtil.showConfirmationPopup(
+			VaadinUiUtil.showDynamicPopup(
 				I18nProperties.getCaption(Captions.bulkActions),
 				new Label(I18nProperties.getString(Strings.pseudonymizedEntitiesSelectedWarning)),
 				I18nProperties.getCaption(Captions.actionDeselectAndContinue),
 				I18nProperties.getCaption(Captions.actionCancel),
-				640,
-				proceed -> {
-					if (proceed) {
-						getSelectedItems().stream().filter(item -> ((PseudonymizableIndexDto) item).isPseudonymized()).forEach(this::deselect);
-						callback.accept(getSelectedItems());
-					}
-				});
+				640);
+				
+//				,
+//				proceed -> {
+//					if (proceed) {
+//						getSelectedItems().stream().filter(item -> ((PseudonymizableIndexDto) item).isPseudonymized()).forEach(this::deselect);
+//						callback.accept(getSelectedItems());
+//					}
+//				});
 		} else {
 			callback.accept(getSelectedItems());
 		}
@@ -136,22 +139,22 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 	 * @param handler
 	 *            ItemClickListener
 	 */
-	protected void addEditColumn(Consumer<T> handler) {
-
-		List<Column<T, ?>> columnsList = new ArrayList<>(getColumns());
-
-		Column<T, String> editColumn = addColumn(entry -> VaadinIcons.EDIT.getHtml(), new HtmlRenderer());
-		editColumn.setId(EDIT_BTN_ID);
-		editColumn.setCaption(I18nProperties.getCaption(EDIT_BTN_ID));
-		editColumn.setSortable(false);
-		editColumn.setWidth(20);
-
-		// the edit column should always be on the left for consistency and to prevent sidescrolling
-		columnsList.add(0, editColumn);
-		setColumnOrder(columnsList.toArray(new Column[columnsList.size()]));
-
-		addItemClickListener(new ShowDetailsListener<>(EDIT_BTN_ID, e -> handler.accept(e)));
-	}
+//	protected void addEditColumn(Consumer<T> handler) {
+//
+//		List<Column<T, ?>> columnsList = new ArrayList<>(getColumns());
+//
+//		Column<T, String> editColumn = addColumn(entry -> VaadinIcons.EDIT.getHtml(), new HtmlRenderer());
+//		editColumn.setId(EDIT_BTN_ID);
+//		editColumn.setCaption(I18nProperties.getCaption(EDIT_BTN_ID));
+//		editColumn.setSortable(false);
+//		editColumn.setWidth(20);
+//
+//		// the edit column should always be on the left for consistency and to prevent sidescrolling
+//		columnsList.add(0, editColumn);
+//		setColumnOrder(columnsList.toArray(new Column[columnsList.size()]));
+//
+//		addItemClickListener(new ShowDetailsListener<>(EDIT_BTN_ID, e -> handler.accept(e)));
+//	}
 	
 	protected void addCloneColumn(Consumer<T> handler) {
 		
@@ -159,8 +162,8 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 	}
 
 	protected void removeColumnIfExists(String columnId) {
-		if (getColumn(columnId) != null) {
-			removeColumn(columnId);
+		if (getColumnByKey(columnId) != null) {
+			removeColumnByKey(columnId);
 		}
 	}
 }

@@ -389,6 +389,7 @@
     "line-awesome": "$line-awesome",
     "lit": "$lit",
     "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar"
+    "chokidar": "$chokidar",
+    "@flowingcode/font-awesome-iron-iconset": "$@flowingcode/font-awesome-iron-iconset"
   }
 }
