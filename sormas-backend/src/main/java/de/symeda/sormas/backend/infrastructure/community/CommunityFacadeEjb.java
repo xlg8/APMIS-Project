@@ -323,8 +323,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
-		System.out.println("2222222222222222222222222444444444444444444442222222222222222222222222222 "+criteria.getArea());
-		if(max > 47483647) {
+		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
+		if(max > 100000) {
 			max = 100;
 			}
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -338,9 +338,13 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			filter = service.buildCriteriaFilter(criteria, cb, community);
 		}
 
+		Predicate filterx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), false), cb.isNotNull(community.get(District.ARCHIVED)));
+		
 		if (filter != null) {
-			cq.where(filter);
-		}
+			cq.where(filter, filterx);
+		}else {
+			cq.where(filterx);
+		}	
 
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
@@ -375,10 +379,6 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		cq.select(community);
 
-		//		cq.multiselect(community.get(Community.CREATION_DATE), community.get(Community.CHANGE_DATE),
-		//				community.get(Community.UUID), community.get(Community.NAME),
-		//				region.get(Region.UUID), region.get(Region.NAME),
-		//				district.get(District.UUID), district.get(District.NAME));
 
 		return QueryHelper.getResultList(em, cq, first, max, this::toDto);
 	}
@@ -402,8 +402,12 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			filter = service.buildCriteriaFilter(criteria, cb, root);
 		}
 
+		Predicate filterx = cb.and(cb.isNotNull(root.get(District.EXTERNAL_ID)), cb.equal(root.get(District.ARCHIVED), false), cb.isNotNull(root.get(District.ARCHIVED)));
+		
 		if (filter != null) {
-			cq.where(filter);
+			cq.where(filter, filterx);
+		}else {
+			cq.where(filterx);
 		}
 
 		cq.select(cb.count(root));
