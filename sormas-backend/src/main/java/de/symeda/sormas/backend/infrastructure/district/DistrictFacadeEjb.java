@@ -165,7 +165,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	@Override
 	public List<DistrictIndexDto> getIndexList(DistrictCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
-		System.out.println("++++++++++++++++++: from"+ first +"  --  "+max);
+	//	System.out.println("++++++++++++++++++: from"+ first +"  --  "+max);
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<District> cq = cb.createQuery(District.class);
@@ -178,8 +178,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		}
 		
 		Predicate filterx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
-		Predicate filterxx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)));
-
+		
 		if (filter != null) {
 			cq.where(filter, filterx);
 		}else {
@@ -217,7 +216,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		cq.select(district);
 		
-		System.out.println("+++++++++++++++ resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+	//	System.out.println("+++++++++++++++ resultData - "+ SQLExtractor.from(em.createQuery(cq)));
 		
 		
 		return QueryHelper.getResultList(em, cq, first, max, this::toIndexDto);
@@ -358,7 +357,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	
 	@Override
 	public List<DistrictReferenceDto> getByExternalID(Long ext_id, RegionReferenceDto regionRef, boolean includeArchivedEntities) {
-		System.out.println("++++REGION IN USE TO QUERY DISTRICT b "+regionService.getByReferenceDto(regionRef));
+	//	System.out.println("++++REGION IN USE TO QUERY DISTRICT b "+regionService.getByReferenceDto(regionRef));
 		return service.getByExternalId(ext_id, regionService.getByReferenceDto(regionRef), includeArchivedEntities, 0)
 			.stream()
 			.map(DistrictFacadeEjb::toReferenceDto)
@@ -469,7 +468,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		dto.setRisk(entity.getRisk());
 		dto.setGrowthRate(entity.getGrowthRate());
 	//	dto.setPopulation(populationDataFacade.getDistrictPopulation(dto.getUuid()));
-		System.out.println("_______________________________________: "+entity.getUuid());
+	//	System.out.println("_______________________________________: "+entity.getUuid());
 		dto.setAreaexternalId(entity.getRegion().getArea().getExternalId());
 		dto.setAreaname(entity.getRegion().getArea().getName());
 		dto.setRegionexternalId(entity.getRegion().getExternalId());

@@ -37,6 +37,10 @@ public class DistrictView extends VerticalLayout {
 //	private DistrictFilter districtFilter = new DistrictFilter();
 	//TODO: Due to LAzY LoadinDING GridListDataView<DistrictIndexDto> dataView;
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1370022184569877189L;
 	private DistrictCriteria criteria;
 	
 	public DistrictView() {
@@ -63,8 +67,8 @@ public class DistrictView extends VerticalLayout {
 		//criteria.region(null);
 		
 		DataProvider<DistrictIndexDto, DistrictCriteria> dataProvider = 
-	            DataProvider
-	            .fromFilteringCallbacks(
+	        DataProvider
+	          .fromFilteringCallbacks(
 	                    query -> FacadeProvider.getDistrictFacade()
 	                            .getIndexList(criteria, query.getOffset(), query.getLimit(),
 	                                    query.getSortOrders().stream()
@@ -72,7 +76,8 @@ public class DistrictView extends VerticalLayout {
 	                                                    sortOrder.getDirection() == SortDirection.ASCENDING))
 	                                            .collect(Collectors.toList()))
 	                            .stream(),
-	                    query -> (int) FacadeProvider.getDistrictFacade().count(criteria));
+	                    query -> (int) FacadeProvider.getDistrictFacade().count(criteria)
+	                    );
 	                    
 	                    grid.setDataProvider(dataProvider);
 	                    

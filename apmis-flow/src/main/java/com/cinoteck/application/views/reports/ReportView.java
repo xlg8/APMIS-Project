@@ -25,13 +25,17 @@ import de.symeda.sormas.api.user.FormAccess;
 @JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
 public class ReportView extends VerticalLayout implements RouterLayout{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4815769166958388369L;
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
 
 
 	private Tabs createTabs() {
-		tabComponentMap.put(new Tab("Aggregate Report"),new JsonDIctionaryGridView());
+		//tabComponentMap.put(new Tab("Aggregate Report"),new JsonDIctionaryGridView());
 		tabComponentMap.put(new Tab("Completion Analysis"), new CompletionAnalysisView());
-		tabComponentMap.put(new Tab("User Analysis"), new UserAnalysisView());
+		//tabComponentMap.put(new Tab("User Analysis"), new UserAnalysisView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 
@@ -44,11 +48,11 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 		 reportTabsheetLayout.setClassName("campDatFill");
 	        
 		Tabs tabs = createTabs();
+		tabs.setSizeFull();
 		tabs.getStyle().set("background", "#434343");
-        tabs.getStyle().set("width", "100%");
         Div contentContainer = new Div();
-        contentContainer.setWidthFull();
-        
+        contentContainer.setSizeFull();
+        setSizeFull();
         tabs.addSelectedChangeListener(e -> {
             contentContainer.removeAll();
             contentContainer.add(tabComponentMap.get(e.getSelectedTab()));

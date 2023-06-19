@@ -84,7 +84,6 @@ import de.symeda.sormas.ui.events.EventParticipantDataView;
 import de.symeda.sormas.ui.events.EventsView;
 import de.symeda.sormas.ui.immunization.ImmunizationsView;
 import de.symeda.sormas.ui.labmessage.LabMessagesView;
-import de.symeda.sormas.ui.login.LoginHelper;
 import de.symeda.sormas.ui.person.PersonsView;
 import de.symeda.sormas.ui.report.CampaignReportView;
 import de.symeda.sormas.ui.reports.ReportsView;

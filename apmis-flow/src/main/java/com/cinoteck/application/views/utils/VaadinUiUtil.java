@@ -40,11 +40,15 @@ public final class VaadinUiUtil {
 	}
 
 	public static VerticalLayout showDynamicPopup(String caption, String contentText, JustifyContentMode contentMode) {
-		return showDynamicPopup(caption, contentText, contentMode, null);
+		return showDynamicPopup(caption, contentText, contentMode, 0);
 	}
 	
 	
-	 public static VerticalLayout showDynamicPopup(String caption, String contentText, JustifyContentMode contentMode, Integer width) {
+	public static VerticalLayout showDynamicPopup(String caption, Label sd, String contentText, String contentMode, int width) {
+		return showDynamicPopup(caption, contentText, JustifyContentMode.CENTER, 0);
+	}
+	
+	 public static VerticalLayout showDynamicPopup(String caption, String contentText, JustifyContentMode contentMode, int width) {
 	        Dialog dialog = new Dialog();
 	        VerticalLayout popupLayout = new VerticalLayout();
 
@@ -67,13 +71,6 @@ public final class VaadinUiUtil {
 	       return popupLayout;
 	    }
 	 
-		public static void showDynamicPopup(String caption, Label label, String caption2, String caption3, int i,
-				Object object) {
-
-			
-			
-			
-		}
 		
 		
 //
