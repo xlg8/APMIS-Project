@@ -2,6 +2,7 @@
   "license": "UNLICENSED",
   "name": "no-name",
   "dependencies": {
+    "@flowingcode/font-awesome-iron-iconset": "4.2.0",
     "@polymer/iron-icon": "3.0.1",
     "@polymer/iron-iconset-svg": "3.0.1",
     "@polymer/iron-list": "3.1.0",
@@ -141,6 +142,7 @@
   },
   "vaadin": {
     "dependencies": {
+      "@flowingcode/font-awesome-iron-iconset": "4.2.0",
       "@polymer/iron-icon": "3.0.1",
       "@polymer/iron-iconset-svg": "3.0.1",
       "@polymer/iron-list": "3.1.0",
@@ -274,7 +276,7 @@
       "workbox-precaching": "6.5.4",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "cc47a12b8ab26b7eeb9d6ddfc2538bd5e2df6e743b94dd507666a924edfc8ca0"
+    "hash": "0a4d8b0a12dec79a4c7fe53069e9953e3ecf8411527fbfb4cc784af74cbc8602"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -377,6 +379,7 @@
     "@vaadin/vaadin-virtual-list": "$@vaadin/vaadin-virtual-list",
     "@vaadin/vertical-layout": "$@vaadin/vertical-layout",
     "@vaadin/virtual-list": "$@vaadin/virtual-list",
+    "@flowingcode/font-awesome-iron-iconset": "$@flowingcode/font-awesome-iron-iconset",
     "@polymer/polymer": "$@polymer/polymer",
     "@vaadin-component-factory/vcf-anchor-nav": "$@vaadin-component-factory/vcf-anchor-nav",
     "@vaadin-component-factory/vcf-nav": "$@vaadin-component-factory/vcf-nav",
