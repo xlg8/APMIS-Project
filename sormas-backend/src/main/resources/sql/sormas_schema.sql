@@ -8733,7 +8733,49 @@ ALTER TABLE public.populationdata ADD CONSTRAINT populationdata_un UNIQUE (distr
 
 INSERT INTO schema_version (version_number, comment) VALUES (441, 'Allow for District-level data collection #348 #38');
 
+--New UI campaign_Analytics ehancement #202
+CREATE TABLE public.completionanalysisview (
+	area_ varchar(512) NULL,
+	region_ varchar(255) NULL,
+	district_ varchar(255) NULL,
+	clusternumber_ int4 NULL,
+	ccode int8 NULL,
+	supervisor int8 NULL,
+	revisit int8 NULL,
+	household int8 NULL,
+	teammonitori int8 NULL,
+	campaign_id int8 NULL
+);
 
+CREATE TABLE public.completionanalysisview_a (
+	count int8 NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL
+);
+CREATE TABLE public.completionanalysisview_b (
+	count int8 NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL
+);
+CREATE TABLE public.completionanalysisview_c (
+	count int8 NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL
+);
+CREATE TABLE public.completionanalysisview_d (
+	count int8 NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL
+);
+
+
+CREATE TABLE public.completionanalysisview_e (
+	count int8 NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL
+);
+
+INSERT INTO schema_version (version_number, comment) VALUES (442, 'Enhancing completion analysis');
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
