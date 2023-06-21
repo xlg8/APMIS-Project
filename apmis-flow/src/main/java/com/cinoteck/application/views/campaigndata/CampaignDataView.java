@@ -86,6 +86,8 @@ public class CampaignDataView extends VerticalLayout {
 //	private GridListDataView<CampaignFormDataIndexDto> dataView;
 	private CampaignFormDataCriteria criteria;
 	private CampaignFormMetaDto formMetaReference;
+	private CampaignFormDataDto campaignFormDatadto;
+	
 
 	ComboBox<String> campaignYear = new ComboBox<>();
 	ComboBox<CampaignReferenceDto> campaignz = new ComboBox<>();
@@ -108,229 +110,73 @@ public class CampaignDataView extends VerticalLayout {
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
 	public CampaignDataView() {
-		setHeightFull();
+		setSizeFull();
+		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
 		createCampaignDataFilter();
 		configureGrid(criteria);
 	}
-
-	@SuppressWarnings("deprecation")
-	private void configureGrid(CampaignFormDataCriteria criteria) {
-		grid.removeAllColumns();
-		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setSizeFull();
-		grid.setColumnReorderingAllowed(true);
-
-		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader("DCode").setSortable(true).setResizable(true);
-		Column<CampaignFormDataIndexDto> comm = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader("Cluster")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER).setHeader("Cluster Number").setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true);
-
-		grid.setVisible(true);
-		grid.setWidthFull();
-		grid.setHeightFull();
-		grid.setAllRowsVisible(false);
-
-//		List<CampaignFormDataIndexDto> campaigns = FacadeProvider.getCampaignFormDataFacade()
-//				.getIndexList(criteria, 1, null, null).stream().collect(Collectors.toList());
-//
-//		dataView = grid.setItems(campaigns);
-
-		grid.asSingleSelect().addValueChangeListener(event -> editCampaignFormData(event.getValue()));
-
-		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
-		grid.setDataProvider(dataProvider);
-//
-//		DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider = 
-//				DataProvider
-//				.fromFilteringCallbacks(
-//						query -> FacadeProvider.getCampaignFormDataFacade()
-//								.getIndexList(criteria, query.getOffset(), query.getLimit(),
-//										query.getSortOrders().stream()
-//												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-//														sortOrder.getDirection() == SortDirection.ASCENDING))
-//												.collect(Collectors.toList()))
-//								.stream(),
-//						query -> (int) FacadeProvider.getCampaignFormDataFacade().count(criteria));
-
-		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
-//	    exporter.setExportValue(comm, item -> "" + item);
-//	    exporter.setColumnPosition(lastNameCol, 1);
-		exporter.setTitle("Campaign Data information");
-		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
-		exporter.setCsvExportEnabled(true);
-
-		add(grid);
-
-	}
-
-	private void editCampaignFormData(CampaignFormDataIndexDto selected) {
-		selected = grid.asSingleSelect().getValue();
-		if (selected != null) {
-			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-					.getCampaignFormDataByUuid(selected.getUuid());
-			openFormLayout(formData);
-		}
-	}
-
-	private void openFormLayout(CampaignFormDataDto formData) {
-
-		System.out.println(formData.getUuid() + "tttttttttttttttttttttttttttttttttttttttttttttttt");
-		FormLayout formLayout = new FormLayout();
-		String campaignUUID = "UUGEMB-KLKRIM-UILNND-3TZJ2F4Y";
-		// Add fields from formData to the formLayout
-
-		// Example: Assuming you have a field called "name" in the CampaignFormDataDto
-		
-		
-		
-		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
-		cbCampaign.setItems(formData.getCampaign());
-		cbCampaign.setValue(formData.getCampaign());
-		cbCampaign.setEnabled(false);
-		
-		
-		Date date = new Date();
-
-		// Convert Date to LocalDate
-		LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-		DatePicker formDate = new DatePicker();
-		formDate.setValue(localDate);
-
-		ComboBox<Object> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
-		cbArea.setItems(formData.getArea());
-		cbArea.setValue(formData.getArea());
-//	        cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAndSelectedAsReference(campaignUUID));
-
-		ComboBox<Object> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
-		cbRegion.setItems(formData.getRegion());
-		cbRegion.setValue(formData.getRegion());
-
-		ComboBox<Object> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
-		cbDistrict.setItems(formData.getDistrict());
-		cbDistrict.setValue(formData.getDistrict());
-
-		ComboBox<Object> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
-		cbCommunity.setItems(formData.getCommunity());
-		cbCommunity.setValue(formData.getCommunity());
-
-		formLayout.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
-		
-//	    String jsonString = "{\"textProperty\":\"Hello\",\"dropdownProperty\":\"option2\",\"dropdownOptions\":[\"option1\",\"option2\",\"option3\"],\"yesNoProperty\":\"Yes\"}";
-//        JsonObject jsonObject = new Gson().fromJson(jsonString, JsonObject.class);
-//
-//        for (String propertyName : jsonObject.keys()) {
-//            JsonValue propertyValue = jsonObject.get(propertyName);
-//
-//            if (propertyName.equals("dropdownProperty")) {
-//                ComboBox<String> comboBox = new ComboBox<>(propertyName);
-//                if (propertyValue instanceof JsonArray) {
-//                    JsonArray dropdownOptions = (JsonArray) propertyValue;
-//                    for (int i = 0; i < dropdownOptions.length(); i++) {
-//                        comboBox.add(dropdownOptions.getString(i));
-//                    }
-//                }
-//                comboBox.setValue(propertyValue.asString());
-//                formLayout.add(comboBox);
-//            } else if (propertyName.equals("yesNoProperty")) {
-//                RadioButtonGroup<String> radioButtonGroup = new RadioButtonGroup<>(propertyName);
-//                radioButtonGroup.setItems("Yes", "No");
-//                radioButtonGroup.setValue(propertyValue.asString());
-//                formLayout.add(radioButtonGroup);
-//            } else {
-//                TextField textField = new TextField(propertyName);
-//                textField.setValue(propertyValue.asString());
-//                formLayout.add(textField);
-//            }
-//        }
-
-		// Open the formLayout in a dialog or another suitable way
-		// Example: Using a Dialog
-		Dialog dialog = new Dialog();
-		dialog.add(formLayout);
-		dialog.open();
-	}
-
-	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(
-			Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
-		return FacadeProvider.getCampaignFormDataFacade()
-				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
-						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-								sortOrder.getDirection() == SortDirection.ASCENDING))
-						.collect(Collectors.toList()))
-				.stream();
-	}
-
-	private int countCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
-		return (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-	}
-
-	private void export(Grid<CampaignFormDataIndexDto> grid, TextArea result) {
-		// Fetch all data from the grid in the current sorted order
-		Stream<CampaignFormDataIndexDto> persons = null;
-		Set<CampaignFormDataIndexDto> selection = grid.asMultiSelect().getValue();
-		if (selection != null && selection.size() > 0) {
-			persons = selection.stream();
-		} else {
-//			persons = dataView.getItems();
-		}
-
-		StringWriter output = new StringWriter();
-		StatefulBeanToCsv<CampaignFormDataIndexDto> writer = new StatefulBeanToCsvBuilder<CampaignFormDataIndexDto>(
-				output).build();
-		try {
-			writer.write(persons);
-		} catch (Exception e) {
-			output.write("An error occured during writing: " + e.getMessage());
-		}
-
-		result.setValue(output.toString());
-	}
-
+	
 	private void createCampaignDataFilter() {
-//		setMargin(true);
-
+		setMargin(true);
+		
 		Button newForm = new Button("NEW FORM");
 		newForm.setId("push-me");
 //		Popup popup = new Popup();
 //		popup.setFor("push-me");
-		Div text = new Div();
-		text.setText("element 1");
-		Div text2 = new Div();
-		text2.setText("element 2");
-//        popup.add(text, text2);
-//        popup.setVisible(false);
+//		Div text = new Div();
+//		text.setText("element 1");
+//		Div text2 = new Div();
+//		text2.setText("element 2");
+
 		newForm.addClickListener(e -> {
-//			openDialog(e);
-//			if(!popup.isVisible()) {
-//				popup.show();
-//				popup.setVisible(true);
-//			}else {
-//				 popup.hide();	
-//			}
-//			
-//		        if (popup.isOpened()) {
-//		            popup.hide();
-//		        } else {
-//		            popup.show();
-//		        }
-		});
-//	    popup.setOpened(true);
+			CampaignFormDataEditForm cam = new CampaignFormDataEditForm();
+			add(cam);
+ 					});
 
 		Button importData = new Button("IMPORT", new Icon(VaadinIcon.PLUS_CIRCLE));
 		Button exportData = new Button("EXPORT", new Icon(VaadinIcon.DOWNLOAD));
+		
+		VerticalLayout filterBlock = new VerticalLayout();
+		filterBlock.setSpacing(true);
+		filterBlock.setMargin(true);
+		filterBlock.setClassName("campaignDataFilterParent");
+		
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setAlignItems(Alignment.END);
+		
+		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+
+		
+		HorizontalLayout actionButtonlayout = new HorizontalLayout();
+		actionButtonlayout.setVisible(false);
+		actionButtonlayout.setAlignItems(Alignment.END);
+		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData, exportData);
+
+		HorizontalLayout level1Filters = new HorizontalLayout();
+		level1Filters.setPadding(false);
+		level1Filters.setVisible(false);
+		level1Filters.setAlignItems(Alignment.END);
+		level1Filters.add(campaignFormCombo, regionCombo, provinceCombo, districtCombo, clusterCombo,
+				importanceSwitcher, resetHandler, applyHandler);
+
+		
+
+		
+
+		displayFilters.addClickListener(e -> {
+			if (!level1Filters.isVisible()) {
+				actionButtonlayout.setVisible(true);
+				level1Filters.setVisible(true);
+				displayFilters.setText("Hide Filters");
+			} else {
+				actionButtonlayout.setVisible(false);
+				level1Filters.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
+
+
 		TextArea resultField = new TextArea();
 		resultField.setWidth("100%");
 		exportData.addClickListener(
@@ -344,23 +190,29 @@ public class CampaignDataView extends VerticalLayout {
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());
 		campaignYear.setItems(camYearList);
+		campaignYear.getStyle().set("padding-top", "0px !important");
 
 		List<CampaignFormMetaReferenceDto> campaignForms;
 		campaignz.setLabel("Campaign");
+		campaignz.getStyle().set("padding-top", "0px !important");
 
 		campaignPhase.setLabel("Campaign Phase");
+		campaignPhase.getStyle().set("padding-top", "0px !important");
 
 		campaignFormCombo.setLabel("Form");
+		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignForms = FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences();
 		campaignFormCombo.setItems(campaignForms);
 
 		regionCombo.setLabel("Region");
+		regionCombo.getStyle().set("padding-top", "0px !important");
 		regionCombo.setPlaceholder("Regions");
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
 
 		provinceCombo.setLabel("Province");
+		provinceCombo.getStyle().set("padding-top", "0px !important");
 		provinceCombo.setPlaceholder("Provinces");
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
@@ -369,6 +221,7 @@ public class CampaignDataView extends VerticalLayout {
 		provinceCombo.setClassName("col-sm-6, col-xs-6");
 
 		districtCombo.setLabel("District");
+		districtCombo.getStyle().set("padding-top", "0px !important");
 		districtCombo.setPlaceholder("Districts");
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
@@ -376,9 +229,14 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 
+		clusterCombo.setLabel("Cluster");
+		clusterCombo.getStyle().set("padding-top", "0px !important");;
 		clusterCombo.setPlaceholder("Clusters");
+		
 
 		// TODO Importance filter switcher should be visible only on the change of form
+		importanceSwitcher.setLabel("Importance");
+		importanceSwitcher.getStyle().set("padding-top", "0px !important");;
 		importanceSwitcher.setPlaceholder("Importance");
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 		importanceSwitcher.setClearButtonVisible(true);
@@ -387,7 +245,6 @@ public class CampaignDataView extends VerticalLayout {
 			if (formMetaReference != null) {
 				grid.removeAllColumns();
 				configureGrid(criteria);
-//				Notification.show(formMetaReference.getUuid() + "yyyyyyyyyyyyyyyyy" + formMetaReference.getCaption());
 
 				final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
 				Notification.show(onlyImportantFormElements + "ttttttttttttttttt");
@@ -474,42 +331,160 @@ public class CampaignDataView extends VerticalLayout {
 
 		applyHandler.setText("Apply Filters");
 
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setAlignItems(Alignment.END);
-
-		HorizontalLayout level1Filters = new HorizontalLayout();
-		level1Filters.setPadding(false);
-		level1Filters.setVisible(false);
-		level1Filters.getStyle().set("margin-left", "12px");
-		level1Filters.setAlignItems(Alignment.END);
-		level1Filters.add(campaignFormCombo, regionCombo, provinceCombo, districtCombo, clusterCombo,
-				importanceSwitcher, resetHandler, applyHandler);
-
-		HorizontalLayout actionButtonlayout = new HorizontalLayout();
-		actionButtonlayout.setVisible(false);
-		actionButtonlayout.setAlignItems(Alignment.END);
-		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData, exportData);
-
-		VerticalLayout filterBlock = new VerticalLayout();
-
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
-		displayFilters.addClickListener(e -> {
-			if (!level1Filters.isVisible()) {
-				actionButtonlayout.setVisible(true);
-				level1Filters.setVisible(true);
-				displayFilters.setText("Hide Filters");
-			} else {
-				actionButtonlayout.setVisible(false);
-				level1Filters.setVisible(false);
-				displayFilters.setText("Show Filters");
-			}
-		});
+		
+		
+		
 
 		layout.add(displayFilters, actionButtonlayout);
 
 		filterBlock.add(layout, level1Filters);
 
 		add(filterBlock);
+	}
+
+
+
+	@SuppressWarnings("deprecation")
+	private void configureGrid(CampaignFormDataCriteria criteria) {
+		setMargin(false);
+		grid.removeAllColumns();
+		grid.setSelectionMode(SelectionMode.SINGLE);
+//		grid.setSizeFull();
+		
+		grid.setColumnReorderingAllowed(true);
+
+		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Province").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader("DCode").setSortable(true).setResizable(true);
+		Column<CampaignFormDataIndexDto> comm = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader("Cluster")
+				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER).setHeader("Cluster Number").setSortable(true)
+				.setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true);
+
+		grid.setVisible(true);
+		grid.setWidthFull();
+		grid.setHeightFull();
+		grid.setAllRowsVisible(false);
+
+
+		grid.asSingleSelect().addValueChangeListener(event -> editCampaignFormData(event.getValue()));
+
+		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
+		grid.setDataProvider(dataProvider);
+
+		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
+//	    exporter.setExportValue(comm, item -> "" + item);
+//	    exporter.setColumnPosition(lastNameCol, 1);
+		exporter.setTitle("Campaign Data information");
+		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+		exporter.setCsvExportEnabled(true);
+
+		add(grid);
+
+	}
+
+	private void editCampaignFormData(CampaignFormDataIndexDto selected) {
+		selected = grid.asSingleSelect().getValue();
+		if (selected != null) {
+			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+					.getCampaignFormDataByUuid(selected.getUuid());
+			openFormLayout(formData);
+		}
+	}
+
+	private void openFormLayout(CampaignFormDataDto formData) {
+
+		System.out.println(formData.getUuid() + "tttttttttttttttttttttttttttttttttttttttttttttttt");
+		FormLayout formLayout = new FormLayout();
+		String campaignUUID = "UUGEMB-KLKRIM-UILNND-3TZJ2F4Y";
+		// Add fields from formData to the formLayout
+
+		// Example: Assuming you have a field called "name" in the CampaignFormDataDto
+		
+		
+		
+		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
+		cbCampaign.setItems(formData.getCampaign());
+		cbCampaign.setValue(formData.getCampaign());
+		cbCampaign.setEnabled(false);
+		
+		
+		Date date = new Date();
+
+		// Convert Date to LocalDate
+		LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+		DatePicker formDate = new DatePicker();
+		formDate.setValue(localDate);
+
+		ComboBox<Object> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
+		cbArea.setItems(formData.getArea());
+		cbArea.setValue(formData.getArea());
+//	        cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAndSelectedAsReference(campaignUUID));
+
+		ComboBox<Object> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
+		cbRegion.setItems(formData.getRegion());
+		cbRegion.setValue(formData.getRegion());
+
+		ComboBox<Object> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
+		cbDistrict.setItems(formData.getDistrict());
+		cbDistrict.setValue(formData.getDistrict());
+
+		ComboBox<Object> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
+		cbCommunity.setItems(formData.getCommunity());
+		cbCommunity.setValue(formData.getCommunity());
+
+		formLayout.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+		
+
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		dialog.setSizeFull();
+		dialog.open();
+	}
+
+	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(
+			Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
+		return FacadeProvider.getCampaignFormDataFacade()
+				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+								sortOrder.getDirection() == SortDirection.ASCENDING))
+						.collect(Collectors.toList()))
+				.stream();
+	}
+
+	private int countCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
+		return (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
+	}
+
+	private void export(Grid<CampaignFormDataIndexDto> grid, TextArea result) {
+		// Fetch all data from the grid in the current sorted order
+		Stream<CampaignFormDataIndexDto> persons = null;
+		Set<CampaignFormDataIndexDto> selection = grid.asMultiSelect().getValue();
+		if (selection != null && selection.size() > 0) {
+			persons = selection.stream();
+		} else {
+//			persons = dataView.getItems();
+		}
+
+		StringWriter output = new StringWriter();
+		StatefulBeanToCsv<CampaignFormDataIndexDto> writer = new StatefulBeanToCsvBuilder<CampaignFormDataIndexDto>(
+				output).build();
+		try {
+			writer.write(persons);
+		} catch (Exception e) {
+			output.write("An error occured during writing: " + e.getMessage());
+		}
+
+		result.setValue(output.toString());
 	}
 
 	private void setDataProvider() {
@@ -607,21 +582,9 @@ public class CampaignDataView extends VerticalLayout {
 		}
 
 	}
-//
-//	public void editCampaignFormData() {
-//		campaignFormDataEditForm = new CampaignFormDataEditForm();
-////			campaignFormDataEditForm. .setUser(contact);
-//		campaignFormDataEditForm.setVisible(true);
-//		campaignFormDataEditForm.setSizeFull();
-//		grid.setVisible(false);
-////			setFiltersVisible(false);
-//
-//	}
 
 	private void closeEditor() {
-//		campaignFormDataEditForm.setUser(null);
 		campaignFormDataEditForm.setVisible(false);
-//		setFiltersVisible(true);
 		grid.setVisible(true);
 		removeClassName("editing");
 	}
