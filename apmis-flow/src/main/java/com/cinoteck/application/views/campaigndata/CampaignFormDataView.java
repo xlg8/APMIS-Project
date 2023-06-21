@@ -1,35 +1,35 @@
-//package com.cinoteck.application.views.campaigndata;
-//
-//import com.vaadin.flow.component.button.Button;
-//import com.vaadin.flow.component.dependency.JsModule;
-//import com.vaadin.flow.component.notification.Notification;
-//import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-//import com.vaadin.flow.router.PageTitle;
-//import com.vaadin.flow.router.Route;
-//import com.vaadin.flow.server.VaadinSession;
-//
-//import de.symeda.sormas.api.FacadeProvider;
-//import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-//import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
-//import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
-//import de.symeda.sormas.api.i18n.I18nProperties;
-//import de.symeda.sormas.api.i18n.Strings;
-////import de.symeda.sormas.ui.ControllerProvider;
-////import de.symeda.sormas.ui.SormasUI;
-////import de.symeda.sormas.ui.components.CommitDiscardWrapperComponent;
-////import de.symeda.sormas.ui.components.DetailSubComponentWrapper;
-//
-//@Route(value = "campaign/dataform", layout = MainLayout.class)
-//@PageTitle("Campaign Form Data")
+package com.cinoteck.application.views.campaigndata;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
+//import de.symeda.sormas.ui.ControllerProvider;
+//import de.symeda.sormas.ui.SormasUI;
+//import de.symeda.sormas.ui.components.CommitDiscardWrapperComponent;
+//import de.symeda.sormas.ui.components.DetailSubComponentWrapper;
+
+@Route(value = "campaign/dataform")
+@PageTitle("Campaign Form Data")
 //@JsModule("./jquerymini.js")
-//public class CampaignFormDataView extends VerticalLayout {
+public class CampaignFormDataView extends VerticalLayout {
 //    private CommitDiscardWrapperComponent<CampaignFormDataEditForm> editComponent;
 //
-//    public CampaignFormDataView() {
+    public CampaignFormDataView() {
 //        initView();
-//    }
+    }
 //
-//    private void initView() {
+    private void initView() {
 //        DetailSubComponentWrapper container = new DetailSubComponentWrapper();
 //        container.setWidthFull();
 //        container.setMargin(true);
@@ -99,5 +99,5 @@
 //
 //            getPage().setTitle(campaignFormData.getCampaignFormMeta().toString());
 //        }
-//    }
-//}
+    }
+}
