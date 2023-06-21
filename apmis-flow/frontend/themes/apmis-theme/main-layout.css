@@ -218,11 +218,7 @@ header {
 	color: white !important;
 }
 
-.loginView {
-	background-image: url("images/loginBackground.png");
-	background-repeat: no-repeat;
-	background-size: cover;
-}
+
 
 .loginContainer {
 	display: flex;
@@ -264,16 +260,11 @@ header {
 }
 
 #label-vaadin-text-field-0, #label-vaadin-password-field-3 {
-	color: white;
+	
 }
 
 #input-vaadin-text-field-6, #input-vaadin-password-field-7 {
-	-_lumo-text-field-overflow-mask-image: () !important;
-	-webkit-mask-image: var(- -_lumo-text-field-overflow-mask-image);
-	border-radius: 5px;
-	margin-left: -5px;
-	border: 1px solid white !important;
-	color: white;
+	
 }
 
 label {
@@ -467,8 +458,38 @@ vcf-nav-item::part(item) {
   border-inline-start: 2px solid transparent;
 }
 
+.login-screen {
+	background-image: url("images/loginBackground.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.language-switcher vaadin-button{
+	color: white;
+}
+
 vcf-nav-item[active]::part(item) {
   border-inline-start-color: var(--lumo-primary-color);
   color: white !important;
   background: #F08F3E !important;
+}
+
+
+.apmis-login-logo{
+	height: 20vh;
+}
+
+#vaadinLoginUsername label, #vaadinLoginPassword label{
+	color: white !important;
+	font-family: Lato;
+    font-size: large;
+}
+
+vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-container{
+	background: yellow;
+}
+
+vaadin-vertical-layout.campaignDataFilterParent{
+	margin-top : 5px !important;
+	margin-bottom : 0px !important;
 }

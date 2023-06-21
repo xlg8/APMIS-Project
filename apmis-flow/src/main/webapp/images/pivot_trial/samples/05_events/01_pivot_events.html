@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<!-- meta block -->
+		<title>Pivot events - DHTMLX Pivot</title>
+		<meta name="description" content="Check interactive samples of DHTMLX Pivot to explore its events and other details.">
+		<!-- end meta block -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+		<script type="text/javascript" src="../../codebase/pivot.js?v=1.5.6"></script>
+		<link rel="stylesheet" href="../../codebase/pivot.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/index.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/pivot.css?v=1.5.6">
+		<script type="text/javascript" src="../common/dataset.js?v=1.5.6"></script>
+		<!-- custom sample head -->
+		<style>
+			.dhx_sample-container__sidebar {
+				min-width: 350px;
+				max-width: 350px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="dhx_sample-header">
+			<div class="dhx_sample-header__main">
+				<nav class="dhx_sample-header__breadcrumbs">
+					<ul class="dhx_sample-header-breadcrumbs">
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="../index.html" class="dhx_sample-header-breadcrumbs__link">Pivot samples</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="./index.html" class="dhx_sample-header-breadcrumbs__link">Events</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<span class="dhx_sample-header-breadcrumbs__link">Pivot events</span>
+						</li>
+					</ul>
+				</nav>
+				<h1 class="dhx_sample-header__title">
+					<div class="dhx_sample-header__content">
+						Pivot events
+						<div class="dhx_sample-docs-links">
+							Check documentation:
+							<a href="https://docs.dhtmlx.com/pivot/api__refs__pivot_events.html" target="_blank" class="dhx_sample-header-link">Events</a>
+						</div>
+					</div>
+				</h1>
+			</div>
+</header>
+		<section class="dhx_sample-container">
+			<div class="dhx_sample-container__widget" id="pivot"></div>
+			<div id="events" class="dhx_sample-container__sidebar"></div>
+		</section>
+
+		<script>
+			var pivot = new dhx.Pivot("pivot", {
+				data: dataset,
+				fields: {
+					rows: ["form", "name"],
+					columns: ["year"],
+					values: [{ id: "oil", method: "count" }, { id: "oil", method: "sum" }],
+				},
+				fieldList: [
+					{ id: "name", label: "Name" },
+					{ id: "year", label: "Year" },
+					{ id: "continent", label: "Continent" },
+					{ id: "form", label: "Form" },
+					{ id: "gdp", label: "GDP" },
+					{ id: "oil", label: "Oil" },
+					{ id: "balance", label: "Balance" },
+					{ id: "when", label: "When", type: "date", format: "%d/%m/%Y" },
+				],
+				layout: {
+					liveReload: false,
+				},
+			});
+
+			var eventsContainer = document.querySelector("#events");
+
+			var events = [
+				"fieldClick",
+				"applyButtonClick",
+				"change",
+				"filterApply",
+			];
+
+			function eventHandler(event, arguments) {
+				var argsList = "";
+				for (var i = 0; i < arguments.length; i++) {
+					argsList += "<div>" + JSON.stringify(arguments[i]) + "</div>";
+				}
+				eventsContainer.insertAdjacentHTML("afterBegin", "<div class='dhx_sample-event'>Event: " + event + "<div class='arguments'>Arguments:</div>" + argsList + "</div>");
+			}
+
+			function clearAll() {
+				eventsContainer.innerHTML = "";
+			}
+
+			events.forEach(function(event) {
+				pivot.events.on(event, function() {
+					eventHandler(event, arguments);
+				});
+			});
+
+		</script>
+
+	</body>
+
+</html>

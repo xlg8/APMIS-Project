@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.AbstractGridMultiSelectionModel;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H6;
@@ -90,7 +92,8 @@ public class CampaignForm extends FormLayout {
 	CampaignFormMetaReferenceDto xx;
 
 	public CampaignForm(CampaignDto campaignDto) {
-
+//super();
+		this.campaignDto = campaignDto;
 		this.statusChangeLayout = new VerticalLayout();
 		
 		isCreateForm = campaignDto == null;
@@ -118,11 +121,11 @@ public class CampaignForm extends FormLayout {
 		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
 		add(hor);
 		// Configure what is passed to the fields here
-		configureFields(xx );
+		configureFields(xx);
 
 	}
 
-	private void configureFields(CampaignFormMetaReferenceDto xx ) {
+	private void configureFields(CampaignFormMetaReferenceDto xx) {
 		H2 camapaignBasics = new H2("Campaign basics");
 		this.setColspan(camapaignBasics, 2);
 		this.setColspan(description, 2);
@@ -219,11 +222,9 @@ public class CampaignForm extends FormLayout {
 		layoutIntra.add(tabsheetIntra);
 
 		VerticalLayout tab1Intra = new VerticalLayout();
-//		tab1.addComponent(campaignFormsGridComponent);
-//		tab1.setCaption("Pre Campaign Forms");
+
 		
 		H1 text = new H1("Content Goes Here");
-//		System.out.println(campaignDto.getCampaignFormMetas() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuurrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
 		CampaignFormGridComponent compp = new CampaignFormGridComponent("intra-campaign");
 		tab1Intra.add(compp);
 		tabsheetIntra.add("Intra Campaign Forms", tab1Intra);
@@ -263,80 +264,64 @@ public class CampaignForm extends FormLayout {
 		parentTab3.add(layoutPost);
 		tabsheetParent.add("Post-Campaign Phase", parentTab3);
 
+		System.out.println(campaignDto + "campaign DTOoooooooooooooooooooooooooooooooooo");
+		
+			
 		VerticalLayout parentTab4 = new VerticalLayout();
 		final HorizontalLayout layoutAssocCamp = new HorizontalLayout();
 		layoutAssocCamp.setWidthFull();
 
 		treeGrid.setWidthFull();
-//		treeGrid.setHeightFull();
 
-//		List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
-//		// List<RegionDto> regions_ =
-//		// FacadeProvider.getRegionFacade().getAllActiveAsReferenceAndPopulation());
-//
-////		treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
-//		AbstractGridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (AbstractGridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
-//				.setSelectionMode(SelectionMode.MULTI);
-//
-//		// System.out.println("area: "+campaignDto.getAreas().size() +"====== region:
-//		// "+campaignDto.getRegion().size()+" ====
-//		// district:"+campaignDto.getRegion().size());
+		List<AreaReferenceDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+
+		treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
 
 		treeGrid.setWidthFull();
-//		treeGrid.setHeightFull();
 
-//		List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation(campaignDto);
-		// List<RegionDto> regions_ =
-		// FacadeProvider.getRegionFacade().getAllActiveAsReferenceAndPopulation());
+		treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader("Location");
 
-//		treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
-
-		treeGrid.addColumn(CampaignTreeGridDto::getName).setHeader("Location");
-		// treeGrid.addColumn(CampaignTreeGridDto::getUuid).setCaption("uuid");
-		// treeGrid.addColumn(CampaignTreeGridDto::getParentUuid).setCaption("parentuuid");
 		treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader("Population");
-		// treeGrid.addColumn(CampaignTreeGridDto::getSavedData).setCaption("Saved?");
 
-		// treeGrid.getColumn("Saved?").setRenderer(value -> String.valueOf(value), new
-		// ActiveRenderer());
 
-		AbstractGridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (AbstractGridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
-				.setSelectionMode(SelectionMode.MULTI);
-
-//		for (AreaReferenceDto root : campaignDto.getAreas()) {
-//
-//			for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
-//
-//				if (areax.getUuid().equals(root.getUuid())) {
-//					
-//					treeGrid.select(areax);
-//				}
-//				
-//				for (RegionReferenceDto region_root : campaignDto.getRegion()) {
-//
-//					for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
-//
-//						if (regionx.getUuid().equals(region_root.getUuid())) {
-//							treeGrid.select(regionx);
-//						}
-//						
-//						for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
-//
-//							for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
-//
-//								if (districtx.getUuid().equals(district_root.getUuid())) {
-//									treeGrid.select(districtx);
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-
+	    GridMultiSelectionModel<CampaignTreeGridDto> selectionModel
+	      = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid.setSelectionMode(SelectionMode.MULTI);
+	    if(campaignDto != null) {
+	    
+		for (AreaReferenceDto root : campaignDto.getAreas()) {
+////
+			for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
+////
+				if (areax.getUuid().equals(root.getUuid())) {
+////					
+					treeGrid.select(areax);
+				}
+//////				
+				for (RegionReferenceDto region_root : campaignDto.getRegion()) {
+////
+					for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
+////
+						if (regionx.getUuid().equals(region_root.getUuid())) {
+							treeGrid.select(regionx);
+						}
+////						
+						for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
+////
+							for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
+////
+								if (districtx.getUuid().equals(district_root.getUuid())) {
+									treeGrid.select(districtx);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+}
 		for (int i = 0; i < treeGrid.getTreeData().getRootItems().size(); i++) {
 
-			// ftg.setIsClicked(777L);
+//			 ftg.setIsClicked(777L);
 		}
 
 		treeGrid.addItemClickListener(e -> {
@@ -457,7 +442,7 @@ public class CampaignForm extends FormLayout {
 
 		parentTab4.add(layoutAssocCamp);
 		tabsheetParent.add("Associate Campaign ", parentTab4);
-
+		
 //		VerticalLayout parentTab5 = new VerticalLayout();
 //		final HorizontalLayout layoutPopulationData = new HorizontalLayout();
 //		layoutPopulationData.setWidthFull();
@@ -571,16 +556,17 @@ public class CampaignForm extends FormLayout {
 		return addListener(CloseEvent.class, listener);
 	}
 
-//	private List<CampaignTreeGridDto> generateTreeGridData() {
-//        List<CampaignTreeGridDto> gridData = new ArrayList<>();
-//        List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation(campaignDto);
-//		
-//        for (AreaDto area_ : areas) {
-//        	CampaignTreeGridDto areaData = new CampaignTreeGridDto(area_.getName(), area_.getAreaid(), "Area", area_.getUuid_(), "area");
-//        	List<RegionDto> regions_ = FacadeProvider.getRegionFacade().getAllActiveAsReferenceAndPopulation(area_.getAreaid(), campaignDto.getUuid());
-//        	 for (RegionDto regions_x : regions_) {
-//        		 CampaignTreeGridDto regionData = new CampaignTreeGridDto(regions_x.getName(), regions_x.getRegionId(), regions_x.getAreaUuid_(), regions_x.getUuid_(), "region");
-//        		 List<DistrictDto> district_ = FacadeProvider.getDistrictFacade().getAllActiveAsReferenceAndPopulation(regions_x.getRegionId(), campaignDto);
+	private List<CampaignTreeGridDto> generateTreeGridData() {
+        List<CampaignTreeGridDto> gridData = new ArrayList<>();
+        List<AreaReferenceDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+		
+        for (AreaReferenceDto area_ : areas) {
+        	CampaignTreeGridDto areaData = new CampaignTreeGridDto(area_.getCaption(), area_.getExternalId(), "Area", area_.getUuid(), "area");
+        	System.out.println(areaData + "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+        	List<RegionReferenceDto> regions_ = FacadeProvider.getRegionFacade().getAllActiveByArea(area_.getUuid());
+        	 for (RegionReferenceDto regions_x : regions_) {
+        		 CampaignTreeGridDto regionData = new CampaignTreeGridDto(regions_x.getCaption(), regions_x.getExternalId(), area_.getUuid(), regions_x.getUuid(), "region");
+//        		 List<DistrictReferenceDto> district_ = FacadeProvider.getDistrictFacade().getAllActiveByRegion( regions_x.getUuid());
 //        		 ArrayList arr = new ArrayList<>();
 //        		 for (DistrictDto district_x : district_) {
 //        			 arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(), district_x.getRegionId(),
@@ -589,12 +575,12 @@ public class CampaignForm extends FormLayout {
 //        		 
 //        		 regionData.setRegionData(arr);
 //        		 
-//        		 areaData.addRegionData(regionData);
-//            }
-//        	
-//        	 gridData.add(areaData);
-//        }
-//        return gridData;
-//    }
+        		 areaData.addRegionData(regionData);
+            }
+        	
+        	 gridData.add(areaData);
+        }
+        return gridData;
+    }
 
 }

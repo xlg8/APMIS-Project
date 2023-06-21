@@ -1,0 +1,13 @@
+html, body {
+	height: 100%;
+}
+
+.dhx_sample-container {
+	max-width: 1220px;
+	min-height: 800px;
+}
+
+.dhx_sample-container__widget {
+	min-height: 800px;
+	min-width: 1220px;
+}

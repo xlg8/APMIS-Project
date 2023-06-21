@@ -1,0 +1,46 @@
+import { IEventSystem } from "../../ts-common/events";
+import { View } from "../../ts-common/view";
+import { ITreeGrid } from "../../ts-treegrid";
+import { ILayout } from "../../ts-layout";
+import { IFilterMeta, IParsedPivotConfig, IPivot, IPivotConfig, IPivotData, IPivotFields, mathMethod, PivotEvents } from "./types";
+export declare class Pivot extends View implements IPivot {
+    config: IParsedPivotConfig;
+    events: IEventSystem<PivotEvents>;
+    container: HTMLElement;
+    grid: ITreeGrid;
+    layout: ILayout;
+    export: any;
+    cssManager: any;
+    private _configurator;
+    private _shadow;
+    private _dataPrep;
+    private _isSettingsHidden;
+    private _htmlEvents;
+    constructor(container: HTMLElement | string, config: IPivotConfig);
+    destructor(): void;
+    setFields(fields: IPivotFields): void;
+    getFields(): IPivotFields;
+    getConfig(): IPivotConfig;
+    load(url: string, type?: string): Promise<void>;
+    setData(data: IPivotData, type?: any): void;
+    addMathMethod(id: string, label: string, func: mathMethod): void;
+    addSubField(name: string, functor: any, label: string): void;
+    setFilterValue(field: string, meta: IFilterMeta): void;
+    setFiltersValues(filters: {
+        [key: string]: IFilterMeta;
+    }): void;
+    getFilterValue(fieldId: string): IFilterMeta;
+    getFiltersValues(): any;
+    clearFiltersValues(): void;
+    setGlobalFilter(handler?: any): void;
+    paint(): void;
+    addFilter(): void;
+    removeFilter(): void;
+    getFilter(): void;
+    private _setEventsHandlers;
+    private _update;
+    private _init;
+    private _initLayout;
+    private _checkLayoutState;
+    private _render;
+}

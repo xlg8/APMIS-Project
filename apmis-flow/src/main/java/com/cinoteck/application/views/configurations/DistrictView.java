@@ -44,6 +44,7 @@ public class DistrictView extends VerticalLayout {
 	private DistrictCriteria criteria;
 	
 	public DistrictView() {
+		setSpacing(false);
 		setHeightFull();
 		
 		Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);

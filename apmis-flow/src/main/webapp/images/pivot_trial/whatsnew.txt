@@ -1,0 +1,177 @@
+Version 1.5.6 (March 29, 2023)
+-----------------------
+
+### Fixes
+
+- Fix the error on export data to Excel when "columnsWidth: "auto"" is set
+- Fix the issue with an error in the console on setting an empty or null value in the dataset for the date field
+- Fix the issue with export of data from the footer
+- Fix the issue with range filters
+- Fix work of the "columnsWidth: "auto"" property of the layout
+- Fix work of the "setFields()" method
+- Now all available fields are active when initializing Pivot without defined rows
+- Now Pivot is cleaned after removing all fields from it
+
+Version 1.5.5 (September 1, 2021)
+-----------------------
+
+### Fixes
+
+- Fix the issue which caused the dates not to be displayed in the grid in the specified date format
+- Fix the issue with calculation of the width of the columns when the columnWidth: "auto" option of the layout property is set
+
+Version 1.5.4 (May 13, 2021)
+-----------------------
+
+### Fixes
+
+- Fix the incorrect work of the "Contains" filter
+- Fix the issue that caused no line break to appear between the header and the first row of data after exporting Pivot to the CSV file
+- Fix the issue with calculations that caused "0" to be shown as a total result in the grid footer cells when applying gridMode:"flat"
+- Fix the issue with dragging of the fields on touch devices
+- Fix the issue with the TypeScript definitions
+
+Version 1.5.3 (December 28, 2020)
+-----------------------
+
+### Fixes
+
+- Fix the issue with the shadow module
+- Fix the incorrect work of Pivot inside the layout
+- Fix the issue which caused the "Hide settings" button to be hidden on the small screen
+- Fix the issue which caused the custom format of a cell not to be applied to the footer
+- Fix the issue with the value of the footer cell that was different in Pivot and in the exported Excel file
+
+Version 1.5.2 (December 16, 2020)
+-----------------------
+
+#### Fixes
+- The issue with dragging and dropping filters
+- The incorrect calculations in the footer of a grid when applying gridMode:"flat"
+- The issue with incorrect display of the date filter
+- Improved usage of the columnsWidth property of the Pivot layout
+- Issue with the slow work of `Adjust`. Now it is applied only to the first column. To apply `Adjust` to all columns, use `columnsWidth: "auto"`.
+
+Version 1.5.1 (November 23, 2020)
+-----------------------
+
+#### Fixes
+- Fix the incorrect work of the "Hide settings" button which caused Pivot to hide when using Pivot inside an HTML form
+- Fix the incorrect work of Pivot inside a layout cell which caused the pivot to disappear after resizing or collapsing/expanding the layout cell
+- Fix the issue that invoked an error in the console after applying a filter to Pivot without data
+- Fix the script error which was thrown from pivot.grid.data.sort()
+- Fix the incorrect calculations in the footer of a grid when applying gridMode:"flat"
+
+Version 1.5 (September 28, 2020)
+-----------------------
+
+#### New functionality
+
+- Pivot with Angular demos
+- Pivot with React demos
+- Pivot with Vue.js demos
+- TypeScript support
+
+####  Fixes
+
+- Issue with Export service in IE
+- Incorrect alignment of columns with empty values
+- Algorithm of parsing data when working with the CSV format
+- Issue with exporting Pivot to the Excel format which caused Pivot footer not to be exported
+
+Version 1.4.4 (September 2, 2020)
+----------------------------
+
+#### Fixes
+
+- Mechanism of appearing of Filters on a page is reworked
+- Rendering of lists in Filters is fixed
+
+Version 1.4.3 (May 27, 2020)
+-----------------------
+
+#### Fixes
+
+- Fix the behavior of dragging and dropping in the data field which caused the position of selected fields not being changed
+- The footer content now influences on the alignment of the width of Grid columns
+- Mathematical calculations of fractional numbers in the footer of a grid are fixed
+- Fix the behavior of filters of fields when there are empty values in a data set
+- Fix the possibility to localize operations and dates
+- Fix the issue with rendering HTML content in cells of Grid
+
+Version 1.4.2 (March 5, 2020)
+-----------------------
+
+#### Fixes
+
+- The issue with export data from Grid to Excel
+- The behavior of the setFields() method
+
+Version 1.4.1 (January 15, 2020)
+-----------------------
+
+#### Fixes
+
+- Issue with attaching Pivot to Layout
+
+Version 1.4 (September 12, 2019)
+-----------------------
+
+#### Breaking change
+
+- The pivot.export() method used for exporting Pivot data to Excel has been deprecated
+and will be removed in the next version. The API of the Export module will be used instead.
+
+#### New functionality
+
+- The ability to present grid data as a flat structure
+- Export to CSV format
+- Click-related and other events of TreeGrid are added into the Pivot API
+
+#### Updates
+- The ability to change the appearance of fields selectors
+
+#### Fixes
+- Issues with filters' popups in IE
+- Issues with footer values when customFormat is used
+
+Version 1.3 (July 2018)
+-----------------------
+
+#### New functionality
+
+- Footer for total operations in columns
+- Templates for the content of cells
+- Custom formatting for cell values
+- Autowidth for columns
+
+Version 1.2 (November 2017)
+-----------------------------
+
+#### New functionality
+
+- UI for filters and extended filtering API
+- Ability to export Pivot to an Excel file
+- Ability to load data from external resources
+- Usage of aliases in data to enhance loading speed
+- Conditional formatting of cells
+
+Version 1.1 (September 2017)
+----------------------------
+
+#### New functionality
+
+- Data sorting for columns and rows
+- Ability to define templates for headers
+- "Weeks" option for grouping by date
+- Filtering API
+
+Version 1.0 (August 2017)
+-------------------------
+
+#### New functionality
+
+- Ability to group and aggregate data
+- Ability to define grouping rules by Drag-n-Drop
+- Ability to define custom aggregation rules
+

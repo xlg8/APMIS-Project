@@ -1,0 +1,13 @@
+{
+  "name": "dhx-pivot-package",
+  "version": "1.5.6",
+  "description": "dhtmlxPivot widget",
+  "homepage": "https://docs.dhtmlx.com/pivot",
+  "private": true,
+  "bugs": {
+    "url": "https://forum.dhtmlx.com",
+    "email": "support@dhtmlx.com"
+  },
+  "main": "codebase/pivot.js",
+  "types": "codebase/pivot.d.ts"
+}

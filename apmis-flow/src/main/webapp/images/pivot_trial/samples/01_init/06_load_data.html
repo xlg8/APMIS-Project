@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<!-- meta block -->
+		<title>Load data in json and csv formats - DHTMLX Pivot</title>
+		<meta name="description" content="Check interactive samples of DHTMLX Pivot to explore its initialization and other details.">
+		<!-- end meta block -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+		<script type="text/javascript" src="../../codebase/pivot.js?v=1.5.6"></script>
+		<link rel="stylesheet" href="../../codebase/pivot.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/index.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/pivot.css?v=1.5.6">
+		<script type="text/javascript" src="../common/dataset.js?v=1.5.6"></script>
+		<!-- custom sample head -->
+	</head>
+
+	<body>
+	
+		<section class="dhx_sample-controls">
+			<button class="dhx_sample-btn dhx_sample-btn--flat" onclick="loadCSV()">Load CSV</button>
+			<button class="dhx_sample-btn dhx_sample-btn--flat" onclick="loadJSON()">Load JSON</button>
+		</section>
+		<section class="dhx_sample-container">
+			<div class="dhx_sample-container__widget" id="pivot"></div>
+
+		</section>
+		<script>
+			var pivot = new dhx.Pivot("pivot", {
+				fields: {
+					rows: [],
+					columns: [],
+					values: [],
+				},
+				fieldList: [
+				// 	{ id: "name", label: "Name" },
+				// 	{ id: "year", label: "Year" },
+				// 	{ id: "continent", label: "Continent" },
+				// 	{ id: "form", label: "Form" },
+				// 	{ id: "gdp", label: "GDP" },
+				// 	{ id: "oil", label: "Oil" },
+				// 	{ id: "balance", label: "Balance" },
+				// 	{ id: "when", label: "When", type: "date", format: "%d/%m/%Y" },
+				]
+			});
+
+			function loadCSV() {
+				pivot.load("../common/dataset.csv", new dhx.dataDrivers.csv({
+					names: ["name", "year", "continent", "form", "gdp", "oil", "balance", "when"],
+				}));
+			}
+
+			function loadJSON() {
+				pivot.load("../common/dataset.json");
+			}
+		</script>
+
+	</body>
+
+</html>
