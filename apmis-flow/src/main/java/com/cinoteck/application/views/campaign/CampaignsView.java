@@ -62,6 +62,7 @@ public class CampaignsView extends VerticalLayout {
 
 
 	public CampaignsView() {
+		setSpacing(false);
 		setHeightFull();
 		createFilterBar();
 		campaignsGrid();
