@@ -91,10 +91,10 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 	 * 
 	 * @param user
 	 */
-	@Deprecated
-	public void setCurrentUser(User user) {
-		currentUser.get().setUser(user);
-	}
+//	@Deprecated
+//	public void setCurrentUser(User user) {
+//		currentUser.get().setUser(user);
+//	}
 
 	protected Class<ADO> getElementClass() {
 		return elementClass;

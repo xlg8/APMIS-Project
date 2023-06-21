@@ -45,6 +45,8 @@ public class CommunityUserReportModelDto extends EntityDto {
 	public static final String REP_FORMACCESS = "formAccess";
 	public static final String REP_CLUSTERNO = "clusterNumber";
 	public static final String FORM = "formType";
+	
+	
 
 
 	public static final String REP_USERNAME = "username";
@@ -57,7 +59,7 @@ public class CommunityUserReportModelDto extends EntityDto {
 	private String area;
 	private String district;
 	private String community;
-	private String cCode;
+	private long cCode;
 
 	private Set<FormAccess> formAccess;
 	private String clusterNumber;
@@ -72,8 +74,9 @@ public class CommunityUserReportModelDto extends EntityDto {
 			String district,
 			String community,
 			Integer clusternumer,
+			long cCode,
 			String username,
-			String message
+			Set<FormAccess> formAccess
 			) {
 		this.area = area;
 		this.region = region;
@@ -81,7 +84,8 @@ public class CommunityUserReportModelDto extends EntityDto {
 		this.community = community;
 		this.clusterNumberr = clusternumer;
 		this.username = username;
-		this.message = message;
+		this.formAccess = formAccess;
+		this.cCode = cCode;
 	}
 
 	//
@@ -161,14 +165,6 @@ public class CommunityUserReportModelDto extends EntityDto {
 		return clusterNumber;
 	}
 
-	public String getcCode() {
-		return cCode;
-	}
-
-	public void setcCode(String cCode) {
-		this.cCode = cCode;
-	}
-
 	public void setClusterNumber(String clusterNumber) {
 		this.clusterNumber = clusterNumber;
 	}
@@ -182,7 +178,13 @@ public class CommunityUserReportModelDto extends EntityDto {
 	}
 	
 	public String getMessage() {
-		return message;
+	//TODO: implement this to cater for no user attached
+		if(message == null) {
+			//System.out.println(username +" _____________ "+username.split(",").length);
+			return username.split(",").length > 1 ? "Error: More than one user found" : "Correctly assigned";
+		}else {
+			return message;
+		}
 	}
 	
 	public void setMessage(String message) {
@@ -218,6 +220,14 @@ public class CommunityUserReportModelDto extends EntityDto {
 
 	public void setFormAccess(Set<FormAccess> formAccess) {
 		this.formAccess = formAccess;
+	}
+
+	public long getcCode() {
+		return cCode;
+	}
+
+	public void setcCode(long cCode) {
+		this.cCode = cCode;
 	}
 	
 	

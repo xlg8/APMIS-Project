@@ -91,6 +91,7 @@ import de.symeda.sormas.backend.campaign.CampaignService;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaFacadeEjb;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
+import de.symeda.sormas.backend.campaign.statistics.CampaignStatisticsService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.infrastructure.PopulationDataFacadeEjb;
@@ -162,6 +163,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	
 	@EJB
 	private UserRoleConfigFacadeEjbLocal userRoleConfigFacade;
+	
+	@EJB
+	private CampaignStatisticsService campaignStatisticsService;
 
 	public CampaignFormData fromDto(@NotNull CampaignFormDataDto source, boolean checkChangeDate) {
 		CampaignFormData target = DtoHelper.fillOrBuildEntity(source, campaignFormDataService.getByUuid(source.getUuid()), CampaignFormData::new, checkChangeDate);
@@ -399,7 +403,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
-	
+		System.out.println(" ==============getByCompletionAnalysisCountgetByCompletionAnalysisCount======= ");
+		
 		boolean filterIsNull = criteria.getArea() == null;
 		
 		String joiner = "";
@@ -441,12 +446,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
 		
-		cleanAndRecreateTemporalTables();
+		//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
+		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
 		
-		System.out.println("======firstfirstfirstfirstfirst===== "+first);
+		if(isAnalyticsOld) {
+			System.out.println(" ==runing analysis again=======++++++++++++++++++++++++++++++++++ ");
+			int noUse = prepareAllCompletionAnalysis();
+		}
 		
-		System.out.println("=====maxmaxmaxmaxmamaxmaxmaxx======= "+max);
-		System.out.println("--------------: "+cleanAndRecreateTemporalTables());
 		boolean filterIsNull = criteria.getArea() == null ;
 		
 		String joiner = "";
@@ -456,6 +463,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final RegionReferenceDto region = criteria.getRegion();
 		final DistrictReferenceDto district = criteria.getDistrict();
 		final CampaignReferenceDto campaign = criteria.getCampaign();
+		
+		
 		
 		//@formatter:off
 		
@@ -511,11 +520,12 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	return resultData;
 	}
 
-	private boolean cleanAndRecreateTemporalTables() {
-		boolean isErrored = false;
-		// TODO Auto-generated method stub
+	@Override
+	public int prepareAllCompletionAnalysis() {
+		
 		final String[] jpqlQueries = {
-			//drop all temporary table if exist
+
+			//clear the table
 			"truncate table completionAnalysisView_a, completionAnalysisView_b, completionAnalysisView_c, completionAnalysisView_d, completionAnalysisView_e;",
 			
 			//create the four analytics Temporary tables
@@ -567,7 +577,10 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			+ "FULL JOIN completionAnalysisView_b t3 ON t1.campaign_id = t3.campaign_id and t1.community_id = t3.community_id\n"
 			+ "FULL JOIN completionAnalysisView_c t4 ON t1.campaign_id = t4.campaign_id and t1.community_id = t4.community_id\n"
 			+ "FULL JOIN completionAnalysisView_d t5 ON t1.campaign_id = t5.campaign_id and t1.community_id = t5.community_id\n"
-			+ ""
+			+ ";"
+			
+			
+		
 		};
 		
 //		EntityTransaction transaction = em.getTransaction();
@@ -575,18 +588,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		try {
 			for (String sqlQuery : jpqlQueries) {
-		    	
+				
 		      em.createNativeQuery(sqlQuery).executeUpdate();
 		      
 		    }
-		    
 		} catch (Exception e) {
-		 
-		    isErrored = true;
+		   System.err.println(e.getStackTrace());
 		}
 		
-		return isErrored;
+		
+		return getTotalSize();
 	}
+	
+	private int getTotalSize() {
+		//get the total size of the analysis
+		final String joinBuilder = "select count(*) from completionAnalysisView_e;";
+				
+		return Integer.parseInt(((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString());
+		
+	};
 
 	@Override
 	public List<String> getAllActiveUuids() {
@@ -1879,7 +1899,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	//System.out.println("query used - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
-	
+
 	
 	
 

@@ -2,9 +2,13 @@ package com.cinoteck.application.views;
 
 import java.util.Locale;
 
+import javax.validation.constraints.NotNull;
+
 import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
+import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
 import com.cinoteck.application.views.about.AboutView;
@@ -43,6 +47,7 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+
 /**
  * The main view is a top-level placeholder for other views. //password
 */
@@ -61,7 +66,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @CssImport(value = "/styles/lato-font.css", themeFor = "vaadin-text-field")
 
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders{
 
 	private H1 viewTitle;
 	
@@ -275,6 +280,22 @@ public class MainLayout extends AppLayout {
 	public void configurePage(InitialPageSettings settings) {
 		settings.addLink("shortcut icon", "icons/icon.png");
 		settings.addFavIcon("icon", "icons/icon.png", "192x192");
+	}
+
+
+
+	@Override
+	public @NotNull ViewModelProviders getViewModelProviders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public UserProvider getUserProvider() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

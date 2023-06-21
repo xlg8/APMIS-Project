@@ -8775,6 +8775,8 @@ CREATE TABLE public.completionanalysisview_e (
 	campaign_id int8 NULL
 );
 
+ALTER TABLE public.populationdata ALTER COLUMN selected TYPE bool USING selected::bool;
+
 INSERT INTO schema_version (version_number, comment) VALUES (442, 'Enhancing completion analysis');
 
 

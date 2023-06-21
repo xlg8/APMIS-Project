@@ -71,6 +71,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 	
 	public CompletionAnalysisView() {
 		
+		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		setHeightFull();
 		
 		HorizontalLayout filterLayout = new HorizontalLayout();
@@ -130,13 +131,13 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		
 		
 		add(displayFilters,filterLayout);
-		completionAnalysisGrid();
+		completionAnalysisGrid(numberOfRows);
 		
 		
 	}
 	
 	@SuppressWarnings("deprecation")
-	private void completionAnalysisGrid() {
+	private void completionAnalysisGrid(int numberOfRowsx) {
 		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
@@ -166,14 +167,15 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 														sortOrder.getDirection() == SortDirection.ASCENDING))
 												.collect(Collectors.toList()), null)
-								.stream(),
-						query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
-								.getByCompletionAnalysisCount(criteria, query.getOffset(), //query.getFilter().orElse(null)
-										query.getLimit(),
-										query.getSortOrders().stream()
-												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-														sortOrder.getDirection() == SortDirection.ASCENDING))
-												.collect(Collectors.toList()), null))
+								.stream(), 
+						query -> numberOfRowsx
+//						Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
+//								.getByCompletionAnalysisCount(criteria, query.getOffset(), //query.getFilter().orElse(null)
+//										query.getLimit(),
+//										query.getSortOrders().stream()
+//												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//														sortOrder.getDirection() == SortDirection.ASCENDING))
+//												.collect(Collectors.toList()), null))
 								);
 		
 		grid.setDataProvider(dataProvider);

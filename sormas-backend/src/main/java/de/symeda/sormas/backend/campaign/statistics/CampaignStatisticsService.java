@@ -1,5 +1,6 @@
 package de.symeda.sormas.backend.campaign.statistics;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,13 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
@@ -22,6 +30,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsCriteria;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsGroupingDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.campaign.data.CampaignFormData;
@@ -486,4 +495,47 @@ public class CampaignStatisticsService {
 			.append("'")
 			.toString();
 	}
+	
+	
+
+	public boolean checkChangedDb(String coreDataTable, String analyticsDataTable) {
+		
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		CriteriaQuery<Boolean> criteriaQuery = criteriaBuilder.createQuery(Boolean.class);
+		Root<TrackTableUpdates> root = criteriaQuery.from(TrackTableUpdates.class);
+
+		Subquery<Timestamp> subquery1 = criteriaQuery.subquery(Timestamp.class);
+		Root<TrackTableUpdates> subqueryRoot1 = subquery1.from(TrackTableUpdates.class);
+		subquery1.select(subqueryRoot1.get(TrackTableUpdates.LASTUPDATED))
+		        .where(criteriaBuilder.equal(subqueryRoot1.get(TrackTableUpdates.TABLE_NAME), coreDataTable));
+
+		Subquery<Timestamp> subquery2 = criteriaQuery.subquery(Timestamp.class);
+		Root<TrackTableUpdates> subqueryRoot2 = subquery2.from(TrackTableUpdates.class);
+		subquery2.select(subqueryRoot2.get(TrackTableUpdates.LASTUPDATED))
+		        .where(criteriaBuilder.equal(subqueryRoot2.get(TrackTableUpdates.TABLE_NAME), analyticsDataTable));
+
+		Expression<Boolean> condition = criteriaBuilder.lessThan(
+		        subquery1, subquery2
+		);
+
+		criteriaQuery.multiselect(
+		        criteriaBuilder.selectCase()
+		                .when(condition, true)
+		                .otherwise(false)
+		).where(criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME), coreDataTable));
+
+		System.out.println("DEBUGGER r567ujhgtyfgyujnjkiolkm  " + SQLExtractor.from(em.createQuery(criteriaQuery)));
+		
+		TypedQuery<Boolean> query = em.createQuery(criteriaQuery);
+
+		boolean comparisonResult = query.getSingleResult();
+
+
+		System.out.println("___________________"+comparisonResult);
+		
+		return !comparisonResult;
+
+	}
+
+	
 }
