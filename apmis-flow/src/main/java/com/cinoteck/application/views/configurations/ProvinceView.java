@@ -41,8 +41,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	GridListDataView<RegionIndexDto> dataView = grid.setItems(regions);
 
 	public ProvinceView() {
+		setSpacing(false);
 		setHeightFull();
-
+		setSizeFull();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -64,7 +65,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	}
 
 	public void configureProvinceFilters() {
-		setMargin(true);
+//		setMargin(true);
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
@@ -119,17 +120,16 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		regionFilter.setPlaceholder("All Regions");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.addValueChangeListener(e -> {
-		
-			dataView.addFilter(
-					f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
-		
+
+			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+
 		});
-		
+
 		layout.add(regionFilter);
 
 		Button resetButton = new Button("Reset Filters");
 		resetButton.addClassName("resetButton");
-		resetButton.addClickListener(e ->{
+		resetButton.addClickListener(e -> {
 			dataView.removeFilters();
 			regionFilter.clear();
 			searchField.clear();

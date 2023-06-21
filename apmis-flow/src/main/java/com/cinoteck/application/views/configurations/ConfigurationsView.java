@@ -44,6 +44,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     }
 
     public ConfigurationsView() {
+    	setSizeFull();
         HorizontalLayout campDatFill = new HorizontalLayout();
         campDatFill.setClassName("campDatFill");
 
