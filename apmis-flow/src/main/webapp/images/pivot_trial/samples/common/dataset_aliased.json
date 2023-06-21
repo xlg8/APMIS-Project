@@ -1,0 +1,40 @@
+{
+  "aliases": {
+    "form": {
+      "1": "Republic",
+      "2": "Constitutional monarchy"
+    }
+  },
+  "data": [
+    {
+      "name": "Argentina",
+      "year": 2015,
+      "continent": "South America",
+      "form": "1",
+      "gdp": 181.357,
+      "oil": 1.545,
+      "balance": 4.699,
+      "when": "4/2/2015"
+    },
+    {
+      "name": "Zimbabwe",
+      "year": 2016,
+      "continent": "Africa",
+      "form": "1",
+      "gdp": 10.796,
+      "oil": 1.893,
+      "balance": -2.199,
+      "when": "5/8/2016"
+    },
+    {
+      "name": "Zimbabwe",
+      "year": 2015,
+      "continent": "Africa",
+      "form": "1",
+      "gdp": 12.293,
+      "oil": 1.927,
+      "balance": -2.464,
+      "when": "1/11/2015"
+    }
+  ]
+}
