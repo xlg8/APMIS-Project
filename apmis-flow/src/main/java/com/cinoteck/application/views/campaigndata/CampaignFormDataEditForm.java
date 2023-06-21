@@ -1,11 +1,16 @@
 package com.cinoteck.application.views.campaigndata;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -37,7 +42,7 @@ public class CampaignFormDataEditForm extends FormLayout {
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
-
+	CampaignFormDataDto formData;
 	public CampaignFormDataEditForm() {
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
@@ -48,16 +53,53 @@ public class CampaignFormDataEditForm extends FormLayout {
 		this.setColspan(hor, 2);
 		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
 		add(hor);
-		configureFields();
+		configureFields(formData);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void configureFields() {
-		binder.forField(cbCampaign).bind(CampaignFormDataDto.CAMPAIGN);
-		cbCampaign.setItemLabelGenerator(item -> "Campaign");
-		cbCampaign.setItems((ListDataProvider<CampaignFormDataDto>) FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference().stream().collect(Collectors.toList()));
+	private void configureFields(CampaignFormDataDto formData) {
+		FormLayout formLayout = new FormLayout();
+				
 		
-		add(cbCampaign);
+		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
+		
+		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
+//		cbCampaign.setValue(formData.getCampaign());
+		cbCampaign.setEnabled(false);
+		
+		
+		Date date = new Date();
+
+		// Convert Date to LocalDate
+//		LocalDate localDate =e.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+		DatePicker formDate = new DatePicker();
+//		formDate.setValue(localDate);
+
+		ComboBox<Object> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
+		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+//		cbArea.setValue(formData.getArea());
+//	        cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAndSelectedAsReference(campaignUUID));
+
+		ComboBox<Object> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
+		cbRegion.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+//		cbRegion.setValue(formData.getRegion());
+
+		ComboBox<Object> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
+		cbDistrict.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+//		cbDistrict.setValue(formData.getDistrict());
+
+		ComboBox<Object> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
+		cbCommunity.setItems(FacadeProvider.getCommunityFacade().getAllCommunities());
+//		cbCommunity.setValue(formData.getCommunity());
+
+		formLayout.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+		
+
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		dialog.setSizeFull();
+		dialog.open();
 	}
 
 	private void validateAndSave() {
