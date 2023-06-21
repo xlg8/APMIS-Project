@@ -488,3 +488,8 @@ vcf-nav-item[active]::part(item) {
 vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-container{
 	background: yellow;
 }
+
+vaadin-vertical-layout.campaignDataFilterParent{
+	margin-top : 5px !important;
+	margin-bottom : 0px !important;
+}
