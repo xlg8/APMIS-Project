@@ -379,6 +379,7 @@
     "@vaadin/vaadin-virtual-list": "$@vaadin/vaadin-virtual-list",
     "@vaadin/vertical-layout": "$@vaadin/vertical-layout",
     "@vaadin/virtual-list": "$@vaadin/virtual-list",
+    "@flowingcode/font-awesome-iron-iconset": "$@flowingcode/font-awesome-iron-iconset",
     "@polymer/polymer": "$@polymer/polymer",
     "@vaadin-component-factory/vcf-anchor-nav": "$@vaadin-component-factory/vcf-anchor-nav",
     "@vaadin-component-factory/vcf-nav": "$@vaadin-component-factory/vcf-nav",

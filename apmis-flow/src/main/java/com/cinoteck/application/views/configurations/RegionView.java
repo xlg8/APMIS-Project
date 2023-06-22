@@ -22,6 +22,7 @@ import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -32,160 +33,169 @@ import java.util.stream.Stream;
 @Route(value = "regions", layout = ConfigurationsView.class)
 public class RegionView extends VerticalLayout implements RouterLayout {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7091198805223773269L;
-	
+
 	GridListDataView<AreaDto> dataView;
-    final static TextField regionField = new TextField("Region");
-    final static TextField rcodeField = new TextField("RCode");
-    Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
-    Grid<AreaDto> grid;
-    private Button saveButton;
+	final static TextField regionField = new TextField("Region");
+	final static TextField rcodeField = new TextField("RCode");
+	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
+	Grid<AreaDto> grid;
+	private Button saveButton;
 
-    public RegionView() {
+	public RegionView() {
+		setSpacing(false);
 
-        grid = new Grid<>(AreaDto.class, false);
+		addRegionFilter();
+		
+		configureGrid();
+		}
+	
+//	@SuppressWarnings("deprecation")
+	private void configureGrid() {
+		setMargin(false);
+		setSizeFull();
+		grid = new Grid<>(AreaDto.class, false);
+		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.setMultiSort(true, MultiSortPriority.APPEND);
+		grid.setSizeFull();
+		grid.setColumnReorderingAllowed(true);
+		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
-        grid.setSelectionMode(SelectionMode.SINGLE);
-        grid.setMultiSort(true, MultiSortPriority.APPEND);
-        grid.setSizeFull();
-        grid.setColumnReorderingAllowed(true);
-        grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
-        grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
+		grid.setItemDetailsRenderer(createAreaEditFormRenderer());
+		grid.setVisible(true);
+		grid.setAllRowsVisible(true);
+		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
+		this.dataView = grid.setItems(regions);
 
-        grid.setItemDetailsRenderer(createAreaEditFormRenderer());
-        grid.setVisible(true);
-        grid.setAllRowsVisible(true);
-        List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
-        this.dataView = grid.setItems(regions);
+		add(grid);
+		
+		grid.asSingleSelect().addValueChangeListener(event -> {
+			if (event.getValue() != null) {
+				AreaDto selectedArea = event.getValue();
+				setArea(selectedArea);
+			}
+		});
+		
+	}
 
-        addRegionFilter();
-        add(grid);
+	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
+		return new ComponentRenderer<>(AreaEditForm::new);
+	}
 
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                AreaDto selectedArea = event.getValue();
-                setArea(selectedArea);
-            }
-        });
-    }
+	private class AreaEditForm extends FormLayout {
 
-    private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
-        return new ComponentRenderer<>(AreaEditForm::new);
-    }
+		public AreaEditForm() {
+			Stream.of(regionField, rcodeField).forEach(e -> {
+				e.setReadOnly(false);
+				add(e);
+			});
+			saveButton = new Button("Save");
 
-    private class AreaEditForm extends FormLayout {
+			saveButton.addClickListener(event -> saveArea());
+			add(saveButton);
+		}
+	}
 
-        public AreaEditForm() {
-            Stream.of(regionField, rcodeField).forEach(e -> {
-                e.setReadOnly(false);
-                add(e);
-            });
-            saveButton = new Button("Save");
-            
-            saveButton.addClickListener(event -> saveArea());
-            add(saveButton);
-        }
-    }
-    
-    private void saveArea() {
-        if (binder.isValid()) {
-            AreaDto areaDto = binder.getBean();
-            String regionValue = regionField.getValue();
-            long rcodeValue = Long.parseLong(rcodeField.getValue());
-            
-            areaDto.setName(regionValue);
-            areaDto.setExternalId(rcodeValue);
-            
-            grid.getDataProvider().refreshItem(areaDto);
-        }
-    }
+	private void saveArea() {
+		if (binder.isValid()) {
+			AreaDto areaDto = binder.getBean();
+			String regionValue = regionField.getValue();
+			long rcodeValue = Long.parseLong(rcodeField.getValue());
 
-    public void setArea(AreaDto areaDto) {
-        regionField.setValue(areaDto.getName());
-        rcodeField.setValue(String.valueOf(areaDto.getExternalId()));
-        binder.setBean(areaDto);
-    }
+			areaDto.setName(regionValue);
+			areaDto.setExternalId(rcodeValue);
 
-    public void addRegionFilter() {
-        setMargin(true);
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setPadding(false);
-        layout.setVisible(false);
-        layout.setAlignItems(Alignment.END);
+			grid.getDataProvider().refreshItem(areaDto);
+		}
+	}
 
-        HorizontalLayout vlayout = new HorizontalLayout();
-        vlayout.setPadding(false);
+	public void setArea(AreaDto areaDto) {
+		regionField.setValue(areaDto.getName());
+		rcodeField.setValue(String.valueOf(areaDto.getExternalId()));
+		binder.setBean(areaDto);
+	}
 
-        vlayout.setAlignItems(Alignment.END);
+	public void addRegionFilter() {
+		setMargin(true);
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setPadding(false);
+		layout.setVisible(false);
+		layout.setAlignItems(Alignment.END);
 
-        Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
-        displayFilters.addClickListener(e -> {
-            if (layout.isVisible() == false) {
-                layout.setVisible(true);
-                displayFilters.setText("Hide Filters");
-            } else {
-                layout.setVisible(false);
-                displayFilters.setText("Show Filters");
-            }
-        });
+		HorizontalLayout vlayout = new HorizontalLayout();
+		vlayout.setPadding(false);
 
-        layout.setPadding(false);
-        layout.setVisible(false);
-        layout.setAlignItems(Alignment.END);
+		vlayout.setAlignItems(Alignment.END);
 
-        Icon searchIcon = new Icon(VaadinIcon.SEARCH);
-        searchIcon.getStyle().set("color", "green !important");
+		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.addClickListener(e -> {
+			if (layout.isVisible() == false) {
+				layout.setVisible(true);
+				displayFilters.setText("Hide Filters");
+			} else {
+				layout.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
 
-        TextField searchField = new TextField();
+		layout.setPadding(false);
+		layout.setVisible(false);
+		layout.setAlignItems(Alignment.END);
 
-        searchField.setPlaceholder("Search");
-        searchField.setPrefixComponent(searchIcon);
-        searchField.setValueChangeMode(ValueChangeMode.EAGER);
-        searchField.setWidth("30%");
+		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
+		searchIcon.getStyle().set("color", "green !important");
 
-        searchField.addClassName("filterBar");
-        searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
-            String searchTerm = searchField.getValue().trim();
+		TextField searchField = new TextField();
 
-            if (searchTerm.isEmpty())
-                return true;
+		searchField.setPlaceholder("Search");
+		searchField.setPrefixComponent(searchIcon);
+		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.setWidth("30%");
 
-            boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase()
-                    .contains(searchTerm.toLowerCase());
+		searchField.addClassName("filterBar");
+		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
+			String searchTerm = searchField.getValue().trim();
 
-            return matchesDistrictName;
+			if (searchTerm.isEmpty())
+				return true;
 
-        }));
+			boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase()
+					.contains(searchTerm.toLowerCase());
 
-        Button clear = new Button("Clear Search");
-        clear.getStyle().set("color", "white");
-        clear.getStyle().set("background", "#0C5830");
-        clear.addClickListener(e -> {
-            searchField.clear();
+			return matchesDistrictName;
 
-        });
-        ComboBox relevanceStatusFilter = new ComboBox<>();
+		}));
 
-        relevanceStatusFilter.getStyle().set("color", "green");
-        relevanceStatusFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		Button clear = new Button("Clear Search");
+		clear.getStyle().set("color", "white");
+		clear.getStyle().set("background", "#0C5830");
+		clear.addClickListener(e -> {
+			searchField.clear();
 
-        relevanceStatusFilter.setItems((Object[]) EntityRelevanceStatus.values());
-        relevanceStatusFilter.setItems(EntityRelevanceStatus.ACTIVE,
-                I18nProperties.getCaption(Captions.districtActiveDistricts));
-        relevanceStatusFilter.setItems(EntityRelevanceStatus.ARCHIVED,
-                I18nProperties.getCaption(Captions.districtArchivedDistricts));
-        relevanceStatusFilter.setItems(EntityRelevanceStatus.ALL,
-                I18nProperties.getCaption(Captions.districtAllDistricts));
-        relevanceStatusFilter.addValueChangeListener(e -> {
+		});
+		ComboBox relevanceStatusFilter = new ComboBox<>();
 
-        });
-        layout.add(searchField, clear, relevanceStatusFilter);
+		relevanceStatusFilter.getStyle().set("color", "green");
+		relevanceStatusFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
-        vlayout.add(displayFilters, layout);
-        add(vlayout);
-    }
+		relevanceStatusFilter.setItems((Object[]) EntityRelevanceStatus.values());
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.ACTIVE,
+				I18nProperties.getCaption(Captions.districtActiveDistricts));
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.ARCHIVED,
+				I18nProperties.getCaption(Captions.districtArchivedDistricts));
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.ALL,
+				I18nProperties.getCaption(Captions.districtAllDistricts));
+		relevanceStatusFilter.addValueChangeListener(e -> {
+
+		});
+		layout.add(searchField, clear, relevanceStatusFilter);
+
+		vlayout.add(displayFilters, layout);
+		add(vlayout);
+	}
 
 }

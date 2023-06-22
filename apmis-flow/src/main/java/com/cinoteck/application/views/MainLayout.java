@@ -2,9 +2,13 @@ package com.cinoteck.application.views;
 
 import java.util.Locale;
 
+import javax.validation.constraints.NotNull;
+
 import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
+import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
 import com.cinoteck.application.views.about.AboutView;
@@ -14,6 +18,8 @@ import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.logout.LogoutView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
+import com.cinoteck.application.views.pivot.PivotTableView;
+import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 //import com.cinoteck.application.views.user.UserView;
@@ -43,6 +49,7 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+
 /**
  * The main view is a top-level placeholder for other views. //password
 */
@@ -61,7 +68,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @CssImport(value = "/styles/lato-font.css", themeFor = "vaadin-text-field")
 
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders{
 
 	private H1 viewTitle;
 	
@@ -122,12 +129,14 @@ public class MainLayout extends AppLayout {
 		nav.addItem(new AppNavItem("Configuration", ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
 		nav.addItem(new AppNavItem("Users", UserView.class, VaadinIcon.USERS, "navitem"));
 		nav.addItem(new AppNavItem("Reports", ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
+		nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
+		nav.addItem(new AppNavItem("Pivot", PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
 		
-//		nav.addItem(new AppNavItem("Test", TestPageView.class, "la la-info-circle", "navitem"));
+		
 		nav.addItem(new AppNavItem("Sign Out", LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
 		if (nav != null) {
 		    nav.addClassName("active");
@@ -275,6 +284,22 @@ public class MainLayout extends AppLayout {
 	public void configurePage(InitialPageSettings settings) {
 		settings.addLink("shortcut icon", "icons/icon.png");
 		settings.addFavIcon("icon", "icons/icon.png", "192x192");
+	}
+
+
+
+	@Override
+	public @NotNull ViewModelProviders getViewModelProviders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public UserProvider getUserProvider() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

@@ -10,7 +10,12 @@ import javax.security.enterprise.SecurityContext;
 import javax.security.enterprise.authentication.mechanism.http.AuthenticationParameters;
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.servlet.ServletException;
+import javax.validation.constraints.NotNull;
 
+import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.UserProvider.HasUserProvider;
+import com.cinoteck.application.ViewModelProviders;
+import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.views.admin.LoginHelper.LogoutEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletService;
@@ -26,12 +31,16 @@ import de.symeda.sormas.api.user.UserRole;
  * accepts any string as a user if the password is the same string, and
  * considers the user "admin" as the only administrator.
  */
-public class BasicAccessControl implements AccessControl {
+public class BasicAccessControl implements AccessControl, HasUserProvider, HasViewModelProviders {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = -884441673838115907L;
+	
+	private final UserProvider userProvider = new UserProvider();
+	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
+	
 
 	@Override
     public boolean signIn(String username, String password) {
@@ -70,6 +79,10 @@ public class BasicAccessControl implements AccessControl {
 		
 		if (status == AuthenticationStatus.SUCCESS) {
 			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
+				
+			//	userProvider.user = FacadeProvider.getUserFacade().getCurrentUser();
+				
+				
 				try {
 					VaadinServletService.getCurrentServletRequest().logout();
 				} catch (ServletException e) {
@@ -147,4 +160,15 @@ public class BasicAccessControl implements AccessControl {
 		
 		
     }
+
+    @Override
+	public UserProvider getUserProvider() {
+		return userProvider;
+	}
+
+	@Override
+	public ViewModelProviders getViewModelProviders() {
+		return viewModelProviders;
+	}
+	
 }

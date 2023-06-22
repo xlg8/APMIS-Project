@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- meta block -->
+		<title>Custom methods - DHTMLX Pivot</title>
+		<meta name="description" content="Check interactive samples of DHTMLX Pivot to explore its configuration and other details.">
+		<!-- end meta block -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+		<script type="text/javascript" src="../../codebase/pivot.js?v=1.5.6"></script>
+		<link rel="stylesheet" href="../../codebase/pivot.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/index.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/pivot.css?v=1.5.6">
+		<script type="text/javascript" src="../common/dataset.js?v=1.5.6"></script>
+		<!-- custom sample head -->
+		<style>
+			.dhx_sample-header__content {
+				max-width: 450px;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="dhx_sample-header">
+			<div class="dhx_sample-header__main">
+				<nav class="dhx_sample-header__breadcrumbs">
+					<ul class="dhx_sample-header-breadcrumbs">
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="../index.html" class="dhx_sample-header-breadcrumbs__link">Pivot samples</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="./index.html" class="dhx_sample-header-breadcrumbs__link">Configuration</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<span class="dhx_sample-header-breadcrumbs__link">Custom methods</span>
+						</li>
+					</ul>
+				</nav>
+				<h1 class="dhx_sample-header__title">
+					<div class="dhx_sample-header__content">
+						You can add your own operation in addition to the predefined set using the addMathMethod() method
+						<div class="dhx_sample-docs-links">
+							Check documentation:
+							<a href="https://docs.dhtmlx.com/pivot/guides__working_with_pivot.html#definingdataoperations" target="_blank" class="dhx_sample-header-link">Defining Data Operations</a>
+							<a href="https://docs.dhtmlx.com/pivot/api__pivot_addmathmethod.html" target="_blank" class="dhx_sample-header-link">addMathMethod</a>
+						</div>
+					</div>
+				</h1>
+			</div>
+</header>
+		<section class="dhx_sample-container">
+			<div class="dhx_sample-container__widget" id="pivot"></div>
+
+		</section>
+
+		<script>
+			var pivot = new dhx.Pivot("pivot", {
+				data: [],
+				fields: {
+					rows: ["form", "name"],
+					columns: ["year", { "id": "when", "group": "dateByQuarter" }],
+					values: [{ id: "oil", method: "min" }, { id: "oil", method: "sum" }],
+				},
+				types: {
+					operations: [],
+				},
+				fieldList: [
+					{ id: "name", label: "Name" },
+					{ id: "year", label: "Year" },
+					{ id: "continent", label: "Continent" },
+					{ id: "form", label: "Form" },
+					{ id: "gdp", label: "GDP" },
+					{ id: "oil", label: "Oil" },
+					{ id: "balance", label: "Balance" },
+					{ id: "when", label: "When", type: "date", format: "%d/%m/%Y" },
+				],
+				layout: {
+					footer: true
+				}
+			});
+			pivot.addMathMethod("sum", "SUM", function(cellData) {
+				return cellData.reduce(function(sum, c) {
+					return sum += parseFloat(c) || 0
+				}, 0).toFixed(3)
+			});
+			pivot.addMathMethod("min", "MIN", function(cellData) {
+				return (Math.min.apply(null, cellData)).toLocaleString("en");
+			});
+			pivot.addMathMethod("avg", "AVG", function(cellData) {
+				return (cellData.reduce(function(total, el) {
+					return total + el;
+				}, 0) / cellData.length).toLocaleString("en");
+			});
+			pivot.setData(dataset);
+		</script>
+
+	</body>
+</html>

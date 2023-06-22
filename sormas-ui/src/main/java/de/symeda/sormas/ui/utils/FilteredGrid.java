@@ -82,10 +82,10 @@ public class FilteredGrid<T, C extends BaseCriteria> extends Grid<T> {
 		super.setDataProvider(dataProvider);
 	}
 
-	@Override
-	public void setDataProvider(FetchItemsCallback<T> fetchItems, SerializableSupplier<Integer> sizeCallback) {
-		throw new UnsupportedOperationException();
-	}
+//	@Override
+//	public void setDataProvider(FetchItemsCallback<T> fetchItems, SerializableSupplier<Integer> sizeCallback) {
+//		throw new UnsupportedOperationException();
+//	}
 
 	/**
 	 * Use this method before calling any bulkaction, to prevent illegal access to pseudonymized entries

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- meta block -->
+		<title>Subfields - DHTMLX Pivot</title>
+		<meta name="description" content="Check interactive samples of DHTMLX Pivot to explore its usage and other details.">
+		<!-- end meta block -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+		<script type="text/javascript" src="../../codebase/pivot.js?v=1.5.6"></script>
+		<link rel="stylesheet" href="../../codebase/pivot.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/index.css?v=1.5.6">
+		<link rel="stylesheet" href="../common/pivot.css?v=1.5.6">
+		<script type="text/javascript" src="../common/dataset.js?v=1.5.6"></script>
+		<!-- custom sample head -->
+	</head>
+	<body>
+		<header class="dhx_sample-header">
+			<div class="dhx_sample-header__main">
+				<nav class="dhx_sample-header__breadcrumbs">
+					<ul class="dhx_sample-header-breadcrumbs">
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="../index.html" class="dhx_sample-header-breadcrumbs__link">Pivot samples</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<a href="./index.html" class="dhx_sample-header-breadcrumbs__link">Usage</a>
+						</li>
+						<li class="dhx_sample-header-breadcrumbs__item">
+							<span class="dhx_sample-header-breadcrumbs__link">Subfields</span>
+						</li>
+					</ul>
+				</nav>
+				<h1 class="dhx_sample-header__title">
+					<div class="dhx_sample-header__content">
+						You can add custom operations for grouping data by dates by using the addSubField method
+						<div class="dhx_sample-docs-links">
+							Check documentation:
+							<a href="https://docs.dhtmlx.com/pivot/guides__customization.html#customdategroupingtypes" target="_blank" class="dhx_sample-header-link">Custom Date Grouping Types</a>
+						</div>
+					</div>
+				</h1>
+			</div>
+</header>
+		<section class="dhx_sample-container">
+			<div class="dhx_sample-container__widget" id="pivot"></div>
+
+		</section>
+
+		<script>
+			var pivot = new dhx.Pivot("pivot", {
+				fields: {
+					rows: ["form", "name"],
+					columns: ["region"],
+					values: [{ id: "p1", method: "min" }],
+				},
+				fieldList: [
+					{
+						id: "name", label: "Name", aliases: {
+							"BLR": "Belarus",
+							"GB": "Great Britain",
+							"FR": "France",
+						},
+					},
+					{
+						id: "form", label: "Form",
+						aliases: {
+							1: "Constitutional monarchy",
+							2: "Republic",
+						},
+					},
+					{ id: "p1", label: "Pops." },
+					{ id: "region", label: "Region" },
+				],
+				layout: {
+					rowsHeadersWidth: "auto",
+				},
+			});
+			pivot.addSubField("region", function(val) {
+				return val + "some";
+			}, "Release");
+			pivot.addSubField("region", function(val) {
+				return "some" + val;
+			}, "some");
+
+			pivot.setData([
+				{ form: 1, name: "GB", p1: 70, region: "North" },
+				{ form: 2, name: "FR", p1: 50, region: "North" },
+				{ form: 2, name: "BLR", p1: 10, region: "North" },
+			]);
+		</script>
+
+	</body>
+</html>

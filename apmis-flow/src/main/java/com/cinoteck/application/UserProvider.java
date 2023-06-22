@@ -17,9 +17,12 @@
  *******************************************************************************/
 package com.cinoteck.application;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+
+import javax.enterprise.context.SessionScoped;
 
 import com.vaadin.flow.component.UI;
 
@@ -33,7 +36,8 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
-public class UserProvider {
+@SessionScoped
+public class UserProvider implements Serializable{
 
 	private UserDto user;
 	private UserReferenceDto userReference;
@@ -166,6 +170,9 @@ public class UserProvider {
 	public static UserProvider getCurrent() {
 
 		UI currentUI = UI.getCurrent();
+		
+		System.out.println(UI.getCurrent());
+		
 		if (currentUI instanceof HasUserProvider) {
 			return ((HasUserProvider) currentUI).getUserProvider();
 		}
