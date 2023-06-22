@@ -319,7 +319,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 			//addClassName("col-lg-6");
 			
 		//	System.out.println(hcjs.toString());	
-			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx);
+			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx, DiagramType.COLUMN);
 			this.add(chartComponent);
 		}
 	}	
