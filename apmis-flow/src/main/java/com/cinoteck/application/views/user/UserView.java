@@ -56,6 +56,7 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 //import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -84,6 +85,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
+import de.symeda.sormas.ui.ControllerProvider;
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -126,6 +128,8 @@ public class UserView extends VerticalLayout {
 	Button bulkModeButton;
 	Button leaveBulkModeButton;
 	TextField searchField;
+	
+	Button displayFilters;
 
 	UserFilter userFilter = new UserFilter();
 
@@ -137,22 +141,24 @@ public class UserView extends VerticalLayout {
 
 			Dialog dialog = new Dialog();
 			dialog.setModal(true);
-			dialog.setHeight("800px");
-			dialog.setWidth("800px");
+			dialog.addClassNames("dialog-alignment");
 			dialog.setDraggable(true);
 			dialog.setModal(false);
-			dialog.setHeaderTitle("Create New User");
+			dialog.setHeaderTitle("CREATE NEW USER");
 
 			VerticalLayout dialogLayout = createDialogLayout();
 			dialog.add(dialogLayout);
 
 			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
-			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+			closeButton.getStyle().set("color", "green");
 			dialog.getHeader().add(closeButton);
 
 			Button cancelButton = new Button("DISCARD CHANGES", e -> dialog.close());
+			cancelButton.setHeightFull();
 			Button saveButton = new Button("SAVE");
+			saveButton.setHeightFull();
 			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			
 			dialog.getFooter().add(cancelButton, saveButton);
 			createUserButton = new Button(Captions.userNewUser, e -> dialog.open());
 			exportUsersButton = new Button(Captions.export);
@@ -239,13 +245,11 @@ public class UserView extends VerticalLayout {
 	public void addFilters() {
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setMargin(false);
-		layout.getStyle().set("margin", "15px");
 		layout.setPadding(false);
 		layout.setWidthFull();
 
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "12px");
-//		createUserButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		layout.add(createUserButton);
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
@@ -328,23 +332,20 @@ public class UserView extends VerticalLayout {
 		menuBar.getStyle().set("margin-top", "5px");
 		layout.add(menuBar);
 
-		searchField.setWidth("20%");
-		searchField.getStyle().set("background-color", "#D2EADE");
-		searchField.getStyle().set("margin-left", "25%");
-		searchField.addClassName("filterBar");
+		searchField.addClassName("searchField");
 		searchField.setPlaceholder("Search Users");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 
-//			userFilter.setSearchTerm(e.getValue());
-//			filterDataProvider.setFilter(userFilter);
 			String searchTerm = searchField.getValue().trim();
-//			boolean option = searchField.getValue().trim();
+			
 			if (searchTerm.isEmpty())
 				return true;
-
+			
+			boolean matchUserRole = String.valueOf(search.getUserRoles()).toLowerCase()
+					.contains(searchTerm.toLowerCase());
 			boolean matchUsername = String.valueOf(search.getUserName()).toLowerCase()
 					.contains(searchTerm.toLowerCase());
 			boolean matchName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
@@ -353,8 +354,10 @@ public class UserView extends VerticalLayout {
 					.contains(searchTerm.toLowerCase());
 			boolean matchPosition = String.valueOf(search.getUserPosition()).toLowerCase()
 					.contains(searchTerm.toLowerCase());
+			boolean matchArea = String.valueOf(search.getArea()).toLowerCase()
+					.contains(searchTerm.toLowerCase());
 
-			return matchUsername || matchName || matchEmail || matchOrganisation || matchPosition;
+			return matchUserRole || matchUsername || matchName || matchEmail || matchOrganisation || matchPosition || matchArea;
 		}));
 
 		layout.add(searchField);
@@ -363,6 +366,7 @@ public class UserView extends VerticalLayout {
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
 		filterLayout.setVisible(false);
+		filterLayout.setMargin(false);
 		filterLayout.setAlignItems(Alignment.END);
 
 		HorizontalLayout vlayout = new HorizontalLayout();
@@ -370,7 +374,7 @@ public class UserView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
@@ -388,8 +392,8 @@ public class UserView extends VerticalLayout {
 		activeFilter.setPlaceholder("Active");
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
-		activeFilter.setClearButtonVisible(true);
 		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
+		activeFilter.setClearButtonVisible(true);
 		activeFilter.addValueChangeListener(e -> {
 			dataView.removeFilters();
 
@@ -439,7 +443,6 @@ public class UserView extends VerticalLayout {
 		areaFilter.setPlaceholder("Region");
 		areaFilter.getStyle().set("margin-left", "12px");
 		areaFilter.getStyle().set("margin-top", "12px");
-		areaFilter.setClearButtonVisible(true);
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
 		areaFilter.addValueChangeListener(e -> {
@@ -473,9 +476,7 @@ public class UserView extends VerticalLayout {
 		regionFilter.setPlaceholder("Province");
 		regionFilter.getStyle().set("margin-left", "12px");
 		regionFilter.getStyle().set("margin-top", "12px");
-//			regionFilter.setEnabled(false);
 		regionFilter.setClearButtonVisible(true);
-		regionFilter.setItems(provinces);
 		regionFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
 
 			RegionReferenceDto regionValue = (RegionReferenceDto) e.getValue();
@@ -494,8 +495,6 @@ public class UserView extends VerticalLayout {
 
 		filterLayout.add(regionFilter);
 
-//			}
-
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		districtFilter.setWidth(200, Unit.PIXELS);
@@ -504,7 +503,6 @@ public class UserView extends VerticalLayout {
 		districtFilter.getStyle().set("margin-left", "12px");
 		districtFilter.getStyle().set("margin-top", "12px");
 		districtFilter.setClearButtonVisible(true);
-		districtFilter.setItems(districts);
 		districtFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
 
 			DistrictReferenceDto districtValue = (DistrictReferenceDto) e.getValue();
@@ -512,7 +510,7 @@ public class UserView extends VerticalLayout {
 			if (districtValue == null)
 				return true;
 			
-			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+			communities =FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			communitiesFilter.setItems(communities);
 
 			boolean predicate = s.getCommunity() == null ? false 
@@ -541,11 +539,14 @@ public class UserView extends VerticalLayout {
 		if (contact == null) {
 			closeEditor();
 		} else {
+			
+			// where saving will happen for editing
 			form.setUser(contact);
 			form.setVisible(true);
 			form.setSizeFull();
 			grid.setVisible(false);
 			setFiltersVisible(false);
+			displayFilters.setVisible(false);
 			addClassName("editing");
 		}
 	}
@@ -555,6 +556,7 @@ public class UserView extends VerticalLayout {
 		form.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);
+		
 		removeClassName("editing");
 	}
 
@@ -572,6 +574,8 @@ public class UserView extends VerticalLayout {
 	}
 
 	private void addContact() {
+		// creating new user goes here
+		
 		grid.asSingleSelect().clear();
 		editContact(new UserDto());
 	}
@@ -633,6 +637,7 @@ public class UserView extends VerticalLayout {
 		verticalLayoutMethod.add(language);
 
 		H3 createUserSubHeading2 = new H3("Address");
+		createUserSubHeading2.getStyle().set("color", "green");
 		verticalLayoutMethod.add(createUserSubHeading2);
 
 		HorizontalLayout textFieldSet4 = new HorizontalLayout();
@@ -728,12 +733,12 @@ public class UserView extends VerticalLayout {
 
 		HorizontalLayout textFieldSet10 = new HorizontalLayout();
 		CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
-		formAccess.setLabel("Type of Users");
+		formAccess.setLabel("Forms Type");
 		formAccess.setItems(UserUiHelper.getAssignableForms());
 		textFieldSet10.add(formAccess);
 
 		CheckboxGroup<UserRole> userRole = new CheckboxGroup<>();
-		userRole.setLabel("Type of Users");
+		userRole.setLabel("User Roles");
 		userRole.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		textFieldSet10.add(userRole);
 
