@@ -3,8 +3,7 @@ html, body {
 }
 
 .dhx_sample-container {
-	max-width: 1220px;
-	min-height: 800px;
+	display: -webkit-box;
 }
 
 .dhx_sample-container__widget {
@@ -12,3 +11,6 @@ html, body {
 	min-width: 1220px;
 }
 
+.dhx_config_item .item_body, .dhx_shadow .item_body{
+	background: #0D6938 !important;
+}

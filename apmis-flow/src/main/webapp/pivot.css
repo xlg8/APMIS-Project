@@ -1,5 +1,7 @@
 .pvtUi { color: #333; }
 
+.pvtUnused { width: 10vw; }
+
 
 table.pvtTable {
     font-size: 8pt;
@@ -33,7 +35,9 @@ table.pvtTable tbody tr td {
     width: 15px;
     margin-left: 5px;
     display: inline-block; }
-.pvtAggregator { margin-bottom: 5px ;}
+.pvtAggregator { margin-bottom: 5px ;
+width: 120px;
+    height: 30px;}
 
 .pvtAxisContainer, .pvtVals {
     border: 1px solid gray;
