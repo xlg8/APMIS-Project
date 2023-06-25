@@ -179,14 +179,8 @@ h1,h2,h3,h4,h5 {
 }
 .dhx_sample-container {
 	display: -webkit-box;
-	display: -ms-flexbox;
-	display: flex;
-	max-width: 1220px;
-	min-height: 600px;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 30px;
-	justify-content: center;
+	
+	
 }
 .dhx_sample-container__widget {
 -webkit-box-flex: 1;
@@ -525,4 +519,8 @@ h1,h2,h3,h4,h5 {
 }
 .dhx_sample-fieldset legend{
 	display: none;
+}
+
+.item_body{
+	background: red;
 }
