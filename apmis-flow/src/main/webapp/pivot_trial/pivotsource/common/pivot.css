@@ -1,0 +1,16 @@
+html, body {
+	height: 100%;
+}
+
+.dhx_sample-container {
+	display: -webkit-box;
+}
+
+.dhx_sample-container__widget {
+	min-height: 800px;
+	min-width: 1220px;
+}
+
+.dhx_config_item .item_body, .dhx_shadow .item_body{
+	background: #0D6938 !important;
+}
