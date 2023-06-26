@@ -103,11 +103,11 @@ public class UserAnalysisGridView extends VerticalLayout {
 			}
 		});
 		
-		H2 counter = new H2("Number of rows: ");
-		counter.add("567890");
+//		H2 counter = new H2("Number of rows: ");
+//		counter.add("567890");
 		
 		filterLayout.add( regionFilter, provinceFilter, districtFilter, resetButton);
-		countAndButtons.add(displayFilters, counter);
+		countAndButtons.add(displayFilters);
 		add(countAndButtons,filterLayout);
 		setSizeFull();
 		userAnalysisGrid(criteria, formAccess);
