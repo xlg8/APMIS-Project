@@ -3,6 +3,8 @@ package com.cinoteck.application.views.user;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +15,7 @@ import com.cinoteck.application.RowCount;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.configurations.RegionFilter;
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -24,6 +27,7 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridDataView;
@@ -57,7 +61,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-//import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -85,7 +88,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
-import de.symeda.sormas.ui.ControllerProvider;
+
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -114,7 +117,7 @@ public class UserView extends VerticalLayout {
 			.collect(Collectors.toList());
 	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
-	private ConfigurableFilterDataProvider<UserDto, Void, UserFilter> filterDataProvider = usersDataProvider
+	private ConfigurableFilterDataProvider<UserDto, Void, UsersFilter> filterDataProvider = usersDataProvider
 			.withConfigurableFilter();
 //	private GridDataView<UserDto> dataView = grid.setItems(filterDataProvider.withConfigurableFilter());
 
@@ -130,8 +133,6 @@ public class UserView extends VerticalLayout {
 	TextField searchField;
 	
 	Button displayFilters;
-
-	UserFilter userFilter = new UserFilter();
 
 	private static final String CSV_FILE_PATH = "./result.csv";
 
@@ -215,28 +216,28 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setResizable(true);
-		grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setSortable(true);
+		Column<UserDto> activeCol = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setResizable(true);
+		Column<UserDto> userRolesCol = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setResizable(true);
+		Column<UserDto> usernameCol = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setResizable(true);
+		Column<UserDto> nameCol = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setResizable(true);
+		Column<UserDto> emailCol = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setResizable(true);
+		Column<UserDto> organisationCol = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setSortable(true).setResizable(true);
+		Column<UserDto> positionCol = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setSortable(true).setResizable(true);
+		Column<UserDto> areaCol = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setSortable(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
+//		grid.getEditor().addSaveListener(null)
 
-		grid.asSingleSelect().addValueChangeListener(event -> editContact(event.getValue()));
+		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue()));
 	}
 
 	private void configureForm() {
 		form = new UserForm(regions, provinces, districts);
 		form.setSizeFull();
-		form.getStyle().set("margin", "20px");
-		form.addSaveListener(this::saveContact);
+		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> closeEditor());
 	}
@@ -292,7 +293,6 @@ public class UserView extends VerticalLayout {
 		exportUsersButton.setIcon(exportUsersButtonIcon);
 
 		exportRolesButton.addClassName("exportRolesButton");
-//		exportRolesButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
 		exportRolesButton.setIcon(exportRolesButtonIcon);
 		layout.add(exportRolesButton);
@@ -375,6 +375,7 @@ public class UserView extends VerticalLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "5px");
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
@@ -535,13 +536,12 @@ public class UserView extends VerticalLayout {
 		return null;
 	}
 
-	public void editContact(UserDto contact) {
-		if (contact == null) {
+	public void editUser(UserDto user) {
+		if (user == null) {
 			closeEditor();
 		} else {
-			
-			// where saving will happen for editing
-			form.setUser(contact);
+						
+			form.setUser(user);
 			form.setVisible(true);
 			form.setSizeFull();
 			grid.setVisible(false);
@@ -573,14 +573,13 @@ public class UserView extends VerticalLayout {
 		districtFilter.setVisible(state);
 	}
 
-	private void addContact() {
-		// creating new user goes here
-		
-		grid.asSingleSelect().clear();
-		editContact(new UserDto());
-	}
+//	private void addContact() {
+//		
+//		grid.asSingleSelect().clear();
+//		editUser(new UserDto());
+//	}
 
-	private void saveContact(UserForm.SaveEvent event) {
+	private void saveUser(UserForm.SaveEvent event) {
 		FacadeProvider.getUserFacade().saveUser(event.getContact());
 		// updateList();
 		closeEditor();
@@ -599,12 +598,12 @@ public class UserView extends VerticalLayout {
 		HorizontalLayout textFieldSet1 = new HorizontalLayout();
 
 		H3 createUserSubHeading = new H3("Personal Information");
-		createUserSubHeading.getStyle().set("color", "green");
 		verticalLayoutMethod.add(createUserSubHeading);
 
 		TextField firstName = new TextField("First Name");
 		firstName.setWidth("350px");
 		firstName.isRequired();
+		firstName.setRequiredIndicatorVisible(true);
 		TextField lastName = new TextField("Last Name");
 		lastName.setWidth("350px");
 		textFieldSet1.add(firstName, lastName);
@@ -637,7 +636,7 @@ public class UserView extends VerticalLayout {
 		verticalLayoutMethod.add(language);
 
 		H3 createUserSubHeading2 = new H3("Address");
-		createUserSubHeading2.getStyle().set("color", "green");
+//		createUserSubHeading2.getStyle().set("color", "green");
 		verticalLayoutMethod.add(createUserSubHeading2);
 
 		HorizontalLayout textFieldSet4 = new HorizontalLayout();
@@ -712,7 +711,7 @@ public class UserView extends VerticalLayout {
 		CheckboxGroup<UserType> userType = new CheckboxGroup<>();
 		userType.setLabel("Type of Users");
 		userType.setItems(UserType.values());
-		userType.select(UserType.COMMON_USER);
+//		userType.select(UserType.COMMON_USER);
 		textFieldSet8.add(userType);
 
 		verticalLayoutMethod.add(textFieldSet8);
@@ -723,13 +722,16 @@ public class UserView extends VerticalLayout {
 
 		Checkbox active = new Checkbox();
 		active.setLabel("Active?");
+		active.getStyle().set("margin-bottom", "0px");
+		active.setValue(true);
 		textFieldSet9.add(active);
 
 		TextField UserName = new TextField("Username");
-		UserName.setPlaceholder("Enter Username here");
 		UserName.setWidth("350px");
-		UserName.getStyle().set("margin-top", "5px");
+
 		textFieldSet9.add(UserName);
+		
+		verticalLayoutMethod.add(textFieldSet9);
 
 		HorizontalLayout textFieldSet10 = new HorizontalLayout();
 		CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
