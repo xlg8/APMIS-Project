@@ -10,6 +10,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -21,7 +22,13 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.DataGenerator;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.DataView;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
@@ -30,9 +37,11 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -52,7 +61,10 @@ public class CampaignsView extends VerticalLayout {
 	private Grid<CampaignDto> grid = new Grid<>(CampaignDto.class, false);
 	private GridListDataView<CampaignDto> dataView;
 	
-	
+    CampaignCriteria criteria = new CampaignCriteria();
+    List<CampaignIndexDto> indexList = FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null);
+    ListDataProvider<CampaignIndexDto> indexDataProvider = new ListDataProvider<>(indexList);
+
 	private CampaignForm campaignForm;
 	CampaignDto camp;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
@@ -87,47 +99,51 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void campaignsGrid() {
-		
-		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setMultiSort(true, MultiSortPriority.APPEND);
-		grid.setSizeFull();
-		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CampaignDto.NAME).setHeader("Name").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignDto.START_DATE).setHeader("Start Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignDto.END_DATE).setHeader("End Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
+	    grid.setSelectionMode(SelectionMode.SINGLE);
+	    grid.setMultiSort(true, MultiSortPriority.APPEND);
+	    grid.setSizeFull();
+	    grid.setColumnReorderingAllowed(true);
+	    grid.addColumn(CampaignDto::getName).setHeader("Name").setSortable(true).setResizable(true);
+	    grid.addColumn(new ComponentRenderer<>(this::createStatusComponent)).setHeader("Status").setSortable(true).setResizable(true);
+	    grid.addColumn(CampaignDto::getStartDate).setHeader("Start Date").setSortable(true).setResizable(true);
+	    grid.addColumn(CampaignDto::getEndDate).setHeader("End Date").setSortable(true).setResizable(true);
+	    grid.addColumn(CampaignDto::getCampaignYear).setHeader("Campaign Year").setSortable(true).setResizable(true);
 
-		grid.setVisible(true);
-		grid.setWidthFull();
-//		grid.setHeightFull();
-		grid.setAllRowsVisible(true);
+	    grid.setVisible(true);
+	    grid.setWidthFull();
+	    grid.setAllRowsVisible(true);
 
-		
 	
-//		VerticalLayout detailsLayout = new VerticalLayout();
-//		detailsLayout.add(new Label("Additional information"));
-//		details.setContent(detailsLayout);
-//		
-//		grid.addSelectionListener(event -> {
-//		    Set<CampaignDto> selectedItems = event.getAllSelectedItems();
-//		    if (!selectedItems.isEmpty()) {
-//		    	CampaignDto selectedItem = selectedItems.iterator().next();
-//		        detailsLayout.removeAll();
-//		        detailsLayout.add(new Label("Additional information: " + selectedItem.getName()));
-//		        details.setOpened(true);
-//		    } else {
-//		        details.setOpened(false);
-//		    }
-//		});
-//		
-		List<CampaignDto> campaigns = FacadeProvider.getCampaignFacade().getAllActive().stream()
-				.collect(Collectors.toList());
-		
-		dataView = grid.setItems(campaigns);
-		
-		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+	    List<CampaignDto> campaigns = FacadeProvider.getCampaignFacade().getAllActive().stream()
+	        .collect(Collectors.toList());
+
+	    ListDataProvider<CampaignDto> campaignDataProvider = new ListDataProvider<>(campaigns);
+	    DataView<CampaignDto> dataView = grid.setItems(campaignDataProvider);
+
+	    grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
 	}
+	
+ 
+
+	private Component createStatusComponent(CampaignDto item) {
+	    
+
+		   
+		   
+	    CampaignIndexDto indexDto = indexDataProvider.getItems().stream()
+	        .filter(index -> index.getCampaignStatus().equals(item.getCampaignStatus()))
+	        .findFirst()
+	        .orElse(null);
+
+	    String statusText = indexDto != null ? indexDto.getCampaignStatus() : "";
+	    Label statusLabel = new Label(statusText);
+
+	    // Customize the appearance of the status component if needed
+
+	    return statusLabel;
+	}
+
+
 	
 	private void configureForm() {
 		campaignForm = new CampaignForm(camp);
