@@ -13,16 +13,28 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 
+import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.user.FormAccess;
 
 @Route(layout = ReportView.class)
 public class UserAnalysisView extends VerticalLayout implements RouterLayout {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8119024598018785898L;
 	private Map<Tab, Component> userAnalysisComponentMap = new LinkedHashMap<>();
 	
+	
+	
+	
 	private Tabs createUserAnalysisTabs() {
+		
+		//TODO: create filters here to cater for all tabs and passed to the body of the view classes
+		CommunityCriteriaNew criteria = new CommunityCriteriaNew();
+		
 		FormAccess frms[] = FormAccess.values();
 		for (FormAccess lopper : frms) {
-			userAnalysisComponentMap.put(new Tab(lopper.toString()), new UserAnalysisGridView(null, lopper));
+			userAnalysisComponentMap.put(new Tab(lopper.toString()), new UserAnalysisGridView(criteria, lopper));
 		}
 		
 		
@@ -32,6 +44,7 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 	
 	public UserAnalysisView() {
 		
+		setSizeFull();
 		HorizontalLayout reportTabsheetLayout = new HorizontalLayout();
 		 reportTabsheetLayout.setClassName("campDatFill");
 		 
@@ -39,7 +52,7 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 			tabs.getStyle().set("background", "#434343");
 	        tabs.getStyle().set("width", "100%");
 	        Div contentContainer = new Div();
-	        contentContainer.setWidthFull();
+	        contentContainer.setSizeFull();
 	        
 	        tabs.addSelectedChangeListener(e -> {
 	            contentContainer.removeAll();

@@ -219,8 +219,8 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			} 
 		}
 		
-		System.out.println("22222222222222222222??????????????????" + communities);
 		return communities;
 	}
-
+	
+	
 }

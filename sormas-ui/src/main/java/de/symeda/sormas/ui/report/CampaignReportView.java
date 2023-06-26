@@ -47,7 +47,7 @@ public class CampaignReportView extends AbstractView {
 		layt.setSizeFull();
 		tabsheet.setHeightFull();
 
-		
+		setSizeFull();
 		
 		CampaignStatisticsView campaignStatisticsView = new CampaignStatisticsView();
 		gridLayout = new VerticalLayout();
@@ -97,7 +97,6 @@ public class CampaignReportView extends AbstractView {
 		// for (FormAccess lopper : frmss) {
 		{
 			gridLayout = new VerticalLayout();
-			gridLayout.setHeightFull();
 			CompletionAnalysisTabSheets compAnalysis = new CompletionAnalysisTabSheets(FormAccess.ICM);// CampaignReportTabSheets
 			// sheet = new
 			// CampaignReportTabSheets(criteria,

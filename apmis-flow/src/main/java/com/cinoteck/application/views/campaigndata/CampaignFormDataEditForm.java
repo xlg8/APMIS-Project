@@ -21,6 +21,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -43,7 +44,7 @@ public class CampaignFormDataEditForm extends FormLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	CampaignFormDataDto formData;
-	public CampaignFormDataEditForm() {
+	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto) {
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
 		hor.setJustifyContentMode(JustifyContentMode.END);

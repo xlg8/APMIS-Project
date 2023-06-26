@@ -179,9 +179,9 @@ table.pvtTable tbody tr td {
         $.getJSON("mps.json", function(mps) {
             $("#output").pivotUI(mps, {
                 renderers: renderers,
-                cols: ["Party"], rows: ["Province"],
+                cols: ["area"], rows: ["year"],
                 rendererName: "Horizontal Stacked Bar Chart",
-                rowOrder: "value_z_to_a", colOrder: "value_z_to_a",
+                rowOrder: "value_a_to_z", colOrder: "value_a_to_z",
                 rendererOptions: {
                     c3: { data: 
                         {colors: 
