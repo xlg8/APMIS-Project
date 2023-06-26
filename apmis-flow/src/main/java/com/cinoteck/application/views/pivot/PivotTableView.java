@@ -13,7 +13,7 @@ public class PivotTableView  extends VerticalLayout{
 
 	public PivotTableView() {
 		setSizeFull();
-		 Html html = new Html("<iframe src='pivot_trial/samples/01_init/07_grid_flat_mode.html' style='width:100%; height:100%;'></iframe>");
+		 Html html = new Html("<iframe src='pivot_trial/pivotsource/frontend/pivot_grid_flat.html' style='width:100%; height:100%;'></iframe>");
 	        add(html);
 	        
 	}

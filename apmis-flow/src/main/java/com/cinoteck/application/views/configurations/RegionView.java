@@ -2,11 +2,13 @@ package com.cinoteck.application.views.configurations;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -14,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -22,10 +25,11 @@ import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
+
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -38,6 +42,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	 */
 	private static final long serialVersionUID = 7091198805223773269L;
 
+	private final AreaCriteria criteria;
+
 	GridListDataView<AreaDto> dataView;
 	final static TextField regionField = new TextField("Region");
 	final static TextField rcodeField = new TextField("RCode");
@@ -46,15 +52,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private Button saveButton;
 
 	public RegionView() {
+		this.criteria = new AreaCriteria();
 		setSpacing(false);
 
 		addRegionFilter();
 		
-		configureGrid();
-		}
-	
-//	@SuppressWarnings("deprecation")
-	private void configureGrid() {
 		setMargin(false);
 		setSizeFull();
 		grid = new Grid<>(AreaDto.class, false);
@@ -71,6 +73,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
 		this.dataView = grid.setItems(regions);
 
+		
 		add(grid);
 		
 		grid.asSingleSelect().addValueChangeListener(event -> {
@@ -79,8 +82,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				setArea(selectedArea);
 			}
 		});
-		
-	}
+		}
+	
+
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
 		return new ComponentRenderer<>(AreaEditForm::new);
@@ -88,14 +92,21 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private class AreaEditForm extends FormLayout {
 
-		public AreaEditForm() {
+		public AreaEditForm(AreaDto areaDto) {
+			Dialog formLayout  = new Dialog();
+			
+			H2 header = new H2("Edit " + areaDto.getName().toString());
+			this.setColspan(header, 2);
+			add(header);
 			Stream.of(regionField, rcodeField).forEach(e -> {
 				e.setReadOnly(false);
 				add(e);
+
 			});
 			saveButton = new Button("Save");
 
 			saveButton.addClickListener(event -> saveArea());
+
 			add(saveButton);
 		}
 	}
@@ -157,7 +168,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setWidth("30%");
 
 		searchField.addClassName("filterBar");
-		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
+		searchField.addValueChangeListener(
+				e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 
 			if (searchTerm.isEmpty())
@@ -177,6 +189,19 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			searchField.clear();
 
 		});
+		
+		Button newUnit = new Button("New Area");
+		clear.getStyle().set("color", "white");
+		clear.getStyle().set("background", "#0C5830");
+		clear.addClickListener(e -> {
+			AreaDto areaDto = new AreaDto();
+			Dialog dialog = new Dialog();
+			AreaEditForm area;
+			area =new AreaEditForm(areaDto);
+			dialog.add(area);
+			dialog.open();
+
+		});
 		ComboBox relevanceStatusFilter = new ComboBox<>();
 
 		relevanceStatusFilter.getStyle().set("color", "green");
@@ -192,7 +217,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.addValueChangeListener(e -> {
 
 		});
-		layout.add(searchField, clear, relevanceStatusFilter);
+		layout.add(searchField, clear, relevanceStatusFilter, newUnit);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);

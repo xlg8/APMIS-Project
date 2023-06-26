@@ -23,6 +23,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -35,6 +36,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionCriteria;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -47,12 +49,18 @@ public class ClusterView extends Div {
 	 * 
 	 */
 	private static final long serialVersionUID = 5091856954264511639L;
-	private GridListDataView<CommunityDto> dataView;
+//	private GridListDataView<CommunityDto> dataView;
 	private CommunityCriteriaNew criteria;
-	private CommunityDto communityDto;
+
+	ClusterDataProvider clusterDataProvider = new ClusterDataProvider();
+	
+	ConfigurableFilterDataProvider<CommunityDto, Void, CommunityCriteriaNew> filteredDataProvider;
+
+	Grid<CommunityDto> grid = new Grid<>(CommunityDto.class, false);
+	
 	public ClusterView() {
+		this.criteria = new CommunityCriteriaNew();
 		setHeightFull();
-		Grid<CommunityDto> grid = new Grid<>(CommunityDto.class, false);
 		//List<CommunityDto> clusters = FacadeProvider.getCommunityFacade().getAllCommunities();
 	//	GridLazyDataView<CommunityDto> dataView;// = grid.setItems(clusters);
 
@@ -70,28 +78,9 @@ public class ClusterView extends Div {
 		grid.addColumn(CommunityDto::getExternalId).setHeader("CCode").setResizable(true).setSortable(true);
 
 		grid.setVisible(true);
-		//grid.setAllRowsVisible(true);
-		
-		
-		DataProvider<CommunityDto, CommunityCriteriaNew> dataProvider = 
-		        DataProvider
-		          .fromFilteringCallbacks(
-		                    query -> FacadeProvider.getCommunityFacade()
-		                            .getIndexList(criteria, query.getOffset(), query.getLimit(),
-		                                    query.getSortOrders().stream()
-		                                            .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-		                                                    sortOrder.getDirection() == SortDirection.ASCENDING))
-		                                            .collect(Collectors.toList()))
-		                            .stream(),
-		                    query -> (int) FacadeProvider.getCommunityFacade().count(criteria)
-		                    );
-		                    
-		                    grid.setDataProvider(dataProvider);
-		                    
-		                    
-		                    
-		//dataView = grid.setItems(clusters);
+		filteredDataProvider = clusterDataProvider.withConfigurableFilter();
 
+		grid.setDataProvider(filteredDataProvider);
 		addFilters();
 		add(grid);
 	}
@@ -157,18 +146,29 @@ HorizontalLayout layout = new HorizontalLayout();
 
 		regionFilter.addValueChangeListener(e -> {
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-			dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+//			dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 			// dataView.refreshAll();
+			AreaReferenceDto area = e.getValue();
+			criteria.area(area);
+			filteredDataProvider.setFilter(criteria);
 		});
 
 		provinceFilter.addValueChangeListener(e -> {
 					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
-					dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
-					});
+//					dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
+					filteredDataProvider.setFilter(criteria);
+					RegionReferenceDto province = e.getValue();
+					criteria.region(province);
+					filteredDataProvider.refreshAll();	
+		});
 		districtFilter.addValueChangeListener(e -> {
 //			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
-			dataView.addFilter(f -> f.getDistrict().getCaption().equalsIgnoreCase(districtFilter.getValue().getCaption()));
-			});
+//			dataView.addFilter(f -> f.getDistrict().getCaption().equalsIgnoreCase(districtFilter.getValue().getCaption()));
+			filteredDataProvider.setFilter(criteria);
+			DistrictReferenceDto district = e.getValue();
+			criteria.district(district);
+			filteredDataProvider.refreshAll();	
+		});
 
 		Button primaryButton = new Button("Reset Filters");
 		primaryButton.addClassName("resetButton");
