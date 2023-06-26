@@ -486,7 +486,7 @@ vaadin-dialog-overlay.dialog-alignment::part(overlay) {
 }
 
 vaadin-dialog-overlay.dialog-alignment::part(header) {
-	margin-left: 40%;
+	margin-left: 35%;
 }
 
 vaadin-text-field.searchField {
