@@ -201,29 +201,28 @@ public class UserForm  extends FormLayout{
 		binder.setBean(user);
 	}
 
-	// Events
 	public static abstract class UserFormEvent extends ComponentEvent<UserForm> {
-		private UserDto contact;
+		private UserDto user;
 
-		protected UserFormEvent(UserForm source, UserDto contact) {
+		protected UserFormEvent(UserForm source, UserDto user) {
 			super(source, false);
-			this.contact = contact;
+			this.user = user;
 		}
 
 		public UserDto getContact() {
-			return contact;
+			return user;
 		}
 	}
 
 	public static class SaveEvent extends UserFormEvent {
-		SaveEvent(UserForm source, UserDto contact) {
-			super(source, contact);
+		SaveEvent(UserForm source, UserDto user) {
+			super(source, user);
 		}
 	}
 
 	public static class DeleteEvent extends UserFormEvent {
-		DeleteEvent(UserForm source, UserDto contact) {
-			super(source, contact);
+		DeleteEvent(UserForm source, UserDto user) {
+			super(source, user);
 		}
 
 	}
