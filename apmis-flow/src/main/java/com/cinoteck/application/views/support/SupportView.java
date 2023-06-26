@@ -1,38 +1,63 @@
 package com.cinoteck.application.views.support;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 
 import com.cinoteck.application.views.MainLayout;
-import com.vaadin.flow.component.UI;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ValueRange;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamRegistration;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinSession;
+
+
 
 @PageTitle("Support")
 @Route(value = "support", layout = MainLayout.class)
 public class SupportView extends VerticalLayout {
+    TextField firstName = new TextField("First name");
+	TextField lastName = new TextField("Last name");
+    TextField email = new TextField("Email");
+    TextArea message = new TextArea();
+    FormLayout feedbackForm = new FormLayout();
+    
+    
+	  private static final String APPLICATION_NAME = "Your Application Name";
+	    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+	    private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
+	    private static final String SPREADSHEET_ID = "your-spreadsheet-id";
+
+	    private Sheets sheetsService;
+
 
 	public SupportView() {
+	    try {
+            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            sheetsService = new Sheets.Builder(httpTransport, JSON_FACTORY, null)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately
+        }
+		
 		 Div aboutView = new Div();
 	       
 	        aboutView.setId("aboutView");
@@ -65,21 +90,22 @@ public class SupportView extends VerticalLayout {
 			Div feedbackFormFields = new Div();
 	      //  Binder<Feedback> binder = new Binder<>(Feedback.class);
 
-	        TextField firstName = new TextField("First name");
+	    
+	        
 	        firstName.getStyle().set("color", "green");
 	       
 	     //   binder.forField(firstName).bind(Feedback::getFirstName, Feedback::setFirstName);
 
-	        TextField lastName = new TextField("Last name");
+	        
 	        lastName.getStyle().set("color", "green");
 	       
 	     //   binder.forField(lastName).bind(Feedback::getLastName, Feedback::setLastName);
 
-	        TextField email = new TextField("Email");
+	        
 	        email.getStyle().set("color", "green");
 	     //   binder.forField(email).bind(Feedback::getEmailAddress, Feedback::setEmailAddress);
 
-	        TextArea message = new TextArea();
+	       
 	        message.getStyle().set("color", "green");
 	        message.getStyle().set("height", "370px");
 	     //   binder.forField(message).bind(Feedback::getFeedback, Feedback::setFeedback);
@@ -90,14 +116,14 @@ public class SupportView extends VerticalLayout {
 	        sendFeedback.getStyle().set("width", "10%");
 	        sendFeedback.getStyle().set("border-radius", "8px");
 
-	        sendFeedback.addClickListener(click -> System.out.println("kkcvakvckavsckvackvakscvkasvckasvckasvckhavsckhavsckhv"));
+	        sendFeedback.addClickListener(click -> submitForm(firstName.getValue(), lastName.getValue(), email.getValue(), message.getValue()));
 	     //   sendFeedback.setSuffixComponent(new Icon("vaadin", "building"));
 
 
 	        message.setWidthFull();
 	        message.setLabel("Feedback");
 
-	        FormLayout feedbackForm = new FormLayout();
+	        
 	        feedbackForm.add(firstName, lastName, email, message);
 	        feedbackForm.setResponsiveSteps(
 	                // Use one column by default
@@ -117,5 +143,22 @@ public class SupportView extends VerticalLayout {
 			aboutView.add(aboutText, feedbackForm, sendFeedback, versionNum);
 	        add(aboutView);
 	}
+	
+	 private void submitForm(String firstName, String lastNamw, String email, String message) {
+	        try {
+	            ValueRange body = new ValueRange()
+	                    .setValues(Arrays.asList(Arrays.asList(firstName, lastName, email, message)));
+	            sheetsService.spreadsheets().values()
+	                    .append(SPREADSHEET_ID, "Sheet1", body)
+	                    .setValueInputOption("USER_ENTERED")
+	                    .execute();
+	            Notification.show("Form submitted successfully");
+	            // Clear form fields or perform any other desired actions
+	            
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            // Handle the exception appropriately
+	        }
+	    }
 
 }

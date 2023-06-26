@@ -2,21 +2,27 @@ package com.cinoteck.application.views.configurations;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -29,26 +35,33 @@ import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
 
-
 @PageTitle("Districts")
 @Route(value = "districts", layout = ConfigurationsView.class)
-public class DistrictView extends VerticalLayout { 
+public class DistrictView extends VerticalLayout {
 
-//	private DistrictFilter districtFilter = new DistrictFilter();
-	//TODO: Due to LAzY LoadinDING GridListDataView<DistrictIndexDto> dataView;
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1370022184569877189L;
+
 	private DistrictCriteria criteria;
+
+	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
+
+	ConfigurableFilterDataProvider<DistrictIndexDto, Void, DistrictCriteria> filteredDataProvider;
+
+	Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
+
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+
+	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+
+	TextField searchField = new TextField();
 	
+	@SuppressWarnings("deprecation")
 	public DistrictView() {
+
+		this.criteria = new DistrictCriteria();
 		setSpacing(false);
 		setHeightFull();
-		
-		Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
-		
+
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -60,47 +73,17 @@ public class DistrictView extends VerticalLayout {
 		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true);
 
-		
 		grid.setVisible(true);
-		//grid.setHeightFull();
-		//grid.setAllRowsVisible(true);
-		
-		//criteria.region(null);
-		
-		DataProvider<DistrictIndexDto, DistrictCriteria> dataProvider = 
-	        DataProvider
-	          .fromFilteringCallbacks(
-	                    query -> FacadeProvider.getDistrictFacade()
-	                            .getIndexList(criteria, query.getOffset(), query.getLimit(),
-	                                    query.getSortOrders().stream()
-	                                            .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-	                                                    sortOrder.getDirection() == SortDirection.ASCENDING))
-	                                            .collect(Collectors.toList()))
-	                            .stream(),
-	                    query -> (int) FacadeProvider.getDistrictFacade().count(criteria)
-	                    );
-	                    
-	                    grid.setDataProvider(dataProvider);
-	                    
-	                    
-		
-	//	List<DistrictIndexDto> regions = FacadeProvider.getDistrictFacade().getAllDistricts();
-		//TODO: Due to LAzY LoadinDING this.dataView = grid.setItems(regions);
-		addFilters();
-		
-		
-		GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
-//	    exporter.setExportValue(budgetCol, item -> "" + item.getBudget());
-//	    exporter.setColumnPosition(lastNameCol, 1);
-	    exporter.setTitle("People information");
-	    exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
-	   
 
+		filteredDataProvider = districtDataProvider.withConfigurableFilter();
+
+		grid.setDataProvider(filteredDataProvider);
+		addFiltersLayout();
 		add(grid);
 	}
-	
-	public Component addFilters() {
-		
+
+	public Component addFiltersLayout() {
+
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
@@ -122,128 +105,62 @@ public class DistrictView extends VerticalLayout {
 			}
 		});
 
-		
 		layout.setPadding(false);
-		
-		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+
 		regionFilter.setPlaceholder("All Regions");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		layout.add(regionFilter);
-		
-		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+
 		provinceFilter.setPlaceholder("All Provinces");
-		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		layout.add(provinceFilter);
-		
-		//TODO: Implement auto selection of filter values when User level restriction has been implemented
-//		if(UserProvider.getCurrent().getUser().getArea() != null) {
-//			regionFilter.setItems(UserProvider.getCurrent().getUser().getArea());
-//		}else {
-//			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-//		}
+
 		regionFilter.addValueChangeListener(e -> {
+
+			AreaReferenceDto area = e.getValue();
+			criteria.area(area);
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-			//TODO: Due to LAzY LoadinDING 	dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
-			//dataView.refreshAlsl();
+
+			filteredDataProvider.setFilter(criteria);
+
 		});
-		
+
 		provinceFilter.addValueChangeListener(e -> {
-			//TODO: Due to LAzY LoadinDING 	dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
-//			dataView.refreshAll();
+			filteredDataProvider.setFilter(criteria);
+			RegionReferenceDto province = e.getValue();
+			criteria.region(province);
+			filteredDataProvider.refreshAll();
 		});
+
 		
-		
-		//TODO: Confirm if cluster level and district filter need to be available for District view
-//		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
-//		districtFilter.setPlaceholder("All Districts");
-//		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
-//		layout.add(districtFilter);
-//		
-//		ComboBox<RegionIndexDto> communityFilter = new ComboBox<>("Cluster");
-//		communityFilter.setPlaceholder("All Clusters");
-//		//communityFilter.setItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(null));
-//		layout.add(communityFilter);
-		
-		TextField searchField = new TextField();
 		searchField.setWidth("10%");
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.setWidth("25%");
+		searchField.addValueChangeListener(e -> {
 
-//        searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
-//			String searchTerm = searchField.getValue().trim();
-//
-//			if (searchTerm.isEmpty())
-//				return true;
-//
-//			boolean matchesRegionName = String.valueOf(search.getAreaname()).toLowerCase()
-//					.contains(searchTerm.toLowerCase());
-//			boolean matchesProvinceName = String.valueOf(search.getRegion()).toLowerCase()
-//					.contains(searchTerm.toLowerCase());
-//			boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
-//
-//			return matchesRegionName || matchesProvinceName || matchesDistrictName ;
-//
-//		}
-//        ));
+		});
 
 		layout.add(searchField);
-	
+
 		Button primaryButton = new Button("Reset Filters");
 		primaryButton.addClassName("resetButton");
-//		primaryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
 		layout.add(primaryButton);
-		primaryButton.addClickListener(e ->{
-			//TODO: Due to LAzY LoadinDING 	dataView.removeFilters();
-			regionFilter.clear();
-			provinceFilter.clear();
-			searchField.clear();
-			//TODO: Due to LAzY LoadinDING 		dataView.refreshAll();
+		primaryButton.addClickListener(e -> {
+			clearFilters();
+
 		});
-		
+
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 		return vlayout;
 	}
-	
-	
-	private boolean matchesTerm(String value, String searchTerm) {
-        return value.toLowerCase().contains(searchTerm.toLowerCase());
-    }
-	
+	public void clearFilters() {
+		regionFilter.clear();
+		provinceFilter.clear();
+		searchField.clear();
+	}
 
-//	public void reload() {
-//		getDataProvider().refreshAll();
-//	}
-//
-//	public void setLazyDataProvider() {
-//
-//		BackEndDataProvider<DistrictIndexDto, DistrictCriteria> dataProvider = BackEndDataProvider.fromFilteringCallbacks(
-//			query -> FacadeProvider.getDistrictFacade()
-//				.getIndexList(
-//					query.getFilter().orElse(null),
-//					query.getOffset(),
-//					query.getLimit(),
-//					query.getSortOrders()
-//						.stream()
-//						.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
-//						.collect(Collectors.toList()))
-//				.stream(),
-//			query -> {
-//				return (int) FacadeProvider.getDistrictFacade().count(query.getFilter().orElse(null));
-//			});
-//		setDataProvider(dataProvider);
-//		setSelectionMode(SelectionMode.NONE);
-//	}
-//
-//	public void setEagerDataProvider() {
-//
-//		ListDataProvider<DistrictIndexDto> dataProvider =
-//			DataProvider.fromStream(FacadeProvider.getDistrictFacade().getIndexList(getCriteria(), null, null, null).stream());
-//		setDataProvider(dataProvider);
-//		setSelectionMode(SelectionMode.MULTI);
-//	}
-	
-	
 }
