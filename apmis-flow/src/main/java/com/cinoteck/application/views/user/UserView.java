@@ -10,11 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.cinoteck.application.RowCount;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.configurations.RegionFilter;
+//import com.cinoteck.application.views.configurations.RegionFilter;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -53,7 +54,10 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.DataView;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
@@ -69,6 +73,8 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
@@ -88,6 +94,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
+import de.symeda.sormas.api.utils.SortProperty;
 
 
 @PageTitle("User Management")
@@ -110,20 +117,22 @@ public class UserView extends VerticalLayout {
 	List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 	List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 	List<CommunityReferenceDto> communities;
+	
+	private DataProvider<UserDto, UserCriteria> dataProvider;
 
+	UserCriteria criteria;
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 			.collect(Collectors.toList());
-	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
+//	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
-	private ConfigurableFilterDataProvider<UserDto, Void, UsersFilter> filterDataProvider = usersDataProvider
-			.withConfigurableFilter();
-//	private GridDataView<UserDto> dataView = grid.setItems(filterDataProvider.withConfigurableFilter());
-
+	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+//	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
+	
 	UserForm form;
 	MenuBar menuBar;
-	RowCount rowsCount = new RowCount(Strings.labelNumberOfUsers, dataView.getItemCount());
+//	RowCount rowsCount = new RowCount(Strings.labelNumberOfUsers, dataView.getItemCount());
 
 	Button createUserButton;
 	Button exportUsersButton;
@@ -211,6 +220,7 @@ public class UserView extends VerticalLayout {
 			return checkbox;
 		});
 
+		criteria = new UserCriteria();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -229,9 +239,52 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-//		grid.getEditor().addSaveListener(null)
+		filterDataProvider = usersDataProvider.withConfigurableFilter();
+		grid.setDataProvider(filterDataProvider);
 
 		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue()));
+		
+//		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
+//		grid.setDataProvider(dataProvider);
+	}
+	
+	private Stream<UserDto> fetchCampaignFormData(
+			Query<UserDto, UserCriteria> query) {
+		return FacadeProvider.getUserFacade()
+				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+								sortOrder.getDirection() == SortDirection.ASCENDING))
+						.collect(Collectors.toList()))
+				.stream();
+	}
+
+	private int countCampaignFormData(Query<UserDto, UserCriteria> query) {
+		return (int) FacadeProvider.getUserFacade().count(criteria);
+	}
+	
+	private void setDataProvider() {
+//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
+//				.fromFilteringCallbacks(
+//						query -> FacadeProvider.getUserFacade()
+//								.getIndexList(criteria, query.getOffset(), query.getLimit(),
+//										query.getSortOrders().stream()
+//												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//														sortOrder.getDirection() == SortDirection.ASCENDING))
+//												.collect(Collectors.toList()))
+//								.stream(),
+//						query -> (int) FacadeProvider.getUserFacade().count(criteria));
+		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
+				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
+						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
+								query.getSortOrders().stream()
+										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+												sortOrder.getDirection() == SortDirection.ASCENDING))
+										.collect(Collectors.toList()))
+						.stream()
+						, query -> {
+							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+						});
+		grid.setDataProvider(dataProvider);
 	}
 
 	private void configureForm() {
@@ -337,28 +390,35 @@ public class UserView extends VerticalLayout {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
-
-			String searchTerm = searchField.getValue().trim();
+		searchField.addValueChangeListener(e -> {
 			
-			if (searchTerm.isEmpty())
-				return true;
-			
-			boolean matchUserRole = String.valueOf(search.getUserRoles()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchUsername = String.valueOf(search.getUserName()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
-			boolean matchEmail = String.valueOf(search.getUserEmail()).toLowerCase().contains(searchTerm.toLowerCase());
-			boolean matchOrganisation = String.valueOf(search.getUserOrganisation()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchPosition = String.valueOf(search.getUserPosition()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			boolean matchArea = String.valueOf(search.getArea()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-
-			return matchUserRole || matchUsername || matchName || matchEmail || matchOrganisation || matchPosition || matchArea;
-		}));
+			String search = e.getValue();
+			criteria.freeText(search);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
+//		searchField.addValueChangeListener(e -> dataProvider.setFilter(search -> {
+//
+//			String searchTerm = searchField.getValue().trim();
+//			
+//			if (searchTerm.isEmpty())
+//				return true;
+//			
+//			boolean matchUserRole = String.valueOf(search.getUserRoles()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchUsername = String.valueOf(search.getUserName()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
+//			boolean matchEmail = String.valueOf(search.getUserEmail()).toLowerCase().contains(searchTerm.toLowerCase());
+//			boolean matchOrganisation = String.valueOf(search.getUserOrganisation()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchPosition = String.valueOf(search.getUserPosition()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//			boolean matchArea = String.valueOf(search.getArea()).toLowerCase()
+//					.contains(searchTerm.toLowerCase());
+//
+//			return matchUserRole || matchUsername || matchName || matchEmail || matchOrganisation || matchPosition || matchArea;
+//		}));
 
 		layout.add(searchField);
 		layout.setPadding(false);
@@ -375,7 +435,7 @@ public class UserView extends VerticalLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
-		displayFilters.getStyle().set("margin-left", "5px");
+		displayFilters.getStyle().set("margin-left", "10px");
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
@@ -396,18 +456,30 @@ public class UserView extends VerticalLayout {
 		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
 		activeFilter.setClearButtonVisible(true);
 		activeFilter.addValueChangeListener(e -> {
-			dataView.removeFilters();
-
-			if (e.getValue() != null) {
-				dataView.addFilter(s -> {
-
-					String option = activeFilter.getValue().trim();
-
-					boolean matchActive = option.equals("Active") == (s.isActive() == true);
-					return matchActive;
-				});
+			boolean active;
+			if(e.getValue().equals("Active" )) {
+				active = true;
+			} else {
+				active = false;
 			}
+			
+			criteria.active(active);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
 		});
+//		activeFilter.addValueChangeListener(e -> {
+//			dataView.removeFilters();
+//
+//			if (e.getValue() != null) {
+//				dataView.addFilter(s -> {
+//
+//					String option = activeFilter.getValue().trim();
+//
+//					boolean matchActive = option.equals("Active") == (s.isActive() == true);
+//					return matchActive;
+//				});
+//			}
+//		});
 
 		filterLayout.add(activeFilter);
 
@@ -423,17 +495,24 @@ public class UserView extends VerticalLayout {
 				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 //		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
 		userRolesFilter.addValueChangeListener(e -> {
-			dataView.removeFilters();
-
-			if (e.getValue() != null) {
-
-				dataView.addFilter(s -> {
-
-					boolean matchRole = s.getUserRoles().contains(e.getValue());
-					return matchRole;
-				});
-			}
+			
+			UserRole userRole = e.getValue();
+			criteria.userRole(userRole);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
 		});
+//		userRolesFilter.addValueChangeListener(e -> {
+//			dataView.removeFilters();
+//
+//			if (e.getValue() != null) {
+//
+//				dataView.addFilter(s -> {
+//
+//					boolean matchRole = s.getUserRoles().contains(e.getValue());
+//					return matchRole;
+//				});
+//			}
+//		});
 
 		filterLayout.add(userRolesFilter);
 
@@ -447,25 +526,34 @@ public class UserView extends VerticalLayout {
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
 		areaFilter.addValueChangeListener(e -> {
-			dataView.removeFilters();
-
-			if (e.getValue() != null) {
-				dataView.addFilter(s -> {
-
-					AreaReferenceDto areaValue = (AreaReferenceDto) e.getValue();
-
-					if (areaValue == null)
-						return true;
-
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-
-					regionFilter.setItems(provinces);
-					boolean predicate = s.getArea() == null ? false : areaValue.getUuid().equals(s.getArea().getUuid());
-
-					return predicate;
-				});
-			}
+			
+			AreaReferenceDto area = e.getValue();
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+			regionFilter.setItems(provinces);
+			criteria.area(area);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
 		});
+//		areaFilter.addValueChangeListener(e -> {
+//			dataView.removeFilters();
+//
+//			if (e.getValue() != null) {
+//				dataView.addFilter(s -> {
+//
+//					AreaReferenceDto areaValue = (AreaReferenceDto) e.getValue();
+//
+//					if (areaValue == null)
+//						return true;
+//
+//					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+//
+//					regionFilter.setItems(provinces);
+//					boolean predicate = s.getArea() == null ? false : areaValue.getUuid().equals(s.getArea().getUuid());
+//
+//					return predicate;
+//				});
+//			}
+//		});
 
 		filterLayout.add(areaFilter);
 
@@ -478,21 +566,30 @@ public class UserView extends VerticalLayout {
 		regionFilter.getStyle().set("margin-left", "12px");
 		regionFilter.getStyle().set("margin-top", "12px");
 		regionFilter.setClearButtonVisible(true);
-		regionFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
-
-			RegionReferenceDto regionValue = (RegionReferenceDto) e.getValue();
-
-			if (regionValue == null)
-				return true;
-
+		regionFilter.addValueChangeListener(e -> {
+			
+			RegionReferenceDto region = e.getValue();
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			districtFilter.setItems(districts);
-
-			boolean predicate = s.getDistrict() == null ? false
-					: regionValue.getUuid().equals(s.getDistrict().getUuid());
-
-			return predicate;
-		}));
+			criteria.region(region);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
+//		regionFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
+//
+//			RegionReferenceDto regionValue = (RegionReferenceDto) e.getValue();
+//
+//			if (regionValue == null)
+//				return true;
+//
+//			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+//			districtFilter.setItems(districts);
+//
+//			boolean predicate = s.getDistrict() == null ? false
+//					: regionValue.getUuid().equals(s.getDistrict().getUuid());
+//
+//			return predicate;
+//		}));
 
 		filterLayout.add(regionFilter);
 
@@ -504,21 +601,27 @@ public class UserView extends VerticalLayout {
 		districtFilter.getStyle().set("margin-left", "12px");
 		districtFilter.getStyle().set("margin-top", "12px");
 		districtFilter.setClearButtonVisible(true);
-		districtFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
-
-			DistrictReferenceDto districtValue = (DistrictReferenceDto) e.getValue();
-
-			if (districtValue == null)
-				return true;
+		districtFilter.addValueChangeListener(e -> {
 			
-			communities =FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
-			communitiesFilter.setItems(communities);
-
-			boolean predicate = s.getCommunity() == null ? false 
-					: districtValue.getUuid().equals(s.getCommunity());
-
-			return predicate;
-		}));
+			DistrictReferenceDto district = e.getValue();
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
+//		districtFilter.addValueChangeListener(e -> dataView.addFilter(s -> {
+//
+//			DistrictReferenceDto districtValue = (DistrictReferenceDto) e.getValue();
+//
+//			if (districtValue == null)
+//				return true;
+//			
+//			communities =FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+//			communitiesFilter.setItems(communities);
+//
+//			boolean predicate = s.getCommunity() == null ? false 
+//					: districtValue.getUuid().equals(s.getCommunity());
+//
+//			return predicate;
+//		}));
 
 		filterLayout.add(districtFilter);
 
