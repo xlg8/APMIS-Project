@@ -387,9 +387,9 @@ public class CampaignDataView extends VerticalLayout {
 
 		
 		newForm.addValueChangeListener(e -> {
-			if(e.getValue() != null) {
+			if(e.getValue() != null && campaignz != null) {
 				
-				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue());
+				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue(), campaignz.getValue());
 				add(cam);
 			
 				newForm.setValue(null);
@@ -476,13 +476,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private void openFormLayout(CampaignFormDataDto formData) {
 
-		System.out.println(formData.getUuid() + "tttttttttttttttttttttttttttttttttttttttttttttttt");
 		FormLayout formLayout = new FormLayout();
-		String campaignUUID = "UUGEMB-KLKRIM-UILNND-3TZJ2F4Y";
-		// Add fields from formData to the formLayout
-
-		// Example: Assuming you have a field called "name" in the CampaignFormDataDto
-		
 		
 		
 		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
