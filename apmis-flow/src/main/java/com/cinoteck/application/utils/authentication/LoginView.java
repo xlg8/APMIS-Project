@@ -61,7 +61,11 @@ public class LoginView extends FlexLayout {
 		imgApmis.setClassName("apmis-login-logo");
 		loginInformation.add(imgApmis);
 		loginInformation.add(loginForm);
-		loginInformation.add(new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی")));
+		
+		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
+		langSwitch.setId("loginLanguageSwitcher");
+		langSwitch.getStyle().set("color", "white !important");
+		loginInformation.add(langSwitch);
 
 		add(loginInformation);
 	}

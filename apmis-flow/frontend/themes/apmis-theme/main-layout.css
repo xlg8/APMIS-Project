@@ -465,8 +465,13 @@ vcf-nav-item::part(item) {
 }
 
 .language-switcher vaadin-button{
+	color: #F08F3E;
+}
+
+#loginLanguageSwitcher vaadin-button{
 	color: white;
 }
+
 
 vcf-nav-item[active]::part(item) {
   border-inline-start-color: var(--lumo-primary-color);
@@ -492,4 +497,12 @@ vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-conta
 vaadin-vertical-layout.campaignDataFilterParent{
 	margin-top : 5px !important;
 	margin-bottom : 0px !important;
+}
+
+vaadin-combo-box-item{
+	font-size: 12px !important;
+}
+
+#tabsheetParent vaadin-tabs{
+	background : green !important
 }
