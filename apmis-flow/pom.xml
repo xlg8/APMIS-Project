@@ -212,12 +212,18 @@
     		<artifactId>google-api-services-sheets</artifactId>
     		<version>v4-rev581-1.25.0</version>
 		</dependency>
+		
 		<dependency>
  		   <groupId>com.google.api-client</groupId>
  		   <artifactId>google-api-client-gson</artifactId>
  		   <version>1.31.5</version>
 		</dependency>
 
+		<dependency>
+		   <groupId>com.vaadin.componentfactory</groupId>
+		   <artifactId>togglebutton</artifactId>
+		   <version>3.0.0</version>
+		</dependency>
 
 	</dependencies>
 

@@ -3,8 +3,6 @@ package com.cinoteck.application.views.configurations;
 import java.util.List;
 
 import com.cinoteck.application.views.campaigndata.CampaignFormDataEditForm;
-import com.cinoteck.application.views.campaigndata.CampaignFormDataEditForm.CampaignFormDataEditFormEvent;
-import com.cinoteck.application.views.campaigndata.CampaignFormDataEditForm.SaveEvent;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
