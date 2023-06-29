@@ -19,9 +19,6 @@ import java.util.stream.Stream;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 //import com.vaadin.componentfactory.Popup;
@@ -33,7 +30,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -41,19 +37,12 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
-import com.vaadin.flow.server.PWA;
-import elemental.json.Json;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -65,12 +54,12 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
-import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("Campaign Data")
@@ -104,6 +93,10 @@ public class CampaignDataView extends VerticalLayout {
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
+	List<CampaignFormMetaReferenceDto> campaignForms;
+
+	
+	UserProvider userProvider = new UserProvider();
 
 	CampaignFormDataEditForm campaignFormDataEditForm;
 
@@ -114,28 +107,26 @@ public class CampaignDataView extends VerticalLayout {
 		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
 		createCampaignDataFilter();
+		
 		configureGrid(criteria);
 	}
 	
 	private void createCampaignDataFilter() {
 		setMargin(true);
 		
-		Button newForm = new Button("NEW FORM");
-		newForm.setId("push-me");
-//		Popup popup = new Popup();
-//		popup.setFor("push-me");
-//		Div text = new Div();
-//		text.setText("element 1");
-//		Div text2 = new Div();
-//		text2.setText("element 2");
-
-		newForm.addClickListener(e -> {
-			CampaignFormDataEditForm cam = new CampaignFormDataEditForm();
-			add(cam);
- 					});
+		ComboBox<CampaignFormMetaReferenceDto> newForm = new ComboBox<>();
+		newForm.setLabel("New Form");
+		newForm.setPlaceholder("Data Entry");
+		newForm.setTooltipText("Drop down of list of available forms. Note: closed forms and expire form will not appear here");
+		newForm.setClearButtonVisible(true);
+		newForm.getStyle().set("padding-top", "0px !important");
+		//((HasPrefixAndSuffix) newForm).setPrefixComponent(VaadinIcon.SEARCH.create());		
+		
+		
 
 		Button importData = new Button("IMPORT", new Icon(VaadinIcon.PLUS_CIRCLE));
 		Button exportData = new Button("EXPORT", new Icon(VaadinIcon.DOWNLOAD));
+		
 		
 		VerticalLayout filterBlock = new VerticalLayout();
 		filterBlock.setSpacing(true);
@@ -175,7 +166,7 @@ public class CampaignDataView extends VerticalLayout {
 				displayFilters.setText("Show Filters");
 			}
 		});
-
+		
 
 		TextArea resultField = new TextArea();
 		resultField.setWidth("100%");
@@ -186,23 +177,19 @@ public class CampaignDataView extends VerticalLayout {
 				});
 
 		campaignYear.setLabel("Campaign Year");
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
-		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
-				.collect(Collectors.toList());
-		campaignYear.setItems(camYearList);
 		campaignYear.getStyle().set("padding-top", "0px !important");
 
-		List<CampaignFormMetaReferenceDto> campaignForms;
 		campaignz.setLabel("Campaign");
 		campaignz.getStyle().set("padding-top", "0px !important");
 
 		campaignPhase.setLabel("Campaign Phase");
 		campaignPhase.getStyle().set("padding-top", "0px !important");
+		
+		
 
+		
 		campaignFormCombo.setLabel("Form");
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
-		campaignForms = FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences();
-		campaignFormCombo.setItems(campaignForms);
 
 		regionCombo.setLabel("Region");
 		regionCombo.getStyle().set("padding-top", "0px !important");
@@ -240,53 +227,112 @@ public class CampaignDataView extends VerticalLayout {
 		importanceSwitcher.setPlaceholder("Importance");
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 		importanceSwitcher.setClearButtonVisible(true);
+		importanceSwitcher.setReadOnly(true);
 		importanceSwitcher.addValueChangeListener(e -> {
 
 			if (formMetaReference != null) {
 				grid.removeAllColumns();
 				configureGrid(criteria);
-
-				final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
-				Notification.show(onlyImportantFormElements + "ttttttttttttttttt");
+				
+				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
+				final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.IMPORTANT;
+				
 				final List<CampaignFormElement> campaignFormElements = formMetaReference.getCampaignFormElements();
+				
 				for (CampaignFormElement element : campaignFormElements) {
-					if (element.isImportant() || !onlyImportantFormElements) {
+					
+					
+					if (element.isImportant() && onlyImportantFormElements) {
 						String caption = null;
-//						if (translations != null) {
-//							caption = translations.getTranslations().stream()
-//									.filter(t -> t.getElementId().equals(element.getId()))
-//									.map(TranslationElement::getCaption).findFirst().orElse(null);
-//						}
 						if (caption == null) {
 							caption = element.getCaption();
 						}
 
 						if (caption != null) {
 							addCustomColumn(element.getId(), caption);
-//							executeJavaScript();
+						}
+					}else if(allAndImportantFormElements){
+						String caption = null;
+						if (caption == null) {
+							caption = element.getCaption();
+						}
+						if (caption != null) {
+							addCustomColumn(element.getId(), caption);
 						}
 					}
 				}
 			}
 
 		});
+		
+		//Initialize Item lists
+		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
+		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
+				.collect(Collectors.toList());
+		
+		campaignYear.setItems(camYearList);
+		campaignYear.setValue(lastStarted.getCampaignYear());
+		
+		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
+				.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
+		
+		campaignz.setItems(allCampaigns);
+		campaignz.setValue(lastStarted);
+		
+		if(userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.POST);
+			campaignPhase.setValue(CampaignPhase.INTRA);
+		}else {
+			campaignPhase.setItems(CampaignPhase.values());
+			campaignPhase.setValue(CampaignPhase.PRE);
+		}
+		 
+		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+		.getAllCampaignFormMetasAsReferencesByRoundandCampaign(campaignPhase.getValue().toString().toLowerCase(),
+				campaignz.getValue().getUuid());
+		
+		campaignFormCombo.setItems(campaignForms);
+		newForm.setItems(campaignForms);
+		
+		criteria.campaign(lastStarted);
+		criteria.setFormType(campaignPhase.getValue().toString());
+		
 		// Configure Comboboxes Value Change Listeners
-
 		campaignYear.addValueChangeListener(e -> {
 			campaignz.clear();
-			List<CampaignReferenceDto> stf = campaigns.stream()
-					.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
-			campaignz.setItems(stf);
-			campaignz.setValue(stf.get(0));
+			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream().filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
+			campaignz.setItems(allCampaigns_);
+			campaignz.setValue(allCampaigns_.get(0));
 		});
 
 		campaignz.addValueChangeListener(e -> {
-			campaignPhase.setItems(CampaignPhase.values());
-
+		if(e.getValue() != null) {
+				campaignFormCombo.clear();
+				newForm.clear();
+				List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+						.getAllCampaignFormMetasAsReferencesByRoundandCampaign(campaignPhase.getValue().toString().toLowerCase(),
+								e.getValue().getUuid());
+				campaignFormCombo.setItems(campaignFormReferences_);
+				newForm.setItems(campaignFormReferences_);
+				criteria.campaign(e.getValue());
+				
+			}
 //			dataView.addFilter(t -> t.getCampaign().toString().equalsIgnoreCase(campaignz.getValue().toString()));
 		});
 
 		campaignPhase.addValueChangeListener(e -> {
+			
+			campaignFormCombo.clear();
+			newForm.clear();
+			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
+							campaignz.getValue().getUuid());
+			campaignFormCombo.setItems(campaignFormReferences_);
+			newForm.setItems(campaignFormReferences_);
+
+			criteria.setFormType(e.getValue().toString());
+			
 //			dataView.addFilter(t -> t.getFormType().toString()
 //					.equalsIgnoreCase(campaignPhase.getValue().toString().toLowerCase()));
 //			
@@ -297,11 +343,23 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignFormCombo.addValueChangeListener(e -> {
 //			dataView.addFilter(t -> t.getForm().toString().equalsIgnoreCase(campaignFormCombo.getValue().toString()));
-
+			
+			if(e.getValue() != null) {
 			formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetaByUuid(e.getValue().getUuid());
 
 			criteria.setCampaignFormMeta(campaignFormCombo.getValue());
+			
+				//add method to update the grid after this combo changes
+				importanceSwitcher.setReadOnly(false);
+				importanceSwitcher.clear();
+				
+			}else {
+				
+				importanceSwitcher.clear();
+				importanceSwitcher.setReadOnly(true);
+				
+			}
 
 		});
 
@@ -327,7 +385,23 @@ public class CampaignDataView extends VerticalLayout {
 //			dataView.addFilter(t -> t.getCommunity().toString().equalsIgnoreCase(clusterCombo.getValue().toString()));
 		});
 
+		
+		newForm.addValueChangeListener(e -> {
+			if(e.getValue() != null && campaignz != null) {
+				
+				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue(), campaignz.getValue());
+				add(cam);
+			
+				newForm.setValue(null);
+			}
+ 		});
+ 		
 		resetHandler.setText("Reset Filters");
+		
+		resetHandler.addClickListener(e -> {
+			//just for the test... we have to line list all filter and remove their value
+			getElement().executeJs("location.reload();");
+		});
 
 		applyHandler.setText("Apply Filters");
 
@@ -402,13 +476,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private void openFormLayout(CampaignFormDataDto formData) {
 
-		System.out.println(formData.getUuid() + "tttttttttttttttttttttttttttttttttttttttttttttttt");
 		FormLayout formLayout = new FormLayout();
-		String campaignUUID = "UUGEMB-KLKRIM-UILNND-3TZJ2F4Y";
-		// Add fields from formData to the formLayout
-
-		// Example: Assuming you have a field called "name" in the CampaignFormDataDto
-		
 		
 		
 		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
@@ -499,77 +567,6 @@ public class CampaignDataView extends VerticalLayout {
 								.stream(),
 						query -> (int) FacadeProvider.getCampaignFormDataFacade().count(criteria));
 		grid.setDataProvider(dataProvider);
-	}
-
-	private void fillNewFormDropdown(Panel containerPanel) {
-
-		CampaignReferenceDto campaignReferenceDto = campaignz.getValue();
-		String phase = campaignPhase.getValue().toString();
-		Set<FormAccess> userFormAccess = UserProvider.getCurrent().getFormAccess();
-
-		CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignReferenceDto.getUuid());
-
-		containerPanel.removeAll();
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		String stringDate = dateFormat.format(campaignDto.getStartDate());
-
-		LocalDate date1 = LocalDate.parse(stringDate);
-		LocalDate date2 = LocalDate.now();
-		int days = Period.between(date1, date2).getDays();
-
-		if (phase != null && campaignReferenceDto != null) {
-
-			List<CampaignFormMetaReferenceDto> campaignFormReferences = FacadeProvider.getCampaignFormMetaFacade()
-					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(phase.toLowerCase(),
-							campaignReferenceDto.getUuid());
-
-			Collections.sort(campaignFormReferences);
-
-			Div containerContent = new Div();
-			containerContent.setWidthFull();
-
-			for (CampaignFormMetaReferenceDto campaignForm : campaignFormReferences) {
-
-				int isShown = days - campaignForm.getDaysExpired();
-				boolean hideFromList = isShown < 0;
-
-				Button campaignFormButton = new Button(campaignForm.toString());
-				campaignFormButton.addClickListener(e -> {
-					if (!hideFromList) {
-//	                    ControllerProvider.getCampaignController().navigateToFormDataView(campaignReferenceDto.getUuid(),
-//	                            campaignForm.getUuid());
-//	                    newFormButton.setOpened(false);
-					}
-				});
-
-				campaignFormButton.setWidthFull();
-				campaignFormButton.getStyle().remove("margin-bottom");
-				campaignFormButton.getStyle().set("text-transform", "lowercase");
-
-				if (!hideFromList) {
-					campaignFormButton.addClickListener(e -> {
-						Notification notf = new Notification(
-								campaignForm.getCaption() + " is now closed for data entry");
-						notf.setPosition(Position.TOP_END);
-//	                    notf.setDuration(Duration.ofSeconds(3));
-						notf.open();
-					});
-				}
-
-				containerContent.add(campaignFormButton);
-			}
-
-			add(containerContent);
-
-			if (campaignFormReferences.size() >= 10) {
-//	            containerPanel.setHeight("400px");
-//	            containerPanel.setWidth(containerContent.getWidth() + 20.0f, Unit.PIXELS);
-			} else {
-//	            containerPanel.setHeight(null);
-//	            containerPanel.setWidth(containerContent.getWidth(), Unit.PIXELS);
-			}
-		}
 	}
 
 	public void addCustomColumn(String property, String caption) {
