@@ -102,7 +102,7 @@ public class UserView extends VerticalLayout {
 	private ComboBox<AreaReferenceDto> areaFilter;
 	private ComboBox<RegionReferenceDto> regionFilter;
 	private ComboBox<DistrictReferenceDto> districtFilter;
-	public ComboBox<CommunityReferenceDto> community = new ComboBox<>();
+	public MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>();
 
 	List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 	List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
@@ -572,62 +572,54 @@ public class UserView extends VerticalLayout {
 	}
 
 	public void editUser(UserDto user) {
+
 		if (user == null) {
-//			closeEditor();
 			UserDto newUser = new UserDto();
 			form.setUser(newUser);
 			form.setVisible(true);
 			form.setSizeFull();
 			grid.setVisible(false);
 			setFiltersVisible(false);
-			displayFilters.setVisible(false);
-			addClassName("editing");
-
 		} else {
-
 			form.setUser(user);
 			form.setVisible(true);
 			form.setSizeFull();
 			grid.setVisible(false);
 			setFiltersVisible(false);
-			displayFilters.setVisible(false);
 			addClassName("editing");
 		}
 	}
 
 	private void closeEditor() {
-		form.setUser(null);
+
 		form.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);
-
 		removeClassName("editing");
+		form.setUser(new UserDto());
 	}
 
 	private void setFiltersVisible(boolean state) {
+		
 		createUserButton.setVisible(state);
 		exportUsersButton.setVisible(state);
 		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
 		searchField.setVisible(state);
-		activeFilter.setVisible(state);
-		userRolesFilter.setVisible(state);
-		areaFilter.setVisible(state);
-		regionFilter.setVisible(state);
-		districtFilter.setVisible(state);
+		displayFilters.setVisible(state);
 	}
 
 //	private void addContact() {
-//		
+//
 //		grid.asSingleSelect().clear();
 //		editUser(new UserDto());
 //	}
 
 	private void saveUser(UserForm.SaveEvent event) {
 		FacadeProvider.getUserFacade().saveUser(event.getContact());
-		// updateList();
-		closeEditor();
+//		 updateList();
 		grid.getDataProvider().refreshAll();
+		closeEditor();
 	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
@@ -647,7 +639,7 @@ public class UserView extends VerticalLayout {
 		TextField firstName = new TextField("First Name");
 		firstName.isRequired();
 		formLayout.add(firstName);
-		
+
 		TextField lastName = new TextField("Last Name");
 		lastName.isRequired();
 		formLayout.add(lastName);
@@ -655,7 +647,7 @@ public class UserView extends VerticalLayout {
 		TextField userEmail = new TextField("Email Address");
 		userEmail.setHelperText("Used to send Email Notification");
 		formLayout.add(userEmail);
-		
+
 		TextField phone = new TextField("Phone Number");
 		phone.setHelperText("Used to send SMS notification needs to contain Country code");
 		formLayout.add(phone);
@@ -754,16 +746,15 @@ public class UserView extends VerticalLayout {
 		formLayout.add(userRole);
 
 		formLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("500px", 2));
-		
+
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
 				UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
-		
-		binder.forField(userEmail).bind(UserDto::getUserEmail, UserDto::setUserEmail);
 
-		binder.forField(phone) //.withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-				.bind(UserDto::getPhone, UserDto::setPhone);
+		binder.forField(userEmail).asRequired("Last Name is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
+
+		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number").bind(UserDto::getPhone, UserDto::setPhone);
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -792,10 +783,9 @@ public class UserView extends VerticalLayout {
 			community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 			community.setItems(communities);
 		});
-		
-//
-//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-//
+
+		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+
 //		// TODO: Change implemenation to only add assignable roles sormas style.
 //		// userRoles.setLabel("User Roles");
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));

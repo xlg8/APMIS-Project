@@ -17,6 +17,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -74,11 +75,9 @@ public class UserForm  extends FormLayout{
 	Button delete = new Button("Delete");
 	Button close = new Button("Cancel");
 	
-	public UserForm() {}
-	
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces, List<DistrictReferenceDto> districts) {
-		addClassName("contact-form");
 		
+		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
 		hor.setJustifyContentMode(JustifyContentMode.END);
@@ -121,23 +120,31 @@ public class UserForm  extends FormLayout{
 		region.setItems(regions);
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			province.setItems(provinces);
+			}
 		});
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			district.setItems(districts);
+			}
 		});
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
+			if(e.getValue() != null) {
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 			community.setItems(communities);
+			}
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
@@ -182,6 +189,7 @@ public class UserForm  extends FormLayout{
 		save.setEnabled(true);
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
+		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
 		binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
@@ -192,8 +200,13 @@ public class UserForm  extends FormLayout{
 	}
 
 	private void validateAndSave() {
-		if (binder.isValid()) {
+//		if (binder.isValid()) {
+//			fireEvent(new SaveEvent(this, binder.getBean()));
+//		}
+		if(binder.validate().isOk()) {
 			fireEvent(new SaveEvent(this, binder.getBean()));
+		} else {
+			Notification.show("Make sure required fields are filled");
 		}
 	}
 
@@ -229,7 +242,7 @@ public class UserForm  extends FormLayout{
 
 	public static class CloseEvent extends UserFormEvent {
 		CloseEvent(UserForm source) {
-			super(source, null);
+			super(source, new UserDto());
 		}
 	}
 
