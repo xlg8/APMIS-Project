@@ -14,6 +14,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -71,8 +72,7 @@ public class CampaignFormDataEditForm extends FormLayout {
 		
 		
 		FormLayout formLayout = new FormLayout(); 
-		formLayout.getStyle().set("width", "100%!important");
-		formLayout.setId("ssssssssst");
+		this.setColspan(formLayout, 2);
 		
 		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
 		
@@ -122,6 +122,19 @@ public class CampaignFormDataEditForm extends FormLayout {
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
+		dialog.setCloseOnOutsideClick(false);
+		// Add an icon to close the dialog
+        Icon closeIcon = VaadinIcon.CLOSE.create();
+        closeIcon.getStyle().set("cursor", "pointer");
+        closeIcon.getStyle().set("color", "red");
+        closeIcon.addClickListener(event -> {
+            dialog.close();
+        });
+        dialog.add(closeIcon,campaignFormBuilder);
+
+        // Add the close icon to the dialog's header
+        dialog.getElement().getThemeList().add("closable"); // Optional: Add a CSS class for styling
+        dialog.getElement().appendChild(closeIcon.getElement());
 		dialog.open();
 	}
 

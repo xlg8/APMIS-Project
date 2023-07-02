@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
@@ -23,7 +26,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
 
-public class CampaignDashboardGridElementComponent extends VerticalLayout{
+public class CampaignDashboardGridElementComponent extends AbstractEditableGrid<CampaignDashboardElement>{
 
 	public static String formPhase;
 
@@ -39,9 +42,9 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout{
 
 	public CampaignDashboardGridElementComponent(List<CampaignDashboardElement> savedElements,
 			List<CampaignDashboardElement> allElements) {
-		super();
+		super(savedElements,allElements );
 		setWidthFull();
-		addColumnsBinder(allElements);
+//		addColumnsBinder(allElements);
 	}
 
 	
@@ -68,7 +71,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout{
 
 		ComboBox<String> diagramIdCaptionCombo = new ComboBox<>(Captions.campaignDashboardChart,
 				diagramIdCaptionMap.keySet());
-//		diagramIdCaptionCombo.setItemCaptionGenerator(diagramId -> diagramIdCaptionMap.get(diagramId));
+		diagramIdCaptionCombo.setItemLabelGenerator(diagramId -> diagramIdCaptionMap.get(diagramId));
 //		diagramIdCaptionCombo.setEmptySelectionAllowed(false);
 
 		Binder.Binding<CampaignDashboardElement, String> diagramIdCaptionBind = binder.bind(diagramIdCaptionCombo,
@@ -80,11 +83,11 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout{
 		 * campaignDashboardElement.setDiagramId(diagramIdCaption.getDiagramId()); });
 		 */
 		
-		Grid<CampaignDashboardElement> grid = new Grid<CampaignDashboardElement>();
-
-	grid.addColumn(campaignDashboardElement -> diagramIdCaptionMap.get(campaignDashboardElement.getDiagramId())).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChart));		;
-//		diagramIdColumn.setEditorBinding(diagramIdCaptionBind);
-
+		final Grid.Column<CampaignDashboardElement> diagramIdColumn = 
+				grid.addColumn(campaignDashboardElement -> diagramIdCaptionMap.get(campaignDashboardElement.getDiagramId()))
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChart))
+				.setEditorComponent(diagramIdCaptionCombo);		
+		
 		final List<String> existingTabIds = allElements.stream().map(e -> e.getTabId())
 				.filter(s -> StringUtils.isNotEmpty(s)).distinct().collect(Collectors.toList());
 
@@ -206,6 +209,36 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout{
 
 	private String intToString(Integer h) {
 		return h != null ? h.toString() : StringUtils.EMPTY;
+	}
+
+	@Override
+	protected Button createButton(ComponentEventListener<ClickEvent<Button>> newRowEvent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void reorderGrid() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected String getHeaderString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String getAdditionalRowCaption() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected ComponentEventListener<ClickEvent<Button>> newRowEvent() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 //	protected String getHeaderString() {

@@ -109,6 +109,7 @@ public class CampaignFormBuilder extends FormLayout {
 			this.formValuesMap = new HashMap<>();
 		}
 		this.campaignFormLayout = campaignFormLayout;
+		
 		this.fields = new HashMap<>();
 		this.translationsOpt = translations;
 
@@ -131,6 +132,7 @@ public class CampaignFormBuilder extends FormLayout {
 		int ii = 0;
 		// System.out.println("Got one____");
 		VerticalLayout vertical = new VerticalLayout();
+//		this.setColspan(vertical, 2);
 		vertical.setSizeFull();
 		vertical.setWidthFull();
 		vertical.setHeightFull();

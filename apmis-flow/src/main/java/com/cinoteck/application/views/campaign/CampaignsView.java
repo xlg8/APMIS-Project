@@ -5,10 +5,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.testview.CampaignFormx;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
@@ -58,15 +60,21 @@ public class CampaignsView extends VerticalLayout {
 	private TextField searchField;
 	private ComboBox<EntityRelevanceStatus> relevanceStatusFilter;
 	VerticalLayout campaignsFilterLayout = new VerticalLayout();
-	private Grid<CampaignDto> grid = new Grid<>(CampaignDto.class, false);
-	private GridListDataView<CampaignDto> dataView;
+	
+	
+//	private Grid<CampaignDto> grid = new Grid<>(CampaignDto.class, false);
+//	private GridListDataView<CampaignDto> dataView;
+	
+	private Grid<CampaignIndexDto> grid = new Grid<>(CampaignIndexDto.class, false);
+	private GridListDataView<CampaignIndexDto> dataView;
+	List<CampaignIndexDto> campaigns;
 	
     CampaignCriteria criteria = new CampaignCriteria();
     List<CampaignIndexDto> indexList = FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null);
     ListDataProvider<CampaignIndexDto> indexDataProvider = new ListDataProvider<>(indexList);
 
 	private CampaignForm campaignForm;
-	CampaignDto camp;
+	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 	campaignDescription;
 	
@@ -78,20 +86,9 @@ public class CampaignsView extends VerticalLayout {
 		setHeightFull();
 		createFilterBar();
 		campaignsGrid();
-		configureForm();
-		add(getContent());
-		closeEditor();
+
 	}
 
-	private Component getContent() {
-		HorizontalLayout content = new HorizontalLayout();
-		// content.setFlexGrow(2, grid);
-		content.setFlexGrow(4, campaignForm);
-		content.addClassNames("content");
-		content.setSizeFull();
-		content.add(grid, campaignForm);
-		return content;
-	}
 
 	private boolean matchesTerm() {
 		// TODO Auto-generated method stub
@@ -99,37 +96,34 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void campaignsGrid() {
-	    grid.setSelectionMode(SelectionMode.SINGLE);
-	    grid.setMultiSort(true, MultiSortPriority.APPEND);
-	    grid.setSizeFull();
-	    grid.setColumnReorderingAllowed(true);
-	    grid.addColumn(CampaignDto::getName).setHeader("Name").setSortable(true).setResizable(true);
-	    grid.addColumn(new ComponentRenderer<>(this::createStatusComponent)).setHeader("Status").setSortable(true).setResizable(true);
-	    grid.addColumn(CampaignDto::getStartDate).setHeader("Start Date").setSortable(true).setResizable(true);
-	    grid.addColumn(CampaignDto::getEndDate).setHeader("End Date").setSortable(true).setResizable(true);
-	    grid.addColumn(CampaignDto::getCampaignYear).setHeader("Campaign Year").setSortable(true).setResizable(true);
+		this.criteria = new CampaignCriteria();
+		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.setMultiSort(true, MultiSortPriority.APPEND);
+		grid.setSizeFull();
+		grid.setColumnReorderingAllowed(true);
+		grid.addColumn(CampaignIndexDto.NAME).setHeader("Name").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.START_DATE).setHeader("Start Date").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.END_DATE).setHeader("End Date").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
 
-	    grid.setVisible(true);
-	    grid.setWidthFull();
-	    grid.setAllRowsVisible(true);
+		grid.setVisible(true);
+		grid.setWidthFull();
+		grid.setAllRowsVisible(true);
+		ListDataProvider<CampaignIndexDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null).stream());
 
-	
-	    List<CampaignDto> campaigns = FacadeProvider.getCampaignFacade().getAllActive().stream()
-	        .collect(Collectors.toList());
+		dataView = grid.setItems(dataProvider);
 
-	    ListDataProvider<CampaignDto> campaignDataProvider = new ListDataProvider<>(campaigns);
-	    DataView<CampaignDto> dataView = grid.setItems(campaignDataProvider);
+		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
 
-	    grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+		add(grid);
 	}
 	
- 
+
 
 	private Component createStatusComponent(CampaignDto item) {
-	    
 
-		   
-		   
 	    CampaignIndexDto indexDto = indexDataProvider.getItems().stream()
 	        .filter(index -> index.getCampaignStatus().equals(item.getCampaignStatus()))
 	        .findFirst()
@@ -141,18 +135,6 @@ public class CampaignsView extends VerticalLayout {
 	    // Customize the appearance of the status component if needed
 
 	    return statusLabel;
-	}
-
-
-	
-	private void configureForm() {
-		campaignForm = new CampaignForm(camp);
-		campaignForm.setSizeFull();
-//		campaignForm.setVisible(false);
-		campaignForm.getStyle().set("margin", "20px");
-		campaignForm.addSaveListener(this::saveCampaign);
-		campaignForm.addDeleteListener(this::deleteCampaign);
-		campaignForm.addCloseListener(e -> closeEditor());
 	}
 
 	private void createFilterBar() {
@@ -217,8 +199,7 @@ public class CampaignsView extends VerticalLayout {
 
 		createButton = new Button("Add New Forms", new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.addClickListener(e-> {
-			CreateCampaignDialog dialog = new CreateCampaignDialog();
-			dialog.open();
+			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 		filterToggleLayout.add(filterDisplayToggle,filterLayout, validateFormsButton, createButton);
@@ -227,38 +208,74 @@ public class CampaignsView extends VerticalLayout {
 
 		add(campaignsFilterLayout);
 	}
-
-	
-
-	public void editCampaign(CampaignDto campaign) {
-		if (campaign == null) {
-			campaignForm.setVisible(true);
-			campaignForm.setSizeFull();
-//			campaignsFilterLayout.setVisible(false);
-			grid.setVisible(false);
-			setFiltersVisible(false);
-			addClassName("editing");
-		} else {
-
-		campaignForm.setCampaign(campaign);
-		campaignForm.setVisible(true);
-		campaignForm.setSizeFull();
-//		campaignsFilterLayout.setVisible(false);
-		grid.setVisible(false);
-		setFiltersVisible(false);
-		addClassName("editing");
+	private void editCampaign(CampaignIndexDto selected) {
+		selected = grid.asSingleSelect().getValue();
+		if (selected != null) {
+			CampaignDto formData = FacadeProvider.getCampaignFacade().getByUuid(selected.getUuid());
+			openFormLayout(formData);
 		}
-
 	}
 
-	private void closeEditor() {
-		campaignForm.setCampaign(null);
-		campaignForm.setVisible(false);
-		setFiltersVisible(true);
-		grid.setVisible(true);
-		removeClassName("editing");
+	private void newCampaign(CampaignDto formData) {
+		CampaignForm formLayout = new CampaignForm(formData);
+
+		formLayout.addSaveListener(this::saveCampaign);
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		
+		dialog.setSizeFull();
+		dialog.open();
+		dialog.setDraggable(true);
+		dialog.setResizable(true);
+	}
+
+	private void openFormLayout(CampaignDto formData) {
+
+		CampaignForm formLayout = new CampaignForm(formData);
+		
+		formLayout.setCampaign(formData);
+		formLayout.addSaveListener(this::saveCampaign);
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		
+		dialog.setSizeFull();
+		dialog.open();
+		dialog.setDraggable(true);
+		dialog.setResizable(true);
+
+
 	}
 	
+
+//	public void editCampaign(CampaignDto campaign) {
+//		if (campaign == null) {
+//			campaignForm.setVisible(true);
+//			campaignForm.setSizeFull();
+////			campaignsFilterLayout.setVisible(false);
+//			grid.setVisible(false);
+//			setFiltersVisible(false);
+//			addClassName("editing");
+//		} else {
+//
+//		campaignForm.setCampaign(campaign);
+//		campaignForm.setVisible(true);
+//		campaignForm.setSizeFull();
+////		campaignsFilterLayout.setVisible(false);
+//		grid.setVisible(false);
+//		setFiltersVisible(false);
+//		addClassName("editing");
+//		}
+//
+//	}
+
+//	private void closeEditor() {
+//		campaignForm.setCampaign(null);
+//		campaignForm.setVisible(false);
+//		setFiltersVisible(true);
+//		grid.setVisible(true);
+//		removeClassName("editing");
+//	}
+//	
 	private void setFiltersVisible(boolean state) {
 		filterDisplayToggle.setVisible(state);
 		createButton.setVisible(state);
@@ -267,18 +284,18 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setVisible(state);
 	}
 
-	private void addCampaign() {
-		grid.asSingleSelect().clear();
-		editCampaign(new CampaignDto());
-	}
+//	private void addCampaign() {
+//		grid.asSingleSelect().clear();
+//		editCampaign(new CampaignDto());
+//	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
 		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign()); 
-		closeEditor();
+//		closeEditor();
 	}
-
-	private void deleteCampaign(CampaignForm.DeleteEvent event) {
-		closeEditor();
-	}
+//
+//	private void deleteCampaign(CampaignForm.DeleteEvent event) {
+//		closeEditor();
+//	}
 
 }

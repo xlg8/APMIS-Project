@@ -177,6 +177,7 @@ public class CampaignDataView extends VerticalLayout {
 		
 		campaignFormCombo.setLabel("Form");
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
+		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 
 		regionCombo.setLabel("Region");
 		regionCombo.getStyle().set("padding-top", "0px !important");
@@ -514,7 +515,7 @@ districtCombo.setEnabled(false);
 
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setSizeFull();
+//		dialog.setSizeFull();
 		dialog.open();
 	}
 

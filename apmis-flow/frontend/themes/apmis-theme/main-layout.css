@@ -464,6 +464,10 @@ vcf-nav-item::part(item) {
 	background-size: cover;
 }
 
+.ssssssssst{
+	
+	width: 100% !important;
+}
 .language-switcher vaadin-button{
 	color: #F08F3E;
 }
