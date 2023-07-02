@@ -1,56 +1,28 @@
 package com.cinoteck.application.views.campaigndata;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.cinoteck.application.views.utils.CampaignFormBuilder;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.shared.Registration;
-
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
-import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
-import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.FacadeProvider;
 
-public class CampaignFormDataEditForm extends FormLayout {
+public class CampaignFormDataEditForm extends HorizontalLayout {
 
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
 
-	ComboBox<CampaignFormDataDto> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
-
-	ComboBox<CampaignFormDataDto> cbRegion = new ComboBox<>();
-	ComboBox<CampaignFormDataDto> cbArea = new ComboBox<>();
-	ComboBox<CampaignFormDataDto> cbDistrict = new ComboBox<>();
-	ComboBox<CampaignFormDataDto> cbCommunity = new ComboBox<>();
-
-	List<AreaReferenceDto> regions;
-	List<RegionReferenceDto> provinces;
-	List<DistrictReferenceDto> districts;
-	List<CommunityReferenceDto> communities;
 	CampaignFormDataDto formData;
 	CampaignFormMetaDto campaignFormMetaDto;
 	
@@ -59,84 +31,53 @@ public class CampaignFormDataEditForm extends FormLayout {
 	
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto, CampaignReferenceDto campaignReferenceDto) {
 		
-		
-		HorizontalLayout hor = new HorizontalLayout();
-		Icon vaadinIcon = new Icon("lumo", "cross");
-		hor.setJustifyContentMode(JustifyContentMode.END);
-		hor.setWidthFull();
-		hor.add(vaadinIcon);
-		hor.setHeight("5px");
-		this.setColspan(hor, 2);
-		//vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
-		add(hor);
-		
-		
-		FormLayout formLayout = new FormLayout(); 
-		this.setColspan(formLayout, 2);
-		
-		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
-		
-		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-		cbCampaign.setValue(campaignReferenceDto);
-		cbCampaign.setEnabled(false);
-		
-		
-		Date date = new Date();
-
-		DatePicker formDate = new DatePicker();
-		formDate.setLabel(CampaignFormDataDto.FORM_DATE);
-//		formDate.setValue(localDate);
-		
-		//
-		ComboBox<Object> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
-		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-//		cbArea.setValue(formData.getArea());
-//	        cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAndSelectedAsReference(campaignUUID));
-
-		ComboBox<Object> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
-		cbRegion.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
-//		cbRegion.setValue(formData.getRegion());
-
-		ComboBox<Object> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
-		cbDistrict.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
-//		cbDistrict.setValue(formData.getDistrict());
-
-		ComboBox<Object> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
-		cbCommunity.setItems(FacadeProvider.getCommunityFacade().getAllCommunities());
-//		cbCommunity.setValue(formData.getCommunity());
-
-		formLayout.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
-		
-//		CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
-//				VerticalLayout campaignFormLayout, List<CampaignFormTranslations> translations)
-		
-		
+		setSizeFull();
 		
 		campaignFormMetaDto = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
 		
 		
-		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, formLayout, campaignFormMetaDto.getCampaignFormTranslations());
-		
+		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName());
 		
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
-		dialog.setCloseOnOutsideClick(false);
-		// Add an icon to close the dialog
-        Icon closeIcon = VaadinIcon.CLOSE.create();
-        closeIcon.getStyle().set("cursor", "pointer");
-        closeIcon.getStyle().set("color", "red");
-        closeIcon.addClickListener(event -> {
-            dialog.close();
-        });
-        dialog.add(closeIcon,campaignFormBuilder);
+		
+		Button deleteButton = new Button("Cancle", (e) -> dialog.close());
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+		        ButtonVariant.LUMO_TERTIARY);
+		deleteButton.getStyle().set("margin-right", "auto");
+		dialog.getFooter().add(deleteButton);
 
-        // Add the close icon to the dialog's header
-        dialog.getElement().getThemeList().add("closable"); // Optional: Add a CSS class for styling
-        dialog.getElement().appendChild(closeIcon.getElement());
+		Button cancelButton = new Button("Save Data", (e) -> dialog.close());
+		cancelButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		dialog.getFooter().add(cancelButton);
+		
+		
+		cancelButton.addClickListener(e -> {
+			//showConfirmationDialog();
+		});
+		
 		dialog.open();
 	}
+	
+	private void showConfirmationDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+
+        dialog.add("Are you sure you want to save the data?");
+
+        Button confirmButton = new Button("Confirm", event -> {
+            // Perform save operation
+            dialog.close();
+        });
+
+        Button cancelButton = new Button("Cancel", event -> dialog.close());
+
+        dialog.add(confirmButton, cancelButton);
+        dialog.open();
+    }
 
 //	private void validateAndSave() {
 //		if (binder.isValid()) {
