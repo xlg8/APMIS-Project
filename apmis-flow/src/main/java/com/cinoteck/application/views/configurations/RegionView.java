@@ -143,6 +143,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
