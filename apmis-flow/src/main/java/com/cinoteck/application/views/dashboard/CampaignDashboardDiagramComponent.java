@@ -93,8 +93,6 @@ public class CampaignDashboardDiagramComponent extends Div {
 		showAsColumnChart = DiagramType.COLUMN == diagramDefinition.getDiagramType();
 		
 		
-		
-		
 		setId(randomx);
 		removeClassNames("col-lg-12","col-lg-11","col-lg-10","col-lg-9","col-lg-8","col-lg-7","col-lg-6","col-lg-5","col-lg-4","col-lg-3","col-lg-2","col-lg-1");
 
@@ -236,15 +234,6 @@ public class CampaignDashboardDiagramComponent extends Div {
 			appendSeries(campaignJurisdictionLevelGroupBy, hcjs);
 
 			return;
-		} else if(DiagramType.MAP == diagramDefinition.getDiagramType()) {
-			
-			
-			final String chartrandom = generateShortUUID();
-			randomx = chartrandom;
-			
-			chartComponent = new BarChartCardComponent(randomx, mapData(randomx), DiagramType.MAP);
-			this.add(percentageCardComponent);
-			
 		} else {
 		//@formatter:off
 		hcjs.append(""
@@ -322,6 +311,14 @@ public class CampaignDashboardDiagramComponent extends Div {
 
 			hcjs.append("});");
 
+			//TODO This should have all the JAVASCRIPT String for the entire card.
+			System.out.println(hcjs.toString());
+			
+			
+			//addClassName("col-md-12");
+			//addClassName("col-lg-6");
+			
+		//	System.out.println(hcjs.toString());	
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx, DiagramType.COLUMN);
 			this.add(chartComponent);
 		}
@@ -921,70 +918,6 @@ public class CampaignDashboardDiagramComponent extends Div {
 					.orElse(null);
 		}
 		return translations;
-	}
-	
-	public String mapData(String raString) {
-		
-		String jsString = "(async () => {\n"
-				+ "\n"
-				+ "    const topology = await fetch(\n"
-				+ "        'https://code.highcharts.com/mapdata/countries/af/af-all.topo.json'\n"
-				+ "    ).then(response => response.json());\n"
-				+ "\n"
-				+ "    // Prepare demo data. The data is joined to map using value of 'hc-key'\n"
-				+ "    // property by default. See API docs for 'joinBy' for more info on linking\n"
-				+ "    // data and map.\n"
-				+ "    const data = [\n"
-				+ "        ['af-kt', 10], ['af-pk', 11]\n"
-				+ "    ];\n"
-				+ "\n"
-				+ "    // Create the chart\n"
-				+ "    Highcharts.mapChart('"+raString+"', {\n"
-				+ "        chart: {\n"
-				+ " renderTo: '"+randomx+"', "
-				+ "            map: topology\n"
-				+ "        },\n"
-				+ "\n"
-				+ "        title: {\n"
-				+ "            text: 'Highcharts Maps basic demo'\n"
-				+ "        },\n"
-				+ "\n"
-				+ "        subtitle: {\n"
-				+ "            text: 'Source map: <a href=\"http://code.highcharts.com/mapdata/countries/af/af-all.topo.json\">Afghanistan</a>'\n"
-				+ "        },\n"
-				+ "\n"
-				+ "        mapNavigation: {\n"
-				+ "            enabled: true,\n"
-				+ "            buttonOptions: {\n"
-				+ "                verticalAlign: 'bottom'\n"
-				+ "            }\n"
-				+ "        },\n"
-				+ "\n"
-				+ "        colorAxis: {\n"
-				+ "            min: 0\n"
-				+ "        },\n"
-				+ "\n"
-				+ "        series: [{\n"
-				+ "            data: data,\n"
-				+ "            name: 'Random data',\n"
-				+ "            states: {\n"
-				+ "                hover: {\n"
-				+ "                    color: '#BADA55'\n"
-				+ "                }\n"
-				+ "            },\n"
-				+ "            dataLabels: {\n"
-				+ "                enabled: true,\n"
-				+ "                format: '{point.name}'\n"
-				+ "            }\n"
-				+ "        }]\n"
-				+ "    });\n"
-				+ "\n"
-				+ "})();\n"
-				+ "";
-		
-		System.out.println(jsString);
-		return jsString;
-		
 	}
 	
     public static String generateShortUUID() {

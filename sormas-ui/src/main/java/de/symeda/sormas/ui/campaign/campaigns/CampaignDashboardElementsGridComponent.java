@@ -183,7 +183,7 @@ public class CampaignDashboardElementsGridComponent extends AbstractEditableGrid
 	}
 
 	private SerializablePredicate<String> percentValidator() {
-		return s -> new Integer(s) % 5 == 0;
+		return s -> new Integer(s) % 1 == 0;
 	}
 
 	private String intToString(Integer h) {
