@@ -465,7 +465,7 @@ vcf-nav-item::part(item) {
 }
 
 .language-switcher vaadin-button{
-	color: white;
+	color: #2F5233;
 }
 
 vcf-nav-item[active]::part(item) {
@@ -480,7 +480,7 @@ vcf-nav-item[active]::part(item) {
 }
 
 #vaadinLoginUsername label, #vaadinLoginPassword label{
-	color: white !important;
+	color:   #2F5233 !important;
 	font-family: Lato;
     font-size: large;
 }

@@ -69,6 +69,7 @@ public class CampaignDataView extends VerticalLayout {
 	/**
 	 * 
 	 */
+	
 	private static final long serialVersionUID = 7588118851062483372L;
 
 	private Grid<CampaignFormDataIndexDto> grid = new Grid<>(CampaignFormDataIndexDto.class, false);
@@ -76,7 +77,6 @@ public class CampaignDataView extends VerticalLayout {
 	private CampaignFormDataCriteria criteria;
 	private CampaignFormMetaDto formMetaReference;
 	private CampaignFormDataDto campaignFormDatadto;
-	
 
 	ComboBox<String> campaignYear = new ComboBox<>();
 	ComboBox<CampaignReferenceDto> campaignz = new ComboBox<>();
@@ -293,6 +293,8 @@ public class CampaignDataView extends VerticalLayout {
 				campaignz.getValue().getUuid());
 		
 		campaignFormCombo.setItems(campaignForms);
+		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
+
 		newForm.setItems(campaignForms);
 		
 		criteria.campaign(lastStarted);

@@ -182,7 +182,7 @@ addClassName("contact-form");
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-		binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
+		//binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
 		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
 		horizontallayout.setMargin(true);
 		add(horizontallayout);
