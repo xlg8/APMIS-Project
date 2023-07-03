@@ -31,6 +31,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto, CampaignReferenceDto campaignReferenceDto) {
 		
+		
 		setSizeFull();
 		
 		campaignFormMetaDto = FacadeProvider.getCampaignFormMetaFacade()

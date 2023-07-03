@@ -11,7 +11,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
-import com.cinoteck.application.views.testview.CampaignFormGridComponentx;
 import com.cinoteck.application.views.user.UserForm.SaveEvent;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -125,20 +124,20 @@ public class CampaignForm extends FormLayout {
 
 		addClassName("campaign-form");
 
-		HorizontalLayout hor = new HorizontalLayout();
+//		HorizontalLayout hor = new HorizontalLayout();
 
-		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT);
-		vaadinIcon.setId("formCloseIcon");
+//		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT);
+//		vaadinIcon.setId("formCloseIcon");
 //		hor.setJustifyContentMode(JustifyContentMode.END);
-		H6 allCampaignLabel = new H6("All Campaigns");
-		allCampaignLabel.setId("formCloseIcon");
-		hor.setAlignItems(Alignment.CENTER);
-		hor.setWidthFull();
-		hor.add(vaadinIcon, allCampaignLabel);
+//		H6 allCampaignLabel = new H6("All Campaigns");
+//		allCampaignLabel.setId("formCloseIcon");
+//		hor.setAlignItems(Alignment.CENTER);
+//		hor.setWidthFull();
+//		hor.add(vaadinIcon, allCampaignLabel);
 //		hor.setHeight("5px");
-		this.setColspan(hor, 2);
-		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
-		add(hor);
+//		this.setColspan(hor, 2);
+//		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
+//		add(hor);
 		// Configure what is passed to the fields here
 		configureFields(formData);
 

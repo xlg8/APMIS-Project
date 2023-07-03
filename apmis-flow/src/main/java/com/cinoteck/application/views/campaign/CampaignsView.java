@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.testview.CampaignFormx;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -168,16 +167,14 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> dataView.addFilter(campaignsz -> {
-			String searchTerm = searchField.getValue().trim();
+//		searchField.addValueChangeListener(e -> dataView.addFilter(campaignsz -> {
+//			if (e.getValue() != null) {
+//				criteria.freeText(e.getValue());
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//			}));
+		
 
-			if (searchTerm.isEmpty())
-				return true;
-
-			boolean matchesFullName = matchesTerm();
-
-			return matchesFullName;
-		}));
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel("Campaign Status");
@@ -222,7 +219,8 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		
+		dialog.setHeaderTitle("Edit Campaign");
+
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);
@@ -237,7 +235,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		
+		dialog.setHeaderTitle("Create New Campaign");
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);

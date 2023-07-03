@@ -423,7 +423,7 @@ districtCombo.setEnabled(false);
 	@SuppressWarnings("deprecation")
 	private void configureGrid(CampaignFormDataCriteria criteria) {
 		setMargin(false);
-		grid.removeAllColumns();
+//		grid.removeAllColumns();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 //		grid.setSizeFull();
 		
@@ -447,7 +447,7 @@ districtCombo.setEnabled(false);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
-		grid.setHeightFull();
+//		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
 
 
