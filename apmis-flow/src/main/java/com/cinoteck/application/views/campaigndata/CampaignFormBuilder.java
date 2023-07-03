@@ -36,6 +36,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
@@ -48,6 +49,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.server.VaadinService;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -60,6 +62,8 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementStyle;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementOptions;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
@@ -68,6 +72,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
 
 public class CampaignFormBuilder extends VerticalLayout {
 
@@ -86,6 +91,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
+	private CampaignFormMetaReferenceDto campaignFormMeta;
 	
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
@@ -93,10 +99,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 	List<CommunityReferenceDto> communities;
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
 	UserProvider currentUser = new UserProvider();
+	
+	private boolean invalidForm = false;
+	
+	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
+	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
+	ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
+	ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
+	
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues, CampaignReferenceDto campaignReferenceDto,
-			 List<CampaignFormTranslations> translations, String formName) {
+			 List<CampaignFormTranslations> translations, String formName, CampaignFormMetaReferenceDto campaignFormMetaUUID) {
 		this.formElements = formElements;
+		this.campaignReferenceDto = campaignReferenceDto;
+		this.campaignFormMeta = campaignFormMetaUUID;
 		if (formValues != null) {
 			this.formValuesMap = new HashMap<>();
 			formValues.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
@@ -137,10 +153,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 //		formDate.setValue(localDate);
 		
 		//
-		ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
-		ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
-		ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
-		ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
+		
 		cbRegion.setEnabled(false);
 		cbDistrict.setEnabled(false);
 		cbCommunity.setEnabled(false);
@@ -251,16 +264,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 				
 				
 		buildForm();
-	
-//		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
-//				UserDto::setFirstName);
-
+//	
+////		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
+////				UserDto::setFirstName);
+//
 //		binder.forField(cbArea).asRequired().bind(CampaignFormDataDto::getArea, CampaignFormDataDto::setArea);
-//		binder.forField(cbCampaign).asRequired().bind(CampaignFormDataDto::getCampaign, CampaignFormDataDto::setCampaign);
-//		binder.forField(cbRegion).asRequired().bind(CampaignFormDataDto::getArea, CampaignFormDataDto::setArea);
-//		binder.forField(cbDistrict).asRequired().bind(CampaignFormDataDto::getArea, CampaignFormDataDto::setArea);
-//		binder.forField(cbCommunity).asRequired().bind(CampaignFormDataDto::getArea, CampaignFormDataDto::setArea);
-		
+//		binder.forField(cbCampaign).asRequired().bind(CampaignFormDataDto.CAMPAIGN);
+//		binder.forField(cbRegion).asRequired().bind(CampaignFormDataDto::getRegion, CampaignFormDataDto::setRegion);
+//		binder.forField(cbDistrict).asRequired().bind(CampaignFormDataDto::getDistrict, CampaignFormDataDto::setDistrict);
+//		binder.forField(cbCommunity).asRequired().bind(CampaignFormDataDto::getCommunity, CampaignFormDataDto::setCommunity);
+//		//binder.forField(cbCampaign).asRequired().bind(CampaignFormDataDto::getCampaign, CampaignFormDataDto::setCampaign);
 	}
 
 	public void buildForm() {
@@ -471,7 +484,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					integerField.setLabel(formElement.getCaption());
 //					integerField.setHelperText("Max 10 items");
 					integerField.setId(formElement.getId());
-					integerField.setValue(2);
 					integerField.setStepButtonsVisible(true);
 					integerField.setSizeFull();
 					integerField.setRequiredIndicatorVisible(formElement.isImportant());
@@ -688,14 +700,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 		        new ResponsiveStep("0", 1),
 		        new ResponsiveStep("520px", 2),
 		        new ResponsiveStep("1000px", 3));
-		
-//		infrastructureFormLayout.setId("infrastructureFormLayout");
-//		infrastructureFormLayout.setWidthFull();
-//		infrastructureFormLayout.setResponsiveSteps(
-//		        // Use one column by default
-//		        new ResponsiveStep("0", 1),
-//		        new ResponsiveStep("320px", 2),
-//		        new ResponsiveStep("500px", 3));
 		
 		setId("campaignFormLayout");
 		setSizeFull();
@@ -1160,13 +1164,91 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 		}).collect(Collectors.toList());
 	}
+	
+	
+	private boolean validateAndSave() {
+		boolean anyProblem = false;
+		fields.forEach((key, value) -> {
+			System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + key);
+			Component formField = fields.get(key);
+//			if(value instanceof TextField) {
+//				
+//				TextField formFieldxx = (TextField) value;
+////				formFieldxx.getDefaultValidator().apply(key, null);
+//				System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + formFieldxx.getValue());
+////formFieldxx.vali
+//				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
+//	            if (requiredValidation.isError()) {
+//	                // Handle required field validation error
+//	            	formFieldxx.setInvalid(true);
+//	            	formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
+////	                isValid = false;
+////	                continue;
+//	            }
+//			}
+//			
+			
+			//cbArea.getValue(), cbRegion.getValue(), cbRegion.getValue(),
+			//cbCommunity.getValue()
+			
+			if(cbArea.getValue() == null) {
+				cbArea.getElement().setProperty("invalid", true);
+				hasErrorFormValues();
+			}
+			if( cbRegion.getValue() == null) {
+				cbRegion.getElement().setProperty("invalid", true);
+				hasErrorFormValues();
+			}
+			if(cbDistrict.getValue() == null) {
+				cbDistrict.getElement().setProperty("invalid", true);
+				hasErrorFormValues();
+			}
+			if(cbCommunity.getValue() == null) {
+				cbCommunity.getElement().setProperty("invalid", true);
+				hasErrorFormValues();
+			}
+			
+			
+			
+			if (((AbstractField) formField).isRequiredIndicatorVisible()) {
+				System.out.println("Abstract field Valueeeeeeeeeeeeeee222222222222222" + ((AbstractField) formField).getValue());
+//				if(key.equals("email")) {
+//					
+//					System.out.println("Abstract field Valueeeeeeeeeeeeeee222222222222222" );
 //
-////let change this method to litrate through all the field, check the validity, and return ;ist of those that are not valid in a catch block
+//					TextField formFieldxx = (TextField) map.get(key);
+//					formFieldxx.setValue("4444444444444444444444 +email");
+//					formFieldxx.setEnabled(false);
+//				}
+				if (((AbstractField) formField).getValue() == null || ((AbstractField) formField).getValue() == "") {
+					hasErrorFormValues();
+					formField.getElement().setProperty("invalid", true);
+				}
+			}
+			
+			
+			
+		});
+		
+		fields.forEach((key, value) -> {
+		Component formField = fields.get(key);
+			if(formField.getElement().getProperty("invalid") != null) {
+				//return false;
+				hasErrorFormValues();
+				return;
+			}
+			
+		});
+		return invalidForm;
+	}
+	
+	
+	
+
+//let change this method to litrate through all the field, check the validity, and return ;ist of those that are not valid in a catch block
 //	public void validateFields() {
-		
-		
-		
-		
+//		//field.getElement().setProperty("errorMessage", defaultErrorMsgr != null ? defaultErrorMsgr.toString() : "Data entered not in range or calculated range!");
+//		
 //		try {
 //			fields.forEach((key, value) -> {
 //
@@ -1191,9 +1273,38 @@ public class CampaignFormBuilder extends VerticalLayout {
 //				}
 //			});
 //		}
-
-//	}
 //
+//	}
+	public void hasErrorFormValues() {
+		
+		invalidForm = true;
+		
+	}
+	
+	public boolean saveFormValues() {
+		validateAndSave();
+		if(!invalidForm) {
+		
+			UserProvider userProvider = new UserProvider();
+			List<CampaignFormDataEntry> entries = getFormValues();
+			CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta, cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(),
+					cbCommunity.getValue());
+			
+			//construct the newForm data and send
+			dataDto.setCreatingUser(userProvider.getUserReference());
+			dataDto.setFormValues(entries);
+			dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
+			Notification.show("Data saved Successfully");
+		return true;
+		}else {
+			//add notuification here for error in form
+			Notification.show("jhgfdsdfghjkjhgfdfghj");
+			
+		}
+		return false;
+	}
+	
+	
 	public void resetFormValues() {
 
 		fields.keySet().forEach(key -> {

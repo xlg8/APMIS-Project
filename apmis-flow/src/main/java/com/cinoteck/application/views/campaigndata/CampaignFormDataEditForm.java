@@ -38,7 +38,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
 		
 		
-		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName());
+		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto);
 		
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
@@ -50,12 +50,14 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		deleteButton.getStyle().set("margin-right", "auto");
 		dialog.getFooter().add(deleteButton);
 
-		Button cancelButton = new Button("Save Data", (e) -> dialog.close());
-		cancelButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-		dialog.getFooter().add(cancelButton);
+		Button saveButton = new Button("Save Data");//, (e) -> dialog.close());
+		saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		dialog.getFooter().add(saveButton);
 		
 		
-		cancelButton.addClickListener(e -> {
+		saveButton.addClickListener(e -> {
+			campaignFormBuilder.saveFormValues();
+			//dialog.close();
 			//showConfirmationDialog();
 		});
 		
