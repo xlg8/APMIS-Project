@@ -139,6 +139,8 @@ public class CampaignForm extends FormLayout {
 //		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
 //		add(hor);
 		// Configure what is passed to the fields here
+		
+		
 		configureFields(formData);
 
 	}
@@ -220,8 +222,7 @@ public class CampaignForm extends FormLayout {
 		CampaignFormGridComponent comp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
-				PRE_CAMPAIGN);
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN));
 		tab1.add(comp);
 
 		tabsheet.add("Pre Campaign Forms", tab1);
@@ -254,8 +255,7 @@ public class CampaignForm extends FormLayout {
 		CampaignFormGridComponent compp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("intra-campaign")),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
-				"intra-campaign");
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN));
 		tab1Intra.add(compp);
 		tabsheetIntra.add("Intra Campaign Forms", tab1Intra);
 		tabsheetIntra.setWidthFull();
@@ -290,8 +290,7 @@ public class CampaignForm extends FormLayout {
 		CampaignFormGridComponent comppp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("post-campaign")),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
-				"post-campaign");
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN));
 		tab1Post.add(comppp);
 		tabsheetPost.add("Post Campaign Forms", tab1Post);
 

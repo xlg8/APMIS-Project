@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +22,10 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -30,10 +34,14 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionCriteria;
@@ -53,16 +61,19 @@ public class ClusterView extends Div {
 	private CommunityCriteriaNew criteria;
 
 	ClusterDataProvider clusterDataProvider = new ClusterDataProvider();
-	
+
 	ConfigurableFilterDataProvider<CommunityDto, Void, CommunityCriteriaNew> filteredDataProvider;
 
 	Grid<CommunityDto> grid = new Grid<>(CommunityDto.class, false);
-	
+
+	UserProvider currentUser = new UserProvider();
+
 	public ClusterView() {
 		this.criteria = new CommunityCriteriaNew();
 		setHeightFull();
-		//List<CommunityDto> clusters = FacadeProvider.getCommunityFacade().getAllCommunities();
-	//	GridLazyDataView<CommunityDto> dataView;// = grid.setItems(clusters);
+		// List<CommunityDto> clusters =
+		// FacadeProvider.getCommunityFacade().getAllCommunities();
+		// GridLazyDataView<CommunityDto> dataView;// = grid.setItems(clusters);
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
@@ -88,7 +99,7 @@ public class ClusterView extends Div {
 	// TODO: Hide the filter bar on smaller screens
 	public Component addFilters() {
 
-HorizontalLayout layout = new HorizontalLayout();
+		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
@@ -109,90 +120,119 @@ HorizontalLayout layout = new HorizontalLayout();
 				displayFilters.setText("Show Filters");
 			}
 		});
-		
+
 		layout.setPadding(false);
 
+		TextField searchField = new TextField();
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
+		Button resetFilters = new Button("Reset Filters");
+		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
+
+		searchField.addClassName("filterBar");
+		searchField.setPlaceholder("Search");
+		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
+		searchIcon.getStyle().set("color", "#0D6938");
+		searchField.setPrefixComponent(searchIcon);
+		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.setWidth("25%");
+		layout.add(searchField);
+
 		regionFilter.setPlaceholder("All Regions");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getArea() != null) {
+			regionFilter.setValue(currentUser.getUser().getArea());
+			filteredDataProvider.setFilter(criteria.area(currentUser.getUser().getArea()));
+			provinceFilter.setItems(
+					FacadeProvider.getRegionFacade().getAllActiveByArea(currentUser.getUser().getArea().getUuid()));
+			regionFilter.setEnabled(false);
+		}
 
 		layout.add(regionFilter);
 
-		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
 		provinceFilter.setPlaceholder("All Provinces");
-		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+//		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getRegion() != null) {
+			provinceFilter.setValue(currentUser.getUser().getRegion());
+			filteredDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
+			districtFilter.setItems(FacadeProvider.getDistrictFacade()
+					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid()));
+			provinceFilter.setEnabled(false);
+		}
 		layout.add(provinceFilter);
 
-		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
 		districtFilter.setPlaceholder("All Districts");
 		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getDistrict() != null) {
+			districtFilter.setValue(currentUser.getUser().getDistrict());
+			filteredDataProvider.setFilter(criteria.district(currentUser.getUser().getDistrict()));
+
+			districtFilter.setEnabled(false);
+		}
 		layout.add(districtFilter);
 
-		ComboBox<RegionIndexDto> communityFilter = new ComboBox<>("Cluster");
-		communityFilter.setPlaceholder("All Clusters");
-		// communityFilter.setItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(null));
-		layout.add(communityFilter);
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 
-		TextField searchField = new TextField();
-		searchField.setWidth("10%");
-		searchField.addClassName("filterBar");
-		searchField.setPlaceholder("Search");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-
+		relevanceStatusFilter.setItemLabelGenerator(status -> {
+			if (status == EntityRelevanceStatus.ARCHIVED) {
+				return I18nProperties.getCaption(Captions.communityArchivedCommunities);
+			} else if (status == EntityRelevanceStatus.ACTIVE) {
+				return I18nProperties.getCaption(Captions.communityActiveCommunities);
+			} else if (status == EntityRelevanceStatus.ALL) {
+				return I18nProperties.getCaption(Captions.communityAllCommunities);
+			}
+			// Handle other enum values if needed
+			return status.toString();
 		});
 
-		layout.add(searchField);
+		layout.add(resetFilters);
+		layout.add(relevanceStatusFilter);
+
+		searchField.addValueChangeListener(e -> {
+			criteria.nameLike(e.getValue());
+			filteredDataProvider.setFilter(criteria);
+			resetFilters.setVisible(true);
+
+		});
 
 		regionFilter.addValueChangeListener(e -> {
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-//			dataView.addFilter(f -> f.getAreaname().equalsIgnoreCase(regionFilter.getValue().getCaption()));
-			// dataView.refreshAll();
 			AreaReferenceDto area = e.getValue();
 			criteria.area(area);
 			filteredDataProvider.setFilter(criteria);
+			resetFilters.setVisible(true);
+
 		});
 
 		provinceFilter.addValueChangeListener(e -> {
-					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
-//					dataView.addFilter(f -> f.getRegion().getCaption().equalsIgnoreCase(provinceFilter.getValue().getCaption()));
-					filteredDataProvider.setFilter(criteria);
-					RegionReferenceDto province = e.getValue();
-					criteria.region(province);
-					filteredDataProvider.refreshAll();	
+			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+			filteredDataProvider.setFilter(criteria);
+			RegionReferenceDto province = e.getValue();
+			criteria.region(province);
+			filteredDataProvider.refreshAll();
 		});
 		districtFilter.addValueChangeListener(e -> {
-//			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
-//			dataView.addFilter(f -> f.getDistrict().getCaption().equalsIgnoreCase(districtFilter.getValue().getCaption()));
+
 			filteredDataProvider.setFilter(criteria);
 			DistrictReferenceDto district = e.getValue();
 			criteria.district(district);
-			filteredDataProvider.refreshAll();	
+			filteredDataProvider.refreshAll();
 		});
 
-		Button primaryButton = new Button("Reset Filters");
-		primaryButton.addClassName("resetButton");
-		primaryButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		layout.add(primaryButton);
-		
+		relevanceStatusFilter.addValueChangeListener(e -> {
+			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
+			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
+		});
+
+		resetFilters.addClassName("resetButton");
+//		resetFilters.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		resetFilters.setVisible(false);
+
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 		return vlayout;
 	}
-	
-//	private void exportToCsvFile(Grid<CommunityDto> grid)
-//	        throws FileNotFoundException, IOException {
-//	    GridDataView<CommunityDto> dataView = grid.getGenericDataView();
-//	    FileOutputStream fout = new FileOutputStream(new File("/tmp/export.csv"));
-//
-//	    dataView.getItems().forEach(person -> {
-//	        try {
-//	            fout.write((communityDto.getAreaname()+ ", " + communityDto.getExternalId() +"\n").getBytes());
-//	        } catch (IOException ex) {
-//	            throw new RuntimeException(ex);
-//	        }
-//	    });
-//	    fout.close();
-//	}
+
 }

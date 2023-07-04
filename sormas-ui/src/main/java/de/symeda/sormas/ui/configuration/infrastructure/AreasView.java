@@ -183,9 +183,9 @@ public class AreasView extends AbstractConfigurationView {
 					case ACTIVE:
 						return I18nProperties.getCaption(Captions.areaActiveAreas);
 					case ARCHIVED:
-						return I18nProperties.getCaption(Captions.areaArchivedAreas);
+						return I18nProperties.getCaption(Captions.areaActiveAreas);
 					default:
-						return I18nProperties.getCaption(Captions.areaAllAreas);
+						return I18nProperties.getCaption(Captions.areaActiveAreas);
 					}
 				});
 				filterRelevanceStatus.addValueChangeListener(e -> {
