@@ -133,6 +133,8 @@ public class UserView extends VerticalLayout {
 	TextField searchField;
 
 	Button displayFilters;
+	
+	UserProvider currentUser = new UserProvider();
 
 	private static final String CSV_FILE_PATH = "./result.csv";
 
@@ -474,6 +476,17 @@ public class UserView extends VerticalLayout {
 		areaFilter.getStyle().set("margin-top", "12px");
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
+		
+		
+		if(currentUser.getUser().getArea() != null ) {
+			areaFilter.setValue(currentUser.getUser().getArea());
+			filterDataProvider.setFilter(criteria.area(currentUser.getUser().getArea()));
+			regionFilter.setItems(
+					FacadeProvider.getRegionFacade().getAllActiveByArea(currentUser.getUser().getArea().getUuid()));
+			areaFilter.setEnabled(false);
+		}
+		
+		
 		areaFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -509,6 +522,15 @@ public class UserView extends VerticalLayout {
 		regionFilter.getStyle().set("margin-top", "12px");
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.setReadOnly(true);
+		
+		if (currentUser.getUser().getRegion() != null) {
+			regionFilter.setValue(currentUser.getUser().getRegion());
+			filterDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
+			districtFilter.setItems(FacadeProvider.getDistrictFacade()
+					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid()));
+			regionFilter.setEnabled(false);
+		}
+		
 		regionFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -540,6 +562,13 @@ public class UserView extends VerticalLayout {
 		districtFilter.getStyle().set("margin-top", "12px");
 		districtFilter.setClearButtonVisible(true);
 		districtFilter.setReadOnly(true);
+		
+		if (currentUser.getUser().getDistrict() != null) {
+			districtFilter.setValue(currentUser.getUser().getDistrict());
+			filterDataProvider.setFilter(criteria.district(currentUser.getUser().getDistrict()));
+
+			districtFilter.setEnabled(false);
+		}
 		districtFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -609,22 +638,16 @@ public class UserView extends VerticalLayout {
 		displayFilters.setVisible(state);
 	}
 
-//	private void addContact() {
-//
-//		grid.asSingleSelect().clear();
-//		editUser(new UserDto());
-//	}
+
 
 	private void saveUser(UserForm.SaveEvent event) {
 		FacadeProvider.getUserFacade().saveUser(event.getContact());
-//		 updateList();
 		grid.getDataProvider().refreshAll();
 		closeEditor();
 	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
-		// FacadeProvider.getUserFacade(). .getContact());
-		// updateList();
+
 		closeEditor();
 	}
 
@@ -785,30 +808,6 @@ public class UserView extends VerticalLayout {
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-
-//		// TODO: Change implemenation to only add assignable roles sormas style.
-//		// userRoles.setLabel("User Roles");
-//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-//		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles, UserDto::setUserRoles);
-//		this.setColspan(userRoles, 1);
-//		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
-//
-//		formAccess.setLabel("Form Access");
-//		// formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
-//		formAccess.setItems(UserUiHelper.getAssignableForms());
-//		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-//		
-//		this.setColspan(activeCheck, 2);
-//		activeCheck.setLabel("Active ?");
-//		activeCheck.setValue(active);
-//		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
-//
-//		// usertype.addThemeVariants(CheckboxGroupVariant.LUMO_HELPER_ABOVE_FIELD);
-//		usertype.setItems(UserType.values());
-//		// this.setColspan(usertype, 2);
-//		language.setItemLabelGenerator(Language::toString);
-//		language.setItems(Language.getAssignableLanguages());
-//		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		return formLayout;
 	}
