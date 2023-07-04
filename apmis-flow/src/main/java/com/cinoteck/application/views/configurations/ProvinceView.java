@@ -3,6 +3,7 @@ package com.cinoteck.application.views.configurations;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -45,14 +46,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	List<RegionIndexDto> regions = FacadeProvider.getRegionFacade().getAllRegions();
 	GridListDataView<RegionIndexDto> dataView;
 //	
-	private RegionCriteria criteria;	//	ProvinceDataProvider provinceDataProvider = new ProvinceDataProvider();	//	ConfigurableFilterDataProvider<RegionIndexDto, Void, RegionCriteria> filteredDataProvider;
-
+	private RegionCriteria criteria;
+//	ProvinceDataProvider provinceDataProvider = new ProvinceDataProvider();	
+//	ConfigurableFilterDataProvider<RegionIndexDto, Void, RegionCriteria> filteredDataProvider;
 
 	final static TextField regionField = new TextField("Region");
 	final static TextField rcodeField = new TextField("RCode");
-	final static ComboBox<AreaReferenceDto> area= new ComboBox();
+	final static ComboBox<AreaReferenceDto> area = new ComboBox();
 	Binder<RegionIndexDto> binder = new BeanValidationBinder<>(RegionIndexDto.class);
 	private Button saveButton;
+
+	UserProvider currentUser = new UserProvider();
 
 	public ProvinceView() {
 		setSpacing(false);
@@ -82,7 +86,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		add(grid);
 
 	}
-	
+
 	private ComponentRenderer<RegionEditForm, RegionIndexDto> createAreaEditFormRenderer() {
 		return new ComponentRenderer<>(RegionEditForm::new);
 	}
@@ -90,10 +94,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	private class RegionEditForm extends FormLayout {
 
 		public RegionEditForm(RegionIndexDto regionDto) {
-			Dialog formLayout  = new Dialog();
+			Dialog formLayout = new Dialog();
 			area.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
-			
 			H2 header = new H2("Edit " + regionDto.getName().toString());
 			this.setColspan(header, 2);
 			add(header);
@@ -105,9 +108,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			saveButton = new Button("Save");
 
 			saveButton.addClickListener(event -> saveArea());
-			
-			
-			
+
 //			formLayout.add(saveButton);
 			add(saveButton);
 		}
@@ -132,6 +133,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		rcodeField.setValue(String.valueOf(regionDto.getExternalId()));
 		area.setValue(regionDto.getArea());
 		binder.setBean(regionDto);
+
 	}
 
 	public void configureProvinceFilters() {
@@ -147,6 +149,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
@@ -182,18 +185,20 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			// || matchEmail || matchOrganisation || matchPosition;
 		}));
 
-
 		layout.add(searchField);
 
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
 		regionFilter.setLabel("Regions");
 		regionFilter.setPlaceholder("All Regions");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getArea() != null) {
+			regionFilter.setValue(currentUser.getUser().getArea());
+			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+			regionFilter.setEnabled(false);
+		}
+		
 		regionFilter.addValueChangeListener(e -> {
-		
-			dataView.addFilter(
-					f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
-		
+			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 		});
 
 		layout.add(regionFilter);
@@ -201,8 +206,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		Button resetButton = new Button("Reset Filters");
 		resetButton.addClassName("resetButton");
 		resetButton.addClickListener(e -> {
-			regionFilter.clear();
 			searchField.clear();
+			if(regionFilter.getValue() != null) {
+				regionFilter.clear();
+			}
 		});
 
 		layout.add(resetButton);
@@ -210,8 +217,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 	}
+	
+	
+
 	private void reloadGrid() {
 		dataView.refreshAll();
-	}	}
-
-
+	}
+}

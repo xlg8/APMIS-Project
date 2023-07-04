@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cinoteck.application.UserProvider;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 
 import com.vaadin.flow.component.Component;
@@ -28,7 +29,10 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
@@ -41,7 +45,7 @@ public class DistrictView extends VerticalLayout {
 
 	private static final long serialVersionUID = 1370022184569877189L;
 
-	private DistrictCriteria criteria;
+	DistrictCriteria criteria;
 
 	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
 
@@ -54,7 +58,14 @@ public class DistrictView extends VerticalLayout {
 	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
 
 	TextField searchField = new TextField();
+
+	Button resetFilters = new Button("Reset Filters");
 	
+	ComboBox<String> riskFilter = new ComboBox<>("Risk");
+	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
+
+	UserProvider currentUser = new UserProvider();
+
 	@SuppressWarnings("deprecation")
 	public DistrictView() {
 
@@ -95,6 +106,7 @@ public class DistrictView extends VerticalLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
@@ -109,9 +121,26 @@ public class DistrictView extends VerticalLayout {
 
 		regionFilter.setPlaceholder("All Regions");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getArea() != null) {
+			regionFilter.setValue(currentUser.getUser().getArea());
+			filteredDataProvider.setFilter(criteria.area(currentUser.getUser().getArea()));
+			provinceFilter.setItems(
+					FacadeProvider.getRegionFacade().getAllActiveByArea(currentUser.getUser().getArea().getUuid()));
+			regionFilter.setEnabled(false);
+		}
+
+		layout.add(searchField);
+
 		layout.add(regionFilter);
 
 		provinceFilter.setPlaceholder("All Provinces");
+		if (currentUser.getUser().getRegion() != null) {
+			provinceFilter.setValue(currentUser.getUser().getRegion());
+			filteredDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
+//			criteria.region(currentUser.getUser().getRegion());
+			provinceFilter.setEnabled(false);
+		}
+
 		layout.add(provinceFilter);
 
 		regionFilter.addValueChangeListener(e -> {
@@ -121,7 +150,7 @@ public class DistrictView extends VerticalLayout {
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
 
 			filteredDataProvider.setFilter(criteria);
-
+			resetFilters.setVisible(true);
 		});
 
 		provinceFilter.addValueChangeListener(e -> {
@@ -131,36 +160,70 @@ public class DistrictView extends VerticalLayout {
 			filteredDataProvider.refreshAll();
 		});
 
-		
-		searchField.setWidth("10%");
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder("Search");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
+		searchIcon.getStyle().set("color", "#0D6938");
+		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.setWidth("25%");
 		searchField.addValueChangeListener(e -> {
+			criteria.nameEpidLike(e.getValue());// nameLike(e.getValue());
+			filteredDataProvider.setFilter(criteria);
+			resetFilters.setVisible(true);
+		});
+
+		resetFilters.addClassName("resetButton");
+		resetFilters.setVisible(false);
+		layout.add(resetFilters);
+		resetFilters.addClickListener(e -> {
 
 		});
 
-		layout.add(searchField);
 
-		Button primaryButton = new Button("Reset Filters");
-		primaryButton.addClassName("resetButton");
+		riskFilter.setItems("Low Risk (LR)", "Medium Risk (MR)", "High Risk (HR)");
 
-		layout.add(primaryButton);
-		primaryButton.addClickListener(e -> {
-			clearFilters();
+		riskFilter.addValueChangeListener(e -> {
 
+			if (e.getValue() != null) {
+				criteria.risk(e.getValue().toString());
+				filteredDataProvider.setFilter(criteria.risk(e.getValue().toString()));
+			} else {
+				criteria.risk(null);
+			}
+			
 		});
+		layout.add(riskFilter);
+
+		
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
+
+		relevanceStatusFilter.setItemLabelGenerator(status -> {
+			if (status == EntityRelevanceStatus.ARCHIVED) {
+				return I18nProperties.getCaption(Captions.districtArchivedDistricts);
+			} else if (status == EntityRelevanceStatus.ACTIVE) {
+				return I18nProperties.getCaption(Captions.districtActiveDistricts);
+			} else if (status == EntityRelevanceStatus.ALL) {
+				return I18nProperties.getCaption(Captions.districtAllDistricts);
+			}
+			// Handle other enum values if needed
+			return status.toString();
+		});
+
+		relevanceStatusFilter.addValueChangeListener(e -> {
+			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
+			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
+		});
+
+		layout.add(relevanceStatusFilter);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 		return vlayout;
 	}
+
 	public void clearFilters() {
-		regionFilter.clear();
-		provinceFilter.clear();
-		searchField.clear();
+
 	}
 
 }

@@ -143,6 +143,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
@@ -190,34 +191,26 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 		
-		Button newUnit = new Button("New Area");
-		clear.getStyle().set("color", "white");
-		clear.getStyle().set("background", "#0C5830");
-		clear.addClickListener(e -> {
-			AreaDto areaDto = new AreaDto();
-			Dialog dialog = new Dialog();
-			AreaEditForm area;
-			area =new AreaEditForm(areaDto);
-			dialog.add(area);
-			dialog.open();
-
-		});
 		ComboBox relevanceStatusFilter = new ComboBox<>();
 
-		relevanceStatusFilter.getStyle().set("color", "green");
-		relevanceStatusFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 
-		relevanceStatusFilter.setItems((Object[]) EntityRelevanceStatus.values());
-		relevanceStatusFilter.setItems(EntityRelevanceStatus.ACTIVE,
-				I18nProperties.getCaption(Captions.districtActiveDistricts));
-		relevanceStatusFilter.setItems(EntityRelevanceStatus.ARCHIVED,
-				I18nProperties.getCaption(Captions.districtArchivedDistricts));
-		relevanceStatusFilter.setItems(EntityRelevanceStatus.ALL,
-				I18nProperties.getCaption(Captions.districtAllDistricts));
-		relevanceStatusFilter.addValueChangeListener(e -> {
-
+		relevanceStatusFilter.setItemLabelGenerator(status -> {
+			if (status == EntityRelevanceStatus.ARCHIVED) {
+				return I18nProperties.getCaption(Captions.areaArchivedAreas);
+			} else if (status == EntityRelevanceStatus.ACTIVE) {
+				return I18nProperties.getCaption(Captions.areaActiveAreas);
+			} else if (status == EntityRelevanceStatus.ALL) {
+				return I18nProperties.getCaption(Captions.areaAllAreas);
+			}
+			// Handle other enum values if needed
+			return status.toString();
 		});
-		layout.add(searchField, clear, relevanceStatusFilter, newUnit);
+		
+		relevanceStatusFilter.addValueChangeListener(e -> {
+			
+		});
+		layout.add(searchField, clear, relevanceStatusFilter);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);

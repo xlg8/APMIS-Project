@@ -169,6 +169,7 @@ table.pvtTable tbody tr td {
 
     </head>
     <body>
+    <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Hide / Show Pivot Fields</button>
         <script type="text/javascript">
     $(function(){
 
@@ -194,6 +195,20 @@ table.pvtTable tbody tr td {
             });
         });
      });
+    
+    function hidePivotCells() {
+    	var elements = document.getElementsByClassName("pvtUiCell");
+
+    	for (var i = 0; i < elements.length; i++) {
+    	if (elements[i].style.display === "none") {
+    	 elements[i].style.removeProperty("display");
+    	console.log("display:hidden");
+    	} else {
+    	elements[i].style.display = "none";
+    	console.log("display:none");
+    	}
+    	}
+    	};
         </script>
 
 

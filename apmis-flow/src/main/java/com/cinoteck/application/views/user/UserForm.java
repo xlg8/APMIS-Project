@@ -17,7 +17,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
@@ -201,7 +200,7 @@ public class UserForm extends FormLayout {
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-		binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
+		//binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
 		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
 		horizontallayout.setMargin(true);
 		add(horizontallayout);
