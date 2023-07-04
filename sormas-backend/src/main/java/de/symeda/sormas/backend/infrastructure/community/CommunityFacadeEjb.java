@@ -1,5 +1,6 @@
 package de.symeda.sormas.backend.infrastructure.community;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -33,6 +35,8 @@ import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -43,10 +47,12 @@ import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.CommunityUserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
+import de.symeda.sormas.backend.campaign.statistics.CampaignStatisticsService;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureEjb;
@@ -77,8 +83,12 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 	@EJB
 	private UserService userService;
+	
 	@EJB
 	private DistrictService districtService;
+	
+	@EJB
+	private CampaignStatisticsService campaignStatisticsService;
 
 	public CommunityFacadeEjb() {
 	}
@@ -210,72 +220,212 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceFlow(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
 		frmsAccess = formacc;
 		
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
-			Root<Community> community = cq.from(Community.class);
-			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
-			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
-	
-					
-			Predicate filter = null;
-			if (criteria != null) {
-				filter = service.buildCriteriaFilter(criteria, cb, community);
-			}else {
-				filter = cb.equal(community.get(Community.ARCHIVED), false);
-			}
-
-			if (filter != null) {
-				cq.where(filter);
-			}
-			
-			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
-			
-			cq.select(community);
-
-			System.out.println("DEBUGGER r567ujhgty8isdfasjyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
+		boolean filterIsNull = criteria.getArea() == null ;
 		
-			return QueryHelper.getResultList(em, cq, 1, 20, this::toDtoListFlow);
+		String joiner = "";
+		
+		if(!filterIsNull) {
+			final AreaReferenceDto area = criteria.getArea();
+			final RegionReferenceDto region = criteria.getRegion();
+			final DistrictReferenceDto district = criteria.getDistrict();
+			//final CampaignReferenceDto campaign = criteria.getCampaign();
+			
+			//@formatter:off
+			
+			
+			final String areaFilter = area != null ? " area3_x.uuid = '"+area.getUuid()+"'" : "";
+			final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
+			final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
+			//final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
+			joiner = "and " +areaFilter + regionFilter + districtFilter;// +campaignFilter;
+			
+			System.out.println(" ===================== "+joiner);
+		}
+		
+		String orderby = "";
+		
+		if (sortProperties != null && sortProperties.size() > 0) {
+			for (SortProperty sortProperty : sortProperties) {
+				switch (sortProperty.propertyName) {
+				case "region":
+					orderby = orderby.isEmpty() ? " order by area3_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area3_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "province":
+					orderby = orderby.isEmpty() ? " order by region4_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region4_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+					
+				case "district":
+					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+				break;	
+				
+//				case "formAccess":
+//					orderby = orderby.isEmpty() ? " order by uf.formaccess " + (sortProperty.ascending ? "asc" : "desc") : orderby+", uf.formaccess " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+				
+				case "clusterNumberr":
+					orderby = orderby.isEmpty() ? " order by cc.clusternumber " + (sortProperty.ascending ? "asc" : "desc") : orderby+", cc.clusternumber " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "ccode":
+					orderby = orderby.isEmpty() ? " order by cc.externalid " + (sortProperty.ascending ? "asc" : "desc") : orderby+", cc.externalid " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+//				case "message":
+//					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+				
+				default:
+					throw new IllegalArgumentException(sortProperty.propertyName);
+				}
+				
+			}
+		}
+		
+		System.out.println(" ===================== "+orderby);
+			
+		
+		
+		String communityAnalysis = "select string_agg (DISTINCT  area3_x.\"name\"\\:\\:text, ',') as rex, string_agg (DISTINCT region4_x.\"name\"\\:\\:text, ',') as redf, string_agg (DISTINCT  district5_x.\"name\"\\:\\:text, ',') as adfve, string_agg (DISTINCT cc.\"name\"\\:\\:text, ',') as sfves, cc.id, cc.clusternumber, cc.externalid, array_to_string(array_agg (us.username), ', ') as users_attached, array_to_string(array_agg (distinct uf.formaccess), ',') as formAccess\n"
+				+ "from community cc\n"
+				+ "left outer join users_community uc on cc.id = uc.community_id\n"
+				+ "left outer join users us on uc.users_id = us.id\n"
+				+ "left outer join users_formaccess uf on uc.users_id = uf.user_id\n"
+				+ "left outer join District district5_x on cc.district_id = district5_x.id\n"
+				+ "left outer join Region region4_x on district5_x.region_id = region4_x.id\n"
+				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
+				+ "where cc.id in (select distinct(xx.community_id) from users_community xx) and cc.archived = false\n"
+				+ "and uf.formaccess = '"+formacc+"'\n"
+				+ ""+joiner+"\n"
+				+ "group by cc.id \n"
+				+ orderby
+				+ " limit "+max+" offset "+first+";";
+				
+		//System.out.println(" ===================== "+communityAnalysis);
+		
+		Query seriesDataQuery = em.createNativeQuery(communityAnalysis);
+		
+		List<CommunityUserReportModelDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+//	System.out.println("starting....");
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CommunityUserReportModelDto((String) result[0].toString(), (String) result[1].toString(),
+						(String) result[2].toString(), (String) result[3].toString(),
+					//	((BigInteger) result[4]).longValue(), 
+						 (Integer) result[5], 
+							((BigInteger) result[6]).longValue(),
+							(String) result[7].toString(),
+							convertArraytoSetFormAccess(result[8])
+				)).collect(Collectors.toList()));
+		
+		//resultData.stream().filter(ee -> ee.getFormAccess().contains(formacc)).collect(Collectors.toList());
+		System.out.println("resultData.size()resultData.size()resultData.size(): "+resultData.size());
+		
+			return resultData;
+	}
+	
+	private Set<FormAccess> convertArraytoSetFormAccess(Object result){
+		
+	//	System.out.println(result);
+		
+		String[] formAccessArray = ((String) result.toString()).split(","); // Your array of form access values
+		Set<FormAccess> formAccessSet = new HashSet<>();
+		
+		
+
+//System.out.println(formAccessArray);
+
+		for (String formAccessValue : formAccessArray) {
+		    FormAccess formAccess = FormAccess.valueOf(formAccessValue);
+		    formAccessSet.add(formAccess);
+		}
+		
+		
+		return formAccessSet;
 	}
 	
 	
 	@Override
 	public Integer getAllActiveCommunitytoRerenceCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-	System.out.println(max+"----"+criteria.getErrorStatusEnum()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
+	//System.out.println(max+"----"+criteria.getErrorStatusEnum()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
 		frmsAccess = formacc;
-		errorStatusEnum = criteria.getErrorStatusEnum();
 		
-		if(max > 47483647) {
-			first = 1;
-			max = 100;
+		boolean filterIsNull = criteria == null ;
+		
+		String joiner = "";
+		
+		if(!filterIsNull) {
+		final AreaReferenceDto area = criteria.getArea();
+		final RegionReferenceDto region = criteria.getRegion();
+		final DistrictReferenceDto district = criteria.getDistrict();
+		//final CampaignReferenceDto campaign = criteria.getCampaign();
+		
+		//@formatter:off
+		
+		
+		final String areaFilter = area != null ? " area3_x.uuid = '"+area.getUuid()+"'" : "";
+		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
+		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
+		//final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
+		joiner = "and " +areaFilter + regionFilter + districtFilter;// +campaignFilter;
+		
+		System.out.println(" ===================== "+joiner);
 		}
 		
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Community> cq = cb.createQuery(Community.class);
-			Root<Community> community = cq.from(Community.class);
-			Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
-			Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
-	
-					
-			Predicate filter = null;
-			if (criteria != null) {
-				filter = service.buildCriteriaFilter(criteria, cb, community);
-			} 
-
-			if (filter != null) {
-				cq.where(filter);
-			}
+//		boolean isneeded = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
+//		
+//		System.out.println(" =========isneededisneededisneeded========== "+isneeded);
+		
+		
+		
+		
+		String communityAnalysis = "select string_agg (DISTINCT  area3_x.\"name\"\\:\\:text, ',') as rex, string_agg (DISTINCT region4_x.\"name\"\\:\\:text, ',') as redf, string_agg (DISTINCT  district5_x.\"name\"\\:\\:text, ',') as adfve, string_agg (DISTINCT cc.\"name\"\\:\\:text, ',') as sfves, cc.id, cc.clusternumber, cc.externalid, array_to_string(array_agg (us.username), ', ') as users_attached, array_to_string(array_agg (distinct uf.formaccess), ',') as formAccess\n"
+				+ "from community cc\n"
+				+ "left outer join users_community uc on cc.id = uc.community_id\n"
+				+ "left outer join users us on uc.users_id = us.id\n"
+				+ "left outer join users_formaccess uf on uc.users_id = uf.user_id\n"
+				+ "left outer join District district5_x on cc.district_id = district5_x.id\n"
+				+ "left outer join Region region4_x on district5_x.region_id = region4_x.id\n"
+				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
+				+ "where cc.id in (select distinct(xx.community_id) from users_community xx) and cc.archived = false\n"
+				+ "and uf.formaccess = '"+formacc+"'\n"
+				+ ""+joiner+"\n"
+				+ "group by cc.id \n"
+				+ "limit "+max+" offset "+first+";";
+				
+		//System.out.println(" ===================== "+communityAnalysis);
+		
+		Query seriesDataQuery = em.createNativeQuery(communityAnalysis);
+		
+		List<CommunityUserReportModelDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+	//System.out.println("starting....");
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CommunityUserReportModelDto((String) result[0].toString(), (String) result[1].toString(),
+						(String) result[2].toString(), (String) result[3].toString(),
+					//	((BigInteger) result[4]).longValue(), 
+						 (Integer) result[5], 
+							((BigInteger) result[6]).longValue(),
+							(String) result[7].toString(),
+							convertArraytoSetFormAccess(result[8])
+				)).collect(Collectors.toList()));
+		
+		
+		//	return resultData.stream().filter(ee -> ee.getFormAccess().contains(formacc)).collect(Collectors.toList());
 			
-			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
 			
-			cq.select(community);
 			
-			Integer finalResult = QueryHelper.getResultList(em, cq, first, max, this::toDtoList).stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).size();
-			System.out.println("================ "+finalResult);
-			
-			//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
-			//if(isCounter)
-			return finalResult;
-			//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
+		return resultData.size();
 		}
 	
 	
@@ -323,8 +473,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
-		System.out.println("2222222222222222222222222444444444444444444442222222222222222222222222222 "+criteria.getArea());
-		if(max > 47483647) {
+		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
+		if(max > 100000) {
 			max = 100;
 			}
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -338,9 +488,13 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			filter = service.buildCriteriaFilter(criteria, cb, community);
 		}
 
+		Predicate filterx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), false), cb.isNotNull(community.get(District.ARCHIVED)));
+		
 		if (filter != null) {
-			cq.where(filter);
-		}
+			cq.where(filter, filterx);
+		}else {
+			cq.where(filterx);
+		}	
 
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
@@ -375,10 +529,6 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		cq.select(community);
 
-		//		cq.multiselect(community.get(Community.CREATION_DATE), community.get(Community.CHANGE_DATE),
-		//				community.get(Community.UUID), community.get(Community.NAME),
-		//				region.get(Region.UUID), region.get(Region.NAME),
-		//				district.get(District.UUID), district.get(District.NAME));
 
 		return QueryHelper.getResultList(em, cq, first, max, this::toDto);
 	}
@@ -402,8 +552,12 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			filter = service.buildCriteriaFilter(criteria, cb, root);
 		}
 
+		Predicate filterx = cb.and(cb.isNotNull(root.get(District.EXTERNAL_ID)), cb.equal(root.get(District.ARCHIVED), false), cb.isNotNull(root.get(District.ARCHIVED)));
+		
 		if (filter != null) {
-			cq.where(filter);
+			cq.where(filter, filterx);
+		}else {
+			cq.where(filterx);
 		}
 
 		cq.select(cb.count(root));
@@ -601,7 +755,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		dto.setCommunity(entity.getName());
 		dto.setClusterNumber(entity.getClusterNumber().toString());
 
-		dto.setcCode(entity.getExternalId().toString());
+		dto.setcCode(entity.getExternalId());
 	
 		dto.setArea(entity.getDistrict().getRegion().getArea().getName());
 		
@@ -666,7 +820,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		dto.setCommunity(entity.getName());
 		dto.setClusterNumber(entity.getClusterNumber().toString());
 
-		dto.setcCode(entity.getExternalId().toString());
+		dto.setcCode(entity.getExternalId());
 	
 		dto.setArea(entity.getDistrict().getRegion().getArea().getName());
 		

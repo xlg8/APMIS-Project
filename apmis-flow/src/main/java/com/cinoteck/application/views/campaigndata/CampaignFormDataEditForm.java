@@ -1,0 +1,139 @@
+package com.cinoteck.application.views.campaigndata;
+
+import java.util.List;
+
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.FacadeProvider;
+
+public class CampaignFormDataEditForm extends HorizontalLayout {
+
+	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
+
+	CampaignFormDataDto formData;
+	CampaignFormMetaDto campaignFormMetaDto;
+	
+	CampaignReferenceDto campaignReferenceDto;
+	CampaignFormBuilder campaignFormBuilder;
+	
+	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto, CampaignReferenceDto campaignReferenceDto) {
+		
+		
+		setSizeFull();
+		
+		campaignFormMetaDto = FacadeProvider.getCampaignFormMetaFacade()
+				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
+		
+		
+		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto);
+		
+		Dialog dialog = new Dialog();
+		dialog.add(campaignFormBuilder);
+		dialog.setSizeFull();
+		
+		Button deleteButton = new Button("Cancle", (e) -> dialog.close());
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+		        ButtonVariant.LUMO_TERTIARY);
+		deleteButton.getStyle().set("margin-right", "auto");
+		dialog.getFooter().add(deleteButton);
+
+		Button saveButton = new Button("Save Data");//, (e) -> dialog.close());
+		saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		dialog.getFooter().add(saveButton);
+		
+		
+		saveButton.addClickListener(e -> {
+			campaignFormBuilder.saveFormValues();
+			//dialog.close();
+			//showConfirmationDialog();
+		});
+		
+		dialog.open();
+	}
+	
+	private void showConfirmationDialog() {
+        Dialog dialog = new Dialog();
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+
+        dialog.add("Are you sure you want to save the data?");
+
+        Button confirmButton = new Button("Confirm", event -> {
+            // Perform save operation
+            dialog.close();
+        });
+
+        Button cancelButton = new Button("Cancel", event -> dialog.close());
+
+        dialog.add(confirmButton, cancelButton);
+        dialog.open();
+    }
+
+//	private void validateAndSave() {
+//		if (binder.isValid()) {
+//			fireEvent(new SaveEvent(this, binder.getBean()));
+//		}
+//	}
+//
+//	public void setCampaignFormData(CampaignFormDataDto user) {
+//		binder.setBean(user);
+//	}
+//
+//	public static abstract class CampaignFormDataEditFormEvent extends ComponentEvent<CampaignFormDataEditForm> {
+//		private CampaignFormDataDto campaignedit;
+//
+//		protected CampaignFormDataEditFormEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
+//			super(source, false);
+//			this.campaignedit = campaignedit;
+//		}
+//
+//		public CampaignFormDataDto getCampaignedit() {
+//			return campaignedit;
+//		}
+//	}
+//
+//	public static class SaveEvent extends CampaignFormDataEditFormEvent {
+//		SaveEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
+//			super(source, campaignedit);
+//		}
+//	}
+//
+//	public static class DeleteEvent extends CampaignFormDataEditFormEvent {
+//		DeleteEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
+//			super(source, campaignedit);
+//		}
+//
+//	}
+//
+//	public static class CloseEvent extends CampaignFormDataEditFormEvent {
+//		CloseEvent(CampaignFormDataEditForm source) {
+//			super(source, null);
+//		}
+//	}
+//
+//	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
+//		return addListener(DeleteEvent.class, listener);
+//	}
+//
+//	public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
+//		return addListener(SaveEvent.class, listener);
+//	}
+//
+//	public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
+//		return addListener(CloseEvent.class, listener);
+//	}
+
+}

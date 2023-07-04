@@ -13,6 +13,7 @@ import org.apache.commons.text.WordUtils;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
@@ -97,8 +98,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
+		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
+		
+		UserProvider usr = new UserProvider();
 
-		campaign.setLabel("Campaign");
+		campaign.setLabel(usr.getUuid() + " _Campaign_ "+deletab);
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
 
@@ -300,7 +304,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 		UUID uuid = UUID.randomUUID();
 		
-		add(displayFilters, selectFilterLayoutparent);//, mtabs, sTabs, contentContainer);
+		
+		HorizontalLayout filterLay = new HorizontalLayout();
+		
+		filterLay.add(displayFilters, selectFilterLayoutparent);
+		filterLay.setAlignItems(Alignment.END);
+		add(filterLay);
+		//, mtabs, sTabs, contentContainer);
 		mainContentContainerx = drawDashboardAndTabs(uuid.toString());
 		
 		add(mainContentContainerx);
@@ -322,12 +332,12 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 						
 		mtabs.setId("maintab");
 		mtabs.getStyle().set("background", "#434343");
-		mtabs.getStyle().set("color", "#ffffff00");
+
 		mtabs.setWidthFull();
 
 		Tabs sTabs = new Tabs();
 		sTabs.setId("subtabs");
-		sTabs.getStyle().set("background", "#0D6938");
+		sTabs.getStyle().set("background", "#ffffff00");
 		
 		// contentContainer.getStyle().set("background", "#f1f4f6");
 				final List<String> mainTabs = new ArrayList<>(dataProvider.getTabIds());
@@ -344,6 +354,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 					String mntabId = WordUtils.capitalizeFully(tabIdc);
 					Tab tabx = new Tab(mntabId);
 					tabx.setId("main_" + mntabId);
+					tabx.getStyle().set("font-weight", "600");
+//					tabx.getStyle().set("color", "600");
 					mtabs.add(tabx);
 
 					// this has to be moved to listener
@@ -358,11 +370,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 //							String sbtabId = WordUtils.capitalizeFully(tabIdc);
 							Tab stabx = new Tab(sbTabId);
 							stabx.setId("submain_" + sbTabId);
+							stabx.getStyle().set("font-weight", "500");
+							stabx.getStyle().set("color", "#0D6938");
 							sTabs.add(stabx);
 							
-							//havesting first tab and sub tab ids
 							if (defctr == 1) {
-							//	getElement().executeJs("alert($1);", mntabId);
 								
 								firstMntabId = mntabId;
 								firstSubtabId = sbTabId;
@@ -390,6 +402,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 						// String sbtabId = WordUtils.capitalizeFully(tabIdc);
 						Tab stabx = new Tab(sbTabId);
 						stabx.setId("submain_" + sbTabId);
+						stabx.getStyle().set("font-weight", "500");
+						stabx.getStyle().set("color", "#0D6938");
 						sTabs.add(stabx);
 
 					}
@@ -424,7 +438,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 				
 				
 				if(firstMntabId != null && firstSubtabId != null) {
-				//	Notification.show(firstMntabId +" _+_+_+_+_+_+ "+ firstSubtabId+" ____________ "+campaignPhase.getValue());
 					listerCheck = firstMntabId;
 					contentContainer.removeAll();
 					contentContainer.add(campaignSummaryGridView.CampaignSummaryGridViewInit(firstMntabId, dataProvider,
@@ -441,21 +454,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		
 	}
 
-	//
-//		
-//		contentContainer.add(tabComponentMap.get(this));
-//		
-//
-//	
-	// tabComponentMap.put(new Tab("Campaign Summary"), new
-	// CampaignSummaryGridView());
-////		tabComponentMap.put(new Tab("Admin Coverage By Day"), new AdminCovByDayGridView());
-////		tabComponentMap.put(new Tab("Admin Coverage: Doses"), new AdminCovByDosesGridView());
-////		tabComponentMap.put(new Tab("Coverage Summary"), new AdminCovByDosesGridView());
-//		return tabSheet;// new TabSheet(tabComponentMap.keySet().toArray(new Tab[] {}));
-//
-//	}
-//	
 
 	public class LazyComponent extends Div {
 		/**

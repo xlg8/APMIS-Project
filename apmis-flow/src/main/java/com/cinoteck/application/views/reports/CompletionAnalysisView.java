@@ -11,6 +11,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
@@ -20,16 +21,21 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
 
 @SuppressWarnings("serial")
@@ -47,16 +53,26 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
+	CampaignFormDataCriteria criteria = new CampaignFormDataCriteria();
 	Grid<CampaignFormDataIndexDto> grid = new Grid<>(CampaignFormDataIndexDto.class, false);
-	GridListDataView<CampaignFormDataIndexDto> dataView;
-	List<CampaignFormDataIndexDto> analysis = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisNew(null, null, null);
+	
+	//GridListDataView<CampaignFormDataIndexDto> dataView;
+	
+//	GridLazyDataView<CampaignFormDataIndexDto> dataView = grid.setItems(query -> { 
+//	    return FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysis(null, query.getOffset(), query.getLimit(), null, null)
+//	            .stream();
+//	});
+	
+	
+	//List<CampaignFormDataIndexDto> analysis = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisNew(null, null, null);
 
 	
 	
 	
 	public CompletionAnalysisView() {
 		
-		
+		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
+		setHeightFull();
 		
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
@@ -115,11 +131,14 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		
 		
 		add(displayFilters,filterLayout);
-		completionAnalysisGrid();
+		completionAnalysisGrid(numberOfRows);
 		
 		
 	}
-	private void completionAnalysisGrid() {
+	
+	@SuppressWarnings("deprecation")
+	private void completionAnalysisGrid(int numberOfRowsx) {
+		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -129,15 +148,37 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getCcode).setHeader("CCode").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader("Cluster Number").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Household Monitoringr").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Household Monitoring").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader("ICM Revisits").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader("ICM Team Monitoring").setSortable(true).setResizable(true);
 
-		dataView = grid.setItems(analysis);
+		//dataView = grid.setItems(analysis);
 		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
+	//	grid.setAllRowsVisible(true);
 		
+		
+		DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider = DataProvider
+				.fromFilteringCallbacks(
+						query -> FacadeProvider.getCampaignFormDataFacade()
+								.getByCompletionAnalysis(criteria, query.getOffset(),
+										query.getLimit(),
+										query.getSortOrders().stream()
+												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+														sortOrder.getDirection() == SortDirection.ASCENDING))
+												.collect(Collectors.toList()), null)
+								.stream(), 
+						query -> numberOfRowsx
+//						Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
+//								.getByCompletionAnalysisCount(criteria, query.getOffset(), //query.getFilter().orElse(null)
+//										query.getLimit(),
+//										query.getSortOrders().stream()
+//												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//														sortOrder.getDirection() == SortDirection.ASCENDING))
+//												.collect(Collectors.toList()), null))
+								);
+		
+		grid.setDataProvider(dataProvider);
 		add(grid);
 		
 	}

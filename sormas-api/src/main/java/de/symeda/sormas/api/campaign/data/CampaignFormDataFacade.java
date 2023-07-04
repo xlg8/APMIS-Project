@@ -105,5 +105,7 @@ public interface CampaignFormDataFacade {
 	List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV();
 	
 	String getByJsonFormDefinitonToCSVCount();
+
+	int prepareAllCompletionAnalysis();
 	
 }

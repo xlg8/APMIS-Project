@@ -1,34 +1,39 @@
 package com.cinoteck.application.views.configurations;
 
 import java.util.List;
+import java.util.stream.Stream;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
+import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
+import de.symeda.sormas.api.infrastructure.region.RegionCriteria;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
-import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 
 @PageTitle("Province")
 @Route(value = "province", layout = ConfigurationsView.class)
@@ -38,11 +43,21 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	private static final long serialVersionUID = 8159316049907141477L;
 	Grid<RegionIndexDto> grid = new Grid<>(RegionIndexDto.class, false);
 	List<RegionIndexDto> regions = FacadeProvider.getRegionFacade().getAllRegions();
-	GridListDataView<RegionIndexDto> dataView = grid.setItems(regions);
+	GridListDataView<RegionIndexDto> dataView;
+//	
+	private RegionCriteria criteria;	//	ProvinceDataProvider provinceDataProvider = new ProvinceDataProvider();	//	ConfigurableFilterDataProvider<RegionIndexDto, Void, RegionCriteria> filteredDataProvider;
+
+
+	final static TextField regionField = new TextField("Region");
+	final static TextField rcodeField = new TextField("RCode");
+	final static ComboBox<AreaReferenceDto> area= new ComboBox();
+	Binder<RegionIndexDto> binder = new BeanValidationBinder<>(RegionIndexDto.class);
+	private Button saveButton;
 
 	public ProvinceView() {
+		setSpacing(false);
 		setHeightFull();
-
+		setSizeFull();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -51,10 +66,15 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(RegionIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(RegionIndexDto::getName).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getExternalId).setHeader("PCode").setSortable(true).setResizable(true);
+		grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 
 		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
-		grid.setHeight("76vh");
+//		grid.setAllRowsVisible(true);
+//		grid.setHeight("76vh");
+		dataView = grid.setItems(regions);
+//		filteredDataProvider = provinceDataProvide.withConfigurableFilter());
+
+//		grid.setDataProvider(filteredDataProvider);
 
 		// VerticalLayout layout = new VerticalLayout(searchField, grid);
 		// layout.setPadding(false);
@@ -62,9 +82,60 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		add(grid);
 
 	}
+	
+	private ComponentRenderer<RegionEditForm, RegionIndexDto> createAreaEditFormRenderer() {
+		return new ComponentRenderer<>(RegionEditForm::new);
+	}
+
+	private class RegionEditForm extends FormLayout {
+
+		public RegionEditForm(RegionIndexDto regionDto) {
+			Dialog formLayout  = new Dialog();
+			area.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+
+			
+			H2 header = new H2("Edit " + regionDto.getName().toString());
+			this.setColspan(header, 2);
+			add(header);
+			Stream.of(regionField, rcodeField, area).forEach(e -> {
+				e.setReadOnly(false);
+				add(e);
+//				formLayout.add(e);
+			});
+			saveButton = new Button("Save");
+
+			saveButton.addClickListener(event -> saveArea());
+			
+			
+			
+//			formLayout.add(saveButton);
+			add(saveButton);
+		}
+	}
+
+	private void saveArea() {
+		if (binder.isValid()) {
+			RegionIndexDto regionDto = binder.getBean();
+			String regionValue = regionField.getValue();
+			long rcodeValue = Long.parseLong(rcodeField.getValue());
+			AreaReferenceDto areaValue = area.getValue();
+
+			regionDto.setName(regionValue);
+			regionDto.setExternalId(rcodeValue);
+			regionDto.setArea(areaValue);
+//			grid.getDataProvider().refreshItem(regionDto);
+		}
+	}
+
+	public void setArea(RegionIndexDto regionDto) {
+		regionField.setValue(regionDto.getName());
+		rcodeField.setValue(String.valueOf(regionDto.getExternalId()));
+		area.setValue(regionDto.getArea());
+		binder.setBean(regionDto);
+	}
 
 	public void configureProvinceFilters() {
-		setMargin(true);
+//		setMargin(true);
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
@@ -76,6 +147,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		vlayout.setAlignItems(Alignment.END);
 
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
@@ -92,7 +164,6 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 
@@ -112,6 +183,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			// || matchEmail || matchOrganisation || matchPosition;
 		}));
 
+
 		layout.add(searchField);
 
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
@@ -124,16 +196,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 		
 		});
-		
+
 		layout.add(regionFilter);
 
 		Button resetButton = new Button("Reset Filters");
 		resetButton.addClassName("resetButton");
-		resetButton.addClickListener(e ->{
-			dataView.removeFilters();
+		resetButton.addClickListener(e -> {
 			regionFilter.clear();
 			searchField.clear();
-			dataView.refreshAll();
 		});
 
 		layout.add(resetButton);
@@ -141,9 +211,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 	}
-
 	private void reloadGrid() {
 		dataView.refreshAll();
-	}
+	}	}
 
-}
+

@@ -343,6 +343,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 					+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid()
 					+ "'\n" + "group by a.\"name\", a.id, a.uuid ";
 
+			
+			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
 			@SuppressWarnings("unchecked")

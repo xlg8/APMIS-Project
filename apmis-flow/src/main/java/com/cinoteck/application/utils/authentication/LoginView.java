@@ -5,6 +5,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
@@ -25,87 +26,72 @@ import java.util.ResourceBundle;
 //@CssImport("./styles/shared-styles.css")
 public class LoginView extends FlexLayout {
 
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -597195523867494116L;
 
-	private transient ResourceBundle resourceBundle = ResourceBundle.getBundle("MockDataWords", UI.getCurrent().getLocale() == Locale.US ? Locale.ROOT : UI.getCurrent().getLocale());
+	private transient ResourceBundle resourceBundle = ResourceBundle.getBundle("MockDataWords",
+			UI.getCurrent().getLocale() == Locale.US ? Locale.ROOT : UI.getCurrent().getLocale());
 
-    private AccessControl accessControl;
+	private AccessControl accessControl;
 
-    public LoginView() {
-        accessControl = AccessControlFactory.getInstance().createAccessControl();
-        buildUI();
-    }
+	public LoginView() {
+		accessControl = AccessControlFactory.getInstance().createAccessControl();
+		buildUI();
+	}
 
-    private void buildUI() {
-        setSizeFull();
-        setClassName("login-screen");
+	private void buildUI() {
+		setSizeFull();
+		setClassName("login-screen");
 
-        // login form, centered in the available part of the screen
-        LoginForm loginForm = new LoginForm();
-        loginForm.setI18n(createLoginI18n());
-        loginForm.addLoginListener(this::login);
-        loginForm.addForgotPasswordListener(
-                event -> Notification.show(resourceBundle.getString("login_hint")));
+		LoginForm loginForm = new LoginForm();
+		loginForm.setI18n(createLoginI18n());
+		loginForm.addLoginListener(this::login);
+		loginForm.addForgotPasswordListener(event -> Notification.show(resourceBundle.getString("login_hint")));
 
-        // layout to center login form when there is sufficient screen space
-        FlexLayout centeringLayout = new FlexLayout();
-        centeringLayout.setSizeFull();
-        centeringLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-        centeringLayout.setAlignItems(Alignment.CENTER);
-        centeringLayout.add(loginForm);
+		VerticalLayout loginInformation = new VerticalLayout();
 
-        // information text about logging in
-        Component loginInformation = buildLoginInformation();
+		loginInformation.setSizeFull();
+		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
+		loginInformation.setAlignItems(Alignment.CENTER);
 
-        add(loginInformation);
-        add(centeringLayout);
-    }
+		loginInformation.setClassName("login-information");
+		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
+		imgApmis.setClassName("apmis-login-logo");
+		loginInformation.add(imgApmis);
+		loginInformation.add(loginForm);
+		
+		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
+		langSwitch.setId("loginLanguageSwitcher");
+		langSwitch.getStyle().set("color", "white !important");
+		loginInformation.add(langSwitch);
 
-    private Component buildLoginInformation() {
-        VerticalLayout loginInformation = new VerticalLayout();
-        loginInformation.setClassName("login-information");
+		add(loginInformation);
+	}
 
-        H1 loginInfoHeader = new H1(resourceBundle.getString("login_info"));
-        loginInfoHeader.setWidth("100%");
-        Span loginInfoText = new Span(resourceBundle.getString("login_info_text"));
-        loginInfoText.setWidth("100%");
-        loginInformation.add(loginInfoHeader);
-        loginInformation.add(loginInfoText);
-        loginInformation.add(
-                new LanguageSwitcher(Locale.ENGLISH,
-                        new Locale("fa","IR", "فارسی")));
+	private void login(LoginForm.LoginEvent event) {
+		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
+			getUI().get().navigate("/dashboard");
+		} else {
+			event.getSource().setError(true);
+		}
+	}
 
-        return loginInformation;
-    }
+	private LoginI18n createLoginI18n() {
+		final LoginI18n i18n = LoginI18n.createDefault();
 
-    private void login(LoginForm.LoginEvent event) {
-        if (accessControl.signIn(event.getUsername(), event.getPassword())) {
-            getUI().get().navigate("/dashboard");
-        } else {
-            event.getSource().setError(true);
-        }
-    }
-
-    private LoginI18n createLoginI18n() {
-        final LoginI18n i18n = LoginI18n.createDefault();
-
-        i18n.setHeader(new LoginI18n.Header());
-        i18n.getForm().setUsername(resourceBundle.getString("username"));
-        i18n.getForm().setTitle(resourceBundle.getString("login"));
-        i18n.getForm().setSubmit(resourceBundle.getString("login"));
-        i18n.getForm().setPassword(resourceBundle.getString("password"));
-        i18n.getForm().setForgotPassword(resourceBundle.getString("forgot_pass"));
-        i18n.getErrorMessage().setTitle(resourceBundle.getString("login_error_title"));
-        i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg"));
-        return i18n;
-    }
+		i18n.setHeader(new LoginI18n.Header());
+		i18n.getForm().setUsername(resourceBundle.getString("username"));
+		i18n.getForm().setTitle(resourceBundle.getString("login"));
+		i18n.getForm().setSubmit(resourceBundle.getString("login"));
+		i18n.getForm().setPassword(resourceBundle.getString("password"));
+		i18n.getForm().setForgotPassword(resourceBundle.getString("forgot_pass"));
+		i18n.getErrorMessage().setTitle(resourceBundle.getString("login_error_title"));
+		i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg"));
+		return i18n;
+	}
 }
-
-
-
 
 //
 //import com.vaadin.flow.component.Html;
