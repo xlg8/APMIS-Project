@@ -96,17 +96,16 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		firstnamee.setValue(currentUser.getFirstName());
 		// firstnamee.setClassName("fName");
 		firstnamee.setId("my-disabled-textfield");
-		//firstnamee.getStyle().set("-webkit-text-fill-color", "green");
-
-		firstnamee.setEnabled(false);
+		firstnamee.getStyle().set("-webkit-text-fill-color", "green");
+		firstnamee.setReadOnly(true);
 		// binder.forField(firstnamee).asRequired("First Name is
 		// Required").bind(UserDto::getFirstName, UserDto::setFirstName);
 
 		TextField lastnamee = new TextField("");
 		lastnamee.setLabel("Last Name");
 		lastnamee.setValue(currentUser.getLastName());
-		// lastnamee.getStyle().set("-webkit-text-fill-color", "green");
-		lastnamee.setEnabled(false);
+		lastnamee.getStyle().set("-webkit-text-fill-color", "green");
+		lastnamee.setReadOnly(true);
 		// binder.forField(lastnamee).asRequired("Last Name is
 		// Required").bind(UserDto::getLastName, UserDto::setLastName);
 
@@ -117,7 +116,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		} else {
 			emailAddresss.setValue(currentUser.getUserEmail());
 		}
-		emailAddresss.setEnabled(false);
+		emailAddresss.setReadOnly(true);
 		binder.forField(emailAddresss).asRequired("Email Address is Required").bind(UserDto::getUserEmail,
 				UserDto::setUserEmail);
 
@@ -128,7 +127,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		} else {
 			phoneNumberr.setValue(currentUser.getPhone());
 		}
-		phoneNumberr.setEnabled(false);
+		phoneNumberr.setReadOnly(true);
 //		binder.forField(phoneNumberr).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
 //				.bind(UserDto::getPhone, UserDto::setPhone);
 
@@ -145,13 +144,14 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		} else {
 			positionn.setValue(currentUser.getUserPosition());
 		}
-		positionn.setEnabled(false);
+		positionn.setReadOnly(true);
 		// binder.forField(positionn).bind(UserDto::getUserPosition,
 		// UserDto::setUserPosition);
 
 //TODO:: add a model for address in userDto
 		TextField addresss = new TextField();
 		addresss.setLabel("Address");
+		addresss.setReadOnly(true);
 		// binder.forField(addresss).bind(UserDto::getAddress,UserDto::setAddress);
 
 		FormLayout dataVieww = new FormLayout();
@@ -188,7 +188,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		// "Province");
 //		provincee.setValue("");
 
-		// TODO: find how flow pulls data into select
+
 		// Select<String> districtt = new Select<>();
 		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>("District");
 		// districtt.setLabel("District");
@@ -272,7 +272,8 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		Div anch = new Div();
 		anch.setClassName("anchDiv");
-
+		pwdSecc.getStyle().set("margin-left", "20px");
+		
 		pwdSecc.add(openPasswordPopupButton, languagee, anch);
 
 		Div actionss = new Div();
@@ -375,24 +376,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
 
 	}
-// Tabs tabs = cre	
-// Div contentContainer = new Div();
-//        contentContainer.setWidth("100%");
-// add(tabs, contentContainer);
-//
-//        tabs.addSelectedChangeListener(e -> {
-//  contentContainer.removeAll();
-//  contentContainer.add(tabComponentMap.get(e.getSelectedTab()));
-// });
-// // Set initial content
-//        contentContainer.add(tabComponentMap.get(tabs.getSelectedTab()));
-//}
-//
-// private Tabs createTabs() {
-//  tabComponentMap.put(new Tab("Show some text"), new UserReadView());
-//  tabComponentMap.put(new Tab("Show a Combo Box"), new TestView2());
-//  tabComponentMap.put(new Tab("Show a button"), new TestView3());
-//  return new Tabs(tabComponentMap.keySet().toArray(new Tab[]{}));
-// }
+
 
 }
