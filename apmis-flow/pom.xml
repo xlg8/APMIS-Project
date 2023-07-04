@@ -152,7 +152,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>6.0.9</version>
+			<version>4.3.30.RELEASE</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 

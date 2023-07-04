@@ -31,8 +31,10 @@ public class ExpressionProcessorUtils {
 		return formValuesMap;
 	}
 
+	
 	private static Object parseValue(Object value) {
-		if (value instanceof String && !((String) value).isEmpty()) {
+		System.out.println("int: "+(value instanceof Integer) + ", String: "+(value instanceof String)+"________expression parseValue: "+value);
+		if ((value instanceof String && !((String) value).isEmpty()) || (value instanceof Integer)) {
 			try {
 				return Double.parseDouble(value.toString());
 			} catch (NumberFormatException e) {
