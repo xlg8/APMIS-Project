@@ -20,15 +20,15 @@ public class CredentialPassWordChanger extends Div {
 	private static final long serialVersionUID = -928337100277917699L;
 	
 	UserDto userName;
-
+	ConfirmDialog _dialog;
 	public CredentialPassWordChanger(UserDto usedto) {
 		
 		this.userName = usedto;
 
-		ConfirmDialog _dialog = new ConfirmDialog();
+		_dialog = new ConfirmDialog();
 		_dialog.setHeader("Password?");
 		_dialog.setText("Do you really want to change your password?");
-
+		_dialog.setCloseOnEsc(false);
 		_dialog.setCancelable(true);
 		// _dialog.addCancelListener(event -> e -> dialog.close());
 //
@@ -44,10 +44,13 @@ public class CredentialPassWordChanger extends Div {
 	}
 
 	private void continuePasswrd() {
-
+		//_dialog.close();
+		
 		Dialog dialog = new Dialog();
 		dialog.setHeaderTitle(I18nProperties.getString(Strings.messageChangePassword));
-
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		
 		VerticalLayout layout = new VerticalLayout();
 		
 		UserProvider userProvider = new UserProvider();
@@ -57,13 +60,11 @@ public class CredentialPassWordChanger extends Div {
 		// CssStyles.VSPACE_TOP_NONE, CssStyles.LABEL_PRIMARY);
 
 		layout.add(c2Label);
-		layout.add(new Label(""));
 
 		layout.add(new Label(I18nProperties.getString(Strings.messageChangePassword)));
 
 		layout.add(new Label("*Must be at least 8 characters"));
 		layout.add(new Label("*Must contain 1 Uppercase and 1 special character "));
-		layout.add(new Label(""));
 
 		PasswordField passField1 = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		passField1.setSizeFull();
@@ -85,11 +86,13 @@ public class CredentialPassWordChanger extends Div {
 			String newpass2 = passField2.getValue();
 
 			if (newpass1.equals(newpass2)) {// && passField1.isValid()) {
-
+				//needed put a lot of logics to check hacking and unsave password TODO
 				FacadeProvider.getUserFacade().changePassword(userName.getUserName(), newpass1);
 
-				Notification.show("Password changed Successfully");
+				
 				UI.getCurrent().getPage().reload();
+				
+				Notification.show("Password changed Successfully");
 
 			} else {
 				Notification.show("Password does not match");
@@ -102,14 +105,14 @@ public class CredentialPassWordChanger extends Div {
 		dialog.getFooter().add(cancelButton);
 		dialog.getFooter().add(saveButton);
 
-		Button button = new Button("Show dialog", e -> dialog.open());
-
+		//Button button = new Button("Show dialog", e -> dialog.open());
+		dialog.open();
 		
 		getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
 		
 		
-		add(dialog, button);
+		//add(dialog);
 
 	}
 
