@@ -496,3 +496,8 @@ vaadin-text-field.searchField {
 	width: 20%;
 	margin-right: 10px;
 }
+
+.contact-form {
+	margin-left: 30px;
+	margin-right: 30px;
+}

@@ -12,10 +12,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.cinoteck.application.RowCount;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -68,6 +71,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 
+import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.caze.CaseDataDto;
@@ -80,6 +84,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
@@ -89,13 +94,12 @@ import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
-
 public class UserView extends VerticalLayout {
 
 	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
 	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
 
-	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
+	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 
 	private ComboBox<String> activeFilter;
 	private ComboBox<UserRole> userRolesFilter;
@@ -122,8 +126,8 @@ public class UserView extends VerticalLayout {
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
 	UserForm form;
+	CreateUserForm createUserForm;
 	MenuBar menuBar;
-//	RowCount rowsCount = new RowCount(Strings.labelNumberOfUsers, dataView.getItemCount());
 
 	Button createUserButton;
 	Button exportUsersButton;
@@ -161,7 +165,11 @@ public class UserView extends VerticalLayout {
 			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 			dialog.getFooter().add(cancelButton, saveButton);
-			createUserButton = new Button(Captions.userNewUser, e -> dialog.open()); // event -> editUser(null));
+			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
+			createUserButton.addClickListener(e -> {
+				UserDto userDto = new UserDto();
+				showNewUserForm(userDto);
+			});
 			exportUsersButton = new Button(Captions.export);
 			exportRolesButton = new Button(Captions.exportUserRoles);
 
@@ -178,6 +186,7 @@ public class UserView extends VerticalLayout {
 		addFilters();
 		configureGrid();
 		configureForm();
+		configureNewUserForm();
 		add(getContent());
 		closeEditor();
 	}
@@ -188,7 +197,7 @@ public class UserView extends VerticalLayout {
 		content.setFlexGrow(4, form);
 		content.addClassNames("content");
 		content.setSizeFull();
-		content.add(grid, form);
+		content.add(grid, form, createUserForm);
 		return content;
 	}
 
@@ -247,42 +256,31 @@ public class UserView extends VerticalLayout {
 //		grid.setDataProvider(dataProvider);
 	}
 
-	private Stream<UserDto> fetchCampaignFormData(Query<UserDto, UserCriteria> query) {
-		return FacadeProvider.getUserFacade()
-				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
-						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-								sortOrder.getDirection() == SortDirection.ASCENDING))
-						.collect(Collectors.toList()))
-				.stream();
-	}
+//	private Stream<UserDto> fetchCampaignFormData(Query<UserDto, UserCriteria> query) {
+//		return FacadeProvider.getUserFacade()
+//				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+//						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//								sortOrder.getDirection() == SortDirection.ASCENDING))
+//						.collect(Collectors.toList()))
+//				.stream();
+//	}
 
-	private int countCampaignFormData(Query<UserDto, UserCriteria> query) {
-		return (int) FacadeProvider.getUserFacade().count(criteria);
-	}
-
-	private void setDataProvider() {
-		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider.fromFilteringCallbacks(
-				query -> FacadeProvider.getUserFacade()
-						.getIndexList(criteria, query.getOffset(), query.getLimit(),
-								query.getSortOrders().stream()
-										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-												sortOrder.getDirection() == SortDirection.ASCENDING))
-										.collect(Collectors.toList()))
-						.stream(),
-				query -> (int) FacadeProvider.getUserFacade().count(criteria));
-//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
-//				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
-//						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
+//	private int countCampaignFormData(Query<UserDto, UserCriteria> query) {
+//		return (int) FacadeProvider.getUserFacade().count(criteria);
+//	}
+//
+//	private void setDataProvider() {
+//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider.fromFilteringCallbacks(
+//				query -> FacadeProvider.getUserFacade()
+//						.getIndexList(criteria, query.getOffset(), query.getLimit(),
 //								query.getSortOrders().stream()
 //										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 //												sortOrder.getDirection() == SortDirection.ASCENDING))
 //										.collect(Collectors.toList()))
-//						.stream()
-//						, query -> {
-//							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
-//						});
-		grid.setDataProvider(dataProvider);
-	}
+//						.stream(),
+//				query -> (int) FacadeProvider.getUserFacade().count(criteria));
+//		grid.setDataProvider(dataProvider);
+//	}
 
 	private void configureForm() {
 		form = new UserForm(regions, provinces, districts);
@@ -290,6 +288,14 @@ public class UserView extends VerticalLayout {
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> closeEditor());
+	}
+	
+	private void configureNewUserForm() {
+		createUserForm = new CreateUserForm();
+		createUserForm.setSizeFull();
+		createUserForm.setVisible(false);
+		createUserForm.addSaveListener(this::saveNewUser);
+		createUserForm.addCloseListener(e -> closeNewUserForm());
 	}
 
 	// TODO: Hide the filter bar on smaller screens
@@ -589,6 +595,26 @@ public class UserView extends VerticalLayout {
 			addClassName("editing");
 		}
 	}
+	
+	public void showNewUserForm(UserDto user) {
+
+		if (user == null) {
+			user = new UserDto();
+			createUserForm.setUser(user);		
+			createUserForm.setSizeFull();
+			createUserForm.setVisible(true);
+			form.setVisible(false);
+			grid.setVisible(false);
+			setFiltersVisible(false);
+		} else {
+			user = new UserDto();
+			createUserForm.setVisible(true);
+			createUserForm.setSizeFull();
+			form.setVisible(false);
+			setFiltersVisible(false);
+			grid.setVisible(false);
+		}
+	}
 
 	private void closeEditor() {
 
@@ -598,6 +624,16 @@ public class UserView extends VerticalLayout {
 		removeClassName("editing");
 		form.setUser(new UserDto());
 	}
+	
+	private void closeNewUserForm() {
+
+		setFiltersVisible(true);
+		grid.setVisible(true);
+		form.setVisible(false);
+		form.setUser(new UserDto());
+		createUserForm.setVisible(false);
+		removeClassName("editing");
+	}
 
 	private void setFiltersVisible(boolean state) {
 		
@@ -606,7 +642,12 @@ public class UserView extends VerticalLayout {
 		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
 		searchField.setVisible(state);
-		displayFilters.setVisible(state);
+		activeFilter.setVisible(state);
+		userRolesFilter.setVisible(state);
+		areaFilter.setVisible(state);
+		regionFilter.setVisible(state);;
+		districtFilter.setVisible(state);;
+//		displayFilters.setVisible(state);
 	}
 
 //	private void addContact() {
@@ -621,11 +662,35 @@ public class UserView extends VerticalLayout {
 		grid.getDataProvider().refreshAll();
 		closeEditor();
 	}
+	
+	private void saveNewUser(CreateUserForm.SaveEvent event) {
+		
+		UserDto dto = new UserDto();
+		dto = FacadeProvider.getUserFacade().saveUser(event.getUser());
+		makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
+		closeNewUserForm();
+	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
 		// FacadeProvider.getUserFacade(). .getContact());
 		// updateList();
 		closeEditor();
+	}
+	
+	public void makeInitialPassword(String userUuid, String userEmail, String userName) {
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+			String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+			
+			Dialog newUserPop = new Dialog();
+			newUserPop.setHeaderTitle("New User Password");
+			newUserPop.add(userEmail);
+			newUserPop.add(newPassword);
+			newUserPop.setOpened(true);
+		}
+//		else {
+//			showAccountCreatedSuccessful();
+//		}
 	}
 
 	private FormLayout createDialogLayout() {
@@ -765,50 +830,53 @@ public class UserView extends VerticalLayout {
 		region.setItems(regions);
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			province.setItems(provinces);
+			}
 		});
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			district.setItems(districts);
+			}
 		});
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 			community.setItems(communities);
+			}
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 
 //		// TODO: Change implemenation to only add assignable roles sormas style.
-//		// userRoles.setLabel("User Roles");
-//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-//		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles, UserDto::setUserRoles);
-//		this.setColspan(userRoles, 1);
-//		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
-//
-//		formAccess.setLabel("Form Access");
-//		// formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
-//		formAccess.setItems(UserUiHelper.getAssignableForms());
-//		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-//		
-//		this.setColspan(activeCheck, 2);
-//		activeCheck.setLabel("Active ?");
-//		activeCheck.setValue(active);
-//		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
-//
-//		// usertype.addThemeVariants(CheckboxGroupVariant.LUMO_HELPER_ABOVE_FIELD);
-//		usertype.setItems(UserType.values());
-//		// this.setColspan(usertype, 2);
-//		language.setItemLabelGenerator(Language::toString);
-//		language.setItems(Language.getAssignableLanguages());
-//		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+		userRole.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		binder.forField(userRole).asRequired("User Role is Required").bind(UserDto::getUserRoles, UserDto::setUserRoles);
+		formLayout.setColspan(userRole, 1);
+//		userRole.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
+
+		formAccess.setLabel("Form Access");
+		formAccess.setItems(UserUiHelper.getAssignableForms());
+		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+	
+		binder.forField(active).bind(UserDto::isActive, UserDto::setActive);
+
+		userType.setItems(UserType.values());
+		
+		language.setItemLabelGenerator(Language::toString);
+		language.setItems(Language.getAssignableLanguages());
+		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		return formLayout;
 	}
