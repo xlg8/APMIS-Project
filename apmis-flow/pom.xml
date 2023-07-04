@@ -224,6 +224,13 @@
 		   <artifactId>togglebutton</artifactId>
 		   <version>3.0.0</version>
 		</dependency>
+		
+		<dependency>
+    <groupId>org.vaadin.addons</groupId>
+    <artifactId>vaadin-excel-exporter</artifactId>
+    <version>1.0.3</version>
+</dependency>
+		
 
 	</dependencies>
 

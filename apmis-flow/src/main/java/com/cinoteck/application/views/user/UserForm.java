@@ -14,14 +14,15 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -36,7 +37,7 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
-
+@Route(value = "/edit-user")
 public class UserForm  extends FormLayout{
 	
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
@@ -73,10 +74,9 @@ public class UserForm  extends FormLayout{
 	Button delete = new Button("Delete");
 	Button close = new Button("Cancel");
 	
-	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts) {
-addClassName("contact-form");
+	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces, List<DistrictReferenceDto> districts) {
 		
+		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
 		hor.setJustifyContentMode(JustifyContentMode.END);
@@ -119,23 +119,31 @@ addClassName("contact-form");
 		region.setItems(regions);
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			province.setItems(provinces);
+			}
 		});
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
+			
+			if(e.getValue() != null) {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			district.setItems(districts);
+			}
 		});
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
+			if(e.getValue() != null) {
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 			community.setItems(communities);
+			}
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
@@ -180,6 +188,7 @@ addClassName("contact-form");
 		save.setEnabled(true);
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
+		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
 		//binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
@@ -190,8 +199,13 @@ addClassName("contact-form");
 	}
 
 	private void validateAndSave() {
-		if (binder.isValid()) {
+//		if (binder.isValid()) {
+//			fireEvent(new SaveEvent(this, binder.getBean()));
+//		}
+		if(binder.validate().isOk()) {
 			fireEvent(new SaveEvent(this, binder.getBean()));
+		} else {
+			Notification.show("Make sure required fields are filled");
 		}
 	}
 
@@ -199,36 +213,35 @@ addClassName("contact-form");
 		binder.setBean(user);
 	}
 
-	// Events
 	public static abstract class UserFormEvent extends ComponentEvent<UserForm> {
-		private UserDto contact;
+		private UserDto user;
 
-		protected UserFormEvent(UserForm source, UserDto contact) {
+		protected UserFormEvent(UserForm source, UserDto user) {
 			super(source, false);
-			this.contact = contact;
+			this.user = user;
 		}
 
 		public UserDto getContact() {
-			return contact;
+			return user;
 		}
 	}
 
 	public static class SaveEvent extends UserFormEvent {
-		SaveEvent(UserForm source, UserDto contact) {
-			super(source, contact);
+		SaveEvent(UserForm source, UserDto user) {
+			super(source, user);
 		}
 	}
 
 	public static class DeleteEvent extends UserFormEvent {
-		DeleteEvent(UserForm source, UserDto contact) {
-			super(source, contact);
+		DeleteEvent(UserForm source, UserDto user) {
+			super(source, user);
 		}
 
 	}
 
 	public static class CloseEvent extends UserFormEvent {
 		CloseEvent(UserForm source) {
-			super(source, null);
+			super(source, new UserDto());
 		}
 	}
 

@@ -1,13 +1,11 @@
 package com.cinoteck.application.views.campaigndata;
 
-import java.awt.Panel;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +19,7 @@ import com.cinoteck.application.views.MainLayout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-//import com.vaadin.componentfactory.Popup;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -30,11 +28,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -45,7 +40,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
@@ -58,7 +52,6 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
@@ -88,7 +81,7 @@ public class CampaignDataView extends VerticalLayout {
 	ComboBox<CommunityReferenceDto> clusterCombo = new ComboBox<>();
 	ComboBox<CampaignFormElementImportance> importanceSwitcher = new ComboBox<>();
 	Button resetHandler = new Button();
-	Button applyHandler = new Button();
+//	Button applyHandler = new Button();
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
@@ -125,7 +118,6 @@ public class CampaignDataView extends VerticalLayout {
 		
 
 		Button importData = new Button("IMPORT", new Icon(VaadinIcon.PLUS_CIRCLE));
-		Button exportData = new Button("EXPORT", new Icon(VaadinIcon.DOWNLOAD));
 		
 		
 		VerticalLayout filterBlock = new VerticalLayout();
@@ -142,14 +134,14 @@ public class CampaignDataView extends VerticalLayout {
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
-		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData, exportData);
+		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData);
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
 		level1Filters.setVisible(false);
 		level1Filters.setAlignItems(Alignment.END);
 		level1Filters.add(campaignFormCombo, regionCombo, provinceCombo, districtCombo, clusterCombo,
-				importanceSwitcher, resetHandler, applyHandler);
+				importanceSwitcher, resetHandler);
 
 		
 
@@ -170,12 +162,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		TextArea resultField = new TextArea();
 		resultField.setWidth("100%");
-		exportData.addClickListener(
-
-				e -> {
-					this.export(grid, resultField);
-				});
-
+		
 		campaignYear.setLabel("Campaign Year");
 		campaignYear.getStyle().set("padding-top", "0px !important");
 
@@ -190,6 +177,7 @@ public class CampaignDataView extends VerticalLayout {
 		
 		campaignFormCombo.setLabel("Form");
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
+		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 
 		regionCombo.setLabel("Region");
 		regionCombo.getStyle().set("padding-top", "0px !important");
@@ -203,6 +191,7 @@ public class CampaignDataView extends VerticalLayout {
 		provinceCombo.setPlaceholder("Provinces");
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
+		provinceCombo.setEnabled(false);
 
 		provinceCombo.getStyle().set("padding-top", "0px");
 		provinceCombo.setClassName("col-sm-6, col-xs-6");
@@ -212,14 +201,14 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.setPlaceholder("Districts");
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
-
+districtCombo.setEnabled(false);
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 
 		clusterCombo.setLabel("Cluster");
 		clusterCombo.getStyle().set("padding-top", "0px !important");;
 		clusterCombo.setPlaceholder("Clusters");
-		
+		clusterCombo.setEnabled(false);
 
 		// TODO Importance filter switcher should be visible only on the change of form
 		importanceSwitcher.setLabel("Importance");
@@ -317,10 +306,9 @@ public class CampaignDataView extends VerticalLayout {
 								e.getValue().getUuid());
 				campaignFormCombo.setItems(campaignFormReferences_);
 				newForm.setItems(campaignFormReferences_);
-				criteria.campaign(e.getValue());
+				reload();
 				
 			}
-//			dataView.addFilter(t -> t.getCampaign().toString().equalsIgnoreCase(campaignz.getValue().toString()));
 		});
 
 		campaignPhase.addValueChangeListener(e -> {
@@ -333,25 +321,16 @@ public class CampaignDataView extends VerticalLayout {
 			campaignFormCombo.setItems(campaignFormReferences_);
 			newForm.setItems(campaignFormReferences_);
 
-			criteria.setFormType(e.getValue().toString());
-			
-//			dataView.addFilter(t -> t.getFormType().toString()
-//					.equalsIgnoreCase(campaignPhase.getValue().toString().toLowerCase()));
-//			
-//			fillNewFormDropdown(newFormPanel);
-//			newFormButton.setEnabled(true);
-//			criteria.setFormPhase(e.getValue());
+			reload();
 		});
 
 		campaignFormCombo.addValueChangeListener(e -> {
-//			dataView.addFilter(t -> t.getForm().toString().equalsIgnoreCase(campaignFormCombo.getValue().toString()));
 			
 			if(e.getValue() != null) {
 			formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetaByUuid(e.getValue().getUuid());
 
-			criteria.setCampaignFormMeta(campaignFormCombo.getValue());
-			
+			reload();
 				//add method to update the grid after this combo changes
 				importanceSwitcher.setReadOnly(false);
 				importanceSwitcher.clear();
@@ -368,23 +347,25 @@ public class CampaignDataView extends VerticalLayout {
 		regionCombo.addValueChangeListener(e -> {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			provinceCombo.setItems(provinces);
-//			dataView.addFilter(t -> t.getArea().toString().equalsIgnoreCase(regionCombo.getValue().toString()));
-		});
+			provinceCombo.setEnabled(true);
+			reload();
+});
 
 		provinceCombo.addValueChangeListener(e -> {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			districtCombo.setItems(districts);
-//			dataView.addFilter(t -> t.getRegion().toString().equalsIgnoreCase(provinceCombo.getValue().toString()));
+			districtCombo.setEnabled(true);
+			reload();
 		});
 
 		districtCombo.addValueChangeListener(e -> {
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			clusterCombo.setItems(communities);
-//			dataView.addFilter(t -> t.getDistrict().toString().equalsIgnoreCase(districtCombo.getValue().toString()));
+			clusterCombo.setEnabled(true);
 		});
 
 		clusterCombo.addValueChangeListener(e -> {
-//			dataView.addFilter(t -> t.getCommunity().toString().equalsIgnoreCase(clusterCombo.getValue().toString()));
+			reload();
 		});
 
 		
@@ -399,13 +380,21 @@ public class CampaignDataView extends VerticalLayout {
  		});
  		
 		resetHandler.setText("Reset Filters");
-		
+
+
 		resetHandler.addClickListener(e -> {
-			//just for the test... we have to line list all filter and remove their value
-			getElement().executeJs("location.reload();");
+	
+//		    // Refresh the grid and update criteria as needed
+	   
+			UI.getCurrent().getPage().reload();
+		    criteria.campaign(lastStarted);
+		    criteria.setFormType(campaignPhase.getValue().toString());
 		});
 
-		applyHandler.setText("Apply Filters");
+
+		
+		
+//		applyHandler.setText("Apply Filters");
 
 		
 		
@@ -417,13 +406,24 @@ public class CampaignDataView extends VerticalLayout {
 
 		add(filterBlock);
 	}
+	
+	public void reload() {
+		grid.getDataProvider().refreshAll();
+		criteria.campaign(campaignz.getValue());
+		criteria.setFormType(campaignPhase.getValue().toString());
+		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
+		criteria.area(regionCombo.getValue());
+		criteria.region(provinceCombo.getValue());
+		criteria.district(districtCombo.getValue());
+		criteria.community(clusterCombo.getValue());
+	}
 
 
 
 	@SuppressWarnings("deprecation")
 	private void configureGrid(CampaignFormDataCriteria criteria) {
 		setMargin(false);
-		grid.removeAllColumns();
+//		grid.removeAllColumns();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 //		grid.setSizeFull();
 		
@@ -447,7 +447,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		grid.setVisible(true);
 		grid.setWidthFull();
-		grid.setHeightFull();
+//		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
 
 
@@ -517,7 +517,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setSizeFull();
+//		dialog.setSizeFull();
 		dialog.open();
 	}
 

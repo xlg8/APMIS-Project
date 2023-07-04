@@ -22,7 +22,6 @@ import com.cinoteck.application.views.pivot.PivotTableView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
-//import com.cinoteck.application.views.user.UserView;
 //import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
 import com.vaadin.flow.component.Component;
@@ -135,6 +134,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
+//		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
+
 		
 		
 		nav.addItem(new AppNavItem("Sign Out", LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));

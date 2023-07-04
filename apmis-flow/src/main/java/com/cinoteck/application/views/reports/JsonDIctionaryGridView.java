@@ -1,11 +1,15 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -27,6 +31,8 @@ public class JsonDIctionaryGridView extends VerticalLayout implements RouterLayo
 	public JsonDIctionaryGridView() {
 		configureJsonDictionaryGrid();
 		
+		
+		
 	}
 	
 	public void configureJsonDictionaryGrid() {
@@ -44,9 +50,18 @@ public class JsonDIctionaryGridView extends VerticalLayout implements RouterLayo
 		
 		dataView = grid.setItems(analysis);
 		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
+//		grid.setAllRowsVisible(true);
 		
 		add(grid);
+		
+		GridExporter<JsonDictionaryReportModelDto> exporter = GridExporter.createFor(grid);
+	    exporter.setAutoAttachExportButtons(false);
+	    exporter.setTitle("People information");
+	    exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+	    Anchor excelLink = new Anchor("", "Export to Excel");
+	    excelLink.setHref(exporter.getCsvStreamResource());
+	    excelLink.getElement().setAttribute("download", true);
+	    add(excelLink);
 }
 	
 	
