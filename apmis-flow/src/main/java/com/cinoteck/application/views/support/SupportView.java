@@ -15,6 +15,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -48,15 +50,8 @@ public class SupportView extends VerticalLayout {
 
 
 	public SupportView() {
-	    try {
-            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            sheetsService = new Sheets.Builder(httpTransport, JSON_FACTORY, null)
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-            // Handle the exception appropriately
-        }
+	  setSizeFull();
+	  setSizeFull();
 		
 		 Div aboutView = new Div();
 	       
@@ -86,79 +81,20 @@ public class SupportView extends VerticalLayout {
 
 	        aboutText.add(text);
 
-
-			Div feedbackFormFields = new Div();
-	      //  Binder<Feedback> binder = new Binder<>(Feedback.class);
-
-	    
+	        Html html = new Html("<iframe src='feedbackform/feedbackforminput.html' style='width:100%; height:79vh; border: 0px;'></iframe>");
 	        
-	        firstName.getStyle().set("color", "green");
-	       
-	     //   binder.forField(firstName).bind(Feedback::getFirstName, Feedback::setFirstName);
-
-	        
-	        lastName.getStyle().set("color", "green");
-	       
-	     //   binder.forField(lastName).bind(Feedback::getLastName, Feedback::setLastName);
-
-	        
-	        email.getStyle().set("color", "green");
-	     //   binder.forField(email).bind(Feedback::getEmailAddress, Feedback::setEmailAddress);
-
-	       
-	        message.getStyle().set("color", "green");
-	        message.getStyle().set("height", "370px");
-	     //   binder.forField(message).bind(Feedback::getFeedback, Feedback::setFeedback);
-
-	        Button sendFeedback = new Button("Send", new Icon("vaadin", "location-arrow-circle-o"));
-	        sendFeedback.getStyle().set("color", "white");
-	        sendFeedback.getStyle().set("background", "#0D6938");
-	        sendFeedback.getStyle().set("width", "10%");
-	        sendFeedback.getStyle().set("border-radius", "8px");
-
-	        sendFeedback.addClickListener(click -> submitForm(firstName.getValue(), lastName.getValue(), email.getValue(), message.getValue()));
-	     //   sendFeedback.setSuffixComponent(new Icon("vaadin", "building"));
 
 
-	        message.setWidthFull();
-	        message.setLabel("Feedback");
+	        Paragraph versionNum = new Paragraph("APMIS Version Number : APMIS 5.0.0");
+	        versionNum.getStyle().set("font-size", "15px");
+	        versionNum.getStyle().set("font-weight", "500");
+	        versionNum.getStyle().set("color", "#0D6938");
 
-	        
-	        feedbackForm.add(firstName, lastName, email, message);
-	        feedbackForm.setResponsiveSteps(
-	                // Use one column by default
-	                new ResponsiveStep("0", 1),
-	                // Use two columns, if layout's width exceeds 500px
-	                new ResponsiveStep("500px", 2));
-	        // Stretch the username field over 2 columns
-	        feedbackForm.setColspan(email, 2);
-	        feedbackForm.setColspan(message, 2);
-	        feedbackForm.setColspan(sendFeedback, 0);
-
-			feedbackFormFields.add(feedbackForm);
-
-	        Paragraph versionNum = new Paragraph("Version Number : APMIS 5.0.0");
-	        versionNum.getStyle().set("font-size", "12px");
-
-			aboutView.add(aboutText, feedbackForm, sendFeedback, versionNum);
+			aboutView.add(aboutText, html,  versionNum);
+			 
 	        add(aboutView);
 	}
 	
-	 private void submitForm(String firstName, String lastNamw, String email, String message) {
-	        try {
-	            ValueRange body = new ValueRange()
-	                    .setValues(Arrays.asList(Arrays.asList(firstName, lastName, email, message)));
-	            sheetsService.spreadsheets().values()
-	                    .append(SPREADSHEET_ID, "Sheet1", body)
-	                    .setValueInputOption("USER_ENTERED")
-	                    .execute();
-	            Notification.show("Form submitted successfully");
-	            // Clear form fields or perform any other desired actions
-	            
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	            // Handle the exception appropriately
-	        }
-	    }
+
 
 }
