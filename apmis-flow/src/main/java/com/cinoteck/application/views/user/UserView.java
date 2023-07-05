@@ -70,6 +70,8 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -135,6 +137,8 @@ public class UserView extends VerticalLayout {
 	Button displayFilters;
 	
 	UserProvider currentUser = new UserProvider();
+	
+	
 
 	private static final String CSV_FILE_PATH = "./result.csv";
 
@@ -177,7 +181,7 @@ public class UserView extends VerticalLayout {
 		
 
 		setHeightFull();
-//		addFilters();
+		addFilters();
 		configureGrid();
 		configureForm();
 		add(getContent());
@@ -240,51 +244,32 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-		filterDataProvider = usersDataProvider.withConfigurableFilter();
-		grid.setDataProvider(filterDataProvider);
+		
+		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
+//		filterDataProvider = usersDataProvider.withConfigurableFilter();
+		grid.setDataProvider(dataProvider);
 
 		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue()));
 
 //		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
 //		grid.setDataProvider(dataProvider);
 	}
+	
+	
 
-//	private Stream<UserDto> fetchCampaignFormData(Query<UserDto, UserCriteria> query) {
-//		return FacadeProvider.getUserFacade()
-//				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
-//						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-//								sortOrder.getDirection() == SortDirection.ASCENDING))
-//						.collect(Collectors.toList()))
-//				.stream();
-//	}
+	private Stream<UserDto> fetchCampaignFormData(Query<UserDto, UserCriteria> query) {
+		return FacadeProvider.getUserFacade()
+				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+								sortOrder.getDirection() == SortDirection.ASCENDING))
+						.collect(Collectors.toList()))
+				.stream();
+	}
 
-//	private int countCampaignFormData(Query<UserDto, UserCriteria> query) {
-//		return (int) FacadeProvider.getUserFacade().count(criteria);
-//	}
+	private int countCampaignFormData(Query<UserDto, UserCriteria> query) {
+		return (int) FacadeProvider.getUserFacade().count(criteria);
+	}
 
-//	private void setDataProvider() {
-//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider.fromFilteringCallbacks(
-//				query -> FacadeProvider.getUserFacade()
-//						.getIndexList(criteria, query.getOffset(), query.getLimit(),
-//								query.getSortOrders().stream()
-//										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-//												sortOrder.getDirection() == SortDirection.ASCENDING))
-//										.collect(Collectors.toList()))
-//						.stream(),
-//				query -> (int) FacadeProvider.getUserFacade().count(criteria));
-////		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
-////				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
-////						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
-////								query.getSortOrders().stream()
-////										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-////												sortOrder.getDirection() == SortDirection.ASCENDING))
-////										.collect(Collectors.toList()))
-////						.stream()
-////						, query -> {
-////							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
-////						});
-//		grid.setDataProvider(dataProvider);
-//	}
 
 	private void configureForm() {
 		form = new UserForm(regions, provinces, districts);
@@ -295,300 +280,304 @@ public class UserView extends VerticalLayout {
 	}
 
 	// TODO: Hide the filter bar on smaller screens
-//	public void addFilters() {
-//		HorizontalLayout layout = new HorizontalLayout();
-//		layout.setMargin(false);
-//		layout.setPadding(false);
-//		layout.setWidthFull();
-//
-//		createUserButton.addClassName("createUserButton");
-//		createUserButton.getStyle().set("margin-left", "12px");
-//		layout.add(createUserButton);
-//		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
-//		createUserButton.setIcon(createIcon);
-//		createUserButton.addClickListener(e -> {
-//		});
-//
-//		exportUsersButton.addClassName("exportUsersButton");
-//		layout.add(exportUsersButton);
-//
-//		exportUsersButton.addClickListener(e -> {
-//			// Retrieve the data from the Vaadin Grid
-//			String data = getDataAsString(grid);
-//
-//			// Format the data in the desired format (e.g., CSV)
-//			String formattedData = formatDataAsCsv(data);
-//
-//			// Create a temporary stream to write the formatted data
-//			InputStream stream = new ByteArrayInputStream(formattedData.getBytes(StandardCharsets.UTF_8));
-//
-//			// Create a StreamResource to handle the file download
-//			StreamResource resource = new StreamResource("data.csv", () -> stream);
-//
-//			// Trigger the file download in the user's browser
-//			resource.setContentType("text/csv");
-//			resource.setCacheTime(0);
-////	            resource.setBufferSize(1024);
-//
-////	            FileDownloader downloader = new FileDownloader(resource);
-////	            downloader.download();
-//
-//			Anchor downloadLink = new Anchor(resource, "");
-//			downloadLink.getElement().setAttribute("download", true);
-//			downloadLink.getElement().getStyle().set("display", "none");
-//
-//			Notification.show("File download initiated", 3000, Notification.Position.BOTTOM_CENTER)
-//					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-//		});
-//
-//		Icon exportUsersButtonIcon = new Icon(VaadinIcon.UPLOAD_ALT);
-//		exportUsersButton.setIcon(exportUsersButtonIcon);
-//
-//		exportRolesButton.addClassName("exportRolesButton");
-//		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
-//		exportRolesButton.setIcon(exportRolesButtonIcon);
-//		layout.add(exportRolesButton);
-//
-//		bulkModeButton.addClassName("bulkActionButton");
-//		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
-//		bulkModeButton.setIcon(bulkModeButtonnIcon);
-//		layout.add(bulkModeButton);
-//
-//		bulkModeButton.addClickListener(e -> {
-//			grid.setSelectionMode(Grid.SelectionMode.MULTI);
-//			bulkModeButton.setVisible(false);
-//			leaveBulkModeButton.setVisible(true);
-//			menuBar.setVisible(true);
-//		});
-//
-//		leaveBulkModeButton.addClassName("leaveBulkActionButton");
-//		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		leaveBulkModeButton.setVisible(false);
-//		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
-//		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
-//		layout.add(leaveBulkModeButton);
-//
-//		leaveBulkModeButton.addClickListener(e -> {
-//			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//			bulkModeButton.setVisible(true);
-//			leaveBulkModeButton.setVisible(false);
-//			menuBar.setVisible(false);
-//		});
-//
-//		menuBar.setVisible(false);
-//		MenuItem item = menuBar.addItem(Captions.bulkActions);
-//		SubMenu subMenu = item.getSubMenu();
-//		subMenu.addItem(new Checkbox(Captions.actionEnable));
-//		subMenu.addItem(new Checkbox(Captions.actionDisable));
-//		menuBar.getStyle().set("margin-top", "5px");
-//		layout.add(menuBar);
-//
-//		searchField.addClassName("searchField");
-//		searchField.setPlaceholder("Search Users");
-//		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-//		searchField.setClearButtonVisible(true);
-//		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-//		searchField.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				criteria.freeText(e.getValue());
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//			}
-//		});
-//
-//		layout.add(searchField);
-//		layout.setPadding(false);
-//
-//		HorizontalLayout filterLayout = new HorizontalLayout();
-//		filterLayout.setPadding(false);
-//		filterLayout.setVisible(false);
-//		filterLayout.setMargin(false);
-//		filterLayout.setAlignItems(Alignment.END);
-//
-//		HorizontalLayout vlayout = new HorizontalLayout();
-//		vlayout.setPadding(false);
-//
-//		vlayout.setAlignItems(Alignment.END);
-//
-//		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
-//		displayFilters.getStyle().set("margin-left", "10px");
-//		displayFilters.addClickListener(e -> {
-//			if (filterLayout.isVisible() == false) {
-//				filterLayout.setVisible(true);
-//				displayFilters.setText("Hide Filters");
-//			} else {
-//				filterLayout.setVisible(false);
-//				displayFilters.setText("Show Filters");
-//			}
-//		});
-//
-//		activeFilter = new ComboBox<String>();
-//		activeFilter.setId(UserDto.ACTIVE);
-//		activeFilter.setWidth(200, Unit.PIXELS);
-//		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-//		activeFilter.setPlaceholder("Active");
-//		activeFilter.getStyle().set("margin-left", "12px");
-//		activeFilter.getStyle().set("margin-top", "12px");
-//		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
-//		activeFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue().equals(ACTIVE_FILTER)) {
-//				criteria.active(true);
-//			} else if (e.getValue().equals(INACTIVE_FILTER)) {
-//				criteria.active(false);
-//			}
-//
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//		});
-//
-//		filterLayout.add(activeFilter);
-//
-//		userRolesFilter = new ComboBox<UserRole>();
-//		userRolesFilter.setId(UserDto.USER_ROLES);
-//		userRolesFilter.setWidth(200, Unit.PIXELS);
-//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-//		userRolesFilter.setPlaceholder("User Roles");
-//		userRolesFilter.getStyle().set("margin-left", "12px");
-//		userRolesFilter.getStyle().set("margin-top", "12px");
-//		userRolesFilter.setClearButtonVisible(true);
-//		userRolesFilter
-//				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-////		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
-//		userRolesFilter.addValueChangeListener(e -> {
-//
-//			UserRole userRole = e.getValue();
-//			criteria.userRole(userRole);
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//		});
-//
-//		filterLayout.add(userRolesFilter);
-//
-//		areaFilter = new ComboBox<AreaReferenceDto>();
-//		areaFilter.setId(CaseDataDto.AREA);
-//		areaFilter.setWidth(200, Unit.PIXELS);
-//		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
-//		areaFilter.setPlaceholder("Region");
-//		areaFilter.getStyle().set("margin-left", "12px");
-//		areaFilter.getStyle().set("margin-top", "12px");
-//		areaFilter.setItems(regions);
-//		areaFilter.setClearButtonVisible(true);
-//		
-//		
-//		if(currentUser.getUser().getArea() != null ) {
-//			areaFilter.setValue(currentUser.getUser().getArea());
-//			filterDataProvider.setFilter(criteria.area(currentUser.getUser().getArea()));
-//			regionFilter.setItems(
-//					FacadeProvider.getRegionFacade().getAllActiveByArea(currentUser.getUser().getArea().getUuid()));
-//			areaFilter.setEnabled(false);
-//		}
-//		
-//		
-//		areaFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				AreaReferenceDto area = e.getValue();
-//				regionFilter.clear();
-//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-//				regionFilter.setItems(provinces);
-//				criteria.area(area);
-//				regionFilter.setReadOnly(false);
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//				criteria.district(null);
-//			} else {
-//				regionFilter.clear();
-//				regionFilter.setReadOnly(true);
-////				AreaReferenceDto area = new AreaReferenceDto();
-//				criteria.area(null);
-//
-//			}
-//			filterDataProvider.setFilter(criteria);
-//		});
-//
-//		filterLayout.add(areaFilter);
-//
-//		regionFilter = new ComboBox<RegionReferenceDto>();
-//		regionFilter.setId(CaseDataDto.REGION);
-//		regionFilter.setWidth(200, Unit.PIXELS);
-//		regionFilter.setLabel(
-//				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
-//		regionFilter.setPlaceholder("Province");
-//		regionFilter.getStyle().set("margin-left", "12px");
-//		regionFilter.getStyle().set("margin-top", "12px");
-//		regionFilter.setClearButtonVisible(true);
-//		regionFilter.setReadOnly(true);
-//		
-//		if (currentUser.getUser().getRegion() != null) {
-//			regionFilter.setValue(currentUser.getUser().getRegion());
-//			filterDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
-//			districtFilter.setItems(FacadeProvider.getDistrictFacade()
-//					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid()));
-//			regionFilter.setEnabled(false);
-//		}
-//		
-//		regionFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				RegionReferenceDto region = e.getValue();
-//				districtFilter.clear();
-//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-//				districtFilter.setItems(districts);
-//				criteria.region(region);
-//
-//				districtFilter.setReadOnly(false);
-//				criteria.district(null);
-//			} else {
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//
-//			}
-//			filterDataProvider.setFilter(criteria);
-//		});
-//
-//		filterLayout.add(regionFilter);
-//
-//		districtFilter = new ComboBox<DistrictReferenceDto>();
-//		districtFilter.setId(CaseDataDto.DISTRICT);
-//		districtFilter.setWidth(200, Unit.PIXELS);
-//		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
-//		districtFilter.setPlaceholder("District");
-//		districtFilter.getStyle().set("margin-left", "12px");
-//		districtFilter.getStyle().set("margin-top", "12px");
-//		districtFilter.setClearButtonVisible(true);
-//		districtFilter.setReadOnly(true);
-//		
-//		if (currentUser.getUser().getDistrict() != null) {
-//			districtFilter.setValue(currentUser.getUser().getDistrict());
-//			filterDataProvider.setFilter(criteria.district(currentUser.getUser().getDistrict()));
-//
-//			districtFilter.setEnabled(false);
-//		}
-//		districtFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				DistrictReferenceDto district = e.getValue();
-//				criteria.district(district);
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//			} else {
-//				criteria.district(null);
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//
-//			}
-//		});
-//
-//		filterLayout.add(districtFilter);
-//
-//		vlayout.add(displayFilters, filterLayout);
-//		add(layout, vlayout);
-//	}
+	public void addFilters() {
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setMargin(false);
+		layout.setPadding(false);
+		layout.setWidthFull();
+
+		
+		createUserButton = new Button("Create User");
+		createUserButton.addClassName("createUserButton");
+		createUserButton.getStyle().set("margin-left", "12px");
+		layout.add(createUserButton);
+		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
+		createUserButton.setIcon(createIcon);
+		createUserButton.addClickListener(e -> {
+		});
+
+		exportUsersButton.addClassName("exportUsersButton");
+		layout.add(exportUsersButton);
+
+		exportUsersButton.addClickListener(e -> {
+			// Retrieve the data from the Vaadin Grid
+			String data = getDataAsString(grid);
+
+			// Format the data in the desired format (e.g., CSV)
+			String formattedData = formatDataAsCsv(data);
+
+			// Create a temporary stream to write the formatted data
+			InputStream stream = new ByteArrayInputStream(formattedData.getBytes(StandardCharsets.UTF_8));
+
+			// Create a StreamResource to handle the file download
+			StreamResource resource = new StreamResource("data.csv", () -> stream);
+
+			// Trigger the file download in the user's browser
+			resource.setContentType("text/csv");
+			resource.setCacheTime(0);
+//	            resource.setBufferSize(1024);
+
+//	            FileDownloader downloader = new FileDownloader(resource);
+//	            downloader.download();
+
+			Anchor downloadLink = new Anchor(resource, "");
+			downloadLink.getElement().setAttribute("download", true);
+			downloadLink.getElement().getStyle().set("display", "none");
+
+			Notification.show("File download initiated", 3000, Notification.Position.BOTTOM_CENTER)
+					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		});
+
+		Icon exportUsersButtonIcon = new Icon(VaadinIcon.UPLOAD_ALT);
+		exportUsersButton.setIcon(exportUsersButtonIcon);
+
+		exportRolesButton.addClassName("exportRolesButton");
+		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
+		exportRolesButton.setIcon(exportRolesButtonIcon);
+		layout.add(exportRolesButton);
+
+		
+		bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
+		bulkModeButton.addClassName("bulkActionButton");
+		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		bulkModeButton.setIcon(bulkModeButtonnIcon);
+		layout.add(bulkModeButton);
+
+		bulkModeButton.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+			bulkModeButton.setVisible(false);
+			leaveBulkModeButton.setVisible(true);
+			menuBar.setVisible(true);
+		});
+
+		leaveBulkModeButton.addClassName("leaveBulkActionButton");
+		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		leaveBulkModeButton.setVisible(false);
+		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
+		layout.add(leaveBulkModeButton);
+
+		leaveBulkModeButton.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+			bulkModeButton.setVisible(true);
+			leaveBulkModeButton.setVisible(false);
+			menuBar.setVisible(false);
+		});
+
+		menuBar.setVisible(false);
+		MenuItem item = menuBar.addItem(Captions.bulkActions);
+		SubMenu subMenu = item.getSubMenu();
+		subMenu.addItem(new Checkbox(Captions.actionEnable));
+		subMenu.addItem(new Checkbox(Captions.actionDisable));
+		menuBar.getStyle().set("margin-top", "5px");
+		layout.add(menuBar);
+
+		searchField.addClassName("searchField");
+		searchField.setPlaceholder("Search Users");
+		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchField.setClearButtonVisible(true);
+		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.freeText(e.getValue());
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+			}
+		});
+
+		layout.add(searchField);
+		layout.setPadding(false);
+
+		HorizontalLayout filterLayout = new HorizontalLayout();
+		filterLayout.setPadding(false);
+		filterLayout.setVisible(false);
+		filterLayout.setMargin(false);
+		filterLayout.setAlignItems(Alignment.END);
+
+		HorizontalLayout vlayout = new HorizontalLayout();
+		vlayout.setPadding(false);
+
+		vlayout.setAlignItems(Alignment.END);
+
+		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "10px");
+		displayFilters.addClickListener(e -> {
+			if (filterLayout.isVisible() == false) {
+				filterLayout.setVisible(true);
+				displayFilters.setText("Hide Filters");
+			} else {
+				filterLayout.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
+
+		activeFilter = new ComboBox<String>();
+		activeFilter.setId(UserDto.ACTIVE);
+		activeFilter.setWidth(200, Unit.PIXELS);
+		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
+		activeFilter.setPlaceholder("Active");
+		activeFilter.getStyle().set("margin-left", "12px");
+		activeFilter.getStyle().set("margin-top", "12px");
+		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
+		activeFilter.addValueChangeListener(e -> {
+
+			if (e.getValue().equals(ACTIVE_FILTER)) {
+				criteria.active(true);
+			} else if (e.getValue().equals(INACTIVE_FILTER)) {
+				criteria.active(false);
+			}
+
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
+
+		filterLayout.add(activeFilter);
+
+		userRolesFilter = new ComboBox<UserRole>();
+		userRolesFilter.setId(UserDto.USER_ROLES);
+		userRolesFilter.setWidth(200, Unit.PIXELS);
+		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+		userRolesFilter.setPlaceholder("User Roles");
+		userRolesFilter.getStyle().set("margin-left", "12px");
+		userRolesFilter.getStyle().set("margin-top", "12px");
+		userRolesFilter.setClearButtonVisible(true);
+		userRolesFilter
+				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+//		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
+		userRolesFilter.addValueChangeListener(e -> {
+
+			UserRole userRole = e.getValue();
+			criteria.userRole(userRole);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
+
+		filterLayout.add(userRolesFilter);
+
+		areaFilter = new ComboBox<AreaReferenceDto>();
+		areaFilter.setId(CaseDataDto.AREA);
+		areaFilter.setWidth(200, Unit.PIXELS);
+		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
+		areaFilter.setPlaceholder("Region");
+		areaFilter.getStyle().set("margin-left", "12px");
+		areaFilter.getStyle().set("margin-top", "12px");
+		areaFilter.setItems(regions);
+		areaFilter.setClearButtonVisible(true);
+		
+		
+		if(currentUser.getUser().getArea() != null ) {
+			areaFilter.setValue(currentUser.getUser().getArea());
+			filterDataProvider.setFilter(criteria.area(currentUser.getUser().getArea()));
+			regionFilter.setItems(
+					FacadeProvider.getRegionFacade().getAllActiveByArea(currentUser.getUser().getArea().getUuid()));
+			areaFilter.setEnabled(false);
+		}
+		
+		
+		areaFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				AreaReferenceDto area = e.getValue();
+				regionFilter.clear();
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				regionFilter.setItems(provinces);
+				criteria.area(area);
+				regionFilter.setReadOnly(false);
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+				criteria.district(null);
+			} else {
+				regionFilter.clear();
+				regionFilter.setReadOnly(true);
+//				AreaReferenceDto area = new AreaReferenceDto();
+				criteria.area(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
+
+		filterLayout.add(areaFilter);
+
+		regionFilter = new ComboBox<RegionReferenceDto>();
+		regionFilter.setId(CaseDataDto.REGION);
+		regionFilter.setWidth(200, Unit.PIXELS);
+		regionFilter.setLabel(
+				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
+		regionFilter.setPlaceholder("Province");
+		regionFilter.getStyle().set("margin-left", "12px");
+		regionFilter.getStyle().set("margin-top", "12px");
+		regionFilter.setClearButtonVisible(true);
+		regionFilter.setReadOnly(true);
+		
+		if (currentUser.getUser().getRegion() != null) {
+			regionFilter.setValue(currentUser.getUser().getRegion());
+			filterDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
+			districtFilter.setItems(FacadeProvider.getDistrictFacade()
+					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid()));
+			regionFilter.setEnabled(false);
+		}
+		
+		regionFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				RegionReferenceDto region = e.getValue();
+				districtFilter.clear();
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districtFilter.setItems(districts);
+				criteria.region(region);
+
+				districtFilter.setReadOnly(false);
+				criteria.district(null);
+			} else {
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
+
+		filterLayout.add(regionFilter);
+
+		districtFilter = new ComboBox<DistrictReferenceDto>();
+		districtFilter.setId(CaseDataDto.DISTRICT);
+		districtFilter.setWidth(200, Unit.PIXELS);
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder("District");
+		districtFilter.getStyle().set("margin-left", "12px");
+		districtFilter.getStyle().set("margin-top", "12px");
+		districtFilter.setClearButtonVisible(true);
+		districtFilter.setReadOnly(true);
+		
+		if (currentUser.getUser().getDistrict() != null) {
+			districtFilter.setValue(currentUser.getUser().getDistrict());
+			filterDataProvider.setFilter(criteria.district(currentUser.getUser().getDistrict()));
+
+			districtFilter.setEnabled(false);
+		}
+		districtFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				DistrictReferenceDto district = e.getValue();
+				criteria.district(district);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+			} else {
+				criteria.district(null);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+
+			}
+		});
+
+		filterLayout.add(districtFilter);
+
+		vlayout.add(displayFilters, filterLayout);
+		add(layout, vlayout);
+	}
 
 	private String formatDataAsCsv(String data) {
 		// TODO Auto-generated method stub
@@ -628,15 +617,15 @@ public class UserView extends VerticalLayout {
 		form.setUser(new UserDto());
 	}
 
-//	private void setFiltersVisible(boolean state) {
-//		
-//		createUserButton.setVisible(state);
-//		exportUsersButton.setVisible(state);
-//		exportRolesButton.setVisible(state);
-////		bulkModeButton.setVisible(state);
-//		searchField.setVisible(state);
-//		displayFilters.setVisible(state);
-//	}
+	private void setFiltersVisible(boolean state) {
+		
+		createUserButton.setVisible(state);
+		exportUsersButton.setVisible(state);
+		exportRolesButton.setVisible(state);
+//		bulkModeButton.setVisible(state);
+		searchField.setVisible(state);
+		displayFilters.setVisible(state);
+	}
 
 
 

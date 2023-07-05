@@ -3,6 +3,7 @@ package com.cinoteck.application.views.configurations;
 import com.cinoteck.application.views.MainLayout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -40,7 +41,7 @@ import java.util.Map;
 public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
     Anchor anchor;
-    HorizontalLayout configActionLayout = new HorizontalLayout();
+       HorizontalLayout configActionLayout = new HorizontalLayout();
     Button displayActionButtons = new Button("Show Action Buttons", new Icon(VaadinIcon.SLIDERS));
 
 
@@ -109,7 +110,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         });
         // Set initial content
         contentContainer.add(tabComponentMap.get(tabs.getSelectedTab()));
-
+        createExcelLinkForDefault();
 
         Button importButton = new Button("Import", new Icon(VaadinIcon.DOWNLOAD_ALT));
         importButton.getStyle().set("color", "white");
@@ -117,11 +118,11 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         importButton.setVisible(false);
         configActionLayout.add(importButton);
 
-        Button exportButton = new Button("Export", new Icon(VaadinIcon.UPLOAD_ALT));
-        exportButton.getStyle().set("color", "white");
-        exportButton.getStyle().set("background", "#0C5830");
-        exportButton.setVisible(false);
-        configActionLayout.add(exportButton);
+//        Button exportButton = new Button("Export", new Icon(VaadinIcon.UPLOAD_ALT));
+//        exportButton.getStyle().set("color", "white");
+//        exportButton.getStyle().set("background", "#0C5830");
+//        exportButton.setVisible(false);
+//        configActionLayout.add(exportButton);
 
         Button newEntryButton = new Button("New Entry", new Icon(VaadinIcon.PLUS_CIRCLE_O));
         newEntryButton.getStyle().set("color", "white");
@@ -134,21 +135,21 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         bulkEditMode.getStyle().set("background", "#0C5830");
         bulkEditMode.setVisible(false);
         configActionLayout.add(bulkEditMode);
-
+        anchor.setVisible(false);
         displayActionButtons.addClickListener(e -> {
             if (!bulkEditMode.isVisible()) {
                 importButton.setVisible(true);
-                exportButton.setVisible(true);
+//                exportButton.setVisible(true);
                 newEntryButton.setVisible(true);
                 bulkEditMode.setVisible(true);
-//                excelLink.setVisible(true);
+                anchor.setVisible(true);
                 displayActionButtons.setText("Hide Action Buttons");
             } else {
                 importButton.setVisible(false);
-                exportButton.setVisible(false);
+//                exportButton.setVisible(false);
                 newEntryButton.setVisible(false);
                 bulkEditMode.setVisible(false);
-//                excelLink.setVisible(false);
+                anchor.setVisible(false);
                 displayActionButtons.setText("Show Action Buttons");
             }
         });
@@ -176,6 +177,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -198,6 +206,12 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -222,6 +236,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -251,6 +272,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -284,6 +312,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;

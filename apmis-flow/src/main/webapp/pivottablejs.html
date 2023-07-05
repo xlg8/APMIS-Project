@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>APMIS | PIVOT</title>
+        <title>Pivot Demo</title>
+        <!-- external libs from cdnjs -->
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css">
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
+        
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
+        <!-- PivotTable.js libs from ../dist -->
         <link rel="stylesheet" type="text/css" href="pivot.css">
         <script type="text/javascript" src="pivot.js"></script>
-        <script type="text/javascript" src="c3_renderers.js"></script>
-        <style>
+        <script type="text/javascript" src="export_renderers.js"></script>
+         <script type="text/javascript" src="c3_renderers.js"></script>
+       <style>
             body {font-family: Lato;}
             .c3-line, .c3-focused {stroke-width: 3px !important;}
             .c3-bar {stroke: white !important; stroke-width: 1;}
@@ -164,39 +168,33 @@ table.pvtTable tbody tr td {
     border-radius: 4px;
 }
         </style>
+
         <!-- optional: mobile support with jqueryui-touch-punch -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 
     </head>
     <body>
-    <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Hide / Show Pivot Fields</button>
+        <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Hide / Show Pivot Fields</button>
+
         <script type="text/javascript">
     $(function(){
-
-        var derivers = $.pivotUtilities.derivers;
         var renderers = $.extend($.pivotUtilities.renderers,
-            $.pivotUtilities.c3_renderers);
+            $.pivotUtilities.export_renderers,
+            $.pivotUtilities.c3_renderers
+            );
+        
+      
 
         $.getJSON("mps.json", function(mps) {
             $("#output").pivotUI(mps, {
                 renderers: renderers,
                 cols: ["area"], rows: ["year"],
-                rendererName: "Horizontal Stacked Bar Chart",
-                rowOrder: "value_a_to_z", colOrder: "value_a_to_z",
-                rendererOptions: {
-                    c3: { data: 
-                        {colors: 
-                            {
-                       
-                    }
-                }
-            }
-                }
+                rendererName: "TSV Export"
             });
         });
      });
-    
-    function hidePivotCells() {
+
+     function hidePivotCells() {
     	var elements = document.getElementsByClassName("pvtUiCell");
 
     	for (var i = 0; i < elements.length; i++) {
@@ -212,7 +210,8 @@ table.pvtTable tbody tr td {
         </script>
 
 
-        <div id="output"></div>
+
+        <div id="output" ></div>
 
     </body>
 </html>
