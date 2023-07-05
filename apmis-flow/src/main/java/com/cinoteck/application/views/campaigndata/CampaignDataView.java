@@ -201,7 +201,7 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.setPlaceholder("Districts");
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
-districtCombo.setEnabled(false);
+		districtCombo.setEnabled(false);
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 
@@ -217,6 +217,7 @@ districtCombo.setEnabled(false);
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 		importanceSwitcher.setClearButtonVisible(true);
 		importanceSwitcher.setReadOnly(true);
+		importanceSwitcher.setTooltipText("Select Form first");
 		importanceSwitcher.addValueChangeListener(e -> {
 
 			if (formMetaReference != null) {
@@ -362,6 +363,7 @@ districtCombo.setEnabled(false);
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			clusterCombo.setItems(communities);
 			clusterCombo.setEnabled(true);
+			reload();
 		});
 
 		clusterCombo.addValueChangeListener(e -> {
@@ -372,8 +374,8 @@ districtCombo.setEnabled(false);
 		newForm.addValueChangeListener(e -> {
 			if(e.getValue() != null && campaignz != null) {
 				
-				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue(), campaignz.getValue());
-				add(cam);
+				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue(), campaignz.getValue(), false, null, grid);
+				//add(cam);
 			
 				newForm.setValue(null);
 			}
@@ -451,7 +453,15 @@ districtCombo.setEnabled(false);
 		grid.setAllRowsVisible(false);
 
 
-		grid.asSingleSelect().addValueChangeListener(event -> editCampaignFormData(event.getValue()));
+		grid.asSingleSelect().addValueChangeListener(e -> {
+			
+			
+		//editCampaignFormData(e.getValue());
+		CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade().getCampaignFormDataByUuid(e.getValue().getUuid());
+		
+		CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(), campaignz.getValue(), true, formData.getUuid(), grid);
+				
+	});
 
 		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
 		grid.setDataProvider(dataProvider);
@@ -459,7 +469,7 @@ districtCombo.setEnabled(false);
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
 //	    exporter.setExportValue(comm, item -> "" + item);
 //	    exporter.setColumnPosition(lastNameCol, 1);
-		exporter.setTitle("Campaign Data information");
+		exporter.setTitle("Campaign Data information"); 
 		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
 		exporter.setCsvExportEnabled(true);
 
