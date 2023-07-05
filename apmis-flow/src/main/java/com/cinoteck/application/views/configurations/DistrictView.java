@@ -11,6 +11,8 @@ import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -35,7 +37,10 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
+import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
 
@@ -90,6 +95,12 @@ public class DistrictView extends VerticalLayout {
 
 		grid.setDataProvider(filteredDataProvider);
 		addFiltersLayout();
+		
+		grid.asSingleSelect().addValueChangeListener(event -> {
+			if (event.getValue() != null) {
+				createOrEditDistrict(event.getValue());
+			}
+		});
 		add(grid);
 	}
 
@@ -224,6 +235,65 @@ public class DistrictView extends VerticalLayout {
 
 	public void clearFilters() {
 
+	}
+	
+	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
+		 Dialog dialog = new Dialog();
+		 FormLayout fmr = new FormLayout();
+       TextField nameField = new TextField("Name");
+       nameField.setValue(districtIndexDto.getName());
+       TextField dCodeField = new TextField("DCode");
+       //this can generate null
+       dCodeField.setValue(districtIndexDto.getExternalId().toString());
+       dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		
+       Button saveButton = new Button("Save");
+       saveButton.addClickListener(saveEvent -> {
+      	 
+           String name = nameField.getValue();
+           String code = dCodeField.getValue();
+
+          String uuids = districtIndexDto.getUuid();
+          System.out.println(code+"________________"+uuids+"__________________"+name);
+			if(name != null && code != null) {
+				
+				DistrictDto dce = FacadeProvider.getDistrictFacade().getDistrictByUuid(uuids); 
+				
+				System.out.println(dce);
+				
+				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
+				
+				dce.setName(name);
+	 			long rcodeValue = Long.parseLong(code);
+	 			dce.setExternalId(rcodeValue);
+	 			
+	 			FacadeProvider.getDistrictFacade().save(dce, true);
+	 			
+	 			
+	             // Perform save operation or any desired logic here
+	
+	             Notification.show("Saved: " + name + " " + code);
+	             dialog.close();
+           
+			} else {
+				Notification.show("Not Valid Value: " + name + " " + code);
+			}
+			
+           
+       });
+
+       fmr.add(nameField, dCodeField, saveButton);
+       dialog.add(fmr);
+       
+//       getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
+//		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+		
+       
+       
+       dialog.open();
+       
+       return true;
 	}
 
 }

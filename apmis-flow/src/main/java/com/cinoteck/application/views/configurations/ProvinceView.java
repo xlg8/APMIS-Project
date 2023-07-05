@@ -15,6 +15,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -83,6 +84,12 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		// VerticalLayout layout = new VerticalLayout(searchField, grid);
 		// layout.setPadding(false);
 		configureProvinceFilters();
+		
+		grid.asSingleSelect().addValueChangeListener(event -> {
+			if (event.getValue() != null) {
+				createOrEditProvince(event.getValue());
+			}
+		});
 		add(grid);
 
 	}
@@ -222,5 +229,64 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 	private void reloadGrid() {
 		dataView.refreshAll();
+	}
+	
+	public boolean createOrEditProvince(RegionIndexDto regionDto) {
+		 Dialog dialog = new Dialog();
+		 FormLayout fmr = new FormLayout();
+        TextField nameField = new TextField("Name");
+        nameField.setValue(regionDto.getName());
+        TextField pCodeField = new TextField("PCode");
+        //this can generate null
+        pCodeField.setValue(regionDto.getExternalId().toString());
+        dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		
+        Button saveButton = new Button("Save");
+        saveButton.addClickListener(saveEvent -> {
+       	 
+            String name = nameField.getValue();
+            String code = pCodeField.getValue();
+
+           String uuids = regionDto.getUuid();
+           System.out.println(code+"________________"+uuids+"__________________"+name);
+			if(name != null && code != null) {
+				
+				RegionDto dce = FacadeProvider.getRegionFacade().getByUuid(uuids);
+				
+				System.out.println(dce);
+				
+				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
+				
+				dce.setName(name);
+	 			long rcodeValue = Long.parseLong(code);
+	 			dce.setExternalId(rcodeValue);
+	 			
+	 			FacadeProvider.getRegionFacade().save(dce, true);
+	 			
+	 			
+	             // Perform save operation or any desired logic here
+	
+	             Notification.show("Saved: " + name + " " + code);
+	             dialog.close();
+            
+			} else {
+				Notification.show("Not Valid Value: " + name + " " + code);
+			}
+			
+            
+        });
+
+        fmr.add(nameField, pCodeField, saveButton);
+        dialog.add(fmr);
+        
+//        getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
+//		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+		
+        
+        
+        dialog.open();
+        
+        return true;
 	}
 }

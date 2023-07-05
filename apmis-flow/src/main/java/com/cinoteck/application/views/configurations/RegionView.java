@@ -74,14 +74,18 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
 		this.dataView = grid.setItems(regions);
 
-		
-		add(grid);
-		
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
 			}
 		});
+		add(grid);
+		
+//		grid.asSingleSelect().addValueChangeListener(event -> {
+//			if (event.getValue() != null) {
+//				createOrEditArea(event.getValue());
+//			}
+//		});
 		}
 	
 
