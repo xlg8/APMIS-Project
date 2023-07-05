@@ -1,8 +1,6 @@
 package com.cinoteck.application.views.myaccount;
 
 import com.cinoteck.application.views.MainLayout;
-//import com.cinoteck.application.views.admin.TestView2;
-import com.cinoteck.application.views.admin.TestView3;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,20 +8,17 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -35,13 +30,10 @@ import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.location.LocationDto;
 import de.symeda.sormas.api.user.UserDto;
 //import de.symeda.sormas.ui.utils.InternalPasswordChangeComponent;
 //import de.symeda.sormas.ui.utils.VaadinUiUtil;
@@ -250,12 +242,17 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-bottom", "15px");
 		security.getStyle().set("margin-top", "16px !important");
 
-		Dialog passwordDialog = new Dialog();
+		//Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
 		Button openPasswordPopupButton = new Button("Change Password");
 //		passwordDialog.getStyle().set("margin-bottom", "0px");
 //		passwordDialog.getStyle().set("margin-top", "12px !important");
-		openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
+		
+		
+		
+		openPasswordPopupButton.addClickListener(event -> {
+			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
+			});
 		add();
 
 		VerticalLayout pwdSecc = new VerticalLayout();
@@ -266,8 +263,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		languagee.setItems(Language.getAssignableLanguages());
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
-		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-
+		languagee.setRequired(true);
+		//binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+		languagee.setValue(currentUser.getLanguage());
+		
 		languagee.getStyle().set("width", "400px");
 
 		Div anch = new Div();
@@ -292,88 +291,27 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		discard.getStyle().set("border", "1px solid green");
 
 		Button savee = new Button("Save", vadIcc);
-
+		savee.addClickListener(e -> {
+			UserDto currentUserToSave = FacadeProvider.getUserFacade().getCurrentUser();
+			if(languagee.getValue() != null) {
+				
+			currentUserToSave.setLanguage(languagee.getValue());
+			FacadeProvider.getUserFacade().saveUser(currentUserToSave);
+			
+			Notification.show("Language setting saved successfully");
+			} else {
+				
+				Notification.show("Choose prefered language: "+languagee.isInvalid());
+			}
+			
+			
+		});
 		actionss.getStyle().set("margin", "20px");
 		actionss.add(discard, savee);
 		userentry.add(infooo, infoood, infoo, dataVieww, infodataa, fieldInfoo, fielddataVieww, security, pwdSecc,
 				actionss);
 
 		add(userentry);
-
-		// initial idea for a change of password
-//		Dialog dialog = new Dialog();
-//		dialog.setCloseOnEsc(false);
-//		dialog.setCloseOnOutsideClick(false);
-//
-//		Label messageLabel = new Label("Update Password");
-//		
-//		TextField newPasswordField = new TextField("New Password");
-//		TextField confirmNewPasswordField = new TextField("Confirm New Password");
-//		
-//		Label instructionLabel = new Label("Choose a new password for your account\r\n <br>"
-//				+ "*Must be at least 8 characters\r\n <br>"
-//				+ "*Must contain 1 Uppercase and 1 special character\r\n"
-//				+ "");
-//		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
-//		
-//		Button closeButton = new Button("Close");
-//		closeButton.addClickListener(event -> dialog.close());
-//		
-//		VerticalLayout layout = new VerticalLayout();
-//		layout.add(messageLabel, newPasswordField);
-//		layout.add(confirmNewPasswordField);
-//		
-//		dialog.add(layout, instructionLabel, closeButton);
-//
-//	//show popup	
-//		Button openDialogButton = new Button("Change Password");
-//		openDialogButton.addClickListener(event -> dialog.open());
-//
-//		add(openDialogButton);
-
-		// trying out a new change password field
-
-		passwordDialog.setCloseOnEsc(false);
-		passwordDialog.setCloseOnOutsideClick(false);
-
-		FormLayout formLayout = new FormLayout();
-
-		PasswordField newPasswordField = new PasswordField("New Password");
-		newPasswordField.setRevealButtonVisible(true);
-		PasswordField confirmPasswordField = new PasswordField("Confirm Password");
-		confirmPasswordField.setRevealButtonVisible(true);
-
-		Label instructionLabel = new Label(
-				"Choose a new password for your account\r\n <br>" + "*Must be at least 8 characters\r\n <br>"
-						+ "*Must contain 1 Uppercase and 1 special character\r\n" + "");
-		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
-
-		// setting action buttons for password change
-		Button cancelButton = new Button("Cancel");
-		cancelButton.addClickListener(event -> passwordDialog.close());
-
-		Button saveButton = new Button("Save");
-		saveButton.addClickListener(event -> {
-			// Perform password validation and saving logic here
-			passwordDialog.close();
-		});
-
-		// setting css for the actions buttons
-		HorizontalLayout buttonLayout = new HorizontalLayout();
-		buttonLayout.setSpacing(true);
-		buttonLayout.add(cancelButton, new Div(), saveButton); // Add an empty Div for spacing
-
-		cancelButton.addClickListener(event -> passwordDialog.close());
-
-		buttonLayout.getStyle().set("margin-top", "1em");
-
-		passwordDialog.add(formLayout, buttonLayout);
-
-		// setting layout for textfields
-		VerticalLayout layout = new VerticalLayout();
-		layout.add(newPasswordField);
-		layout.add(confirmPasswordField);
-		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
 
 	}
 

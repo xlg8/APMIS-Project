@@ -6,11 +6,15 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -29,7 +33,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	
-	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto, CampaignReferenceDto campaignReferenceDto) {
+	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto, CampaignReferenceDto campaignReferenceDto, boolean openData, String uuidForm, Grid<CampaignFormDataIndexDto> grid) {
 		
 		
 		setSizeFull();
@@ -38,26 +42,34 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
 		
 		
-		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto);
+		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null, campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(), campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm);
 		
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		
-		Button deleteButton = new Button("Cancle", (e) -> dialog.close());
+		Button deleteButton =new Button("Cancle", (e) -> dialog.close());
+		deleteButton.setIcon(new Icon(VaadinIcon.REFRESH));
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-		        ButtonVariant.LUMO_TERTIARY);
+		        ButtonVariant.LUMO_CONTRAST);
+//		new Button("Cancle", (e) -> dialog.close());
+//		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//		        ButtonVariant.LUMO_TERTIARY);
 		deleteButton.getStyle().set("margin-right", "auto");
 		dialog.getFooter().add(deleteButton);
 
 		Button saveButton = new Button("Save Data");//, (e) -> dialog.close());
-		saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
+//		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//		        ButtonVariant.LUMO_SUCCESS);
 		dialog.getFooter().add(saveButton);
 		
 		
 		saveButton.addClickListener(e -> {
-			campaignFormBuilder.saveFormValues();
-			//dialog.close();
+			if(campaignFormBuilder.saveFormValues()) {
+				dialog.close();
+				grid.getDataProvider().refreshAll();
+			}
 			//showConfirmationDialog();
 		});
 		
