@@ -479,7 +479,7 @@ public class UserView extends VerticalLayout {
 		areaFilter.setClearButtonVisible(true);
 		if (userProvider.getUser().getArea() != null) {
             areaFilter.setValue(userProvider.getUser().getArea());
-            filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+//            filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
             regionFilter.setItems(
                     FacadeProvider.getRegionFacade().getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
             areaFilter.setEnabled(false);
