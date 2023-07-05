@@ -2,9 +2,12 @@ package com.cinoteck.application.views.user;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -22,6 +25,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
@@ -38,8 +44,8 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
-public class UserForm  extends FormLayout{
-	
+public class UserForm extends FormLayout {
+
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -62,7 +68,6 @@ public class UserForm  extends FormLayout{
 	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
 
 	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
-	// CheckboxGroup<UserRole> userRoles = new CheckboxGroup<>();
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
@@ -73,9 +78,16 @@ public class UserForm  extends FormLayout{
 	Button save = new Button("Save");
 	Button delete = new Button("Delete");
 	Button close = new Button("Cancel");
-	
-	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces, List<DistrictReferenceDto> districts) {
-		
+
+	Map<String, Component> map = new HashMap<>();
+
+	RegexpValidator patternValidator = new RegexpValidator("^[A-Za-z]+$", "Only letters are allowed");
+
+	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
+
+	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
+			List<DistrictReferenceDto> districts) {
+
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon("lumo", "cross");
@@ -84,12 +96,12 @@ public class UserForm  extends FormLayout{
 		hor.add(vaadinIcon);
 		hor.setHeight("5px");
 		this.setColspan(hor, 2);
-		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
+//		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields();
 	}
-	
+
 	private void configureFields() {
 		H2 pInfo = new H2("Personal Information");
 		this.setColspan(pInfo, 2);
@@ -104,10 +116,11 @@ public class UserForm  extends FormLayout{
 				UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
-		
-		binder.forField(userEmail).asRequired("Email is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
 
-		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
+		binder.forField(userEmail).asRequired("Email is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
+		map.put("email", userEmail);
+
+		binder.forField(phone).withValidator(e -> e.length() >= 13, "Enter a valid Phone Number")
 				.bind(UserDto::getPhone, UserDto::setPhone);
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
@@ -119,61 +132,59 @@ public class UserForm  extends FormLayout{
 		region.setItems(regions);
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
-			
-			if(e.getValue() != null) {
-			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-			province.setItems(provinces);
+
+			if (e.getValue() != null) {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				province.setItems(provinces);
 			}
 		});
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
-			
-			if(e.getValue() != null) {
-			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-			district.setItems(districts);
+
+			if (e.getValue() != null) {
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				district.setItems(districts);
 			}
 		});
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
-			if(e.getValue() != null) {
-			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
-			community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
-			community.setItems(communities);
+			if (e.getValue() != null) {
+				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
+				community.setItems(communities);
 			}
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
-		// userRoles.setLabel("User Roles");
 		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles, UserDto::setUserRoles);
+		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
+				UserDto::setUserRoles);
 		this.setColspan(userRoles, 1);
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
 		formAccess.setLabel("Form Access");
-		// formAccess.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 		formAccess.setItems(UserUiHelper.getAssignableForms());
 		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-		
+
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel("Active ?");
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
-		// usertype.addThemeVariants(CheckboxGroupVariant.LUMO_HELPER_ABOVE_FIELD);
 		usertype.setItems(UserType.values());
 		// this.setColspan(usertype, 2);
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
-		add(activeCheck, pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation,fInfo, userData,
-				language, userRoles, usertype, formAccess,  region, province, district, community);
+		add(activeCheck, pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userData,
+				language, userRoles, usertype, formAccess, region, province, district, community);
 		createButtonsLayout();
 	}
 
@@ -181,11 +192,9 @@ public class UserForm  extends FormLayout{
 		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-		// save.addClickShortcut(Key.ENTER);
+		;
 		close.addClickShortcut(Key.ESCAPE);
 
-		save.setEnabled(true);
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
@@ -198,15 +207,38 @@ public class UserForm  extends FormLayout{
 		this.setColspan(horizontallayout, 2);
 	}
 
-	private void validateAndSave() {
-//		if (binder.isValid()) {
+//	private void validateAndSave() {
+////		if (binder.isValid()) {
+////			fireEvent(new SaveEvent(this, binder.getBean()));
+////		}
+//		if (binder.validate().isOk()) {
 //			fireEvent(new SaveEvent(this, binder.getBean()));
+//		} else {
+//			Notification.show("Make sure required fields are filled");
 //		}
-		if(binder.validate().isOk()) {
-			fireEvent(new SaveEvent(this, binder.getBean()));
-		} else {
-			Notification.show("Make sure required fields are filled");
-		}
+//	}
+
+	private void validateAndSave() {
+		map.forEach((key, value) -> {
+			System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + key);
+			Component formField = map.get(key);
+			if (value instanceof TextField) {
+
+				TextField formFieldxx = (TextField) value;
+				System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + formFieldxx.getValue());
+				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
+//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
+				if (requiredValidation.isError()) {
+
+					// Handle required field validation error
+					formFieldxx.setInvalid(true);
+					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
+				} else {
+					fireEvent(new SaveEvent(this, binder.getBean()));
+				}
+			}
+
+		});
 	}
 
 	public void setUser(UserDto user) {

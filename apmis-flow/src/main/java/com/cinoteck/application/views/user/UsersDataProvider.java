@@ -22,8 +22,8 @@ public class UsersDataProvider extends AbstractBackEndDataProvider<UserDto, User
 	
 	private static final long serialVersionUID = 7345965237429493032L;
 	UserCriteria crteria;
-
-	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade().getIndexList(crteria, null, null, null));
+	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade()
+			.getIndexList(crteria, null, null, null));
 
 	@Override
 	protected Stream<UserDto> fetchFromBackEnd(Query<UserDto, UserCriteria> query) {

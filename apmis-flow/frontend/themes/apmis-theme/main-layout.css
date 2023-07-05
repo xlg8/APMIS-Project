@@ -447,18 +447,9 @@ vcf-nav-item::part(item) {
 	background-size: cover;
 }
 
-.ssssssssst{
-	
-	width: 100% !important;
-
-}
-
-
-#loginLanguageSwitcher vaadin-button{
+.language-switcher vaadin-button {
 	color: white;
-
 }
-
 
 vcf-nav-item[active]::part(item) {
 	border-inline-start-color: var(- -lumo-primary-color);
@@ -470,10 +461,8 @@ vcf-nav-item[active]::part(item) {
 	height: 20vh;
 }
 
-
-#vaadinLoginUsername label, #vaadinLoginPassword label{
-	color:   #2F5233 !important;
-
+#vaadinLoginUsername label, #vaadinLoginPassword label {
+	color: white !important;
 	font-family: Lato;
 	font-size: large;
 }
@@ -483,19 +472,9 @@ vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-conta
 	background: yellow;
 }
 
-
-vaadin-vertical-layout.campaignDataFilterParent{
-	margin-top : 5px !important;
-	margin-bottom : 0px !important;
-}
-
-vaadin-combo-box-item{
-	font-size: 12px !important;
-}
-
-#tabsheetParent vaadin-tabs{
-	background : green !important
-
+vaadin-vertical-layout.campaignDataFilterParent {
+	margin-top: 5px !important;
+	margin-bottom: 0px !important;
 }
 
 vaadin-dialog-overlay.dialog-alignment::part(overlay) {
@@ -516,7 +495,6 @@ vaadin-text-field.searchField {
 	background-color: #D2EADE;
 	width: 20%;
 	margin-right: 10px;
-
 }
 
 .exportJsonGLoss{
@@ -529,6 +507,11 @@ vaadin-text-field.searchField {
     color: white !important;
     width: 7em;
 	
+}
+
+.contact-form {
+	margin-left: 30px;
+	margin-right: 30px;
 }
 
 vaadin-horizontal-layout[fcgh-footer] {
