@@ -11,6 +11,7 @@ import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.views.Test.TestView;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
@@ -134,7 +135,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
-//		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
 
 		
 		
