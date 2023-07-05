@@ -233,14 +233,20 @@ public class RegionView extends VerticalLayout implements RouterLayout {
  		
          Button saveButton = new Button("Save");
          saveButton.addClickListener(saveEvent -> {
+        	 
              String firstName = nameField.getValue();
              String lastName = rCodeField.getValue();
 
-             
-            System.out.println(lastName+"__________________________________"+firstName);
+            String uuids = areaDto.getUuid_();
+            System.out.println(lastName+"________________"+uuids+"__________________"+firstName);
  			if(firstName != null && lastName != null) {
  				
- 				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
+ 				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
+ 				
+ 				System.out.println(dce);
+ 				
+ 				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
+ 				
  				dce.setName(firstName);
 	 			long rcodeValue = Long.parseLong(lastName);
 	 			dce.setExternalId(rcodeValue);
@@ -263,8 +269,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
          fmr.add(nameField, rCodeField, saveButton);
          dialog.add(fmr);
          
-         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
- 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+//         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
+// 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
  		
          
          
