@@ -127,14 +127,14 @@ public class UserView extends VerticalLayout {
 
 	UserForm form;
 	CreateUserForm createUserForm;
-	MenuBar menuBar;
+	MenuBar menuBar = new MenuBar();
 
-	Button createUserButton;
-	Button exportUsersButton;
-	Button exportRolesButton;
-	Button bulkModeButton;
-	Button leaveBulkModeButton;
-	TextField searchField;
+	Button createUserButton = new Button(Captions.userNewUser);
+	Button exportUsersButton = new Button(Captions.export);
+	Button exportRolesButton = new Button(Captions.exportUserRoles);
+	Button bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
+	Button leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
+	TextField searchField = new TextField();
 
 	Button displayFilters;
 
@@ -165,18 +165,16 @@ public class UserView extends VerticalLayout {
 			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 			dialog.getFooter().add(cancelButton, saveButton);
-			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
+//			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
 			createUserButton.addClickListener(e -> {
 				UserDto userDto = new UserDto();
 				showNewUserForm(userDto);
 			});
-			exportUsersButton = new Button(Captions.export);
-			exportRolesButton = new Button(Captions.exportUserRoles);
 
 			if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 
-				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
-				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
+//				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
+//				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
 				menuBar = new MenuBar();
 			}
 			searchField = new TextField();
@@ -305,13 +303,12 @@ public class UserView extends VerticalLayout {
 		layout.setPadding(false);
 		layout.setWidthFull();
 
+		createUserButton = new Button("Limit Button");
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "12px");
 		layout.add(createUserButton);
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
-		createUserButton.addClickListener(e -> {
-		});
 
 		exportUsersButton.addClassName("exportUsersButton");
 		layout.add(exportUsersButton);
@@ -480,6 +477,13 @@ public class UserView extends VerticalLayout {
 		areaFilter.getStyle().set("margin-top", "12px");
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
+		if (userProvider.getUser().getArea() != null) {
+            areaFilter.setValue(userProvider.getUser().getArea());
+            filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+            regionFilter.setItems(
+                    FacadeProvider.getRegionFacade().getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+            areaFilter.setEnabled(false);
+        }
 		areaFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {

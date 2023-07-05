@@ -21,9 +21,8 @@ import de.symeda.sormas.api.user.UserDto;
 public class UsersDataProvider extends AbstractBackEndDataProvider<UserDto, UserCriteria>{
 	
 	private static final long serialVersionUID = 7345965237429493032L;
-	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
-			.collect(Collectors.toList()));
 	UserCriteria crteria;
+	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade().getIndexList(crteria, null, null, null));
 
 	@Override
 	protected Stream<UserDto> fetchFromBackEnd(Query<UserDto, UserCriteria> query) {
