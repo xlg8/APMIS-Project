@@ -5,6 +5,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,11 +19,12 @@ import de.symeda.sormas.api.user.UserDto;
 public class CredentialPassWordChanger extends Div {
 
 	private static final long serialVersionUID = -928337100277917699L;
-	
+
 	UserDto userName;
 	ConfirmDialog _dialog;
+
 	public CredentialPassWordChanger(UserDto usedto) {
-		
+
 		this.userName = usedto;
 
 		_dialog = new ConfirmDialog();
@@ -44,15 +46,16 @@ public class CredentialPassWordChanger extends Div {
 	}
 
 	private void continuePasswrd() {
-		//_dialog.close();
-		
+		// _dialog.close();
+
 		Dialog dialog = new Dialog();
+		dialog.addClassName("custom-dialog");
 		dialog.setHeaderTitle(I18nProperties.getString(Strings.messageChangePassword));
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
-		
-		VerticalLayout layout = new VerticalLayout();
-		
+
+		FormLayout layout = new FormLayout();
+
 		UserProvider userProvider = new UserProvider();
 		UserDto userxs = userProvider.getUser();
 		Label c2Label = new Label("Editing: " + userxs.getUserName());
@@ -61,10 +64,7 @@ public class CredentialPassWordChanger extends Div {
 
 		layout.add(c2Label);
 
-		layout.add(new Label(I18nProperties.getString(Strings.messageChangePassword)));
-
-		layout.add(new Label("*Must be at least 8 characters"));
-		layout.add(new Label("*Must contain 1 Uppercase and 1 special character "));
+		layout.add(new Label());
 
 		PasswordField passField1 = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		passField1.setSizeFull();
@@ -72,49 +72,54 @@ public class CredentialPassWordChanger extends Div {
 		layout.add(passField1);
 
 		PasswordField passField2 = new PasswordField("Confirm New Password");
+
+//		layout.add(new Label("*Must be at least 8 characters"));
+//		layout.add(new Label("*Must contain 1 Uppercase and 1 special character "));
+
+		Label instructionLabel = new Label("* Must be at least 8 characters\r\n <br>"
+				+ "* Must contain 1 Uppercase and 1 special character\r\n" + "");
+		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
+		instructionLabel.getElement().getStyle().set("font-size", "12px");
+
 		passField2.setSizeFull();
-		layout.add(passField2);
+		layout.add(passField2, instructionLabel);
 
 		Button saveButton = new Button("Save");
 //				changePassword.setStyleName(CssStyles.VAADIN_BUTTON);
 //				changePassword.setStyleName(ValoTheme.BUTTON_PRIMARY);
 //				changePassword.setStyleName(CssStyles.FLOAT_RIGHT);
 
-
 		saveButton.addClickListener(e -> {
 			String newpass1 = passField1.getValue();
 			String newpass2 = passField2.getValue();
 
 			if (newpass1.equals(newpass2)) {// && passField1.isValid()) {
-				//needed put a lot of logics to check hacking and unsave password TODO
+				// needed put a lot of logics to check hacking and unsave password TODO
 				FacadeProvider.getUserFacade().changePassword(userName.getUserName(), newpass1);
 
-				
 				UI.getCurrent().getPage().reload();
-				
+
 				Notification.show("Password changed Successfully");
 
 			} else {
 				Notification.show("Password does not match");
 			}
 		});
-		
+
 		dialog.add(layout);
 
 		Button cancelButton = new Button("Cancel", e -> dialog.close());
 		dialog.getFooter().add(cancelButton);
 		dialog.getFooter().add(saveButton);
 
-		//Button button = new Button("Show dialog", e -> dialog.open());
+		// Button button = new Button("Show dialog", e -> dialog.open());
 		dialog.open();
-		
+
 		getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
-		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
-		
-		
-		//add(dialog);
+				.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+
+		// add(dialog);
 
 	}
-
 
 }
