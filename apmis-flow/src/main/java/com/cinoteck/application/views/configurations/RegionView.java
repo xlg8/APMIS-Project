@@ -11,6 +11,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -67,21 +68,24 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
-		grid.setItemDetailsRenderer(createAreaEditFormRenderer());
+		//grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
 		this.dataView = grid.setItems(regions);
 
-		
-		add(grid);
-		
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
-				AreaDto selectedArea = event.getValue();
-				setArea(selectedArea);
+				createOrEditArea(event.getValue());
 			}
 		});
+		add(grid);
+		
+//		grid.asSingleSelect().addValueChangeListener(event -> {
+//			if (event.getValue() != null) {
+//				createOrEditArea(event.getValue());
+//			}
+//		});
 		}
 	
 
@@ -105,20 +109,24 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			});
 			saveButton = new Button("Save");
 
-			saveButton.addClickListener(event -> saveArea());
+			saveButton.addClickListener(event -> saveArea(areaDto));
 
 			add(saveButton);
 		}
 	}
 
-	private void saveArea() {
+	private void saveArea(AreaDto areaDto) {
 		if (binder.isValid()) {
-			AreaDto areaDto = binder.getBean();
+			AreaDto areavDto = binder.getBean();
 			String regionValue = regionField.getValue();
 			long rcodeValue = Long.parseLong(rcodeField.getValue());
-
-			areaDto.setName(regionValue);
-			areaDto.setExternalId(rcodeValue);
+			AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
+			
+			dtoToSave.setName(regionValue);
+			dtoToSave.setExternalId(rcodeValue);
+			
+			FacadeProvider.getAreaFacade().save(dtoToSave, true);
+			
 
 			grid.getDataProvider().refreshItem(areaDto);
 		}
@@ -214,6 +222,65 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
+	}
+	
+	public boolean createOrEditArea(AreaDto areaDto) {
+		 Dialog dialog = new Dialog();
+		 FormLayout fmr = new FormLayout();
+         TextField nameField = new TextField("Name");
+         nameField.setValue(areaDto.getName());
+         TextField rCodeField = new TextField("RCode");
+         //this can generate null
+         rCodeField.setValue(areaDto.getExternalId().toString());
+         dialog.setCloseOnEsc(false);
+ 		dialog.setCloseOnOutsideClick(false);
+ 		
+         Button saveButton = new Button("Save");
+         saveButton.addClickListener(saveEvent -> {
+        	 
+             String firstName = nameField.getValue();
+             String lastName = rCodeField.getValue();
+
+            String uuids = areaDto.getUuid_();
+            System.out.println(lastName+"________________"+uuids+"__________________"+firstName);
+ 			if(firstName != null && lastName != null) {
+ 				
+ 				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
+ 				
+ 				System.out.println(dce);
+ 				
+ 				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
+ 				
+ 				dce.setName(firstName);
+	 			long rcodeValue = Long.parseLong(lastName);
+	 			dce.setExternalId(rcodeValue);
+	 			
+	 			FacadeProvider.getAreaFacade().save(dce, true);
+	 			
+	 			
+	             // Perform save operation or any desired logic here
+	
+	             Notification.show("Saved: " + firstName + " " + lastName);
+	             dialog.close();
+             
+ 			} else {
+ 				Notification.show("Not Valid Value: " + firstName + " " + lastName);
+ 			}
+ 			
+             
+         });
+
+         fmr.add(nameField, rCodeField, saveButton);
+         dialog.add(fmr);
+         
+//         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
+// 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+ 		
+         
+         
+         dialog.open();
+         
+         return true;
 	}
 
 }
