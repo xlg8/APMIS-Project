@@ -516,3 +516,8 @@ vaadin-text-field.searchField {
 vaadin-horizontal-layout[fcgh-footer] {
   background-color: green;
 }
+
+.custom-dialog {
+    width: 385px;
+
+}
