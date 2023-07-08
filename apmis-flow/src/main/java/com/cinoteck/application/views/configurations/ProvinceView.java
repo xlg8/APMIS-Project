@@ -39,7 +39,6 @@ import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 
 @PageTitle("Province")
 @Route(value = "province", layout = ConfigurationsView.class)
-
 public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 	private static final long serialVersionUID = 8159316049907141477L;
@@ -71,7 +70,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(RegionIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(RegionIndexDto::getName).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getExternalId).setHeader("PCode").setSortable(true).setResizable(true);
-		grid.setItemDetailsRenderer(createAreaEditFormRenderer());
+//		grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 
 		grid.setVisible(true);
 //		grid.setAllRowsVisible(true);
@@ -84,7 +83,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		// VerticalLayout layout = new VerticalLayout(searchField, grid);
 		// layout.setPadding(false);
 		configureProvinceFilters();
-		
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditProvince(event.getValue());
@@ -203,7 +202,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 			regionFilter.setEnabled(false);
 		}
-		
+
 		regionFilter.addValueChangeListener(e -> {
 			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 		});
@@ -214,7 +213,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		resetButton.addClassName("resetButton");
 		resetButton.addClickListener(e -> {
 			searchField.clear();
-			if(regionFilter.getValue() != null) {
+			if (regionFilter.getValue() != null) {
 				regionFilter.clear();
 			}
 		});
@@ -224,69 +223,67 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 	}
-	
-	
 
 	private void reloadGrid() {
 		dataView.refreshAll();
 	}
-	
-	public boolean createOrEditProvince(RegionIndexDto regionDto) {
-		 Dialog dialog = new Dialog();
-		 FormLayout fmr = new FormLayout();
-        TextField nameField = new TextField("Name");
-        nameField.setValue(regionDto.getName());
-        TextField pCodeField = new TextField("PCode");
-        //this can generate null
-        pCodeField.setValue(regionDto.getExternalId().toString());
-        dialog.setCloseOnEsc(false);
-		dialog.setCloseOnOutsideClick(false);
-		
-        Button saveButton = new Button("Save");
-        saveButton.addClickListener(saveEvent -> {
-       	 
-            String name = nameField.getValue();
-            String code = pCodeField.getValue();
 
-           String uuids = regionDto.getUuid();
-           System.out.println(code+"________________"+uuids+"__________________"+name);
-			if(name != null && code != null) {
-				
+	public boolean createOrEditProvince(RegionIndexDto regionDto) {
+		Dialog dialog = new Dialog();
+		FormLayout fmr = new FormLayout();
+		TextField nameField = new TextField("Name");
+		nameField.setValue(regionDto.getName());
+		TextField pCodeField = new TextField("PCode");
+		// this can generate null
+		pCodeField.setValue(regionDto.getExternalId().toString());
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
+		saveButton.getStyle().set("margin-right", "10px");
+		saveButton.addClickListener(saveEvent -> {
+
+			String name = nameField.getValue();
+			String code = pCodeField.getValue();
+
+			String uuids = regionDto.getUuid();
+			System.out.println(code + "________________" + uuids + "__________________" + name);
+			if (name != null && code != null) {
+
 				RegionDto dce = FacadeProvider.getRegionFacade().getByUuid(uuids);
-				
+
 				System.out.println(dce);
-				
-				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
-				
+
+				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
+
 				dce.setName(name);
-	 			long rcodeValue = Long.parseLong(code);
-	 			dce.setExternalId(rcodeValue);
-	 			
-	 			FacadeProvider.getRegionFacade().save(dce, true);
-	 			
-	 			
-	             // Perform save operation or any desired logic here
-	
-	             Notification.show("Saved: " + name + " " + code);
-	             dialog.close();
-            
+				long rcodeValue = Long.parseLong(code);
+				dce.setExternalId(rcodeValue);
+
+				FacadeProvider.getRegionFacade().save(dce, true);
+
+				// Perform save operation or any desired logic here
+
+				Notification.show("Saved: " + name + " " + code);
+				dialog.close();
+
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);
 			}
-			
-            
-        });
 
-        fmr.add(nameField, pCodeField, saveButton);
-        dialog.add(fmr);
-        
+		});
+
+		dialog.setHeaderTitle("Edit " + regionDto.getName());
+		fmr.add(nameField, pCodeField);
+		dialog.add(fmr);
+		dialog.getFooter().add(discardButton, saveButton);
+
 //        getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 //		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
-		
-        
-        
-        dialog.open();
-        
-        return true;
+
+		dialog.open();
+
+		return true;
 	}
 }

@@ -38,9 +38,6 @@ import java.util.stream.Stream;
 @Route(value = "regions", layout = ConfigurationsView.class)
 public class RegionView extends VerticalLayout implements RouterLayout {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7091198805223773269L;
 
 	private final AreaCriteria criteria;
@@ -57,7 +54,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		setSpacing(false);
 
 		addRegionFilter();
-		
+
 		setMargin(false);
 		setSizeFull();
 		grid = new Grid<>(AreaDto.class, false);
@@ -68,7 +65,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
-		//grid.setItemDetailsRenderer(createAreaEditFormRenderer());
+		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
@@ -80,15 +77,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			}
 		});
 		add(grid);
-		
+
 //		grid.asSingleSelect().addValueChangeListener(event -> {
 //			if (event.getValue() != null) {
 //				createOrEditArea(event.getValue());
 //			}
 //		});
-		}
-	
-
+	}
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
 		return new ComponentRenderer<>(AreaEditForm::new);
@@ -97,8 +92,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private class AreaEditForm extends FormLayout {
 
 		public AreaEditForm(AreaDto areaDto) {
-			Dialog formLayout  = new Dialog();
-			
+			Dialog formLayout = new Dialog();
+
 			H2 header = new H2("Edit " + areaDto.getName().toString());
 			this.setColspan(header, 2);
 			add(header);
@@ -121,12 +116,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			String regionValue = regionField.getValue();
 			long rcodeValue = Long.parseLong(rcodeField.getValue());
 			AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
-			
+
 			dtoToSave.setName(regionValue);
 			dtoToSave.setExternalId(rcodeValue);
-			
+
 			FacadeProvider.getAreaFacade().save(dtoToSave, true);
-			
 
 			grid.getDataProvider().refreshItem(areaDto);
 		}
@@ -177,8 +171,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setWidth("30%");
 
 		searchField.addClassName("filterBar");
-		searchField.addValueChangeListener(
-				e -> dataView.addFilter(search -> {
+		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 
 			if (searchTerm.isEmpty())
@@ -198,7 +191,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			searchField.clear();
 
 		});
-		
+
 		ComboBox relevanceStatusFilter = new ComboBox<>();
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
@@ -214,73 +207,73 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			// Handle other enum values if needed
 			return status.toString();
 		});
-		
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			
+
 		});
 		layout.add(searchField, clear, relevanceStatusFilter);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 	}
-	
+
 	public boolean createOrEditArea(AreaDto areaDto) {
-		 Dialog dialog = new Dialog();
-		 FormLayout fmr = new FormLayout();
-         TextField nameField = new TextField("Name");
-         nameField.setValue(areaDto.getName());
-         TextField rCodeField = new TextField("RCode");
-         //this can generate null
-         rCodeField.setValue(areaDto.getExternalId().toString());
-         dialog.setCloseOnEsc(false);
- 		dialog.setCloseOnOutsideClick(false);
- 		
-         Button saveButton = new Button("Save");
-         saveButton.addClickListener(saveEvent -> {
-        	 
-             String firstName = nameField.getValue();
-             String lastName = rCodeField.getValue();
+		Dialog dialog = new Dialog();
+		FormLayout fmr = new FormLayout();
+		TextField nameField = new TextField("Name");
+		nameField.setValue(areaDto.getName());
+		TextField rCodeField = new TextField("RCode");
+		// this can generate null
+		rCodeField.setValue(areaDto.getExternalId().toString());
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
 
-            String uuids = areaDto.getUuid_();
-            System.out.println(lastName+"________________"+uuids+"__________________"+firstName);
- 			if(firstName != null && lastName != null) {
- 				
- 				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
- 				
- 				System.out.println(dce);
- 				
- 				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
- 				
- 				dce.setName(firstName);
-	 			long rcodeValue = Long.parseLong(lastName);
-	 			dce.setExternalId(rcodeValue);
-	 			
-	 			FacadeProvider.getAreaFacade().save(dce, true);
-	 			
-	 			
-	             // Perform save operation or any desired logic here
-	
-	             Notification.show("Saved: " + firstName + " " + lastName);
-	             dialog.close();
-             
- 			} else {
- 				Notification.show("Not Valid Value: " + firstName + " " + lastName);
- 			}
- 			
-             
-         });
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
+		saveButton.getStyle().set("margin-right", "10px");
+		saveButton.addClickListener(saveEvent -> {
 
-         fmr.add(nameField, rCodeField, saveButton);
-         dialog.add(fmr);
-         
+			String name = nameField.getValue();
+			String code = rCodeField.getValue();
+
+			String uuids = areaDto.getUuid_();
+			System.out.println(code + "________________" + uuids + "__________________" + name);
+			if (name != null && name != null) {
+
+				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
+
+				System.out.println(dce);
+
+				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
+
+				dce.setName(name);
+				long rcodeValue = Long.parseLong(code);
+				dce.setExternalId(rcodeValue);
+
+				FacadeProvider.getAreaFacade().save(dce, true);
+
+				// Perform save operation or any desired logic here
+
+				Notification.show("Saved: " + name + " " + code);
+				dialog.close();
+
+			} else {
+				Notification.show("Not Valid Value: " + name + " " + code);
+			}
+
+		});
+
+		fmr.add(nameField, rCodeField);
+		dialog.setHeaderTitle("Edit " + areaDto.getName());
+		dialog.add(fmr);
+		dialog.getFooter().add(discardButton, saveButton);
+
 //         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 // 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
- 		
-         
-         
-         dialog.open();
-         
-         return true;
+
+		dialog.open();
+
+		return true;
 	}
 
 }

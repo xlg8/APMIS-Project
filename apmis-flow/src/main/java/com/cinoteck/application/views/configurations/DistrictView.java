@@ -65,7 +65,7 @@ public class DistrictView extends VerticalLayout {
 	TextField searchField = new TextField();
 
 	Button resetFilters = new Button("Reset Filters");
-	
+
 	ComboBox<String> riskFilter = new ComboBox<>("Risk");
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
 
@@ -95,7 +95,7 @@ public class DistrictView extends VerticalLayout {
 
 		grid.setDataProvider(filteredDataProvider);
 		addFiltersLayout();
-		
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditDistrict(event.getValue());
@@ -191,7 +191,6 @@ public class DistrictView extends VerticalLayout {
 
 		});
 
-
 		riskFilter.setItems("Low Risk (LR)", "Medium Risk (MR)", "High Risk (HR)");
 
 		riskFilter.addValueChangeListener(e -> {
@@ -202,11 +201,10 @@ public class DistrictView extends VerticalLayout {
 			} else {
 				criteria.risk(null);
 			}
-			
+
 		});
 		layout.add(riskFilter);
 
-		
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
@@ -236,64 +234,71 @@ public class DistrictView extends VerticalLayout {
 	public void clearFilters() {
 
 	}
-	
-	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
-		 Dialog dialog = new Dialog();
-		 FormLayout fmr = new FormLayout();
-       TextField nameField = new TextField("Name");
-       nameField.setValue(districtIndexDto.getName());
-       TextField dCodeField = new TextField("DCode");
-       //this can generate null
-       dCodeField.setValue(districtIndexDto.getExternalId().toString());
-       dialog.setCloseOnEsc(false);
-		dialog.setCloseOnOutsideClick(false);
-		
-       Button saveButton = new Button("Save");
-       saveButton.addClickListener(saveEvent -> {
-      	 
-           String name = nameField.getValue();
-           String code = dCodeField.getValue();
 
-          String uuids = districtIndexDto.getUuid();
-          System.out.println(code+"________________"+uuids+"__________________"+name);
-			if(name != null && code != null) {
-				
-				DistrictDto dce = FacadeProvider.getDistrictFacade().getDistrictByUuid(uuids); 
-				
+	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
+		Dialog dialog = new Dialog();
+		FormLayout fmr = new FormLayout();
+		TextField nameField = new TextField("Name");
+		nameField.setValue(districtIndexDto.getName());
+		TextField dCodeField = new TextField("DCode");
+		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
+		provinceOfDistrict.setItems(districtIndexDto.getRegion());
+		provinceOfDistrict.setValue(districtIndexDto.getRegion());
+		provinceOfDistrict.isReadOnly();
+		provinceOfDistrict.setEnabled(false);
+		ComboBox<String> risk = new ComboBox<>("Risk");
+		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
+		// this can generate null
+		dCodeField.setValue(districtIndexDto.getExternalId().toString());
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
+		saveButton.getStyle().set("margin-right", "10px");
+		saveButton.addClickListener(saveEvent -> {
+
+			String name = nameField.getValue();
+			String code = dCodeField.getValue();
+
+			String uuids = districtIndexDto.getUuid();
+			System.out.println(code + "________________" + uuids + "__________________" + name);
+			if (name != null && code != null) {
+
+				DistrictDto dce = FacadeProvider.getDistrictFacade().getDistrictByUuid(uuids);
+
 				System.out.println(dce);
-				
-				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
-				
+
+				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
+
 				dce.setName(name);
-	 			long rcodeValue = Long.parseLong(code);
-	 			dce.setExternalId(rcodeValue);
-	 			
-	 			FacadeProvider.getDistrictFacade().save(dce, true);
-	 			
-	 			
-	             // Perform save operation or any desired logic here
-	
-	             Notification.show("Saved: " + name + " " + code);
-	             dialog.close();
-           
+				long rcodeValue = Long.parseLong(code);
+				dce.setExternalId(rcodeValue);
+
+				FacadeProvider.getDistrictFacade().save(dce, true);
+
+				// Perform save operation or any desired logic here
+
+				Notification.show("Saved: " + name + " " + code);
+				dialog.close();
+
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);
 			}
-			
-           
-       });
 
-       fmr.add(nameField, dCodeField, saveButton);
-       dialog.add(fmr);
-       
+		});
+
+		dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+		fmr.add(nameField, dCodeField, provinceOfDistrict, risk);
+		dialog.add(fmr);
+		dialog.getFooter().add(discardButton, saveButton);
+
 //       getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 //		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
-		
-       
-       
-       dialog.open();
-       
-       return true;
+
+		dialog.open();
+
+		return true;
 	}
 
 }
