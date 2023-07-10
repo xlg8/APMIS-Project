@@ -105,6 +105,8 @@ public class AboutView extends VerticalLayout {
 		Button getMobileGuide =  new Button("Mobile User Guide");
 		getMobileGuide.setIcon(new Icon(VaadinIcon.MOBILE));
 		getMobileGuide.setVisible(false);
+		getMobileGuide.addClassName("wrap-button-label"); // Add a CSS class for styling
+
 		
 		
 		GridExporter<JsonDictionaryReportModelDto> exporter = GridExporter.createFor(grid);
@@ -146,7 +148,8 @@ public class AboutView extends VerticalLayout {
 			  UI.getCurrent().getPage().open("https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/Apmis_MobileUser_Guide.pdf");
 		});
 		
-		excelLink.setClassName("exportJsonGLoss");
+		excelLink.setClassName("exportJsonGLoss2");
+		
 		excelLink.getStyle().set("color", "0D6938 !important");
 		HorizontalLayout buttonsLayout  = new HorizontalLayout();
 		buttonsLayout.getStyle().set("padding-left", "90px");
