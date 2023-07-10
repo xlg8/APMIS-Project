@@ -1399,7 +1399,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 //
 //	}
 	public void hasErrorFormValues(int numer) {
-		Notification.show("dddddddddddddddd: "+numer);
+//		Notification.show("dddddddddddddddd: "+numer);
  		invalidForm = true;
 
 	}
@@ -1441,7 +1441,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 		} else {
 			// add notuification here for error in form
-			Notification.show("jhgfdsdfghjkjhgfdfghj");
+			//Notification.show("jhgfdsdfghjkjhgfdfghj");
 
 		}
 		return false;

@@ -778,6 +778,8 @@ public class UserView extends VerticalLayout {
 		// updateList();
 		closeEditor();
 	}
+	
+
 
 	public void makeInitialPassword(String userUuid, String userEmail, String userName) {
 		if (StringUtils.isBlank(userEmail)

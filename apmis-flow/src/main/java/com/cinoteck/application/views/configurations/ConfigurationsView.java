@@ -89,30 +89,30 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
                 case "Regions":
                 	removeAnchorContent();
                 	createExcelLinkForRegion();
-                    Notification.show("Region");
+                    //Notification.show("Region");
                     break;
                 case "Province":
                 	
                 	removeAnchorContent();
                 	createExcelLinkForProvince();
                 	
-                    Notification.show("Province");
+                    //Notification.show("Province");
                     break;
                 case "District":
                 	removeAnchorContent();
                 	createExcelLinkForDistrict();
-                    Notification.show("District");
+                    //Notification.show("District");
                     break;
                 case "Cluster":
                 	removeAnchorContent();
                 	createExcelLinkForCluster();
-                    Notification.show("Cluster");
+                    //Notification.show("Cluster");
                     break;
                 default:
                 	
                    createExcelLinkForDefault();
                  
-                    Notification.show("default");
+                    //Notification.show("default");
                     break;
             }
             
