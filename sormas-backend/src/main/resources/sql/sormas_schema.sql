@@ -8780,6 +8780,56 @@ ALTER TABLE public.populationdata ALTER COLUMN selected TYPE bool USING selected
 INSERT INTO schema_version (version_number, comment) VALUES (442, 'Enhancing completion analysis');
 
 
+
+
+--Patch of Optimzation #202
+CREATE TABLE IF NOT EXISTS public.tracktableupdates (
+	table_name text NOT NULL,
+	last_updated timestamp NULL,
+	CONSTRAINT tracktableupdates_pkey PRIMARY KEY (table_name)
+);
+
+
+CREATE OR REPLACE FUNCTION public.update_timestamp()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    INSERT INTO tracktableupdates (table_name, last_updated)
+    VALUES (TG_TABLE_NAME, NOW())
+    ON CONFLICT (table_name)
+    DO UPDATE SET last_updated = EXCLUDED.last_updated;
+    RETURN NEW;
+END;
+$function$
+;
+
+
+create trigger track_table_updates after
+insert
+    or
+delete
+    or
+update
+    on
+    public.campaignformdata for each row execute procedure update_timestamp();
+    
+    
+    
+    create trigger track_table_updates after
+insert
+    or
+delete
+    or
+update
+    on
+    public.completionanalysisview_e for each row execute procedure update_timestamp();
+
+INSERT INTO schema_version (version_number, comment) VALUES (443, 'Optimizing completion analysis');
+    
+    
+    
+    
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
 
