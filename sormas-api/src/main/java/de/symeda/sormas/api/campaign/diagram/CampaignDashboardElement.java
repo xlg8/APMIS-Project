@@ -132,4 +132,9 @@ public class CampaignDashboardElement implements Serializable {
 	public int hashCode() {
 		return Objects.hash(diagramId, tabId, subTabId, order, width, height, phase);
 	}
+	
+//	@Override
+//	public String toString() {
+//		return getDiagramId();
+//	}
 }
