@@ -11,25 +11,19 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
-import com.cinoteck.application.views.user.UserForm.SaveEvent;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.AbstractGridMultiSelectionModel;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -49,7 +43,7 @@ import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
+import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -64,12 +58,16 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 
 @PageTitle("Edit Campaign")
 @Route(value = "/data")
-public class CampaignForm extends FormLayout {
+public class CampaignForm extends VerticalLayout {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 764300181578209719L;
 	private static final String PRE_CAMPAIGN = "pre-campaign";
 	private static final String INTRA_CAMPAIGN = "intra-campaign";
 	private static final String POST_CAMPAIGN = "post-campaign";
 
-	Anchor archiveDearchive = new Anchor("Archive");
+	Button archiveDearchive = new Button("Archive");
 	Button openCloseCampaign;
 	Button duplicateCampaign;
 	Button deleteCampaign;
@@ -98,8 +96,8 @@ public class CampaignForm extends FormLayout {
 
 	TreeGrid<CampaignTreeGridDto> treeGrid = new TreeGrid<>();
 
-	HorizontalLayout actionButtonsLayout = new HorizontalLayout();
-
+	HorizontalLayout  actionButtonsLayout = new HorizontalLayout();
+	
 	private Set<AreaReferenceDto> areass = new HashSet<>();;
 	private Set<RegionReferenceDto> region = new HashSet<>();
 	private Set<DistrictReferenceDto> districts = new HashSet<>();
@@ -115,7 +113,8 @@ public class CampaignForm extends FormLayout {
 	public CampaignForm(CampaignDto formData) {
 
 		this.statusChangeLayout = new VerticalLayout();
-
+		this.formDatac = formData;
+		
 		isCreateForm = formData == null;
 
 		statusChangeLayout.setSpacing(false);
@@ -149,11 +148,8 @@ public class CampaignForm extends FormLayout {
 
 		this.campaignDto = formData;
 
-		System.out.println(campaignDto + "campaignDto in formdata");
-		H2 camapaignBasics = new H2("Campaign basics");
-		this.setColspan(camapaignBasics, 2);
-
-		this.setColspan(description, 2);
+		
+		
 		description.getStyle().set("height", "10rem");
 
 		creatingUser.setReadOnly(true);
@@ -170,7 +166,7 @@ public class CampaignForm extends FormLayout {
 		HorizontalLayout hort = new HorizontalLayout();
 		hort.add(creatingUuid, creatingUser, campaaignYear);
 		hort.setJustifyContentMode(JustifyContentMode.BETWEEN);
-		this.setColspan(hort, 2);
+		
 
 //		round.setItems(CampaignRounds.values());
 		round.setItems("NID", "SNID", "Case Respond", "Mopping-Up");
@@ -207,7 +203,7 @@ public class CampaignForm extends FormLayout {
 
 		final HorizontalLayout layoutParent = new HorizontalLayout();
 		layoutParent.setWidthFull();
-		this.setColspan(layoutParent, 2);
+		
 		TabSheet tabsheetParent = new TabSheet();
 		layoutParent.add(tabsheetParent);
 		VerticalLayout parentTab1 = new VerticalLayout();
@@ -222,19 +218,28 @@ public class CampaignForm extends FormLayout {
 		CampaignFormGridComponent comp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("pre-campaign")),
-						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN));
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN), campaignDto, PRE_CAMPAIGN);
 		tab1.add(comp);
-
+		
+		//this might blow our in new campaign saying null
+		this.campaignDto = comp.getModifiedDto();
+		
 		tabsheet.add("Pre Campaign Forms", tab1);
 
 		VerticalLayout tab2 = new VerticalLayout();
+		
+		
+		
+		
+		
+		
 
-		final List<CampaignDashboardElement> campaignDashboardElements = FacadeProvider.getCampaignFacade()
-				.getCampaignDashboardElements(null, PRE_CAMPAIGN);
-		CampaignDashboardGridElementComponent comp1 = new CampaignDashboardGridElementComponent(this.campaignDto == null
-				? Collections.EMPTY_LIST
-				: FacadeProvider.getCampaignFacade().getCampaignDashboardElements(campaignDto.getUuid(), PRE_CAMPAIGN),
-				campaignDashboardElements);
+//		final List<CampaignDashboardElement> campaignDashboardElements = FacadeProvider.getCampaignFacade()
+//				.getCampaignDashboardElements(null, PRE_CAMPAIGN);
+		CampaignDashboardGridElementComponent comp1 = new CampaignDashboardGridElementComponent(
+				this.campaignDto == null ? Collections.EMPTY_LIST
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(PRE_CAMPAIGN)),
+						getListDashboardFromType(PRE_CAMPAIGN), campaignDto, PRE_CAMPAIGN);
 		tab2.add(comp1);
 		tabsheet.add("Pre Campaign Dashboard", tab2);
 		tabsheet.setWidthFull();
@@ -255,8 +260,9 @@ public class CampaignForm extends FormLayout {
 		CampaignFormGridComponent compp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("intra-campaign")),
-						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN));
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN), campaignDto, INTRA_CAMPAIGN);
 		tab1Intra.add(compp);
+		this.campaignDto = compp.getModifiedDto();
 		tabsheetIntra.add("Intra Campaign Forms", tab1Intra);
 		tabsheetIntra.setWidthFull();
 
@@ -268,14 +274,13 @@ public class CampaignForm extends FormLayout {
 				.getCampaignDashboardElements(null, INTRA_CAMPAIGN);
 		CampaignDashboardGridElementComponent compp2 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						: FacadeProvider.getCampaignFacade().getCampaignDashboardElements(campaignDto.getUuid(),
-								INTRA_CAMPAIGN),
-				intracampaignDashboardElements);
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),
+						getListDashboardFromType(INTRA_CAMPAIGN), campaignDto, INTRA_CAMPAIGN);
 		tab2Intra.add(compp2);
 
 		tabsheetIntra.add("Intra Campaign Dashboard", tab2Intra);
 		parentTab2.add(layoutIntra);
-		parentTab2.getStyle().set("color", "green");
+	//	parentTab2.getStyle().set("color", "green");
 		tabsheetParent.add("Intra-Campaign Phase", parentTab2);
 
 		VerticalLayout parentTab3 = new VerticalLayout();
@@ -289,20 +294,20 @@ public class CampaignForm extends FormLayout {
 
 		CampaignFormGridComponent comppp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						: new ArrayList<>(campaignDto.getCampaignFormMetas("post-campaign")),
-						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN));
+						: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
+						FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 		tab1Post.add(comppp);
+		this.campaignDto = comppp.getModifiedDto();
 		tabsheetPost.add("Post Campaign Forms", tab1Post);
 
 		VerticalLayout tab2Post = new VerticalLayout();
 
 		final List<CampaignDashboardElement> postcampaignDashboardElements = FacadeProvider.getCampaignFacade()
-				.getCampaignDashboardElements(null, INTRA_CAMPAIGN);
+				.getCampaignDashboardElements(null, POST_CAMPAIGN);
 		CampaignDashboardGridElementComponent comppp2 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						: FacadeProvider.getCampaignFacade().getCampaignDashboardElements(campaignDto.getUuid(),
-								INTRA_CAMPAIGN),
-				postcampaignDashboardElements);
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN)),
+						getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 		tab2Post.add(comppp2);
 
 		tabsheetPost.add("Post Campaign Dashboard", tab2Post);
@@ -519,41 +524,59 @@ public class CampaignForm extends FormLayout {
 		tabsheetParent.setId("tabsheetParent");
 
 		CampaignActionButtons actionButtons = new CampaignActionButtons();
-		this.setColspan(actionButtons, 2);
+		
+		
 
 		openCloseCampaign = new Button();
 		openCloseCampaign.setText("Open Campaign");
+		openCloseCampaign.getStyle().set("margin-inline-end", "auto");
+		
 		duplicateCampaign = new Button();
 		duplicateCampaign.setText("Duplicate");
+		duplicateCampaign.getStyle().set("margin-inline-end", "auto");
+		
 		deleteCampaign = new Button();
 		deleteCampaign.setText("Delete");
 		deleteCampaign.getStyle().set("background", "red");
+		deleteCampaign.getStyle().set("margin-inline-end", "auto");
+		
 		publishUnpublishCampaign = new Button();
 		publishUnpublishCampaign.setText("Publish Campaign");
+		publishUnpublishCampaign.getStyle().set("margin-inline-end", "auto");
+		
 		discardChanges = new Button();
-		discardChanges.setText("Discard Changes");
+		discardChanges.setText("Discard");
+		discardChanges.getStyle().set("margin-inline-start", "auto");
+		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		
 		saveChanges = new Button();
 		saveChanges.setText("Save");
-
+		saveChanges.getStyle().set("margin-inline-start", "auto");
 		saveChanges.addClickListener(e -> {
 			validateAndSave();
 		});
 
-		Button spacer = new Button();
-		spacer.setWidth("54%");
-		spacer.getStyle().set("background-color", "none !important");
-		spacer.getStyle().set("box-shadow", "none !important");
-		spacer.getStyle().set("color", "none !important");
-		spacer.getStyle().set("background", "none !important");
-
+		
+		
+		archiveDearchive.getStyle().set("margin-inline-end", "auto");
 		// Add the buttons to the layout
 		actionButtonsLayout.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
-				deleteCampaign, spacer, discardChanges, saveChanges);
-
+				deleteCampaign, discardChanges, saveChanges);
+		actionButtonsLayout.getStyle().set("flex-wrap", "wrap");
+		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
+		
 		// Set the justify content mode to END
-		actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
-
-		add(camapaignBasics, hort, campaignName, round, startDate, endDate, description, layoutParent,
+		FormLayout formL = new FormLayout();
+		formL.add(campaignName, round, startDate, endDate, description);
+		formL.setColspan(description, 2);
+		formL.setColspan(hort, 2);
+		
+		
+		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
+//		actionButtonsLayout.setResponsiveSteps(
+//				// Use one column by default
+//				new ResponsiveStep("0", 1), new ResponsiveStep("520px", 7), new ResponsiveStep("1000px", 7));
+		add(formL, layoutParent,
 				actionButtonsLayout); // ,
 		// layoutParent,
 		// actionButtons
@@ -619,8 +642,18 @@ public class CampaignForm extends FormLayout {
 	}
 
 	private void validateAndSave() {
-		if (binderx.isValid()) {
+		if (binder.validate().isOk()) {
+			
+			
+			
+			
 			fireEvent(new SaveEvent(this, binderx.getBean()));
+			
+			UI.getCurrent().getPage().reload();
+			Notification.show("Success!");
+			
+		} else {
+			Notification.show("error in vampaing form");
 		}
 	}
 
@@ -665,4 +698,21 @@ public class CampaignForm extends FormLayout {
 		return addListener(CloseEvent.class, listener);
 	}
 
+	
+	private List<CampaignDashboardElement> getListDashboardFromType(String phaseTy) {
+		final List<CampaignDiagramDefinitionDto> allDiagram = FacadeProvider.getCampaignDiagramDefinitionFacade().getAll();
+		
+		List<CampaignDashboardElement> elements = new ArrayList<>();
+		final List<CampaignDiagramDefinitionDto> filterList = allDiagram.stream().filter(e -> e.getFormType().equalsIgnoreCase(phaseTy)).collect(Collectors.toList());
+		
+		for(CampaignDiagramDefinitionDto lsiter : filterList) {
+			CampaignDashboardElement emptyElements = new CampaignDashboardElement();
+			emptyElements.setDiagramId(lsiter.getDiagramId());
+			emptyElements.setPhase(phaseTy);
+			elements.add(emptyElements);
+		
+		}
+		return elements;
+		
+	}
 }

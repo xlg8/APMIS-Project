@@ -2,290 +2,313 @@ package com.cinoteck.application.views.campaign;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.function.SerializablePredicate;
-import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.AbstractSelect.NewItemHandler;
-
-import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
-import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.i18n.Validations;
+import com.vaadin.flow.component.textfield.IntegerField;
 
-public class CampaignDashboardGridElementComponent extends AbstractEditableGrid<CampaignDashboardElement> {
 
-	public static String formPhase;
-
-	public String getFormPhase() {
-		return formPhase;
-	}
-
-	public void setFormPhase(String formPhase) {
-		this.formPhase = formPhase;
-	}
+public class CampaignDashboardGridElementComponent extends VerticalLayout {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5040277864446152755L;
+	List<CampaignDashboardElement> savedElements;
+	List<CampaignDashboardElement> allElements;
+	Grid<CampaignDashboardElement> grid = new Grid<>(CampaignDashboardElement.class, false);
+	CampaignDto campaignDto;
+	private CampaignDashboardElement formBeenEdited;
+	private String campaignPhase;
 
 	public CampaignDashboardGridElementComponent(List<CampaignDashboardElement> savedElements,
-			List<CampaignDashboardElement> allElements) {
-		super(savedElements, allElements);
-		setWidthFull();
-//		addColumnsBinder(allElements);
-	}
-
-	protected Binder<CampaignDashboardElement> addColumnsBinder(List<CampaignDashboardElement> allElements) {
-
-		final String formTy = allElements.isEmpty() ? "takes away null pointer" : allElements.get(0).getPhase();
-
-		Binder<CampaignDashboardElement> binder = new Binder<>();
-
-		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
-				.getCampaignDiagramDefinitionFacade().getAll().stream()
-				.filter(e -> e.getFormType().equalsIgnoreCase(formTy)).collect(Collectors.toList());
-
-		final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream().collect(Collectors
-				.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
-
-//		 final Map<String, String> diagramIdCaptionMapPhase =
-//		 campaignDiagramDefinitionDtos.stream()
-//		 .collect(Collectors.toMap(CampaignDiagramDefinitionDto::getDiagramId,
-//		 CampaignDiagramDefinitionDto::getFormType));
-
-		ComboBox<String> diagramIdCaptionCombo = new ComboBox<>(Captions.campaignDashboardChart,
-				diagramIdCaptionMap.keySet());
-		diagramIdCaptionCombo.setItemLabelGenerator(diagramId -> diagramIdCaptionMap.get(diagramId));
-//		diagramIdCaptionCombo.setEmptySelectionAllowed(false);
-
-		Binder.Binding<CampaignDashboardElement, String> diagramIdCaptionBind = binder.bind(diagramIdCaptionCombo,
-				CampaignDashboardElement::getDiagramId, CampaignDashboardElement::setDiagramId);
-		/*
-		 * cde -> new DiagramIdCaption(cde.getDiagramId(),entityCampaignDataForm
-		 * diagramIdCaptionMap.get(cde.getDiagramId())), (campaignDashboardElement,
-		 * diagramIdCaption) -> {
-		 * campaignDashboardElement.setDiagramId(diagramIdCaption.getDiagramId()); });
-		 */
-
-		final Grid.Column<CampaignDashboardElement> diagramIdColumn = grid
-				.addColumn(campaignDashboardElement -> diagramIdCaptionMap.get(campaignDashboardElement.getDiagramId()))
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChart))
-				.setEditorComponent(diagramIdCaptionCombo);
-
-		final List<String> existingTabIds = allElements.stream().map(e -> e.getTabId())
-				.filter(s -> StringUtils.isNotEmpty(s)).distinct().collect(Collectors.toList());
-
-		// System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-		// "+existingTabIds.toString());
-
-		final ComboBox<String> tabIdCombo = new ComboBox<>(Captions.campaignDashboardTabName);
-		tabIdCombo.setItems(existingTabIds);
-		tabIdCombo.setAllowCustomValue(true);
-		tabIdCombo.setPreventInvalidInput(true);
-		tabIdCombo.addValueChangeListener(event -> {
-			String newValue = event.getValue();
-			if (newValue != null && !existingTabIds.contains(newValue)) {
-				tabIdCombo.setItems(existingTabIds);
-			}
-		});
-		tabIdCombo.addValueChangeListener(event -> {
-		    String newValue = event.getValue();
-		    if (newValue != null && !existingTabIds.contains(newValue)) {
-		        existingTabIds.add(newValue);
-		        tabIdCombo.setItems(existingTabIds);
-		    }
-		});
-		tabIdCombo.setClearButtonVisible(true);
-		tabIdCombo.setRequired(true);
-		tabIdCombo.setErrorMessage("Please select a valid option or enter a new one.");
-
-		final Binder.Binding<CampaignDashboardElement, String> tabIdBind = binder.bind(tabIdCombo,
-				CampaignDashboardElement::getTabId, CampaignDashboardElement::setTabId);
-
-		List<String> itemsList = new ArrayList<>();
-		ListDataProvider<String> dataProvider = new ListDataProvider<>(itemsList); // Create a ListDataProvider
-		tabIdCombo.setDataProvider(dataProvider); // Set the data provider to the ComboBox
-		tabIdCombo.addCustomValueSetListener(event -> {
-			String newItem = event.getDetail(); // Retrieve the new item entered by the user
-			itemsList.add(newItem); // Add the new item to the list
-			dataProvider.refreshAll(); // Refresh the data provider to reflect the changes in the ComboBox
-		});
-//		tabIdCombo.setEmptySelectionAllowed(false);
-//		tabIdCombo.setTextInputAllowed(true);
-//		tabIdCombo.setNewItemProvider((ComboBox.NewItemProvider<String>) s -> Optional.of(s));
-//		tabIdCombo.setNewItemSupplier(s -> Optional.of(s));
-
+			List<CampaignDashboardElement> allElements, CampaignDto campaignDto, String campaignPhase) {
+		this.savedElements = savedElements;
+		this.allElements = allElements;
+		this.campaignDto = campaignDto;
+		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(campaignDashboardElement -> campaignDashboardElement.getTabId())
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName));
-//		tabIdColumn.setEditorBinding(tabIdBind);
-
-		final List<String> existingSubTabIds = allElements.stream()
-				.map(campaignDiagramDefinitionDto -> campaignDiagramDefinitionDto.getSubTabId())
-				.filter(s -> StringUtils.isNotEmpty(s)).distinct().collect(Collectors.toList());
-
-		final ComboBox<String> subTabIdCombo = new ComboBox<>(Captions.campaignDashboardSubTabName, existingSubTabIds);
-		List<String> itemsListt = new ArrayList<>();
-		ListDataProvider<String> dataProviderr = new ListDataProvider<>(itemsListt); // Create a ListDataProvider
-		subTabIdCombo.setDataProvider(dataProviderr); // Set the data provider to the ComboBox
-		subTabIdCombo.addCustomValueSetListener(event -> {
-			String newItem = event.getDetail(); // Retrieve the new item entered by the user
-			itemsList.add(newItem); // Add the new item to the list
-			dataProvider.refreshAll(); // Refresh the data provider to reflect the changes in the ComboBox
-		});
-
-		final Binder.Binding<CampaignDashboardElement, String> subTabIdBind = binder.bind(subTabIdCombo,
-				CampaignDashboardElement::getSubTabId, CampaignDashboardElement::setSubTabId);
-
-		grid.addColumn(campaignDashboardElement -> campaignDashboardElement.getSubTabId())
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName));
-//		subTabIdColumn.setEditorBinding(subTabIdBind);
-
-		TextField width = new TextField(Captions.campaignDashboardChartWidth);
-
-		Binder.Binding<CampaignDashboardElement, String> widthBind = binder.forField(width)
-				.withValidator(percentValidator(),
-						I18nProperties.getValidationError(Validations.campaignDashboardChartPercentage))
-				.bind(campaignDashboardElement -> intToString(campaignDashboardElement.getWidth()),
-						(c, s) -> c.setWidth(new Integer(s)));
-
-		grid.addColumn(campaignDashboardElement -> intToString(campaignDashboardElement.getWidth()))
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
-//		widthColumn.setEditorBinding(widthBind);
-
-		TextField height = new TextField(Captions.campaignDashboardChartHeight);
-		Binder.Binding<CampaignDashboardElement, String> heightBind = binder.forField(height)
-				.withValidator(percentValidator(),
-						I18nProperties.getValidationError(Validations.campaignDashboardChartPercentage))
-				.bind(
-				campaignDashboardElement -> intToString(campaignDashboardElement.getHeight()),
-				(c, s) -> c.setHeight(new Integer(s)));
-
-		grid.addColumn(campaignDashboardElement -> intToString(campaignDashboardElement.getHeight()))
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
-//		heightColumn.setEditorBinding(heightBind);
-
-		TextField order = new TextField(Captions.campaignDashboardOrder);
-		order.setEnabled(false);
-		Binder.Binding<CampaignDashboardElement, String> orderBind = binder.bind(order,
-				campaignDashboardElement -> intToString(campaignDashboardElement.getOrder()),
-				(c, s) -> c.setOrder(new Integer(s)));
-
-		grid.addColumn(campaignDashboardElement -> intToString(campaignDashboardElement.getOrder()))
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
-//		orderColumn.setEditorBinding(orderBind);
-
-		TextField phase = new TextField(Captions.campaignDashboardPhase);
-		phase.setEnabled(false);
-
-		Binder.Binding<CampaignDashboardElement, String> phaseBind = binder.bind(phase,
-				CampaignDashboardElement::getPhase, CampaignDashboardElement::setPhase);
-
-		grid.addColumn(campaignDashboardElement -> campaignDashboardElement.getPhase())
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardPhase));
-//		phaseColumn.setEditorBinding(phaseBind);
-
-		diagramIdCaptionCombo.addValueChangeListener(e -> {
-//			Notification.show(e.getComponent().getId());
-			phase.setValue(formTy);
-
-		});
-
-//		add(grid);
-
-		return binder;
+		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart");
+		grid.addColumn(CampaignDashboardElement::getTabId).setHeader("Tab ID");
+		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader("SubTab ID");
+		grid.addColumn(CampaignDashboardElement::getWidth).setHeader("Width");
+		grid.addColumn(CampaignDashboardElement::getHeight).setHeader("Height");
+		grid.addColumn(CampaignDashboardElement::getOrder).setHeader("Order");
+		grid.setItems(savedElements);
+		
+		addClassName("list-view");
+		setSizeFull();
+		add(getContent());
 	}
 
-	@Override
-	protected ComponentEventListener<ClickEvent<Button>> newRowEvent() {
-		return event -> {
-			final CampaignDashboardElement campaignDashboardElement = new CampaignDashboardElement();
-			final ArrayList<CampaignDashboardElement> gridItems = getItems();
-			gridItems.add(campaignDashboardElement);
-			campaignDashboardElement.setOrder(gridItems.indexOf(campaignDashboardElement));
+	private Component getContent() {
+		VerticalLayout formx = editorForm();
+		formx.getStyle().remove("width");
+		HorizontalLayout content = new HorizontalLayout(grid, formx);
+		content.setFlexGrow(4, grid);
+		content.setFlexGrow(1, formx);
+		content.addClassNames("content");
+		content.setSizeFull();
+		return content;
+	}
+
+	private VerticalLayout editorForm() {
+		FormLayout formx = new FormLayout();
+		VerticalLayout vert = new VerticalLayout();
+		
+		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
+		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
+		plusButton.setTooltipText("Add new form");
+		
+		
+		 Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
+		 deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
+		 deleteButton.getStyle().set("background-color", "red!important");
+		 deleteButton.setTooltipText("Remove this form");
+	        
+	        Button saveButton = new Button("Save",
+	                new Icon(VaadinIcon.CHECK));
+	        
+	        Button cacleButton = new Button("Cancle",
+	                new Icon(VaadinIcon.REFRESH));
+		
+		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
+		charts.setLabel("Charts");
+		charts.setItems(allElements);
+		charts.setItemLabelGenerator(item -> getItemCaption(item));
+		// if its a clicked action set the value from the item....TODO
+
+		
+		List<String> tempListTabId = new ArrayList<String>();
+		if(campaignDto != null) {
+			for(CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
+			tempListTabId.add(elex.getTabId());
+		}
+		
+		List<String> tempListSubTabId = new ArrayList<String>();
+		if(campaignDto != null) {
+			for(CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
+				tempListSubTabId.add(elex.getSubTabId());
+		}
+		
+		
+		ComboBox<String> tabID = new ComboBox<String>();
+		tabID.setLabel("Tab ID");
+		tabID.setItems(tempListTabId);
+		tabID.setAllowCustomValue(true);
+		tabID.addCustomValueSetListener(e -> {
+		    String customValue = e.getDetail();
+		    tempListTabId.add(customValue);
+		    tabID.setItems(tempListTabId);
+		    tabID.setValue(customValue);
+		});
+		
+		
+		ComboBox<String> subTabID = new ComboBox<String>();
+		subTabID.setLabel("SubTab ID");
+		subTabID.setItems(tempListSubTabId);
+		subTabID.setAllowCustomValue(true);
+		subTabID.addCustomValueSetListener(e -> {
+		    String customValue = e.getDetail();
+		    tempListSubTabId.add(customValue);
+		    subTabID.setItems(tempListSubTabId);
+		    subTabID.setValue(customValue);
+		});
+		
+		
+		IntegerField tabWidth = new IntegerField();
+		tabWidth.setLabel("Width");
+		tabWidth.setMin(10);
+		tabWidth.setMax(100);
+		tabWidth.setStep(5);
+		tabWidth.setStepButtonsVisible(true);
+		
+		
+		IntegerField tabHeight = new IntegerField();
+		tabHeight.setLabel("Height");
+		tabHeight.setMin(10);
+		tabHeight.setMax(100);
+		tabHeight.setStep(5);
+		tabHeight.setStepButtonsVisible(true);
+		
+		IntegerField tabOrder = new IntegerField();
+		tabOrder.setLabel("Order");
+		tabOrder.setMin(0);
+		tabOrder.setMax(100);
+		tabOrder.setStepButtonsVisible(true);
+		
+		
+		 HorizontalLayout buttonLay = new HorizontalLayout(plusButton, deleteButton);
+		 
+		// buttonLay.setEnabled(false);
+		 
+		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cacleButton);
+		 buttonAfterLay.getStyle().set("flex-wrap", "wrap");
+		 buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
+		 buttonLay.setSpacing(true);
+		
+		 grid.addSelectionListener(ee -> {
 			
-			grid.setItems(gridItems);
+			    int size = ee.getAllSelectedItems().size();
+			    if(size > 0) {
+			    	CampaignDashboardElement selectedCamp = ee.getFirstSelectedItem().get();
+					 formBeenEdited = selectedCamp;
+			    boolean isSingleSelection = size == 1;
+			    buttonLay.setEnabled(isSingleSelection);
+			    buttonAfterLay.setEnabled(isSingleSelection);
+			    
+			    formx.setVisible(true);
+				buttonAfterLay.setVisible(true);
+				
+				charts.setValue(selectedCamp);
+				tabID.setValue(selectedCamp.getTabId());
+				subTabID.setValue(selectedCamp.getSubTabId());
+				tabWidth.setValue(selectedCamp.getWidth());
+				tabHeight.setValue(selectedCamp.getHeight());
+				tabOrder.setValue(selectedCamp.getOrder());
+				
+			    saveButton.setText("Update");
+			    } else {
+			    	formBeenEdited = new CampaignDashboardElement();
+			    }
+			});
+		 
+		 deleteButton.addClickListener(dex->{
+			 if(formBeenEdited == null) {
+				 Notification.show("Please select a form first");
+			 } else {
 
-			grid.getEditor().editItem(campaignDashboardElement);
-		};
+			 campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
+			// FacadeProvider.getCampaignFacade().saveCampaign(capdto); 
+			 Notification.show(formBeenEdited+" was removed from the Campaign");
+			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			 }
+			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+		 });
+		 
+		 plusButton.addClickListener(ce->{
+			 CampaignDashboardElement newcampform = new CampaignDashboardElement();
+			 
+			 formx.setVisible(true);
+			 buttonAfterLay.setVisible(true);
+			 
+			 try {
+				 charts.setValue(newcampform);
+			 }finally {
+				
+					tabID.setValue("");
+					subTabID.setValue("");
+					tabWidth.setValue(0);
+					tabHeight.setValue(0);
+					tabOrder.setValue(0);
+			 }
+			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+		 });
+		 
+		 cacleButton.addClickListener(ees -> {
+			 CampaignDashboardElement newcampform = new CampaignDashboardElement();
+			 
+			 formx.setVisible(false);
+			 buttonAfterLay.setVisible(false);
+			 
+			 try {
+				 charts.setValue(newcampform);
+			 }finally {
+				
+					tabID.setValue("");
+					subTabID.setValue("");
+					tabWidth.setValue(0);
+					tabHeight.setValue(0);
+					tabOrder.setValue(0);
+			 }
+			 saveButton.setText("Save");
+			 
+			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			 
+		 });
+		 
+		 
+		 saveButton.addClickListener(e->{
+			 
+			 if(((Button) e.getSource()).getText().equals("Save")) {
+				 //TODO we need validator on the items before we accept them to database because we are not using binder...
+				 CampaignDashboardElement newCampForm = charts.getValue();
+				 newCampForm.setTabId(tabID.getValue());
+				 newCampForm.setSubTabId(subTabID.getValue());
+				 newCampForm.setWidth(tabWidth.getValue());
+				 newCampForm.setHeight(tabHeight.getValue());
+				 newCampForm.setOrder(tabOrder.getValue());
+				 
+				 campaignDto.getCampaignDashboardElements().add(newCampForm);
+				 
+				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+				 
+				 allElements.removeAll(campaignDto.getCampaignDashboardElements());
+				 charts.setItems(allElements);
+				 
+				 
+				 Notification.show("New Dashboard Chart added successfully");
+				 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			 } else {
+				 //formBeenEdited
+				 if(formBeenEdited != null) {
+					 CampaignDashboardElement newCampForm = charts.getValue();
+					 newCampForm.setTabId(tabID.getValue());
+					 newCampForm.setSubTabId(subTabID.getValue());
+					 newCampForm.setWidth(tabWidth.getValue());
+					 newCampForm.setHeight(tabHeight.getValue());
+					 newCampForm.setOrder(tabOrder.getValue());
+					 
+					 
+				 campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
+				 campaignDto.getCampaignDashboardElements().add(newCampForm);
+				 //FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+				 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+				 
+				 allElements.removeAll(campaignDto.getCampaignDashboardElements());
+				 charts.setItems(allElements);
+				 
+				 Notification.show("Campaign Updated");
+				 } else {
+					 Notification.show("Please select a form before you update");
+				 }
+			 }
+		 });
+		 
+		 
+		formx.add(charts, tabID, subTabID, tabWidth, tabHeight, tabOrder);
+		formx.setColspan(charts, 3);
+		formx.setColspan(tabID, 3);
+		formx.setColspan(subTabID, 3);
+		formx.setColspan(tabWidth, 1);
+		formx.setColspan(tabHeight, 1);
+		formx.setColspan(tabOrder, 1);
+		
+		formx.setVisible(false);
+		buttonAfterLay.setVisible(false);
+		
+		vert.add(buttonLay, formx, buttonAfterLay);
+		
+		return vert;
+	}
+	
+	private String getItemCaption(CampaignDashboardElement item) {
+		return item.getDiagramId();
 	}
 
-	private SerializablePredicate<String> percentValidator() {
-		return s -> new Integer(s) % 5 == 0;
+	public CampaignDto getModifiedDto() {
+		
+		return campaignDto;
 	}
-
-	private String intToString(Integer h) {
-		return h != null ? h.toString() : StringUtils.EMPTY;
-	}
-
-	@Override
-	protected void reorderGrid() {
-		// TODO Auto-generated method stub
-		final ArrayList<CampaignDashboardElement> gridItems = getItems();
-		gridItems.forEach(campaignDashboardElement -> campaignDashboardElement
-				.setOrder(gridItems.indexOf(campaignDashboardElement)));
-
-	}
-
-	@Override
-	protected String getHeaderString() {
-		// TODO Auto-generated method stub
-		return Strings.headingCampaignDashboard;
-	}
-
-	@Override
-	protected String getAdditionalRowCaption() {
-		// TODO Auto-generated method stub
-		return Captions.campaignAdditionalChart;
-	}
-
-	@Override
-	protected CampaignDashboardElement createNewItem() {
-		CampaignDashboardElement newItem = new CampaignDashboardElement();
-		return newItem;
-	}
-
-	@Override
-	protected Button createButton(ComponentEventListener<ClickEvent<Button>> newRowEvent) {
-		Button addButton = new Button("Add New Row");
-		addButton.addClickListener(newRowEvent);
-		return addButton;
-	}
-
-	/*
-	 * public static class DiagramIdCaption implements Serializable {
-	 * 
-	 * private String diagramId; private String diagramCaption;
-	 * 
-	 * public DiagramIdCaption(String diagramId, String diagramCaption) {
-	 * campaignDiagramSeries this.diagramId = diagramId; this.diagramCaption =
-	 * diagramCaption; }
-	 * 
-	 * public String getDiagramId() { return diagramId; }
-	 * 
-	 * public void setDiagramId(String diagramId) { this.diagramId = diagramId; }
-	 * 
-	 * public String getDiagramCaption() { return diagramCaption; }
-	 * 
-	 * public void setDiagramCaption(String diagramCaption) { this.diagramCaption =
-	 * diagramCaption; }
-	 * 
-	 * @Override public String toString() { return this.diagramCaption; } }
-	 */
-
 }

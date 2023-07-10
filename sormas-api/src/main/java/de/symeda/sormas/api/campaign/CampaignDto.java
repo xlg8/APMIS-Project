@@ -201,6 +201,11 @@ public class CampaignDto extends EntityDto {
 	public List<CampaignDashboardElement> getCampaignDashboardElements() {
 		return campaignDashboardElements;
 	}
+	
+	public Set<CampaignDashboardElement> getCampaignDashboardElements(String formType) {
+
+		return campaignDashboardElements.stream().filter(e -> e.getPhase().equals(formType)).collect(Collectors.toSet());
+	}
 
 	public void setCampaignDashboardElements(List<CampaignDashboardElement> campaignDashboardElements) {
 		this.campaignDashboardElements = campaignDashboardElements;
