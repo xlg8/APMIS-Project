@@ -185,12 +185,19 @@ public class CampaignDataView extends VerticalLayout {
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
+		if(userProvider.getUser().getArea() != null) {
+			regionCombo.setValue(userProvider.getUser().getArea());
+			regionCombo.setEnabled(false);
+		}
 
 		provinceCombo.setLabel("Province");
 		provinceCombo.getStyle().set("padding-top", "0px !important");
 		provinceCombo.setPlaceholder("Provinces");
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
+		if(userProvider.getUser().getRegion() != null) {
+			provinceCombo.setValue(userProvider.getUser().getRegion());
+		}
 		provinceCombo.setEnabled(false);
 
 		provinceCombo.getStyle().set("padding-top", "0px");
@@ -201,12 +208,18 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.setPlaceholder("Districts");
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
+		if(userProvider.getUser().getDistrict() != null) {
+			districtCombo.setValue(userProvider.getUser().getDistrict());
+		}
 		districtCombo.setEnabled(false);
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 
 		clusterCombo.setLabel("Cluster");
 		clusterCombo.getStyle().set("padding-top", "0px !important");;
+//		if(userProvider.getUser().getCommunity() != null) {
+//			clusterCombo.setValue(userProvider.getUser().getCommunity());
+//		}
 		clusterCombo.setPlaceholder("Clusters");
 		clusterCombo.setEnabled(false);
 
@@ -426,12 +439,12 @@ public class CampaignDataView extends VerticalLayout {
 	private void configureGrid(CampaignFormDataCriteria criteria) {
 		setMargin(false);
 //		grid.removeAllColumns();
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		grid.setSelectionMode(SelectionMode.MULTI);
 //		grid.setSizeFull();
 		
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true);//.setFooter(String.format("Row Count: %s", (int) FacadeProvider.getCampaignFormDataFacade().count(criteria)));
 		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
@@ -472,7 +485,11 @@ public class CampaignDataView extends VerticalLayout {
 		exporter.setTitle("Campaign Data information"); 
 		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
 		exporter.setCsvExportEnabled(true);
-
+		exporter.setPdfExportEnabled(false);
+		exporter.setExcelExportEnabled(false);
+		exporter.setDocxExportEnabled(false);
+//grid.getFooterRows().get(0).
+//		grid.appendFooterRow();
 		add(grid);
 
 	}

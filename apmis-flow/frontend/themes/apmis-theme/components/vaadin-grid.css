@@ -69,7 +69,7 @@
 
     #header {
       top: 0;
-      border-top: 2px solid #81CBA5;
+      border-top: 2px solid #0d69389e;
     }
 
     th {
@@ -83,7 +83,7 @@
 
     #footer {
       bottom: 0;
-       border-bottom: 2px solid #81CBA5;
+       border-bottom: 2px solid #0d69389e;
     }
 
     #items {

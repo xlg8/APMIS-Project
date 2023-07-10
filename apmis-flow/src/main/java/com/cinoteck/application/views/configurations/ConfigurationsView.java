@@ -2,7 +2,9 @@ package com.cinoteck.application.views.configurations;
 
 import com.cinoteck.application.views.MainLayout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.opencsv.CSVWriter;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HtmlComponent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -15,7 +17,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.data.binder.HasItems;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -28,11 +32,15 @@ import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.core.io.ByteArrayResource;
 
 
 @PageTitle("Configurations")
@@ -40,7 +48,7 @@ import java.util.Map;
 public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
     Anchor anchor;
-    HorizontalLayout configActionLayout = new HorizontalLayout();
+       HorizontalLayout configActionLayout = new HorizontalLayout();
     Button displayActionButtons = new Button("Show Action Buttons", new Icon(VaadinIcon.SLIDERS));
 
 
@@ -52,6 +60,8 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 
         return new Tabs(tabComponentMap.keySet().toArray(new Tab[]{}));
     }
+    
+    
 
     public ConfigurationsView() {
         setSizeFull();
@@ -61,8 +71,9 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         configActionLayout.getStyle().set("margin-right", "1em");
         configActionLayout.setMargin(false);
         configActionLayout.setJustifyContentMode(JustifyContentMode.END);
-
+      
         Tabs tabs = createTabs();
+        tabs.getStyle().set("background", "#434343");
         tabs.getStyle().set("background", "#434343");
         tabs.setSizeFull();
         Div contentContainer = new Div();
@@ -78,30 +89,30 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
                 case "Regions":
                 	removeAnchorContent();
                 	createExcelLinkForRegion();
-                    Notification.show("Region");
+                    //Notification.show("Region");
                     break;
                 case "Province":
                 	
                 	removeAnchorContent();
                 	createExcelLinkForProvince();
                 	
-                    Notification.show("Province");
+                    //Notification.show("Province");
                     break;
                 case "District":
                 	removeAnchorContent();
                 	createExcelLinkForDistrict();
-                    Notification.show("District");
+                    //Notification.show("District");
                     break;
                 case "Cluster":
                 	removeAnchorContent();
                 	createExcelLinkForCluster();
-                    Notification.show("Cluster");
+                    //Notification.show("Cluster");
                     break;
                 default:
                 	
                    createExcelLinkForDefault();
                  
-                    Notification.show("default");
+                    //Notification.show("default");
                     break;
             }
             
@@ -109,46 +120,52 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         });
         // Set initial content
         contentContainer.add(tabComponentMap.get(tabs.getSelectedTab()));
-
+        createExcelLinkForDefault();
 
         Button importButton = new Button("Import", new Icon(VaadinIcon.DOWNLOAD_ALT));
         importButton.getStyle().set("color", "white");
         importButton.getStyle().set("background", "#0C5830");
         importButton.setVisible(false);
-        configActionLayout.add(importButton);
+//        configActionLayout.add(importButton);
 
         Button exportButton = new Button("Export", new Icon(VaadinIcon.UPLOAD_ALT));
         exportButton.getStyle().set("color", "white");
         exportButton.getStyle().set("background", "#0C5830");
         exportButton.setVisible(false);
-        configActionLayout.add(exportButton);
+        exportButton.addClickListener(e->{
+        	RegionView reg = new RegionView();
+        	reg.exportArea();
+        });
+        
+        
+//        configActionLayout.add(exportButton);
 
         Button newEntryButton = new Button("New Entry", new Icon(VaadinIcon.PLUS_CIRCLE_O));
         newEntryButton.getStyle().set("color", "white");
         newEntryButton.getStyle().set("background", "#0C5830");
         newEntryButton.setVisible(false);
-        configActionLayout.add(newEntryButton);
+//        configActionLayout.add(newEntryButton);
 
         Button bulkEditMode = new Button("Enter Bulk Mode", new Icon(VaadinIcon.CHECK));
         bulkEditMode.getStyle().set("color", "white");
         bulkEditMode.getStyle().set("background", "#0C5830");
         bulkEditMode.setVisible(false);
-        configActionLayout.add(bulkEditMode);
-
+//        configActionLayout.add(bulkEditMode);
+        anchor.setVisible(false);
         displayActionButtons.addClickListener(e -> {
             if (!bulkEditMode.isVisible()) {
                 importButton.setVisible(true);
                 exportButton.setVisible(true);
                 newEntryButton.setVisible(true);
                 bulkEditMode.setVisible(true);
-//                excelLink.setVisible(true);
+                anchor.setVisible(true);
                 displayActionButtons.setText("Hide Action Buttons");
             } else {
                 importButton.setVisible(false);
                 exportButton.setVisible(false);
                 newEntryButton.setVisible(false);
                 bulkEditMode.setVisible(false);
-//                excelLink.setVisible(false);
+                anchor.setVisible(false);
                 displayActionButtons.setText("Show Action Buttons");
             }
         });
@@ -159,6 +176,49 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         add(campDatFill, contentContainer);
     }
 
+    
+    private void downloadGridDataAsCsv() {
+    	
+//        Tabs tabs = createTabs();
+
+        Tab selectedTab = createTabs().getSelectedTab();
+        Component selectedComponent = tabComponentMap.get(selectedTab);
+//
+//        if (selectedComponent instanceof HasItems) {
+//
+//            HasItems grid = (HasItems) selectedComponent;
+//
+//            StringWriter writer = new StringWriter();
+//            CSVWriter csvWriter = new CSVWriter(writer);
+//
+//            // Write CSV header
+//            List<String> headerRow = ((Grid<?>) grid).getColumns().stream()
+//                    .map(Grid.Column::getKey)
+//                    .collect(Collectors.toList());
+//            csvWriter.writeNext(headerRow.toArray(new String[0]));
+//
+//            // Write CSV data rows
+//            List<?> data = ((GridListDataView<?>) ((Grid<?>) grid).getListDataView()).getItems().collect(Collectors.toList());
+//            data.forEach(item -> {
+//                List<String> dataRow = grid.getColumns().stream()
+//                        .map(column -> column.getValueProvider().apply(item))
+//                        .map(Object::toString)
+//                        .collect(Collectors.toList());
+//                csvWriter.writeNext(dataRow.toArray(new String[0]));
+//            });
+//
+//
+//            // Download the CSV file
+//            String filename = "grid_data.csv";
+//            String csvData = writer.toString();
+//            ByteArrayResource resource = new ByteArrayResource(csvData.getBytes(), filename);
+//            anchor.setHref(resource);
+//            anchor.getElement().setAttribute("download", true);
+//            anchor.getElement().executeJs("this.click()");
+//        }
+    }
+
+    
     private Anchor createExcelLinkForRegion() {
         Grid<AreaDto> grid = new Grid<>(AreaDto.class, false);
         GridListDataView<AreaDto> dataView;
@@ -176,6 +236,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -198,6 +265,12 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -222,6 +295,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -251,6 +331,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;
@@ -284,6 +371,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
+        
+        Icon icon = VaadinIcon.UPLOAD_ALT.create();
+        icon.getStyle().set("margin-right", "8px");
+        icon.getStyle().set("font-size", "10px");
+        
+        anchor.getElement().insertChild(0, icon.getElement());
+        
         configActionLayout.add(anchor);
         configActionLayout.add(displayActionButtons);
         return anchor;

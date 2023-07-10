@@ -12,6 +12,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -42,6 +45,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionCriteria;
@@ -53,9 +57,6 @@ import de.symeda.sormas.api.utils.SortProperty;
 @Route(value = "clusters", layout = ConfigurationsView.class)
 public class ClusterView extends Div {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5091856954264511639L;
 //	private GridListDataView<CommunityDto> dataView;
 	private CommunityCriteriaNew criteria;
@@ -93,6 +94,12 @@ public class ClusterView extends Div {
 
 		grid.setDataProvider(filteredDataProvider);
 		addFilters();
+		grid.asSingleSelect().addValueChangeListener(event -> {
+			if (event.getValue() != null) {
+				createOrEditCluster(event.getValue());
+			}
+		});
+
 		add(grid);
 	}
 
@@ -233,6 +240,76 @@ public class ClusterView extends Div {
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 		return vlayout;
+	}
+
+
+	public boolean createOrEditCluster(CommunityDto communityDto) {
+		Dialog dialog = new Dialog();
+		FormLayout fmr = new FormLayout();
+		TextField nameField = new TextField("Name");
+		nameField.setValue(communityDto.getName());
+		TextField clusterNumber = new TextField("Cluster Number");
+		nameField.setValue(communityDto.getName());
+		TextField cCodeField = new TextField("CCode");
+		cCodeField.setValue(communityDto.getExternalId().toString());
+		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
+		provinceOfDistrict.setItems(communityDto.getRegion());
+		provinceOfDistrict.setValue(communityDto.getRegion());
+		provinceOfDistrict.setEnabled(false);
+		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>("District");
+		districtOfCluster.setItems(communityDto.getDistrict());
+		districtOfCluster.setValue(communityDto.getDistrict());
+		districtOfCluster.setEnabled(false);
+		// this can generate null
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
+		saveButton.getStyle().set("margin-right", "10px");
+		saveButton.addClickListener(saveEvent -> {
+
+			String name = nameField.getValue();
+			String code = cCodeField.getValue();
+
+			String uuids = communityDto.getUuid();
+			System.out.println(code + "________________" + uuids + "__________________" + name);
+			if (name != null && code != null) {
+
+				CommunityDto dce = FacadeProvider.getCommunityFacade().getByUuid(uuids);
+
+				System.out.println(dce);
+
+				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
+
+				dce.setName(name);
+				long rcodeValue = Long.parseLong(code);
+				dce.setExternalId(rcodeValue);
+
+				FacadeProvider.getCommunityFacade().save(dce, true);
+
+				// Perform save operation or any desired logic here
+
+				Notification.show("Saved: " + name + " " + code);
+				dialog.close();
+
+			} else {
+				Notification.show("Not Valid Value: " + name + " " + code);
+			}
+
+		});
+
+		dialog.setHeaderTitle("Edit " + communityDto.getName());
+		fmr.add(nameField, cCodeField, clusterNumber, provinceOfDistrict, districtOfCluster);
+		dialog.add(fmr);
+		dialog.getFooter().add(discardButton, saveButton);
+
+//      getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
+//		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
+
+		dialog.open();
+
+		return true;
 	}
 
 }

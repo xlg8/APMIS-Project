@@ -1,5 +1,9 @@
 package com.cinoteck.application.views.configurations;
 
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -8,12 +12,14 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -23,6 +29,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.server.FileDownloader;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
@@ -31,16 +39,18 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
+
+import org.vaadin.olli.FileDownloadWrapper;
 
 @PageTitle("Regions")
 @Route(value = "regions", layout = ConfigurationsView.class)
 public class RegionView extends VerticalLayout implements RouterLayout {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7091198805223773269L;
 
 	private final AreaCriteria criteria;
@@ -51,13 +61,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
 	Grid<AreaDto> grid;
 	private Button saveButton;
+	HorizontalLayout layout = new HorizontalLayout();
+
+	Anchor link;
 
 	public RegionView() {
 		this.criteria = new AreaCriteria();
 		setSpacing(false);
 
 		addRegionFilter();
-		
+
 		setMargin(false);
 		setSizeFull();
 		grid = new Grid<>(AreaDto.class, false);
@@ -68,33 +81,67 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
-		//grid.setItemDetailsRenderer(createAreaEditFormRenderer());
+		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 		List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
 		this.dataView = grid.setItems(regions);
 
-		
-		add(grid);
-		
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
 			}
 		});
-		}
-	
 
+		add(grid);
+		exportArea();
+//		grid.asSingleSelect().addValueChangeListener(event -> {
+//			if (event.getValue() != null) {
+//				createOrEditArea(event.getValue());
+//			}
+//		});
+	}
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
 		return new ComponentRenderer<>(AreaEditForm::new);
 	}
 
+	public void exportArea() {
+
+		// Fetch all data from the grid in the current sorted order
+		Stream<AreaDto> persons = null;
+//        Set<AreaDto> selection = grid.asMultiSelect().getValue();
+//        if (selection != null && selection.size() > 0) {
+//            persons = selection.stream();
+//        } else {
+		persons = dataView.getItems();
+//        }
+
+		StringWriter output = new StringWriter();
+		StatefulBeanToCsv<AreaDto> writer = new StatefulBeanToCsvBuilder<AreaDto>(output).build();
+		try {
+			writer.write(persons);
+		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+			output.write("An error occured during writing: " + e.getMessage());
+		}
+
+		StreamResource resource = new StreamResource("my.csv",
+				() -> new ByteArrayInputStream(output.toString().getBytes()));
+
+//		link = new Anchor(resource, "Exportt");
+//		layout.add(link);
+//            Button downloadButton = new Button("Download text area contents as a CSV file using a button");
+//            FileDownloader downloadButtonWrapper = new FileDownloader(resource);
+//            downloadButtonWrapper.extend(downloadButton);
+
+//        result.setValue(output.toString());
+	}
+
 	private class AreaEditForm extends FormLayout {
 
 		public AreaEditForm(AreaDto areaDto) {
-			Dialog formLayout  = new Dialog();
-			
+			Dialog formLayout = new Dialog();
+
 			H2 header = new H2("Edit " + areaDto.getName().toString());
 			this.setColspan(header, 2);
 			add(header);
@@ -117,12 +164,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			String regionValue = regionField.getValue();
 			long rcodeValue = Long.parseLong(rcodeField.getValue());
 			AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
-			
+
 			dtoToSave.setName(regionValue);
 			dtoToSave.setExternalId(rcodeValue);
-			
+
 			FacadeProvider.getAreaFacade().save(dtoToSave, true);
-			
 
 			grid.getDataProvider().refreshItem(areaDto);
 		}
@@ -136,7 +182,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	public void addRegionFilter() {
 		setMargin(true);
-		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
@@ -173,8 +218,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setWidth("30%");
 
 		searchField.addClassName("filterBar");
-		searchField.addValueChangeListener(
-				e -> dataView.addFilter(search -> {
+		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 
 			if (searchTerm.isEmpty())
@@ -194,7 +238,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			searchField.clear();
 
 		});
-		
+
 		ComboBox relevanceStatusFilter = new ComboBox<>();
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
@@ -210,73 +254,73 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			// Handle other enum values if needed
 			return status.toString();
 		});
-		
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			
+//dataView
 		});
-		layout.add(searchField, clear, relevanceStatusFilter);
+		layout.add(searchField, clear);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
 	}
-	
+
 	public boolean createOrEditArea(AreaDto areaDto) {
-		 Dialog dialog = new Dialog();
-		 FormLayout fmr = new FormLayout();
-         TextField nameField = new TextField("Name");
-         nameField.setValue(areaDto.getName());
-         TextField rCodeField = new TextField("RCode");
-         //this can generate null
-         rCodeField.setValue(areaDto.getExternalId().toString());
-         dialog.setCloseOnEsc(false);
- 		dialog.setCloseOnOutsideClick(false);
- 		
-         Button saveButton = new Button("Save");
-         saveButton.addClickListener(saveEvent -> {
-        	 
-             String firstName = nameField.getValue();
-             String lastName = rCodeField.getValue();
+		Dialog dialog = new Dialog();
+		FormLayout fmr = new FormLayout();
+		TextField nameField = new TextField("Name");
+		nameField.setValue(areaDto.getName());
+		TextField rCodeField = new TextField("RCode");
+		// this can generate null
+		rCodeField.setValue(areaDto.getExternalId().toString());
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
 
-            String uuids = areaDto.getUuid_();
-            System.out.println(lastName+"________________"+uuids+"__________________"+firstName);
- 			if(firstName != null && lastName != null) {
- 				
- 				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
- 				
- 				System.out.println(dce);
- 				
- 				System.out.println(dce.getCreationDate() +" ====== "+dce.getName()+"-----"+dce.getUuid());
- 				
- 				dce.setName(firstName);
-	 			long rcodeValue = Long.parseLong(lastName);
-	 			dce.setExternalId(rcodeValue);
-	 			
-	 			FacadeProvider.getAreaFacade().save(dce, true);
-	 			
-	 			
-	             // Perform save operation or any desired logic here
-	
-	             Notification.show("Saved: " + firstName + " " + lastName);
-	             dialog.close();
-             
- 			} else {
- 				Notification.show("Not Valid Value: " + firstName + " " + lastName);
- 			}
- 			
-             
-         });
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
+		saveButton.getStyle().set("margin-right", "10px");
+		saveButton.addClickListener(saveEvent -> {
 
-         fmr.add(nameField, rCodeField, saveButton);
-         dialog.add(fmr);
-         
+			String name = nameField.getValue();
+			String code = rCodeField.getValue();
+
+			String uuids = areaDto.getUuid_();
+			System.out.println(code + "________________" + uuids + "__________________" + name);
+			if (name != null && name != null) {
+
+				AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
+
+				System.out.println(dce);
+
+				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
+
+				dce.setName(name);
+				long rcodeValue = Long.parseLong(code);
+				dce.setExternalId(rcodeValue);
+
+				FacadeProvider.getAreaFacade().save(dce, true);
+
+				// Perform save operation or any desired logic here
+
+				Notification.show("Saved: " + name + " " + code);
+				dialog.close();
+
+			} else {
+				Notification.show("Not Valid Value: " + name + " " + code);
+			}
+
+		});
+
+		fmr.add(nameField, rCodeField);
+		dialog.setHeaderTitle("Edit " + areaDto.getName());
+		dialog.add(fmr);
+		dialog.getFooter().add(discardButton, saveButton);
+
 //         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 // 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
- 		
-         
-         
-         dialog.open();
-         
-         return true;
+
+		dialog.open();
+
+		return true;
 	}
 
 }

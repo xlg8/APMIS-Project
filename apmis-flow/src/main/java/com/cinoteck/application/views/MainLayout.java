@@ -11,6 +11,7 @@ import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.views.Test.TestView;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
@@ -78,7 +79,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
-		
+		userProvider.getUser().getUsertype();
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
@@ -107,8 +108,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		addToDrawer(header, scroller);
 		
-		addToDrawer(new LanguageSwitcher(Locale.ENGLISH,
-                        new Locale("fa","IR", "فارسی")));
+		
+		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
+                new Locale("fa","IR", "فارسی"));
+		
+		languageSwitcher.setClassName("vieLangiuageSwitcher");
+		
+		addToDrawer(languageSwitcher);
+		
 		addToDrawer(createFooter());
 		
 		

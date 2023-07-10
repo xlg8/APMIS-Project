@@ -272,6 +272,10 @@ a:active {
 	transition: none;
 }
 
+vaadin-password-field-button{
+	background : none !important;
+}
+
 a:hover {
 	color: white !important;
 	background-color: #F08F3E !important;
@@ -307,12 +311,12 @@ vaadin-icon {
 
 vaadin-tab {
 	margin-right: 20px;
-	font-weight: 300;
+	font-weight: 500;
 	font-family: Lato;
 }
 
 a:selected {
-	color: white;
+	color: white !important;
 }
 
 :host([selected])::before, :host([selected])::after {
@@ -447,18 +451,17 @@ vcf-nav-item::part(item) {
 	background-size: cover;
 }
 
-.ssssssssst{
-	
-	width: 100% !important;
-
-}
-
-
-#loginLanguageSwitcher vaadin-button{
+.language-switcher vaadin-button {
 	color: white;
-
 }
 
+#forgotPasswordButton{
+	color: #0D6938 !important;
+} 
+
+.vieLangiuageSwitcher  vaadin-button {
+	color: #0D6938 !important;
+}
 
 vcf-nav-item[active]::part(item) {
 	border-inline-start-color: var(- -lumo-primary-color);
@@ -470,10 +473,8 @@ vcf-nav-item[active]::part(item) {
 	height: 20vh;
 }
 
-
-#vaadinLoginUsername label, #vaadinLoginPassword label{
-	color:   #2F5233 !important;
-
+#vaadinLoginUsername label, #vaadinLoginPassword label {
+	color: white !important;
 	font-family: Lato;
 	font-size: large;
 }
@@ -483,19 +484,9 @@ vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-conta
 	background: yellow;
 }
 
-
-vaadin-vertical-layout.campaignDataFilterParent{
-	margin-top : 5px !important;
-	margin-bottom : 0px !important;
-}
-
-vaadin-combo-box-item{
-	font-size: 12px !important;
-}
-
-#tabsheetParent vaadin-tabs{
-	background : green !important
-
+vaadin-vertical-layout.campaignDataFilterParent {
+	margin-top: 5px !important;
+	margin-bottom: 0px !important;
 }
 
 vaadin-dialog-overlay.dialog-alignment::part(overlay) {
@@ -510,15 +501,40 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
 	margin-left: 35%;
 }
 
-vaadin-text-field.searchField {
-	display: flex;
-	margin-left: auto;
-	background-color: #D2EADE;
-	width: 20%;
-	margin-right: 10px;
-
+.wrap-button-label {
+    white-space: normal;
 }
 
+
+.exportJsonGLoss{
+    padding: 3px 15px;
+    font-weight: 600;
+    border-radius: 5px;
+    height: 2.3em;
+    margin-top: 6px;
+    background: rgb(13, 105, 56) !important;
+    color: white !important;
+    width: 7em;
+	
+}
+
+.exportJsonGLoss2{
+    padding: 3px 15px;
+    font-weight: 600;
+    border-radius: 5px;
+    height: 2.3em;
+    margin-top: 6px;
+    background: rgb(13, 105, 56) !important;
+    color: white !important;
+    width: 28%;
+	
+}
+
+.contact-form {
+	margin-left: 30px;
+	margin-right: 30px;
+
+}
 .exportJsonGLoss{
 	background: #0D6938 !important;
 	color: white !important;
@@ -528,9 +544,12 @@ vaadin-text-field.searchField {
     height: 2.2em;
     margin-top: 6px;
     padding-left : 15px;
-        padding-right : 15px;
-    
-	
+    padding-right : 15px;
+}
+.exportJsonGLoss:hover{
+	background: #0D6938 !important;
+	color: white !important;
+    text-decoration: none;
 }
 
 vaadin-horizontal-layout[fcgh-footer] {
