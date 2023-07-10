@@ -1,25 +1,26 @@
 package com.cinoteck.application.views.user;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
-import com.cinoteck.application.RowCount;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.utils.ExportEntityName;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -33,42 +34,34 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.AppShellConfigurator;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.DataView;
-import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.Query;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.vaadin.flow.component.combobox.ComboBox;
+//import com.vaadin.icons.VaadinIcons;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.Page;
+import com.vaadin.server.StreamResource;
+import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -76,8 +69,6 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -89,13 +80,13 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
-import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
-import de.symeda.sormas.api.utils.SortProperty;
+//import de.symeda.sormas.ui.utils.DownloadUtil;
+//
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -105,7 +96,7 @@ public class UserView extends VerticalLayout {
 	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
 
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
-
+	boolean overide = false;
 	private ComboBox<String> activeFilter;
 	private ComboBox<UserRole> userRolesFilter;
 	private ComboBox<AreaReferenceDto> areaFilter;
@@ -123,72 +114,86 @@ public class UserView extends VerticalLayout {
 	UserCriteria criteria;
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
-	GridExporter<UserDto> exporter = GridExporter.createFor(grid);
-	UsersDataProvider usersDataProvider = new UsersDataProvider();
-	ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
+			.collect(Collectors.toList());
+//	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
+	private UsersDataProvider usersDataProvider = new UsersDataProvider();
+	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+//	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
+
 	UserForm form;
-	CreateUserForm createUserForm;
+//	CreateUserForm createUserForm;
+
 	MenuBar menuBar = new MenuBar();
 
-	Button createUserButton = new Button(Captions.userNewUser);
-	Button exportUsersButton = new Button(Captions.export);
-	Button exportRolesButton = new Button(Captions.exportUserRoles);
-	Button bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
-	Button leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
+	Button createUserButton = new Button("New User");
+	Button exportUsersButton = new Button("Export");
+	Button exportRolesButton = new Button("Export User Roles");
+	Button bulkModeButton = new Button("Enter Bulk Edit Mode");
+	Button leaveBulkModeButton = new Button("Leave Bulk Edit");
 	TextField searchField = new TextField();
 
 	Button displayFilters;
 
-	UserProvider currentUser = new UserProvider();
-	
-	Anchor anchor;
-	
-	
-
 	private static final String CSV_FILE_PATH = "./result.csv";
+	UserDto userDto;
+
+	HorizontalLayout layout = new HorizontalLayout();
+	Anchor anchor = new Anchor("", "Export");
+
+	boolean isEditingMode;
 
 	public UserView() {
+		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
-		Dialog dialog = new Dialog();
-		dialog.setModal(true);
-		dialog.addClassNames("dialog-alignment");
-		dialog.setDraggable(true);
-		dialog.setModal(false);
-		dialog.setHeaderTitle("CREATE NEW USER");
-
-		FormLayout dialogLayout = createDialogLayout();
-		dialog.add(dialogLayout);
-
-		Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
-		closeButton.getStyle().set("color", "green");
-		dialog.getHeader().add(closeButton);
-
-		Button cancelButton = new Button("DISCARD CHANGES", e -> dialog.close());
-		cancelButton.setHeightFull();
-		Button saveButton = new Button("SAVE");
-		saveButton.setHeightFull();
-		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-		dialog.getFooter().add(cancelButton, saveButton);
-//			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
-		createUserButton.addClickListener(e -> {
-			UserDto userDto = new UserDto();
-			showNewUserForm(userDto);
-		});
-
+		// {
+//
+//			Dialog dialog = new Dialog();
+//			dialog.setModal(true);
+//			dialog.addClassNames("dialog-alignment");
+//			dialog.setDraggable(true);
+//			dialog.setModal(false);
+//			dialog.setHeaderTitle("CREATE NEW USER");
+//
+//			FormLayout dialogLayout = createDialogLayout();
+//			dialog.add(dialogLayout);
+//
+//			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
+//			closeButton.getStyle().set("color", "green");
+//			dialog.getHeader().add(closeButton);
+//
+//			Button cancelButton = new Button("DISCARD CHANGES", e -> dialog.close());
+//			cancelButton.setHeightFull();
+//			Button saveButton = new Button("SAVE");
+//			saveButton.setHeightFull();
+//			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//
+//			dialog.getFooter().add(cancelButton, saveButton);
+////			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
+//			createUserButton.addClickListener(e -> {
+//				UserDto userDto = new UserDto();
+//				editUser(userDto);
+//			});
+//
+//			if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+//
+////				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
+////				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
+//				menuBar = new MenuBar();
+//			}
+//			searchField = new TextField();
+//		}
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-
-//				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
-//				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
+			bulkModeButton = new Button("Enter Bulk Edit Mode");
+			leaveBulkModeButton = new Button();
 			menuBar = new MenuBar();
 		}
-		searchField = new TextField();
 
 		setHeightFull();
 		addFilters();
 		configureGrid();
-		configureForm();
-		configureNewUserForm();
+		configureForm(userDto);
+//		configureNewUserForm();
 		add(getContent());
 		closeEditor();
 	}
@@ -199,11 +204,11 @@ public class UserView extends VerticalLayout {
 		content.setFlexGrow(4, form);
 		content.addClassNames("content");
 		content.setSizeFull();
-		content.add(grid, form, createUserForm);
+		content.add(grid, form);
 		return content;
 	}
 
-	public void configureGrid() {
+	private void configureGrid() {
 
 		ComponentRenderer<Label, UserDto> userRolesRenderer = new ComponentRenderer<>(reportModelDto -> {
 			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
@@ -222,107 +227,214 @@ public class UserView extends VerticalLayout {
 			return checkbox;
 		});
 
-		this.criteria = new UserCriteria();
+		criteria = new UserCriteria();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setResizable(true);
-		grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setSortable(true).setResizable(true);
-		grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setSortable(true);
+		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
+				.setResizable(true);
+		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
+				.setResizable(true);
+		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
+				.setResizable(true);
+		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
+				.setResizable(true);
+		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
+				.setResizable(true);
+		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
+				.setSortable(true).setResizable(true);
+		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
+				.setSortable(true).setResizable(true);
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+				.setSortable(true);
+		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+		exporter.setTitle("Users");
+		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+
+		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
+			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
+					.replace("null,", "").replace("null", "");
+
+			return value;
+		});
+
+//		ValueProvider<UserDto, String> activeValueProvider = (input -> {
+//			boolean value = input.isActive();
+//			if (value == true) {
+//				String valuex = String.valueOf(input.isActive()).replace("true", "Active").replace("True", "Active");
+//			}
+//			else {
+//				String valuex = String.valueOf(input.isActive())
+//					.replace("false,", "Inactive").replace("False", "Inactive").replace("null", "Inactive");
+//			}
+//		return "";
+//		});
+
+		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
+		exporter.setExportValue(userRolesColumn, p -> {
+			Set<UserRole> value = p.getUserRoles();
+			String valueString = value.toString();
+			return value != null ? valueString : "";
+		});
+		exporter.setExportValue(usernameColumn, p -> {
+			String valueString = p.getUserName();
+			return valueString != null ? valueString : "";
+		});
+		exporter.setExportValue(nameColumn, p -> {
+			String valueString = p.getName();
+			return valueString != null ? valueString : "";
+		});
+		exporter.setExportValue(emailCoulmn, p -> {
+			String valueString = p.getUserEmail();
+			return valueString != null ? valueString : "";
+		});
+		exporter.setExportValue(userPositionColumn, p -> {
+			String valueString = p.getUserPosition();
+			return valueString != null ? valueString : "";
+		});
+		exporter.setExportValue(userOrgColumn, p -> {
+			String valueString = p.getUserOrganisation();
+			return valueString != null ? valueString : "";
+		});
+
+		exporter.setExportValue(userAreaColumn, p -> {
+			AreaReferenceDto value = p.getArea();
+			String valueString;
+			if (value == null) {
+				valueString = "";
+			} else {
+				valueString = value.toString();
+			}
+			return value != null ? valueString : "";
+		});
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-
-//		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
-		filterDataProvider = usersDataProvider.withConfigurableFilter();
 		grid.setDataProvider(filterDataProvider);
 
-		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue()));
-		
-		
-		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
+		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
 
-		exporter = GridExporter.createFor(grid);
-		exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
-
-        
-       
-        
-		add(grid);
+		return;
 
 	}
 
+	public void editUser(UserDto user, boolean isEdMode) {
+		isEditingMode = isEdMode;
+		if (user == null) {
+			form.setUser(user);
 
-	private void configureForm() {
+			form.setVisible(true);
+			form.setSizeFull();
+			grid.setVisible(false);
+			setFiltersVisible(false);
+		} else {
+			form.setUser(user);
+			form.setVisible(true);
+			form.setSizeFull();
+			grid.setVisible(false);
+			setFiltersVisible(false);
+			addClassName("editing");
+		}
+	}
+
+	private void configureForm(UserDto user) {
+
+		System.out.println(user + "userddddddddddddto in formconfigure");
 		form = new UserForm(regions, provinces, districts);
 		form.setSizeFull();
+
 		form.addSaveListener(this::saveUser);
+
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> closeEditor());
 	}
-
-	private void configureNewUserForm() {
-		createUserForm = new CreateUserForm();
-		createUserForm.setSizeFull();
-		createUserForm.setVisible(false);
-		createUserForm.addSaveListener(this::saveNewUser);
-		createUserForm.addCloseListener(e -> closeNewUserForm());
-	}
+//
+//	private void configureNewUserForm() {
+//		createUserForm = new CreateUserForm();
+//		createUserForm.setSizeFull();
+//		createUserForm.addSaveListener(this::saveNewUser);
+////		createUserForm.addDeleteListener(this::deleteContact);
+//		createUserForm.addCloseListener(e -> closeEditor());
+//	}
 
 	// TODO: Hide the filter bar on smaller screens
-	public Component addFilters() {
+	public void addFilters() {
+		criteria = new UserCriteria();
 
-		this.criteria = new UserCriteria();
-		HorizontalLayout layout = new HorizontalLayout();
 		layout.setMargin(false);
 		layout.setPadding(false);
 		layout.setWidthFull();
 
+		createUserButton = new Button("New User");
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "12px");
 		layout.add(createUserButton);
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
-
-		exportUsersButton.addClassName("exportUsersButton");
-		
-//		layout.add(anchor);
-		
-        
-		exportUsersButton.addClickListener(e -> {
-//	
-			
-	        anchor.getElement().callFunction("click");
-
-			Notification.show("File download initiated", 3000, Notification.Position.BOTTOM_CENTER)
-					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+		createUserButton.addClickListener(e -> {
+			UserDto userDto = new UserDto();
+			editUser(userDto, false);
+//			showNewUserForm(userDto);
 		});
-		
-		layout.add(exportUsersButton);
+//
+//		exportUsersButton.addClassName("exportUsersButton");
+//		layout.add(exportUsersButton);
+		layout.add(anchor);
+//		Icon exportUsersButtonIcon = new Icon(VaadinIcon.UPLOAD_ALT);
+//		exportUsersButton.setIcon(exportUsersButtonIcon);
 
+//		exportRolesButton.addClassName("exportRolesButton");
+//		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
+//		exportRolesButton.setIcon(exportRolesButtonIcon);
+//		layout.add(exportRolesButton);
+//		
+//		
+//		exportRolesButton.addClickListener(e->{
+//			overide = true;
+//			try {
+//				String documentPath =	FacadeProvider.getUserRightsFacade().generateUserRightsDocument(overide);
+//			} catch (IOException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//});
 
-		Icon exportUsersButtonIcon = new Icon(VaadinIcon.UPLOAD_ALT);
-		exportUsersButton.setIcon(exportUsersButtonIcon);
+//		
+//		AbstractComponent exportUserRightsButton ;
+//			
+//		new FileDownloader(new StreamResource(() -> new DownloadUtil.DelayedInputStream((out) -> {
+//			try {
+//				String documentPath = FacadeProvider.getUserRightsFacade().generateUserRightsDocument(true);
+//				IOUtils.copy(Files.newInputStream(new File(documentPath).toPath()), out);
+//			} catch (IOException e) {
+//				LoggerFactory.getLogger(DownloadUtil.class).error(e.getMessage(), e);
+//				new Notification(
+//					I18nProperties.getString(Strings.headingExportUserRightsFailed),
+//					I18nProperties.getString(Strings.messageUserRightsExportFailed),
+//					Notification.Type.ERROR_MESSAGE,
+//					false).show(Page.getCurrent());
+//			}
+//		}, (e) -> {
+//		}), createFileNameWithCurrentDate(ExportEntityName.USER_ROLES, ".xlsx"),
+//				ACTIVE_FILTER));
 
-		exportRolesButton.addClassName("exportRolesButton");
-		Icon exportRolesButtonIcon = new Icon(VaadinIcon.USER_CHECK);
-		exportRolesButton.setIcon(exportRolesButtonIcon);
-		layout.add(exportRolesButton);
-
-		bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
+		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
 		bulkModeButton.addClassName("bulkActionButton");
-		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		bulkModeButton.setIcon(bulkModeButtonnIcon);
 		layout.add(bulkModeButton);
@@ -334,8 +446,9 @@ public class UserView extends VerticalLayout {
 			menuBar.setVisible(true);
 		});
 
+		leaveBulkModeButton.setText("Leave Bulk Edit Mode");
 		leaveBulkModeButton.addClassName("leaveBulkActionButton");
-		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		leaveBulkModeButton.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
@@ -356,26 +469,11 @@ public class UserView extends VerticalLayout {
 		menuBar.getStyle().set("margin-top", "5px");
 		layout.add(menuBar);
 
-		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Users");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setClearButtonVisible(true);
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				criteria.freeText(e.getValue());
-				filterDataProvider.setFilter(criteria);
-				
-
-//				usersDataProvider.withConfigurableFilter().refreshAll();
-			}
-		});
-
-		layout.add(searchField);
+//		layout.add(searchField);
 		layout.setPadding(false);
 
 		HorizontalLayout filterLayout = new HorizontalLayout();
+
 		filterLayout.setPadding(false);
 		filterLayout.setVisible(false);
 		filterLayout.setMargin(false);
@@ -398,6 +496,20 @@ public class UserView extends VerticalLayout {
 			}
 		});
 
+		searchField.addClassName("searchField");
+		searchField.setPlaceholder("Search Users");
+		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchField.setClearButtonVisible(true);
+		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.freeText(e.getValue());
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+			}
+		});
+		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
 		activeFilter.setWidth(200, Unit.PIXELS);
@@ -450,30 +562,42 @@ public class UserView extends VerticalLayout {
 		areaFilter.getStyle().set("margin-top", "12px");
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
-
-		if (userProvider.getUser().getArea() == null) {
-			areaFilter.setItems(regions);
-			AreaReferenceDto area = (AreaReferenceDto) userProvider.getUser().getArea();
-			areaFilter.setValue(area);
-			criteria.area(area);
-			filterDataProvider.setFilter(criteria);
-
-			if (userProvider.getUser().getRegion() != null) {
-				regionFilter.setItems(FacadeProvider.getRegionFacade()
-						.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
-			}
-			areaFilter.setEnabled(false);
-		} else {
-			areaFilter.clear();
+		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
 			areaFilter.setValue(userProvider.getUser().getArea());
-
-			criteria.area(areaFilter.getValue());
-
-			
+			if (regionFilter != null) {
+				regionFilter.clear();
+				if (userProvider.getUser().getArea().getUuid() != null) {
+					regionFilter.setItems(FacadeProvider.getRegionFacade()
+							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+				}
+			}
+			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
 			areaFilter.setEnabled(false);
+
 		}
-//		filterDataProvider.setFilter(criteria);
-		
+
+		areaFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				AreaReferenceDto area = e.getValue();
+				regionFilter.clear();
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				regionFilter.setItems(provinces);
+				criteria.area(area);
+				regionFilter.setReadOnly(false);
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+				criteria.district(null);
+			} else {
+				regionFilter.clear();
+				regionFilter.setReadOnly(true);
+//				AreaReferenceDto area = new AreaReferenceDto();
+				criteria.area(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
 
 		filterLayout.add(areaFilter);
 
@@ -486,36 +610,44 @@ public class UserView extends VerticalLayout {
 		regionFilter.getStyle().set("margin-left", "12px");
 		regionFilter.getStyle().set("margin-top", "12px");
 		regionFilter.setClearButtonVisible(true);
-//		regionFilter.setReadOnly(false);
-		
-		if (userProvider.getUser().getRegion() == null) {
-			regionFilter.setItems(provinces);
-			RegionReferenceDto region = (RegionReferenceDto) userProvider.getUser().getRegion();
-			regionFilter.setValue(region);
-			criteria.region(region);
-//			filterDataProvider.setFilter(criteria);
-
-			if (userProvider.getUser().getDistrict() != null) {
-				districtFilter.setItems(FacadeProvider.getDistrictFacade()
-						.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
-			}
-			regionFilter.setEnabled(false);
-		} else {
-			regionFilter.clear();
+//		regionFilter.setReadOnly(true);
+		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
 			regionFilter.setItems(userProvider.getUser().getRegion());
 			regionFilter.setValue(userProvider.getUser().getRegion());
-
-			criteria.region(userProvider.getUser().getRegion());
-//			if (userProvider.getUser().getDistrict() != null) {
-//				districtFilter.setItems(FacadeProvider.getDistrictFacade()
-//						.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
-//			}
-			usersDataProvider.withConfigurableFilter().setFilter(criteria.region(userProvider.getUser().getRegion()));
+			if (districtFilter != null) {
+				districtFilter.clear();
+				if (userProvider.getUser().getRegion().getUuid() != null) {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade()
+							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
+				}
+			}
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			regionFilter.setEnabled(false);
+		} else if (userProvider.getUser().getRegion() == null) {
+//				regionFilter.clear();
+//				regionFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(areaFilter.getValue().getUuid()));
+
 		}
-		
-		
-		
+
+		regionFilter.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				RegionReferenceDto region = e.getValue();
+				districtFilter.clear();
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districtFilter.setItems(districts);
+				criteria.region(region);
+
+				districtFilter.setReadOnly(false);
+				criteria.district(null);
+			} else {
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
+
 		filterLayout.add(regionFilter);
 
 		districtFilter = new ComboBox<DistrictReferenceDto>();
@@ -526,64 +658,16 @@ public class UserView extends VerticalLayout {
 		districtFilter.getStyle().set("margin-left", "12px");
 		districtFilter.getStyle().set("margin-top", "12px");
 		districtFilter.setClearButtonVisible(true);
-//		districtFilter.setReadOnly(true);
-		if (userProvider.getUser().getDistrict() == null) {
-			districtFilter.setItems(districts);
-			DistrictReferenceDto districts = (DistrictReferenceDto) userProvider.getUser().getDistrict();
-			districtFilter.setValue(districts);
-			criteria.district(districts);
-//			filterDataProvider.setFilter(criteria);
-
-			districtFilter.setEnabled(false);
-		} else {
-			districtFilter.clear();
+		districtFilter.setReadOnly(true);
+		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {
 			districtFilter.setItems(userProvider.getUser().getDistrict());
+
 			districtFilter.setValue(userProvider.getUser().getDistrict());
 
-			criteria.district(userProvider.getUser().getDistrict());
-		
-			usersDataProvider.withConfigurableFilter().setFilter(criteria.district(userProvider.getUser().getDistrict()));
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			districtFilter.setEnabled(false);
+
 		}
-		areaFilter.addValueChangeListener(e -> {
-
-			AreaReferenceDto area = e.getValue();
-
-			regionFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-			criteria.area(area);
-
-			regionFilter.setReadOnly(false);
-
-//			filterDataProvider.setFilter(criteria.area(area));
-			criteria.district(userProvider.getUser().getDistrict());
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-
-		});
-
-		
-		regionFilter.addValueChangeListener(e -> {
-			//
-						if (e.getValue() != null) {
-							RegionReferenceDto region = e.getValue();
-							districtFilter.clear();
-							districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-							districtFilter.setItems(districts);
-							criteria.region(region);
-
-							districtFilter.setReadOnly(false);
-							criteria.district(null);
-						} else {
-							districtFilter.clear();
-							districtFilter.setReadOnly(true);
-							criteria.region(null);
-
-						}
-						filterDataProvider.setFilter(criteria);
-					});
-
-		
-		
 		districtFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -603,7 +687,6 @@ public class UserView extends VerticalLayout {
 
 		vlayout.add(displayFilters, filterLayout);
 		add(layout, vlayout);
-		return vlayout;
 	}
 
 	private String formatDataAsCsv(String data) {
@@ -616,49 +699,14 @@ public class UserView extends VerticalLayout {
 		return null;
 	}
 
-	public void editUser(UserDto user) {
-
-		if (user == null) {
-			UserDto newUser = new UserDto();
-			form.setUser(newUser);
-			form.setVisible(true);
-			form.setSizeFull();
-			grid.setVisible(false);
-//			setFiltersVisible(false);
-		} else {
-			form.setUser(user);
-			form.setVisible(true);
-			form.setSizeFull();
-			grid.setVisible(false);
-//			setFiltersVisible(false);
-			addClassName("editing");
-		}
-	}
-
-	public void showNewUserForm(UserDto user) {
-
-		if (user == null) {
-			user = new UserDto();
-			createUserForm.setUser(user);
-			createUserForm.setSizeFull();
-			createUserForm.setVisible(true);
-			form.setVisible(false);
-			grid.setVisible(false);
-			setFiltersVisible(false);
-		} else {
-			user = new UserDto();
-			createUserForm.setVisible(true);
-			createUserForm.setSizeFull();
-			form.setVisible(false);
-			setFiltersVisible(false);
-			grid.setVisible(false);
-		}
-	}
+//	protected String createFileNameWithCurrentDate(ExportEntityName entityName, String fileExtension) {
+//		return DownloadUtil.createFileNameWithCurrentDate(entityName, fileExtension);
+//	}
 
 	private void closeEditor() {
 
 		form.setVisible(false);
-//		setFiltersVisible(true);
+		setFiltersVisible(true);
 		grid.setVisible(true);
 		removeClassName("editing");
 		form.setUser(new UserDto());
@@ -670,16 +718,16 @@ public class UserView extends VerticalLayout {
 		grid.setVisible(true);
 		form.setVisible(false);
 		form.setUser(new UserDto());
-		createUserForm.setVisible(false);
+//		createUserForm.setVisible(false);
 		removeClassName("editing");
 	}
 
 	private void setFiltersVisible(boolean state) {
-
+		displayFilters.setVisible(state);
 		createUserButton.setVisible(state);
 		exportUsersButton.setVisible(state);
 		exportRolesButton.setVisible(state);
-//		bulkModeButton.setVisible(state);
+		bulkModeButton.setVisible(state);
 		searchField.setVisible(state);
 		activeFilter.setVisible(state);
 		userRolesFilter.setVisible(state);
@@ -698,18 +746,31 @@ public class UserView extends VerticalLayout {
 //	}
 
 	private void saveUser(UserForm.SaveEvent event) {
-		FacadeProvider.getUserFacade().saveUser(event.getContact());
-//		 updateList();
+		System.out.println(isEditingMode + "eeeeeeeeeeeddddddddddddddittttttttttt");
+
+		UserDto dto = new UserDto();
+		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
+
+		if (!isEditingMode) {
+			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
+
+		}
+//		//		 updateList();
 		grid.getDataProvider().refreshAll();
 		closeEditor();
 	}
 
-	private void saveNewUser(CreateUserForm.SaveEvent event) {
+	private void saveNewUser(UserForm.SaveEvent event) {
 
 		UserDto dto = new UserDto();
-		dto = FacadeProvider.getUserFacade().saveUser(event.getUser());
+		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+		Date now = new Date();
+		dto.setCreationDate(now);
 		makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
-		closeNewUserForm();
+		grid.getDataProvider().refreshAll();
+
+		closeEditor();
 	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
@@ -724,9 +785,24 @@ public class UserView extends VerticalLayout {
 			String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
 
 			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+			
 			newUserPop.setHeaderTitle("New User Password");
-			newUserPop.add(userEmail);
-			newUserPop.add(newPassword);
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("New User Password");
+			H3 username = new H3("Username : " + userName);
+			username.getStyle().set("color", "#0D6938");
+			
+			H3 password = new H3("Password : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+					
+			infoLayout.add(username,password);
+			
+			newUserPop.add(infoLayout);
+			
 			newUserPop.setOpened(true);
 		}
 //		else {
@@ -736,124 +812,120 @@ public class UserView extends VerticalLayout {
 
 	private FormLayout createDialogLayout() {
 
-		UserForm userForm = new UserForm(regions, provinces, districts);
-
 		FormLayout formLayout = new FormLayout();
-
-		formLayout.add(userForm);
 
 		H3 createUserSubHeading = new H3("Personal Information");
 		formLayout.setColspan(createUserSubHeading, 2);
-		// formLayout.add(createUserSubHeading);
+		formLayout.add(createUserSubHeading);
 
 		TextField firstName = new TextField("First Name");
 		firstName.isRequired();
-		// formLayout.add(firstName);
+		formLayout.add(firstName);
 
 		TextField lastName = new TextField("Last Name");
 		lastName.isRequired();
-		// formLayout.add(lastName);
+		formLayout.add(lastName);
 
 		TextField userEmail = new TextField("Email Address");
 		userEmail.setHelperText("Used to send Email Notification");
-		// formLayout.add(userEmail);
+		formLayout.add(userEmail);
 
 		TextField phone = new TextField("Phone Number");
 		phone.setHelperText("Used to send SMS notification needs to contain Country code");
-		// formLayout.add(phone);
+		formLayout.add(phone);
 
 		TextField userPosition = new TextField("Position");
 		TextField userOrganisation = new TextField("Organisation");
-		// formLayout.add(userPosition, userOrganisation);
+		formLayout.add(userPosition, userOrganisation);
 
 		ComboBox<Language> language = new ComboBox<>();
 		language.setLabel("Language");
 		language.setItems(Language.getAssignableLanguages());
-		// formLayout.add(language);
+		formLayout.add(language);
 
 		H3 createUserSubHeading2 = new H3("Address");
 		formLayout.setColspan(createUserSubHeading2, 2);
-		// formLayout.add(createUserSubHeading2);
+		formLayout.add(createUserSubHeading2);
 
 		ComboBox<AreaReferenceDto> region = new ComboBox<>();
 		region.setLabel("Region");
 		region.setItems(regions);
-		// formLayout.add(region);
+		formLayout.add(region);
 
 		ComboBox<RegionReferenceDto> province = new ComboBox<>();
 		province.setLabel("Province");
 		province.setItems(provinces);
-		// formLayout.add(province);
+		formLayout.add(province);
 
 		ComboBox<DistrictReferenceDto> district = new ComboBox<>();
 		district.setLabel("District");
 		district.setItems(districts);
-		// formLayout.add(district);
+		formLayout.add(district);
 
 		ComboBox<CommunityReferenceDto> cluster = new ComboBox<>();
 		cluster.setLabel("Cluster");
 		cluster.setItems();
-		// formLayout.add(cluster);
+		formLayout.add(cluster);
 
 		TextField street = new TextField("Street");
 		street.setPlaceholder("Enter street here");
-		// formLayout.add(street);
+		formLayout.add(street);
 
 		TextField houseNumber = new TextField("House Number");
 		houseNumber.setPlaceholder("Enter House Number here");
-		// formLayout.add(houseNumber);
+		formLayout.add(houseNumber);
 
 		TextField additionalInformation = new TextField("Additional Information");
 		additionalInformation.setPlaceholder("Enter Additional Information here");
-		// formLayout.add(additionalInformation);
+		formLayout.add(additionalInformation);
 
 		TextField postalCode = new TextField("Postal Code");
 		postalCode.setPlaceholder("Enter postal Code here");
-		// formLayout.add(postalCode);
+		formLayout.add(postalCode);
 
 		TextField city = new TextField("City");
 		city.setPlaceholder("Enter City here");
-		// formLayout.add(city);
+		formLayout.add(city);
 
 		ComboBox<AreaType> areaType = new ComboBox<>();
 		areaType.setLabel("Area Type");
 		areaType.setItems(AreaType.values());
-		// formLayout.add(areaType);
+		formLayout.add(areaType);
 
 		H3 createUserSubHeading3 = new H3("User Data");
 		formLayout.setColspan(createUserSubHeading3, 2);
-		// formLayout.add(createUserSubHeading3);
+		formLayout.add(createUserSubHeading3);
 
 		TextField userName = new TextField("Username");
 		userName.isRequired();
 		userName.setRequiredIndicatorVisible(true);
-		// formLayout.add(userName);
+		formLayout.add(userName);
 
 		Checkbox active = new Checkbox();
 		active.setLabel("Active?");
 		formLayout.setColspan(active, 2);
 		active.setValue(true);
-		// formLayout.add(active);
+		formLayout.add(active);
 
 		CheckboxGroup<UserType> userType = new CheckboxGroup<>();
 		userType.setLabel("Type of Users");
 		userType.setItems(UserType.values());
 		formLayout.setColspan(userType, 2);
-		// formLayout.add(userType);
+		formLayout.add(userType);
 
 		CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
 		formAccess.setLabel("Forms Access");
 		formAccess.setItems(UserUiHelper.getAssignableForms());
 		formAccess.isRequired();
 		formAccess.setRequiredIndicatorVisible(true);
-		// formLayout.add(formAccess);
+		formLayout.add(formAccess);
 
 		CheckboxGroup<UserRole> userRole = new CheckboxGroup<>();
 		userRole.setLabel("User Roles");
 		userRole.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		userRole.isRequired();
 		userRole.setRequiredIndicatorVisible(true);
-		// formLayout.add(userRole);
+		formLayout.add(userRole);
 
 		formLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("500px", 2));
 

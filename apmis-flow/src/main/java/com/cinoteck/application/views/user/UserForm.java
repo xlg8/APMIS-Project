@@ -34,12 +34,14 @@ import com.vaadin.flow.shared.Registration;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserHelper;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
@@ -61,19 +63,32 @@ public class UserForm extends FormLayout {
 	TextField phone = new TextField("Phone Number");
 	TextField userPosition = new TextField("Position");
 	TextField userOrganisation = new TextField("Organisation");
+	
+	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>("Region");
+	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>("Province");
+	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>("District");
+	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>("Community");
+
 
 	ComboBox<AreaReferenceDto> region = new ComboBox<>("Region");
 	ComboBox<RegionReferenceDto> province = new ComboBox<>("Province");
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>("District");
 	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
 
-	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
-	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	TextField street = new TextField("Street");
+	TextField houseNumber = new TextField("House Number");
+	TextField additionalInformation = new TextField("Additional Information");
+	TextField postalCode = new TextField("Postal Code");
+	ComboBox<AreaType> areaType = new ComboBox<>();
+	TextField city = new TextField("City");
+	TextField userName = new TextField("Username");
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
 	CheckboxGroup<UserType> usertype = new CheckboxGroup("Common User?");
 	ComboBox<Language> language = new ComboBox<>("Language");
+	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
 
 	Button save = new Button("Save");
 	Button delete = new Button("Delete");
@@ -85,6 +100,7 @@ public class UserForm extends FormLayout {
 
 	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
 
+	
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts) {
 
@@ -101,12 +117,19 @@ public class UserForm extends FormLayout {
 		// Configure what is passed to the fields here
 		configureFields();
 	}
+	
+	private void suggestUserName() {
+		;
+		if (!firstName.isEmpty() && !lastName.isEmpty() && userName.isEmpty() && !userName.isReadOnly()) {
+			userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
+		}
+	}
 
 	private void configureFields() {
 		H2 pInfo = new H2("Personal Information");
 		this.setColspan(pInfo, 2);
 
-		H2 fInfo = new H2("Field Information");
+		H2 fInfo = new H2("Address");
 		this.setColspan(fInfo, 2);
 
 		H2 userData = new H2("User Data");
@@ -114,6 +137,9 @@ public class UserForm extends FormLayout {
 
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
 				UserDto::setFirstName);
+		firstName.addValueChangeListener(e -> suggestUserName());
+		lastName.addValueChangeListener(e -> suggestUserName());
+
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
 
@@ -127,6 +153,8 @@ public class UserForm extends FormLayout {
 
 		binder.forField(userOrganisation).bind(UserDto::getUserOrganisation, UserDto::setUserOrganisation);
 
+		binder.forField(language).bind(UserDto::getLanguage, UserDto::setLanguage);
+		
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setItems(regions);
@@ -160,7 +188,20 @@ public class UserForm extends FormLayout {
 		});
 
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+		street.setPlaceholder("Enter street here");
+		houseNumber.setPlaceholder("Enter House Number here");
+		additionalInformation.setPlaceholder("Enter Additional Information here");
+		postalCode.setPlaceholder("Enter postal Code here");
+		city.setPlaceholder("Enter City here");
+		areaType.setLabel("Area Type");
+		areaType.setItems(AreaType.values());
+//		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
+		
+		binder.forField(userName).asRequired("Please Fill Out a First and Last Name").bind(UserDto::getUserName, UserDto::setUserName);
+
+		
+		
 		// TODO: Change implemenation to only add assignable roles sormas style.
 		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
@@ -170,7 +211,7 @@ public class UserForm extends FormLayout {
 
 		formAccess.setLabel("Form Access");
 		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel("Active ?");
@@ -178,13 +219,17 @@ public class UserForm extends FormLayout {
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
 		usertype.setItems(UserType.values());
+//		binder.forField(usertype).bind(UserD);
+
 		// this.setColspan(usertype, 2);
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
-		add(activeCheck, pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userData,
-				language, userRoles, usertype, formAccess, region, province, district, community);
+		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion, userProvince,
+				userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city, areaType, userData,
+				userName, activeCheck, usertype, userRoles, formAccess, language, region, province, district,
+				community);
 		createButtonsLayout();
 	}
 
@@ -192,7 +237,6 @@ public class UserForm extends FormLayout {
 		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		;
 		close.addClickShortcut(Key.ESCAPE);
 
 		save.addClickListener(event -> validateAndSave());
@@ -200,23 +244,14 @@ public class UserForm extends FormLayout {
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-		//binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
+
 		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
 		horizontallayout.setMargin(true);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
 	}
 
-//	private void validateAndSave() {
-////		if (binder.isValid()) {
-////			fireEvent(new SaveEvent(this, binder.getBean()));
-////		}
-//		if (binder.validate().isOk()) {
-//			fireEvent(new SaveEvent(this, binder.getBean()));
-//		} else {
-//			Notification.show("Make sure required fields are filled");
-//		}
-//	}
+
 
 	private void validateAndSave() {
 		map.forEach((key, value) -> {
