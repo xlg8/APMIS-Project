@@ -3,7 +3,7 @@
 
   box-shadow: inset 0 0 0 1px var(--lumo-contrast-20pct);
 }
-:host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
+:host(:not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
   color: white;
      background: #0D6938;
 }

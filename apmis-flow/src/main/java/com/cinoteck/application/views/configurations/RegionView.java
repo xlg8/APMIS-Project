@@ -1,5 +1,9 @@
 package com.cinoteck.application.views.configurations;
 
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -8,12 +12,14 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -23,6 +29,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.server.FileDownloader;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
@@ -31,8 +39,13 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 
+import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
+
+import org.vaadin.olli.FileDownloadWrapper;
 
 @PageTitle("Regions")
 @Route(value = "regions", layout = ConfigurationsView.class)
@@ -48,6 +61,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
 	Grid<AreaDto> grid;
 	private Button saveButton;
+	HorizontalLayout layout = new HorizontalLayout();
+
+	Anchor link;
 
 	public RegionView() {
 		this.criteria = new AreaCriteria();
@@ -76,8 +92,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				createOrEditArea(event.getValue());
 			}
 		});
-		add(grid);
 
+		add(grid);
+		exportArea();
 //		grid.asSingleSelect().addValueChangeListener(event -> {
 //			if (event.getValue() != null) {
 //				createOrEditArea(event.getValue());
@@ -87,6 +104,37 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
 		return new ComponentRenderer<>(AreaEditForm::new);
+	}
+
+	public void exportArea() {
+
+		// Fetch all data from the grid in the current sorted order
+		Stream<AreaDto> persons = null;
+//        Set<AreaDto> selection = grid.asMultiSelect().getValue();
+//        if (selection != null && selection.size() > 0) {
+//            persons = selection.stream();
+//        } else {
+		persons = dataView.getItems();
+//        }
+
+		StringWriter output = new StringWriter();
+		StatefulBeanToCsv<AreaDto> writer = new StatefulBeanToCsvBuilder<AreaDto>(output).build();
+		try {
+			writer.write(persons);
+		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+			output.write("An error occured during writing: " + e.getMessage());
+		}
+
+		StreamResource resource = new StreamResource("my.csv",
+				() -> new ByteArrayInputStream(output.toString().getBytes()));
+
+//		link = new Anchor(resource, "Exportt");
+//		layout.add(link);
+//            Button downloadButton = new Button("Download text area contents as a CSV file using a button");
+//            FileDownloader downloadButtonWrapper = new FileDownloader(resource);
+//            downloadButtonWrapper.extend(downloadButton);
+
+//        result.setValue(output.toString());
 	}
 
 	private class AreaEditForm extends FormLayout {
@@ -134,7 +182,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	public void addRegionFilter() {
 		setMargin(true);
-		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
@@ -209,9 +256,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		});
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
-
+//dataView
 		});
-		layout.add(searchField, clear, relevanceStatusFilter);
+		layout.add(searchField, clear);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);

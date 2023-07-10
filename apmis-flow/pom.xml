@@ -229,7 +229,15 @@
     <groupId>org.vaadin.addons</groupId>
     <artifactId>vaadin-excel-exporter</artifactId>
     <version>1.0.3</version>
+    
+    
 </dependency>
+		
+		<dependency>
+    <groupId>org.vaadin.olli</groupId>
+    <artifactId>file-download-wrapper</artifactId>
+    <version>7.0.0</version>
+</dependency> 
 		
 
 	</dependencies>

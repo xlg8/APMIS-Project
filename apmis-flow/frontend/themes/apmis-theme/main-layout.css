@@ -272,6 +272,10 @@ a:active {
 	transition: none;
 }
 
+vaadin-password-field-button{
+	background : none !important;
+}
+
 a:hover {
 	color: white !important;
 	background-color: #F08F3E !important;
@@ -307,12 +311,12 @@ vaadin-icon {
 
 vaadin-tab {
 	margin-right: 20px;
-	font-weight: 300;
+	font-weight: 500;
 	font-family: Lato;
 }
 
 a:selected {
-	color: white;
+	color: white !important;
 }
 
 :host([selected])::before, :host([selected])::after {
@@ -451,6 +455,14 @@ vcf-nav-item::part(item) {
 	color: white;
 }
 
+#forgotPasswordButton{
+	color: #0D6938 !important;
+} 
+
+.vieLangiuageSwitcher  vaadin-button {
+	color: #0D6938 !important;
+}
+
 vcf-nav-item[active]::part(item) {
 	border-inline-start-color: var(- -lumo-primary-color);
 	color: white !important;
@@ -489,15 +501,11 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
 	margin-left: 35%;
 }
 
-vaadin-text-field.searchField {
-	display: flex;
-	margin-left: auto;
-	background-color: #D2EADE;
-	width: 20%;
-	margin-right: 10px;
+.wrap-button-label {
+    white-space: normal;
 }
 
-<<<<<<< HEAD
+
 .exportJsonGLoss{
     padding: 3px 15px;
     font-weight: 600;
@@ -507,6 +515,18 @@ vaadin-text-field.searchField {
     background: rgb(13, 105, 56) !important;
     color: white !important;
     width: 7em;
+	
+}
+
+.exportJsonGLoss2{
+    padding: 3px 15px;
+    font-weight: 600;
+    border-radius: 5px;
+    height: 2.3em;
+    margin-top: 6px;
+    background: rgb(13, 105, 56) !important;
+    color: white !important;
+    width: 28%;
 	
 }
 
@@ -526,6 +546,11 @@ vaadin-text-field.searchField {
     padding-left : 15px;
     padding-right : 15px;
 }
+.exportJsonGLoss:hover{
+	background: #0D6938 !important;
+	color: white !important;
+    text-decoration: none;
+}
 
 vaadin-horizontal-layout[fcgh-footer] {
   background-color: green;
@@ -534,4 +559,9 @@ vaadin-horizontal-layout[fcgh-footer] {
 .custom-dialog {
     width: 385px;
 
+}
+
+.passwordsDialog .v-dialog-header{
+	
+	
 }

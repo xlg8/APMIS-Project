@@ -79,7 +79,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
-		
+		userProvider.getUser().getUsertype();
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
@@ -108,8 +108,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		addToDrawer(header, scroller);
 		
-		addToDrawer(new LanguageSwitcher(Locale.ENGLISH,
-                        new Locale("fa","IR", "فارسی")));
+		
+		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
+                new Locale("fa","IR", "فارسی"));
+		
+		languageSwitcher.setClassName("vieLangiuageSwitcher");
+		
+		addToDrawer(languageSwitcher);
+		
 		addToDrawer(createFooter());
 		
 		
@@ -135,7 +141,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
-		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
+//		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
 
 		
 		
