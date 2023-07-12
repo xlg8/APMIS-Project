@@ -224,21 +224,24 @@
 		   <artifactId>togglebutton</artifactId>
 		   <version>3.0.0</version>
 		</dependency>
-		
 		<dependency>
     <groupId>org.vaadin.addons</groupId>
     <artifactId>vaadin-excel-exporter</artifactId>
     <version>1.0.3</version>
     
     
-</dependency>
-		
+  </dependency>
 		<dependency>
     <groupId>org.vaadin.olli</groupId>
     <artifactId>file-download-wrapper</artifactId>
     <version>7.0.0</version>
-</dependency> 
-		
+  </dependency> 
+
+	<dependency>
+			<groupId>org.vaadin.crudui</groupId>
+			<artifactId>crudui</artifactId>
+			<version>7.1.0</version>
+	</dependency>
 
 	</dependencies>
 

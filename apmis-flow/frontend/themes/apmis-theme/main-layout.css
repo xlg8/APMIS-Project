@@ -561,7 +561,7 @@ vaadin-horizontal-layout[fcgh-footer] {
 
 }
 
-.passwordsDialog .v-dialog-header{
-	
-	
+:host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
+    color: white;
+    background: none!important;
 }
