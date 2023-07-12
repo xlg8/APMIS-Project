@@ -833,6 +833,7 @@ public interface Strings {
 	String messageAdditionalTestSaved = "messageAdditionalTestSaved";
 	String messageAggregateReportFound = "messageAggregateReportFound";
 	String messageAllCampaignFormsValid = "messageAllCampaignFormsValid";
+	String messageAllCampaignFormsNotValid = "messageAllCampaignFormsNotValid";
 	String messageAllCasesAlreadyInEvent = "messageAllCasesAlreadyInEvent";
 	String messageAllCasesLinkedToEvent = "messageAllCasesLinkedToEvent";
 	String messageAllContactsAlreadyInEvent = "messageAllContactsAlreadyInEvent";

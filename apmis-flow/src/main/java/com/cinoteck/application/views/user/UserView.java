@@ -50,6 +50,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
@@ -59,6 +60,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.server.Page;
 import com.vaadin.server.StreamResource;
+
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.themes.ValoTheme;
@@ -87,6 +89,7 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 //
+import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -324,6 +327,7 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
+		setLazyDataProvider(); 
 		grid.setDataProvider(filterDataProvider);
 
 		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
@@ -332,6 +336,25 @@ public class UserView extends VerticalLayout {
 
 	}
 
+	
+public void setLazyDataProvider() {
+		
+		System.out.println("sdafasdfasddfgsdfhsdfg");
+		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
+				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
+						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
+								query.getSortOrders().stream()
+										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+												sortOrder.getDirection() == SortDirection.ASCENDING))
+										.collect(Collectors.toList()))
+						.stream()
+						, query -> {
+							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+						});
+		System.out.println("sdafasdfasdfgasdgvasdfgsdfhsdfg " + dataProvider);
+		grid.setDataProvider(dataProvider);
+//		setSelectionMode(SelectionMode.NONE);
+	}
 	public void editUser(UserDto user, boolean isEdMode) {
 		isEditingMode = isEdMode;
 		if (user == null) {
