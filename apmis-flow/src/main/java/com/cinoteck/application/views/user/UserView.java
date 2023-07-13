@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -116,9 +117,9 @@ public class UserView extends VerticalLayout {
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 			.collect(Collectors.toList());
-//	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
-	private UsersDataProvider usersDataProvider = new UsersDataProvider();
-	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+	private GridListDataView<UserDto> filterDataProvider = grid.setItems(usersData);
+//	private UsersDataProvider usersDataProvider = new UsersDataProvider();
+//	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
 	UserForm form;
@@ -144,8 +145,10 @@ public class UserView extends VerticalLayout {
 	boolean isEditingMode;
 
 	public UserView() {
-		filterDataProvider = usersDataProvider.withConfigurableFilter();
+	//	filterDataProvider = usersDataProvider.withConfigurableFilter();
 
+		
+		
 		// {
 //
 //			Dialog dialog = new Dialog();
@@ -233,33 +236,33 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
+		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
+		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
+		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
+		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
+		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
+		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setAutoWidth(true)
 				.setSortable(true).setResizable(true);
-		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
+		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setAutoWidth(true)
 				.setSortable(true).setResizable(true);
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setAutoWidth(true)
 				.setSortable(true);
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
-		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
-			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
-					.replace("null,", "").replace("null", "");
-
-			return value;
-		});
+//		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
+//			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
+//					.replace("null,", "").replace("null", "");
+//
+//			return value;
+//		});
 
 //		ValueProvider<UserDto, String> activeValueProvider = (input -> {
 //			boolean value = input.isActive();
@@ -324,32 +327,48 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-		grid.setDataProvider(filterDataProvider);
+		//grid.setDataProvider(filterDataProvider);
+		
+		//grid.setItems(usersData);
 
-		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
+
+		grid.addSelectionListener(event -> {
+			System.out.println("__________cvcv______________"+event.getFirstSelectedItem());
+			editUser(event.getFirstSelectedItem(), true);
+		});
 
 		return;
 
 	}
 
-	public void editUser(UserDto user, boolean isEdMode) {
+	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
+		UserDto user;
 		isEditingMode = isEdMode;
-		if (user == null) {
-			form.setUser(user);
-
-			form.setVisible(true);
-			form.setSizeFull();
-			grid.setVisible(false);
-			setFiltersVisible(false);
-		} else {
+		if (userr.isPresent()) {
+			user = userr.get();
 			form.setUser(user);
 			form.setVisible(true);
 			form.setSizeFull();
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-		}
+		} 
 	}
+	
+	
+	
+	public void editUser(boolean isEdMode) {
+		isEditingMode = isEdMode;
+		
+		UserDto user = new UserDto();
+		form.setUser(user);
+		form.setVisible(true);
+		form.setSizeFull();
+		grid.setVisible(false);
+		setFiltersVisible(false);
+	} 
+	
+	
 
 	private void configureForm(UserDto user) {
 
@@ -363,6 +382,7 @@ public class UserView extends VerticalLayout {
 		form.addCloseListener(e -> closeEditor());
 	}
 //
+	
 //	private void configureNewUserForm() {
 //		createUserForm = new CreateUserForm();
 //		createUserForm.setSizeFull();
@@ -379,15 +399,14 @@ public class UserView extends VerticalLayout {
 		layout.setPadding(false);
 		layout.setWidthFull();
 
-		createUserButton = new Button("New User");
+		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "12px");
 		layout.add(createUserButton);
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
-			UserDto userDto = new UserDto();
-			editUser(userDto, false);
+			editUser(false);
 //			showNewUserForm(userDto);
 		});
 //
@@ -501,14 +520,29 @@ public class UserView extends VerticalLayout {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
+//		searchField.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				criteria.freeText(e.getValue());
+//			//	filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//			}
+//		});
+		
+searchField.addValueChangeListener(e -> filterDataProvider.addFilter(search -> {
+			
+			String searchTerm = searchField.getValue().trim();
 
-			if (e.getValue() != null) {
-				criteria.freeText(e.getValue());
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-			}
-		});
+          boolean matchUsername = String.valueOf(search.getUserName()).toLowerCase().contains(searchTerm.toLowerCase());
+          boolean matchName = String.valueOf(search.getName()).toLowerCase().contains(searchTerm.toLowerCase());
+          boolean matchEmail = String.valueOf(search.getUserEmail()).toLowerCase().contains(searchTerm.toLowerCase());
+          boolean matchOrganisation = String.valueOf(search.getUserOrganisation()).toLowerCase().contains(searchTerm.toLowerCase());
+          boolean matchPosition = String.valueOf(search.getUserPosition()).toLowerCase().contains(searchTerm.toLowerCase());
+          
+          return matchUsername || matchName || matchEmail || matchOrganisation || matchPosition;
+		}));  
+
+
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
@@ -518,17 +552,26 @@ public class UserView extends VerticalLayout {
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
 		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
-		activeFilter.addValueChangeListener(e -> {
-
-			if (e.getValue().equals(ACTIVE_FILTER)) {
-				criteria.active(true);
-			} else if (e.getValue().equals(INACTIVE_FILTER)) {
-				criteria.active(false);
-			}
-
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-		});
+//		activeFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue().equals(ACTIVE_FILTER)) {
+//				criteria.active(true);
+//			} else if (e.getValue().equals(INACTIVE_FILTER)) {
+//				criteria.active(false);
+//			}
+//
+//		//	filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//		});
+		
+		activeFilter.addValueChangeListener(e -> filterDataProvider.addFilter(s -> {
+			
+			String option = activeFilter.getValue().trim();	
+			
+			boolean matchActive = option.equals("Active") == (s.isActive() == true);
+			return matchActive;				
+		}));
+		
 
 		filterLayout.add(activeFilter);
 
@@ -543,13 +586,58 @@ public class UserView extends VerticalLayout {
 		userRolesFilter
 				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 //		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
-		userRolesFilter.addValueChangeListener(e -> {
+//		userRolesFilter.addValueChangeListener(e -> {
+//
+//			UserRole userRole = e.getValue();
+//			criteria.userRole(userRole);
+//		//	filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//		});
+		
+		
+		userRolesFilter.addValueChangeListener(e -> filterDataProvider.addFilter(s -> {	
+			
+			boolean predicate = s.getUserRoles() == null ? false : s.getUserRoles().toString().toLowerCase().contains(e.getValue().toString().toLowerCase()); //areaValue.getUuid().equals(s.getArea().getUuid());
+			
+			System.out.println(predicate+ ": "+e.getValue().toString()+"  ~==  "+ String.valueOf(s.getUserRoles()).toLowerCase());
+			
+			
+			return predicate;
+		
+			//boolean matchRole = String.valueOf(s.getUserRoles()).toLowerCase().contains(option.toLowerCase());																				
+			//return matchRole;	
+//			
+			
+//			if(e.getValue() != null) {
+//				filterDataProvider.addFilter(s -> {	
+//		
+//			System.out.println(e.getValue() != null);
+//			
+//				if(e.getValue().name() != null) {
+//					System.out.println(e.getValue().name());
+//					String option = e.getValue().name();
+//					
+//					boolean matchRole = String.valueOf(s.getUserRoles()).toLowerCase().contains(option.toLowerCase());																				
+//					return matchRole;	
+//				}else {
+//					return false;
+//				}
+//				
+//				}); 
+//			} else {
+//				
+//				filterDataProvider.addFilter(s -> {	
+//						
+//					return true;	
+//				});
+//				
+//				
+//			}
+		}));
 
-			UserRole userRole = e.getValue();
-			criteria.userRole(userRole);
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-		});
+		
+		
+		
 
 		filterLayout.add(userRolesFilter);
 
@@ -571,33 +659,62 @@ public class UserView extends VerticalLayout {
 							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
 				}
 			}
-			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+		//	filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
 			areaFilter.setEnabled(false);
-
 		}
-
-		areaFilter.addValueChangeListener(e -> {
-
+		
+		areaFilter.addValueChangeListener(e -> filterDataProvider.addFilter(s -> {					
+			
+			AreaReferenceDto areaValue = (AreaReferenceDto) areaFilter.getValue();
+				
+//			if (areaValue == null)
+//					return true;
 			if (e.getValue() != null) {
-				AreaReferenceDto area = e.getValue();
+				boolean predicate = s.getArea() == null ? false : areaValue.getUuid().equals(s.getArea().getUuid());
+				
 				regionFilter.clear();
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 				regionFilter.setItems(provinces);
-				criteria.area(area);
 				regionFilter.setReadOnly(false);
 				districtFilter.clear();
 				districtFilter.setReadOnly(true);
-				criteria.region(null);
-				criteria.district(null);
+				
+					return predicate;
 			} else {
 				regionFilter.clear();
 				regionFilter.setReadOnly(true);
-//				AreaReferenceDto area = new AreaReferenceDto();
-				criteria.area(null);
-
+				
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+			
+				return true;
 			}
-			filterDataProvider.setFilter(criteria);
-		});
+			}));
+		
+//		
+//
+//		areaFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				AreaReferenceDto area = e.getValue();
+//				regionFilter.clear();
+//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+//				regionFilter.setItems(provinces);
+//				criteria.area(area);
+//				regionFilter.setReadOnly(false);
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//				criteria.district(null);
+//			} else {
+//				regionFilter.clear();
+//				regionFilter.setReadOnly(true);
+////				AreaReferenceDto area = new AreaReferenceDto();
+//				criteria.area(null);
+//
+//			}
+//		//	filterDataProvider.setFilter(criteria);
+//		});
 
 		filterLayout.add(areaFilter);
 
@@ -621,7 +738,7 @@ public class UserView extends VerticalLayout {
 							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
 				}
 			}
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+		//	filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			regionFilter.setEnabled(false);
 		} else if (userProvider.getUser().getRegion() == null) {
 //				regionFilter.clear();
@@ -629,24 +746,43 @@ public class UserView extends VerticalLayout {
 
 		}
 
-		regionFilter.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				RegionReferenceDto region = e.getValue();
-				districtFilter.clear();
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				districtFilter.setItems(districts);
-				criteria.region(region);
-
-				districtFilter.setReadOnly(false);
-				criteria.district(null);
-			} else {
-				districtFilter.clear();
-				districtFilter.setReadOnly(true);
-				criteria.region(null);
-
-			}
-			filterDataProvider.setFilter(criteria);
-		});
+		
+		regionFilter.addValueChangeListener(e -> filterDataProvider.addFilter(search -> {					
+			
+			String option = areaFilter.getValue().toString();
+				
+				if (e.getValue().toString() != null)
+					
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().toString());
+//					districtFilter.setEnabled(true);
+					districtFilter.setItems(districts);
+				
+					return true;
+			}));
+			
+			filterLayout.add(regionFilter);
+			
+//		}
+			
+//			
+//		regionFilter.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+//				RegionReferenceDto region = e.getValue();
+//				districtFilter.clear();
+//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+//				districtFilter.setItems(districts);
+//				criteria.region(region);
+//
+//				districtFilter.setReadOnly(false);
+//				criteria.district(null);
+//			} else {
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//
+//			}
+//		//	filterDataProvider.setFilter(criteria);
+//		});
 
 		filterLayout.add(regionFilter);
 
@@ -664,7 +800,7 @@ public class UserView extends VerticalLayout {
 
 			districtFilter.setValue(userProvider.getUser().getDistrict());
 
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+		//	filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			districtFilter.setEnabled(false);
 
 		}
@@ -673,11 +809,11 @@ public class UserView extends VerticalLayout {
 			if (e.getValue() != null) {
 				DistrictReferenceDto district = e.getValue();
 				criteria.district(district);
-				filterDataProvider.setFilter(criteria);
+			//	filterDataProvider.setFilter(criteria);
 				filterDataProvider.refreshAll();
 			} else {
 				criteria.district(null);
-				filterDataProvider.setFilter(criteria);
+			//	filterDataProvider.setFilter(criteria);
 				filterDataProvider.refreshAll();
 
 			}
@@ -757,6 +893,7 @@ public class UserView extends VerticalLayout {
 		}
 //		//		 updateList();
 		grid.getDataProvider().refreshAll();
+		
 		closeEditor();
 	}
 
@@ -776,6 +913,8 @@ public class UserView extends VerticalLayout {
 	private void deleteContact(UserForm.DeleteEvent event) {
 		// FacadeProvider.getUserFacade(). .getContact());
 		// updateList();
+		grid.getDataProvider().refreshAll();
+		
 		closeEditor();
 	}
 	

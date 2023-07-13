@@ -219,7 +219,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("Edit Campaign");
+		dialog.setHeaderTitle("New Campaign");
 
 		dialog.setSizeFull();
 		dialog.open();
@@ -235,7 +235,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("Create New Campaign");
+		dialog.setHeaderTitle("Edit Campaign");
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);

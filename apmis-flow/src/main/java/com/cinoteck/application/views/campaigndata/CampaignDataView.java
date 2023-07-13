@@ -439,7 +439,7 @@ public class CampaignDataView extends VerticalLayout {
 	private void configureGrid(CampaignFormDataCriteria criteria) {
 		setMargin(false);
 //		grid.removeAllColumns();
-		grid.setSelectionMode(SelectionMode.MULTI);
+	//	grid.setSelectionMode(SelectionMode.MULTI);
 //		grid.setSizeFull();
 		
 		grid.setColumnReorderingAllowed(true);
