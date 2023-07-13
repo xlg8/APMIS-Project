@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.cinoteck.application.UserProvider;
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -106,8 +108,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			H2 header = new H2("Edit " + regionDto.getName().toString());
 			this.setColspan(header, 2);
 			add(header);
-			Stream.of(regionField, rcodeField, area).forEach(e -> {
-				e.setReadOnly(false);
+			
+			Stream.<Component>of(regionField, rcodeField, area).forEach(e -> {
+			//	((AbstractField e).setReadOnly(false);
 				add(e);
 //				formLayout.add(e);
 			});

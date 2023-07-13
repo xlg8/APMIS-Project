@@ -119,9 +119,9 @@ public class UserView extends VerticalLayout {
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 			.collect(Collectors.toList());
-//	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
+	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
-	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+//	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
 	UserForm form;
@@ -147,7 +147,7 @@ public class UserView extends VerticalLayout {
 	boolean isEditingMode;
 
 	public UserView() {
-		filterDataProvider = usersDataProvider.withConfigurableFilter();
+//		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
 		// {
 //
@@ -328,7 +328,7 @@ public class UserView extends VerticalLayout {
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
 		setLazyDataProvider(); 
-		grid.setDataProvider(filterDataProvider);
+//		grid.setDataProvider(filterDataProvider);
 
 		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
 
@@ -524,14 +524,14 @@ public void setLazyDataProvider() {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				criteria.freeText(e.getValue());
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-			}
-		});
+//		searchField.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				criteria.freeText(e.getValue());
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//			}
+//		});
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
@@ -541,17 +541,17 @@ public void setLazyDataProvider() {
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
 		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
-		activeFilter.addValueChangeListener(e -> {
-
-			if (e.getValue().equals(ACTIVE_FILTER)) {
-				criteria.active(true);
-			} else if (e.getValue().equals(INACTIVE_FILTER)) {
-				criteria.active(false);
-			}
-
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-		});
+//		activeFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue().equals(ACTIVE_FILTER)) {
+//				criteria.active(true);
+//			} else if (e.getValue().equals(INACTIVE_FILTER)) {
+//				criteria.active(false);
+//			}
+//
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//		});
 
 		filterLayout.add(activeFilter);
 
@@ -566,13 +566,13 @@ public void setLazyDataProvider() {
 		userRolesFilter
 				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 //		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
-		userRolesFilter.addValueChangeListener(e -> {
-
-			UserRole userRole = e.getValue();
-			criteria.userRole(userRole);
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-		});
+//		userRolesFilter.addValueChangeListener(e -> {
+//
+//			UserRole userRole = e.getValue();
+//			criteria.userRole(userRole);
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//		});
 
 		filterLayout.add(userRolesFilter);
 
@@ -594,33 +594,33 @@ public void setLazyDataProvider() {
 							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
 				}
 			}
-			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+//			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
 			areaFilter.setEnabled(false);
 
 		}
 
-		areaFilter.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				AreaReferenceDto area = e.getValue();
-				regionFilter.clear();
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				regionFilter.setItems(provinces);
-				criteria.area(area);
-				regionFilter.setReadOnly(false);
-				districtFilter.clear();
-				districtFilter.setReadOnly(true);
-				criteria.region(null);
-				criteria.district(null);
-			} else {
-				regionFilter.clear();
-				regionFilter.setReadOnly(true);
-//				AreaReferenceDto area = new AreaReferenceDto();
-				criteria.area(null);
-
-			}
-			filterDataProvider.setFilter(criteria);
-		});
+//		areaFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				AreaReferenceDto area = e.getValue();
+//				regionFilter.clear();
+//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+//				regionFilter.setItems(provinces);
+//				criteria.area(area);
+//				regionFilter.setReadOnly(false);
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//				criteria.district(null);
+//			} else {
+//				regionFilter.clear();
+//				regionFilter.setReadOnly(true);
+////				AreaReferenceDto area = new AreaReferenceDto();
+//				criteria.area(null);
+//
+//			}
+////			filterDataProvider.setFilter(criteria);
+//		});
 
 		filterLayout.add(areaFilter);
 
@@ -644,7 +644,7 @@ public void setLazyDataProvider() {
 							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
 				}
 			}
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			regionFilter.setEnabled(false);
 		} else if (userProvider.getUser().getRegion() == null) {
 //				regionFilter.clear();
@@ -652,24 +652,24 @@ public void setLazyDataProvider() {
 
 		}
 
-		regionFilter.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				RegionReferenceDto region = e.getValue();
-				districtFilter.clear();
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				districtFilter.setItems(districts);
-				criteria.region(region);
-
-				districtFilter.setReadOnly(false);
-				criteria.district(null);
-			} else {
-				districtFilter.clear();
-				districtFilter.setReadOnly(true);
-				criteria.region(null);
-
-			}
-			filterDataProvider.setFilter(criteria);
-		});
+//		regionFilter.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+//				RegionReferenceDto region = e.getValue();
+//				districtFilter.clear();
+//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+//				districtFilter.setItems(districts);
+//				criteria.region(region);
+//
+//				districtFilter.setReadOnly(false);
+//				criteria.district(null);
+//			} else {
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//
+//			}
+//			filterDataProvider.setFilter(criteria);
+//		});
 
 		filterLayout.add(regionFilter);
 
@@ -687,24 +687,24 @@ public void setLazyDataProvider() {
 
 			districtFilter.setValue(userProvider.getUser().getDistrict());
 
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			districtFilter.setEnabled(false);
 
 		}
-		districtFilter.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				DistrictReferenceDto district = e.getValue();
-				criteria.district(district);
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-			} else {
-				criteria.district(null);
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-
-			}
-		});
+//		districtFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				DistrictReferenceDto district = e.getValue();
+//				criteria.district(district);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//			} else {
+//				criteria.district(null);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//
+//			}
+//		});
 
 		filterLayout.add(districtFilter);
 

@@ -16,6 +16,7 @@ import com.vaadin.flow.component.dependency.JavaScript;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -94,7 +95,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 	public DashboardView() {
 		setSpacing(false);
-		
+		//UI.getCurrent().getPage().reload();
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
