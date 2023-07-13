@@ -91,15 +91,15 @@ public class CampaignsView extends VerticalLayout {
 		grid.setColumnReorderingAllowed(true);
 		grid.addColumn(CampaignIndexDto.NAME).setHeader("Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
-		Grid.Column<CampaignIndexDto> startDateColumn =grid.addColumn(CampaignIndexDto.START_DATE).setHeader("Start Date").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.START_DATE).setHeader("Start Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.END_DATE).setHeader("End Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
-		startDateColumn.setSortProperty("desc");
+	
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
 		
-		GridSortOrder<CampaignIndexDto> sortOrder = new GridSortOrder<>(startDateColumn, SortDirection.DESCENDING);
+//		GridSortOrder<CampaignIndexDto> sortOrder = new GridSortOrder<>(startDateColumn, SortDirection.DESCENDING);
 		
 
 		

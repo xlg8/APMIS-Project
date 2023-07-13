@@ -38,6 +38,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
+import de.symeda.sormas.api.user.UserDto;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -62,7 +63,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Grid<AreaDto> grid;
 	private Button saveButton;
 	HorizontalLayout layout = new HorizontalLayout();
-
+	AreaDto areaDto;
 	Anchor link;
 
 	public RegionView() {
@@ -238,6 +239,19 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			searchField.clear();
 
 		});
+		
+		Button addNew = new Button("Add New Region");
+		addNew.getStyle().set("color", "white");
+		addNew.getStyle().set("background", "#0C5830");
+		addNew.addClickListener(event -> {
+			AreaDto userDto = new AreaDto();
+				
+		
+			Dialog  dialog = new Dialog();
+			dialog.add();
+				
+		
+		});
 
 		ComboBox relevanceStatusFilter = new ComboBox<>();
 
@@ -258,7 +272,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.addValueChangeListener(e -> {
 //dataView
 		});
-		layout.add(searchField, clear);
+		layout.add(searchField, clear, addNew);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
@@ -267,6 +281,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	public boolean createOrEditArea(AreaDto areaDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
+		
 		TextField nameField = new TextField("Name");
 		nameField.setValue(areaDto.getName());
 		TextField rCodeField = new TextField("RCode");
@@ -322,5 +337,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		return true;
 	}
+	
+	
 
 }
