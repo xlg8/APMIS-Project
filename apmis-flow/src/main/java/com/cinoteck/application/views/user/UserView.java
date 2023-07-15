@@ -273,7 +273,7 @@ public class UserView extends VerticalLayout {
 //		return "";
 //		});
 
-		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
+//		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
 			Set<UserRole> value = p.getUserRoles();
 			String valueString = value.toString();
