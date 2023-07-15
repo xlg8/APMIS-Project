@@ -19,19 +19,15 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.server.FileDownloader;
-
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
@@ -42,10 +38,9 @@ import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
-import org.vaadin.olli.FileDownloadWrapper;
+//import org.vaadin.olli.FileDownloadWrapper;
 
 @PageTitle("Regions")
 @Route(value = "regions", layout = ConfigurationsView.class)
