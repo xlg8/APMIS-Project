@@ -15,6 +15,12 @@
         <script type="text/javascript" src="pivot.js"></script>
         <script type="text/javascript" src="export_renderers.js"></script>
          <script type="text/javascript" src="c3_renderers.js"></script>
+         
+         <!-- SheetJS js-xlsx library -->
+<script type="text/javascript" src="//unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<!-- FileSaver.js is the library of choice for Chrome -->
+<script type="text/javascript" src="//rawgit.com/eligrey/Blob.js/master/Blob.js"></script>
+<script type="text/javascript" src="//rawgit.com/eligrey/FileSaver.js/master/FileSaver.js"></script>
        <style>
             body {font-family: Lato;}
             .c3-line, .c3-focused {stroke-width: 3px !important;}
@@ -175,6 +181,7 @@ table.pvtTable tbody tr td {
     </head>
     <body>
         <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Hide / Show Pivot Fields</button>
+        <button	onclick="exportData()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Export Xlsx</button>
 
         <script type="text/javascript">
     $(function(){
@@ -207,6 +214,33 @@ table.pvtTable tbody tr td {
     	}
     	}
     	};
+    	
+    	function exportData(fn) { 
+    		return export_table_to_excel('mytable', 'xlsx', fn); 
+    	}	
+
+    	function s2ab(s) {
+    		if(typeof ArrayBuffer !== 'undefined') {
+    			var buf = new ArrayBuffer(s.length);
+    			var view = new Uint8Array(buf);
+    			for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+    			return buf;
+    		} else {
+    			var buf = new Array(s.length);
+    			for (var i=0; i!=s.length; ++i) buf[i] = s.charCodeAt(i) & 0xFF;
+    			return buf;
+    		}
+    	}
+
+    	function export_table_to_excel(id, type, fn) {
+    	var wb = XLSX.utils.table_to_book(document.getElementById(id), {sheet:"Sheet JS"});
+    	var wbout = XLSX.write(wb, {bookType:type, bookSST:true, type: 'binary'});
+    	var fname = fn || 'myFileName.' + type;
+    	try {
+    		saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), fname);
+    	} catch(e) { if(typeof console != 'undefined') console.log(e, wbout); }
+    	return wbout;
+    	}
         </script>
 
 
