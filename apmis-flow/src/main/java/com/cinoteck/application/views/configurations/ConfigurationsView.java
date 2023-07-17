@@ -134,7 +134,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         exportButton.setVisible(false);
         exportButton.addClickListener(e->{
         	RegionView reg = new RegionView();
-        	reg.exportArea();
+//        	reg.exportArea();
         });
         
         
@@ -230,7 +230,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
         exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+        exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
         anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
@@ -259,7 +259,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
         exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+        exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
         anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
@@ -289,7 +289,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridExporter<RegionIndexDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
         exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Provinces" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+        exporter.setFileName("APMIS_Provinces" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
         anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
@@ -325,7 +325,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
         exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Districts" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+        exporter.setFileName("APMIS_Districts" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
         anchor = new Anchor("", "Export ");
         anchor.setHref(exporter.getCsvStreamResource());
@@ -365,7 +365,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridExporter<CommunityDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
         exporter.setTitle("Region");
-        exporter.setFileName("APMIS_Clusters" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+        exporter.setFileName("APMIS_Clusters" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
         anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());

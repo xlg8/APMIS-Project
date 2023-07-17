@@ -11,6 +11,9 @@ public interface AccessControl extends Serializable {
     String ADMIN_USERNAME = "admin";
 
     boolean signIn(String username, String password);
+    
+    boolean upDatePassWordCheck(String username, String password);
+
 
     boolean isUserSignedIn();
 

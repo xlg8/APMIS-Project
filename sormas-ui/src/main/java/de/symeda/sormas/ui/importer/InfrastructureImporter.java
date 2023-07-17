@@ -7,11 +7,18 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import javax.ejb.TransactionRolledbackLocalException;
+
 import org.apache.commons.lang3.StringUtils;
+
+import com.vaadin.server.Page;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.ImportLineResultDto;
 import de.symeda.sormas.api.importexport.InvalidColumnException;
@@ -31,33 +38,31 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
 /**
- * Data importer that is used to import regions, districts, communities, facilities and points of entry.
+ * Data importer that is used to import regions, districts, communities,
+ * facilities and points of entry.
  */
 public class InfrastructureImporter extends DataImporter {
 
 	private final InfrastructureType type;
 	protected final boolean allowOverwrite;
 
-	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type, ValueSeparator csvSeparator) throws IOException {
+	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type,
+			ValueSeparator csvSeparator) throws IOException {
 		this(inputFile, currentUser, type, false, csvSeparator);
 	}
 
-	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type, boolean allowOverwrite, ValueSeparator csvSeparator)
-		throws IOException {
+	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type, boolean allowOverwrite,
+			ValueSeparator csvSeparator) throws IOException {
 		super(inputFile, false, currentUser, csvSeparator);
-		this.type = type; 
+		this.type = type;
 		this.allowOverwrite = allowOverwrite;
 	}
 
 	@Override
-	protected ImportLineResult importDataFromCsvLine(
-		String[] values,
-		String[] entityClasses,
-		String[] entityProperties,
-		String[][] entityPropertyPaths,
-		boolean firstLine)
-		throws IOException, InvalidColumnException {
-
+	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
+			String[][] entityPropertyPaths, boolean firstLine)
+			throws IOException, InvalidColumnException, TransactionRolledbackLocalException {
+//		IOException, InvalidColumnException, InterruptedException, TransactionRolledbackLocalException
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));
@@ -68,11 +73,11 @@ public class InfrastructureImporter extends DataImporter {
 
 		switch (type) {
 		case COMMUNITY:
-			//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$55555555555555555555555555555555555555555555%%%%%%%%%%%");		
+			// System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$55555555555555555555555555555555555555555555%%%%%%%%%%%");
 			newEntityDto = CommunityDto.build();
 			break;
 		case DISTRICT:
-			//System.out.println("$$$$$$$$$$$$$$==================55555%%%%%%%%%%%");		
+			// System.out.println("$$$$$$$$$$$$$$==================55555%%%%%%%%%%%");
 			newEntityDto = DistrictDto.build();
 			break;
 		case FACILITY:
@@ -98,25 +103,33 @@ public class InfrastructureImporter extends DataImporter {
 		}
 
 		boolean iHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false, (cellData) -> {
-			
-					
+
 			try {
-				// If the cell entry is not empty, try to insert it into the current infrastructure object
+				// If the cell entry is not empty, try to insert it into the current
+				// infrastructure object
 				if (!StringUtils.isEmpty(cellData.getValue())) {
-					//System.out.println(cellData.getEntityPropertyPath()+ " trying to send data to db importer "+cellData.getValue()+"  == "+newEntityDto.getUuid());
+					// System.out.println(cellData.getEntityPropertyPath()+ " trying to send data to
+					// db importer "+cellData.getValue()+" == "+newEntityDto.getUuid());
 					insertColumnEntryIntoData(newEntityDto, cellData.getValue(), cellData.getEntityPropertyPath());
 				}
-			} catch (ImportErrorException | InvalidColumnException e) {
+			} catch (ImportErrorException | InvalidColumnException | TransactionRolledbackLocalException e) {
+//				new Notification(
+//						I18nProperties.getString(Strings.headingImportFailed),
+//						I18nProperties.getString("You have Duplicates in your import templates, please contact admin"),
+//						Type.ERROR_MESSAGE,
+//						false).show(Page.getCurrent());
 				return e;
 			}
 
 			return null;
 		});
 
-		// Save the infrastructure object into the database if the import has no errors or throw an error
+		// Save the infrastructure object into the database if the import has no errors
+		// or throw an error
 		// if there is already an infrastructure object with this name in the database
-		
-		//System.out.println("$$$$$$$$$$$$$$$$$$$$$$$=======555555555555555555555555%%%%%%%%%%% iHasImportError= "+iHasImportError);
+
+		// System.out.println("$$$$$$$$$$$$$$$$$$$$$$$=======555555555555555555555555%%%%%%%%%%%
+		// iHasImportError= "+iHasImportError);
 		if (!iHasImportError) {
 			try {
 				switch (type) {
@@ -148,7 +161,7 @@ public class InfrastructureImporter extends DataImporter {
 					throw new IllegalArgumentException(type.toString());
 				}
 				return ImportLineResult.SUCCESS;
-			} catch (ValidationRuntimeException e) {
+			} catch (ValidationRuntimeException | TransactionRolledbackLocalException e) {
 				writeImportError(values, e.getMessage());
 				return ImportLineResult.ERROR;
 			}
@@ -161,7 +174,7 @@ public class InfrastructureImporter extends DataImporter {
 	 * Inserts the entry of a single cell into the infrastructure object.
 	 */
 	private void insertColumnEntryIntoData(EntityDto newEntityDto, String value, String[] entityPropertyPath)
-		throws InvalidColumnException, ImportErrorException {
+			throws InvalidColumnException, ImportErrorException, TransactionRolledbackLocalException {
 
 		Object currentElement = newEntityDto;
 		for (int i = 0; i < entityPropertyPath.length; i++) {
@@ -169,88 +182,102 @@ public class InfrastructureImporter extends DataImporter {
 
 			try {
 				if (i != entityPropertyPath.length - 1) {
-					currentElement = new PropertyDescriptor(headerPathElementName, currentElement.getClass()).getReadMethod().invoke(currentElement);
-					//System.out.println("come000000000000");
+					currentElement = new PropertyDescriptor(headerPathElementName, currentElement.getClass())
+							.getReadMethod().invoke(currentElement);
+					// System.out.println("come000000000000");
 				} else {
-					//System.out.println("come111111111111111");
+					// System.out.println("come111111111111111");
 					PropertyDescriptor pd = new PropertyDescriptor(headerPathElementName, currentElement.getClass());
 					Class<?> propertyType = pd.getPropertyType();
 
-					// Execute the default invokes specified in the data importer; if none of those were triggered, execute additional invokes
-					// according to the types of the infrastructure object's fields; additionally, throw an error if infrastructure data that
+					// Execute the default invokes specified in the data importer; if none of those
+					// were triggered, execute additional invokes
+					// according to the types of the infrastructure object's fields; additionally,
+					// throw an error if infrastructure data that
 					// is referenced in the imported object does not exist in the database
-					if (!executeDefaultInvoke(pd, currentElement, value, entityPropertyPath)) { 
+					if (!executeDefaultInvoke(pd, currentElement, value, entityPropertyPath)) {
 						if (propertyType.isAssignableFrom(DistrictReferenceDto.class)) {
-							//System.out.println("c!!!!!!!!!!!!!!!!!!!!!ome here to fix the for district..........................................");
-							
-							
+							// System.out.println("c!!!!!!!!!!!!!!!!!!!!!ome here to fix the for
+							// district..........................................");
+
 							List<DistrictReferenceDto> district;
 							switch (type) {
 							case COMMUNITY:
-								//System.out.println("c!!!!!!!!!");
-								district = FacadeProvider.getDistrictFacade().getByExternalID(Long.parseLong(value), ((CommunityDto) newEntityDto).getRegion(), false);
+								// System.out.println("c!!!!!!!!!");
+								district = FacadeProvider.getDistrictFacade().getByExternalID(Long.parseLong(value),
+										((CommunityDto) newEntityDto).getRegion(), false);
 								break;
 							case FACILITY:
-								district = FacadeProvider.getDistrictFacade().getByName(value, ((FacilityDto) newEntityDto).getRegion(), false);
+								district = FacadeProvider.getDistrictFacade().getByName(value,
+										((FacilityDto) newEntityDto).getRegion(), false);
 								break;
 							case POINT_OF_ENTRY:
-								district = FacadeProvider.getDistrictFacade().getByName(value, ((PointOfEntryDto) newEntityDto).getRegion(), false);
+								district = FacadeProvider.getDistrictFacade().getByName(value,
+										((PointOfEntryDto) newEntityDto).getRegion(), false);
 								break;
 							default:
-								throw new UnsupportedOperationException(
-									I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
+								throw new UnsupportedOperationException(I18nProperties.getValidationError(
+										Validations.importPropertyTypeNotAllowed, propertyType.getName()));
 							}
 							if (district.isEmpty()) {
 								throw new ImportErrorException(
-									I18nProperties.getValidationError(
-										Validations.importEntryDoesNotExistDbOrRegion,
-										value,
-										buildEntityProperty(entityPropertyPath)));
+										I18nProperties.getValidationError(Validations.importEntryDoesNotExistDbOrRegion,
+												value, buildEntityProperty(entityPropertyPath)));
 							} else if (district.size() > 1) {
 								throw new ImportErrorException(
-									I18nProperties
-										.getValidationError(Validations.importDistrictNotUnique, value, buildEntityProperty(entityPropertyPath)));
+										I18nProperties.getValidationError(Validations.importDistrictNotUnique, value,
+												buildEntityProperty(entityPropertyPath)));
 							} else {
-								//System.out.println("SCUCESSSSSSSSSS DISTRTICT RETRIEVED!!! = "+district.get(0).getCaption());
+								// System.out.println("SCUCESSSSSSSSSS DISTRTICT RETRIEVED!!! =
+								// "+district.get(0).getCaption());
 								pd.getWriteMethod().invoke(currentElement, district.get(0));
 							}
 						} else if (propertyType.isAssignableFrom(CommunityReferenceDto.class)) {
-							//System.out.println("c!!!!!!!!!!!!!!!!!!!!!ome here to fix the uuid for comm..........................................");
-							
+							// System.out.println("c!!!!!!!!!!!!!!!!!!!!!ome here to fix the uuid for
+							// comm..........................................");
 							List<CommunityReferenceDto> community;
+							List<CommunityReferenceDto> externalID;
+
 							if (type == InfrastructureType.FACILITY) {
-								community = FacadeProvider.getCommunityFacade().getByName(value, ((FacilityDto) newEntityDto).getDistrict(), false);
+								community = FacadeProvider.getCommunityFacade().getByName(value,
+										((FacilityDto) newEntityDto).getDistrict(), false);
+//								externalID  = FacadeProvider.getCommunityFacade().getByExternalId(community.get(0).getExternalId(), true);
+								externalID = FacadeProvider.getCommunityFacade().getByExternalID(
+										community.get(0).getExternalId(), ((FacilityDto) newEntityDto).getDistrict(),
+										false);
 							} else {
-								throw new UnsupportedOperationException(
-									I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
+								throw new UnsupportedOperationException(I18nProperties.getValidationError(
+										Validations.importPropertyTypeNotAllowed, propertyType.getName()));
 							}
 							if (community.isEmpty()) {
 								throw new ImportErrorException(
-									I18nProperties.getValidationError(
-										Validations.importEntryDoesNotExistDbOrRegion,
-										value,
-										buildEntityProperty(entityPropertyPath)));
+										I18nProperties.getValidationError(Validations.importEntryDoesNotExistDbOrRegion,
+												value, buildEntityProperty(entityPropertyPath)));
 							} else if (community.size() > 1) {
-								//System.out.println("c!!!!!!!!!!!!!!!ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRr......................................");
+								// System.out.println("c!!!!!!!!!!!!!!!ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRORRRRRRRRRRRRRRRRr......................................");
 								throw new ImportErrorException(
-									I18nProperties
-										.getValidationError(Validations.importDistrictNotUnique, value, buildEntityProperty(entityPropertyPath)));
+										I18nProperties.getValidationError(Validations.importDistrictNotUnique, value,
+												buildEntityProperty(entityPropertyPath)));
+							} else if (externalID.size() > 1) {
+								 System.out.println("ERRRRRRRRRRRRRRRRRRRRRcccccccRRRRRRRRRORRRRRRRRRRRRRRRRr..................");
+								throw new ImportErrorException(
+										I18nProperties.getValidationError("There were duplicates in the import", value,
+												buildEntityProperty(entityPropertyPath)));
 							} else {
 								pd.getWriteMethod().invoke(currentElement, community.get(0));
 							}
 						} else {
-							
-							
-							throw new UnsupportedOperationException(
-								I18nProperties.getValidationError(Validations.importPropertyTypeNotAllowed, propertyType.getName()));
+
+							throw new UnsupportedOperationException(I18nProperties.getValidationError(
+									Validations.importPropertyTypeNotAllowed, propertyType.getName()));
 						}
 					}
 				}
 			} catch (IntrospectionException e) {
 				throw new InvalidColumnException(buildEntityProperty(entityPropertyPath));
 			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new ImportErrorException(
-					I18nProperties.getValidationError(Validations.importErrorInColumn, buildEntityProperty(entityPropertyPath)));
+				throw new ImportErrorException(I18nProperties.getValidationError(Validations.importErrorInColumn,
+						buildEntityProperty(entityPropertyPath)));
 			} catch (IllegalArgumentException e) {
 				throw new ImportErrorException(value, buildEntityProperty(entityPropertyPath));
 			} catch (ImportErrorException e) {
