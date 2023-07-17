@@ -1,6 +1,8 @@
 package com.cinoteck.application.views.myaccount;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.utils.authentication.AccessControl;
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -22,6 +24,9 @@ public class CredentialPassWordChanger extends Div {
 
 	UserDto userName;
 	ConfirmDialog _dialog;
+	private AccessControl accessControl;
+
+	UserProvider currentUser = new UserProvider();
 
 	public CredentialPassWordChanger(UserDto usedto) {
 
@@ -47,7 +52,7 @@ public class CredentialPassWordChanger extends Div {
 
 	private void continuePasswrd() {
 		// _dialog.close();
-
+		 accessControl = AccessControlFactory.getInstance().createAccessControl();
 		Dialog dialog = new Dialog();
 		dialog.addClassName("custom-dialog");
 		dialog.setHeaderTitle(I18nProperties.getString(Strings.messageChangePassword));
@@ -65,6 +70,10 @@ public class CredentialPassWordChanger extends Div {
 		layout.add(c2Label);
 
 		layout.add(new Label());
+
+		PasswordField oldPassField = new PasswordField(I18nProperties.getString("Old Password"));
+		oldPassField.setSizeFull();
+		layout.add(oldPassField);
 
 		PasswordField passField1 = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		passField1.setSizeFull();
@@ -90,20 +99,25 @@ public class CredentialPassWordChanger extends Div {
 //				changePassword.setStyleName(CssStyles.FLOAT_RIGHT);
 
 		saveButton.addClickListener(e -> {
+			String oldPass = oldPassField.getValue();
 			String newpass1 = passField1.getValue();
 			String newpass2 = passField2.getValue();
 
-			if (newpass1.equals(newpass2)) {// && passField1.isValid()) {
-				// needed put a lot of logics to check hacking and unsave password TODO
-				FacadeProvider.getUserFacade().changePassword(userName.getUserName(), newpass1);
+			if (oldPass != null || oldPassField.getValue().isEmpty()) {
+		
+				if ((accessControl.upDatePassWordCheck(currentUser.getUser().getUserName(), oldPass)) && (newpass1.equals(newpass2))) {
 
-				UI.getCurrent().getPage().reload();
+						FacadeProvider.getUserFacade().changePassword(userName.getUserName(), newpass1);
 
-				Notification.show("Password changed Successfully");
+						UI.getCurrent().getPage().reload();
 
-			} else {
-				Notification.show("Password does not match");
-			}
+						Notification.show("Password changed Successfully");
+
+				}else {
+						Notification.show("Password does not match");
+					}
+				}
+		
 		});
 
 		dialog.add(layout);

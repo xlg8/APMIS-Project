@@ -44,45 +44,26 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 
 	@Override
     public boolean signIn(String username, String password) {
-//        if (username == null || username.isEmpty()) {
-//            return false;
-//        }
-//
-//        if (!username.equals(password)) {
-//            return false;
-//        }
-		
-		
-		
-		System.out.println(username+"___________________________________step 2"+password);
 		if (username == null || username.isEmpty()) {
 			return false;
 		}
-		System.out.println("___________________________________step 3");
 		BeanManager bm = CDI.current().getBeanManager();
 		@SuppressWarnings("unchecked")
 		Bean<SecurityContext> securityContextBean = (Bean<SecurityContext>) bm.getBeans(SecurityContext.class).iterator().next();
 		CreationalContext<SecurityContext> ctx = bm.createCreationalContext(securityContextBean);
 		SecurityContext securityContext = (SecurityContext) bm.getReference(securityContextBean, SecurityContext.class, ctx);
-		System.out.println("___________________________________step 4");
 		AuthenticationParameters authentication = new AuthenticationParameters();
 		authentication.credential(new UsernamePasswordCredential(username, password));
 		authentication.newAuthentication(true);
 		authentication.setRememberMe(true);
-		System.out.println(authentication+"___________________________________stattus up");
 		AuthenticationStatus status = securityContext.authenticate(
 			VaadinServletService.getCurrentServletRequest(),
 			VaadinServletService.getCurrentResponse().getHttpServletResponse(),
 			authentication);
 		
-		System.out.println(status);
-		
 		if (status == AuthenticationStatus.SUCCESS) {
 			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
-				
-			//	userProvider.user = FacadeProvider.getUserFacade().getCurrentUser();
-				
-				
+
 				try {
 					VaadinServletService.getCurrentServletRequest().logout();
 				} catch (ServletException e) {
@@ -95,9 +76,7 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 			Language userLanguage = FacadeProvider.getUserFacade().getByUserName(username).getLanguage();
 			I18nProperties.setUserLanguage(userLanguage);
 			FacadeProvider.getI18nFacade().setUserLanguage(userLanguage);
-			
-			
-			System.out.println("+++++++++++++++" +FacadeProvider.getUserFacade().getCurrentUser().getUserName());
+
 			 CurrentUser.set(username);
 			return true;
 		}
@@ -113,6 +92,49 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
     	System.out.println(!CurrentUser.get().isEmpty()+"_____:check if has log in");
         return !CurrentUser.get().isEmpty();
     }
+    
+
+	@Override
+    public boolean upDatePassWordCheck(String username, String password) {
+		if (username == null || username.isEmpty()) {
+			return false;
+		}
+		BeanManager bm = CDI.current().getBeanManager();
+		@SuppressWarnings("unchecked")
+		Bean<SecurityContext> securityContextBean = (Bean<SecurityContext>) bm.getBeans(SecurityContext.class).iterator().next();
+		CreationalContext<SecurityContext> ctx = bm.createCreationalContext(securityContextBean);
+		SecurityContext securityContext = (SecurityContext) bm.getReference(securityContextBean, SecurityContext.class, ctx);
+		AuthenticationParameters authentication = new AuthenticationParameters();
+		authentication.credential(new UsernamePasswordCredential(username, password));
+		authentication.newAuthentication(true);
+		authentication.setRememberMe(true);
+		AuthenticationStatus status = securityContext.authenticate(
+			VaadinServletService.getCurrentServletRequest(),
+			VaadinServletService.getCurrentResponse().getHttpServletResponse(),
+			authentication);
+		
+		if (status == AuthenticationStatus.SUCCESS) {
+			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
+
+				try {
+					VaadinServletService.getCurrentServletRequest().logout();
+				} catch (ServletException e) {
+					// just do not crash
+				}
+				return false;
+			}
+			
+		
+			 CurrentUser.set(username);
+			return true;
+		}
+
+		return false;
+
+       
+       // return true;
+    }
+
 
 //    @Override
 //    public boolean isUserInRole(String role) {
