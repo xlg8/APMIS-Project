@@ -134,7 +134,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         exportButton.setVisible(false);
         exportButton.addClickListener(e->{
         	RegionView reg = new RegionView();
-        	reg.exportArea();
+//        	reg.exportArea();
         });
         
         
