@@ -168,13 +168,13 @@ public class UserFacadeEjb implements UserFacade {
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
 		target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
-		target.setHealthFacility(FacilityFacadeEjb.toReferenceDto(source.getHealthFacility()));
-		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
-		target.setLaboratory(FacilityFacadeEjb.toReferenceDto(source.getLaboratory()));
-		target.setPointOfEntry(PointOfEntryFacadeEjb.toReferenceDto(source.getPointOfEntry()));
-		target.setLimitedDisease(source.getLimitedDisease());
+//		target.setHealthFacility(FacilityFacadeEjb.toReferenceDto(source.getHealthFacility()));
+//		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
+//		target.setLaboratory(FacilityFacadeEjb.toReferenceDto(source.getLaboratory()));
+//		target.setPointOfEntry(PointOfEntryFacadeEjb.toReferenceDto(source.getPointOfEntry()));
+		//target.setLimitedDisease(source.getLimitedDisease());
 		target.setLanguage(source.getLanguage());
-		target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
+	//	target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
 
 		source.getUserRoles().size();
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
@@ -575,7 +575,15 @@ public class UserFacadeEjb implements UserFacade {
 	@Override
 	public List<UserDto> getIndexList(UserCriteria userCriteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
-
+		System.out.println(max+" ------ "+first);
+		
+		if(max > 500000) {
+			max = 50;
+			System.out.println(max+" --corrected---- "+first);
+		}
+		
+		
+		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<User> cq = cb.createQuery(User.class);
 		Root<User> user = cq.from(User.class);
@@ -583,7 +591,7 @@ public class UserFacadeEjb implements UserFacade {
 		Join<User, Region> region = user.join(User.REGION, JoinType.LEFT);
 		Join<User, District> district = user.join(User.DISTRICT, JoinType.LEFT);
 		Join<User, Location> address = user.join(User.ADDRESS, JoinType.LEFT);
-		Join<User, Facility> facility = user.join(User.HEALTH_FACILITY, JoinType.LEFT);
+	//	Join<User, Facility> facility = user.join(User.HEALTH_FACILITY, JoinType.LEFT);
 
 		// TODO: We'll need a user filter for users at some point, to make sure that
 		// users can edit their own details,

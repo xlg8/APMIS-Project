@@ -28,11 +28,14 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -57,8 +60,8 @@ public class UserForm extends FormLayout {
 
 	// TODO: Change labels to use IL8N names for internationalisation
 	// NOTE: Fields should use the same naming convention as in UserDto.class
-	TextField firstName = new TextField("First name");
-	TextField lastName = new TextField("Last name");
+	TextField firstName = new TextField(I18nProperties.getCaption(Captions.firstName));
+	TextField lastName = new TextField(I18nProperties.getCaption(Captions.lastName));
 	TextField userEmail = new TextField("Email Address");
 	TextField phone = new TextField("Phone Number");
 	TextField userPosition = new TextField("Position");
