@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import de.symeda.sormas.api.EntityDto;
+import de.symeda.sormas.api.ImportIgnore;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -102,6 +103,7 @@ public class CommunityDto extends EntityDto {
 		this.name = name;
 	}
 
+	@ImportIgnore
 	public Float getGrowthRate() {
 		return growthRate;
 	}
@@ -139,7 +141,7 @@ public class CommunityDto extends EntityDto {
 	}
 	
 	
-
+	@ImportIgnore
 	public String getExternalIddummy() {
 		
 		if(externalId != null) {
@@ -173,6 +175,7 @@ public class CommunityDto extends EntityDto {
 		return new CommunityReferenceDto(getUuid(), getName(), getExternalId(), getClusterNumber());
 	}
 	
+	@ImportIgnore
 	public Long getDistrictexternalId() {
 		return districtexternalId;
 	}
@@ -180,7 +183,8 @@ public class CommunityDto extends EntityDto {
 	public void setDistrictexternalId(Long districtexternalId) {
 		this.districtexternalId = districtexternalId;
 	}
-
+	
+	@ImportIgnore
 	public Long getRegionexternalId() {
 		return regionexternalId;
 	}
@@ -189,6 +193,7 @@ public class CommunityDto extends EntityDto {
 		this.regionexternalId = regionexternalId;
 	}
 
+	@ImportIgnore
 	public Long getAreaexternalId() {
 		return areaexternalId;
 	}
@@ -197,6 +202,7 @@ public class CommunityDto extends EntityDto {
 		this.areaexternalId = areaexternalId;
 	}
 
+	@ImportIgnore
 	public String getAreaname() {
 		return areaname;
 	}

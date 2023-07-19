@@ -21,22 +21,22 @@ import de.symeda.sormas.api.user.UserDto;
 public class UsersDataProvider extends AbstractBackEndDataProvider<UserDto, UserCriteria>{
 	
 	private static final long serialVersionUID = 7345965237429493032L;
-	UserCriteria crteria;
-	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade()
-			.getIndexList(crteria, null, null, null));
+//	UserCriteria crteria;
+//	final List<UserDto> DATABASE = new ArrayList<>(FacadeProvider.getUserFacade()
+//			.getIndexList(crteria, null, null, null));
 
 	@Override
 	protected Stream<UserDto> fetchFromBackEnd(Query<UserDto, UserCriteria> query) {
-
-		Stream<UserDto> stream = DATABASE.stream();
-
-		if (query.getFilter().isPresent()) {
-			stream = stream.filter(person -> query.getFilter().get().equals(person));
-		}
-
-		if (query.getSortOrders().size() > 0) {
-			stream = stream.sorted(sortComparator(query.getSortOrders()));
-		}
+//
+//		Stream<UserDto> stream = DATABASE.stream();
+//
+//		if (query.getFilter().isPresent()) {
+//			stream = stream.filter(person -> query.getFilter().get().equals(person));
+//		}
+//
+//		if (query.getSortOrders().size() > 0) {
+//			stream = stream.sorted(sortComparator(query.getSortOrders()));
+//		}
 
 
 		return FacadeProvider.getUserFacade() 
@@ -51,7 +51,10 @@ public class UsersDataProvider extends AbstractBackEndDataProvider<UserDto, User
 	@Override
 	protected int sizeInBackEnd(Query<UserDto, UserCriteria> query) {
 		// TODO Auto-generated method stub
-		return (int) fetchFromBackEnd(query).count();
+		
+		//FacadeProvider.getUserFacade()
+		return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+		//return (int) fetchFromBackEnd(query).count();
 	}
 	
 	private static Comparator<UserDto> sortComparator(List<QuerySortOrder> sortOrders) {

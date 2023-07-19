@@ -43,48 +43,48 @@ import de.symeda.sormas.api.utils.DateHelper;
 	UserRole._BAG_USER })
 public class BAGExportResource {
 
-	@GET
-	@Path("/cases")
-	public Response exportCases(String file) {
-		return createFileDownloadResponse(
-			output -> CsvStreamUtils.writeCsvContentToStream(
-				BAGExportCaseDto.class,
-				(from, to) -> FacadeProvider.getBAGExportFacade().getCaseExportList(Collections.emptySet(), from, to),
-				(propertyId, type) -> propertyId,
-				null,
-				null,
-				FacadeProvider.getConfigFacade(),
-				output),
-			"sormas_BAG_cases_",
-			"csv");
-	}
+//	@GET
+//	@Path("/cases")
+//	public Response exportCases(String file) {
+//		return createFileDownloadResponse(
+//			output -> CsvStreamUtils.writeCsvContentToStream(
+//				BAGExportCaseDto.class,
+//				(from, to) -> FacadeProvider.getBAGExportFacade().getCaseExportList(Collections.emptySet(), from, to),
+//				(propertyId, type) -> propertyId,
+//				null,
+//				null,
+//				FacadeProvider.getConfigFacade(),
+//				output),
+//			"sormas_BAG_cases_",
+//			"csv");
+//	}
+//
+//	@GET
+//	@Path("/contacts")
+//	public Response exportContacts(String file) {
+//		return createFileDownloadResponse(
+//			output -> CsvStreamUtils.writeCsvContentToStream(
+//				BAGExportContactDto.class,
+//				(from, to) -> FacadeProvider.getBAGExportFacade().getContactExportList(Collections.emptySet(), from, to),
+//				(propertyId, type) -> propertyId,
+//				null,
+//				null,
+//				FacadeProvider.getConfigFacade(),
+//				output),
+//			"sormas_BAG_contacts_",
+//			"csv");
+//	}
 
-	@GET
-	@Path("/contacts")
-	public Response exportContacts(String file) {
-		return createFileDownloadResponse(
-			output -> CsvStreamUtils.writeCsvContentToStream(
-				BAGExportContactDto.class,
-				(from, to) -> FacadeProvider.getBAGExportFacade().getContactExportList(Collections.emptySet(), from, to),
-				(propertyId, type) -> propertyId,
-				null,
-				null,
-				FacadeProvider.getConfigFacade(),
-				output),
-			"sormas_BAG_contacts_",
-			"csv");
-	}
-
-	private Response createFileDownloadResponse(Consumer<OutputStream> writeContent, String fileNamePrefix, String extension) {
-		StreamingOutput fileStream = writeContent::accept;
-
-		Response.ResponseBuilder response = Response.ok(fileStream);
-		response.header("Content-Disposition", "attachment;filename=" + createFileNameWithCurrentDate(fileNamePrefix, extension));
-
-		return response.build();
-	}
-
-	private String createFileNameWithCurrentDate(String fileNamePrefix, String extension) {
-		return fileNamePrefix + DateHelper.formatDateForExport(new Date()) + "." + extension;
-	}
+//	private Response createFileDownloadResponse(Consumer<OutputStream> writeContent, String fileNamePrefix, String extension) {
+//		StreamingOutput fileStream = writeContent::accept;
+//
+//		Response.ResponseBuilder response = Response.ok(fileStream);
+//		response.header("Content-Disposition", "attachment;filename=" + createFileNameWithCurrentDate(fileNamePrefix, extension));
+//
+//		return response.build();
+//	}
+//
+//	private String createFileNameWithCurrentDate(String fileNamePrefix, String extension) {
+//		return fileNamePrefix + DateHelper.formatDateForExport(new Date()) + "." + extension;
+//	}
 }

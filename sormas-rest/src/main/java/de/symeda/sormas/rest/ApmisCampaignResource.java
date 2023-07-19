@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,6 +17,7 @@ import com.opencsv.CSVWriter;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignAggregateDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
@@ -30,15 +30,29 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 @RolesAllowed({
 	"USER",
 	"REST_USER",
-	"ADMIN" })
-public class ApmisCampaignResource extends EntityDtoResource {
+	 })
+public class ApmisCampaignResource{// extends EntityDtoResource {
 	
 	@GET
-	@Path("/campaigns") //return a list of all active campaigns 
-	public List<CampaignDto> getAllCampaigns() {
-		return FacadeProvider.getCampaignFacade().getAllActive();
+	@Path("/campaigns")
+	public List<CampaignReferenceDto> getAllCampaigns() {
+		List<CampaignReferenceDto> cdto = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		return cdto;
 	}
 	 
+	
+	
+	@GET
+	@Path("/uuidsx")
+	public List<String> getAllUuids() {
+		List<CampaignReferenceDto> cdto = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();//.getAllActive();
+		
+		System.out.println("ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
+		return FacadeProvider.getAreaFacade().getAllUuids();
+	}
+	
+	
+	
 	@GET
 	@Path("/campaigns/{uuid}") //return a campaign by its UUID
 	public CampaignDto getByUuid(@PathParam("uuid") String uuid) {
@@ -143,6 +157,8 @@ public class ApmisCampaignResource extends EntityDtoResource {
 
         return Response.ok(csv).header("Content-Disposition", "attachment; filename=data.csv").build();
     }
+	
+
 	
 	
 	 private String toCsv(List<CampaignAggregateDataDto> data) {

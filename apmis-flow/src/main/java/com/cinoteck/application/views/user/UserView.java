@@ -1,10 +1,6 @@
 package com.cinoteck.application.views.user;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,18 +9,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
-
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.utils.ExportEntityName;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -35,12 +26,11 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -51,20 +41,11 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-//import com.vaadin.icons.VaadinIcons;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.Page;
-import com.vaadin.server.StreamResource;
-
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -76,7 +57,6 @@ import de.symeda.sormas.api.caze.CaseDataDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -90,7 +70,6 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 //
-import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -118,13 +97,19 @@ public class UserView extends VerticalLayout {
 	UserCriteria criteria;
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
+//<<<<<<< HEAD
 	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 			.collect(Collectors.toList());
+//=======
+//	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
+//			.collect(Collectors.toList());
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 //	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
+	
 	UserForm form;
 //	CreateUserForm createUserForm;
 
@@ -177,10 +162,10 @@ public class UserView extends VerticalLayout {
 
 	private void configureGrid() {
 
-		ComponentRenderer<Label, UserDto> userRolesRenderer = new ComponentRenderer<>(reportModelDto -> {
+		ComponentRenderer<Span, UserDto> userRolesRenderer = new ComponentRenderer<>(reportModelDto -> {
 			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
 					.replace("null,", "").replace("null", "");
-			Label label = new Label(value);
+			Span label = new Span(value);
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
@@ -200,33 +185,53 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
-		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
-		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
-		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
-		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
-				.setAutoWidth(true).setSortable(true).setResizable(true);
-		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
-				.setAutoWidth(true).setSortable(true).setResizable(true);
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
-				.setAutoWidth(true).setSortable(true);
+//<<<<<<< HEAD
+//		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
+//				.setAutoWidth(true).setSortable(true).setResizable(true);
+//		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
+//				.setAutoWidth(true).setSortable(true).setResizable(true);
+//		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+//				.setAutoWidth(true).setSortable(true);
+//=======
+		
+		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setAutoWidth(true)
+				.setSortable(true).setResizable(true);
+		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setAutoWidth(true)
+				.setSortable(true).setResizable(true);
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setAutoWidth(true)
+				.setSortable(true);
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
 		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
-			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
-					.replace("null,", "").replace("null", "");
-
-			return value;
-		});
+//		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
+//			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
+//					.replace("null,", "").replace("null", "");
+//
+//			return value;
+//		});
 
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
@@ -280,36 +285,34 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-		setLazyDataProvider();
-		grid.setDataProvider(filterDataProvider);
 
-//		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
+		grid.setDataProvider(filterDataProvider);
 
 		grid.addSelectionListener(event -> {
 			editUser(event.getFirstSelectedItem(), true);
 		});
-
-		return;
+return;
 
 	}
 
-	public void setLazyDataProvider() {
 
-		System.out.println("sdafasdfasddfgsdfhsdfg");
-		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
-				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
-						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
-								query.getSortOrders().stream()
-										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-												sortOrder.getDirection() == SortDirection.ASCENDING))
-										.collect(Collectors.toList()))
-						.stream(), query -> {
-							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
-						});
-		System.out.println("sdafasdfasdfgasdgvasdfgsdfhsdfg " + dataProvider);
-		grid.setDataProvider(dataProvider);
-//		setSelectionMode(SelectionMode.NONE);
-	}
+//	public void setLazyDataProvider() {
+//
+//		System.out.println("sdafasdfasddfgsdfhsdfg");
+//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
+//				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
+//						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
+//								query.getSortOrders().stream()
+//										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//												sortOrder.getDirection() == SortDirection.ASCENDING))
+//										.collect(Collectors.toList()))
+//						.stream(), query -> {
+//							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+//						});
+//		System.out.println("sdafasdfasdfgasdgvasdfgsdfhsdfg " + dataProvider);
+//		grid.setDataProvider(dataProvider);
+////		setSelectionMode(SelectionMode.NONE);
+//	}
 //	public void editUser(UserDto user, boolean isEdMode) {
 //		isEditingMode = isEdMode;
 //		if (user == null) {
@@ -329,6 +332,8 @@ public class UserView extends VerticalLayout {
 //		}
 //	}
 
+//=======
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
 		UserDto user;
 		isEditingMode = isEdMode;
@@ -340,19 +345,22 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-		}
+		} 
 	}
-
+	
+	
+	
 	public void editUser(boolean isEdMode) {
 		isEditingMode = isEdMode;
-
+		
 		UserDto user = new UserDto();
 		form.setUser(user);
 		form.setVisible(true);
 		form.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
-	}
+	} 
+
 
 	private void configureForm(UserDto user) {
 
@@ -384,14 +392,13 @@ public class UserView extends VerticalLayout {
 
 		createUserButton = new Button("New User");
 		createUserButton.addClassName("createUserButton");
-		createUserButton.getStyle().set("margin-left", "12px");
+		createUserButton.getStyle().set("margin-left", "0.1rem");
 		layout.add(createUserButton);
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
-			UserDto userDto = new UserDto();
-//			editUser(userDto, false);
-			editUser(false);
+
+editUser(false);
 //			showNewUserForm(userDto);
 		});
 //
@@ -516,9 +523,9 @@ public class UserView extends VerticalLayout {
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
-		activeFilter.setWidth(200, Unit.PIXELS);
+		//activeFilter.setWidth(200, Unit.PIXELS);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-		activeFilter.setPlaceholder("active");
+		activeFilter.setPlaceholder("Active");
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
 		activeFilter.setItems("Active", "Inactive");
@@ -527,8 +534,9 @@ public class UserView extends VerticalLayout {
 			if (e.getValue().equals("Active")) {
 				criteria.active(true);
 			} else if (e.getValue().equals("Inactive")) {
+
 				criteria.active(false);
-			}
+			} 
 
 			filterDataProvider.setFilter(criteria);
 			filterDataProvider.refreshAll();
@@ -538,11 +546,11 @@ public class UserView extends VerticalLayout {
 
 		userRolesFilter = new ComboBox<UserRole>();
 		userRolesFilter.setId(UserDto.USER_ROLES);
-		userRolesFilter.setWidth(200, Unit.PIXELS);
+		//userRolesFilter.setWidth(200, Unit.PIXELS);
 		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
 		userRolesFilter.setPlaceholder("User Roles");
-		userRolesFilter.getStyle().set("margin-left", "12px");
-		userRolesFilter.getStyle().set("margin-top", "12px");
+		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+		userRolesFilter.getStyle().set("padding-top", "0px!important");
 		userRolesFilter.setClearButtonVisible(true);
 		userRolesFilter
 				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
@@ -559,11 +567,11 @@ public class UserView extends VerticalLayout {
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
-		areaFilter.setWidth(200, Unit.PIXELS);
+		//areaFilter.setWidth(200, Unit.PIXELS);
 		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
 		areaFilter.setPlaceholder("Region");
-		areaFilter.getStyle().set("margin-left", "12px");
-		areaFilter.getStyle().set("margin-top", "12px");
+		areaFilter.getStyle().set("margin-left", "0.1rem");
+		areaFilter.getStyle().set("padding-top", "0px!important");
 		areaFilter.setItems(regions);
 		areaFilter.setClearButtonVisible(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
@@ -611,8 +619,8 @@ public class UserView extends VerticalLayout {
 		regionFilter.setLabel(
 				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
 		regionFilter.setPlaceholder("Province");
-		regionFilter.getStyle().set("margin-left", "12px");
-		regionFilter.getStyle().set("margin-top", "12px");
+		regionFilter.getStyle().set("margin-left", "0.1rem");
+		regionFilter.getStyle().set("padding-top", "0px!important");
 		regionFilter.setClearButtonVisible(true);
 //		regionFilter.setReadOnly(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
@@ -656,11 +664,11 @@ public class UserView extends VerticalLayout {
 
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
-		districtFilter.setWidth(200, Unit.PIXELS);
+	//	districtFilter.setWidth(200, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder("District");
-		districtFilter.getStyle().set("margin-left", "12px");
-		districtFilter.getStyle().set("margin-top", "12px");
+		districtFilter.getStyle().set("margin-left", "0.1rem");
+		districtFilter.getStyle().set("padding-top", "0px!important");
 		districtFilter.setClearButtonVisible(true);
 		districtFilter.setReadOnly(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {

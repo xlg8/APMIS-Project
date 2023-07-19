@@ -4,6 +4,7 @@ import java.util.Date;
 
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.EntityDto;
+import de.symeda.sormas.api.ImportIgnore;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.person.Sex;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -70,6 +71,7 @@ public class PopulationDataDto extends EntityDto {
 		this.community = community;
 	}
 
+	@ImportIgnore
 	public Sex getSex() {
 		return sex;
 	}
