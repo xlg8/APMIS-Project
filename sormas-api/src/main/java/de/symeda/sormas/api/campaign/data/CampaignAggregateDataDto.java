@@ -14,9 +14,21 @@ public class CampaignAggregateDataDto extends EntityDto {
 	private String region;
 	private String district;
 	private Long sumValue;
+	private String sumValueString;
 	
 	
-	
+	public CampaignAggregateDataDto(String formUuid, String formId, String formField, String formCaption, String area,
+			String region, String district, String sumValueString) {
+		super();
+		this.formUuid = formUuid;
+		this.formId = formId;
+		this.formField = formField;
+		this.formCaption = formCaption;
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.sumValueString = sumValueString;
+	}
 	
 	public CampaignAggregateDataDto(String formUuid, String formId, String formField, String formCaption, String area,
 			String region, String district, Long sumValue) {
@@ -78,6 +90,14 @@ public class CampaignAggregateDataDto extends EntityDto {
 	}
 	public void setDistrict(String district) {
 		this.district = district;
+	}
+
+	public String getSumValueString() {
+		return sumValueString;
+	}
+
+	public void setSumValueString(String sumValueString) {
+		this.sumValueString = sumValueString;
 	}
 
 	

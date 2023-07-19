@@ -166,6 +166,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	
 	@EJB
 	private CampaignStatisticsService campaignStatisticsService;
+	
+	public Integer	populationx;
 
 	public CampaignFormData fromDto(@NotNull CampaignFormDataDto source, boolean checkChangeDate) {
 		CampaignFormData target = DtoHelper.fillOrBuildEntity(source, campaignFormDataService.getByUuid(source.getUuid()), CampaignFormData::new, checkChangeDate);
@@ -765,7 +767,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		
 		
-		////////System.out.println("t"+resultData);
+		System.out.println("getDiagramDataByFieldGroup-------: "+resultData.size());
 		
 		return resultData;
 	}
@@ -860,6 +862,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					district.getCaption(), diagramSeries.getFieldId(), diagramSeries.getFormId(), true));
 		}
 		
+		System.out.println("getDiagramDataByAgeGroup-------: "+resultData.size());
 		return resultData;
 	}
 
@@ -872,7 +875,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final RegionReferenceDto region = campaignDiagramCriteria.getRegion();
 		final DistrictReferenceDto district = campaignDiagramCriteria.getDistrict();
 		final CampaignJurisdictionLevel grouping = campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy();
-
+		System.out.println("getDiagramDataByAgeGroupCard: "+campaignDiagramCriteria.getArea() + " : "+campaignDiagramCriteria.getRegion()+" : "+campaignDiagramCriteria.getDistrict());
 		if (area != null && region == null && district == null) {
 			List<Area> areas = new ArrayList<>();
 			areas.add(areaService.getByUuid(area.getUuid()));
@@ -893,20 +896,24 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			//System.out.println(resultData.size());
 		}else if (grouping == CampaignJurisdictionLevel.AREA && area == null) {
 			List<Area> areas = areaService.getAll();
+			populationx = 0;
 			areas.forEach(areaItem -> {
-				Integer	population = populationDataFacadeEjb.getAreaPopulationParent(areaItem.getUuid(),
+				
+				populationx = populationx + populationDataFacadeEjb.getAreaPopulationParent(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				
-		//System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+population);
+		System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+populationx);
 				
-				if (population == 0) {
+				if (populationx == 0) {
 					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
 							areaItem.getName(), diagramSeries.getFieldId(), diagramSeries.getFormId(), false));
 				} else {
-					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), population, areaItem.getUuid(),
+					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), populationx, areaItem.getUuid(),
 							areaItem.getName(), diagramSeries.getFieldId(), diagramSeries.getFormId(), true));
 				}
 			});
+			
+			resultData.add(resultData.get(resultData.size() - 1));
 			
 			//System.out.println(resultData.size());
 		} else if (region != null && district == null) {
@@ -959,6 +966,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				}
 			});
 			}
+		
+		System.out.println("getDiagramDataByAgeGroupCard-------: "+resultData.size());
 		return resultData;
 	}
 
@@ -1165,7 +1174,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			//System.out.println("getDiagramDataCard seriesDataQuery = "  +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+			System.out.println("getDiagramDataCard seriesDataQuery = "  +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
 
 			
 			@SuppressWarnings("unchecked")
@@ -1372,7 +1381,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			//System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+			System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
 
 
 			@SuppressWarnings("unchecked")
@@ -1395,7 +1404,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public List<CampaignAggregateDataDto> getCampaignFormDataAggregatetoCSV(String campaing_uuid){
 		
-		System.err.println("now in db");
+		System.err.println("now in db...");
 		List<CampaignAggregateDataDto> resultData = new ArrayList<>();
 		StringBuilder selectBuilder = new StringBuilder("SELECT campaignformmeta.uuid as formUuid, campaignformmeta.formId as formId, jsonData->>'id' as fieldId, jsonMeta->>'caption' as fieldCaption, CASE WHEN ((jsonMeta ->> 'type') = 'number') OR((jsonMeta ->> 'type') = 'decimal') OR((jsonMeta ->> 'type') = 'range') THEN sum(cast_number(jsonData->>'value', 0)) ELSE sum(CASE WHEN(jsonData->>'value') = '' THEN 0 ELSE 1 END) END as sumValue, areas.\"name\" as Area, region.\"name\" as Region, district.\"name\" as District  \n"
 				+ "FROM campaignFormData \n"
@@ -1408,13 +1417,13 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "json_array_elements(formValues) as jsonData, json_array_elements(campaignFormElements) as jsonMeta \n"
 				+ "WHERE jsonData->>'value' IS NOT NULL \n"
 				+ "AND jsonData->>'id' = jsonMeta->>'id' \n"
-				+ "AND campaigns.uuid = '"+campaing_uuid+"'\n"
+				+ "AND campaigns.uuid = '"+campaing_uuid+"' and jsonData->>'value' != 'NaN'\n"
 				+ "GROUP BY campaignformmeta.uuid, campaignformmeta.formId, jsonData->>'id', jsonMeta->>'caption', jsonMeta->>'type', areas.\"name\", region.\"name\", district.\"name\" ");
 		
-		//System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
-		
+		System.out.println("query used - "+ selectBuilder.toString()); //SQLExtractor.from(seriesDataQuery));
+		System.err.println("now in db...");
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder.toString());
-				
+		System.err.println("now in db...");
 				
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
@@ -1596,7 +1605,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			}
 			
 
-//	//System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
 		
 			@SuppressWarnings("unchecked")
 			List<Object[]> resultList = seriesDataQuery.getResultList(); 
@@ -1868,7 +1877,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV() {
 		
-		System.err.println("now in db");
+		System.err.println("now in dbxc");
 		List<JsonDictionaryReportModelDto> resultData = new ArrayList<>();
 		StringBuilder selectBuilder = new StringBuilder("SELECT formid, fe->>'caption' as caption, fe->>'id' as id,  fe->>'type' as datatype, formtype, modality\r\n"
 				+ "FROM campaignformmeta c , \r\n"
