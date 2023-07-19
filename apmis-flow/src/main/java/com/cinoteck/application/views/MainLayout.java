@@ -48,6 +48,9 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 
 /**
  * The main view is a top-level placeholder for other views. //password
@@ -128,18 +131,18 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		Button myButton = new Button();
 		
-		nav.addItem(new AppNavItem("Dashboard", DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
 		nav.addItem(new AppNavItem("Campaign Data", CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
-		nav.addItem(new AppNavItem("All Campaigns", CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
-		nav.addItem(new AppNavItem("Configuration", ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
-		nav.addItem(new AppNavItem("Users", UserView.class, VaadinIcon.USERS, "navitem"));
-		nav.addItem(new AppNavItem("Reports", ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class, VaadinIcon.USERS, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuReports), ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
 		nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		//nav.addItem(new AppNavItem("Pivot", PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
-		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAbout), AboutView.class, VaadinIcon.CHAT, "navitem"));
 //		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
 
 		
@@ -181,7 +184,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		
 		text.getStyle().set("color", "black");
-		text.getStyle().set("font-size", "24px");
+		text.getStyle().set("font-size", "34px");
 		confirmationText.getStyle().set("color", "green");
 		confirmationText.getStyle().set("font-size", "18px");
 		

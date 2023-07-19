@@ -30,6 +30,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
 @PageTitle("About")
@@ -94,11 +96,11 @@ public class AboutView extends VerticalLayout {
 		displayActionButtons.setIcon(new Icon(VaadinIcon.SLIDERS));
 		
 		
-		Button getUserGuide =  new Button("User Guide");
+		Button getUserGuide =  new Button(I18nProperties.getCaption(Captions.apmisaboutguides));
 		getUserGuide.setIcon(new Icon(VaadinIcon.NURSE));
 		getUserGuide.setVisible(false);
 		
-		Button getTechnicalGuide =  new Button("Technical Guide");
+		Button getTechnicalGuide =  new Button(I18nProperties.getCaption(Captions.abouttechguides));
 		getTechnicalGuide.setIcon(new Icon(VaadinIcon.DIPLOMA_SCROLL));
 		getTechnicalGuide.setVisible(false);
 		

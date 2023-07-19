@@ -16,6 +16,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 import com.vaadin.flow.component.textfield.IntegerField;
 
 
@@ -39,12 +42,12 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart");
-		grid.addColumn(CampaignDashboardElement::getTabId).setHeader("Tab ID");
-		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader("SubTab ID");
-		grid.addColumn(CampaignDashboardElement::getWidth).setHeader("Width");
-		grid.addColumn(CampaignDashboardElement::getHeight).setHeader("Height");
-		grid.addColumn(CampaignDashboardElement::getOrder).setHeader("Order");
+		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChart));
+		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName));
+		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName));
+		grid.addColumn(CampaignDashboardElement::getWidth).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
+		grid.addColumn(CampaignDashboardElement::getHeight).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
+		grid.addColumn(CampaignDashboardElement::getOrder).setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 		grid.setItems(savedElements);
 		
 		addClassName("list-view");
@@ -77,14 +80,14 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		 deleteButton.getStyle().set("background-color", "red!important");
 		 deleteButton.setTooltipText("Remove this form");
 	        
-	        Button saveButton = new Button("Save",
+	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
 	        
-	        Button cacleButton = new Button("Cancle",
+	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
-		charts.setLabel("Charts");
+		charts.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChart));
 		charts.setItems(allElements);
 		charts.setItemLabelGenerator(item -> getItemCaption(item));
 		// if its a clicked action set the value from the item....TODO
@@ -104,7 +107,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		
 		
 		ComboBox<String> tabID = new ComboBox<String>();
-		tabID.setLabel("Tab ID");
+		tabID.setLabel(I18nProperties.getCaption(Captions.campaignDashboardTabName));
 		tabID.setItems(tempListTabId);
 		tabID.setAllowCustomValue(true);
 		tabID.addCustomValueSetListener(e -> {
@@ -116,7 +119,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		
 		
 		ComboBox<String> subTabID = new ComboBox<String>();
-		subTabID.setLabel("SubTab ID");
+		subTabID.setLabel(I18nProperties.getCaption(Captions.campaignDashboardSubTabName));
 		subTabID.setItems(tempListSubTabId);
 		subTabID.setAllowCustomValue(true);
 		subTabID.addCustomValueSetListener(e -> {
@@ -128,7 +131,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		
 		
 		IntegerField tabWidth = new IntegerField();
-		tabWidth.setLabel("Width");
+		tabWidth.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
 		tabWidth.setMin(10);
 		tabWidth.setMax(100);
 		tabWidth.setStep(5);
@@ -136,14 +139,14 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		
 		
 		IntegerField tabHeight = new IntegerField();
-		tabHeight.setLabel("Height");
+		tabHeight.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		tabHeight.setMin(10);
 		tabHeight.setMax(100);
 		tabHeight.setStep(5);
 		tabHeight.setStepButtonsVisible(true);
 		
 		IntegerField tabOrder = new IntegerField();
-		tabOrder.setLabel("Order");
+		tabOrder.setLabel(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 		tabOrder.setMin(0);
 		tabOrder.setMax(100);
 		tabOrder.setStepButtonsVisible(true);
@@ -232,7 +235,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 					tabHeight.setValue(0);
 					tabOrder.setValue(0);
 			 }
-			 saveButton.setText("Save");
+			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			 
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
 			 

@@ -18,6 +18,8 @@ import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 
 public class CampaignFilterView extends VerticalLayout {
@@ -56,8 +58,8 @@ public class CampaignFilterView extends VerticalLayout {
 
 		});
 
-		searchField.setLabel("Search Campaign");
-		searchField.setPlaceholder("Search");
+		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		

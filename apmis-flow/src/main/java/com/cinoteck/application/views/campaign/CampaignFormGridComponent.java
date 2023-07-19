@@ -14,6 +14,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 import com.vaadin.flow.component.textfield.IntegerField;
 
 
@@ -71,10 +74,10 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		 deleteButton.getStyle().set("background-color", "red!important");
 		 deleteButton.setTooltipText("Remove this form");
 	        
-	        Button saveButton = new Button("Save",
+	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
 	        
-	        Button cacleButton = new Button("Cancle",
+	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();
@@ -149,7 +152,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			 try {
 				 forms.setValue(newcampform);
 			 }finally {
-				 saveButton.setText("Save");
+				 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 				 daysExpire.setValue(5);
 			 }
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
@@ -164,7 +167,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			 buttonAfterLay.setVisible(false);
 			 
 			 forms.setValue(newcampform);
-			 saveButton.setText("Save");
+			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			 daysExpire.setValue(0);
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 			 

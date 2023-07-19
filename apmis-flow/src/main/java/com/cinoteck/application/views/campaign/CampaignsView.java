@@ -35,6 +35,7 @@ import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
@@ -89,10 +90,10 @@ public class CampaignsView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CampaignIndexDto.NAME).setHeader("Name").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.Campaign_name)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.START_DATE).setHeader("Start Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.END_DATE).setHeader("End Date").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
 	
 		grid.setVisible(true);
@@ -155,7 +156,7 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 		searchField = new TextField();
-		searchField.setLabel("Search Campaign");
+		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		
@@ -212,7 +213,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("New Campaign");
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
 
 		dialog.setSizeFull();
 		dialog.open();
@@ -228,7 +229,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("Edit Campaign");
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit));
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);

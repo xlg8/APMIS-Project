@@ -25,6 +25,9 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.NavigationEvent;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 public class LoginFormInput extends VerticalLayout {
 
 	/**
@@ -49,10 +52,10 @@ public class LoginFormInput extends VerticalLayout {
 
 		// Create the UI components
 		username = new TextField();
-		username.setPlaceholder("Username");
+		username.setPlaceholder(I18nProperties.getCaption(Captions.User_userName));
 		username.setClassName("loginUsername");
 		username.setId("loginUsername");
-		username.setLabel("Username");
+		username.setLabel(I18nProperties.getCaption(Captions.User_userName));
 		username.getStyle().set("width", "100%");
 		username.getStyle().set("font-weight", "200");
 		username.getStyle().set("margin-bottom", "1.5em");
@@ -60,9 +63,9 @@ public class LoginFormInput extends VerticalLayout {
 		password = new PasswordField();
 		password.setRevealButtonVisible(false);
 		password.setClassName("loginUsername");
-		password.setLabel("Password");
+		password.setLabel(I18nProperties.getCaption(Captions.Login_password));
 		password.getStyle().set("width", "100%");
-		password.setPlaceholder("Password");
+		password.setPlaceholder(I18nProperties.getCaption(Captions.Login_password));
 		password.getStyle().set("font-weight", "200");
 		password.getStyle().set("margin-bottom", "1.5em");
 

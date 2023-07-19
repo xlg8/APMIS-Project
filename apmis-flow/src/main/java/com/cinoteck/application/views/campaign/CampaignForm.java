@@ -45,6 +45,7 @@ import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
@@ -84,15 +85,15 @@ public class CampaignForm extends VerticalLayout {
 	private CampaignDto campaignDto;
 	private CampaignIndexDto campaignDtox;
 
-	TextField campaignName = new TextField("Campaign name");
+	TextField campaignName = new TextField(I18nProperties.getCaption(Captions.Campaign_name));
 	ComboBox round = new ComboBox<>("Round");
-	DatePicker startDate = new DatePicker("Start date");
-	DatePicker endDate = new DatePicker("End date");
+	DatePicker startDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_startDate));
+	DatePicker endDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_endDate));
 	TextField creatingUser = new TextField("Creating User");
 	TextField creatingUuid = new TextField("UUID");
 	TextField campaaignYear = new TextField("Campaign Year");
 	UUID uuid = UUID.randomUUID();
-	TextArea description = new TextArea("Description");
+	TextArea description = new TextArea(I18nProperties.getCaption(Captions.description));
 
 	TreeGrid<CampaignTreeGridDto> treeGrid = new TreeGrid<>();
 
@@ -328,7 +329,7 @@ public class CampaignForm extends VerticalLayout {
 
 			treeGrid.setWidthFull();
 
-			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader("Location");
+			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader(I18nProperties.getCaption(Captions.Location));
 
 			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader("Population");
 
@@ -394,7 +395,7 @@ public class CampaignForm extends VerticalLayout {
 								.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
 					}
 
-					if (!e.getItem().getParentUuid().equals("Area")) {
+					if (!e.getItem().getParentUuid().equals(I18nProperties.getCaption(Captions.area))) {
 						// treeGrid.deselect(treeGrid.getTreeData().getParent(e.getItem()));
 					}
 
@@ -503,7 +504,7 @@ public class CampaignForm extends VerticalLayout {
 
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, lblIntroduction);// .setHorizontalComponentAlignment(lblIntroduction,
 
-		Button btnImport = new Button("Import");// , e -> {
+		Button btnImport = new Button(I18nProperties.getCaption("Import"));// , e -> {
 
 		btnImport.addClickListener(e -> {
 			ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(null, campaignDto);
@@ -550,7 +551,7 @@ public class CampaignForm extends VerticalLayout {
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		
 		saveChanges = new Button();
-		saveChanges.setText("Save");
+		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
 		saveChanges.getStyle().set("margin-inline-start", "auto");
 		saveChanges.addClickListener(e -> {
 			validateAndSave();
@@ -653,7 +654,7 @@ public class CampaignForm extends VerticalLayout {
 			Notification.show("Success!");
 			
 		} else {
-			Notification.show("error in vampaing form");
+			Notification.show("Error in Campaign form");
 		}
 	}
 
