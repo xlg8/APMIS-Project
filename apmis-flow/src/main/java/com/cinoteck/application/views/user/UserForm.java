@@ -18,7 +18,9 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -106,13 +108,19 @@ public class UserForm extends FormLayout {
 
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
-		Icon vaadinIcon = new Icon("lumo", "cross");
-		hor.setJustifyContentMode(JustifyContentMode.END);
-		hor.setWidthFull();
-		hor.add(vaadinIcon);
+		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT_O);
+		Span prefixText = new Span("All Users");
+		prefixText.setClassName("backButtonText");
+		HorizontalLayout layout = new HorizontalLayout( vaadinIcon, prefixText);
+		vaadinIcon.setClassName("backButton");
+		hor.setJustifyContentMode(JustifyContentMode.START);
+//		hor.setWidthFull();
+		hor.add(layout);
 		hor.setHeight("5px");
-		this.setColspan(hor, 2);
-//		vaadinIcon.addClickListener(event -> fireEvent(new CloseEvent(this)));
+		hor.setId("backLayout");
+		hor.getStyle().set("width", "none !important");
+//		this.setColspan(hor, 0);
+		layout.addClickListener(event -> fireEvent(new CloseEvent(this)));
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields();
@@ -234,9 +242,9 @@ public class UserForm extends FormLayout {
 	}
 
 	private void createButtonsLayout() {
-		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-		close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
 
 		save.addClickListener(event -> validateAndSave());
@@ -246,6 +254,7 @@ public class UserForm extends FormLayout {
 
 
 		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
+		horizontallayout.setJustifyContentMode(JustifyContentMode.END);
 		horizontallayout.setMargin(true);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
@@ -255,12 +264,10 @@ public class UserForm extends FormLayout {
 
 	private void validateAndSave() {
 		map.forEach((key, value) -> {
-			System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + key);
 			Component formField = map.get(key);
 			if (value instanceof TextField) {
 
 				TextField formFieldxx = (TextField) value;
-				System.out.println("Abstract field Valueeeeeeeeeeeeeee111111111111111" + formFieldxx.getValue());
 				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
 //				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
 				if (requiredValidation.isError()) {

@@ -144,9 +144,6 @@ public class CampaignDataView extends VerticalLayout {
 				importanceSwitcher, resetHandler);
 
 		
-
-		
-
 		displayFilters.addClickListener(e -> {
 			if (!level1Filters.isVisible()) {
 				actionButtonlayout.setVisible(true);

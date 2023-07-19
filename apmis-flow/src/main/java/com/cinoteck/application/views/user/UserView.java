@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -95,8 +96,8 @@ import de.symeda.sormas.api.utils.SortProperty;
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
 
-	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
-	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
+//	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
+//	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
 
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
@@ -119,9 +120,9 @@ public class UserView extends VerticalLayout {
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 			.collect(Collectors.toList());
-	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
+//	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
-//	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
 	UserForm form;
@@ -147,46 +148,9 @@ public class UserView extends VerticalLayout {
 	boolean isEditingMode;
 
 	public UserView() {
-//		filterDataProvider = usersDataProvider.withConfigurableFilter();
+		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
-		// {
-//
-//			Dialog dialog = new Dialog();
-//			dialog.setModal(true);
-//			dialog.addClassNames("dialog-alignment");
-//			dialog.setDraggable(true);
-//			dialog.setModal(false);
-//			dialog.setHeaderTitle("CREATE NEW USER");
-//
-//			FormLayout dialogLayout = createDialogLayout();
-//			dialog.add(dialogLayout);
-//
-//			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
-//			closeButton.getStyle().set("color", "green");
-//			dialog.getHeader().add(closeButton);
-//
-//			Button cancelButton = new Button("DISCARD CHANGES", e -> dialog.close());
-//			cancelButton.setHeightFull();
-//			Button saveButton = new Button("SAVE");
-//			saveButton.setHeightFull();
-//			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//
-//			dialog.getFooter().add(cancelButton, saveButton);
-////			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
-//			createUserButton.addClickListener(e -> {
-//				UserDto userDto = new UserDto();
-//				editUser(userDto);
-//			});
-//
-//			if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-//
-////				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
-////				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
-//				menuBar = new MenuBar();
-//			}
-//			searchField = new TextField();
-//		}
-		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+	if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			bulkModeButton = new Button("Enter Bulk Edit Mode");
 			leaveBulkModeButton = new Button();
 			menuBar = new MenuBar();
@@ -237,25 +201,25 @@ public class UserView extends VerticalLayout {
 		grid.setColumnReorderingAllowed(true);
 
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
-				.setResizable(true);
+				.setAutoWidth(true).setResizable(true);
 		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
-				.setResizable(true);
+				.setAutoWidth(true).setResizable(true);
 		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
-				.setResizable(true);
+				.setAutoWidth(true).setResizable(true);
 		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
-				.setResizable(true);
+				.setAutoWidth(true).setResizable(true);
 		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
-				.setResizable(true);
+				.setAutoWidth(true).setResizable(true);
 		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
-				.setSortable(true).setResizable(true);
+				.setAutoWidth(true).setSortable(true).setResizable(true);
 		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
-				.setSortable(true).setResizable(true);
+				.setAutoWidth(true).setSortable(true).setResizable(true);
 		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
-				.setSortable(true);
+				.setAutoWidth(true).setSortable(true);
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
-		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
 			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
@@ -264,17 +228,6 @@ public class UserView extends VerticalLayout {
 			return value;
 		});
 
-//		ValueProvider<UserDto, String> activeValueProvider = (input -> {
-//			boolean value = input.isActive();
-//			if (value == true) {
-//				String valuex = String.valueOf(input.isActive()).replace("true", "Active").replace("True", "Active");
-//			}
-//			else {
-//				String valuex = String.valueOf(input.isActive())
-//					.replace("false,", "Inactive").replace("False", "Inactive").replace("null", "Inactive");
-//			}
-//		return "";
-//		});
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -327,18 +280,21 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
-		setLazyDataProvider(); 
-//		grid.setDataProvider(filterDataProvider);
+		setLazyDataProvider();
+		grid.setDataProvider(filterDataProvider);
 
-		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
+//		grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
+
+		grid.addSelectionListener(event -> {
+			editUser(event.getFirstSelectedItem(), true);
+		});
 
 		return;
 
 	}
 
-	
-public void setLazyDataProvider() {
-		
+	public void setLazyDataProvider() {
+
 		System.out.println("sdafasdfasddfgsdfhsdfg");
 		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
 				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
@@ -347,24 +303,37 @@ public void setLazyDataProvider() {
 										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 												sortOrder.getDirection() == SortDirection.ASCENDING))
 										.collect(Collectors.toList()))
-						.stream()
-						, query -> {
+						.stream(), query -> {
 							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
 						});
 		System.out.println("sdafasdfasdfgasdgvasdfgsdfhsdfg " + dataProvider);
 		grid.setDataProvider(dataProvider);
 //		setSelectionMode(SelectionMode.NONE);
 	}
-	public void editUser(UserDto user, boolean isEdMode) {
-		isEditingMode = isEdMode;
-		if (user == null) {
-			form.setUser(user);
+//	public void editUser(UserDto user, boolean isEdMode) {
+//		isEditingMode = isEdMode;
+//		if (user == null) {
+//			form.setUser(user);
+//
+//			form.setVisible(true);
+//			form.setSizeFull();
+//			grid.setVisible(false);
+//			setFiltersVisible(false);
+//		} else {
+//			form.setUser(user);
+//			form.setVisible(true);
+//			form.setSizeFull();
+//			grid.setVisible(false);
+//			setFiltersVisible(false);
+//			addClassName("editing");
+//		}
+//	}
 
-			form.setVisible(true);
-			form.setSizeFull();
-			grid.setVisible(false);
-			setFiltersVisible(false);
-		} else {
+	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
+		UserDto user;
+		isEditingMode = isEdMode;
+		if (userr.isPresent()) {
+			user = userr.get();
 			form.setUser(user);
 			form.setVisible(true);
 			form.setSizeFull();
@@ -372,6 +341,17 @@ public void setLazyDataProvider() {
 			setFiltersVisible(false);
 			addClassName("editing");
 		}
+	}
+
+	public void editUser(boolean isEdMode) {
+		isEditingMode = isEdMode;
+
+		UserDto user = new UserDto();
+		form.setUser(user);
+		form.setVisible(true);
+		form.setSizeFull();
+		grid.setVisible(false);
+		setFiltersVisible(false);
 	}
 
 	private void configureForm(UserDto user) {
@@ -410,7 +390,8 @@ public void setLazyDataProvider() {
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
 			UserDto userDto = new UserDto();
-			editUser(userDto, false);
+//			editUser(userDto, false);
+			editUser(false);
 //			showNewUserForm(userDto);
 		});
 //
@@ -524,34 +505,34 @@ public void setLazyDataProvider() {
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-//		searchField.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				criteria.freeText(e.getValue());
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//			}
-//		});
+		searchField.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.freeText(e.getValue());
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+			}
+		});
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
 		activeFilter.setWidth(200, Unit.PIXELS);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-		activeFilter.setPlaceholder("Active");
+		activeFilter.setPlaceholder("active");
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
-		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
-//		activeFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue().equals(ACTIVE_FILTER)) {
-//				criteria.active(true);
-//			} else if (e.getValue().equals(INACTIVE_FILTER)) {
-//				criteria.active(false);
-//			}
-//
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//		});
+		activeFilter.setItems("Active", "Inactive");
+		activeFilter.addValueChangeListener(e -> {
+
+			if (e.getValue().equals("Active")) {
+				criteria.active(true);
+			} else if (e.getValue().equals("Inactive")) {
+				criteria.active(false);
+			}
+
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
 
 		filterLayout.add(activeFilter);
 
@@ -566,13 +547,13 @@ public void setLazyDataProvider() {
 		userRolesFilter
 				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 //		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
-//		userRolesFilter.addValueChangeListener(e -> {
-//
-//			UserRole userRole = e.getValue();
-//			criteria.userRole(userRole);
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//		});
+		userRolesFilter.addValueChangeListener(e -> {
+
+			UserRole userRole = e.getValue();
+			criteria.userRole(userRole);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+		});
 
 		filterLayout.add(userRolesFilter);
 
@@ -594,33 +575,33 @@ public void setLazyDataProvider() {
 							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
 				}
 			}
-//			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
 			areaFilter.setEnabled(false);
 
 		}
 
-//		areaFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				AreaReferenceDto area = e.getValue();
-//				regionFilter.clear();
-//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-//				regionFilter.setItems(provinces);
-//				criteria.area(area);
-//				regionFilter.setReadOnly(false);
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//				criteria.district(null);
-//			} else {
-//				regionFilter.clear();
-//				regionFilter.setReadOnly(true);
-////				AreaReferenceDto area = new AreaReferenceDto();
-//				criteria.area(null);
-//
-//			}
-////			filterDataProvider.setFilter(criteria);
-//		});
+		areaFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				AreaReferenceDto area = e.getValue();
+				regionFilter.clear();
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				regionFilter.setItems(provinces);
+				criteria.area(area);
+				regionFilter.setReadOnly(false);
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+				criteria.district(null);
+			} else {
+				regionFilter.clear();
+				regionFilter.setReadOnly(true);
+//				AreaReferenceDto area = new AreaReferenceDto();
+				criteria.area(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
 
 		filterLayout.add(areaFilter);
 
@@ -644,7 +625,7 @@ public void setLazyDataProvider() {
 							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
 				}
 			}
-//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			regionFilter.setEnabled(false);
 		} else if (userProvider.getUser().getRegion() == null) {
 //				regionFilter.clear();
@@ -652,24 +633,24 @@ public void setLazyDataProvider() {
 
 		}
 
-//		regionFilter.addValueChangeListener(e -> {
-//			if (e.getValue() != null) {
-//				RegionReferenceDto region = e.getValue();
-//				districtFilter.clear();
-//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-//				districtFilter.setItems(districts);
-//				criteria.region(region);
-//
-//				districtFilter.setReadOnly(false);
-//				criteria.district(null);
-//			} else {
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//
-//			}
-//			filterDataProvider.setFilter(criteria);
-//		});
+		regionFilter.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				RegionReferenceDto region = e.getValue();
+				districtFilter.clear();
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districtFilter.setItems(districts);
+				criteria.region(region);
+
+				districtFilter.setReadOnly(false);
+				criteria.district(null);
+			} else {
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+		});
 
 		filterLayout.add(regionFilter);
 
@@ -687,24 +668,24 @@ public void setLazyDataProvider() {
 
 			districtFilter.setValue(userProvider.getUser().getDistrict());
 
-//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
 			districtFilter.setEnabled(false);
 
 		}
-//		districtFilter.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//				DistrictReferenceDto district = e.getValue();
-//				criteria.district(district);
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//			} else {
-//				criteria.district(null);
-//				filterDataProvider.setFilter(criteria);
-//				filterDataProvider.refreshAll();
-//
-//			}
-//		});
+		districtFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				DistrictReferenceDto district = e.getValue();
+				criteria.district(district);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+			} else {
+				criteria.district(null);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+
+			}
+		});
 
 		filterLayout.add(districtFilter);
 
@@ -751,14 +732,15 @@ public void setLazyDataProvider() {
 		exportUsersButton.setVisible(state);
 		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
+		anchor.setVisible(state);
 		searchField.setVisible(state);
 		activeFilter.setVisible(state);
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-		;
+		
 		districtFilter.setVisible(state);
-		;
+	
 //		displayFilters.setVisible(state);
 	}
 
@@ -801,8 +783,6 @@ public void setLazyDataProvider() {
 		// updateList();
 		closeEditor();
 	}
-	
-
 
 	public void makeInitialPassword(String userUuid, String userEmail, String userName) {
 		if (StringUtils.isBlank(userEmail)
@@ -812,22 +792,23 @@ public void setLazyDataProvider() {
 			Dialog newUserPop = new Dialog();
 			newUserPop.setClassName("passwordsDialog");
 			VerticalLayout infoLayout = new VerticalLayout();
-			
+
 			newUserPop.setHeaderTitle("New User Password");
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
 			H3 username = new H3("Username : " + userName);
 			username.getStyle().set("color", "#0D6938");
-			
+
 			H3 password = new H3("Password : " + newPassword);
 			password.getStyle().set("color", "#0D6938");
-					
-			infoLayout.add(username,password);
-			
+
+			infoLayout.add(username, password);
+
 			newUserPop.add(infoLayout);
-			
+
 			newUserPop.setOpened(true);
 		}
 //		else {

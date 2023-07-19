@@ -132,7 +132,7 @@ public class AbstractImportLayout extends VerticalLayout {
 		separator = comboBox;
 		return comboBox;
 	}
-
+//The import failed due to a critical error
 	protected void addImportCsvComponentWithOverwrite(int step, Function<Boolean, ImportReceiver> receiverGenerator) {
 		String headline = I18nProperties.getString(Strings.headingImportCsvFile);
 		String infoText = I18nProperties.getString(Strings.infoImportCsvFile);

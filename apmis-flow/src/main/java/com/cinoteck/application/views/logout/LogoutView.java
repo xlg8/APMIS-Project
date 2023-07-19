@@ -42,20 +42,20 @@ public class LogoutView extends VerticalLayout {
 
 		Div aboutText = new Div();
 		
-		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
-		Paragraph confirmationText = new Paragraph("Are you sure you want to logout?");
+//		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
+		Paragraph text = new Paragraph("Are you sure you want to logout?");
 		
 		
 		text.getStyle().set("color", "black");
 		text.getStyle().set("font-size", "24px");
-		confirmationText.getStyle().set("color", "green");
-		confirmationText.getStyle().set("font-size", "18px");
+//		confirmationText.getStyle().set("color", "green");
+//		confirmationText.getStyle().set("font-size", "18px");
 		
 		
 		aboutText.getStyle().set("display", "flex");
 		aboutText.getStyle().set("flex-direction", "column");
 		aboutText.getStyle().set("align-items", "center");
-		aboutText.add(text, confirmationText);
+		aboutText.add(text);
 
 		Div logoutButtons = new Div();
 		logoutButtons.getStyle().set("display", "flex");

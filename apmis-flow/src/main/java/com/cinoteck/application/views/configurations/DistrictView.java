@@ -51,7 +51,7 @@ public class DistrictView extends VerticalLayout {
 	private static final long serialVersionUID = 1370022184569877189L;
 
 	DistrictCriteria criteria;
-
+	DistrictIndexDto districtIndexDto;
 	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
 
 	ConfigurableFilterDataProvider<DistrictIndexDto, Void, DistrictCriteria> filteredDataProvider;
@@ -184,15 +184,8 @@ public class DistrictView extends VerticalLayout {
 			resetFilters.setVisible(true);
 		});
 
-		resetFilters.addClassName("resetButton");
-		resetFilters.setVisible(false);
-		layout.add(resetFilters);
-		resetFilters.addClickListener(e -> {
-
-		});
-
+		
 		riskFilter.setItems("Low Risk (LR)", "Medium Risk (MR)", "High Risk (HR)");
-
 		riskFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -206,7 +199,6 @@ public class DistrictView extends VerticalLayout {
 		layout.add(riskFilter);
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
-
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
 				return I18nProperties.getCaption(Captions.districtArchivedDistricts);
@@ -218,13 +210,27 @@ public class DistrictView extends VerticalLayout {
 			// Handle other enum values if needed
 			return status.toString();
 		});
-
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
 			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
 		});
-
 		layout.add(relevanceStatusFilter);
+		
+		resetFilters.addClassName("resetButton");
+		resetFilters.setVisible(false);
+		resetFilters.addClickListener(e -> {
+
+		});
+//		layout.add(resetFilters);
+		
+		Button addNew = new Button("Add New Province");
+		addNew.getElement().getStyle().set("white-space", "normal");
+		addNew.getStyle().set("color", "white");
+		addNew.getStyle().set("background", "#0D6938");
+		addNew.addClickListener(event -> {
+			createOrEditDistrict(districtIndexDto);
+		});
+		layout.add(addNew);
 
 		vlayout.add(displayFilters, layout);
 		add(vlayout);
@@ -238,16 +244,21 @@ public class DistrictView extends VerticalLayout {
 	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
+		
 		TextField nameField = new TextField("Name");
 		nameField.setValue(districtIndexDto.getName());
 		TextField dCodeField = new TextField("DCode");
 		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
+//		areaField.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		
 		provinceOfDistrict.setItems(districtIndexDto.getRegion());
 		provinceOfDistrict.setValue(districtIndexDto.getRegion());
 		provinceOfDistrict.isReadOnly();
 		provinceOfDistrict.setEnabled(false);
+		
 		ComboBox<String> risk = new ComboBox<>("Risk");
 		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
+		
 		// this can generate null
 		dCodeField.setValue(districtIndexDto.getExternalId().toString());
 		dialog.setCloseOnEsc(false);

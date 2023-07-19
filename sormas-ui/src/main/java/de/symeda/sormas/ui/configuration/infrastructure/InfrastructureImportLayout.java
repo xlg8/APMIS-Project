@@ -285,7 +285,7 @@ public class InfrastructureImportLayout extends AbstractImportLayout {
 				} catch (IOException | CsvValidationException e) {
 					new Notification(
 						I18nProperties.getString(Strings.headingImportFailed),
-						I18nProperties.getString(Strings.messageImportFailed),
+						I18nProperties.getString(Strings.messageImportFailed ),
 						Type.ERROR_MESSAGE,
 						false).show(Page.getCurrent());
 				}

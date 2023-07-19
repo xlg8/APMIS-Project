@@ -22,6 +22,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -31,13 +32,9 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.StreamResource;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
-import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.user.UserDto;
-
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.List;
@@ -53,29 +50,40 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private AreaCriteria criteria;
 
-	GridListDataView<AreaDto> dataView;
+	private GridListDataView<AreaDto> dataView;
 	final static TextField regionField = new TextField("Region");
 	final static TextField rcodeField = new TextField("RCode");
 	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
-	Grid<AreaDto> grid;
+	Grid<AreaDto> grid = new Grid<>(AreaDto.class, false);;
 	private Button saveButton;
+	private Button archiveDearchive;
 
 	private Button createNewArea;
-	ComboBox<String> relevanceStatusFilter = new ComboBox<>();
+	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>();
 
 	HorizontalLayout layout = new HorizontalLayout();
 	AreaDto areaDto;
 	Anchor link;
+	TextField searchField;
+	Button clear;
 
 	public RegionView() {
+		setSpacing(false);
+		setHeightFull();
+		addRegionFilter();
+		regionGrid();
+
+	}
+
+	private void regionGrid() {
+//		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE); Archive
+
 		this.criteria = new AreaCriteria();
 		setSpacing(false);
 
-		addRegionFilter();
-
 		setMargin(false);
 		setSizeFull();
-		grid = new Grid<>(AreaDto.class, false);
+
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -83,15 +91,21 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true);
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true)
 				.setAutoWidth(true);
-	
+
 		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
 		grid.setAllRowsVisible(true);
 //		List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 
-		List<AreaDto> regions = FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null);
-		this.dataView = grid.setItems(regions);
+//		List<AreaDto> regions = FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null);
+//		this.dataView = grid.setItems(regions);
+		if (criteria.getRelevanceStatus() == null) {
+			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+		}
+		ListDataProvider<AreaDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
 
+		dataView = grid.setItems(dataProvider);
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
@@ -100,11 +114,12 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		add(grid);
 		exportArea();
-//		grid.asSingleSelect().addValueChangeListener(event -> {
-//			if (event.getValue() != null) {
-//				createOrEditArea(event.getValue());
-//			}
-//		});
+	}
+
+	private void refreshGridData() {
+		ListDataProvider<AreaDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+		dataView = grid.setItems(dataProvider);
 	}
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
@@ -156,10 +171,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 			});
 			saveButton = new Button("Save");
+			archiveDearchive = new Button("Archive");
 
 			saveButton.addClickListener(event -> saveArea(areaDto));
 
-			add(saveButton);
+			add(archiveDearchive, saveButton);
 		}
 	}
 
@@ -206,7 +222,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		binder.setBean(areaDto);
 	}
 
-	public void addRegionFilter() {
+	private void addRegionFilter() {
 		setMargin(true);
 		layout.setPadding(false);
 		layout.setVisible(false);
@@ -234,9 +250,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.setAlignItems(Alignment.END);
 
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
-		searchIcon.getStyle().set("color", "green !important");
+		searchIcon.getStyle().set("color", "#0D6938 !important");
 
-		TextField searchField = new TextField();
+		searchField = new TextField();
 
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(searchIcon);
@@ -253,55 +269,74 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			boolean matchesDistrictName = String.valueOf(search.getName()).toLowerCase()
 					.contains(searchTerm.toLowerCase());
 
-			return matchesDistrictName;
+			boolean matchesDistrictNumber = String.valueOf(search.getExternalId()).toLowerCase()
+					.contains(searchTerm.toLowerCase());
+
+			return matchesDistrictName || matchesDistrictNumber;
 
 		}));
 
-		Button clear = new Button("Clear Search");
+		clear = new Button("Clear Search");
 		clear.getStyle().set("color", "white");
-		clear.getStyle().set("background", "#0C5830");
+		clear.getStyle().set("background", "#0D6938");
 		clear.addClickListener(e -> {
 			searchField.clear();
 
 		});
 
 		Button addNew = new Button("Add New Region");
+		addNew.getElement().getStyle().set("white-space", "normal");
 		addNew.getStyle().set("color", "white");
-		addNew.getStyle().set("background", "#0C5830");
+		addNew.getStyle().set("background", "#0D6938");
 		addNew.addClickListener(event -> {
 			createOrEditArea(areaDto);
 		});
 
 		Button importArea = new Button("Import");
 		importArea.getStyle().set("color", "white");
-		importArea.getStyle().set("background", "#0C5830");
+		importArea.getStyle().set("background", "#0D6938");
 		importArea.addClickListener(event -> {
 
 		});
 
 //		ListDataProvider<AreaDto> dataProvider = (ListDataProvider<AreaDto>) grid.getDataProvider();
 //		this.criteria = new AreaCriteria();
-		relevanceStatusFilter.setItems(EntityRelevanceStatus.values().toString());
-		relevanceStatusFilter.setValue("Active");
-		if (relevanceStatusFilter.getValue() == "Active") {
-			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-		}else {
-			System.out.println("khvkhvhkvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
-		}
-		
-		
+//		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
+//		relevanceStatusFilter.setLabel("Campaign Status");
+//		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
+//
+////		relevanceStatusFilter.setItems(EntityRelevanceStatus.values().toString());
+//		relevanceStatusFilter.setValue(EntityRelevanceStatus.ACTIVE);
+//		if (relevanceStatusFilter.getValue() == EntityRelevanceStatus.ACTIVE) {
+//			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+//			refreshGridData();
+//		}
+//		
+//		relevanceStatusFilter.addValueChangeListener(e -> {
+////			dataView.removeFilters();
+//			if (relevanceStatusFilter.getValue().toString() == "Archived Regions") {
+//				criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
+//				refreshGridData();
+////			 dataView.addFilter(t -> t.isArchived());
+//			} else if (relevanceStatusFilter.getValue().toString() == "Active") {
+//				criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+//				refreshGridData();
+////			 dataView.addFilter(t -> !t.isArchived());
+//			} else if (relevanceStatusFilter.getValue().toString() == "All Regions") {
+//				criteria.relevanceStatus(EntityRelevanceStatus.ALL);
+//				refreshGridData();
+////			 dataView.removeFilters();
+//			}
+//
+//		});
+
+		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
+		relevanceStatusFilter.setLabel("Campaign Status");
+		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			dataView.removeFilters();
-			if (relevanceStatusFilter.getValue().toString() == "Archived Regions") {
-				criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
-			 dataView.addFilter(t -> t.isArchived());
-			} else if (relevanceStatusFilter.getValue().toString() == "Active") {
-				criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-			 dataView.addFilter(t -> !t.isArchived());
-			} else if (relevanceStatusFilter.getValue().toString() == "All Regions") {
-				criteria.relevanceStatus(EntityRelevanceStatus.ALL);
-			 dataView.removeFilters();
-			}
+
+			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+			refreshGridData();
 
 		});
 
@@ -327,6 +362,18 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
+//		Button archiveButton = new Button("Archive");
+//
+//
+//		archiveButton.addClickListener(archiveEvent -> {
+//			String uuids = "";
+//			if (areaDto != null) {
+//				uuids = areaDto.getUuid_();
+//				FacadeProvider.getAreaFacade().archive(uuids);
+//			} else if (areaDto != null && (isArchived == true)) {
+//				FacadeProvider.getAreaFacade().dearchive(uuids);
+//			}
+//		});
 		Button saveButton = new Button("Save");
 		Button discardButton = new Button("Discard", e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
@@ -380,7 +427,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		}
 		dialog.add(fmr);
-		dialog.getFooter().add(discardButton, saveButton);
+		dialog.getFooter().add( discardButton, saveButton);
 
 //         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 // 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");

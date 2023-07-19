@@ -74,7 +74,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	        Button saveButton = new Button("Save",
 	                new Icon(VaadinIcon.CHECK));
 	        
-	        Button cacleButton = new Button("Cancle",
+	        Button cacleButton = new Button("Cancel",
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();

@@ -39,9 +39,9 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart");
-		grid.addColumn(CampaignDashboardElement::getTabId).setHeader("Tab ID");
-		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader("SubTab ID");
+		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart").setAutoWidth(true).setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getTabId).setHeader("Tab ID").setAutoWidth(true).setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader("SubTab ID").setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth).setHeader("Width");
 		grid.addColumn(CampaignDashboardElement::getHeight).setHeader("Height");
 		grid.addColumn(CampaignDashboardElement::getOrder).setHeader("Order");
@@ -80,7 +80,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 	        Button saveButton = new Button("Save",
 	                new Icon(VaadinIcon.CHECK));
 	        
-	        Button cacleButton = new Button("Cancle",
+	        Button cacleButton = new Button("Cancel",
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();

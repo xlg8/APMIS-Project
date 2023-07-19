@@ -24,6 +24,9 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer)
 	display: none !important;
 }
 
+#tabsheetParent vaadin-tabs{
+	background: rgb(67, 67, 67) !important;
+}
 vaadin-drawer-toggle[slot="navbar"] {
 	color: white;
 }
@@ -463,6 +466,10 @@ vcf-nav-item::part(item) {
 	color: #0D6938 !important;
 }
 
+vaadin-button {
+	min-width: auto !important;
+}
+
 vcf-nav-item[active]::part(item) {
 	border-inline-start-color: var(- -lumo-primary-color);
 	color: white !important;
@@ -564,4 +571,19 @@ vaadin-horizontal-layout[fcgh-footer] {
 :host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
     color: white;
     background: none!important;
+}
+
+.backButtonText{
+	color: #0D6938 !important;
+	font-weight: 600;
+}
+
+.backButton{
+	color: #0D6938 !important;
+	
+}
+
+#backLayout{
+	width: none !important;
+	justify-content: flex-start;
 }

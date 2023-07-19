@@ -27,7 +27,7 @@ public class ClusterEditForm extends HorizontalLayout{
 		dialog.add();
 		dialog.setSizeFull();
 		
-		Button deleteButton = new Button("Cancle", (e) -> dialog.close());
+		Button deleteButton = new Button("Cancel", (e) -> dialog.close());
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 		        ButtonVariant.LUMO_TERTIARY);
 		deleteButton.getStyle().set("margin-right", "auto");
