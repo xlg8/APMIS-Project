@@ -41,6 +41,7 @@ import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -80,11 +81,11 @@ public class ClusterView extends Div {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CommunityDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(CommunityDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(CommunityDto::getDistrict).setHeader("District").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getDistrictexternalId).setHeader("DCode").setResizable(true).setSortable(true);
 		grid.addColumn(CommunityDto::getName).setHeader("Cluster").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getExternalId).setHeader("CCode").setResizable(true).setSortable(true);
@@ -131,14 +132,14 @@ public class ClusterView extends Div {
 		layout.setPadding(false);
 
 		TextField searchField = new TextField();
-		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
-		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
+		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		Button resetFilters = new Button("Reset Filters");
 		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
 
 		searchField.addClassName("filterBar");
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938");
 		searchField.setPrefixComponent(searchIcon);
@@ -146,7 +147,7 @@ public class ClusterView extends Div {
 		searchField.setWidth("25%");
 		layout.add(searchField);
 
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
@@ -170,7 +171,7 @@ public class ClusterView extends Div {
 		}
 		layout.add(provinceFilter);
 
-		districtFilter.setPlaceholder("All Districts");
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getDistrict() != null) {
 			districtFilter.setValue(currentUser.getUser().getDistrict());
@@ -246,9 +247,9 @@ public class ClusterView extends Div {
 	public boolean createOrEditCluster(CommunityDto communityDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField("Name");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 		nameField.setValue(communityDto.getName());
-		TextField clusterNumber = new TextField("Cluster Number");
+		TextField clusterNumber = new TextField(I18nProperties.getCaption(Captions.clusterNumber));
 		nameField.setValue(communityDto.getName());
 		TextField cCodeField = new TextField("CCode");
 		cCodeField.setValue(communityDto.getExternalId().toString());
@@ -256,7 +257,7 @@ public class ClusterView extends Div {
 		provinceOfDistrict.setItems(communityDto.getRegion());
 		provinceOfDistrict.setValue(communityDto.getRegion());
 		provinceOfDistrict.setEnabled(false);
-		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>("District");
+		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		districtOfCluster.setItems(communityDto.getDistrict());
 		districtOfCluster.setValue(communityDto.getDistrict());
 		districtOfCluster.setEnabled(false);
@@ -264,8 +265,8 @@ public class ClusterView extends Div {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 
@@ -299,7 +300,7 @@ public class ClusterView extends Div {
 
 		});
 
-		dialog.setHeaderTitle("Edit " + communityDto.getName());
+		dialog.setHeaderTitle(I18nProperties.getString(Strings.edit) + communityDto.getName());
 		fmr.add(nameField, cCodeField, clusterNumber, provinceOfDistrict, districtOfCluster);
 		dialog.add(fmr);
 		dialog.getFooter().add(discardButton, saveButton);

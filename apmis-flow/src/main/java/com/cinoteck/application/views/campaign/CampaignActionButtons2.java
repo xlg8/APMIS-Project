@@ -7,6 +7,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 public class CampaignActionButtons2 extends HorizontalLayout {
 	Anchor archiveDearchive = new Anchor("Archive");
 	Button saveandcontinue;
@@ -24,11 +27,11 @@ public class CampaignActionButtons2 extends HorizontalLayout {
 
 		
 		discardChanges = new Button();
-		discardChanges.setText("Discard Changes");
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscardChanges));
 //		discardChanges.addClickListener(e->{ dialog.close();});
 		
 		saveChanges = new Button();
-		saveChanges.setText("Save");
+		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
 		saveChanges.addClickListener(e-> Notification.show("Campaign Data Saved", 2, Position.MIDDLE));
 		
 //		 setVerticalComponentAlignment(Alignment.END, discardChanges, saveChanges);

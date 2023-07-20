@@ -17,6 +17,8 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -48,7 +50,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		
-		Button deleteButton =new Button("Cancle", (e) -> dialog.close());
+		Button deleteButton =new Button(I18nProperties.getCaption(Captions.actionCancel), (e) -> dialog.close());
 		deleteButton.setIcon(new Icon(VaadinIcon.REFRESH));
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 		        ButtonVariant.LUMO_CONTRAST);
@@ -58,7 +60,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		deleteButton.getStyle().set("margin-right", "auto");
 		dialog.getFooter().add(deleteButton);
 
-		Button saveButton = new Button("Save Data");//, (e) -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSaveChanges));//, (e) -> dialog.close());
 		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
 //		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 //		        ButtonVariant.LUMO_SUCCESS);
@@ -83,12 +85,12 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
         dialog.add("Are you sure you want to save the data?");
 
-        Button confirmButton = new Button("Confirm", event -> {
+        Button confirmButton = new Button(I18nProperties.getCaption(Captions.actionConfirm), event -> {
             // Perform save operation
             dialog.close();
         });
 
-        Button cancelButton = new Button("Cancel", event -> dialog.close());
+        Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> dialog.close());
 
         dialog.add(confirmButton, cancelButton);
         dialog.open();

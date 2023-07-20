@@ -21,7 +21,7 @@ public class CampaignActionButtons extends HorizontalLayout {
 	public CampaignActionButtons() {
 		setWidthFull();
 		openCloseCampaign = new Button();
-		openCloseCampaign.setText("Open Campaign");
+		openCloseCampaign.setText(I18nProperties.getCaption(Captions.Campaign_open));
 		duplicateCampaign = new Button();
 		duplicateCampaign.setText("Duplicate");
 		deleteCampaign = new Button();
@@ -30,7 +30,7 @@ public class CampaignActionButtons extends HorizontalLayout {
 		publishUnpublishCampaign = new Button();
 		publishUnpublishCampaign.setText("Publish Campaign");
 		discardChanges = new Button();
-		discardChanges.setText("Discard Changes");
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscardChanges));
 		saveChanges = new Button();
 		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
 		
