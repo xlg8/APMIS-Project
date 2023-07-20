@@ -329,7 +329,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 
 	@Override
 	public String getSormasInstanceName() {
-		return isCustomBranding() ? getCustomBrandingName() : "SORMAS";
+		return isCustomBranding() ? getCustomBrandingName() : "APMIS";
 	}
 	
 	@Override

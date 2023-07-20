@@ -410,14 +410,14 @@ System.out.println("YESSSS");
 		importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.DISTRICT, DistrictReferenceDto.class, separator));
 		//importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.COMMUNITY, CommunityReferenceDto.class, separator));
 		//adding cluster no to import data
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.COMMUNITY_EXTID, Integer.class, separator));
+		//importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.COMMUNITY_EXTID, Integer.class, separator));
 		importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.CAMPAIGN, CampaignReferenceDto.class, separator));
 		
-		importColumns.add(ImportColumn.from(RegionDto.class, RegionDto.GROWTH_RATE, Float.class, separator));
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL", Integer.class, separator));
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, "MALE_TOTAL", Integer.class, separator));
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, "FEMALE_TOTAL", Integer.class, separator));
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, "OTHER_TOTAL", Integer.class, separator));
+	//	importColumns.add(ImportColumn.from(RegionDto.class, RegionDto.GROWTH_RATE, Float.class, separator));
+		//importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL", Integer.class, separator));
+	//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "MALE_TOTAL", Integer.class, separator));
+	//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "FEMALE_TOTAL", Integer.class, separator));
+		//importColumns.add(ImportColumn.from(PopulationDataDto.class, "OTHER_TOTAL", Integer.class, separator));
 		//for (AgeGroup ageGroup : AgeGroup.values()) {
 			importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL_AGE_0_4", Integer.class, separator));
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "MALE_" + ageGroup.name(), Integer.class, separator));

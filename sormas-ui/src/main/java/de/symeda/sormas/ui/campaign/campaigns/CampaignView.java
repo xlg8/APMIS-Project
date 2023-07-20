@@ -29,7 +29,7 @@ public class CampaignView extends AbstractDetailView<CampaignReferenceDto> {
 	}
 
 	@Override
-	public void enter(ViewChangeListener.ViewChangeEvent event) {
+	public void enter(ViewChangeListener.ViewChangeEvent event) {//sormas_import
 
 		super.enter(event);
 		initOrRedirect(event);
