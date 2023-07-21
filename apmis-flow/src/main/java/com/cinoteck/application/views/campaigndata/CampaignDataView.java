@@ -28,6 +28,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -55,7 +56,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Campaign Data")
+@PageTitle("APMIS-Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
 public class CampaignDataView extends VerticalLayout {
 
@@ -87,7 +88,7 @@ public class CampaignDataView extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
-
+	Anchor anchor = new Anchor("", "Export");
 	
 	UserProvider userProvider = new UserProvider();
 
@@ -134,7 +135,7 @@ public class CampaignDataView extends VerticalLayout {
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
-		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData);
+		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData, anchor);
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
@@ -144,9 +145,6 @@ public class CampaignDataView extends VerticalLayout {
 				importanceSwitcher, resetHandler);
 
 		
-
-		
-
 		displayFilters.addClickListener(e -> {
 			if (!level1Filters.isVisible()) {
 				actionButtonlayout.setVisible(true);
@@ -448,21 +446,21 @@ public class CampaignDataView extends VerticalLayout {
 		
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true);//.setFooter(String.format("Row Count: %s", (int) FacadeProvider.getCampaignFormDataFacade().count(criteria)));
-		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader("DCode").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true).setAutoWidth(true);//.setFooter(String.format("Row Count: %s", (int) FacadeProvider.getCampaignFormDataFacade().count(criteria)));
+		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Province").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader("DCode").setSortable(true).setResizable(true).setAutoWidth(true);
 		Column<CampaignFormDataIndexDto> comm = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader("Cluster")
-				.setSortable(true).setResizable(true);
+				.setSortable(true).setResizable(true).setAutoWidth(true);
 		grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER).setHeader("Cluster Number").setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true);
+				.setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true).setAutoWidth(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -486,12 +484,25 @@ public class CampaignDataView extends VerticalLayout {
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
 //	    exporter.setExportValue(comm, item -> "" + item);
 //	    exporter.setColumnPosition(lastNameCol, 1);
+		exporter.setAutoAttachExportButtons(false);
+
 		exporter.setTitle("Campaign Data information"); 
 		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
-		exporter.setCsvExportEnabled(true);
-		exporter.setPdfExportEnabled(false);
-		exporter.setExcelExportEnabled(false);
-		exporter.setDocxExportEnabled(false);
+//		exporter.setCsvExportEnabled(true);
+//		exporter.setPdfExportEnabled(false);
+//		exporter.setExcelExportEnabled(false);
+//		exporter.setDocxExportEnabled(false);
+		
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
+
 //grid.getFooterRows().get(0).
 //		grid.appendFooterRow();
 		add(grid);

@@ -40,7 +40,6 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaReferenceDto::getCaption).setHeader("Form Name");
 		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired).setHeader("Expiry");
 		grid.setItems(savedCampaignFormMetas);
-		
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
@@ -51,13 +50,14 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(grid, formx);
 		content.setFlexGrow(4, grid);
-		content.setFlexGrow(1, formx);
+		content.setFlexGrow(0, formx);
 		content.addClassNames("content");
 		content.setSizeFull();
 		return content;
 	}
 
 	private VerticalLayout editorForm() {
+		
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
 		
@@ -74,7 +74,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	        Button saveButton = new Button("Save",
 	                new Icon(VaadinIcon.CHECK));
 	        
-	        Button cacleButton = new Button("Cancle",
+	        Button cacleButton = new Button("Cancel",
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();
@@ -153,7 +153,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				 daysExpire.setValue(5);
 			 }
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 
+			 grid.setHeight("auto !important");
 			 
 		 });
 		 
@@ -167,11 +167,11 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			 saveButton.setText("Save");
 			 daysExpire.setValue(0);
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 
+			 grid.setHeight("");
 		 });
 		 
 		 
-		 saveButton.addClickListener(e->{
+		 saveButton.addClickListener(e->{ 
 			 
 			 if(((Button) e.getSource()).getText().equals("Save")) {
 				 CampaignFormMetaReferenceDto newCampForm = forms.getValue();
@@ -197,6 +197,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					 Notification.show("Please select a form before you update");
 				 }
 			 }
+			 grid.setHeight("");
 		 });
 		 
 		 

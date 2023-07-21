@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 import org.springframework.core.io.ByteArrayResource;
 
 
-@PageTitle("Configurations")
+@PageTitle("APMIS-Configurations")
 @Route(value = "configurations", layout = MainLayout.class)
 public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
@@ -171,7 +171,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         });
         configActionLayout.add(displayActionButtons);
 
-        campDatFill.add(tabs, configActionLayout);
+        campDatFill.add(tabs);//, configActionLayout);
 
         add(campDatFill, contentContainer);
     }

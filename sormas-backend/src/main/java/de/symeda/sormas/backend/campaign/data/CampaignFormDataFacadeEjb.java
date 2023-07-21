@@ -192,6 +192,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		CampaignFormDataDto target = new CampaignFormDataDto();
 		DtoHelper.fillDto(target, source);
 
+		
 		target.setFormValues(source.getFormValues());
 		target.setCampaign(CampaignFacadeEjb.toReferenceDto(source.getCampaign()));
 		target.setCampaignFormMeta(CampaignFormMetaFacadeEjb.toReferenceDto(source.getCampaignFormMeta()));
@@ -897,6 +898,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		}else if (grouping == CampaignJurisdictionLevel.AREA && area == null) {
 			List<Area> areas = areaService.getAll();
 			populationx = 0;
+			List<CampaignDiagramDataDto> resultDatax = new ArrayList<>();
 			areas.forEach(areaItem -> {
 				
 				populationx = populationx + populationDataFacadeEjb.getAreaPopulationParent(areaItem.getUuid(),
@@ -913,7 +915,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				}
 			});
 			
-			resultData.add(resultData.get(resultData.size() - 1));
+			if(resultDatax.size() > 1) {
+				resultData.add(resultDatax.get(resultDatax.size() - 1));
+				}
 			
 			//System.out.println(resultData.size());
 		} else if (region != null && district == null) {
