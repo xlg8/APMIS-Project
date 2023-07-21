@@ -1,5 +1,6 @@
 package com.cinoteck.application.views.configurations;
 
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -37,6 +38,8 @@ import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -60,8 +63,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private Button createNewArea;
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>();
+	Anchor anchor = new Anchor("", "Export");
 
 	HorizontalLayout layout = new HorizontalLayout();
+	HorizontalLayout relevancelayout = new HorizontalLayout();
 	AreaDto areaDto;
 	Anchor link;
 	TextField searchField;
@@ -113,7 +118,23 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		});
 
 		add(grid);
-		exportArea();
+		
+		GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+		exporter.setTitle("Users");
+		exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+		
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("exportArea");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
+
+//		exportArea();
 	}
 
 	private void refreshGridData() {
@@ -227,6 +248,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
+		
+		
+		relevancelayout.setPadding(false);
+		relevancelayout.setVisible(false);
+		relevancelayout.setAlignItems(Alignment.END);
+		relevancelayout.setJustifyContentMode(JustifyContentMode.END );
+		relevancelayout.setWidth("54%");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -238,9 +266,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
+				relevancelayout.setVisible(true);
 				displayFilters.setText("Hide Filters");
 			} else {
 				layout.setVisible(false);
+				relevancelayout.setVisible(false);
 				displayFilters.setText("Show Filters");
 			}
 		});
@@ -299,36 +329,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 
-//		ListDataProvider<AreaDto> dataProvider = (ListDataProvider<AreaDto>) grid.getDataProvider();
-//		this.criteria = new AreaCriteria();
-//		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
-//		relevanceStatusFilter.setLabel("Campaign Status");
-//		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
-//
-////		relevanceStatusFilter.setItems(EntityRelevanceStatus.values().toString());
-//		relevanceStatusFilter.setValue(EntityRelevanceStatus.ACTIVE);
-//		if (relevanceStatusFilter.getValue() == EntityRelevanceStatus.ACTIVE) {
-//			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-//			refreshGridData();
-//		}
-//		
-//		relevanceStatusFilter.addValueChangeListener(e -> {
-////			dataView.removeFilters();
-//			if (relevanceStatusFilter.getValue().toString() == "Archived Regions") {
-//				criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
-//				refreshGridData();
-////			 dataView.addFilter(t -> t.isArchived());
-//			} else if (relevanceStatusFilter.getValue().toString() == "Active") {
-//				criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-//				refreshGridData();
-////			 dataView.addFilter(t -> !t.isArchived());
-//			} else if (relevanceStatusFilter.getValue().toString() == "All Regions") {
-//				criteria.relevanceStatus(EntityRelevanceStatus.ALL);
-//				refreshGridData();
-////			 dataView.removeFilters();
-//			}
-//
-//		});
+
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel("Campaign Status");
@@ -340,9 +341,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 
-		layout.add(searchField, clear, relevanceStatusFilter, addNew, importArea);
-
-		vlayout.add(displayFilters, layout);
+		layout.add(searchField, clear,  addNew,  anchor);
+		relevancelayout.add(relevanceStatusFilter);
+		vlayout.setWidth("99%");
+		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 	}
 
@@ -398,8 +400,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().save(dce, true);
 						Notification.show("Saved: " + name + " " + code);
 						dialog.close();
-						grid.getDataProvider().refreshAll();
-					} else {
+						refreshGridData();				
+						} else {
 						AreaDto dcex = new AreaDto();
 						System.out.println(dcex);
 						dcex.setName(name);
@@ -408,7 +410,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().save(dcex, true);
 						Notification.show("Saved New Region: " + name + " " + code);
 						dialog.close();
-						grid.getDataProvider().refreshAll();
+refreshGridData();
+//						grid.getDataProvider().refreshAll();
 					}
 
 				}

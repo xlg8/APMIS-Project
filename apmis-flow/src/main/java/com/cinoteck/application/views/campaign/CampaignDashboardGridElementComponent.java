@@ -47,6 +47,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		grid.addColumn(CampaignDashboardElement::getOrder).setHeader("Order");
 		grid.setItems(savedElements);
 		
+		
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
@@ -54,16 +55,19 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 	private Component getContent() {
 		VerticalLayout formx = editorForm();
+//		formx.setId("formControls1");
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(grid, formx);
+//		content.setId("formControls1");
 		content.setFlexGrow(4, grid);
-		content.setFlexGrow(1, formx);
+		content.setFlexGrow(0, formx);
 		content.addClassNames("content");
 		content.setSizeFull();
 		return content;
 	}
 
 	private VerticalLayout editorForm() {
+//		setId("formControls2");
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
 		
@@ -214,6 +218,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 					tabOrder.setValue(0);
 			 }
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			 grid.setHeight("auto !important");
 		 });
 		 
 		 cacleButton.addClickListener(ees -> {
@@ -235,7 +240,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 			 saveButton.setText("Save");
 			 
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 
+			 grid.setHeight("");
 		 });
 		 
 		 
@@ -284,16 +289,18 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 					 Notification.show("Please select a form before you update");
 				 }
 			 }
+			 grid.setHeight("");
 		 });
+		 HorizontalLayout newLayout = new HorizontalLayout( tabWidth, tabHeight, tabOrder);
 		 
-		 
-		formx.add(charts, tabID, subTabID, tabWidth, tabHeight, tabOrder);
-		formx.setColspan(charts, 3);
-		formx.setColspan(tabID, 3);
-		formx.setColspan(subTabID, 3);
-		formx.setColspan(tabWidth, 1);
-		formx.setColspan(tabHeight, 1);
-		formx.setColspan(tabOrder, 1);
+		formx.add(charts, tabID, subTabID,newLayout);
+		formx.setColspan(charts, 2);
+		formx.setColspan(tabID, 2);
+		formx.setColspan(subTabID, 2);
+		formx.setColspan(newLayout, 2);
+//		formx.setColspan(tabWidth, 1);
+//		formx.setColspan(tabHeight, 1);
+//		formx.setColspan(tabOrder, 1);
 		
 		formx.setVisible(false);
 		buttonAfterLay.setVisible(false);

@@ -71,7 +71,7 @@ import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 //
 
-@PageTitle("User Management")
+@PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
 
@@ -386,7 +386,7 @@ return;
 	public void addFilters() {
 		criteria = new UserCriteria();
 
-		layout.setMargin(false);
+		layout.setMargin(true);
 		layout.setPadding(false);
 		layout.setWidthFull();
 

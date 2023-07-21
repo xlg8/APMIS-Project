@@ -31,6 +31,10 @@ vaadin-drawer-toggle[slot="navbar"] {
 	color: white;
 }
 
+#formControls{
+	flex-grow: 0 !important;
+}
+
 ::part(navbar) {
 	min-height: var(- -lumo-size-xl);
 }
@@ -586,4 +590,20 @@ vaadin-horizontal-layout[fcgh-footer] {
 #backLayout{
 	width: none !important;
 	justify-content: flex-start;
+}
+
+#campDatAnchor{
+	    margin-bottom: 7px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+#exportArea{
+	width: 130px;
+    margin-bottom: 6px;
+}
+
+#exportCluster{
+	width: 140px;
+    margin-bottom: 6px;
 }

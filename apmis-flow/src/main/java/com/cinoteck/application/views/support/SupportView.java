@@ -31,7 +31,7 @@ import com.vaadin.flow.router.Route;
 
 
 
-@PageTitle("Support")
+@PageTitle("APMIS-Support")
 @Route(value = "support", layout = MainLayout.class)
 public class SupportView extends VerticalLayout {
     TextField firstName = new TextField("First name");

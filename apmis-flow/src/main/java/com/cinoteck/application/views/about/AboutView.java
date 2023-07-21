@@ -32,7 +32,7 @@ import com.vaadin.flow.router.Route;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("About")
+@PageTitle("APMIS | About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 	

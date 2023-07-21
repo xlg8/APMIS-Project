@@ -39,7 +39,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
-@PageTitle("All Campaigns")
+@PageTitle("APMIS - All Campaigns")
 @Route(value = "campaign", layout = MainLayout.class)
 public class CampaignsView extends VerticalLayout {
 
@@ -177,6 +177,7 @@ public class CampaignsView extends VerticalLayout {
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel("Campaign Status");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
+		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.addValueChangeListener(e -> {
 
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
