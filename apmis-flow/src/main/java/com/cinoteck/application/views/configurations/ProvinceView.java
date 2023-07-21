@@ -262,7 +262,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		});
 		layout.add(addNew, anchor);
-		relevancelayout.add(relevanceStatusFilter);
+//		relevancelayout.add(relevanceStatusFilter);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
