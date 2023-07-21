@@ -31,6 +31,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
@@ -52,7 +54,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //	ProvinceDataProvider provinceDataProvider = new ProvinceDataProvider();	
 //	ConfigurableFilterDataProvider<RegionIndexDto, Void, RegionCriteria> filteredDataProvider;
 
-	final static TextField regionField = new TextField("Region");
+	final static TextField regionField = new TextField(I18nProperties.getCaption(Captions.region));
 	final static TextField rcodeField = new TextField("RCode");
 	final static ComboBox<AreaReferenceDto> area = new ComboBox();
 	Binder<RegionIndexDto> binder = new BeanValidationBinder<>(RegionIndexDto.class);
@@ -68,7 +70,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(RegionIndexDto::getArea).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(RegionIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(RegionIndexDto::getName).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getExternalId).setHeader("PCode").setSortable(true).setResizable(true);
@@ -114,7 +116,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				add(e);
 //				formLayout.add(e);
 			});
-			saveButton = new Button("Save");
+			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 
 			saveButton.addClickListener(event -> saveArea());
 
@@ -172,7 +174,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		TextField searchField = new TextField();
 		searchField.setWidth("30%");
 		searchField.addClassName("filterBar");
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
@@ -197,8 +199,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		layout.add(searchField);
 
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
-		regionFilter.setLabel("Regions");
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
@@ -234,7 +236,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	public boolean createOrEditProvince(RegionIndexDto regionDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField("Name");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 		nameField.setValue(regionDto.getName());
 		TextField pCodeField = new TextField("PCode");
 		// this can generate null
@@ -242,8 +244,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 

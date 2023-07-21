@@ -54,7 +54,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private AreaCriteria criteria;
 
 	GridListDataView<AreaDto> dataView;
-	final static TextField regionField = new TextField("Region");
+	final static TextField regionField = new TextField(I18nProperties.getCaption(Captions.region));
 	final static TextField rcodeField = new TextField("RCode");
 	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
 	Grid<AreaDto> grid;
@@ -80,7 +80,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(AreaDto::getName).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true).setAutoWidth(true);
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true)
 				.setAutoWidth(true);
 	
@@ -155,7 +155,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				add(e);
 
 			});
-			saveButton = new Button("Save");
+			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 
 			saveButton.addClickListener(event -> saveArea(areaDto));
 
@@ -176,7 +176,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				add(e);
 
 			});
-			saveButton = new Button("Save");
+			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 
 			saveButton.addClickListener(event -> saveArea(areaDto));
 
@@ -238,7 +238,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		TextField searchField = new TextField();
 
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.setWidth("30%");
@@ -272,7 +272,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			createOrEditArea(areaDto);
 		});
 
-		Button importArea = new Button("Import");
+		Button importArea = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importArea.getStyle().set("color", "white");
 		importArea.getStyle().set("background", "#0C5830");
 		importArea.addClickListener(event -> {
@@ -315,7 +315,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 
-		TextField nameField = new TextField("Name");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 		TextField rCodeField = new TextField("RCode");
 
 		if (areaDto != null) {
@@ -327,8 +327,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 

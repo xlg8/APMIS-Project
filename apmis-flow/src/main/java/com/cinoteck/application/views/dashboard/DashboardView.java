@@ -38,6 +38,8 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -150,7 +152,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		
 		
 		//Filter initializers
-		region.setLabel("Region");
+		region.setLabel(I18nProperties.getCaption(Captions.region));
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setClearButtonVisible(true);
@@ -172,7 +174,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		province.setClassName("col-sm-6, col-xs-6");
 	//	province.setEnabled(false);
 
-		district.setLabel("District");
+		district.setLabel(I18nProperties.getCaption(Captions.district));
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		district.setItems(districts);

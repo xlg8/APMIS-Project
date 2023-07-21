@@ -40,7 +40,7 @@ import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -83,7 +83,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		Div userentry = new Div();
 
-		H3 infooo = new H3("Username");
+		H3 infooo = new H3(I18nProperties.getCaption(Captions.User_userName));
 		infooo.getStyle().set("color", "green");
 		infooo.getStyle().set("font-size", "20px");
 		infooo.getStyle().set("font-weight", "600");
@@ -104,7 +104,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infoo.getStyle().set("margin-bottom", "0px");
 
 		TextField firstnamee = new TextField("");
-		firstnamee.setLabel("First Name");
+		firstnamee.setLabel(I18nProperties.getCaption(Captions.firstName));
 		firstnamee.setValue(currentUser.getFirstName());
 		// firstnamee.setClassName("fName");
 		firstnamee.setId("my-disabled-textfield");
@@ -114,7 +114,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		// Required").bind(UserDto::getFirstName, UserDto::setFirstName);
 
 		TextField lastnamee = new TextField("");
-		lastnamee.setLabel("Last Name");
+		lastnamee.setLabel(I18nProperties.getCaption(Captions.lastName));
 		lastnamee.setValue(currentUser.getLastName());
 		lastnamee.getStyle().set("-webkit-text-fill-color", "green");
 		lastnamee.setReadOnly(true);
@@ -122,9 +122,9 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		// Required").bind(UserDto::getLastName, UserDto::setLastName);
 
 		TextField emailAddresss = new TextField("");
-		emailAddresss.setLabel("Email address");
+		emailAddresss.setLabel(I18nProperties.getCaption(Captions.User_userEmail));
 		if (currentUser.getUserEmail() == null) {
-			emailAddresss.setPlaceholder("Email address");
+			emailAddresss.setPlaceholder(I18nProperties.getCaption(Captions.User_userEmail));
 		} else {
 			emailAddresss.setValue(currentUser.getUserEmail());
 		}

@@ -58,7 +58,7 @@ public class DistrictView extends VerticalLayout {
 
 	Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
 
-	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 
 	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
 
@@ -82,11 +82,11 @@ public class DistrictView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true);
+		grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true);
 
 		grid.setVisible(true);
@@ -130,7 +130,7 @@ public class DistrictView extends VerticalLayout {
 
 		layout.setPadding(false);
 
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
@@ -172,7 +172,7 @@ public class DistrictView extends VerticalLayout {
 		});
 
 		searchField.addClassName("filterBar");
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938");
 		searchField.setPrefixComponent(searchIcon);
@@ -238,7 +238,7 @@ public class DistrictView extends VerticalLayout {
 	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField("Name");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 		nameField.setValue(districtIndexDto.getName());
 		TextField dCodeField = new TextField("DCode");
 		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
@@ -253,8 +253,8 @@ public class DistrictView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 
