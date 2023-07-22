@@ -20,6 +20,8 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -61,8 +63,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 		filterLayout.setAlignItems(Alignment.END);
 
 
-		regionFilter.setLabel("Region");
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.addValueChangeListener(e -> {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
@@ -70,19 +72,19 @@ public class UserAnalysisGridView extends VerticalLayout {
 		});
 
 		
-		provinceFilter.setLabel("Province");
-		provinceFilter.setPlaceholder("All Province");
+		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceFilter.addValueChangeListener(e -> {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			districtFilter.setItems(districts);
 		});
 		
-		districtFilter.setLabel("District");
-		districtFilter.setPlaceholder("All District");
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 		
-		resetButton =  new Button("Reset Filters");
+		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e->{
 			provinceFilter.clear();
 			districtFilter.clear();
@@ -125,14 +127,14 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CommunityUserReportModelDto::getArea).setHeader("Region").setSortProperty("region").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityUserReportModelDto::getRegion).setHeader("Province").setSortProperty("province").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityUserReportModelDto::getDistrict).setHeader("District").setSortProperty("district").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortProperty("region").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortProperty("province").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityUserReportModelDto::getFormAccess).setHeader("Form Access").setSortProperty("formAccess").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityUserReportModelDto::getClusterNumberr).setHeader("Cluster Number").setSortProperty("clusterNumberr").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityUserReportModelDto::getcCode).setHeader("CCode").setSortProperty("ccode").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getClusterNumberr).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getcCode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode").setSortable(true).setResizable(true);
 
-		grid.addColumn(CommunityUserReportModelDto::getUsername).setHeader("Username").setSortProperty("username").setSortable(true).setResizable(true);
+		grid.addColumn(CommunityUserReportModelDto::getUsername).setHeader(I18nProperties.getCaption(Captions.User_userName)).setSortProperty("username").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityUserReportModelDto::getMessage).setHeader("Message").setSortProperty("message").setSortable(true).setResizable(true);
 		
 		
@@ -161,8 +163,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.setPageSize(250);
 		grid.setVisible(true);
 		
-		add(grid);
-		
+		add(grid);		
 	}
 
 

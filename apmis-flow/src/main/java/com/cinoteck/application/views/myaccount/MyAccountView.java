@@ -149,10 +149,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 //		positionn.setValue("");
 
 		TextField positionn = new TextField();
-		positionn.setLabel("Position");
+		positionn.setLabel(I18nProperties.getCaption(Captions.User_userPosition));
 		// positionn.setValue(currentUser.getUserPosition());
 		if (currentUser.getPhone() == null) {
-			positionn.setPlaceholder("Position");
+			positionn.setPlaceholder(I18nProperties.getCaption(Captions.User_userPosition));
 		} else {
 			positionn.setValue(currentUser.getUserPosition());
 		}
@@ -162,7 +162,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 //TODO:: add a model for address in userDto
 		TextField addresss = new TextField();
-		addresss.setLabel("Address");
+		addresss.setLabel(I18nProperties.getCaption(Captions.address));
 		addresss.setReadOnly(true);
 		// binder.forField(addresss).bind(UserDto::getAddress,UserDto::setAddress);
 
@@ -180,7 +180,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infodataa.getStyle().set("margin-bottom", "0px");
 
 		// Select<String> regionn = new Select<>();
-		ComboBox<AreaReferenceDto> regionn = new ComboBox<>("Region");
+		ComboBox<AreaReferenceDto> regionn = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 		// regionn.setLabel("Region");
 		binder.forField(regionn).bind(UserDto::getArea, UserDto::setArea);
 		regionss = FacadeProvider.getAreaFacade().getAllActiveAsReference();
@@ -192,7 +192,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 //		regionn.setValue("");
 
 		// Select<String> provincee = new Select<>();
-		ComboBox<RegionReferenceDto> provincee = new ComboBox<>("Province");
+		ComboBox<RegionReferenceDto> provincee = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		// provincee.setLabel("Province");
 		binder.forField(provincee).bind(UserDto::getRegion, UserDto::setRegion);
 		provincee.setItemLabelGenerator(RegionReferenceDto::getCaption);
@@ -202,7 +202,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 
 		// Select<String> districtt = new Select<>();
-		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>("District");
+		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		// districtt.setLabel("District");
 		binder.forField(districtt).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districtt.setItemLabelGenerator(DistrictReferenceDto::getCaption);
@@ -212,34 +212,34 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		// Select<String> clusterr = new Select();
 
-		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>("Community");
-		cluster.setLabel("Cluster");
+		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.community));
+		cluster.setLabel(I18nProperties.getCaption(Captions.community));
 		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
 
 		// clusterr.setItems("", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster");
 
 		TextField streett = new TextField();
-		streett.setLabel("Street");
+		streett.setLabel(I18nProperties.getCaption(Captions.Location_street));
 
 		TextField houseNumm = new TextField();
-		houseNumm.setLabel("House Number");
+		houseNumm.setLabel(I18nProperties.getCaption(Captions.Location_houseNumber));
 
 		TextField addInfoo = new TextField();
-		addInfoo.setLabel("Additional information");
+		addInfoo.setLabel(I18nProperties.getCaption(Captions.Location_additionalInformation));
 
 		TextField postalCodee = new TextField();
-		postalCodee.setLabel("Postal code");
+		postalCodee.setLabel(I18nProperties.getCaption(Captions.Location_postalCode));
 
 		TextField cityy = new TextField();
-		cityy.setLabel("City");
+		cityy.setLabel(I18nProperties.getCaption(Captions.city));
 
 		Select<String> areaTypee = new Select<>();
-		areaTypee.setLabel("Area type (Urban/Rural)");
+		areaTypee.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
 		areaTypee.setItems("", "Urban", "Rural");
 		areaTypee.setValue("");
 
 		TextField contacPersonn = new TextField();
-		contacPersonn.setLabel("Cluster contact person");
+		contacPersonn.setLabel(I18nProperties.getCaption(Captions.Location_details));
 
 		FormLayout fielddataVieww = new FormLayout();
 		fielddataVieww.setResponsiveSteps(
@@ -262,14 +262,14 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-bottom", "15px");
 		security.getStyle().set("margin-top", "16px !important");
 
-//<<<<<<< HEAD
+
 		Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
 		//Button openPasswordPopupButton = new Button("Change Password");
 //		passwordDialog.getStyle().set("margin-bottom", "0px");
 //		passwordDialog.getStyle().set("margin-top", "12px !important");
 		//openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
-//=======
+
 		//Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
 		Button openPasswordPopupButton = new Button("Change Password");
@@ -281,32 +281,27 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		openPasswordPopupButton.addClickListener(event -> {
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
 			});
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
 		add();
 
 		VerticalLayout pwdSecc = new VerticalLayout();
 		pwdSecc.setClassName("superDiv");
 
-		ComboBox<Language> languagee = new ComboBox<>("Language");
+		ComboBox<Language> languagee = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 		languagee.setItemLabelGenerator(Language::toString);
 		languagee.setItems(Language.getAssignableLanguages());
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
-//<<<<<<< HEAD
+
 		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-//=======
+
 		languagee.setRequired(true);
 		//binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 		languagee.setValue(currentUser.getLanguage());
 		
 		languagee.getStyle().set("width", "400px");
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
 
-//<<<<<<< HEAD
 		languagee.getStyle().set("width", "400px");
 
-//=======
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
 		Div anch = new Div();
 		anch.setClassName("anchDiv");
 		pwdSecc.getStyle().set("margin-left", "20px");
@@ -322,13 +317,13 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Icon vadIcc = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		vadIc.getStyle().set("color", "white");
 
-		Button discard = new Button("Discard Changes", vadIc);
+		Button discard = new Button(I18nProperties.getCaption(Captions.actionDiscard), vadIc);
 		discard.getStyle().set("margin-right", "20px");
 		discard.getStyle().set("color", "green");
 		discard.getStyle().set("background", "white");
 		discard.getStyle().set("border", "1px solid green");
 
-		Button savee = new Button("Save", vadIcc);
+		Button savee = new Button(I18nProperties.getCaption(Captions.actionSave), vadIcc);
 		savee.addClickListener(e -> {
 			UserDto currentUserToSave = FacadeProvider.getUserFacade().getCurrentUser();
 			if(languagee.getValue() != null) {
@@ -389,7 +384,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		FormLayout formLayout = new FormLayout();
 
-		PasswordField newPasswordField = new PasswordField("New Password");
+		PasswordField newPasswordField = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		newPasswordField.setRevealButtonVisible(true);
 		PasswordField confirmPasswordField = new PasswordField("Confirm Password");
 		confirmPasswordField.setRevealButtonVisible(true);
@@ -400,10 +395,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
 
 		// setting action buttons for password change
-		Button cancelButton = new Button("Cancel");
+		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel));
 		cancelButton.addClickListener(event -> passwordDialog.close());
 
-		Button saveButton = new Button("Save");
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 		saveButton.addClickListener(event -> {
 			// Perform password validation and saving logic here
 			passwordDialog.close();

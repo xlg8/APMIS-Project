@@ -44,7 +44,7 @@ public class CredentialPassWordChanger extends Div {
 //		 	_dialog.setRejectText("Discard");
 //		 	_dialog.addRejectListener(event -> setStatus("Discarded"));
 
-		_dialog.setConfirmText("Continue");
+		_dialog.setConfirmText(I18nProperties.getCaption(Captions.actionContinue));
 		_dialog.addConfirmListener(event -> continuePasswrd());
 
 		_dialog.open();

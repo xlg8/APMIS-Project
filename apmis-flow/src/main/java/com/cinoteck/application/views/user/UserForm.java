@@ -38,6 +38,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -64,40 +65,40 @@ public class UserForm extends FormLayout {
 	// NOTE: Fields should use the same naming convention as in UserDto.class
 	TextField firstName = new TextField(I18nProperties.getCaption(Captions.firstName));
 	TextField lastName = new TextField(I18nProperties.getCaption(Captions.lastName));
-	TextField userEmail = new TextField("Email Address");
-	TextField phone = new TextField("Phone Number");
-	TextField userPosition = new TextField("Position");
-	TextField userOrganisation = new TextField("Organisation");
+	TextField userEmail = new TextField(I18nProperties.getCaption(Captions.User_userEmail));
+	TextField phone = new TextField(I18nProperties.getCaption(Captions.User_phone));
+	TextField userPosition = new TextField(I18nProperties.getCaption(Captions.User_userPosition));
+	TextField userOrganisation = new TextField(I18nProperties.getCaption(Captions.User_userOrganisation));
 	
-	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>("Region");
-	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>("Province");
-	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>("Community");
+	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.community));
 
 
-	ComboBox<AreaReferenceDto> region = new ComboBox<>("Region");
-	ComboBox<RegionReferenceDto> province = new ComboBox<>("Province");
-	ComboBox<DistrictReferenceDto> district = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
+	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> district = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.community));
 
-	TextField street = new TextField("Street");
-	TextField houseNumber = new TextField("House Number");
+	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
+	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
 	TextField additionalInformation = new TextField("Additional Information");
-	TextField postalCode = new TextField("Postal Code");
-	ComboBox<AreaType> areaType = new ComboBox<>();
-	TextField city = new TextField("City");
-	TextField userName = new TextField("Username");
+	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
+	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
+	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
+	TextField userName = new TextField(I18nProperties.getCaption(Captions.User_userName));
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
 	CheckboxGroup<UserType> usertype = new CheckboxGroup("Common User?");
-	ComboBox<Language> language = new ComboBox<>("Language");
+	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
-	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
+	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.User_userRoles));
 
-	Button save = new Button("Save");
-	Button delete = new Button("Delete");
-	Button close = new Button("Cancel");
+	Button save = new Button(I18nProperties.getCaption(Captions.actionSave));
+	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
+	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -140,10 +141,10 @@ public class UserForm extends FormLayout {
 		H2 pInfo = new H2("Personal Information");
 		this.setColspan(pInfo, 2);
 
-		H2 fInfo = new H2("Address");
+		H2 fInfo = new H2(I18nProperties.getCaption(Captions.address));
 		this.setColspan(fInfo, 2);
 
-		H2 userData = new H2("User Data");
+		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
