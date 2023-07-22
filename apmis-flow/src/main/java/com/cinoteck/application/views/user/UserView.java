@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
@@ -69,12 +71,12 @@ import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 //
 
-@PageTitle("User Management")
+@PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
 
-	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
-	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
+//	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
+//	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
 
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
@@ -95,8 +97,13 @@ public class UserView extends VerticalLayout {
 	UserCriteria criteria;
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
+//<<<<<<< HEAD
+	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
+			.collect(Collectors.toList());
+//=======
 //	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
 //			.collect(Collectors.toList());
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 //	private GridListDataView<UserDto> dataView = grid.setItems(usersData);
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
@@ -128,44 +135,7 @@ public class UserView extends VerticalLayout {
 	public UserView() {
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
-		// {
-//
-//			Dialog dialog = new Dialog();
-//			dialog.setModal(true);
-//			dialog.addClassNames("dialog-alignment");
-//			dialog.setDraggable(true);
-//			dialog.setModal(false);
-//			dialog.setHeaderTitle("CREATE NEW USER");
-//
-//			FormLayout dialogLayout = createDialogLayout();
-//			dialog.add(dialogLayout);
-//
-//			Button closeButton = new Button(new Icon("lumo", "cross"), (e) -> dialog.close());
-//			closeButton.getStyle().set("color", "green");
-//			dialog.getHeader().add(closeButton);
-//
-//			Button cancelButton = new Button("DISCARD CHANGES", e -> dialog.close());
-//			cancelButton.setHeightFull();
-//			Button saveButton = new Button("SAVE");
-//			saveButton.setHeightFull();
-//			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//
-//			dialog.getFooter().add(cancelButton, saveButton);
-////			createUserButton = new Button(Captions.userNewUser); //e -> dialog.open()); // event -> editUser(null));
-//			createUserButton.addClickListener(e -> {
-//				UserDto userDto = new UserDto();
-//				editUser(userDto);
-//			});
-//
-//			if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-//
-////				bulkModeButton = new Button(Captions.actionEnterBulkEditMode);
-////				leaveBulkModeButton = new Button(Captions.actionLeaveBulkEditMode);
-//				menuBar = new MenuBar();
-//			}
-//			searchField = new TextField();
-//		}
-		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+	if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			bulkModeButton = new Button("Enter Bulk Edit Mode");
 			leaveBulkModeButton = new Button();
 			menuBar = new MenuBar();
@@ -215,6 +185,23 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+//		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
+//				.setAutoWidth(true).setResizable(true);
+//		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
+//				.setAutoWidth(true).setSortable(true).setResizable(true);
+//		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
+//				.setAutoWidth(true).setSortable(true).setResizable(true);
+//		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+//				.setAutoWidth(true).setSortable(true);
+
 		
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setAutoWidth(true)
 				.setResizable(true);
@@ -232,10 +219,11 @@ public class UserView extends VerticalLayout {
 				.setSortable(true).setResizable(true);
 		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setAutoWidth(true)
 				.setSortable(true);
+
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
-		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 //		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
 //			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
@@ -244,17 +232,6 @@ public class UserView extends VerticalLayout {
 //			return value;
 //		});
 
-//		ValueProvider<UserDto, String> activeValueProvider = (input -> {
-//			boolean value = input.isActive();
-//			if (value == true) {
-//				String valuex = String.valueOf(input.isActive()).replace("true", "Active").replace("True", "Active");
-//			}
-//			else {
-//				String valuex = String.valueOf(input.isActive())
-//					.replace("false,", "Inactive").replace("False", "Inactive").replace("null", "Inactive");
-//			}
-//		return "";
-//		});
 
 //		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -307,16 +284,55 @@ public class UserView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
+
 		grid.setDataProvider(filterDataProvider);
 
-		//grid.asSingleSelect().addValueChangeListener(event -> editUser(event.getValue(), true));
 		grid.addSelectionListener(event -> {
-			//System.out.println("__________cvcv______________"+event.getFirstSelectedItem());
 			editUser(event.getFirstSelectedItem(), true);
 		});
-		return;
+return;
 
 	}
+
+
+//	public void setLazyDataProvider() {
+//
+//		System.out.println("sdafasdfasddfgsdfhsdfg");
+//		DataProvider<UserDto, UserCriteria> dataProvider = DataProvider
+//				.fromFilteringCallbacks(query -> FacadeProvider.getUserFacade()
+//						.getIndexList(query.getFilter().orElse(null), query.getOffset(), query.getLimit(),
+//								query.getSortOrders().stream()
+//										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//												sortOrder.getDirection() == SortDirection.ASCENDING))
+//										.collect(Collectors.toList()))
+//						.stream(), query -> {
+//							return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+//						});
+//		System.out.println("sdafasdfasdfgasdgvasdfgsdfhsdfg " + dataProvider);
+//		grid.setDataProvider(dataProvider);
+////		setSelectionMode(SelectionMode.NONE);
+//	}
+//	public void editUser(UserDto user, boolean isEdMode) {
+//		isEditingMode = isEdMode;
+//		if (user == null) {
+//			form.setUser(user);
+//
+//			form.setVisible(true);
+//			form.setSizeFull();
+//			grid.setVisible(false);
+//			setFiltersVisible(false);
+//		} else {
+//			form.setUser(user);
+//			form.setVisible(true);
+//			form.setSizeFull();
+//			grid.setVisible(false);
+//			setFiltersVisible(false);
+//			addClassName("editing");
+//		}
+//	}
+
+//=======
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
 		UserDto user;
 		isEditingMode = isEdMode;
@@ -343,8 +359,7 @@ public class UserView extends VerticalLayout {
 		grid.setVisible(false);
 		setFiltersVisible(false);
 	} 
-	
-	
+
 
 	private void configureForm(UserDto user) {
 
@@ -370,7 +385,7 @@ public class UserView extends VerticalLayout {
 	public void addFilters() {
 		criteria = new UserCriteria();
 
-		layout.setMargin(false);
+		layout.setMargin(true);
 		layout.setPadding(false);
 		layout.setWidthFull();
 
@@ -381,7 +396,8 @@ public class UserView extends VerticalLayout {
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
-			editUser(false);
+
+editUser(false);
 //			showNewUserForm(userDto);
 		});
 //
@@ -509,16 +525,17 @@ public class UserView extends VerticalLayout {
 		//activeFilter.setWidth(200, Unit.PIXELS);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.setPlaceholder("Active");
-		activeFilter.getStyle().set("margin-left", "0.1rem");
-		activeFilter.getStyle().set("padding-top", "0px!important");
-		activeFilter.setItems(ACTIVE_FILTER, INACTIVE_FILTER);
+		activeFilter.getStyle().set("margin-left", "12px");
+		activeFilter.getStyle().set("margin-top", "12px");
+		activeFilter.setItems("Active", "Inactive");
 		activeFilter.addValueChangeListener(e -> {
 
-			if (e.getValue().equals(ACTIVE_FILTER)) {
+			if (e.getValue().equals("Active")) {
 				criteria.active(true);
-			} else if (e.getValue().equals(INACTIVE_FILTER)) {
+			} else if (e.getValue().equals("Inactive")) {
+
 				criteria.active(false);
-			}
+			} 
 
 			filterDataProvider.setFilter(criteria);
 			filterDataProvider.refreshAll();
@@ -722,14 +739,15 @@ public class UserView extends VerticalLayout {
 		exportUsersButton.setVisible(state);
 		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
+		anchor.setVisible(state);
 		searchField.setVisible(state);
 		activeFilter.setVisible(state);
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-		;
+		
 		districtFilter.setVisible(state);
-		;
+	
 //		displayFilters.setVisible(state);
 	}
 
@@ -772,8 +790,6 @@ public class UserView extends VerticalLayout {
 		// updateList();
 		closeEditor();
 	}
-	
-
 
 	public void makeInitialPassword(String userUuid, String userEmail, String userName) {
 		if (StringUtils.isBlank(userEmail)
@@ -783,22 +799,23 @@ public class UserView extends VerticalLayout {
 			Dialog newUserPop = new Dialog();
 			newUserPop.setClassName("passwordsDialog");
 			VerticalLayout infoLayout = new VerticalLayout();
-			
+
 			newUserPop.setHeaderTitle("New User Password");
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
 			H3 username = new H3("Username : " + userName);
 			username.getStyle().set("color", "#0D6938");
-			
+
 			H3 password = new H3("Password : " + newPassword);
 			password.getStyle().set("color", "#0D6938");
-					
-			infoLayout.add(username,password);
-			
+
+			infoLayout.add(username, password);
+
 			newUserPop.add(infoLayout);
-			
+
 			newUserPop.setOpened(true);
 		}
 //		else {

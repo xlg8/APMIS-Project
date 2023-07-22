@@ -577,10 +577,10 @@ public class UserFacadeEjb implements UserFacade {
 			List<SortProperty> sortProperties) {
 		System.out.println(max+" ------ "+first);
 		
-		if(max > 500000) {
-			max = 50;
-			System.out.println(max+" --corrected---- "+first);
-		}
+//		if(max > 500000) {
+//			max = 50;
+//			System.out.println(max+" --corrected---- "+first);
+//		}
 		
 		
 		

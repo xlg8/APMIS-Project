@@ -6,7 +6,7 @@
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css">
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
-        
+        <link href="https://fonts.cdnfonts.com/css/lato" rel="stylesheet">
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
@@ -168,6 +168,11 @@ table.pvtTable tbody tr td {
     width: 100%;
 }
 
+.pvtAttr, .pvtAggregator{
+text-transform: capitalize;
+font-size: 14px;
+}
+
 .pvtUiCell{
 	    padding: 5px !important;
     border: 2px solid green;
@@ -180,8 +185,8 @@ table.pvtTable tbody tr td {
 
     </head>
     <body>
-        <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Hide / Show Pivot Fields</button>
-        <button	onclick="exportData()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px;">Export Xlsx</button>
+        <button	onclick="hidePivotCells()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px; font-family: 'Lato';">Hide / Show Pivot Fields</button>
+        <!--  button	onclick="exportData()" style="color: white; background-color: #0D6938; border: 2px solid #0D6938; border-radius: 5px; height: 32px; font-size: 14px; padding-right: 15px; padding-left: 15px; margin-left: 5px; font-family: 'Lato';">Export Xlsx</button>-->
 
         <script type="text/javascript">
     $(function(){

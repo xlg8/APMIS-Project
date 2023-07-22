@@ -6,26 +6,16 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.reports.JsonDIctionaryGridView;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
-import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -34,7 +24,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("About")
+@PageTitle("APMIS | About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 	
@@ -157,9 +147,6 @@ public class AboutView extends VerticalLayout {
 		buttonsLayout.getStyle().set("padding-left", "90px");
 		buttonsLayout.add(displayActionButtons, getUserGuide, getTechnicalGuide, getMobileGuide,  excelLink);
 		add(buttonsLayout);
-		
 	
 	}
-	
-
 }

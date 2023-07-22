@@ -62,7 +62,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@PageTitle("My Account")
+@PageTitle("APMIS-My Account")
 @Route(value = "useraccount", layout = MainLayout.class)
 
 public class MyAccountView extends VerticalLayout implements RouterLayout {
@@ -351,7 +351,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		add(userentry);
 
-//<<<<<<< HEAD
 		// initial idea for a change of password
 //		Dialog dialog = new Dialog();
 //		dialog.setCloseOnEsc(false);
@@ -427,8 +426,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		layout.add(confirmPasswordField);
 		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
 
-//=======
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
 	}
 
 

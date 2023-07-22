@@ -76,8 +76,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	        
 	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
-	        
-	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionSave),
+
+	        Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();
@@ -156,11 +156,10 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				 daysExpire.setValue(5);
 			 }
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 
-			 
+			
 		 });
 		 
-		 cacleButton.addClickListener(ees -> {
+		 cancelButton.addClickListener(ees -> {
 			 CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
 			 
 			 formx.setVisible(false);
@@ -170,11 +169,11 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			 daysExpire.setValue(0);
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 
+			
 		 });
 		 
 		 
-		 saveButton.addClickListener(e->{
+		 saveButton.addClickListener(e->{ 
 			 
 			 if(((Button) e.getSource()).getText().equals("Save")) {
 				 CampaignFormMetaReferenceDto newCampForm = forms.getValue();

@@ -46,7 +46,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 
-@PageTitle("Campaign Dashboard")
+@PageTitle("APMIS-Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")

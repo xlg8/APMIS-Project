@@ -24,8 +24,15 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer)
 	display: none !important;
 }
 
+#tabsheetParent vaadin-tabs{
+	background: rgb(67, 67, 67) !important;
+}
 vaadin-drawer-toggle[slot="navbar"] {
 	color: white;
+}
+
+#formControls{
+	flex-grow: 0 !important;
 }
 
 ::part(navbar) {
@@ -463,6 +470,10 @@ vcf-nav-item::part(item) {
 	color: #0D6938 !important;
 }
 
+vaadin-button {
+	min-width: auto !important;
+}
+
 vcf-nav-item[active]::part(item) {
 	border-inline-start-color: var(- -lumo-primary-color);
 	color: white !important;
@@ -564,4 +575,35 @@ vaadin-horizontal-layout[fcgh-footer] {
 :host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
     color: white;
     background: none!important;
+}
+
+.backButtonText{
+	color: #0D6938 !important;
+	font-weight: 600;
+}
+
+.backButton{
+	color: #0D6938 !important;
+	
+}
+
+#backLayout{
+	width: none !important;
+	justify-content: flex-start;
+}
+
+#campDatAnchor{
+	    margin-bottom: 7px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+#exportArea{
+	width: 130px;
+    margin-bottom: 6px;
+}
+
+#exportCluster{
+	width: 140px;
+    margin-bottom: 6px;
 }
