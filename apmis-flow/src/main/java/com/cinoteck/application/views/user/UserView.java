@@ -109,17 +109,16 @@ public class UserView extends VerticalLayout {
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 //	private GridDataView<UserDto> dataViews = grid.setItems(filterDataProvider);
 
-	
 	UserForm form;
 //	CreateUserForm createUserForm;
 
 	MenuBar menuBar = new MenuBar();
 
-	Button createUserButton = new Button("New User");
-	Button exportUsersButton = new Button("Export");
-	Button exportRolesButton = new Button("Export User Roles");
-	Button bulkModeButton = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkModeButton = new Button("Leave Bulk Edit");
+	Button createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
+	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
+	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
+	Button bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	TextField searchField = new TextField();
 
 	Button displayFilters;
@@ -128,14 +127,14 @@ public class UserView extends VerticalLayout {
 	UserDto userDto;
 
 	HorizontalLayout layout = new HorizontalLayout();
-	Anchor anchor = new Anchor("", "Export");
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 
 	boolean isEditingMode;
 
 	public UserView() {
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
-	if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			bulkModeButton = new Button("Enter Bulk Edit Mode");
 			leaveBulkModeButton = new Button();
 			menuBar = new MenuBar();
@@ -202,27 +201,33 @@ public class UserView extends VerticalLayout {
 //		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
 //				.setAutoWidth(true).setSortable(true);
 
-		
-		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true).setAutoWidth(true)
+		Column<UserDto> activeColumn = grid.addColumn(activeRenderer)
+				.setHeader(I18nProperties.getCaption(Captions.User_active)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true).setAutoWidth(true)
+		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer)
+				.setHeader(I18nProperties.getCaption(Captions.User_userRoles)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true).setAutoWidth(true)
+		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName)
+				.setHeader(I18nProperties.getCaption(Captions.User_userName)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true).setAutoWidth(true)
+		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName)
+				.setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true).setAutoWidth(true)
+		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail)
+				.setHeader(I18nProperties.getCaption(Captions.User_userEmail)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation").setAutoWidth(true)
+		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition)
+				.setHeader(I18nProperties.getCaption(Captions.User_userPosition)).setAutoWidth(true)
 				.setSortable(true).setResizable(true);
-		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position").setAutoWidth(true)
+		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation)
+				.setHeader(I18nProperties.getCaption(Captions.User_userOrganisation)).setAutoWidth(true)
 				.setSortable(true).setResizable(true);
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true).setAutoWidth(true)
-				.setSortable(true);
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+				.setAutoWidth(true).setSortable(true);
 
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
-		exporter.setTitle("Users");
+		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 //		ValueProvider<UserDto, String> userRolesValueProvider = (reportModelDto -> {
@@ -231,7 +236,6 @@ public class UserView extends VerticalLayout {
 //
 //			return value;
 //		});
-
 
 //		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -290,10 +294,9 @@ public class UserView extends VerticalLayout {
 		grid.addSelectionListener(event -> {
 			editUser(event.getFirstSelectedItem(), true);
 		});
-return;
+		return;
 
 	}
-
 
 //	public void setLazyDataProvider() {
 //
@@ -344,22 +347,19 @@ return;
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-		} 
+		}
 	}
-	
-	
-	
+
 	public void editUser(boolean isEdMode) {
 		isEditingMode = isEdMode;
-		
+
 		UserDto user = new UserDto();
 		form.setUser(user);
 		form.setVisible(true);
 		form.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
-	} 
-
+	}
 
 	private void configureForm(UserDto user) {
 
@@ -389,7 +389,7 @@ return;
 		layout.setPadding(false);
 		layout.setWidthFull();
 
-		createUserButton = new Button("New User");
+		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "0.1rem");
 		layout.add(createUserButton);
@@ -397,7 +397,7 @@ return;
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
 
-editUser(false);
+			editUser(false);
 //			showNewUserForm(userDto);
 		});
 //
@@ -442,7 +442,7 @@ editUser(false);
 //		}), createFileNameWithCurrentDate(ExportEntityName.USER_ROLES, ".xlsx"),
 //				ACTIVE_FILTER));
 
-		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
+		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 		bulkModeButton.addClassName("bulkActionButton");
 //		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -456,7 +456,7 @@ editUser(false);
 			menuBar.setVisible(true);
 		});
 
-		leaveBulkModeButton.setText("Leave Bulk Edit Mode");
+		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkModeButton.addClassName("leaveBulkActionButton");
 //		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		leaveBulkModeButton.setVisible(false);
@@ -472,10 +472,10 @@ editUser(false);
 		});
 
 		menuBar.setVisible(false);
-		MenuItem item = menuBar.addItem(Captions.bulkActions);
+		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
 		SubMenu subMenu = item.getSubMenu();
-		subMenu.addItem(new Checkbox(Captions.actionEnable));
-		subMenu.addItem(new Checkbox(Captions.actionDisable));
+		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionEnable)));
+		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionDisable)));
 		menuBar.getStyle().set("margin-top", "5px");
 		layout.add(menuBar);
 
@@ -507,7 +507,7 @@ editUser(false);
 		});
 
 		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Users");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -522,9 +522,9 @@ editUser(false);
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
-		//activeFilter.setWidth(200, Unit.PIXELS);
+		// activeFilter.setWidth(200, Unit.PIXELS);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-		activeFilter.setPlaceholder("Active");
+		activeFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
 		activeFilter.setItems("Active", "Inactive");
@@ -535,7 +535,7 @@ editUser(false);
 			} else if (e.getValue().equals("Inactive")) {
 
 				criteria.active(false);
-			} 
+			}
 
 			filterDataProvider.setFilter(criteria);
 			filterDataProvider.refreshAll();
@@ -545,7 +545,7 @@ editUser(false);
 
 		userRolesFilter = new ComboBox<UserRole>();
 		userRolesFilter.setId(UserDto.USER_ROLES);
-		//userRolesFilter.setWidth(200, Unit.PIXELS);
+		// userRolesFilter.setWidth(200, Unit.PIXELS);
 		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
 		userRolesFilter.setPlaceholder("User Roles");
 		userRolesFilter.getStyle().set("margin-left", "0.1rem");
@@ -566,7 +566,7 @@ editUser(false);
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
-		//areaFilter.setWidth(200, Unit.PIXELS);
+		// areaFilter.setWidth(200, Unit.PIXELS);
 		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
 		areaFilter.setPlaceholder("Region");
 		areaFilter.getStyle().set("margin-left", "0.1rem");
@@ -663,7 +663,7 @@ editUser(false);
 
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
-	//	districtFilter.setWidth(200, Unit.PIXELS);
+		// districtFilter.setWidth(200, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder("District");
 		districtFilter.getStyle().set("margin-left", "0.1rem");
@@ -745,9 +745,9 @@ editUser(false);
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-		
+
 		districtFilter.setVisible(state);
-	
+
 //		displayFilters.setVisible(state);
 	}
 

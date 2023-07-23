@@ -138,7 +138,7 @@ public class UserForm extends FormLayout {
 	}
 
 	private void configureFields() {
-		H2 pInfo = new H2("Personal Information");
+		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 		this.setColspan(pInfo, 2);
 
 		H2 fInfo = new H2(I18nProperties.getCaption(Captions.address));
@@ -205,7 +205,7 @@ public class UserForm extends FormLayout {
 		additionalInformation.setPlaceholder("Enter Additional Information here");
 		postalCode.setPlaceholder("Enter postal Code here");
 		city.setPlaceholder("Enter City here");
-		areaType.setLabel("Area Type");
+		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
