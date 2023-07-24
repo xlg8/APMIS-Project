@@ -103,7 +103,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		 
 		// buttonLay.setEnabled(false);
 		 
-		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cacleButton);
+		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton);
 		 buttonAfterLay.getStyle().set("flex-wrap", "wrap");
 		 buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
 		 buttonLay.setSpacing(true);

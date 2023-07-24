@@ -546,8 +546,8 @@ public class UserView extends VerticalLayout {
 		userRolesFilter = new ComboBox<UserRole>();
 		userRolesFilter.setId(UserDto.USER_ROLES);
 		// userRolesFilter.setWidth(200, Unit.PIXELS);
-		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-		userRolesFilter.setPlaceholder("User Roles");
+		userRolesFilter.setLabel(I18nProperties.getCaption(Captions.User_userRoles));
+		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
 		userRolesFilter.getStyle().set("margin-left", "0.1rem");
 		userRolesFilter.getStyle().set("padding-top", "0px!important");
 		userRolesFilter.setClearButtonVisible(true);
@@ -567,8 +567,8 @@ public class UserView extends VerticalLayout {
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
 		// areaFilter.setWidth(200, Unit.PIXELS);
-		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
-		areaFilter.setPlaceholder("Region");
+		areaFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		areaFilter.getStyle().set("margin-left", "0.1rem");
 		areaFilter.getStyle().set("padding-top", "0px!important");
 		areaFilter.setItems(regions);
@@ -615,9 +615,8 @@ public class UserView extends VerticalLayout {
 		regionFilter = new ComboBox<RegionReferenceDto>();
 		regionFilter.setId(CaseDataDto.REGION);
 		regionFilter.setWidth(200, Unit.PIXELS);
-		regionFilter.setLabel(
-				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
-		regionFilter.setPlaceholder("Province");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		regionFilter.getStyle().set("margin-left", "0.1rem");
 		regionFilter.getStyle().set("padding-top", "0px!important");
 		regionFilter.setClearButtonVisible(true);
@@ -665,7 +664,7 @@ public class UserView extends VerticalLayout {
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		// districtFilter.setWidth(200, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
-		districtFilter.setPlaceholder("District");
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtFilter.getStyle().set("margin-left", "0.1rem");
 		districtFilter.getStyle().set("padding-top", "0px!important");
 		districtFilter.setClearButtonVisible(true);
