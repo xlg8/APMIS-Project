@@ -19,21 +19,21 @@ public class DistrictDataProvider extends AbstractBackEndDataProvider<DistrictIn
 	 * 
 	 */
 	private static final long serialVersionUID = 7345965237429493032L;
-	final List<DistrictIndexDto> DATABASE = new ArrayList<>(FacadeProvider.getDistrictFacade().getAllDistricts());
-	DistrictCriteria crteria;
+//	final List<DistrictIndexDto> DATABASE = new ArrayList<>(FacadeProvider.getDistrictFacade().getAllDistricts());
+//	DistrictCriteria crteria;
 
 	@Override
 	protected Stream<DistrictIndexDto> fetchFromBackEnd(Query<DistrictIndexDto, DistrictCriteria> query) {
 
-		Stream<DistrictIndexDto> stream = DATABASE.stream();
-
-		if (query.getFilter().isPresent()) {
-			stream = stream.filter(person -> query.getFilter().get().equals(person));
-		}
-
-		if (query.getSortOrders().size() > 0) {
-			stream = stream.sorted(sortComparator(query.getSortOrders()));
-		}
+//		Stream<DistrictIndexDto> stream = DATABASE.stream();
+//
+//		if (query.getFilter().isPresent()) {
+//			stream = stream.filter(person -> query.getFilter().get().equals(person));
+//		}
+//
+//		if (query.getSortOrders().size() > 0) {
+//			stream = stream.sorted(sortComparator(query.getSortOrders()));
+//		}
 
 
 		return FacadeProvider.getDistrictFacade()
@@ -48,6 +48,7 @@ public class DistrictDataProvider extends AbstractBackEndDataProvider<DistrictIn
 	@Override
 	protected int sizeInBackEnd(Query<DistrictIndexDto, DistrictCriteria> query) {
 		// TODO Auto-generated method stub
+//		return (int) FacadeProvider.getDistrictFacade().count(query.getFilter().orElse(null));
 		return (int) fetchFromBackEnd(query).count();
 	}
 

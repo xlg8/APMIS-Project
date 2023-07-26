@@ -20,6 +20,10 @@ vaadin-app-layout[primary-section="drawer"]:not([overlay])::part(drawer)
 	z-index: 1;
 }
 
+vaadin-app-layout {
+	--vaadin-app-layout-drawer-offset-size: 90% !important;
+}
+
 .card-header-tab {
 	display: none !important;
 }
@@ -606,4 +610,11 @@ vaadin-horizontal-layout[fcgh-footer] {
 #exportCluster{
 	width: 140px;
     margin-bottom: 6px;
+}
+
+
+#rowCount {
+	font-weight: 600;
+	font-size: smaller;
+	color: #0D6938 !important;
 }

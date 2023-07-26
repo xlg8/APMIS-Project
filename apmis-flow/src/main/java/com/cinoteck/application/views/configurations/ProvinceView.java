@@ -20,6 +20,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -33,6 +34,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -70,7 +72,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	private Button saveButton;
 	Anchor anchor = new Anchor("", "Export");
 	UserProvider currentUser = new UserProvider();
-
+	Paragraph countRowItems;
 	public ProvinceView() {
 		setSpacing(false);
 		setHeightFull();
@@ -145,6 +147,11 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	}
 
 	public void configureProvinceFilters() {
+		
+		int numberOfRows = regions.size();
+		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems.setId("rowCount");
+		
 //		setMargin(true);
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
@@ -218,6 +225,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		regionFilter.addValueChangeListener(e -> {
 			if(regionFilter.getValue() != null) {
 			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+			updateRowCount();
 			}else {
 				refreshGridData();
 			}
@@ -262,11 +270,20 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		});
 		layout.add(addNew, anchor);
-//		relevancelayout.add(relevanceStatusFilter);
+		relevancelayout.add(countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 	}
+	
+	private void updateRowCount() {
+		int numberOfRows = dataView.getItemCount();// .size(new Query<>());
+		String newText = "No. of Data Rows : " + numberOfRows;
+
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
+	}
+	
 
 	private void reloadGrid() {
 		dataView.refreshAll();
@@ -363,10 +380,18 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		return true;
 	}
+	
+
 
 	private void refreshGridData() {
 		ListDataProvider<RegionIndexDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getRegionFacade().getAllRegions().stream());
 		dataView = grid.setItems(dataProvider);
+		
+		int numberOfRows = dataProvider.size(new Query<>());// .size(new Query<>());
+		String newText = "No. of Data Rows : " + numberOfRows;
+
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
 	}
 }

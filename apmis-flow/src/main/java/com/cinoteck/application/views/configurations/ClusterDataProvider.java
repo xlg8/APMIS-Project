@@ -21,21 +21,21 @@ public class ClusterDataProvider  extends AbstractBackEndDataProvider<CommunityD
 	 * 
 	 */
 	private static final long serialVersionUID = 7345965237429493032L;
-	final List<CommunityDto> DATABASE = new ArrayList<>(FacadeProvider.getCommunityFacade().getAllCommunities());
-	DistrictCriteria crteria;
+//	final List<CommunityDto> DATABASE = new ArrayList<>(FacadeProvider.getCommunityFacade().getAllCommunities());
+//	DistrictCriteria crteria;
 
 	@Override
 	protected Stream<CommunityDto> fetchFromBackEnd(Query<CommunityDto, CommunityCriteriaNew> query) {
 
-		Stream<CommunityDto> stream = DATABASE.stream();
-
-		if (query.getFilter().isPresent()) {
-			stream = stream.filter(community -> query.getFilter().get().equals(community));
-		}
-
-		if (query.getSortOrders().size() > 0) {
-			stream = stream.sorted(sortComparator(query.getSortOrders()));
-		}
+//		Stream<CommunityDto> stream = DATABASE.stream();
+//
+//		if (query.getFilter().isPresent()) {
+//			stream = stream.filter(community -> query.getFilter().get().equals(community));
+//		}
+//
+//		if (query.getSortOrders().size() > 0) {
+//			stream = stream.sorted(sortComparator(query.getSortOrders()));
+//		}
 
 
 		return FacadeProvider.getCommunityFacade()
@@ -50,7 +50,9 @@ public class ClusterDataProvider  extends AbstractBackEndDataProvider<CommunityD
 	@Override
 	protected int sizeInBackEnd(Query<CommunityDto, CommunityCriteriaNew> query) {
 		// TODO Auto-generated method stub
-		return (int) fetchFromBackEnd(query).count();
+		
+		return (int) FacadeProvider.getCommunityFacade().count(query.getFilter().orElse(null));
+//		return (int) fetchFromBackEnd(query).count();
 	}
 
 	private static Comparator<CommunityDto> sortComparator(List<QuerySortOrder> sortOrders) {

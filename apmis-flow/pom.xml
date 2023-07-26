@@ -116,6 +116,8 @@
 			<artifactId>grid-exporter-addon</artifactId>
 			<version>1.4.1</version>
 		</dependency>
+		
+		
 
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -246,6 +248,8 @@
 			<version>7.1.0</version>
 			<scope>provided</scope>
 		</dependency>
+		
+		
 
 	</dependencies>
 
