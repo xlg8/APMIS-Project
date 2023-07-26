@@ -499,7 +499,7 @@ public class CampaignStatisticsService {
 	
 
 	public boolean checkChangedDb(String coreDataTable, String analyticsDataTable) {
-		
+		System.out.println("checking new data .....................................");
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 		CriteriaQuery<Boolean> criteriaQuery = criteriaBuilder.createQuery(Boolean.class);
 		Root<TrackTableUpdates> root = criteriaQuery.from(TrackTableUpdates.class);
