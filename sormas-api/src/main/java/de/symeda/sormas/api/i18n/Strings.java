@@ -134,6 +134,8 @@ public interface Strings {
 	String confirmationDisableAllLineListingRegion = "confirmationDisableAllLineListingRegion";
 	String confirmationDisableUsers = "confirmationDisableUsers";
 	String confirmationEnableUsers = "confirmationEnableUsers";
+	String confirmationDeleteFormData = "confirmationDeleteFormData";
+	String confirmationDeleteFormDataHeading = "confirmationDeleteFormDataHeading";
 	String confirmationEnterBulkEditMode = "confirmationEnterBulkEditMode";
 	String confirmationExtendFollowUp = "confirmationExtendFollowUp";
 	String confirmationExtendQuarantine = "confirmationExtendQuarantine";
@@ -572,6 +574,7 @@ public interface Strings {
 	String headingNoTasksSelected = "headingNoTasksSelected";
 	String headingNoTreatmentsSelected = "headingNoTreatmentsSelected";
 	String headingNoUsersSelected = "headingNoUsersSelected";
+	String headingNodataSelected = "headingNodataSelected";
 	String headingNoVisitsSelected = "headingNoVisitsSelected";
 	String headingOutbreakDistricts = "headingOutbreakDistricts";
 	String headingOutbreakIn = "headingOutbreakIn";
@@ -646,6 +649,8 @@ public interface Strings {
 	String headingUserData = "headingUserData";
 	String headingUsersDisabled = "headingUsersDisabled";
 	String headingUsersEnabled = "headingUsersEnabled";
+	String headingDataDeleted = "headingDataDeleted";
+	String headingDeleteFormDataHeading = "headingDeleteFormDataHeading";
 	String headingUserSettings = "headingUserSettings";
 	String headingVaccination = "headingVaccination";
 	String headingViewNotFound = "headingViewNotFound";
@@ -928,6 +933,7 @@ public interface Strings {
 	String messageCountryDearchived = "messageCountryDearchived";
 	String messageCountryDearchivingNotPossible = "messageCountryDearchivingNotPossible";
 	String messageCreateCollectionTask = "messageCreateCollectionTask";
+	String messageDataDeleted = "messageDataDeleted";
 	String messageDatabaseExportFailed = "messageDatabaseExportFailed";
 	String messageDeleteImmunizationVaccinations = "messageDeleteImmunizationVaccinations";
 	String messageDeletionUnsupportedByExternalJournalWarning = "messageDeletionUnsupportedByExternalJournalWarning";
@@ -1041,6 +1047,7 @@ public interface Strings {
 	String messageNoTasksSelected = "messageNoTasksSelected";
 	String messageNoTreatmentsSelected = "messageNoTreatmentsSelected";
 	String messageNoUsersSelected = "messageNoUsersSelected";
+	String messageNodataSelected = "messageNodataSelected";
 	String messageNoVisitsSelected = "messageNoVisitsSelected";
 	String messageOutbreakSaved = "messageOutbreakSaved";
 	String messagePasswordReset = "messagePasswordReset";

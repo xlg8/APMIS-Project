@@ -244,7 +244,7 @@ public class CampaignDataView extends AbstractCampaignView {
 				addHeaderComponent(newFormButton);
 			}
 		}
-
+//Are you sure you want to enable all 1 selected users?
 		Panel importFormPanel = new Panel();
 		{
 			VerticalLayout importFormLayout = new VerticalLayout();
@@ -259,7 +259,7 @@ public class CampaignDataView extends AbstractCampaignView {
 			importCampaignButton = ButtonHelper.createIconPopupButton(Captions.actionImport, VaadinIcons.PLUS_CIRCLE,
 					importFormPanel);
 			importCampaignButton.setId("campaign-form-import");
-			if (permitted(FeatureType.CAMPAIGNS, UserRight.CAMPAIGN_FORM_DATA_EDIT)) {
+			if (permitted(FeatureType.CAMPAIGNS, UserRight.CAMPAIGN_FORM_DATA_IMPORT)) {
 				addHeaderComponent(importCampaignButton);
 			}
 		}
@@ -599,6 +599,7 @@ public class CampaignDataView extends AbstractCampaignView {
 		});
 
 		// apply button action
+//		filterForm
 		filterForm.addApplyHandler(e -> {
 			criteria.setCampaign(campaignSelector.getValue());
 			criteria.setFormType(campaignFormPhaseSelector.getValue().toString());

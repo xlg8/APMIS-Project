@@ -114,8 +114,10 @@ public class CampaignFormDataFilterForm extends AbstractFilterForm<CampaignFormD
 			//	System.out.println("111111111111111111___111111___11111111111111111111");
 				formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) e.getProperty().getValue());
 			});
-		}
+			
+			formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) cbCampaignForm.getValue());
 
+		}
 		areaFilter = addField(FieldConfiguration.withCaptionAndPixelSized(CampaignFormDataCriteria.AREA,
 				I18nProperties.getCaption(Captions.Campaign_area), 200));
 		areaFilter.setInputPrompt(I18nProperties.getString(Strings.promptAllAreas));
@@ -264,6 +266,8 @@ public class CampaignFormDataFilterForm extends AbstractFilterForm<CampaignFormD
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(phase.toLowerCase(),
 							campaignReferenceDto.getUuid(), userFormAccess);
 			cbCampaignForm.addItems(campaignFormMetaReferenceDto);
+//			cbCampaignForm.setValue(campaignFormMetaReferenceDto.get(0));
+			
 			criteria = criteriax;
 			
 		} else if (criteria.getCampaign() != null && getPhaseFilterContent() != null
@@ -274,6 +278,8 @@ public class CampaignFormDataFilterForm extends AbstractFilterForm<CampaignFormD
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(phase.toLowerCase(),
 							campaignReferenceDto.getUuid(), userFormAccess);
 			cbCampaignForm.addItems(campaignFormMetaReferenceDto);
+			cbCampaignForm.setValue(campaignFormMetaReferenceDto.get(0));
+//			criteria.setCampaignFormMeta(cbCampaignForm.jlgetValue()); .campaignFormMeta(cbCampaignForm.getValue());
 			criteria = criteriax;
 		}
 		
@@ -293,7 +299,11 @@ public class CampaignFormDataFilterForm extends AbstractFilterForm<CampaignFormD
 		if (cbCampaignForm != null) {
 			cbCampaignForm.addValueChangeListener(
 					e -> formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) e.getProperty().getValue()));
+			
+//			formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) cbCampaignForm.getValue());
+
 		}
+//		formMetaChangedCallback.accept((CampaignFormMetaReferenceDto) cbCampaignForm.getValue());
 	}
 
 }

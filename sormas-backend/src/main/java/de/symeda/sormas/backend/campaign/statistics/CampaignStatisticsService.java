@@ -103,17 +103,21 @@ public class CampaignStatisticsService {
 		
 		StringBuilder queryBuilder = new StringBuilder();
 		queryBuilder.append(selectExpression).append(joinExpression);
-		queryBuilder.append(" WHERE ");
 		String whereExpression = buildWhereExpression(criteria);
 		
 		if(isCampaingFormMetaChanged) {
+			queryBuilder.append(" WHERE ");
+
 			if (!whereExpression.isEmpty()) {
 				queryBuilder.append(whereExpression).append(" AND ");
 			}
 			queryBuilder.append(buildJsonWhereExpression());
 			queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
 		}else {
+			
+
 			if (!whereExpression.isEmpty()) {
+				queryBuilder.append(" WHERE ");
 				queryBuilder.append(whereExpression);
 			}
 			queryBuilder.append(buildGroupByExpression(criteria)).append(buildOrderByExpression(criteria));
