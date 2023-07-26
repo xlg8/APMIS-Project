@@ -372,12 +372,14 @@ public class UserAnalysisGridView extends VerticalLayout {
         errorStatusFilter.setPlaceholder("Error Status");
         errorStatusFilter.setId("errorStatusFilter");
         errorStatusFilter.setItemLabelGenerator(this::getLabelForEnum);        
-        criteria.errorStatusEnum(ErrorStatusEnum.ALL_REPORT);
+        
         errorStatusFilter.addValueChangeListener(e -> {
         	ErrorStatusEnum selectedErrorStatus = e.getValue();
         	if(e.getValue()!= null ) {
             	criteria.errorStatusEnum(selectedErrorStatus);
             	refreshGridData(formAccess);
+        	}else {
+        		criteria.errorStatusEnum(ErrorStatusEnum.ALL_REPORT);
         	}
 //            updateText(formAccess);
         });

@@ -188,9 +188,9 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.setItems(FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences());
 		campaignFormCombo.addValueChangeListener(event -> {
 			if (formMetaChangedCallback != null) {
-				criteria.setCampaignFormMeta(event.getValue());
-				setColumnsVisibility(criteria.getGroupingLevel());
-				criteria.setCampaign(campaignz.getValue());
+//				criteria.setCampaignFormMeta(event.getValue());
+//				setColumnsVisibility(criteria.getGroupingLevel());
+//				criteria.setCampaign(campaignz.getValue());
 				formMetaChangedCallback.accept(event.getValue());
 				
 				setFormMetaChangedCallback(createFormMetaChangedCallback());
@@ -264,22 +264,17 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			CampaignJurisdictionLevel groupingValue = CampaignJurisdictionLevel.AREA;
 			if (e.getValue() != null) {
 				String selectorValue = e.getValue().toString();
-				System.out.println("++++++++++++++----+++++}}}}}}}}}}}}}}}} #" + selectorValue + "#");
 				if (selectorValue.equals("Region")) {
 					groupingValue = CampaignJurisdictionLevel.AREA;
-					System.out.println("++++RegionRegionRegion");
 				} else if (selectorValue.equals("Province")) {
 					groupingValue = CampaignJurisdictionLevel.REGION;
-					System.out.println("++++ProvinceProvinceProvince");
 				} else if (selectorValue.equals("District")) {
 					groupingValue = CampaignJurisdictionLevel.DISTRICT;
-					System.out.println("++++DistrictDistrictDistrictDis");
 				} else {
 					// TODO add throwable here to make sure user does not inject insto the system
 				}
 			}
 
-			System.out.println("+++++++++++-------" + groupingValue);
 			criteria.setGroupingLevel(groupingValue);
 			setColumnsVisibility(groupingValue);
 			reloadData();
