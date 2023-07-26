@@ -749,12 +749,12 @@ public class CampaignController {
 	public void deleteAllSelectedItems(Collection<CampaignFormDataIndexDto> selectedRows, Runnable callback) {
 
 		if (selectedRows.size() == 0) {
-			new Notification(I18nProperties.getString(Strings.headingNoUsersSelected),
-					I18nProperties.getString(Strings.messageNoUsersSelected), Notification.Type.WARNING_MESSAGE, false)
+			new Notification(I18nProperties.getString(Strings.headingNodataSelected),
+					I18nProperties.getString(Strings.messageNodataSelected), Notification.Type.WARNING_MESSAGE, false)
 					.show(Page.getCurrent());
 		} else {
-			VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingConfirmEnabling),
-					new Label(String.format(I18nProperties.getString(Strings.confirmationEnableUsers),
+			VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingDeleteFormDataHeading),
+					new Label(String.format(I18nProperties.getString(Strings.confirmationDeleteFormData),
 							selectedRows.size())),
 					I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), null, confirmed -> {
 						if (!confirmed) {
@@ -764,8 +764,8 @@ public class CampaignController {
 						System.out.println("-----uuidsuuidsuuids---: "+uuids.size());
 						FacadeProvider.getCampaignFormDataFacade().deleteCampaignData(uuids);
 						callback.run();
-						new Notification(I18nProperties.getString(Strings.headingUsersEnabled),
-								I18nProperties.getString(Strings.messageUsersEnabled),
+						new Notification(I18nProperties.getString(Strings.headingDataDeleted),
+								I18nProperties.getString(Strings.messageDataDeleted),
 								Notification.Type.HUMANIZED_MESSAGE, false).show(Page.getCurrent());
 					});
 		}

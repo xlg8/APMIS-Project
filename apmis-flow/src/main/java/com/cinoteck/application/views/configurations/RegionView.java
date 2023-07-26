@@ -1,12 +1,16 @@
 package com.cinoteck.application.views.configurations;
 
+import com.cinoteck.application.UserProvider;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -15,8 +19,10 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,11 +37,17 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.StreamResource;
+
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
+import de.symeda.sormas.api.user.UserRight;
+
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -51,7 +63,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private static final long serialVersionUID = 7091198805223773269L;
 
-	private AreaCriteria criteria;
+	private AreaCriteria criteria = new AreaCriteria();
 
 	private GridListDataView<AreaDto> dataView;
 	final static TextField regionField = new TextField("Region");
@@ -71,19 +83,37 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Anchor link;
 	TextField searchField;
 	Button clear;
-
+	UserProvider userProvider = new UserProvider();
+	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
+	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Paragraph countRowItems;
+	
+	List<AreaDto> data;
+	MenuBar dropdownBulkOperations = new MenuBar();
+	ListDataProvider<AreaDto> dataProvider = DataProvider
+			.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+	
+	int itemCount = dataProvider.getItems().size();
 	public RegionView() {
 		setSpacing(false);
 		setHeightFull();
 		addRegionFilter();
-		regionGrid();
-
+		regionGrid(criteria);
+		 
 	}
 
-	private void regionGrid() {
+//	private void updateRowCount() {
+//		itemCount = data.size();
+//		String newText = "No. of Regions : " + itemCount;
+//		countRowItems.setText(newText);
+//		countRowItems.setId("rowCount");
+////        Notification.show("Text updated: " + newText);
+//	}
+
+	private void regionGrid(AreaCriteria criteria) {
 //		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE); Archive
 
-		this.criteria = new AreaCriteria();
+		this.criteria = criteria;
 		setSpacing(false);
 
 		setMargin(false);
@@ -107,10 +137,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		if (criteria.getRelevanceStatus() == null) {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		}
-		ListDataProvider<AreaDto> dataProvider = DataProvider
-				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
-
+		dataProvider = DataProvider
+		.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+		
 		dataView = grid.setItems(dataProvider);
+		 
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
@@ -118,12 +149,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		});
 
 		add(grid);
-		
+
 		GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
-		exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
-		
+		exporter.setFileName(
+				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
 		anchor.setClassName("exportJsonGLoss");
@@ -133,14 +165,19 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		icon.getStyle().set("font-size", "10px");
 
 		anchor.getElement().insertChild(0, icon.getElement());
-
+		
 //		exportArea();
 	}
 
 	private void refreshGridData() {
 		ListDataProvider<AreaDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+		
 		dataView = grid.setItems(dataProvider);
+		itemCount = dataProvider.getItems().size();
+		String newText = "No. of Regions : " + itemCount;
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
 	}
 
 	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
@@ -244,16 +281,23 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	}
 
 	private void addRegionFilter() {
+		
+		
+		
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			leaveBulkEdit = new Button();
+			dropdownBulkOperations = new MenuBar();
+		}
 		setMargin(true);
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
-		
-		
+
 		relevancelayout.setPadding(false);
 		relevancelayout.setVisible(false);
 		relevancelayout.setAlignItems(Alignment.END);
-		relevancelayout.setJustifyContentMode(JustifyContentMode.END );
+		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
 		relevancelayout.setWidth("54%");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
@@ -301,16 +345,19 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 			boolean matchesDistrictNumber = String.valueOf(search.getExternalId()).toLowerCase()
 					.contains(searchTerm.toLowerCase());
+//			updateRowCount();
 
 			return matchesDistrictName || matchesDistrictNumber;
 
-		}));
+		}
+		));
 
 		clear = new Button("Clear Search");
 		clear.getStyle().set("color", "white");
 		clear.getStyle().set("background", "#0D6938");
 		clear.addClickListener(e -> {
 			searchField.clear();
+//			updateRowCount();
 
 		});
 
@@ -329,23 +376,102 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 
-
-
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel("Campaign Status");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
 
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 			refreshGridData();
-
+//			updateRowCount();
+			
 		});
 
-		layout.add(searchField, clear,  addNew,  anchor);
-		relevancelayout.add(relevanceStatusFilter);
+		layout.add(searchField, relevanceStatusFilter, clear, addNew, anchor);
+		
+//		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
+		
+		countRowItems = new Paragraph("No. of Regions : " + itemCount);
+		countRowItems.setId("rowCount");
+
+		relevancelayout.add(countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
+
+		leaveBulkEdit.setText("Enter Bulk Edit Mode");
+
+		enterBulkEdit.addClassName("bulkActionButton");
+		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		enterBulkEdit.setIcon(bulkModeButtonnIcon);
+		layout.add(enterBulkEdit);
+
+		enterBulkEdit.addClickListener(e -> {
+			dropdownBulkOperations.setVisible(true);
+			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+			enterBulkEdit.setVisible(false);
+			leaveBulkEdit.setVisible(true);
+
+		});
+
+		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.addClassName("leaveBulkActionButton");
+		leaveBulkEdit.setVisible(false);
+		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		leaveBulkEdit.setIcon(leaveBulkModeButtonnIcon);
+		layout.add(leaveBulkEdit);
+
+		leaveBulkEdit.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+			enterBulkEdit.setVisible(true);
+			leaveBulkEdit.setVisible(false);
+			dropdownBulkOperations.setVisible(false);
+		});
+
+		dropdownBulkOperations.setVisible(false);
+//		MenuItem item = dropdownBulkOperations.addItem(Captions.bulkActions,selectedItem -> {
+//			ControllerProvider.getInfrastructureController()
+//			.archiveOrDearchiveAllSelectedItems(
+//				true,
+//				grid.asMultiSelect().getSelectedItems(),
+//				InfrastructureType.AREA,
+//				() -> navigateTo(criteria));
+//	}
+//		);
+//		SubMenu subMenu = item.getSubMenu();
+//		subMenu.addItem(new Checkbox("Archive"));
+		dropdownBulkOperations.getStyle().set("margin-top", "5px");
+//		layout.add(dropdownBulkOperations);
+
+//		if (UserProvider.getCurrent().hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+//			dropdownBulkOperations = MenuBarHelper.createDropDown(Captions.bulkActions,
+//				new MenuBarHelper.MenuBarItem(I18nProperties.getCaption(Captions.actionArchive),
+//						VaadinIcons.ARCHIVE, 
+//						selectedItem -> {
+//					ControllerProvider.getInfrastructureController()
+//						.archiveOrDearchiveAllSelectedItems(
+//							true,
+//							grid.asMultiSelect().getSelectedItems(),
+//							InfrastructureType.AREA,
+//							() -> navigateTo(criteria));
+//				}, 
+//						EntityRelevanceStatus.ACTIVE.equals(criteria.getRelevanceStatus())),
+//				
+//				new MenuBarHelper.MenuBarItem(I18nProperties.getCaption(Captions.actionDearchive), VaadinIcons.ARCHIVE, selectedItem -> {
+//					ControllerProvider.getInfrastructureController()
+//						.archiveOrDearchiveAllSelectedItems(
+//							false,
+//							grid.asMultiSelect().getSelectedItems(),
+//							InfrastructureType.AREA,
+//							() -> navigateTo(criteria));
+//				}, EntityRelevanceStatus.ARCHIVED.equals(criteria.getRelevanceStatus())));
+//
+//			dropdownBulkOperations
+//				.setVisible(viewConfiguration.isInEagerMode() && !EntityRelevanceStatus.ALL.equals(criteria.getRelevanceStatus()));
+//			actionButtonsLayout.addComponent(dropdownBulkOperations);
+//		}
+
 	}
 
 	public boolean createOrEditArea(AreaDto areaDto) {
@@ -400,8 +526,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().save(dce, true);
 						Notification.show("Saved: " + name + " " + code);
 						dialog.close();
-						refreshGridData();				
-						} else {
+						refreshGridData();
+					} else {
 						AreaDto dcex = new AreaDto();
 						System.out.println(dcex);
 						dcex.setName(name);
@@ -410,7 +536,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().save(dcex, true);
 						Notification.show("Saved New Region: " + name + " " + code);
 						dialog.close();
-refreshGridData();
+						refreshGridData();
 //						grid.getDataProvider().refreshAll();
 					}
 
@@ -430,7 +556,7 @@ refreshGridData();
 
 		}
 		dialog.add(fmr);
-		dialog.getFooter().add( discardButton, saveButton);
+		dialog.getFooter().add(discardButton, saveButton);
 
 //         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 // 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");

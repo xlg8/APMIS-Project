@@ -206,6 +206,7 @@ public class CampaignEditForm extends AbstractEditForm<CampaignDto> {
 		clusterfield.addItem("SNID");
 		clusterfield.addItem("Case Respond");
 		clusterfield.addItem("Mopping-Up");
+		clusterfield.addItem("Training");
 
 		TextArea description = addField(CampaignDto.DESCRIPTION, TextArea.class);
 		description.setRows(6);

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -70,7 +72,7 @@ public class DistrictView extends VerticalLayout {
 	Anchor anchor = new Anchor("", "Export");
 	ComboBox<String> riskFilter = new ComboBox<>("Risk");
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
-
+	Paragraph countRowItems;
 	UserProvider currentUser = new UserProvider();
 
 	@SuppressWarnings("deprecation")
@@ -123,6 +125,10 @@ public class DistrictView extends VerticalLayout {
 	}
 
 	public Component addFiltersLayout() {
+		int numberOfRows = filteredDataProvider.size(new Query<>());
+		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems.setId("rowCount");
+		
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
@@ -193,6 +199,8 @@ public class DistrictView extends VerticalLayout {
 
 			filteredDataProvider.setFilter(criteria);
 			resetFilters.setVisible(true);
+			updateRowCount();
+
 		});
 
 		provinceFilter.addValueChangeListener(e -> {
@@ -200,6 +208,8 @@ public class DistrictView extends VerticalLayout {
 			RegionReferenceDto province = e.getValue();
 			criteria.region(province);
 			filteredDataProvider.refreshAll();
+			updateRowCount();
+
 		});
 
 		searchField.addClassName("filterBar");
@@ -213,6 +223,8 @@ public class DistrictView extends VerticalLayout {
 			criteria.nameEpidLike(e.getValue());// nameLike(e.getValue());
 			filteredDataProvider.setFilter(criteria);
 			resetFilters.setVisible(true);
+			updateRowCount();
+
 		});
 
 		riskFilter.setClearButtonVisible(true);
@@ -225,6 +237,7 @@ public class DistrictView extends VerticalLayout {
 			} else {
 				criteria.risk(null);
 			}
+			updateRowCount();
 
 		});
 		layout.add(riskFilter);
@@ -244,8 +257,9 @@ public class DistrictView extends VerticalLayout {
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
 			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
+			updateRowCount();
 		});
-		relevancelayout.add(relevanceStatusFilter);
+		relevancelayout.add(relevanceStatusFilter, countRowItems);
 
 		resetFilters.addClassName("resetButton");
 //		resetFilters.setVisible(false);
@@ -265,6 +279,7 @@ public class DistrictView extends VerticalLayout {
 			if (!relevanceStatusFilter.isEmpty()) {
 				relevanceStatusFilter.clear();
 			}
+			updateRowCount();
 
 		});
 //		layout.add(resetFilters);
@@ -378,11 +393,20 @@ public class DistrictView extends VerticalLayout {
 		return true;
 	}
 
+	private void updateRowCount() {
+		int numberOfRows = filteredDataProvider.size(new Query<>());
+		String newText = "No. of Data Rows : " + numberOfRows;
+
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
+	}
+	
 	private void refreshGridData() {
 		ListDataProvider<DistrictIndexDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getDistrictFacade().getIndexList(criteria, null, null, null).stream());
 
 		grid.setDataProvider(filteredDataProvider);
+	
 //		dataView = grid.setItems(dataProvider);
 	}
 

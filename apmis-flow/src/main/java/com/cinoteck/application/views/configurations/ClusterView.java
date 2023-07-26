@@ -25,6 +25,7 @@ import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -37,6 +38,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -73,7 +75,7 @@ public class ClusterView extends Div {
 	Grid<CommunityDto> grid = new Grid<>(CommunityDto.class, false);
 	Anchor anchor = new Anchor("", "Export");
 	UserProvider currentUser = new UserProvider();
-
+	Paragraph countRowItems;
 	public ClusterView() {
 		this.criteria = new CommunityCriteriaNew();
 		setHeightFull();
@@ -125,6 +127,11 @@ public class ClusterView extends Div {
 
 	// TODO: Hide the filter bar on smaller screens
 	public Component addFilters() {
+		
+		int numberOfRows = filteredDataProvider.size(new Query<>());
+		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems.setId("rowCount");
+		
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
@@ -232,6 +239,7 @@ public class ClusterView extends Div {
 		searchField.addValueChangeListener(e -> {
 			criteria.nameLike(e.getValue());
 			filteredDataProvider.setFilter(criteria);
+			updateRowCount();
 			resetFilters.setVisible(true);
 
 		});
@@ -241,6 +249,8 @@ public class ClusterView extends Div {
 			AreaReferenceDto area = e.getValue();
 			criteria.area(area);
 			filteredDataProvider.setFilter(criteria);
+			updateRowCount();
+
 			resetFilters.setVisible(true);
 
 		});
@@ -251,6 +261,8 @@ public class ClusterView extends Div {
 			RegionReferenceDto province = e.getValue();
 			criteria.region(province);
 			filteredDataProvider.refreshAll();
+			updateRowCount();
+
 		});
 		districtFilter.addValueChangeListener(e -> {
 
@@ -258,11 +270,15 @@ public class ClusterView extends Div {
 			DistrictReferenceDto district = e.getValue();
 			criteria.district(district);
 			filteredDataProvider.refreshAll();
+			updateRowCount();
+
 		});
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
 			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
+			updateRowCount();
+
 		});
 
 		resetFilters.addClassName("resetButton");
@@ -277,11 +293,28 @@ public class ClusterView extends Div {
 			createOrEditCluster(communityDto);
 		});
 		layout.add(addNew, anchor);
-		relevancelayout.add(relevanceStatusFilter);
+		relevancelayout.add(relevanceStatusFilter, countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 		return vlayout;
+	}
+	
+	private void updateRowCount() {
+		int numberOfRows = filteredDataProvider.size(new Query<>());
+		String newText = "No. of Data Rows : " + numberOfRows;
+
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
+	}
+	private void refreshGridData() {
+		ListDataProvider<CommunityDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
+		
+		grid.setDataProvider(filteredDataProvider);
+		
+		
+//		dataView = grid.setItems(dataProvider);
 	}
 
 	public boolean createOrEditCluster(CommunityDto communityDto) {
@@ -388,12 +421,5 @@ public class ClusterView extends Div {
 		return true;
 	}
 	
-	private void refreshGridData() {
-		ListDataProvider<CommunityDto> dataProvider = DataProvider
-				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
-		
-		grid.setDataProvider(filteredDataProvider);
-//		dataView = grid.setItems(dataProvider);
-	}
 
 }
