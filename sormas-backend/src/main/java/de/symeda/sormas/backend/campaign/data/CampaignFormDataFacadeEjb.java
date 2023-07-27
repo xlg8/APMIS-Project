@@ -23,7 +23,6 @@ package de.symeda.sormas.backend.campaign.data;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -34,13 +33,11 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
@@ -50,8 +47,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
@@ -714,7 +709,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			
 			
 			
-			//campaignFormDataService.getAllActiveAfter(date)
+			//campaignFormDataService.getAllActiveAfter(date) No population data available for
 			
 //		return campaignFormDataService.getAllActiveAfter(date).stream().map(c -> convertToDto(c))
 //				.collect(Collectors.toList());
@@ -896,28 +891,20 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			
 			//System.out.println(resultData.size());
 		}else if (grouping == CampaignJurisdictionLevel.AREA && area == null) {
-			List<Area> areas = areaService.getAll();
 			populationx = 0;
-			List<CampaignDiagramDataDto> resultDatax = new ArrayList<>();
-			areas.forEach(areaItem -> {
-				
-				populationx = populationx + populationDataFacadeEjb.getAreaPopulationParent(areaItem.getUuid(),
+			populationx = populationDataFacadeEjb.getAreaPopulationParent("notneeded",
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				
 		System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+populationx);
 				
 				if (populationx == 0) {
-					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
-							areaItem.getName(), diagramSeries.getFieldId(), diagramSeries.getFormId(), false));
+					resultData.add(new CampaignDiagramDataDto("notneeded", 0, "notneeded",
+							"notneeded", diagramSeries.getFieldId(), diagramSeries.getFormId(), false));
 				} else {
-					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), populationx, areaItem.getUuid(),
-							areaItem.getName(), diagramSeries.getFieldId(), diagramSeries.getFormId(), true));
+					resultData.add(new CampaignDiagramDataDto("notneeded", populationx, "notneeded",
+							"notneeded", diagramSeries.getFieldId(), diagramSeries.getFormId(), true));
 				}
-			});
-			
-			if(resultDatax.size() > 1) {
-				resultData.add(resultDatax.get(resultDatax.size() - 1));
-				}
+		
 			
 			//System.out.println(resultData.size());
 		} else if (region != null && district == null) {
@@ -992,132 +979,46 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		for (CampaignDiagramSeries series : diagramSeries) {
 			//@formatter:off
 
-				 final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "." + Area.UUID + " = :areaUuid" : "";
-				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "." + Region.UUID + " = :regionUuid" : "";
-				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "." + District.UUID + " = :districtUuid" : "";
-				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "." + Campaign.UUID + " = :campaignUuid" : "";
+				 final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "_" + Area.UUID + " = :areaUuid" : "";
+				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "_" + Region.UUID + " = :regionUuid" : "";
+				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "_" + District.UUID + " = :districtUuid" : "";
+				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "_" + Campaign.UUID + " = :campaignUuid" : "";
 				//@formatter:on
 
 			// SELECT
-			StringBuilder selectBuilder = new StringBuilder("SELECT ").append(CampaignFormMeta.TABLE_NAME).append(".")
-					.append(CampaignFormMeta.UUID).append(" as formUuid,").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.FORM_ID).append(" as formId");
+			StringBuilder selectBuilder = new StringBuilder("SELECT formUuid, formId");
 
 			if (series.getFieldId() != null) {
+				selectBuilder.append(",  fieldId, fieldCaption, ");
 				
-				selectBuilder.append(", jsonData->>'")
-				.append(CampaignFormDataEntry.ID)
-				.append("' as fieldId, jsonMeta->>'")
-				.append(CampaignFormElement.CAPTION)
-				.append("' as fieldCaption,");
-				
-				if(series.getReferenceValue() != null) {
-					//////System.out.println("+==+ "+series.getReferenceValue());
-					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
-					.append(CampaignFormDataEntry.VALUE)
-					.append("') = '").append(series.getReferenceValue())
-					.append("') THEN 1 ELSE 0 END)"); 
-				} else {
-						
-					//////System.out.println("+==+ "+series.getReferenceValue());
-				selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
-						.append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.NUMBER.toString() + "') OR")
-
-						.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.DECIMAL.toString() + "') OR")
-
-						.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.RANGE.toString() + "')");
-
 				if (series.getAverageDefault() != null && "true".equals(series.getAverageDefault())) {
-					selectBuilder.append(" THEN avg(cast_number(jsonData->>'");
+					selectBuilder.append(" avg(sumValue) ");
 				} else {
-					selectBuilder.append(" THEN sum(cast_number(jsonData->>'");
+					selectBuilder.append("sum(sumValue) ");
 				}
-						
-				selectBuilder.append(CampaignFormDataEntry.VALUE)
-						.append("', 0)) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
-					.append("') = '")//.append(series.getReferenceValue())
-					.append("' THEN 0 ELSE 1 END) END");
-					
-				}
-						selectBuilder.append(" as sumValue");
-				
-						//.append("THEN round(SUM (CAST (jsonData->>'").append(CampaignFormDataEntry.VALUE)
-						//.append("' AS NUMERIC)), 2) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
-						//.append("') = '").append(series.getReferenceValue())
-						//.append("' THEN 1 ELSE 0 END) END as sumValue,");
 			}
-		else {
-				selectBuilder.append(", null as fieldId, null as fieldCaption, count(formId) as sumValue,");
+				else {
+					selectBuilder.append(", null, null, 0");
 			}
-
+			
 			final String jurisdictionGrouping;
-			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
-//			case REGION:
-//				appendInfrastructureSelection(selectBuilder, Region.TABLE_NAME, Region.NAME);
-//				break;
-			case DISTRICT:
-//				appendInfrastructureSelection(selectBuilder, District.TABLE_NAME, District.NAME);
-			//	appendInfrastructureSelection(selectBuilder, Region.TABLE_NAME, Region.NAME);
-				break;
-			case COMMUNITY:
-//				appendInfrastructureSelection(selectBuilder, Community.TABLE_NAME, Community.NAME);
-			//	appendInfrastructureSelection(selectBuilder, District.TABLE_NAME, District.NAME);
-				break;
-			case AREA:
-			case REGION:
-			default:
-			//	appendInfrastructureSelection(selectBuilder, Area.TABLE_NAME, Area.NAME);
-			}
-
-			// JOINS
-			StringBuilder joinBuilder = new StringBuilder(" LEFT JOIN ").append(CampaignFormMeta.TABLE_NAME)
-					.append(" ON ").append(CampaignFormData.CAMPAIGN_FORM_META).append("_id = ")
-					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.ID).append(" LEFT JOIN ")
-					.append(Region.TABLE_NAME).append(" ON ").append(CampaignFormData.REGION).append("_id =")
-					.append(Region.TABLE_NAME).append(".").append(Region.ID).append(" LEFT JOIN ")
-					.append(Area.TABLE_NAME).append(" ON ").append(CampaignFormData.TABLE_NAME).append(".")
-					.append(Region.AREA).append("_id = ").append(Area.TABLE_NAME).append(".").append(Area.ID)
-					.append(" LEFT JOIN ").append(District.TABLE_NAME).append(" ON ").append(CampaignFormData.DISTRICT)
-					.append("_id = ").append(District.TABLE_NAME).append(".").append(District.ID).append(" LEFT JOIN ")
-					.append(Community.TABLE_NAME).append(" ON ").append(CampaignFormData.COMMUNITY).append("_id = ")
-					.append(Community.TABLE_NAME).append(".").append(Community.ID).append(" LEFT JOIN ")
-					.append(Campaign.TABLE_NAME).append(" ON ").append(CampaignFormData.CAMPAIGN).append("_id = ")
-					.append(Campaign.TABLE_NAME).append(".").append(Campaign.ID);
-
-			if (series.getFieldId() != null) {
-				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
-						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
-						.append(") as jsonMeta");
-			}
 
 			// WHERE
-			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.TABLE_NAME).append(".")
-					.append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
+			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
 
 			String cds = "";
 
 			if (series.getFieldId() != null) {
-				whereBuilder.append(" AND jsonData->>'").append(CampaignFormDataEntry.ID)
-						.append("' = :campaignFormDataId").append(" AND jsonData->>'")
-						.append(CampaignFormDataEntry.VALUE).append("' IS NOT NULL AND jsonData->>'")
-						.append(CampaignFormDataEntry.ID).append("' = jsonMeta->>'").append(CampaignFormElement.ID)
-						.append("'");
+				whereBuilder.append(" AND fieldId = :campaignFormDataId");
 			}
 
 			whereBuilder.append(areaFilter).append(regionFilter).append(districtFilter).append(campaignFilter);// .append(campaignPhaseFilter);
 
 			// GROUP BY
-			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY ").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.UUID).append(",").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.FORM_ID);
+			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY formUuid, formId");
 
 			if (series.getFieldId() != null) {
-				groupByBuilder.append(", jsonData->>'").append(CampaignFormDataEntry.ID).append("', jsonMeta->>'")
-						.append(CampaignFormElement.CAPTION).append("', jsonMeta->>'").append(CampaignFormElement.TYPE)
-						.append("'");
+				groupByBuilder.append(", fieldId, fieldCaption");
 			}
 
 			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
@@ -1125,61 +1026,64 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 //				jurisdictionGrouping = ", " + Region.TABLE_NAME + "." + Region.UUID + ", " + Region.TABLE_NAME + "."
 //						+ Region.NAME;
 				
-				jurisdictionGrouping = ", " + Area.TABLE_NAME + "." + Area.UUID + ", " + Area.TABLE_NAME + "."
+				jurisdictionGrouping = ", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + Area.TABLE_NAME + "_"
 						+ Area.NAME;
 				break;
 			case DISTRICT:
 //				jurisdictionGrouping = ", " + District.TABLE_NAME + "." + District.UUID + ", " + District.TABLE_NAME
 //						+ "." + District.NAME;
 				
-				jurisdictionGrouping = ", " + Region.TABLE_NAME + "." + Region.UUID + ", " + Region.TABLE_NAME + "."
+				jurisdictionGrouping = ", " + Region.TABLE_NAME + "_" + Region.UUID + ", " + Region.TABLE_NAME + "_"
 						+ Region.NAME;
 				break;
 			case COMMUNITY:
 //				jurisdictionGrouping = ", " + Community.TABLE_NAME + "." + Community.UUID + ", " + Community.TABLE_NAME
 //						+ "." + Community.NAME;
 				
-				jurisdictionGrouping = ", " + District.TABLE_NAME + "." + District.UUID + ", " + District.TABLE_NAME
-						+ "." + District.NAME;
+				jurisdictionGrouping = ", " + District.TABLE_NAME + "_" + District.UUID + ", " + District.TABLE_NAME
+						+ "_" + District.NAME;
 				break;
 			case AREA:
 			default:
-				jurisdictionGrouping = ", " + Area.TABLE_NAME + "." + Area.UUID + ", " + Area.TABLE_NAME + "."
-						+ Area.NAME;
+				jurisdictionGrouping = ", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + "area";
 			}
-
-		//	groupByBuilder.append(jurisdictionGrouping);
-
-	//System.out.println("getDataDiagram----- "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
 			
-			// +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +
-			// joinBuilder
+		//	System.out.println("getDiagramDataCard = "  +selectBuilder.toString() + " FROM camapaigndata_main "  + whereBuilder + groupByBuilder);
+
 
 			//@formatter:off
 			Query seriesDataQuery = em.createNativeQuery(
-					selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+					selectBuilder.toString() + " FROM camapaigndata_main "  + whereBuilder + groupByBuilder);
 			//@formatter:on
 
+			//String gatherd = "campaignFormMetaId: " + series.getFormId() +" | ";
 			seriesDataQuery.setParameter("campaignFormMetaId", series.getFormId());
 			if (area != null) {
+				//gatherd = gatherd +"areaUuid: "+ area.getUuid() +" | ";
 				seriesDataQuery.setParameter("areaUuid", area.getUuid());
 			}
 			if (region != null) {
+				//gatherd = gatherd +"regionUuid: "+ region.getUuid() +" | ";
 				seriesDataQuery.setParameter("regionUuid", region.getUuid());
 			}
 			if (district != null) {
+				//gatherd = gatherd +"districtUuid: "+ district.getUuid() +" | ";
+
 				seriesDataQuery.setParameter("districtUuid", district.getUuid());
 			}
 			if (campaign != null) {
+				//gatherd = gatherd +"campaignUuid: "+ campaign.getUuid() +" | ";
+
 				seriesDataQuery.setParameter("campaignUuid", campaign.getUuid());
 			}
 
 			if (series.getFieldId() != null) {
+				//gatherd = gatherd +"campaignFormDataId: "+ series.getFieldId() +" | ";
+
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			System.out.println("getDiagramDataCard seriesDataQuery = "  +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
-
+		//	System.out.println("getDiagramDataCardGathere: "+gatherd);
 			
 			@SuppressWarnings("unchecked")
 			List<Object[]> resultList = seriesDataQuery.getResultList(); 
@@ -1211,148 +1115,101 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		for (CampaignDiagramSeries series : diagramSeries) {
 			//@formatter:off
 
-				final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "." + Area.UUID + " = :areaUuid" : "";
-				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "." + Region.UUID + " = :regionUuid" : "";
-				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "." + District.UUID + " = :districtUuid" : "";
-				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "." + Campaign.UUID + " = :campaignUuid" : "";
+				final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "_" + Area.UUID + " = :areaUuid" : "";
+				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "_" + Region.UUID + " = :regionUuid" : "";
+				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "_" + District.UUID + " = :districtUuid" : "";
+				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "_" + Campaign.UUID + " = :campaignUuid" : "";
 				//@formatter:on
 
 			// SELECT
-			StringBuilder selectBuilder = new StringBuilder("SELECT ").append(CampaignFormMeta.TABLE_NAME).append(".")
-					.append(CampaignFormMeta.UUID).append(" as formUuid,").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.FORM_ID).append(" as formId");
+			StringBuilder selectBuilder = new StringBuilder("SELECT  formUuid, formId");
 
 			if (series.getFieldId() != null) {
 				
-				selectBuilder.append(", jsonData->>'")
-				.append(CampaignFormDataEntry.ID)
-				.append("' as fieldId, jsonMeta->>'")
-				.append(CampaignFormElement.CAPTION)
-				.append("' as fieldCaption,");
+				selectBuilder.append(", fieldId, fieldCaption,");
 				
-				if(series.getReferenceValue() != null) {
-					//////System.out.println("+==+ "+series.getReferenceValue());
-					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
-					.append(CampaignFormDataEntry.VALUE)
-					.append("') = '").append(series.getReferenceValue())
-					.append("') THEN 1 ELSE 0 END)"); 
-				} else {
+				//TODO must redo for 
+//				if(series.getReferenceValue() != null) {
+//					//////System.out.println("+==+ "+series.getReferenceValue());
+//					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
+//					.append(CampaignFormDataEntry.VALUE)
+//					.append("') = '").append(series.getReferenceValue())
+//					.append("') THEN 1 ELSE 0 END)"); 
+//				} else {
 						
-					//////System.out.println("+==+ "+series.getReferenceValue());
-				selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
-						.append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.NUMBER.toString() + "') OR")
-
-						.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.DECIMAL.toString() + "') OR")
-
-						.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-						.append(CampaignFormElementType.RANGE.toString() + "')");
-
 				if (series.getAverageDefault() != null && "true".equals(series.getAverageDefault())) {
-					selectBuilder.append(" THEN avg(cast_number(jsonData->>'");
+					selectBuilder.append(" avg(sumValue) ");
 				} else {
-					selectBuilder.append(" THEN sum(cast_number(jsonData->>'");
+					selectBuilder.append(" sum(sumValue) ");
 				}
-						
-				selectBuilder.append(CampaignFormDataEntry.VALUE)
-						.append("', 0)) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
-					.append("') = '")//.append(series.getReferenceValue())
-					.append("' THEN 0 ELSE 1 END) END");
-					
-				}
-						selectBuilder.append(" as sumValue,");
 				
-						//.append("THEN round(SUM (CAST (jsonData->>'").append(CampaignFormDataEntry.VALUE)
-						//.append("' AS NUMERIC)), 2) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
-						//.append("') = '").append(series.getReferenceValue())
-						//.append("' THEN 1 ELSE 0 END) END as sumValue,");
 			}
 		else {
-				selectBuilder.append(", null as fieldId, null as fieldCaption, count(formId) as sumValue,");
+				selectBuilder.append(", null, null, 0,");
 			}
 
 			final String jurisdictionGrouping;
 			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
 			case REGION:
-				appendInfrastructureSelection(selectBuilder, Region.TABLE_NAME, Region.NAME);
+				appendInfrastructureSelectionFlow(selectBuilder, Region.TABLE_NAME, Region.NAME);
 				break;
 			case DISTRICT:
-				appendInfrastructureSelection(selectBuilder, District.TABLE_NAME, District.NAME);
-				break;
 			case COMMUNITY:
-				appendInfrastructureSelection(selectBuilder, Community.TABLE_NAME, Community.NAME);
+				appendInfrastructureSelectionFlow(selectBuilder, District.TABLE_NAME, District.NAME);
 				break;
+//			case COMMUNITY:
+//				appendInfrastructureSelectionFlow(selectBuilder, Community.TABLE_NAME, Community.NAME);
+//				break;
 			case AREA:
 			default:
-				appendInfrastructureSelection(selectBuilder, Area.TABLE_NAME, Area.NAME);
+				selectBuilder.append(", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + "area");
 			}
 
-			// JOINS
-			StringBuilder joinBuilder = new StringBuilder(" LEFT JOIN ").append(CampaignFormMeta.TABLE_NAME)
-					.append(" ON ").append(CampaignFormData.CAMPAIGN_FORM_META).append("_id = ")
-					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.ID).append(" LEFT JOIN ")
-					.append(Region.TABLE_NAME).append(" ON ").append(CampaignFormData.REGION).append("_id =")
-					.append(Region.TABLE_NAME).append(".").append(Region.ID).append(" LEFT JOIN ")
-					.append(Area.TABLE_NAME).append(" ON ").append(CampaignFormData.TABLE_NAME).append(".")
-					.append(Region.AREA).append("_id = ").append(Area.TABLE_NAME).append(".").append(Area.ID)
-					.append(" LEFT JOIN ").append(District.TABLE_NAME).append(" ON ").append(CampaignFormData.DISTRICT)
-					.append("_id = ").append(District.TABLE_NAME).append(".").append(District.ID).append(" LEFT JOIN ")
-					.append(Community.TABLE_NAME).append(" ON ").append(CampaignFormData.COMMUNITY).append("_id = ")
-					.append(Community.TABLE_NAME).append(".").append(Community.ID).append(" LEFT JOIN ")
-					.append(Campaign.TABLE_NAME).append(" ON ").append(CampaignFormData.CAMPAIGN).append("_id = ")
-					.append(Campaign.TABLE_NAME).append(".").append(Campaign.ID);
-
+			
 			if (series.getFieldId() != null) {
-				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
-						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
-						.append(") as jsonMeta");
+				//TODO check why this is needed : series.getFieldId()
+//				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
+//						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
+//						.append(") as jsonMeta");
 			}
 
 			// WHERE
-			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.TABLE_NAME).append(".")
-					.append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
+			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
 
 			String cds = "";
 
 			if (series.getFieldId() != null) {
-				whereBuilder.append(" AND jsonData->>'").append(CampaignFormDataEntry.ID)
-						.append("' = :campaignFormDataId").append(" AND jsonData->>'")
-						.append(CampaignFormDataEntry.VALUE).append("' IS NOT NULL AND jsonData->>'")
-						.append(CampaignFormDataEntry.ID).append("' = jsonMeta->>'").append(CampaignFormElement.ID)
-						.append("'");
+				whereBuilder.append(" AND fieldId = :campaignFormDataId");
 			}
 
 			whereBuilder.append(areaFilter).append(regionFilter).append(districtFilter).append(campaignFilter);// .append(campaignPhaseFilter);
 
 			// GROUP BY
-			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY ").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.UUID).append(",").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.FORM_ID);
+			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY formUuid, formId ");
 
 			if (series.getFieldId() != null) {
-				groupByBuilder.append(", jsonData->>'").append(CampaignFormDataEntry.ID).append("', jsonMeta->>'")
-						.append(CampaignFormElement.CAPTION).append("', jsonMeta->>'").append(CampaignFormElement.TYPE)
-						.append("'");
+				groupByBuilder.append(", fieldId, fieldCaption");
 			}
 
 			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
 			case REGION:
-				jurisdictionGrouping = ", " + Region.TABLE_NAME + "." + Region.UUID + ", " + Region.TABLE_NAME + "."
-						+ Region.NAME;
+				jurisdictionGrouping = ", " + Region.TABLE_NAME + "_" + Region.UUID + ", " + Region.TABLE_NAME;
 				break;
 			case DISTRICT:
-				jurisdictionGrouping = ", " + District.TABLE_NAME + "." + District.UUID + ", " + District.TABLE_NAME
-						+ "." + District.NAME;
-				break;
 			case COMMUNITY:
-				jurisdictionGrouping = ", " + Community.TABLE_NAME + "." + Community.UUID + ", " + Community.TABLE_NAME
-						+ "." + Community.NAME;
+				jurisdictionGrouping = ", " + District.TABLE_NAME + "_" + District.UUID + ", " + District.TABLE_NAME;
 				break;
+			//case COMMUNITY:
+//				jurisdictionGrouping = ", " + Community.TABLE_NAME + "_" + Community.UUID + ", " + Community.TABLE_NAME
+//						+ "_" + Community.NAME;
+//				break;
+				//TODO there is no cluster on the new logic... let see how we can add that
+				
+				//break;
+		
 			case AREA:
 			default:
-				jurisdictionGrouping = ", " + Area.TABLE_NAME + "." + Area.UUID + ", " + Area.TABLE_NAME + "."
-						+ Area.NAME;
+				jurisdictionGrouping = ", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + "area";
 			}
 
 			groupByBuilder.append(jurisdictionGrouping);
@@ -1364,7 +1221,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 			//@formatter:off
 			Query seriesDataQuery = em.createNativeQuery(
-					selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+					selectBuilder.toString() + " FROM camapaigndata_main "  + whereBuilder + groupByBuilder);
 			//@formatter:on
 
 			seriesDataQuery.setParameter("campaignFormMetaId", series.getFormId());
@@ -1385,7 +1242,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
-			System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+			System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM camapaigndata_main " + whereBuilder + groupByBuilder);
 
 
 			@SuppressWarnings("unchecked")
@@ -1451,143 +1308,126 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 	
 	
+	
 	@Override
 	public List<CampaignDiagramDataDto> getDiagramDataByGroups(List<CampaignDiagramSeries> diagramSeries,
-			CampaignDiagramCriteria campaignDiagramCriteria) { 
+			CampaignDiagramCriteria campaignDiagramCriteria) {
 		List<CampaignDiagramDataDto> resultData = new ArrayList<>();
 		final AreaReferenceDto area = campaignDiagramCriteria.getArea();
 		final RegionReferenceDto region = campaignDiagramCriteria.getRegion();
 		final DistrictReferenceDto district = campaignDiagramCriteria.getDistrict();
 		final CampaignReferenceDto campaign = campaignDiagramCriteria.getCampaign();
 
-		/*
-		 * String formType = campaignDiagramCriteria.getFormType(); 
-		 * 
-		 * if ("all phases".equals(formType)) { formType = null; }
-		 */
-
 		for (CampaignDiagramSeries series : diagramSeries) {
 			//@formatter:off
 
-				final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "." + Area.UUID + " = :areaUuid" : "";
-				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "." + Region.UUID + " = :regionUuid" : "";
-				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "." + District.UUID + " = :districtUuid" : "";
-				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "." + Campaign.UUID + " = :campaignUuid" : "";
-			//	final String campaignPhaseFilter = formType != null ? " AND " + CampaignFormData.CAMPAIGN_FORM_META + ".formtype = '"+formType+"'" : "";
+				final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "_" + Area.UUID + " = :areaUuid" : "";
+				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "_" + Region.UUID + " = :regionUuid" : "";
+				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "_" + District.UUID + " = :districtUuid" : "";
+				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "_" + Campaign.UUID + " = :campaignUuid" : "";
 				//@formatter:on
 
-				StringBuilder selectBuilder = new StringBuilder("SELECT ").append(CampaignFormMeta.TABLE_NAME).append(".")
-						.append(CampaignFormMeta.UUID).append(" as formUuid,").append(CampaignFormMeta.TABLE_NAME)
-						.append(".").append(CampaignFormMeta.FORM_ID).append(" as formId");
+			// SELECT
+			StringBuilder selectBuilder = new StringBuilder("SELECT  formUuid, formId");
 
-				if (series.getFieldId() != null) {
-					
-					selectBuilder.append(", jsonData->>'")
-					.append(CampaignFormDataEntry.ID)
-					.append("' as fieldId, jsonMeta->>'")
-					.append(CampaignFormElement.CAPTION)
-					.append("' as fieldCaption,");
-					
-					if(series.getReferenceValue() != null) {
-						selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
-						.append(CampaignFormDataEntry.VALUE)
-						.append("') = '").append(series.getReferenceValue())
-						.append("') THEN 1 ELSE 0 END)"); 
-					} else {
-					selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
-							.append(CampaignFormElement.TYPE).append("') = '")
-							.append(CampaignFormElementType.NUMBER.toString() + "') OR")
-
-							.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-							.append(CampaignFormElementType.DECIMAL.toString() + "') OR")
-
-							.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
-							.append(CampaignFormElementType.RANGE.toString() + "')");
-
-					if(series.getAverageDefault() != null && "true".equals(series.getAverageDefault())){
-							selectBuilder.append(" THEN avg(cast_number(jsonData->>'");
-					}else{
-						selectBuilder.append(" THEN sum(cast_number(jsonData->>'");
-					}
-					selectBuilder.append(CampaignFormDataEntry.VALUE)
-							.append("', 0)) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
-						.append("') = '")//.append(series.getReferenceValue())
-						.append("' THEN 0 ELSE 1 END) END");
+			if (series.getFieldId() != null) {
+				
+				selectBuilder.append(", fieldId, fieldCaption,");
+				
+				//TODO must redo for 
+//				if(series.getReferenceValue() != null) {
+//					//////System.out.println("+==+ "+series.getReferenceValue());
+//					selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
+//					.append(CampaignFormDataEntry.VALUE)
+//					.append("') = '").append(series.getReferenceValue())
+//					.append("') THEN 1 ELSE 0 END)"); 
+//				} else {
 						
-					}
-							selectBuilder.append(" as sumValue");
-			} else {
-				selectBuilder.append(", null as fieldId, null as fieldCaption, count(formId) as sumValue");
+				if (series.getAverageDefault() != null && "true".equals(series.getAverageDefault())) {
+					selectBuilder.append(" avg(sumValue) ");
+				} else {
+					selectBuilder.append(" sum(sumValue) ");
+				}
+				
 			}
-/*
+		else {
+				selectBuilder.append(", null, null, 0,");
+			}
+
 			final String jurisdictionGrouping;
 			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
 			case REGION:
-			//	appendInfrastructureSelection(selectBuilder, Region.TABLE_NAME, Region.NAME);
+				appendInfrastructureSelectionFlow(selectBuilder, Region.TABLE_NAME, Region.NAME);
 				break;
 			case DISTRICT:
-			//	appendInfrastructureSelection(selectBuilder, District.TABLE_NAME, District.NAME);
-				break;
 			case COMMUNITY:
-			//	appendInfrastructureSelection(selectBuilder, Community.TABLE_NAME, Community.NAME);
+				appendInfrastructureSelectionFlow(selectBuilder, District.TABLE_NAME, District.NAME);
 				break;
+//			case COMMUNITY:
+//				appendInfrastructureSelectionFlow(selectBuilder, Community.TABLE_NAME, Community.NAME);
+//				break;
 			case AREA:
 			default:
-			//	appendInfrastructureSelection(selectBuilder, Area.TABLE_NAME, Area.NAME);
+				selectBuilder.append(", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + "area");
 			}
-*/
-			// JOINS
-			StringBuilder joinBuilder = new StringBuilder(" LEFT JOIN ").append(CampaignFormMeta.TABLE_NAME)
-					.append(" ON ").append(CampaignFormData.CAMPAIGN_FORM_META).append("_id = ")
-					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.ID).append(" LEFT JOIN ")
-					.append(Region.TABLE_NAME).append(" ON ").append(CampaignFormData.REGION).append("_id =")
-					.append(Region.TABLE_NAME).append(".").append(Region.ID).append(" LEFT JOIN ")
-					.append(Area.TABLE_NAME).append(" ON ").append(CampaignFormData.TABLE_NAME).append(".")
-					.append(Region.AREA).append("_id = ").append(Area.TABLE_NAME).append(".").append(Area.ID)
-					.append(" LEFT JOIN ").append(District.TABLE_NAME).append(" ON ").append(CampaignFormData.DISTRICT)
-					.append("_id = ").append(District.TABLE_NAME).append(".").append(District.ID).append(" LEFT JOIN ")
-					.append(Community.TABLE_NAME).append(" ON ").append(CampaignFormData.COMMUNITY).append("_id = ")
-					.append(Community.TABLE_NAME).append(".").append(Community.ID).append(" LEFT JOIN ")
-					.append(Campaign.TABLE_NAME).append(" ON ").append(CampaignFormData.CAMPAIGN).append("_id = ")
-					.append(Campaign.TABLE_NAME).append(".").append(Campaign.ID);
 
+			
 			if (series.getFieldId() != null) {
-				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
-						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
-						.append(") as jsonMeta");
+				//TODO check why this is needed : series.getFieldId()
+//				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
+//						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
+//						.append(") as jsonMeta");
 			}
 
 			// WHERE
-			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.TABLE_NAME).append(".")
-					.append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
+			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
 
 			String cds = "";
 
 			if (series.getFieldId() != null) {
-				whereBuilder.append(" AND jsonData->>'").append(CampaignFormDataEntry.ID)
-						.append("' = :campaignFormDataId").append(" AND jsonData->>'")
-						.append(CampaignFormDataEntry.VALUE).append("' IS NOT NULL AND jsonData->>'")
-						.append(CampaignFormDataEntry.ID).append("' = jsonMeta->>'").append(CampaignFormElement.ID)
-						.append("'");
+				whereBuilder.append(" AND fieldId = :campaignFormDataId");
 			}
 
 			whereBuilder.append(areaFilter).append(regionFilter).append(districtFilter).append(campaignFilter);// .append(campaignPhaseFilter);
 
 			// GROUP BY
-			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY ").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.UUID).append(",").append(CampaignFormMeta.TABLE_NAME)
-					.append(".").append(CampaignFormMeta.FORM_ID);
+			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY formUuid, formId ");
 
 			if (series.getFieldId() != null) {
-				groupByBuilder.append(", jsonData->>'").append(CampaignFormDataEntry.ID).append("', jsonMeta->>'")
-						.append(CampaignFormElement.CAPTION).append("', jsonMeta->>'").append(CampaignFormElement.TYPE)
-						.append("', campaigns.name");
+				groupByBuilder.append(", fieldId, fieldCaption");
 			}
 
+			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
+			case REGION:
+				jurisdictionGrouping = ", " + Region.TABLE_NAME + "_" + Region.UUID + ", " + Region.TABLE_NAME;
+				break;
+			case DISTRICT:
+			case COMMUNITY:
+				jurisdictionGrouping = ", " + District.TABLE_NAME + "_" + District.UUID + ", " + District.TABLE_NAME;
+				break;
+			//case COMMUNITY:
+//				jurisdictionGrouping = ", " + Community.TABLE_NAME + "_" + Community.UUID + ", " + Community.TABLE_NAME
+//						+ "_" + Community.NAME;
+//				break;
+				//TODO there is no cluster on the new logic... let see how we can add that
+				
+				//break;
+		
+			case AREA:
+			default:
+				jurisdictionGrouping = ", " + Area.TABLE_NAME + "_" + Area.UUID + ", " + "area";
+			}
+
+			groupByBuilder.append(jurisdictionGrouping);
+
+		//	////System.out.println("getDataDiagram "+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+			
+			// +selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +
+			// joinBuilder
 
 			//@formatter:off
 			Query seriesDataQuery = em.createNativeQuery(
-					selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+					selectBuilder.toString() + " FROM camapaigndata_main "  + whereBuilder + groupByBuilder);
 			//@formatter:on
 
 			seriesDataQuery.setParameter("campaignFormMetaId", series.getFormId());
@@ -1608,31 +1448,213 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
 			}
 			
+			System.out.println(" getDiagramData seriesDataQuery = " +selectBuilder.toString() + " FROM camapaigndata_main " + whereBuilder + groupByBuilder);
 
-System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
-		
+
 			@SuppressWarnings("unchecked")
 			List<Object[]> resultList = seriesDataQuery.getResultList(); 
 			
-			
-
 			resultData.addAll(resultList.stream()
-					.map((result) -> new CampaignDiagramDataDto((String) result[0], (String) result[1],
-							(String) result[2], (String) result[3], result[4].toString(),// (String) result[5],
-							//(String) result[6],
-							// (String) result[7],
-							series.getStack()))
-					.collect(Collectors.toList()));
+			.map((result) -> new CampaignDiagramDataDto((String) result[0], (String) result[1],
+					(String) result[2], (String) result[3], result[4].toString(),// (String) result[5],
+					//(String) result[6],
+					// (String) result[7],
+					series.getStack()))
+			.collect(Collectors.toList()));
 		}
+			
+		//System.out.println("resultData - "+ resultData.toString());//SQLExtractor.from(seriesDataQuery));
 		return resultData;
 	}
-
 	
 	
+	
+//	@Override
+//	public List<CampaignDiagramDataDto> getDiagramDataByGroups(List<CampaignDiagramSeries> diagramSeries,
+//			CampaignDiagramCriteria campaignDiagramCriteria) { 
+//		List<CampaignDiagramDataDto> resultData = new ArrayList<>();
+//		final AreaReferenceDto area = campaignDiagramCriteria.getArea();
+//		final RegionReferenceDto region = campaignDiagramCriteria.getRegion();
+//		final DistrictReferenceDto district = campaignDiagramCriteria.getDistrict();
+//		final CampaignReferenceDto campaign = campaignDiagramCriteria.getCampaign();
+//
+//		/*
+//		 * String formType = campaignDiagramCriteria.getFormType(); 
+//		 * 
+//		 * if ("all phases".equals(formType)) { formType = null; }
+//		 */
+//
+//		for (CampaignDiagramSeries series : diagramSeries) {
+//			//@formatter:off
+//
+//				final String areaFilter = area != null ? " AND " + Area.TABLE_NAME + "." + Area.UUID + " = :areaUuid" : "";
+//				final String regionFilter = region != null ? " AND " + CampaignFormData.REGION + "." + Region.UUID + " = :regionUuid" : "";
+//				final String districtFilter = district != null ? " AND " + CampaignFormData.DISTRICT + "." + District.UUID + " = :districtUuid" : "";
+//				final String campaignFilter = campaign != null ? " AND " + Campaign.TABLE_NAME + "." + Campaign.UUID + " = :campaignUuid" : "";
+//			//	final String campaignPhaseFilter = formType != null ? " AND " + CampaignFormData.CAMPAIGN_FORM_META + ".formtype = '"+formType+"'" : "";
+//				//@formatter:on
+//
+//				StringBuilder selectBuilder = new StringBuilder("SELECT ").append(CampaignFormMeta.TABLE_NAME).append(".")
+//						.append(CampaignFormMeta.UUID).append(" as formUuid,").append(CampaignFormMeta.TABLE_NAME)
+//						.append(".").append(CampaignFormMeta.FORM_ID).append(" as formId");
+//
+//				if (series.getFieldId() != null) {
+//					
+//					selectBuilder.append(", jsonData->>'")
+//					.append(CampaignFormDataEntry.ID)
+//					.append("' as fieldId, jsonMeta->>'")
+//					.append(CampaignFormElement.CAPTION)
+//					.append("' as fieldCaption,");
+//					
+//					if(series.getReferenceValue() != null) {
+//						selectBuilder.append("sum (CASE WHEN ").append("((jsonData->>'")
+//						.append(CampaignFormDataEntry.VALUE)
+//						.append("') = '").append(series.getReferenceValue())
+//						.append("') THEN 1 ELSE 0 END)"); 
+//					} else {
+//					selectBuilder.append(" CASE WHEN ((jsonMeta ->> '")
+//							.append(CampaignFormElement.TYPE).append("') = '")
+//							.append(CampaignFormElementType.NUMBER.toString() + "') OR")
+//
+//							.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
+//							.append(CampaignFormElementType.DECIMAL.toString() + "') OR")
+//
+//							.append("((jsonMeta ->> '").append(CampaignFormElement.TYPE).append("') = '")
+//							.append(CampaignFormElementType.RANGE.toString() + "')");
+//
+//					if(series.getAverageDefault() != null && "true".equals(series.getAverageDefault())){
+//							selectBuilder.append(" THEN avg(cast_number(jsonData->>'");
+//					}else{
+//						selectBuilder.append(" THEN sum(cast_number(jsonData->>'");
+//					}
+//					selectBuilder.append(CampaignFormDataEntry.VALUE)
+//							.append("', 0)) ELSE sum(CASE WHEN(jsonData->>'").append(CampaignFormDataEntry.VALUE)
+//						.append("') = '")//.append(series.getReferenceValue())
+//						.append("' THEN 0 ELSE 1 END) END");
+//						
+//					}
+//							selectBuilder.append(" as sumValue");
+//			} else {
+//				selectBuilder.append(", null as fieldId, null as fieldCaption, count(formId) as sumValue");
+//			}
+///*
+//			final String jurisdictionGrouping;
+//			switch (campaignDiagramCriteria.getCampaignJurisdictionLevelGroupBy()) {
+//			case REGION:
+//			//	appendInfrastructureSelection(selectBuilder, Region.TABLE_NAME, Region.NAME);
+//				break;
+//			case DISTRICT:
+//			//	appendInfrastructureSelection(selectBuilder, District.TABLE_NAME, District.NAME);
+//				break;
+//			case COMMUNITY:
+//			//	appendInfrastructureSelection(selectBuilder, Community.TABLE_NAME, Community.NAME);
+//				break;
+//			case AREA:
+//			default:
+//			//	appendInfrastructureSelection(selectBuilder, Area.TABLE_NAME, Area.NAME);
+//			}
+//*/
+//			// JOINS
+//			StringBuilder joinBuilder = new StringBuilder(" LEFT JOIN ").append(CampaignFormMeta.TABLE_NAME)
+//					.append(" ON ").append(CampaignFormData.CAMPAIGN_FORM_META).append("_id = ")
+//					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.ID).append(" LEFT JOIN ")
+//					.append(Region.TABLE_NAME).append(" ON ").append(CampaignFormData.REGION).append("_id =")
+//					.append(Region.TABLE_NAME).append(".").append(Region.ID).append(" LEFT JOIN ")
+//					.append(Area.TABLE_NAME).append(" ON ").append(CampaignFormData.TABLE_NAME).append(".")
+//					.append(Region.AREA).append("_id = ").append(Area.TABLE_NAME).append(".").append(Area.ID)
+//					.append(" LEFT JOIN ").append(District.TABLE_NAME).append(" ON ").append(CampaignFormData.DISTRICT)
+//					.append("_id = ").append(District.TABLE_NAME).append(".").append(District.ID).append(" LEFT JOIN ")
+//					.append(Community.TABLE_NAME).append(" ON ").append(CampaignFormData.COMMUNITY).append("_id = ")
+//					.append(Community.TABLE_NAME).append(".").append(Community.ID).append(" LEFT JOIN ")
+//					.append(Campaign.TABLE_NAME).append(" ON ").append(CampaignFormData.CAMPAIGN).append("_id = ")
+//					.append(Campaign.TABLE_NAME).append(".").append(Campaign.ID);
+//
+//			if (series.getFieldId() != null) {
+//				joinBuilder.append(", json_array_elements(").append(CampaignFormData.FORM_VALUES)
+//						.append(") as jsonData, json_array_elements(").append(CampaignFormMeta.CAMPAIGN_FORM_ELEMENTS)
+//						.append(") as jsonMeta");
+//			}
+//
+//			// WHERE
+//			StringBuilder whereBuilder = new StringBuilder(" WHERE ").append(CampaignFormMeta.TABLE_NAME).append(".")
+//					.append(CampaignFormMeta.FORM_ID).append(" = :campaignFormMetaId");
+//
+//			String cds = "";
+//
+//			if (series.getFieldId() != null) {
+//				whereBuilder.append(" AND jsonData->>'").append(CampaignFormDataEntry.ID)
+//						.append("' = :campaignFormDataId").append(" AND jsonData->>'")
+//						.append(CampaignFormDataEntry.VALUE).append("' IS NOT NULL AND jsonData->>'")
+//						.append(CampaignFormDataEntry.ID).append("' = jsonMeta->>'").append(CampaignFormElement.ID)
+//						.append("'");
+//			}
+//
+//			whereBuilder.append(areaFilter).append(regionFilter).append(districtFilter).append(campaignFilter);// .append(campaignPhaseFilter);
+//
+//			// GROUP BY
+//			StringBuilder groupByBuilder = new StringBuilder(" GROUP BY ").append(CampaignFormMeta.TABLE_NAME)
+//					.append(".").append(CampaignFormMeta.UUID).append(",").append(CampaignFormMeta.TABLE_NAME)
+//					.append(".").append(CampaignFormMeta.FORM_ID);
+//
+//			if (series.getFieldId() != null) {
+//				groupByBuilder.append(", jsonData->>'").append(CampaignFormDataEntry.ID).append("', jsonMeta->>'")
+//						.append(CampaignFormElement.CAPTION).append("', jsonMeta->>'").append(CampaignFormElement.TYPE)
+//						.append("', campaigns.name");
+//			}
+//
+//
+//			//@formatter:off
+//			Query seriesDataQuery = em.createNativeQuery(
+//					selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME + joinBuilder + whereBuilder + groupByBuilder);
+//			//@formatter:on
+//
+//			seriesDataQuery.setParameter("campaignFormMetaId", series.getFormId());
+//			if (area != null) {
+//				seriesDataQuery.setParameter("areaUuid", area.getUuid());
+//			}
+//			if (region != null) {
+//				seriesDataQuery.setParameter("regionUuid", region.getUuid());
+//			}
+//			if (district != null) {
+//				seriesDataQuery.setParameter("districtUuid", district.getUuid());
+//			}
+//			if (campaign != null) {
+//				seriesDataQuery.setParameter("campaignUuid", campaign.getUuid());
+//			}
+//
+//			if (series.getFieldId() != null) {
+//				seriesDataQuery.setParameter("campaignFormDataId", series.getFieldId());
+//			}
+//			
+//
+//System.out.println("getDiagramDataByGroups"+selectBuilder.toString() + " FROM " + CampaignFormData.TABLE_NAME +" "+ joinBuilder +" "+ whereBuilder +" "+ groupByBuilder);
+//		
+//			@SuppressWarnings("unchecked")
+//			List<Object[]> resultList = seriesDataQuery.getResultList(); 
+//			
+//			
+//
+//			resultData.addAll(resultList.stream()
+//					.map((result) -> new CampaignDiagramDataDto((String) result[0], (String) result[1],
+//							(String) result[2], (String) result[3], result[4].toString(),// (String) result[5],
+//							//(String) result[6],
+//							// (String) result[7],
+//							series.getStack()))
+//					.collect(Collectors.toList()));
+//		}
+//		return resultData;
+//	}
+//
+//	
+//	
 	
 	private void appendInfrastructureSelection(StringBuilder sb, String tableNameField, String nameField) {
 		sb.append(tableNameField).append(".").append(AbstractDomainObject.UUID).append(", ").append(tableNameField)
 				.append(".").append(nameField);
+	}
+	
+	private void appendInfrastructureSelectionFlow(StringBuilder sb, String tableNameField, String nameField) {
+		sb.append(", ").append(tableNameField).append("_").append(AbstractDomainObject.UUID).append(", ").append(tableNameField);
 	}
 
 	@Override

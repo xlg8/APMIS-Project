@@ -153,7 +153,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
-//		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
 		
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
 		if (nav != null) {
@@ -309,7 +309,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	@Override
 	public @NotNull ViewModelProviders getViewModelProviders() {
 		// TODO Auto-generated method stub
-		return viewModelProviders;
+		return null;
 	}
 
 
@@ -317,7 +317,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	@Override
 	public UserProvider getUserProvider() {
 		// TODO Auto-generated method stub
-		return userProvider;
+		return null;
 	}
 
 
