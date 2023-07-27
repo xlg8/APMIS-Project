@@ -132,13 +132,21 @@ public class UserView extends VerticalLayout {
 	boolean isEditingMode;
 
 	public UserView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
-		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			bulkModeButton = new Button("Enter Bulk Edit Mode");
-			leaveBulkModeButton = new Button();
-			menuBar = new MenuBar();
-		}
+//		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+//			bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+//			leaveBulkModeButton = new Button();
+//			menuBar = new MenuBar();
+//		}
 
 		setHeightFull();
 		addFilters();
@@ -805,10 +813,10 @@ public class UserView extends VerticalLayout {
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
-			H3 username = new H3("Username : " + userName);
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) +" : " + userName);
 			username.getStyle().set("color", "#0D6938");
 
-			H3 password = new H3("Password : " + newPassword);
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) +" : " + newPassword);
 			password.getStyle().set("color", "#0D6938");
 
 			infoLayout.add(username, password);

@@ -51,7 +51,7 @@ public class CamapignDataFilter extends VerticalLayout {
 	ComboBox campaignPhase = new ComboBox<>("");
 	public Button newForm = new Button(I18nProperties.getCaption(Captions.actionNewForm));
 	public Button importData = new Button(I18nProperties.getCaption(Captions.actionImport));
-	public Button exportData = new Button("EXPORT");
+	public Button exportData = new Button(I18nProperties.getCaption(Captions.export));
 
 	List<String> campaignsYears;
 	List<CampaignReferenceDto> campaigns;
@@ -118,7 +118,7 @@ public class CamapignDataFilter extends VerticalLayout {
 		});
 //		
 
-		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
 		campaign.setId("jgcjgcjgcj");
 //		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 //		campaign.setItems(campaigns);
@@ -155,13 +155,13 @@ public class CamapignDataFilter extends VerticalLayout {
 		campaignDataFilterLayout.getStyle().set("margin-left", "12px");
 		campaignDataFilterLayout.setAlignItems(Alignment.END);
 
-		campaignForm.setLabel("Form");
-		campaignForm.setPlaceholder("Form");
+		campaignForm.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
+		campaignForm.setPlaceholder(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		campaignForms = FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences();
 		campaignForm.setItems(campaignForms);
 
-		region.setLabel(I18nProperties.getCaption(Captions.region));
-		region.setPlaceholder(I18nProperties.getCaption(Captions.region));
+		region.setLabel(I18nProperties.getCaption(Captions.area));
+		region.setPlaceholder(I18nProperties.getCaption(Captions.area));
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setItems(regions);
@@ -170,8 +170,8 @@ public class CamapignDataFilter extends VerticalLayout {
 			province.setItems(provinces);
 		});
 
-		province.setLabel("Province");
-		province.setPlaceholder("Provinces");
+		province.setLabel(I18nProperties.getCaption(Captions.region));
+		province.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		province.setItems(provinces);
 		province.addValueChangeListener(e -> {
@@ -193,7 +193,7 @@ public class CamapignDataFilter extends VerticalLayout {
 		district.getStyle().set("padding-top", "0px");
 		district.setClassName("col-sm-6, col-xs-6");
 
-		cluster.setPlaceholder("Clusters");
+		cluster.setPlaceholder(I18nProperties.getCaption(Captions.community));
 		cluster.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 
 		resetHandler.setText("Reset Filters");

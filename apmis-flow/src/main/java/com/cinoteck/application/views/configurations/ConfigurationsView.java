@@ -25,8 +25,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -55,9 +53,9 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 
 
     private Tabs createTabs() {
-        tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.region)), new RegionView());
+        tabComponentMap.put(new Tab("Regions"), new RegionView());
         tabComponentMap.put(new Tab("Province"), new ProvinceView());
-        tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.district)), new DistrictView());
+        tabComponentMap.put(new Tab("District"), new DistrictView());
         tabComponentMap.put(new Tab("Cluster"), new ClusterView());
 
         return new Tabs(tabComponentMap.keySet().toArray(new Tab[]{}));
@@ -124,13 +122,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         contentContainer.add(tabComponentMap.get(tabs.getSelectedTab()));
         createExcelLinkForDefault();
 
-        Button importButton = new Button(I18nProperties.getCaption(Captions.actionImport), new Icon(VaadinIcon.DOWNLOAD_ALT));
+        Button importButton = new Button("Import", new Icon(VaadinIcon.DOWNLOAD_ALT));
         importButton.getStyle().set("color", "white");
         importButton.getStyle().set("background", "#0C5830");
         importButton.setVisible(false);
 //        configActionLayout.add(importButton);
 
-        Button exportButton = new Button(I18nProperties.getCaption(Captions.export), new Icon(VaadinIcon.UPLOAD_ALT));
+        Button exportButton = new Button("Export", new Icon(VaadinIcon.UPLOAD_ALT));
         exportButton.getStyle().set("color", "white");
         exportButton.getStyle().set("background", "#0C5830");
         exportButton.setVisible(false);
@@ -142,13 +140,13 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         
 //        configActionLayout.add(exportButton);
 
-        Button newEntryButton = new Button(I18nProperties.getCaption(Captions.actionNewEntry), new Icon(VaadinIcon.PLUS_CIRCLE_O));
+        Button newEntryButton = new Button("New Entry", new Icon(VaadinIcon.PLUS_CIRCLE_O));
         newEntryButton.getStyle().set("color", "white");
         newEntryButton.getStyle().set("background", "#0C5830");
         newEntryButton.setVisible(false);
 //        configActionLayout.add(newEntryButton);
 
-        Button bulkEditMode = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode), new Icon(VaadinIcon.CHECK));
+        Button bulkEditMode = new Button("Enter Bulk Mode", new Icon(VaadinIcon.CHECK));
         bulkEditMode.getStyle().set("color", "white");
         bulkEditMode.getStyle().set("background", "#0C5830");
         bulkEditMode.setVisible(false);
@@ -226,15 +224,15 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridListDataView<AreaDto> dataView;
         List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
         dataView = grid.setItems(regions);
-        grid.addColumn(AreaDto::getName).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+        grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
         grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
         GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle(I18nProperties.getCaption(Captions.region));
+        exporter.setTitle("Region");
         exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-        anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+        anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
@@ -255,15 +253,15 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         GridListDataView<AreaDto> dataView;
         List<AreaDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation();
         dataView = grid.setItems(regions);
-        grid.addColumn(AreaDto::getName).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+        grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true);
         grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 
         GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle(I18nProperties.getCaption(Captions.region));
+        exporter.setTitle("Region");
         exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-        anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+        anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
@@ -283,17 +281,17 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     	List<RegionIndexDto> regions = FacadeProvider.getRegionFacade().getAllRegions();
     	GridListDataView<RegionIndexDto> dataView;
         dataView = grid.setItems(regions);
-        grid.addColumn(RegionIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+        grid.addColumn(RegionIndexDto::getArea).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(RegionIndexDto::getName).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(RegionIndexDto::getExternalId).setHeader("PCode").setSortable(true).setResizable(true);
 
         GridExporter<RegionIndexDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle(I18nProperties.getCaption(Captions.region));
+        exporter.setTitle("Region");
         exporter.setFileName("APMIS_Provinces" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-        anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+        anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
@@ -314,11 +312,11 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
     	ConfigurableFilterDataProvider<DistrictIndexDto, Void, DistrictCriteria> filteredDataProvider;
     	GridListDataView<DistrictIndexDto> dataView;
-        grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+        grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
+		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true);
 		filteredDataProvider = districtDataProvider.withConfigurableFilter();
 
@@ -326,10 +324,10 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 
         GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle(I18nProperties.getCaption(Captions.region));
+        exporter.setTitle("Region");
         exporter.setFileName("APMIS_Districts" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-        anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+        anchor = new Anchor("", "Export ");
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");
@@ -351,11 +349,11 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
     	
     	ConfigurableFilterDataProvider<CommunityDto, Void, CommunityCriteriaNew> filteredDataProvider;
     	GridListDataView<CommunityDto> dataView;
-    	grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+    	grid.addColumn(CommunityDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(CommunityDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getDistrict).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getDistrictexternalId).setHeader("DCode").setResizable(true).setSortable(true);
 		grid.addColumn(CommunityDto::getName).setHeader("Cluster").setSortable(true).setResizable(true);
 		grid.addColumn(CommunityDto::getExternalId).setHeader("CCode").setResizable(true).setSortable(true);
@@ -366,10 +364,10 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 
         GridExporter<CommunityDto> exporter = GridExporter.createFor(grid);
         exporter.setAutoAttachExportButtons(false);
-        exporter.setTitle(I18nProperties.getCaption(Captions.region));
+        exporter.setTitle("Region");
         exporter.setFileName("APMIS_Clusters" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
-        anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+        anchor = new Anchor("", "Export");
         anchor.setHref(exporter.getCsvStreamResource());
         anchor.getElement().setAttribute("download", true);
         anchor.setClassName("exportJsonGLoss");

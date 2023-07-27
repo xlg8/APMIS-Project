@@ -15,6 +15,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+
 @PageTitle("Logout")
 @Route(value = "logout", layout = MainLayout.class)
 
@@ -73,7 +76,7 @@ public class LogoutView extends VerticalLayout {
 		
 		
 		confirmButton.getStyle().set("width", "35%");
-		cancelButton = new Button("Cancel", event -> {
+		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
 			dialog.close();
 			cancelButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
 		});

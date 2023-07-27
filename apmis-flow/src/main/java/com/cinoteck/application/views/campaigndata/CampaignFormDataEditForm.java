@@ -60,7 +60,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		deleteButton.getStyle().set("margin-right", "auto");
 		dialog.getFooter().add(deleteButton);
 
-		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSaveChanges));//, (e) -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));//, (e) -> dialog.close());
 		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
 //		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 //		        ButtonVariant.LUMO_SUCCESS);

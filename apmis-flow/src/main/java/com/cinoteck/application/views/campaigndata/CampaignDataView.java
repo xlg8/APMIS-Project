@@ -28,6 +28,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -57,7 +58,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Campaign Data")
+@PageTitle("APMIS-Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
 public class CampaignDataView extends VerticalLayout {
 
@@ -89,7 +90,7 @@ public class CampaignDataView extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
-
+	Anchor anchor = new Anchor("", "Export");
 	
 	UserProvider userProvider = new UserProvider();
 
@@ -136,7 +137,7 @@ public class CampaignDataView extends VerticalLayout {
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
-		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData);
+		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importData, anchor);
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
@@ -146,9 +147,6 @@ public class CampaignDataView extends VerticalLayout {
 				importanceSwitcher, resetHandler);
 
 		
-
-		
-
 		displayFilters.addClickListener(e -> {
 			if (!level1Filters.isVisible()) {
 				actionButtonlayout.setVisible(true);
@@ -168,22 +166,22 @@ public class CampaignDataView extends VerticalLayout {
 		campaignYear.setLabel("Campaign Year");
 		campaignYear.getStyle().set("padding-top", "0px !important");
 
-		campaignz.setLabel("Campaign");
+		campaignz.setLabel(I18nProperties.getCaption(Captions.Campaigns));
 		campaignz.getStyle().set("padding-top", "0px !important");
 
-		campaignPhase.setLabel("Campaign Phase");
+		campaignPhase.setLabel(I18nProperties.getCaption(Captions.Campaign_phase));
 		campaignPhase.getStyle().set("padding-top", "0px !important");
 		
 		
 
 		
-		campaignFormCombo.setLabel("Form");
+		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 
-		regionCombo.setLabel(I18nProperties.getCaption(Captions.region));
+		regionCombo.setLabel(I18nProperties.getCaption(Captions.area));
 		regionCombo.getStyle().set("padding-top", "0px !important");
-		regionCombo.setPlaceholder("Regions");
+		regionCombo.setPlaceholder(I18nProperties.getCaption(Captions.area));
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
@@ -192,9 +190,9 @@ public class CampaignDataView extends VerticalLayout {
 			regionCombo.setEnabled(false);
 		}
 
-		provinceCombo.setLabel("Province");
+		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
-		provinceCombo.setPlaceholder("Provinces");
+		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
 		if(userProvider.getUser().getRegion() != null) {
@@ -207,7 +205,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		districtCombo.setLabel(I18nProperties.getCaption(Captions.district));
 		districtCombo.getStyle().set("padding-top", "0px !important");
-		districtCombo.setPlaceholder("Districts");
+		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
 		if(userProvider.getUser().getDistrict() != null) {
@@ -217,12 +215,12 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 
-		clusterCombo.setLabel("Cluster");
+		clusterCombo.setLabel(I18nProperties.getCaption(Captions.community));
 		clusterCombo.getStyle().set("padding-top", "0px !important");;
 //		if(userProvider.getUser().getCommunity() != null) {
 //			clusterCombo.setValue(userProvider.getUser().getCommunity());
 //		}
-		clusterCombo.setPlaceholder("Clusters");
+		clusterCombo.setPlaceholder(I18nProperties.getCaption(Captions.community));
 		clusterCombo.setEnabled(false);
 
 		// TODO Importance filter switcher should be visible only on the change of form
@@ -450,21 +448,21 @@ public class CampaignDataView extends VerticalLayout {
 		
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign)).setSortable(true).setResizable(true);//.setFooter(String.format("Row Count: %s", (int) FacadeProvider.getCampaignFormDataFacade().count(criteria)));
-		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader("Form").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader("RCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader("PCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader("DCode").setSortable(true).setResizable(true);
-		Column<CampaignFormDataIndexDto> comm = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader("Cluster")
-				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true).setAutoWidth(true);//.setFooter(String.format("Row Count: %s", (int) FacadeProvider.getCampaignFormDataFacade().count(criteria)));
+		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader(I18nProperties.getCaption(Captions.campaignCampaignForm)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.DISTRICT).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.DCODE).setHeader(I18nProperties.getCaption(Captions.District_externalID)).setSortable(true).setResizable(true).setAutoWidth(true);
+		Column<CampaignFormDataIndexDto> comm = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
+				.setSortable(true).setResizable(true).setAutoWidth(true);
 		grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader("CCode").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader("Form Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader("Form Phase").setSortable(true).setResizable(true);
+				.setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader(I18nProperties.getCaption(Captions.CampaignFormData_formDate)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.CampaignFormData_formType)).setSortable(true).setResizable(true).setAutoWidth(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -488,12 +486,25 @@ public class CampaignDataView extends VerticalLayout {
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
 //	    exporter.setExportValue(comm, item -> "" + item);
 //	    exporter.setColumnPosition(lastNameCol, 1);
+		exporter.setAutoAttachExportButtons(false);
+
 		exporter.setTitle("Campaign Data information"); 
 		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
-		exporter.setCsvExportEnabled(true);
-		exporter.setPdfExportEnabled(false);
-		exporter.setExcelExportEnabled(false);
-		exporter.setDocxExportEnabled(false);
+//		exporter.setCsvExportEnabled(true);
+//		exporter.setPdfExportEnabled(false);
+//		exporter.setExcelExportEnabled(false);
+//		exporter.setDocxExportEnabled(false);
+		
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
+
 //grid.getFooterRows().get(0).
 //		grid.appendFooterRow();
 		add(grid);

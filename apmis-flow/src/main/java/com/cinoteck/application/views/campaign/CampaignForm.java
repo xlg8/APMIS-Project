@@ -89,7 +89,7 @@ public class CampaignForm extends VerticalLayout {
 	ComboBox round = new ComboBox<>("Round");
 	DatePicker startDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_startDate));
 	DatePicker endDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_endDate));
-	TextField creatingUser = new TextField("Creating User");
+	TextField creatingUser = new TextField(I18nProperties.getCaption(Captions.Campaign_creatingUser));
 	TextField creatingUuid = new TextField("UUID");
 	TextField campaaignYear = new TextField("Campaign Year");
 	UUID uuid = UUID.randomUUID();
@@ -331,7 +331,7 @@ public class CampaignForm extends VerticalLayout {
 
 			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader(I18nProperties.getCaption(Captions.Location));
 
-			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader("Population");
+			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
 
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
@@ -395,7 +395,7 @@ public class CampaignForm extends VerticalLayout {
 								.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
 					}
 
-					if (!e.getItem().getParentUuid().equals(I18nProperties.getCaption(Captions.area))) {
+					if (!e.getItem().getParentUuid().equals("Area")) {
 						// treeGrid.deselect(treeGrid.getTreeData().getParent(e.getItem()));
 					}
 
@@ -489,7 +489,7 @@ public class CampaignForm extends VerticalLayout {
 		parentTab4.add(treeGrid);
 
 		parentTab4.add(layoutAssocCamp);
-		tabsheetParent.add("Associate Campaign ", parentTab4);
+		tabsheetParent.add("Associate Campaign", parentTab4);
 
 		VerticalLayout parentTab5 = new VerticalLayout();
 		parentTab5.setId("parentTab5");
@@ -504,7 +504,7 @@ public class CampaignForm extends VerticalLayout {
 
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, lblIntroduction);// .setHorizontalComponentAlignment(lblIntroduction,
 
-		Button btnImport = new Button(I18nProperties.getCaption("Import"));// , e -> {
+		Button btnImport = new Button(I18nProperties.getCaption(Captions.actionImport));// , e -> {
 
 		btnImport.addClickListener(e -> {
 			ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(null, campaignDto);
@@ -514,56 +514,70 @@ public class CampaignForm extends VerticalLayout {
 		poplayout.add(btnImport);
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnImport);
 
-		Button btnExport = new Button("Export"); // poplayout.addComponent(btnExport);
+		Button btnExport = new Button(I18nProperties.getCaption(Captions.export)); // poplayout.addComponent(btnExport);
 		poplayout.add(btnExport);
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
 
 		parentTab5.add(poplayout);
 
-		tabsheetParent.add("Population Data", parentTab5);
+		tabsheetParent.add(I18nProperties.getCaption(Captions.View_configuration_populationdata), parentTab5);
 		tabsheetParent.setWidthFull();
 		tabsheetParent.setId("tabsheetParent");
 
-		CampaignActionButtons actionButtons = new CampaignActionButtons();
+		
 		
 		
 
 		openCloseCampaign = new Button();
 		openCloseCampaign.setText("Open Campaign");
-		openCloseCampaign.getStyle().set("margin-inline-end", "auto");
+//		openCloseCampaign.getStyle().set("margin-inline-end", "auto");
 		
 		duplicateCampaign = new Button();
 		duplicateCampaign.setText("Duplicate");
-		duplicateCampaign.getStyle().set("margin-inline-end", "auto");
+//		duplicateCampaign.getStyle().set("margin-inline-end", "auto");
 		
 		deleteCampaign = new Button();
-		deleteCampaign.setText("Delete");
+		deleteCampaign.setText(I18nProperties.getCaption(Captions.actionDelete));
 		deleteCampaign.getStyle().set("background", "red");
-		deleteCampaign.getStyle().set("margin-inline-end", "auto");
+//		deleteCampaign.getStyle().set("margin-inline-end", "auto");
 		
 		publishUnpublishCampaign = new Button();
-		publishUnpublishCampaign.setText("Publish Campaign");
-		publishUnpublishCampaign.getStyle().set("margin-inline-end", "auto");
+		publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
+//		publishUnpublishCampaign.getStyle().set("margin-inline-end", "auto");
 		
 		discardChanges = new Button();
-		discardChanges.setText("Discard");
-		discardChanges.getStyle().set("margin-inline-start", "auto");
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
+//		discardChanges.getStyle().set("margin-inline-start", "auto");
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		
 		saveChanges = new Button();
 		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
-		saveChanges.getStyle().set("margin-inline-start", "auto");
+//		saveChanges.getStyle().set("margin-inline-start", "20px");
 		saveChanges.addClickListener(e -> {
 			validateAndSave();
 		});
 
 		
 		
-		archiveDearchive.getStyle().set("margin-inline-end", "auto");
+//		archiveDearchive.getStyle().set("margin-inline-end", "auto");
 		// Add the buttons to the layout
-		actionButtonsLayout.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
-				deleteCampaign, discardChanges, saveChanges);
-		actionButtonsLayout.getStyle().set("flex-wrap", "wrap");
+		
+		HorizontalLayout leftFloat = new HorizontalLayout();
+		HorizontalLayout rightFloat = new HorizontalLayout();
+		leftFloat.setJustifyContentMode(JustifyContentMode.START);
+		
+		rightFloat.setJustifyContentMode(JustifyContentMode.END);
+//		rightFloat.setWidthFull();
+		leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
+				deleteCampaign);
+		leftFloat.setWidth("50%");
+		
+		rightFloat.add(discardChanges, saveChanges);
+		rightFloat.setWidth("50%");
+		
+		actionButtonsLayout.add(leftFloat, rightFloat);
+//		actionButtonsLayout.getStyle().set("flex-wrap", "wrap");
+		actionButtonsLayout.setWidthFull();
 		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
 		
 		// Set the justify content mode to END
@@ -571,6 +585,9 @@ public class CampaignForm extends VerticalLayout {
 		formL.add(campaignName, round, startDate, endDate, description);
 		formL.setColspan(description, 2);
 		formL.setColspan(hort, 2);
+		formL.setColspan(leftFloat, 1);
+		formL.setColspan(rightFloat, 1);
+//		formL.setColspan(actionButtonsLayout, 2);
 		
 		
 		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
@@ -651,10 +668,10 @@ public class CampaignForm extends VerticalLayout {
 			fireEvent(new SaveEvent(this, binderx.getBean()));
 			
 			UI.getCurrent().getPage().reload();
-			Notification.show("Success!");
+			Notification.show(I18nProperties.getString(Strings.headingUploadSuccess)+"!");
 			
 		} else {
-			Notification.show("Error in Campaign form");
+			Notification.show("error in campaign form");
 		}
 	}
 

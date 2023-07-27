@@ -18,6 +18,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
 
@@ -42,13 +43,14 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChart));
-		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName));
-		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName));
+		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart").setAutoWidth(true).setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true).setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
 		grid.addColumn(CampaignDashboardElement::getHeight).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		grid.addColumn(CampaignDashboardElement::getOrder).setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 		grid.setItems(savedElements);
+		
 		
 		addClassName("list-view");
 		setSizeFull();
@@ -57,16 +59,19 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 	private Component getContent() {
 		VerticalLayout formx = editorForm();
+//		formx.setId("formControls1");
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(grid, formx);
+//		content.setId("formControls1");
 		content.setFlexGrow(4, grid);
-		content.setFlexGrow(1, formx);
+		content.setFlexGrow(0, formx);
 		content.addClassNames("content");
 		content.setSizeFull();
 		return content;
 	}
 
 	private VerticalLayout editorForm() {
+//		setId("formControls2");
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
 		
@@ -80,14 +85,14 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		 deleteButton.getStyle().set("background-color", "red!important");
 		 deleteButton.setTooltipText("Remove this form");
 	        
-	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
+	        Button saveButton = new Button("Save",
 	                new Icon(VaadinIcon.CHECK));
 	        
 	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
-		charts.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChart));
+		charts.setLabel("Charts");
 		charts.setItems(allElements);
 		charts.setItemLabelGenerator(item -> getItemCaption(item));
 		// if its a clicked action set the value from the item....TODO
@@ -181,7 +186,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				tabHeight.setValue(selectedCamp.getHeight());
 				tabOrder.setValue(selectedCamp.getOrder());
 				
-			    saveButton.setText("Update");
+			    saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			    } else {
 			    	formBeenEdited = new CampaignDashboardElement();
 			    }
@@ -217,6 +222,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 					tabOrder.setValue(0);
 			 }
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			 grid.setHeight("auto !important");
 		 });
 		 
 		 cacleButton.addClickListener(ees -> {
@@ -238,7 +244,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			 
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 
+			 grid.setHeight("");
 		 });
 		 
 		 
@@ -282,21 +288,23 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				 allElements.removeAll(campaignDto.getCampaignDashboardElements());
 				 charts.setItems(allElements);
 				 
-				 Notification.show("Campaign Updated");
+				 Notification.show(I18nProperties.getString(Strings.headingCampaignDashboard));
 				 } else {
 					 Notification.show("Please select a form before you update");
 				 }
 			 }
+			 grid.setHeight("");
 		 });
+		 HorizontalLayout newLayout = new HorizontalLayout( tabWidth, tabHeight, tabOrder);
 		 
-		 
-		formx.add(charts, tabID, subTabID, tabWidth, tabHeight, tabOrder);
-		formx.setColspan(charts, 3);
-		formx.setColspan(tabID, 3);
-		formx.setColspan(subTabID, 3);
-		formx.setColspan(tabWidth, 1);
-		formx.setColspan(tabHeight, 1);
-		formx.setColspan(tabOrder, 1);
+		formx.add(charts, tabID, subTabID,newLayout);
+		formx.setColspan(charts, 2);
+		formx.setColspan(tabID, 2);
+		formx.setColspan(subTabID, 2);
+		formx.setColspan(newLayout, 2);
+//		formx.setColspan(tabWidth, 1);
+//		formx.setColspan(tabHeight, 1);
+//		formx.setColspan(tabOrder, 1);
 		
 		formx.setVisible(false);
 		buttonAfterLay.setVisible(false);

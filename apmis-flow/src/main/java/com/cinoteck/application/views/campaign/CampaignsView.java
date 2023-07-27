@@ -2,9 +2,15 @@ package com.cinoteck.application.views.campaign;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import com.cinoteck.application.LanguageSwitcher;
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.data.sort.SortOrder;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -31,6 +37,7 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Gap.Column;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
@@ -66,6 +73,8 @@ public class CampaignsView extends VerticalLayout {
 	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
+	
+	UserProvider userProvider = new UserProvider();
 
 	public CampaignsView() {
 
@@ -73,24 +82,33 @@ public class CampaignsView extends VerticalLayout {
 		setHeightFull();
 		createFilterBar();
 		campaignsGrid();
-
+		
 	}
 
 	private boolean matchesTerm() {
 		return false;
 	}
+	
+//	public void buildUI() {
+//		
+//		VerticalLayout loginInformation = new VerticalLayout();
+//		
+//		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
+//		langSwitch.setId("loginLanguageSwitcher");
+//		langSwitch.getStyle().set("color", "white !important");
+//		loginInformation.add(langSwitch);
+//	}
 
 	private void campaignsGrid() {
-
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-
+		
 		this.criteria = new CampaignCriteria();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.Campaign_name)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.actionStatusChangeDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
@@ -155,7 +173,7 @@ public class CampaignsView extends VerticalLayout {
 
 		searchField = new TextField();
 		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -186,7 +204,7 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		validateFormsButton = new Button("Validate Forms", new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
 		validateFormsButton.addClickListener(e -> {
 			try {
 				FacadeProvider.getCampaignFormMetaFacade().validateAllFormMetas();
@@ -201,7 +219,7 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		createButton = new Button("New Campaign", new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton = new Button(I18nProperties.getCaption(Captions.campaignNewCampaign), new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.addClickListener(e -> {
 			newCampaign(dto);
 		});

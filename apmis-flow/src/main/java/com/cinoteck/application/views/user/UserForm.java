@@ -91,7 +91,7 @@ public class UserForm extends FormLayout {
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
-	CheckboxGroup<UserType> usertype = new CheckboxGroup("Common User?");
+	CheckboxGroup<UserType> usertype = new CheckboxGroup( I18nProperties.getCaption(Captions.commomUser) +"?");
 	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
 	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.User_userRoles));
@@ -223,7 +223,7 @@ public class UserForm extends FormLayout {
 
 		formAccess.setLabel("Form Access");
 		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess, UserDto::setFormAccess);
+		binder.forField(formAccess).asRequired("Please Fill out a FormAccess").bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel("Active ?");

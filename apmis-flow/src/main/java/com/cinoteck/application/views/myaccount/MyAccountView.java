@@ -1,7 +1,10 @@
 package com.cinoteck.application.views.myaccount;
 
+import com.cinoteck.application.LanguageSwitcher;
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -28,11 +31,11 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.EmailField;
 
-
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -60,6 +63,7 @@ import de.symeda.sormas.api.user.UserDto;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @PageTitle("APMIS-My Account")
@@ -67,6 +71,10 @@ import java.util.Map;
 
 public class MyAccountView extends VerticalLayout implements RouterLayout {
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
+
+	UserProvider userProvider = new UserProvider();
+	
+	
 
 	public MyAccountView() {
 		setSpacing(false);
@@ -200,7 +208,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		// "Province");
 //		provincee.setValue("");
 
-
 		// Select<String> districtt = new Select<>();
 		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		// districtt.setLabel("District");
@@ -212,7 +219,8 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		// Select<String> clusterr = new Select();
 
-		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>(I18nProperties.getCaption(Captions.community));
+		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>(
+				I18nProperties.getCaption(Captions.community));
 		cluster.setLabel(I18nProperties.getCaption(Captions.community));
 		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
 
@@ -262,25 +270,22 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-bottom", "15px");
 		security.getStyle().set("margin-top", "16px !important");
 
-
 		Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
-		//Button openPasswordPopupButton = new Button("Change Password");
+		// Button openPasswordPopupButton = new Button("Change Password");
 //		passwordDialog.getStyle().set("margin-bottom", "0px");
 //		passwordDialog.getStyle().set("margin-top", "12px !important");
-		//openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
+		// openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
 
-		//Dialog passwordDialog = new Dialog();
+		// Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
 		Button openPasswordPopupButton = new Button("Change Password");
 //		passwordDialog.getStyle().set("margin-bottom", "0px");
 //		passwordDialog.getStyle().set("margin-top", "12px !important");
-		
-		
-		
+
 		openPasswordPopupButton.addClickListener(event -> {
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
-			});
+		});
 		add();
 
 		VerticalLayout pwdSecc = new VerticalLayout();
@@ -295,9 +300,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		languagee.setRequired(true);
-		//binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+		// binder.forField(languagee).asRequired("Language is
+		// Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 		languagee.setValue(currentUser.getLanguage());
-		
+
 		languagee.getStyle().set("width", "400px");
 
 		languagee.getStyle().set("width", "400px");
@@ -305,7 +311,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Div anch = new Div();
 		anch.setClassName("anchDiv");
 		pwdSecc.getStyle().set("margin-left", "20px");
-		
+
 		pwdSecc.add(openPasswordPopupButton, languagee, anch);
 
 		Div actionss = new Div();
@@ -326,18 +332,34 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Button savee = new Button(I18nProperties.getCaption(Captions.actionSave), vadIcc);
 		savee.addClickListener(e -> {
 			UserDto currentUserToSave = FacadeProvider.getUserFacade().getCurrentUser();
-			if(languagee.getValue() != null) {
-				
-			currentUserToSave.setLanguage(languagee.getValue());
-			FacadeProvider.getUserFacade().saveUser(currentUserToSave);
-			
-			Notification.show("Language setting saved successfully");
+			if (languagee.getValue() != null) {
+
+				LanguageSwitcher languageSwitcher = new LanguageSwitcher();
+				currentUserToSave.setLanguage(languagee.getValue());
+				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
+				I18nProperties.setUserLanguage(languagee.getValue());
+				I18nProperties.getUserLanguage();
+				Notification.show("Language setting saved successfully " + languagee.getValue());
+
+				System.out.println(userProvider.getUser().getLanguage().toString());
+				String userLanguage = userProvider.getUser().getLanguage().toString();
+
+				if (userLanguage.equals("Pashto")) {
+
+					languageSwitcher.switchLanguage(new Locale("ps"));
+				} else if (userLanguage.equals("Dari")) {
+
+					languageSwitcher.switchLanguage(new Locale("fa"));
+				} else {
+					
+					languageSwitcher.switchLanguage(Locale.ENGLISH);
+				}
+
 			} else {
-				
-				Notification.show("Choose prefered language: "+languagee.isInvalid());
+
+				Notification.show("Choose prefered language: " + languagee.isInvalid());
 			}
-			
-			
+
 		});
 		actionss.getStyle().set("margin", "20px");
 		actionss.add(discard, savee);
@@ -422,6 +444,5 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
 
 	}
-
 
 }

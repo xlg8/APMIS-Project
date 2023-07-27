@@ -17,11 +17,13 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -51,21 +53,21 @@ public class DistrictView extends VerticalLayout {
 	private static final long serialVersionUID = 1370022184569877189L;
 
 	DistrictCriteria criteria;
-
+	DistrictIndexDto districtIndexDto;
 	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
 
 	ConfigurableFilterDataProvider<DistrictIndexDto, Void, DistrictCriteria> filteredDataProvider;
 
 	Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
 
-	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
 
 	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
 
 	TextField searchField = new TextField();
 
 	Button resetFilters = new Button("Reset Filters");
-
+	Anchor anchor = new Anchor("", "Export");
 	ComboBox<String> riskFilter = new ComboBox<>("Risk");
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
 
@@ -82,11 +84,11 @@ public class DistrictView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
 		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
+		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true);
 
 		grid.setVisible(true);
@@ -102,6 +104,22 @@ public class DistrictView extends VerticalLayout {
 			}
 		});
 		add(grid);
+
+		GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+		exporter.setTitle("Users");
+		exporter.setFileName(
+				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("exportArea");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 	}
 
 	public Component addFiltersLayout() {
@@ -110,6 +128,13 @@ public class DistrictView extends VerticalLayout {
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
+
+		HorizontalLayout relevancelayout = new HorizontalLayout();
+		relevancelayout.setPadding(false);
+		relevancelayout.setVisible(false);
+		relevancelayout.setAlignItems(Alignment.END);
+		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
+		relevancelayout.setWidth("54%");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -121,16 +146,20 @@ public class DistrictView extends VerticalLayout {
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
+				relevancelayout.setVisible(true);
 				displayFilters.setText("Hide Filters");
 			} else {
 				layout.setVisible(false);
+				relevancelayout.setVisible(false);
+
 				displayFilters.setText("Show Filters");
 			}
 		});
 
 		layout.setPadding(false);
 
-		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setClearButtonVisible(true);
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
@@ -145,6 +174,8 @@ public class DistrictView extends VerticalLayout {
 		layout.add(regionFilter);
 
 		provinceFilter.setPlaceholder("All Provinces");
+		provinceFilter.setClearButtonVisible(true);
+
 		if (currentUser.getUser().getRegion() != null) {
 			provinceFilter.setValue(currentUser.getUser().getRegion());
 			filteredDataProvider.setFilter(criteria.region(currentUser.getUser().getRegion()));
@@ -172,7 +203,7 @@ public class DistrictView extends VerticalLayout {
 		});
 
 		searchField.addClassName("filterBar");
-		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
+		searchField.setPlaceholder("Search");
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938");
 		searchField.setPrefixComponent(searchIcon);
@@ -184,15 +215,8 @@ public class DistrictView extends VerticalLayout {
 			resetFilters.setVisible(true);
 		});
 
-		resetFilters.addClassName("resetButton");
-		resetFilters.setVisible(false);
-		layout.add(resetFilters);
-		resetFilters.addClickListener(e -> {
-
-		});
-
+		riskFilter.setClearButtonVisible(true);
 		riskFilter.setItems("Low Risk (LR)", "Medium Risk (MR)", "High Risk (HR)");
-
 		riskFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -206,7 +230,6 @@ public class DistrictView extends VerticalLayout {
 		layout.add(riskFilter);
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
-
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
 				return I18nProperties.getCaption(Captions.districtArchivedDistricts);
@@ -218,15 +241,44 @@ public class DistrictView extends VerticalLayout {
 			// Handle other enum values if needed
 			return status.toString();
 		});
-
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
 			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
 		});
+		relevancelayout.add(relevanceStatusFilter);
 
-		layout.add(relevanceStatusFilter);
+		resetFilters.addClassName("resetButton");
+//		resetFilters.setVisible(false);
+		resetFilters.addClickListener(e -> {
+			if (!searchField.isEmpty()) {
+				searchField.clear();
+			}
+			if (!regionFilter.isEmpty()) {
+				regionFilter.clear();
+			}
+			if (!provinceFilter.isEmpty()) {
+				provinceFilter.clear();
+			}
+			if (!riskFilter.isEmpty()) {
+				riskFilter.clear();
+			}
+			if (!relevanceStatusFilter.isEmpty()) {
+				relevanceStatusFilter.clear();
+			}
 
-		vlayout.add(displayFilters, layout);
+		});
+//		layout.add(resetFilters);
+
+		Button addNew = new Button("Add New District");
+		addNew.getElement().getStyle().set("white-space", "normal");
+		addNew.getStyle().set("color", "white");
+		addNew.getStyle().set("background", "#0D6938");
+		addNew.addClickListener(event -> {
+			createOrEditDistrict(districtIndexDto);
+		});
+		layout.add( addNew, anchor);
+		vlayout.setWidth("99%");
+		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 		return vlayout;
 	}
@@ -238,57 +290,82 @@ public class DistrictView extends VerticalLayout {
 	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
-		nameField.setValue(districtIndexDto.getName());
+
+		TextField nameField = new TextField("Name");
+
 		TextField dCodeField = new TextField("DCode");
 		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
-		provinceOfDistrict.setItems(districtIndexDto.getRegion());
-		provinceOfDistrict.setValue(districtIndexDto.getRegion());
-		provinceOfDistrict.isReadOnly();
-		provinceOfDistrict.setEnabled(false);
+		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		ComboBox<String> risk = new ComboBox<>("Risk");
 		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
+
+		if (districtIndexDto != null) {
+			nameField.setValue(districtIndexDto.getName());
+			dCodeField.setValue(districtIndexDto.getExternalId().toString());
+			provinceOfDistrict.setItems(districtIndexDto.getRegion());
+			provinceOfDistrict.setValue(districtIndexDto.getRegion());
+//		provinceOfDistrict.isReadOnly();
+			provinceOfDistrict.setEnabled(false);
+		}
+
 		// this can generate null
-		dCodeField.setValue(districtIndexDto.getExternalId().toString());
+
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 
 			String name = nameField.getValue();
 			String code = dCodeField.getValue();
 
-			String uuids = districtIndexDto.getUuid();
-			System.out.println(code + "________________" + uuids + "__________________" + name);
+			String uuids = "";
+			if (districtIndexDto != null) {
+				uuids = districtIndexDto.getUuid();
+			}
 			if (name != null && code != null) {
 
 				DistrictDto dce = FacadeProvider.getDistrictFacade().getDistrictByUuid(uuids);
+				if (dce != null) {
+					dce.setName(name);
+					long rcodeValue = Long.parseLong(code);
+					dce.setExternalId(rcodeValue);
+					dce.setRegion(provinceOfDistrict.getValue());
+					if (dce.getRisk() != null) {
+						dce.setRisk(risk.getValue());
+					}
+					FacadeProvider.getDistrictFacade().save(dce, true);
+					Notification.show("Saved: " + name + " " + code);
+					dialog.close();
+					refreshGridData();
+				} else {
+					DistrictDto dcex = new DistrictDto();
 
-				System.out.println(dce);
-
-				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
-
-				dce.setName(name);
-				long rcodeValue = Long.parseLong(code);
-				dce.setExternalId(rcodeValue);
-
-				FacadeProvider.getDistrictFacade().save(dce, true);
-
-				// Perform save operation or any desired logic here
-
-				Notification.show("Saved: " + name + " " + code);
-				dialog.close();
-
+					dcex.setName(name);
+					long rcodeValue = Long.parseLong(code);
+					dcex.setExternalId(rcodeValue);
+					dcex.setRegion(provinceOfDistrict.getValue());
+					dcex.setRisk(risk.getValue());
+					FacadeProvider.getDistrictFacade().save(dcex, true);
+					Notification.show("Saved: " + name + " " + code);
+					dialog.close();
+					refreshGridData();
+				}
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);
 			}
 
 		});
 
-		dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+//		dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+		if (districtIndexDto == null) {
+			dialog.setHeaderTitle("Add New District");
+		} else {
+			dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+
+		}
 		fmr.add(nameField, dCodeField, provinceOfDistrict, risk);
 		dialog.add(fmr);
 		dialog.getFooter().add(discardButton, saveButton);
@@ -299,6 +376,14 @@ public class DistrictView extends VerticalLayout {
 		dialog.open();
 
 		return true;
+	}
+
+	private void refreshGridData() {
+		ListDataProvider<DistrictIndexDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getDistrictFacade().getIndexList(criteria, null, null, null).stream());
+
+		grid.setDataProvider(filteredDataProvider);
+//		dataView = grid.setItems(dataProvider);
 	}
 
 }

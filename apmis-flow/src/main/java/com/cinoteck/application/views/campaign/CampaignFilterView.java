@@ -59,7 +59,7 @@ public class CampaignFilterView extends VerticalLayout {
 		});
 
 		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
-		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
+		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		
@@ -69,7 +69,7 @@ public class CampaignFilterView extends VerticalLayout {
 
 		campaignStatus.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
-		Button validateForms = new Button("Validate Forms", new Icon(VaadinIcon.CHECK_CIRCLE));
+		Button validateForms = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
 		Button addNewForm = new Button("Add New Forms", new Icon(VaadinIcon.PLUS_CIRCLE));
 
 		campaignDataFilterLayout.add(searchField, campaignStatus, validateForms, addNewForm);

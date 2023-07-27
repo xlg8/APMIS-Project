@@ -25,12 +25,12 @@ public class ImportPopulationDataDialog extends Dialog{
 	
 	ComboBox campaignFilter = new ComboBox<>();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
-	Button startDataImport = new Button("Start Data Import");
+	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 	ComboBox valueSeperator = new ComboBox<>();
 	
 	public ImportPopulationDataDialog(InfrastructureType infrastructureType, CampaignDto camapigndto) {
-		this.setHeaderTitle("Import Population Data");
+		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportPopulationData));
 //		this.getStyle().set("color" , "#0D6938");
 		
 		Hr seperatorr = new Hr();

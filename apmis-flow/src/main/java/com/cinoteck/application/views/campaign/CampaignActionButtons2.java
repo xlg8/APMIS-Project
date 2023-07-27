@@ -27,11 +27,11 @@ public class CampaignActionButtons2 extends HorizontalLayout {
 
 		
 		discardChanges = new Button();
-		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscardChanges));
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
 //		discardChanges.addClickListener(e->{ dialog.close();});
 		
 		saveChanges = new Button();
-		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
+		saveChanges.setText("Save");
 		saveChanges.addClickListener(e-> Notification.show("Campaign Data Saved", 2, Position.MIDDLE));
 		
 //		 setVerticalComponentAlignment(Alignment.END, discardChanges, saveChanges);

@@ -43,7 +43,6 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaReferenceDto::getCaption).setHeader("Form Name");
 		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired).setHeader("Expiry");
 		grid.setItems(savedCampaignFormMetas);
-		
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
@@ -54,13 +53,14 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(grid, formx);
 		content.setFlexGrow(4, grid);
-		content.setFlexGrow(1, formx);
+		content.setFlexGrow(0, formx);
 		content.addClassNames("content");
 		content.setSizeFull();
 		return content;
 	}
 
 	private VerticalLayout editorForm() {
+		
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
 		
@@ -76,12 +76,12 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	        
 	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
-
-	        Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
+	        
+	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();
-		forms.setLabel("Form");
+		forms.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		forms.setItems(allCampaignFormMetas);
 		// if its a clicked action set the value from the item....TODO
 
@@ -103,7 +103,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		 
 		// buttonLay.setEnabled(false);
 		 
-		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton);
+		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cacleButton);
 		 buttonAfterLay.getStyle().set("flex-wrap", "wrap");
 		 buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
 		 buttonLay.setSpacing(true);
@@ -156,10 +156,11 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				 daysExpire.setValue(5);
 			 }
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			
+			 grid.setHeight("auto !important");
+			 
 		 });
 		 
-		 cancelButton.addClickListener(ees -> {
+		 cacleButton.addClickListener(ees -> {
 			 CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
 			 
 			 formx.setVisible(false);
@@ -169,7 +170,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
 			 daysExpire.setValue(0);
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			
+			 grid.setHeight("");
 		 });
 		 
 		 
@@ -199,6 +200,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					 Notification.show("Please select a form before you update");
 				 }
 			 }
+			 grid.setHeight("");
 		 });
 		 
 		 

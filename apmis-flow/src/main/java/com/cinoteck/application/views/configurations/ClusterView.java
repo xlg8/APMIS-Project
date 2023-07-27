@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,6 +23,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridDataView;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -32,6 +36,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
@@ -41,7 +46,6 @@ import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -63,11 +67,11 @@ public class ClusterView extends Div {
 	private CommunityCriteriaNew criteria;
 
 	ClusterDataProvider clusterDataProvider = new ClusterDataProvider();
-
+	CommunityDto communityDto;
 	ConfigurableFilterDataProvider<CommunityDto, Void, CommunityCriteriaNew> filteredDataProvider;
 
 	Grid<CommunityDto> grid = new Grid<>(CommunityDto.class, false);
-
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	UserProvider currentUser = new UserProvider();
 
 	public ClusterView() {
@@ -81,14 +85,14 @@ public class ClusterView extends Div {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
-		grid.addColumn(CommunityDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
-		grid.addColumn(CommunityDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
+		grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true);
+		grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getRegionexternalId).setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true);
 		grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
-		grid.addColumn(CommunityDto::getDistrictexternalId).setHeader("DCode").setResizable(true).setSortable(true);
-		grid.addColumn(CommunityDto::getName).setHeader("Cluster").setSortable(true).setResizable(true);
-		grid.addColumn(CommunityDto::getExternalId).setHeader("CCode").setResizable(true).setSortable(true);
+		grid.addColumn(CommunityDto::getDistrictexternalId).setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true);
+		grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true).setResizable(true);
+		grid.addColumn(CommunityDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setResizable(true).setSortable(true);
 
 		grid.setVisible(true);
 		filteredDataProvider = clusterDataProvider.withConfigurableFilter();
@@ -102,6 +106,21 @@ public class ClusterView extends Div {
 		});
 
 		add(grid);
+		
+		GridExporter<CommunityDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
+		exporter.setFileName("APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+		
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("exportCluster");
+		Icon icon = VaadinIcon.UPLOAD_ALT.create();
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 	}
 
 	// TODO: Hide the filter bar on smaller screens
@@ -111,6 +130,14 @@ public class ClusterView extends Div {
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
+		
+		HorizontalLayout relevancelayout = new HorizontalLayout();
+		relevancelayout.setPadding(false);
+		relevancelayout.setVisible(false);
+		relevancelayout.setAlignItems(Alignment.END);
+		relevancelayout.setJustifyContentMode(JustifyContentMode.END );
+		relevancelayout.setWidth("54%");
+
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -122,9 +149,13 @@ public class ClusterView extends Div {
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
+				relevancelayout.setVisible(true);
+
 				displayFilters.setText("Hide Filters");
 			} else {
 				layout.setVisible(false);
+				relevancelayout.setVisible(false);
+
 				displayFilters.setText("Show Filters");
 			}
 		});
@@ -132,8 +163,8 @@ public class ClusterView extends Div {
 		layout.setPadding(false);
 
 		TextField searchField = new TextField();
-		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
-		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		Button resetFilters = new Button("Reset Filters");
 		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
@@ -147,7 +178,7 @@ public class ClusterView extends Div {
 		searchField.setWidth("25%");
 		layout.add(searchField);
 
-		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
@@ -160,7 +191,7 @@ public class ClusterView extends Div {
 
 		layout.add(regionFilter);
 
-		provinceFilter.setPlaceholder("All Provinces");
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getRegion() != null) {
 			provinceFilter.setValue(currentUser.getUser().getRegion());
@@ -196,7 +227,7 @@ public class ClusterView extends Div {
 		});
 
 		layout.add(resetFilters);
-		layout.add(relevanceStatusFilter);
+		
 
 		searchField.addValueChangeListener(e -> {
 			criteria.nameLike(e.getValue());
@@ -238,69 +269,113 @@ public class ClusterView extends Div {
 //		resetFilters.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		resetFilters.setVisible(false);
 
-		vlayout.add(displayFilters, layout);
+		Button addNew = new Button("Add New Cluster");
+		addNew.getElement().getStyle().set("white-space", "normal");
+		addNew.getStyle().set("color", "white");
+		addNew.getStyle().set("background", "#0D6938");
+		addNew.addClickListener(event -> {
+			createOrEditCluster(communityDto);
+		});
+		layout.add(addNew, anchor);
+		relevancelayout.add(relevanceStatusFilter);
+		vlayout.setWidth("99%");
+		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 		return vlayout;
 	}
 
-
 	public boolean createOrEditCluster(CommunityDto communityDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
-		nameField.setValue(communityDto.getName());
+		TextField nameField = new TextField();
+//		
 		TextField clusterNumber = new TextField(I18nProperties.getCaption(Captions.clusterNumber));
-		nameField.setValue(communityDto.getName());
+
 		TextField cCodeField = new TextField("CCode");
-		cCodeField.setValue(communityDto.getExternalId().toString());
-		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
-		provinceOfDistrict.setItems(communityDto.getRegion());
-		provinceOfDistrict.setValue(communityDto.getRegion());
-		provinceOfDistrict.setEnabled(false);
+		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-		districtOfCluster.setItems(communityDto.getDistrict());
-		districtOfCluster.setValue(communityDto.getDistrict());
-		districtOfCluster.setEnabled(false);
+		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+
+		provinceOfDistrict.addValueChangeListener(e-> {
+//			districtOfCluster.clear();
+			districtOfCluster.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(provinceOfDistrict.getValue().getUuid()));
+		});
+		if (communityDto != null) {
+			nameField.setValue(communityDto.getName());
+			clusterNumber.setValue(communityDto.getClusterNumber().toString());
+			cCodeField.setValue(communityDto.getExternalId().toString());
+			provinceOfDistrict.setItems(communityDto.getRegion());
+			provinceOfDistrict.setValue(communityDto.getRegion());
+			provinceOfDistrict.setEnabled(false);
+			districtOfCluster.setItems(communityDto.getDistrict());
+			districtOfCluster.setValue(communityDto.getDistrict());
+			districtOfCluster.setEnabled(false);
+		}
+
 		// this can generate null
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
+		Button saveButton = new Button("Save");
+		Button discardButton = new Button("Discard", e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		saveButton.addClickListener(saveEvent -> {
 
 			String name = nameField.getValue();
+			String clusterNum = clusterNumber.getValue();
 			String code = cCodeField.getValue();
 
-			String uuids = communityDto.getUuid();
-			System.out.println(code + "________________" + uuids + "__________________" + name);
+			String uuids = "";
+			if (communityDto != null) {
+				uuids = communityDto.getUuid();
+			}
+			
 			if (name != null && code != null) {
 
 				CommunityDto dce = FacadeProvider.getCommunityFacade().getByUuid(uuids);
-
-				System.out.println(dce);
-
-				System.out.println(dce.getCreationDate() + " ====== " + dce.getName() + "-----" + dce.getUuid());
-
+				if (dce != null) {
 				dce.setName(name);
-				long rcodeValue = Long.parseLong(code);
-				dce.setExternalId(rcodeValue);
+				int clusternumbervalue = Integer.parseInt(clusterNum);
+				dce.setClusterNumber(clusternumbervalue);
+				long ccodeValue = Long.parseLong(code);
+				dce.setExternalId(ccodeValue);
+				dce.setRegion(provinceOfDistrict.getValue());
+				dce.setDistrict(districtOfCluster.getValue());
 
 				FacadeProvider.getCommunityFacade().save(dce, true);
 
-				// Perform save operation or any desired logic here
-
 				Notification.show("Saved: " + name + " " + code);
 				dialog.close();
+				 refreshGridData();
+				}else {
+					CommunityDto dcex = new CommunityDto();
+					dcex.setName(name);
+					int clusternumbervalue = Integer.parseInt(clusterNum);
+					dcex.setClusterNumber(clusternumbervalue);
+					long ccodeValue = Long.parseLong(code);
+					dcex.setExternalId(ccodeValue);
+					dcex.setRegion(provinceOfDistrict.getValue());
+					dcex.setDistrict(districtOfCluster.getValue());
 
+					FacadeProvider.getCommunityFacade().save(dcex, true);
+
+					Notification.show("Saved: " + name + " " + code);
+					dialog.close();
+					 refreshGridData();
+				}
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);
 			}
 
 		});
 
-		dialog.setHeaderTitle(I18nProperties.getString(Strings.edit) + communityDto.getName());
+//		dialog.setHeaderTitle("Edit " + communityDto.getName());
+		if (communityDto == null) {
+			dialog.setHeaderTitle("Add New Cluster");
+		} else {
+			dialog.setHeaderTitle("Edit " + communityDto.getName());
+
+		}
 		fmr.add(nameField, cCodeField, clusterNumber, provinceOfDistrict, districtOfCluster);
 		dialog.add(fmr);
 		dialog.getFooter().add(discardButton, saveButton);
@@ -311,6 +386,14 @@ public class ClusterView extends Div {
 		dialog.open();
 
 		return true;
+	}
+	
+	private void refreshGridData() {
+		ListDataProvider<CommunityDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
+		
+		grid.setDataProvider(filteredDataProvider);
+//		dataView = grid.setItems(dataProvider);
 	}
 
 }
