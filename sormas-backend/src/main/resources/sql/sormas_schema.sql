@@ -8828,7 +8828,44 @@ update
 INSERT INTO schema_version (version_number, comment) VALUES (443, 'Optimizing completion analysis');
     
     
-    
+  --Patch of Optimzation #202 Dashboard  
+
+CREATE MATERIALIZED VIEW camapaigndata_main
+AS
+select  
+campaignformmeta.uuid as formUuid, 
+campaignformmeta.formId as formId, 
+jsonData->>'id' as fieldId, 
+jsonMeta->>'caption' as fieldCaption, 
+CASE WHEN ((jsonMeta ->> 'type') = 'number') OR((jsonMeta ->> 'type') = 'decimal') OR((jsonMeta ->> 'type') = 'range') THEN sum(cast_number(jsonData->>'value', 0)) ELSE sum(CASE WHEN(jsonData->>'value') = '' THEN 0 ELSE 1 END) END as sumValue, 
+areas."name" as Area, 
+region."name" as Region, 
+district."name" as District,
+areas.uuid as areas_uuid, 
+region.uuid as region_uuid, 
+district.uuid as district_uuid,
+campaigns.uuid as campaigns_uuid
+FROM campaignFormData
+LEFT JOIN campaignformmeta ON campaignFormMeta_id = campaignformmeta.id
+LEFT JOIN region ON region_id =region.id
+LEFT JOIN areas ON campaignFormData.area_id = areas.id
+LEFT JOIN district ON district_id = district.id
+LEFT JOIN community ON community_id = community.id
+LEFT JOIN campaigns ON campaign_id = campaigns.id,
+json_array_elements(formValues) as jsonData, json_array_elements(campaignFormElements) as jsonMeta
+WHERE jsonData->>'value' IS NOT NULL
+AND jsonData->>'id' = jsonMeta->>'id'
+GROUP BY campaigns.uuid, campaignformmeta.uuid, campaignformmeta.formId, jsonData->>'id', jsonMeta->>'caption', jsonMeta->>'type', areas."name", region."name", district."name", areas.uuid, region.uuid, district.uuid
+with data;
+
+CREATE UNIQUE INDEX camapaigndata_main_fieldid_idx ON public.camapaigndata_main (fieldid,formuuid,campaigns_uuid,district_uuid);
+
+INSERT INTO tracktableupdates (table_name, last_updated)
+VALUES ('camapaigndata_main', NOW())
+ON CONFLICT (table_name)
+DO UPDATE SET last_updated = NOW();
+
+INSERT INTO schema_version (version_number, comment) VALUES (444, 'Optimizing dashboard view mechanism');
     
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

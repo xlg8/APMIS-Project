@@ -401,22 +401,21 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 	}
 	
 	
-	public Integer getAreaPopulationParent(String areaUuid, AgeGroup ageGroup, CampaignDiagramCriteria criteria) {
+	public Integer getAreaPopulationParent(String notneeded, AgeGroup ageGroup, CampaignDiagramCriteria criteria) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		
 		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
-		
+		System.out.println("DEBUGGERcccccccccooooo: -----============ "+criteria.getCampaign());
 		if(criteria.getCampaign() != null) {
 			
-			//System.out.println("DEBUGGERccccccccc -----============ "+criteria.getCampaign().getUuid());
+			System.out.println("DEBUGGERcccccccccbbbb: -----============ "+criteria.getCampaign().getUuid());
 			//campaignService
-			Predicate filterx = CriteriaBuilderHelper.and(cb, ageFilter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()));
-			Predicate filter_ = CriteriaBuilderHelper.and(cb, filterx, cb.equal(root.get("selected"), true));
+			Predicate filterx = CriteriaBuilderHelper.and(cb, ageFilter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()), cb.equal(root.get("selected"), true));
 			
-			cq.where(filterx, filter_);
-		}else {
+			cq.where(filterx);
+		} else {
 			cq.where(ageFilter);
 		}
 		
@@ -425,7 +424,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		
 		
 		cq.select(root.get(PopulationData.POPULATION));
-		//System.out.println("DEBUGGER 5678ijhyuio _______TOtalpopulation_________ccccccccc___________________ "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER 56 TOtalpopulation______: "+SQLExtractor.from(em.createQuery(cq)));
 
 		TypedQuery query = em.createQuery(cq);
 		try {
