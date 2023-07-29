@@ -2,12 +2,17 @@ package com.cinoteck.application.views.campaign;
 
 import java.util.Collections;
 import java.util.List;
+
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.data.sort.SortOrder;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
@@ -98,8 +103,6 @@ public class CampaignsView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
 
-//		GridSortOrder<CampaignIndexDto> sortOrder = new GridSortOrder<>(startDateColumn, SortDirection.DESCENDING);
-
 		ListDataProvider<CampaignIndexDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null).stream());
 
@@ -122,16 +125,12 @@ public class CampaignsView extends VerticalLayout {
 		String statusText = indexDto != null ? indexDto.getCampaignStatus() : "";
 		Label statusLabel = new Label(statusText);
 
-		// Customize the appearance of the status component if needed
-
 		return statusLabel;
 	}
 
 	private void createFilterBar() {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
-		
-		
 
 		filterDisplayToggle = new Button("Show Filters");
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
@@ -161,13 +160,6 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setClassName("col-sm-6, col-xs-6");
 
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-//		searchField.addValueChangeListener(e -> dataView.addFilter(campaignsz -> {
-////			if (e.getValue() != null) {
-////				criteria.freeText(e.getValue());
-//////				filterDataProvider.setFilter(criteria);
-//////				filterDataProvider.refreshAll();
-////			}}
-//		}));
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 			if (searchTerm.isEmpty())
@@ -229,12 +221,12 @@ public class CampaignsView extends VerticalLayout {
 
 	private void newCampaign(CampaignDto formData) {
 		CampaignForm formLayout = new CampaignForm(formData);
-
 		formLayout.addSaveListener(this::saveCampaign);
+		formLayout.addOpenCloseListener(this::openCloseCampaign);
+//		formLayout.addArchiveListener(this::archiveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
 		dialog.setHeaderTitle("New Campaign");
-
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);
@@ -242,19 +234,21 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void openFormLayout(CampaignDto formData) {
-
+		Dialog dialog = new Dialog();
 		CampaignForm formLayout = new CampaignForm(formData);
-
 		formLayout.setCampaign(formData);
 		formLayout.addSaveListener(this::saveCampaign);
-		Dialog dialog = new Dialog();
+		formLayout.addArchiveListener(this::archiveDearchiveCampaign);
+		formLayout.addPublishListener(this::publishUnpublishCampaign);
+		formLayout.addOpenCloseListener(this::openCloseCampaign);
+		formLayout.addDeleteListener(this::deleteCampaign);
+		formLayout.addDuplicateListener(this::duplicateCampaign);
 		dialog.add(formLayout);
 		dialog.setHeaderTitle("Edit Campaign");
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);
 		dialog.setResizable(true);
-
 	}
 
 	private void setFiltersVisible(boolean state) {
@@ -269,4 +263,151 @@ public class CampaignsView extends VerticalLayout {
 		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
 	}
 
+	private void archiveDearchiveCampaign(CampaignForm.ArchiveEvent event) {
+		ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setCancelable(true);
+		dialog.addCancelListener(e -> dialog.close());
+		dialog.setRejectable(true);
+		dialog.setRejectText("No");
+		dialog.addRejectListener(e -> dialog.close());
+		dialog.setConfirmText("Yes");
+		dialog.open();
+		CampaignForm formLayout = (CampaignForm) event.getSource();
+		boolean isArchived = FacadeProvider.getCampaignFacade().isArchived(event.getCampaign().getUuid());
+
+		if (isArchived == true) {
+
+			dialog.setHeader("De-Archive Campaign");
+			dialog.setText(
+					"Are you sure you want to de-archive this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().archiveOrDearchiveCampaign(event.getCampaign().getUuid(), false);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		} else {
+			dialog.setHeader("Archive Campaign");
+			dialog.setText(
+					"Are you sure you want to Archive this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().archiveOrDearchiveCampaign(event.getCampaign().getUuid(), true);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		}
+		formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+	}
+
+	private void publishUnpublishCampaign(CampaignForm.PublishUnpublishEvent event) {
+		ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setCancelable(true);
+		dialog.addCancelListener(e -> dialog.close());
+		dialog.setRejectable(true);
+		dialog.setRejectText("No");
+		dialog.addRejectListener(e -> dialog.close());
+		dialog.setConfirmText("Yes");
+		dialog.open();
+		CampaignForm formLayout = (CampaignForm) event.getSource();
+		boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(event.getCampaign().getUuid());
+
+		if (isPublished == true) {
+
+			dialog.setHeader("Publish Campaign");
+			dialog.setText(
+					"Are you sure you want to Un-Publish this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().publishandUnPublishCampaign(event.getCampaign().getUuid(), false);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		} else {
+			dialog.setHeader("Un-Publish Campaign");
+			dialog.setText(
+					"Are you sure you want to Publish this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().publishandUnPublishCampaign(event.getCampaign().getUuid(), true);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		}
+		formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+	}
+
+	private void openCloseCampaign(CampaignForm.OpenCloseEvent event) {
+		ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setCancelable(true);
+		dialog.addCancelListener(e -> dialog.close());
+		dialog.setRejectable(true);
+		dialog.setRejectText("No");
+		dialog.addRejectListener(e -> dialog.close());
+		dialog.setConfirmText("Yes");
+		dialog.open();
+		CampaignForm formLayout = (CampaignForm) event.getSource();
+		boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
+
+		if (isOpened == true) {
+
+			dialog.setHeader("Open Campaign");
+			dialog.setText(
+					"Are you sure you want to Open this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), false);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		} else {
+			dialog.setHeader("Close Campaign");
+			dialog.setText(
+					"Are you sure you want to Close this campaign? This will make it appear in the normal campaign directory again.");
+			dialog.addConfirmListener(e -> {
+				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), true);
+				formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+			});
+
+		}
+		formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+	}
+
+	private void deleteCampaign(CampaignForm.DeleteEvent event) {
+		ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setCancelable(true);
+		dialog.addCancelListener(e -> dialog.close());
+		dialog.setRejectable(true);
+		dialog.setRejectText("No");
+		dialog.addRejectListener(e -> dialog.close());
+		dialog.setConfirmText("Yes");
+		dialog.open();
+//		CampaignForm formLayout = (CampaignForm) event.getSource();
+//	    boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
+		dialog.setHeader("Delete Campaign");
+		dialog.setText(
+				"Are you sure you want to Delete this campaign? This will make it appear in the normal campaign directory again.");
+		dialog.addConfirmListener(e -> {
+			FacadeProvider.getCampaignFacade().deleteCampaign(event.getCampaign().getUuid());
+			UI.getCurrent().getPage().reload();
+		});
+
+	}
+	
+	private void duplicateCampaign(CampaignForm.DuplicateEvent event) {
+		UserProvider usr = new UserProvider();
+		ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setCancelable(true);
+		dialog.addCancelListener(e -> dialog.close());
+		dialog.setRejectable(true);
+		dialog.setRejectText("No");
+		dialog.addRejectListener(e -> dialog.close());
+		dialog.setConfirmText("Yes");
+		dialog.open();
+//		CampaignForm formLayout = (CampaignForm) event.getSource();
+//	    boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
+		dialog.setHeader("Delete Campaign");
+		dialog.setText(
+				"Are you sure you want to Clone this campaign? This will make it appear in the normal campaign directory again.");
+		dialog.addConfirmListener(e -> {
+			FacadeProvider.getCampaignFacade().cloneCampaign(event.getCampaign().getUuid(), usr.getUser().getUserName());
+			UI.getCurrent().getPage().reload();
+		});
+
+	}
 }
