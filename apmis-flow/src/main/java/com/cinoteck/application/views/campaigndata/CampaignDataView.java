@@ -329,6 +329,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignFormCombo.setItems(campaignForms);
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
+		campaignFormCombo.setValue(campaignForms.get(0));
+	
 
 		newForm.setItems(campaignForms);
 
@@ -336,6 +338,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		criteria.campaign(lastStarted);
 		criteria.setFormType(campaignPhase.getValue().toString());
+		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
+		
 
 		// Configure Comboboxes Value Change Listeners
 		campaignYear.addValueChangeListener(e -> {
@@ -355,6 +359,7 @@ public class CampaignDataView extends VerticalLayout {
 						.getAllCampaignFormMetasAsReferencesByRoundandCampaign(
 								campaignPhase.getValue().toString().toLowerCase(), e.getValue().getUuid());
 				campaignFormCombo.setItems(campaignFormReferences_);
+				campaignFormCombo.setValue(campaignFormReferences_.get(0));
 				newForm.setItems(campaignFormReferences_);
 				importFormData.setItems(campaignFormReferences_);
 				reload();
@@ -371,6 +376,7 @@ public class CampaignDataView extends VerticalLayout {
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
 							campaignz.getValue().getUuid());
 			campaignFormCombo.setItems(campaignFormReferences_);
+			campaignFormCombo.setValue(campaignFormReferences_.get(0));
 			newForm.setItems(campaignFormReferences_);
 			importFormData.setItems(campaignFormReferences_);
 			reload();
@@ -448,8 +454,10 @@ public class CampaignDataView extends VerticalLayout {
 //			}
 // 		});
 		importFormData.addValueChangeListener(e -> {
+			if(importFormData.getValue() != null) {
 			CampaignDataImportDialog dialog = new CampaignDataImportDialog();
 			dialog.open();
+			}
 		});
 
 		resetHandler.setText("Reset Filters");
