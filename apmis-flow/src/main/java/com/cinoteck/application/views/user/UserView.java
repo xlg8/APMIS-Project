@@ -3,6 +3,7 @@ package com.cinoteck.application.views.user;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -47,6 +50,9 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.server.Page;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -70,7 +76,6 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
-//
 
 @PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -195,8 +200,8 @@ public class UserView extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.User_userEmail)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
 		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition)
-				.setHeader(I18nProperties.getCaption(Captions.User_userPosition)).setAutoWidth(true)
-				.setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.User_userPosition)).setAutoWidth(true).setSortable(true)
+				.setResizable(true);
 		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation)
 				.setHeader(I18nProperties.getCaption(Captions.User_userOrganisation)).setAutoWidth(true)
 				.setSortable(true).setResizable(true);
@@ -207,7 +212,6 @@ public class UserView extends VerticalLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
-
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -364,8 +368,22 @@ public class UserView extends VerticalLayout {
 		menuBar.setVisible(false);
 		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
 		SubMenu subMenu = item.getSubMenu();
-		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionEnable)));
-		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionDisable)));
+		Checkbox enable = new Checkbox(I18nProperties.getCaption(Captions.actionEnable));
+		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
+		enable.addClickListener(e -> {			
+			Collection<UserDto> selected = grid.getSelectedItems();
+			enableAllSelectedItems(selected);
+			filterDataProvider.refreshAll();
+		});
+		
+		disable.addClickListener(e -> {			
+			Collection<UserDto> selected = grid.getSelectedItems();
+			disableAllSelectedItems(selected);
+			filterDataProvider.refreshAll();
+		});
+		
+		subMenu.addItem(enable);
+		subMenu.addItem(disable);
 		menuBar.getStyle().set("margin-top", "5px");
 		layout.add(menuBar);
 
@@ -722,10 +740,10 @@ public class UserView extends VerticalLayout {
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
-			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) +" : " + userName);
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
 
-			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) +" : " + newPassword);
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
 			password.getStyle().set("color", "#0D6938");
 
 			infoLayout.add(username, password);
@@ -737,6 +755,68 @@ public class UserView extends VerticalLayout {
 //		else {
 //			showAccountCreatedSuccessful();
 //		}
+	}
+
+	public void enableAllSelectedItems(Collection<UserDto> selectedRows) {
+
+		if (selectedRows.size() == 0) {
+
+			 Notification notification = Notification
+	                    .show(I18nProperties.getString(Strings.headingNoUsersSelected) + " " + I18nProperties.getString(Strings.messageNoUsersSelected));
+	            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+	            notification.setPosition(Notification.Position.MIDDLE);
+	            notification.open();	            
+		}else {
+//			 Notification.showConfirmationPopup(I18nProperties.getString(Strings.headingConfirmEnabling),
+//					new Label(String.format(I18nProperties.getString(Strings.confirmationEnableUsers),
+//							selectedRows.size())),
+//					I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), null, confirmed -> {
+//						if (!confirmed) {
+//							return;
+//						}
+			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
+			FacadeProvider.getUserFacade().enableUsers(uuids);
+			System.out.println("Activated");
+//						callback.run();		
+
+			 Notification notification = Notification
+	                    .show(I18nProperties.getString(Strings.headingUsersEnabled) + "  " + I18nProperties.getString(Strings.messageUsersEnabled));
+	            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+	            notification.setPosition(Notification.Position.MIDDLE);
+	            notification.open();
+		}
+	}
+
+	public void disableAllSelectedItems(Collection<UserDto> selectedRows) {
+
+		if (selectedRows.size() == 0) {
+
+			 Notification notification = Notification
+	                    .show(I18nProperties.getString(Strings.headingNoUsersSelected) + "  " + I18nProperties.getString(Strings.messageNoUsersSelected));
+	            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+	            notification.setPosition(Notification.Position.MIDDLE);
+	            notification.open();
+		} else {
+			
+//			VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingConfirmDisabling),
+//					new Label(String.format(I18nProperties.getString(Strings.confirmationDisableUsers),
+//							selectedRows.size())),
+//					I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), null, confirmed -> {
+//						if (!confirmed) {
+//							return;
+//						}
+
+			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
+			FacadeProvider.getUserFacade().disableUsers(uuids);
+			System.out.println("Deactivated");
+//						callback.run();
+			
+			 Notification notification = Notification
+	                    .show(I18nProperties.getString(Strings.headingUsersDisabled) + "  " + I18nProperties.getString(Strings.messageUsersDisabled));
+	            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+	            notification.setPosition(Notification.Position.MIDDLE);
+	            notification.open();
+		}
 	}
 
 	private FormLayout createDialogLayout() {

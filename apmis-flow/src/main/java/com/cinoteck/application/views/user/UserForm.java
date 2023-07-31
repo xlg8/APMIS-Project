@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -17,6 +19,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -34,6 +38,7 @@ import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
+import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
@@ -99,6 +104,8 @@ public class UserForm extends FormLayout {
 	Button save = new Button(I18nProperties.getCaption(Captions.actionSave));
 	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
 	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
+	
+	Anchor createPassword = new Anchor("", "CreateNew Password");
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -241,7 +248,7 @@ public class UserForm extends FormLayout {
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion, userProvince,
 				userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city, areaType, userData,
 				userName, activeCheck, usertype, userRoles, formAccess, language, region, province, district,
-				community);
+				community, createPassword);
 		createButtonsLayout();
 	}
 
@@ -285,6 +292,20 @@ public class UserForm extends FormLayout {
 			}
 
 		});
+	}
+	
+	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+			System.out.println(newPassword + "     " + "password");
+			System.out.println(userName + "     " + "username");
+			System.out.println(userEmail + "     " + "email");
+//			new Dialog(newPassword, userName);
+		} else {
+//			showPasswordResetExternalSuccessPopup();
+		}
 	}
 
 	public void setUser(UserDto user) {
