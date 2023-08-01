@@ -603,7 +603,7 @@ vaadin-horizontal-layout[fcgh-footer] {
 }
 
 #exportArea{
-	width: 130px;
+	width: 135px;
     margin-bottom: 6px;
 }
 
@@ -618,3 +618,4 @@ vaadin-horizontal-layout[fcgh-footer] {
 	font-size: smaller;
 	color: #0D6938 !important;
 }
+

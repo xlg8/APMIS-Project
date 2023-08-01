@@ -303,7 +303,7 @@ public class UserView extends VerticalLayout {
 		criteria = new UserCriteria();
 
 		int numberOfRows = filterDataProvider.size(new Query<>());
-		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
 
 		layout.setMargin(true);
@@ -323,6 +323,7 @@ public class UserView extends VerticalLayout {
 		});
 
 		layout.add(anchor);
+		layout.addClassNames("row pl-4");
 
 		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
 		bulkModeButton.addClassName("bulkActionButton");
@@ -591,8 +592,10 @@ public class UserView extends VerticalLayout {
 		});
 		HorizontalLayout coluntLay = new HorizontalLayout();
 		coluntLay.setJustifyContentMode(JustifyContentMode.END);
-		coluntLay.setWidthFull();
+		coluntLay.setWidth("20%");
 		coluntLay.add(countRowItems);
+		
+		filterLayout.setClassName("row pl-3");
 		filterLayout.add(districtFilter, coluntLay);
 
 		vlayout.add(displayFilters, filterLayout);
@@ -602,7 +605,7 @@ public class UserView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = filterDataProvider.size(new Query<>());
-		String newText = "No. of Data Rows : " + numberOfRows;
+		String newText = "Rows : " + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -654,7 +657,7 @@ public class UserView extends VerticalLayout {
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-
+countRowItems.setVisible(state);
 		districtFilter.setVisible(state);
 
 //		displayFilters.setVisible(state);
