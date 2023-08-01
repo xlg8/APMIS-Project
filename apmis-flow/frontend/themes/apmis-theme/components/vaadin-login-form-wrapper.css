@@ -13,6 +13,7 @@
       }
 
       #forgotPasswordButton {
+      	color: #0D6938 !important;
         margin: var(--lumo-space-s) auto;
       }
 

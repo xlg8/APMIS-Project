@@ -457,7 +457,7 @@ vcf-nav-item::part(item) {
 }
 
 .login-screen {
-	background-image: url("images/loginBackground.png");
+	background-image: url("images/afghanistan-map.svg");
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -489,9 +489,9 @@ vcf-nav-item[active]::part(item) {
 }
 
 #vaadinLoginUsername label, #vaadinLoginPassword label {
-	color: white !important;
-	font-family: Lato;
-	font-size: large;
+	color: green !important;
+	font-family: sans-serif;
+	font-size: small;
 }
 
 vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-container
@@ -618,3 +618,8 @@ vaadin-horizontal-layout[fcgh-footer] {
 	font-size: smaller;
 	color: #0D6938 !important;
 }
+
+.login-information{
+	background-color: #0f4502a3;
+}
+

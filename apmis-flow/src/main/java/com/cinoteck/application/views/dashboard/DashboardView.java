@@ -103,7 +103,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		
 		UserProvider usr = new UserProvider();
 
-		campaign.setLabel(usr.getUuid() + " _Campaign_ "+deletab);
+		campaign.setLabel("Campaigns");
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
 

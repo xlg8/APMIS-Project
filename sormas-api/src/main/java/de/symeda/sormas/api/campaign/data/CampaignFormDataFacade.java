@@ -70,6 +70,10 @@ public interface CampaignFormDataFacade {
 	List<CampaignDiagramDataDto> getDiagramData(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
 	List<CampaignDiagramDataDto> getDiagramDataCard(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
 	List<CampaignDiagramDataDto> getDiagramDataByGroups(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
+	
+	List<CampaignDiagramDataDto> getDiagramDataFlow(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
+	List<CampaignDiagramDataDto> getDiagramDataCardFlow(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
+	List<CampaignDiagramDataDto> getDiagramDataByGroupsFlow(List<CampaignDiagramSeries> diagramSeries, CampaignDiagramCriteria campaignDiagramCriteria);
 
 	List<CampaignDiagramDataDto> getDiagramDataByAgeGroup(
 		CampaignDiagramSeries diagramSeriesTotal,

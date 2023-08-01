@@ -225,7 +225,6 @@
 			<groupId>com.vaadin.componentfactory</groupId>
 			<artifactId>togglebutton</artifactId>
 			<version>3.0.0</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
