@@ -179,21 +179,21 @@ public class UserView extends VerticalLayout {
 		grid.setColumnReorderingAllowed(true);
 
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
+				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Active");
 		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
+				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "User Roles");
 		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
+				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Username");
 		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
+				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Name");
 		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
-				.setAutoWidth(true).setResizable(true);
+				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Email");
 		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
-				.setAutoWidth(true).setSortable(true).setResizable(true);
+				.setAutoWidth(true).setSortable(true).setResizable(true).setTooltipGenerator(e -> "Organisation");
 		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
-				.setAutoWidth(true).setSortable(true).setResizable(true);
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
-				.setAutoWidth(true).setSortable(true);
+				.setAutoWidth(true).setSortable(true).setResizable(true).setTooltipGenerator(e -> "Position");
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Region").setResizable(true)
+				.setAutoWidth(true).setSortable(true).setTooltipGenerator(e -> "Region");
 
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);

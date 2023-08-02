@@ -8866,6 +8866,41 @@ ON CONFLICT (table_name)
 DO UPDATE SET last_updated = NOW();
 
 INSERT INTO schema_version (version_number, comment) VALUES (444, 'Optimizing dashboard view mechanism');
+
+
+CREATE MATERIALIZED VIEW useranalysis_main
+AS
+select string_agg (DISTINCT  area3_x."name"::text, ',') as area, string_agg (DISTINCT region4_x."name"::text, ',') as region, string_agg (DISTINCT  district5_x."name"::text, ',') as district, string_agg (DISTINCT cc."name"::text, ',') as community_, cc.id as community_id, cc.clusternumber, cc.externalid, array_to_string(array_agg (us.username), ', ') as users_attached, array_to_string(array_agg (distinct uf.formaccess), ',') as formAccess
+from community cc
+left outer join users_community uc on cc.id = uc.community_id
+left outer join users us on uc.users_id = us.id
+left outer join users_formaccess uf on uc.users_id = uf.user_id
+left outer join District district5_x on cc.district_id = district5_x.id
+left outer join Region region4_x on district5_x.region_id = region4_x.id
+left outer join areas area3_x on region4_x.area_id=area3_x.id
+where cc.id in (select distinct(xx.community_id) from users_community xx) and cc.archived = false
+group by cc.id, uf.formaccess;
+
+
+CREATE UNIQUE INDEX useranalysis_main_ ON public.useranalysis_main (externalid,formaccess,users_attached);
+
+
+INSERT INTO tracktableupdates (table_name, last_updated)
+VALUES ('useranalysis_main', NOW())
+ON CONFLICT (table_name)
+DO UPDATE SET last_updated = NOW();
+
+create trigger track_table_update after
+insert
+    or
+delete
+    or
+update
+    on
+    public.users for each row execute procedure update_timestamp();
+
+INSERT INTO schema_version (version_number, comment) VALUES (445, 'Optimizing Mobile User Analysis');
+
     
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
