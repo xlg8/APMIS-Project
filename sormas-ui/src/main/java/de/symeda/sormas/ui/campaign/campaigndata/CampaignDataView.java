@@ -560,7 +560,7 @@ public class CampaignDataView extends AbstractCampaignView {
 		criteria.setArea(user.getArea());
 		criteria.setRegion(user.getRegion());
 		criteria.setDistrict(user.getDistrict());
-		criteria.setCommunity(null); // set to null for the initial filter bar
+		criteria.setCommunity(null); // set to null for the initial filter bar  Are you sure you want to delete 1 selected Campaign Data?
 		filterForm = new CampaignFormDataFilterForm();
 
 		if (filterForm.hasFilter()) {

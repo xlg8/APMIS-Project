@@ -58,7 +58,7 @@ public class AboutView extends VerticalLayout {
 		
 		Paragraph text = new Paragraph(
 				"The Afghanistan Polio Management Information System (APMIS) is an online data system that simplifies and improves the use and management of polio immunization-related data. APMIS facilitates field data entry, immunization data storage, data visualization, and real-time monitoring of polio immunization activities in Afghanistan.  Using this system will assist in evaluating immunization campaign activities and identifying program challenges.");
-		text.getStyle().set("color", "green");
+		text.getStyle().set("color", "black");
 		text.getStyle().set("font-size", "20px");
 		text.getStyle().set("margin-bottom", "30px");
 		text.getStyle().set("text-align", "justify");

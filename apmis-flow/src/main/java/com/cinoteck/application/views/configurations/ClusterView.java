@@ -129,7 +129,7 @@ public class ClusterView extends Div {
 	public Component addFilters() {
 		
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
 		
 
@@ -143,7 +143,7 @@ public class ClusterView extends Div {
 		relevancelayout.setVisible(false);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END );
-		relevancelayout.setWidth("54%");
+		relevancelayout.setClassName("row");
 
 
 		HorizontalLayout vlayout = new HorizontalLayout();
@@ -182,7 +182,7 @@ public class ClusterView extends Div {
 		searchIcon.getStyle().set("color", "#0D6938");
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.setWidth("25%");
+		searchField.setWidth("15%");
 		layout.add(searchField);
 
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
@@ -293,6 +293,10 @@ public class ClusterView extends Div {
 			createOrEditCluster(communityDto);
 		});
 		layout.add(addNew, anchor);
+		layout.setWidth("75%");
+		layout.addClassName("pl-3");
+		layout.addClassName("row");
+		
 		relevancelayout.add(relevanceStatusFilter, countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
@@ -302,7 +306,7 @@ public class ClusterView extends Div {
 	
 	private void updateRowCount() {
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		String newText = "No. of Data Rows : " + numberOfRows;
+		String newText = "Rows : " + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -339,10 +343,10 @@ public class ClusterView extends Div {
 			cCodeField.setValue(communityDto.getExternalId().toString());
 			provinceOfDistrict.setItems(communityDto.getRegion());
 			provinceOfDistrict.setValue(communityDto.getRegion());
-			provinceOfDistrict.setEnabled(false);
+			provinceOfDistrict.setEnabled(true);
 			districtOfCluster.setItems(communityDto.getDistrict());
 			districtOfCluster.setValue(communityDto.getDistrict());
-			districtOfCluster.setEnabled(false);
+			districtOfCluster.setEnabled(true);
 		}
 
 		// this can generate null

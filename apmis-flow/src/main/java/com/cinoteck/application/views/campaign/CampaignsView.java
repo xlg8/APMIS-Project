@@ -73,8 +73,6 @@ public class CampaignsView extends VerticalLayout {
 	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
-	
-	UserProvider userProvider = new UserProvider();
 
 	public CampaignsView() {
 
@@ -88,16 +86,6 @@ public class CampaignsView extends VerticalLayout {
 	private boolean matchesTerm() {
 		return false;
 	}
-	
-//	public void buildUI() {
-//		
-//		VerticalLayout loginInformation = new VerticalLayout();
-//		
-//		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
-//		langSwitch.setId("loginLanguageSwitcher");
-//		langSwitch.getStyle().set("color", "white !important");
-//		loginInformation.add(langSwitch);
-//	}
 
 	private void campaignsGrid() {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
@@ -149,6 +137,8 @@ public class CampaignsView extends VerticalLayout {
 	private void createFilterBar() {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
+		
+		
 
 		filterDisplayToggle = new Button("Show Filters");
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
@@ -175,6 +165,7 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchField.setClassName("col-sm-6, col-xs-6");
 
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 //		searchField.addValueChangeListener(e -> dataView.addFilter(campaignsz -> {
@@ -197,6 +188,8 @@ public class CampaignsView extends VerticalLayout {
 		relevanceStatusFilter.setLabel("Campaign Status");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.setClearButtonVisible(true);
+		relevanceStatusFilter.setClassName("col-sm-6, col-xs-6");
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
 
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
@@ -205,6 +198,7 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 		validateFormsButton = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton.setClassName("col-sm-6, col-xs-6");
 		validateFormsButton.addClickListener(e -> {
 			try {
 				FacadeProvider.getCampaignFormMetaFacade().validateAllFormMetas();
@@ -220,12 +214,13 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 		createButton = new Button(I18nProperties.getCaption(Captions.campaignNewCampaign), new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 		filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
-
+		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);
 
 		add(campaignsFilterLayout);

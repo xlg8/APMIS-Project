@@ -48,27 +48,84 @@
 
 			<div class="firstname" style="width: 50%; margin-right: 2%;">
 				<label for="First_Name"
-					style="font-size: 14px; font-family: system-ui; color: #0D6938;">First Name</label><br>
-				<input id="First_Name" name="First_Name" type="name"
+					style="font-size: 14px; font-family: system-ui; color: #0D6938;">First
+					Name</label><br> <input id="First_Name" name="First_Name" type="name"
 					placeholder="First Name"
 					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"
 					required>
 			</div>
 			<div class="lastname" style="width: 50%;">
 				<label for="Last_Name"
-					style="font-size: 14px; font-family: system-ui ;  color: #0D6938;">Last Name</label><br>
-				<input id="Last_Name" name="Last_Name" type="text"
+					style="font-size: 14px; font-family: system-ui; color: #0D6938;">Last
+					Name</label><br> <input id="Last_Name" name="Last_Name" type="text"
 					placeholder="Last Name"
 					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;">
 			</div>
 		</div>
 
-		<label for="Email" style="font-size: 14px; font-family: system-ui; color: #0D6938;">Email</label><br>
+
+		<div class="fullname" style="display: flex;">
+
+			<div class="feedback" style="width: 50%; margin-right: 2%;">
+				<label for="Feedback_Type"
+					style="font-size: 14px; font-family: system-ui; color: #0D6938;">Your
+					Feedback</label><br> <select name="Feedback_Type" id="Feedback_Type"
+					type="text" placeholder="Feedback Type"
+					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"
+					required>
+					<option value=""></option>
+					<option value="General Feedback">General Feedback</option>
+					<option value="Change/Update request">Change/Update
+						request</option>
+					<option value="Support request">Support request</option>
+					<option value="New Feature request">New Feature request</option>
+					<option value="New Feature request">Bug report</option>
+					<option value="New Feature request">Data validation</option>
+					<option value="New Feature request">Other</option>
+				</select>
+				<!--input id="Feedback_Type" name="Feedback_Type" type="text"
+					placeholder="Feedback Type"
+					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"
+					required-->
+			</div>
+			<div class="systemsection" style="width: 50%;">
+				<label for="System_Section"
+					style="font-size: 14px; font-family: system-ui; color: #0D6938;">System
+					Section</label><br> <select name="System_Section" id="System_Section"
+					type="text" placeholder="System Section"
+					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"
+					required>
+					<option value=""></option>
+					<option value="Dashboard">Dashboard</option>
+					<option value="Campaigns">Campaigns</option>
+					<option value="Forms">Forms</option>
+					<option value="Report">Report</option>
+					<option value="Configuration">Configuration</option>
+					<option value="Users">Users</option>
+					<option value="Language">Language</option>
+					<option value="Account">Account</option>
+					<option value="Support">Support</option>
+					<option value="About">About</option>
+					<option value="Log-in/out">Log-in/out</option>
+					<option value="Mobile">Mobile</option>
+					<option value="System">System</option>
+					<option value="Other">Other</option>
+				</select>
+
+				<!-- input id="System_Section" name="System_Section" type="text"
+					placeholder="SystemSection"
+					style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"-->
+			</div>
+		</div>
+
+		<label for="Email"
+			style="font-size: 14px; font-family: system-ui; color: #0D6938;">Email</label><br>
 		<input id="Email" name="Email" type="email"
 			placeholder="Your Email Address" required
 			style="margin-top: 10px; width: 100%; height: 35px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"><br>
 
-		<label for="Comment" style="font-size: 14px; font-family: system-ui; color: #0D6938;">Feedback</label><br>
+		<label for="Comment"
+			style="font-size: 14px; font-family: system-ui; color: #0D6938;">Feedback</label><br>
 		<textarea id="Comment" name="Comment" type="comment"
 			placeholder="Enter your feedback here" required
 			style="width: 100%; height: 30vh; margin-top: 10px; border-radius: 5px; border: 1px solid #0D6938; margin-bottom: 20px;"></textarea>

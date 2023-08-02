@@ -414,6 +414,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		layout.add(displayFilters, filterLayout);
 
+		
+		filterLayout.setClassName("row pl-3");
         filterLayout.add(regionFilter, provinceFilter, districtFilter, errorStatusFilter, resetButton);
         countAndButtons.add(layout);
         add(countAndButtons);

@@ -190,6 +190,8 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 			}
 		});
 		
+		
+		filterLayout.setClassName("row pl-3");
 		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton);
 		
 		

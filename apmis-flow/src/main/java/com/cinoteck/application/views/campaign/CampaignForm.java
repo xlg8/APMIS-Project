@@ -22,6 +22,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -84,6 +86,8 @@ public class CampaignForm extends VerticalLayout {
 //	CampaignRounds rounds;
 	private CampaignDto campaignDto;
 	private CampaignIndexDto campaignDtox;
+	
+	H5 campaignBasics = new H5("Campaign Basics");
 
 	TextField campaignName = new TextField(I18nProperties.getCaption(Captions.Campaign_name));
 	ComboBox round = new ComboBox<>("Round");
@@ -589,12 +593,13 @@ public class CampaignForm extends VerticalLayout {
 		formL.setColspan(rightFloat, 1);
 //		formL.setColspan(actionButtonsLayout, 2);
 		
-		
+		campaignBasics.getStyle().set("margin-top", "0px");
+		campaignBasics.getStyle().set("margin-bottom", "0px");
 		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
 //		actionButtonsLayout.setResponsiveSteps(
 //				// Use one column by default
 //				new ResponsiveStep("0", 1), new ResponsiveStep("520px", 7), new ResponsiveStep("1000px", 7));
-		add(formL, layoutParent,
+		add(campaignBasics, formL, layoutParent,
 				actionButtonsLayout); // ,
 		// layoutParent,
 		// actionButtons

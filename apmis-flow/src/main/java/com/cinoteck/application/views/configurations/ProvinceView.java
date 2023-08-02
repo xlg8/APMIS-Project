@@ -149,7 +149,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	public void configureProvinceFilters() {
 		
 		int numberOfRows = regions.size();
-		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
 		
 //		setMargin(true);
@@ -163,7 +163,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevancelayout.setVisible(false);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
-		relevancelayout.setWidth("54%");
+		relevancelayout.setWidth("10%");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -270,6 +270,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		});
 		layout.add(addNew, anchor);
+		layout.setWidth("80%");
+		layout.addClassName("pl-3");
+		layout.addClassName("row");
 		relevancelayout.add(countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
@@ -278,7 +281,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	
 	private void updateRowCount() {
 		int numberOfRows = dataView.getItemCount();// .size(new Query<>());
-		String newText = "No. of Data Rows : " + numberOfRows;
+		String newText = "Rows : " + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -302,7 +305,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			pCodeField.setValue(regionDto.getExternalId().toString());
 			areaField.setItems(regionDto.getArea());
 			areaField.setValue(regionDto.getArea());
-			areaField.setEnabled(false);
+			areaField.setEnabled(true);
 		}
 
 		dialog.setCloseOnEsc(false);
