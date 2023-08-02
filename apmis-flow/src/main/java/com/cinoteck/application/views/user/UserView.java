@@ -372,13 +372,13 @@ public class UserView extends VerticalLayout {
 		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
 		enable.addClickListener(e -> {			
 			Collection<UserDto> selected = grid.getSelectedItems();
-			enableAllSelectedItems(selected);
+			enableUser(selected);
 			filterDataProvider.refreshAll();
 		});
 		
 		disable.addClickListener(e -> {			
 			Collection<UserDto> selected = grid.getSelectedItems();
-			disableAllSelectedItems(selected);
+			disableUser(selected);
 			filterDataProvider.refreshAll();
 		});
 		
@@ -757,7 +757,7 @@ public class UserView extends VerticalLayout {
 //		}
 	}
 
-	public void enableAllSelectedItems(Collection<UserDto> selectedRows) {
+	public void enableUser(Collection<UserDto> selectedRows) {
 
 		if (selectedRows.size() == 0) {
 
@@ -767,17 +767,10 @@ public class UserView extends VerticalLayout {
 	            notification.setPosition(Notification.Position.MIDDLE);
 	            notification.open();	            
 		}else {
-//			 Notification.showConfirmationPopup(I18nProperties.getString(Strings.headingConfirmEnabling),
-//					new Label(String.format(I18nProperties.getString(Strings.confirmationEnableUsers),
-//							selectedRows.size())),
-//					I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), null, confirmed -> {
-//						if (!confirmed) {
-//							return;
-//						}
+
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().enableUsers(uuids);
-			System.out.println("Activated");
-//						callback.run();		
+			System.out.println("Activated");	
 
 			 Notification notification = Notification
 	                    .show(I18nProperties.getString(Strings.headingUsersEnabled) + "  " + I18nProperties.getString(Strings.messageUsersEnabled));
@@ -787,7 +780,7 @@ public class UserView extends VerticalLayout {
 		}
 	}
 
-	public void disableAllSelectedItems(Collection<UserDto> selectedRows) {
+	public void disableUser(Collection<UserDto> selectedRows) {
 
 		if (selectedRows.size() == 0) {
 
@@ -797,19 +790,10 @@ public class UserView extends VerticalLayout {
 	            notification.setPosition(Notification.Position.MIDDLE);
 	            notification.open();
 		} else {
-			
-//			VaadinUiUtil.showConfirmationPopup(I18nProperties.getString(Strings.headingConfirmDisabling),
-//					new Label(String.format(I18nProperties.getString(Strings.confirmationDisableUsers),
-//							selectedRows.size())),
-//					I18nProperties.getString(Strings.yes), I18nProperties.getString(Strings.no), null, confirmed -> {
-//						if (!confirmed) {
-//							return;
-//						}
 
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().disableUsers(uuids);
 			System.out.println("Deactivated");
-//						callback.run();
 			
 			 Notification notification = Notification
 	                    .show(I18nProperties.getString(Strings.headingUsersDisabled) + "  " + I18nProperties.getString(Strings.messageUsersDisabled));
