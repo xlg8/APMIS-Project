@@ -44,6 +44,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
@@ -53,6 +54,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -94,7 +96,7 @@ public class CampaignDataView extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
-	Anchor anchor = new Anchor("", "Export");
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Paragraph countRowItems;
 	UserProvider userProvider = new UserProvider();
 
@@ -103,6 +105,15 @@ public class CampaignDataView extends VerticalLayout {
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
 	public CampaignDataView() {
+		
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 		setSizeFull();
 		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
@@ -115,21 +126,20 @@ public class CampaignDataView extends VerticalLayout {
 		setMargin(true);
 
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-		countRowItems = new Paragraph("Rows : " + numberOfRows);
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + numberOfRows);
 		countRowItems.setId("rowCount");
 
 		ComboBox<CampaignFormMetaReferenceDto> newForm = new ComboBox<>();
 		newForm.setLabel(I18nProperties.getCaption(Captions.actionNewForm));
-		newForm.setPlaceholder("Data Entry");
-		newForm.setTooltipText(
-				"Drop down of list of available forms. Note: closed forms and expire form will not appear here");
+		newForm.setPlaceholder(I18nProperties.getCaption(Captions.dataEntry));
+		newForm.setTooltipText(I18nProperties.getDescription(Descriptions.campaign_dataEntry));
 		newForm.setClearButtonVisible(true);
 		newForm.getStyle().set("padding-top", "0px !important");
 
 		ComboBox<CampaignFormMetaReferenceDto> importFormData = new ComboBox<>();
 		importFormData.setLabel(I18nProperties.getCaption(Captions.actionImport));
-		importFormData.setPlaceholder("Data Import");
-		importFormData.setTooltipText("Drop down of list of available forms to be imported.");
+		importFormData.setPlaceholder(I18nProperties.getCaption(Captions.dataImport));
+		importFormData.setTooltipText(I18nProperties.getDescription(Descriptions.campaign_dataImport));
 		importFormData.setClearButtonVisible(true);
 		importFormData.getStyle().set("padding-top", "0px !important");
 		// ((HasPrefixAndSuffix)
@@ -146,7 +156,7 @@ public class CampaignDataView extends VerticalLayout {
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setClassName("row pl-3");
@@ -173,18 +183,18 @@ public class CampaignDataView extends VerticalLayout {
 			if (!level1Filters.isVisible()) {
 				actionButtonlayout.setVisible(true);
 				level1Filters.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				actionButtonlayout.setVisible(false);
 				level1Filters.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
 		TextArea resultField = new TextArea();
 		resultField.setWidth("100%");
 
-		campaignYear.setLabel("Campaign Year");
+		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaignYear.getStyle().set("padding-top", "0px !important");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
@@ -258,7 +268,7 @@ public class CampaignDataView extends VerticalLayout {
 		clusterCombo.setEnabled(false);
 
 		// TODO Importance filter switcher should be visible only on the change of form
-		importanceSwitcher.setLabel("Importance");
+		importanceSwitcher.setLabel(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.getStyle().set("padding-top", "0px !important");
 		importanceSwitcher.setClassName("col-sm-6, col-xs-6");
 		
@@ -266,7 +276,7 @@ public class CampaignDataView extends VerticalLayout {
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 		importanceSwitcher.setClearButtonVisible(true);
 		importanceSwitcher.setReadOnly(true);
-		importanceSwitcher.setTooltipText("Select Form first");
+		importanceSwitcher.setTooltipText(I18nProperties.getDescription(Descriptions.campaign_importance));
 		importanceSwitcher.addValueChangeListener(e -> {
 
 			if (formMetaReference != null) {
@@ -455,7 +465,7 @@ public class CampaignDataView extends VerticalLayout {
 			dialog.open();
 		});
 
-		resetHandler.setText("Reset Filters");
+		resetHandler.setText(I18nProperties.getCaption(Captions.resetFilters));
 
 		resetHandler.addClickListener(e -> {
 
@@ -514,7 +524,7 @@ public class CampaignDataView extends VerticalLayout {
 				.setResizable(true).setAutoWidth(true);
 		grid.addColumn(CampaignFormDataIndexDto.CCODE).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true).setAutoWidth(true);
 		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE).setHeader(I18nProperties.getCaption(Captions.CampaignFormData_formDate)).setSortable(true).setResizable(true).setAutoWidth(true);
-		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.CampaignFormData_formType)).setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase)).setSortable(true).setResizable(true).setAutoWidth(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -540,7 +550,7 @@ public class CampaignDataView extends VerticalLayout {
 //	    exporter.setColumnPosition(lastNameCol, 1);
 		exporter.setAutoAttachExportButtons(false);
 
-		exporter.setTitle("Campaign Data information");
+		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exporter.setFileName("GridExport" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
 //		exporter.setCsvExportEnabled(true);
 //		exporter.setPdfExportEnabled(false);

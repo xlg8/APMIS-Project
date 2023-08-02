@@ -99,7 +99,7 @@ public class CamapignDataFilter extends VerticalLayout {
 		
 		
 		campaignYear = new ComboBox<>();
-		campaignYear.setLabel("Campaign Year");
+		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaignYear.setId("jgcjgcjgcj");
 		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 
@@ -146,7 +146,7 @@ public class CamapignDataFilter extends VerticalLayout {
 		
 		
 
-		Button displayFilters = new Button("Show Filters");
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters));
 		displayFilters.getStyle().set("margin-left", "12px");
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
@@ -196,9 +196,9 @@ public class CamapignDataFilter extends VerticalLayout {
 		cluster.setPlaceholder(I18nProperties.getCaption(Captions.community));
 		cluster.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 
-		resetHandler.setText("Reset Filters");
+		resetHandler.setText(I18nProperties.getCaption(Captions.resetFilters));
 
-		applyHandler.setText("Apply Filters");
+		applyHandler.setText(I18nProperties.getCaption(Captions.applyFilters));
 
 		campaignDataFilterLayout.add(campaignForm, region, province, district, cluster, resetHandler, applyHandler);
 
@@ -207,11 +207,11 @@ public class CamapignDataFilter extends VerticalLayout {
 		displayFilters.addClickListener(e -> {
 			if (!campaignDataFilterLayout.isVisible()) {
 				campaignDataFilterLayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 
 			} else {
 				campaignDataFilterLayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 
 		});

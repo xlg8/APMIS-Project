@@ -132,6 +132,15 @@ public class UserView extends VerticalLayout {
 	boolean isEditingMode;
 
 	public UserView() {
+		
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
 //		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
@@ -205,7 +214,8 @@ public class UserView extends VerticalLayout {
 		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation)
 				.setHeader(I18nProperties.getCaption(Captions.User_userOrganisation)).setAutoWidth(true)
 				.setSortable(true).setResizable(true);
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Area").setResizable(true)
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea)
+				.setHeader(I18nProperties.getCaption(Captions.area)).setResizable(true)
 				.setAutoWidth(true).setSortable(true);
 
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
@@ -371,18 +381,18 @@ public class UserView extends VerticalLayout {
 		SubMenu subMenu = item.getSubMenu();
 		Checkbox enable = new Checkbox(I18nProperties.getCaption(Captions.actionEnable));
 		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
-		enable.addClickListener(e -> {			
+		enable.addClickListener(e -> {
 			Collection<UserDto> selected = grid.getSelectedItems();
 			enableUser(selected);
 			filterDataProvider.refreshAll();
 		});
-		
-		disable.addClickListener(e -> {			
+
+		disable.addClickListener(e -> {
 			Collection<UserDto> selected = grid.getSelectedItems();
 			disableUser(selected);
 			filterDataProvider.refreshAll();
 		});
-		
+
 		subMenu.addItem(enable);
 		subMenu.addItem(disable);
 		menuBar.getStyle().set("margin-top", "5px");
@@ -619,7 +629,7 @@ public class UserView extends VerticalLayout {
 		coluntLay.setJustifyContentMode(JustifyContentMode.END);
 		coluntLay.setWidth("20%");
 		coluntLay.add(countRowItems);
-		
+
 		filterLayout.setClassName("row pl-3");
 		filterLayout.add(districtFilter, coluntLay);
 
@@ -682,7 +692,7 @@ public class UserView extends VerticalLayout {
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-countRowItems.setVisible(state);
+		countRowItems.setVisible(state);
 		districtFilter.setVisible(state);
 
 //		displayFilters.setVisible(state);
@@ -764,22 +774,22 @@ countRowItems.setVisible(state);
 
 		if (selectedRows.size() == 0) {
 
-			 Notification notification = Notification
-	                    .show(I18nProperties.getString(Strings.headingNoUsersSelected) + " " + I18nProperties.getString(Strings.messageNoUsersSelected));
-	            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-	            notification.setPosition(Notification.Position.MIDDLE);
-	            notification.open();	            
-		}else {
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingNoUsersSelected) + " "
+					+ I18nProperties.getString(Strings.messageNoUsersSelected));
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {
 
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().enableUsers(uuids);
-			System.out.println("Activated");	
+			System.out.println("Activated");
 
-			 Notification notification = Notification
-	                    .show(I18nProperties.getString(Strings.headingUsersEnabled) + "  " + I18nProperties.getString(Strings.messageUsersEnabled));
-	            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-	            notification.setPosition(Notification.Position.MIDDLE);
-	            notification.open();
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersEnabled) + "  "
+					+ I18nProperties.getString(Strings.messageUsersEnabled));
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
 		}
 	}
 
@@ -787,22 +797,22 @@ countRowItems.setVisible(state);
 
 		if (selectedRows.size() == 0) {
 
-			 Notification notification = Notification
-	                    .show(I18nProperties.getString(Strings.headingNoUsersSelected) + "  " + I18nProperties.getString(Strings.messageNoUsersSelected));
-	            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-	            notification.setPosition(Notification.Position.MIDDLE);
-	            notification.open();
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingNoUsersSelected)
+					+ "  " + I18nProperties.getString(Strings.messageNoUsersSelected));
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
 		} else {
 
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().disableUsers(uuids);
 			System.out.println("Deactivated");
-			
-			 Notification notification = Notification
-	                    .show(I18nProperties.getString(Strings.headingUsersDisabled) + "  " + I18nProperties.getString(Strings.messageUsersDisabled));
-	            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-	            notification.setPosition(Notification.Position.MIDDLE);
-	            notification.open();
+
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersDisabled) + "  "
+					+ I18nProperties.getString(Strings.messageUsersDisabled));
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
 		}
 	}
 

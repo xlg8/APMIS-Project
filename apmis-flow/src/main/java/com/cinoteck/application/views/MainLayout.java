@@ -38,6 +38,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -48,9 +49,11 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.user.UserDto;
 
 
 /**
@@ -78,8 +81,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 
-	public MainLayout() {
-		
+	public MainLayout() {	
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);			
@@ -88,6 +90,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		
+		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
@@ -95,13 +99,10 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
-
-
 	private void addHeaderContent() {
 		DrawerToggle toggle = new DrawerToggle();
 		toggle.getElement().setAttribute("aria-label", "Menu toggle");
 		toggle.getStyle().set("color", "white");
-
 
 		viewTitle = new H1();
 		viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
@@ -151,8 +152,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		//nav.addItem(new AppNavItem("Pivot", PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
-		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
 		if (nav != null) {
@@ -226,11 +227,35 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 //		add(dialog);
 //		return dialog;
+	}	
+	 
+	void rtlswitcher() {
+		
+		if (userProvider.getUser().getLanguage().toString() != null) {
 
+			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
+//			currentUserToSave.setLanguage(languagee.getValue());
+//			FacadeProvider.getUserFacade().saveUser(currentUserToSave);
+//			I18nProperties.setUserLanguage(languagee.getValue());
+//			I18nProperties.getUserLanguage();
+//			Notification.show("Language setting saved successfully " + languagee.getValue());
+//
+//			System.out.println(userProvider.getUser().getLanguage().toString());
+			String userLanguage = userProvider.getUser().getLanguage().toString();
+
+			if (userLanguage.equals("Pashto")) {
+
+				languageSwitcher.mainSwitchLanguage(new Locale("ps"));
+			} else if (userLanguage.equals("Dari")) {
+
+				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
+			} else {
+				
+				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);
+			}
+
+		}
 	}
-
-	
-	
 	
 	private Tabs getTabs() {
 	    Tabs tabs = new Tabs();

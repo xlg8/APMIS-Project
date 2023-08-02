@@ -45,7 +45,6 @@ public class Campaign extends CoreAdo {
 	public static final String CAMPAIGN_REGION_TABLE_NAME = "campaign_region";
 	public static final String CAMPAIGN_DISTRICT_TABLE_NAME = "campaign_district";
 	public static final String CAMPAIGN_COMMUNITY_TABLE_NAME = "campaign_community";
-	
 
 	public static final String NAME = "name";
 	public static final String ROUND = "round";

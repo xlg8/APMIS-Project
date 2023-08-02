@@ -77,6 +77,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -1418,7 +1419,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				dataDto.setFormValues(entries);
 				
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
-				Notification.show("Data saved Successfully");
+				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 					return true;
 			}else {
 			UserProvider userProvider = new UserProvider();
@@ -1436,7 +1437,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				dataDto.setCreatingUser(userProvider.getUserReference());
 				dataDto.setFormValues(entries);
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
-				Notification.show("Data saved Successfully");
+				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 					return true;
 			}
 		} else {

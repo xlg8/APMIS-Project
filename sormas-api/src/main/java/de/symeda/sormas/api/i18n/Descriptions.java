@@ -12,6 +12,11 @@ public interface Descriptions {
 
 	String Campaign_calculatedBasedOn = "Campaign.calculatedBasedOn";
 	String Campaign_campaignPhase = "Campaign.campaignPhase";
+	
+	String campaign_dataEntry = "campaign.dataEntry";
+	String campaign_dataImport = "campaign.dataImport";
+	String campaign_importance = "campaign.importance";
+	
 	String CaseData_caseClassification = "CaseData.caseClassification";
 	String CaseData_clinicianDetails = "CaseData.clinicianDetails";
 	String CaseData_disease = "CaseData.disease";

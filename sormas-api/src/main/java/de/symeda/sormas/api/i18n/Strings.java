@@ -11,6 +11,7 @@ public interface Strings {
 	 */
 
 	String active = "active";
+	String dataSavedSuccessfully = "dataSavedSuccessfully";
 	String address = "address";
 	String alluserstype = "alluserstype";
 	String aggregateReportLegend = "aggregateReportLegend";
