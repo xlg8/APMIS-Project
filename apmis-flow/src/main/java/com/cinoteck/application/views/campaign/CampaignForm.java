@@ -218,6 +218,10 @@ public class CampaignForm extends VerticalLayout {
 //		round.setItemLabelGenerator(CampaignDto::getRound);
 		round.addValueChangeListener(e -> {
 			round.getValue();
+			if((round.getValue() == "Trainig") && (campaignName.getValue() != null)) {
+				campaignName.clear();
+				campaignName.setValue(campaignName.getValue() + "[T]");
+			}
 		});
 		if (creatingUuid.getValue() == "" || creatingUuid.getValue() == "") {
 			creatingUuid.setValue(uuid.toString().toUpperCase());
@@ -596,17 +600,15 @@ public class CampaignForm extends VerticalLayout {
 		
 		publishUnpublishCampaign.addClickListener(e -> {
 			publishUnpublish();
-			updatePublishButtonText(isPublished);
 		});
 		
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
-			updateOpenCloseButtonText(isOpenClose);
 		});
 		
 		archiveDearchive.addClickListener(e -> {
 			archive();
-			updateArchiveButtonText(isArchived);
+			
 		});
 
 		
@@ -669,8 +671,9 @@ public class CampaignForm extends VerticalLayout {
 
 	public void updateArchiveButtonText(boolean isArchived) {
 		this.isArchived = isArchived;
-		if (isArchived == true) {
+		if (isArchived) {
 			archiveDearchive.setText("De-Archive");
+			
 		} else {
 
 			archiveDearchive.setText("Archive");
@@ -679,7 +682,7 @@ public class CampaignForm extends VerticalLayout {
 	}
 	public void updatePublishButtonText(boolean isPublished) {
 		this.isPublished = isPublished;
-		if (isPublished == true) {
+		if (isPublished) {
 			publishUnpublishCampaign.setText("Publish");
 		} else {
 
@@ -690,7 +693,7 @@ public class CampaignForm extends VerticalLayout {
 	
 	public void updateOpenCloseButtonText(boolean isOpenClose) {
 		this.isOpenClose = isOpenClose;
-		if (isOpenClose == true) {
+		if (isOpenClose) {
 			openCloseCampaign.setText("Open Campaign");
 		} else {
 
@@ -768,10 +771,14 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	private void archive() {
-
-		fireEvent(new ArchiveEvent(this, binderx.getBean()));
-		updateArchiveButtonText(isArchived);
+//		updateArchiveButtonText(isArchived);
 //		UI.getCurrent().getPage().reload();
+		try {
+			fireEvent(new ArchiveEvent(this, binderx.getBean()));
+		}finally {
+//			isArchived = FacadeProvider.getCampaignFacade().isArchived(campaignDto.getUuid());
+//			updateArchiveButtonText(isArchived);
+		}
 
 	}
 	
@@ -802,8 +809,7 @@ public class CampaignForm extends VerticalLayout {
 	private void openCloseCampaign() {
 
 		fireEvent(new OpenCloseEvent(this, binderx.getBean()));
-//		updatePublishButtonText(isArchived);
-//		UI.getCurrent().getPage().reload();
+
 
 	}
 
@@ -818,9 +824,10 @@ public class CampaignForm extends VerticalLayout {
 		}
 	}
 
-	public static class ArchiveEvent extends CampaignFormEvent {
+	public class ArchiveEvent extends CampaignFormEvent {
 		ArchiveEvent(CampaignForm source, CampaignDto campaign) {
 			super(source, campaign);
+
 		}
 	}
 	
