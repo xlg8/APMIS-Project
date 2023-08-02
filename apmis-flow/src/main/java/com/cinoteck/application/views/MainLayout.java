@@ -25,6 +25,7 @@ import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 //import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
+import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
@@ -39,6 +40,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -74,6 +77,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
+	boolean isToggleOpen = false;
 
 	public MainLayout() {
 		setPrimarySection(Section.DRAWER);
@@ -89,13 +93,34 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		DrawerToggle toggle = new DrawerToggle();
 		toggle.getElement().setAttribute("aria-label", "Menu toggle");
 		toggle.getStyle().set("color", "white");
-
+		toggle.getStyle().set("z-index", "10000000");
+		
 
 		viewTitle = new H1();
 		viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 		viewTitle.setId("pageHeader");
+		HorizontalLayout titleLayout = new HorizontalLayout();
+		titleLayout.add(viewTitle);
+		titleLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+		titleLayout.setWidth("86%");
+		titleLayout.getStyle().set("position", "relative");
+		titleLayout.getStyle().set("left", "-4%");
+		
+		toggle.addClickListener(event -> {
+		    if (event.getSource() instanceof DrawerToggle) {
+		    	DrawerToggle toggleButton = (DrawerToggle) event.getSource();
+		    	
+		    	isToggleOpen = !isToggleOpen;
+		        
+		        if (isToggleOpen) {
+		        	titleLayout.setWidth("100%"); 
+		        } else {
+		        	titleLayout.setWidth("86%");
+		           }
+		    }
+		});
 
-		addToNavbar(true, toggle, viewTitle);
+		addToNavbar(true, toggle, titleLayout);
 	}
 
 	private void addDrawerContent() {
