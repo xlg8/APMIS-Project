@@ -2,7 +2,9 @@ package com.cinoteck.application.views.configurations;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
@@ -11,6 +13,9 @@ import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -21,6 +26,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -37,8 +43,10 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
@@ -46,6 +54,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("Districts")
@@ -56,6 +65,7 @@ public class DistrictView extends VerticalLayout {
 
 	DistrictCriteria criteria;
 	DistrictIndexDto districtIndexDto;
+	DistrictDto dto;
 	DistrictDataProvider districtDataProvider = new DistrictDataProvider();
 
 	ConfigurableFilterDataProvider<DistrictIndexDto, Void, DistrictCriteria> filteredDataProvider;
@@ -74,6 +84,12 @@ public class DistrictView extends VerticalLayout {
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
 	Paragraph countRowItems;
 	UserProvider currentUser = new UserProvider();
+	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
+	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	MenuBar dropdownBulkOperations = new MenuBar();
+	SubMenu subMenu ;
+	ConfirmDialog archiveDearchiveConfirmation;
+	String uuidsz = "";
 
 	@SuppressWarnings("deprecation")
 	public DistrictView() {
@@ -86,12 +102,12 @@ public class DistrictView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true);
-		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true);
-		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true);
-		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true);
-		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true);
+		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Region");
+		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true).setTooltipGenerator(e -> "Rcode");
+		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Province");
+		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true).setTooltipGenerator(e -> "PCode");
+		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true).setTooltipGenerator(e -> "District");
+		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true).setTooltipGenerator(e -> "DCode");
 
 		grid.setVisible(true);
 
@@ -125,6 +141,16 @@ public class DistrictView extends VerticalLayout {
 	}
 
 	public Component addFiltersLayout() {
+		if (currentUser.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			leaveBulkEdit = new Button();
+			dropdownBulkOperations = new MenuBar();
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			subMenu = bulkActionsItem.getSubMenu();
+			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
+
+		}
+		
 		int numberOfRows = filteredDataProvider.size(new Query<>());
 		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
@@ -255,6 +281,17 @@ public class DistrictView extends VerticalLayout {
 			return status.toString();
 		});
 		relevanceStatusFilter.addValueChangeListener(e -> {
+			if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
+				subMenu.removeAll();
+				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
+			}else if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)){
+				subMenu.removeAll();
+				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
+
+			}else {
+				subMenu.removeAll();
+				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk  action ");
+			}
 			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
 			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
 			updateRowCount();
@@ -298,9 +335,119 @@ public class DistrictView extends VerticalLayout {
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
+		
+		
+		dropdownBulkOperations.getStyle().set("margin-top", "5px");
+
+		enterBulkEdit.addClassName("bulkActionButton");
+		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		enterBulkEdit.setIcon(bulkModeButtonnIcon);
+		layout.add(enterBulkEdit);
+
+		enterBulkEdit.addClickListener(e -> {
+			dropdownBulkOperations.setVisible(true);
+			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+			enterBulkEdit.setVisible(false);
+			leaveBulkEdit.setVisible(true);
+
+		});
+
+		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.addClassName("leaveBulkActionButton");
+		leaveBulkEdit.setVisible(false);
+		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		leaveBulkEdit.setIcon(leaveBulkModeButtonnIcon);
+		layout.add(leaveBulkEdit);
+		layout.addClassName("pl-3");
+		layout.addClassName("row");
+
+		leaveBulkEdit.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+			enterBulkEdit.setVisible(true);
+			leaveBulkEdit.setVisible(false);
+			dropdownBulkOperations.setVisible(false);
+		});
+		dropdownBulkOperations.setVisible(false);
+		layout.add(dropdownBulkOperations);
+		
+		
 		return vlayout;
 	}
+	private void handleArchiveDearchiveAction() {
 
+		archiveDearchiveAllSelectedItems(grid.getSelectedItems());
+		Notification.show("Delete action selected!");
+	}
+
+	
+	public void archiveDearchiveAllSelectedItems(Collection<DistrictIndexDto> selectedRows) {
+		archiveDearchiveConfirmation = new ConfirmDialog();
+
+		
+		if (selectedRows.size() == 0) {
+
+
+			archiveDearchiveConfirmation.setCancelable(true);
+			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.setConfirmText("Ok");
+
+			archiveDearchiveConfirmation.setHeader("Error Archiving");
+			archiveDearchiveConfirmation
+					.setText("You have not selected any data to be Archived, please make a selection.");
+
+			archiveDearchiveConfirmation.open();
+		} else {
+			archiveDearchiveConfirmation.setCancelable(true);
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.setRejectText("No");
+			archiveDearchiveConfirmation.setConfirmText("Yes");
+			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.open();
+			
+			for (DistrictIndexDto selectedRow : (Collection<DistrictIndexDto>) selectedRows) {
+				
+				dto = new DistrictDto();
+				String regionUUid = selectedRow.getUuid();
+				dto = FacadeProvider.getDistrictFacade().getByUuid(regionUUid);
+				boolean archive = dto.isArchived();
+				
+				System.out.println(archive + " archived or not " + regionUUid+ "selected region  uuid");
+				if (!archive) {
+					archiveDearchiveConfirmation.setHeader("Archive Selected Districts");
+					archiveDearchiveConfirmation.setText("Are you sure you want to Archive the selected Districts?");
+					archiveDearchiveConfirmation.addConfirmListener(e -> {
+						FacadeProvider.getDistrictFacade().archive(selectedRow.getUuid());
+//						if (leaveBulkEdit.isVisible()) {
+//							leaveBulkEdit.setVisible(false);
+//							enterBulkEdit.setVisible(true);
+//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//							dropdownBulkOperations.setVisible(false);
+//						}
+						refreshGridData();
+					});
+//					Notification.show("Archiving Selected Rows ");
+				} else {
+					archiveDearchiveConfirmation.setHeader("De-Archive Selected Districts");
+					archiveDearchiveConfirmation.setText("Are you sure you want to De-Archive the selected Districts?");
+					archiveDearchiveConfirmation.addConfirmListener(e -> {
+						FacadeProvider.getDistrictFacade().dearchive(selectedRow.getUuid());
+//						if (leaveBulkEdit.isVisible()) {
+//							leaveBulkEdit.setVisible(false);
+//							enterBulkEdit.setVisible(true);
+//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//							dropdownBulkOperations.setVisible(false);
+//						}
+						refreshGridData();
+					});
+//					Notification.show("De- Archiving Selected Rows ");
+				}
+			}
+
+		}
+	}
 	public void clearFilters() {
 
 	}
@@ -334,6 +481,67 @@ public class DistrictView extends VerticalLayout {
 		Button saveButton = new Button("Save");
 		Button discardButton = new Button("Discard", e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
+		Button archiveButton = new Button();
+		
+		if(districtIndexDto != null) {
+			archiveDearchiveConfirmation = new ConfirmDialog();
+			archiveDearchiveConfirmation.setCancelable(true);
+			archiveDearchiveConfirmation.addCancelListener(e -> dialog.close());
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.setRejectText("No");
+			archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());
+			archiveDearchiveConfirmation.setConfirmText("Yes");
+			archiveDearchiveConfirmation.open();
+			
+			dto = new DistrictDto();
+			String regionUUid = districtIndexDto.getUuid();
+			dto = FacadeProvider.getDistrictFacade().getByUuid(regionUUid);
+			boolean isArchivedx = dto.isArchived();
+			archiveButton.setText(isArchivedx ? "De-Archive" : "Archive");
+
+			Collection<?> selectedRows;
+			selectedRows = grid.getSelectedItems();
+			Set<String> selectedRowsUuids = selectedRows.stream().map(row -> ((HasUuid) row).getUuid())
+					.collect(Collectors.toSet());
+			System.out.println(selectedRowsUuids + " selected row infracsucfhshfvshfhjvs");
+			archiveButton.addClickListener(archiveEvent -> {
+				
+				if (districtIndexDto != null) {
+					uuidsz = dto.getUuid();
+
+					System.out.println(uuidsz + "areeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaa by uuid");
+					boolean isArchived = dto.isArchived();
+					if (uuidsz != null) {
+						if (isArchived == true) {
+							
+							archiveDearchiveConfirmation.setHeader("De-Archive District");
+							archiveDearchiveConfirmation.setText(
+									"Are you sure you want to De-archive this District? ");
+							
+							archiveDearchiveConfirmation.addConfirmListener(e -> {
+								FacadeProvider.getDistrictFacade().dearchive(uuidsz);
+								dialog.close();
+								refreshGridData();
+							});
+//							Notification.show("Dearchiving Area");
+							
+						} else {
+							archiveDearchiveConfirmation.setHeader("Archive District");
+							archiveDearchiveConfirmation.setText(
+									"Are you sure you want to Archive this District? ");
+							
+							archiveDearchiveConfirmation.addConfirmListener(e -> {
+								FacadeProvider.getDistrictFacade().archive(uuidsz);
+								dialog.close();
+								refreshGridData();
+							});
+							
+						}
+					}
+				}
+			});
+			}
+		
 		saveButton.addClickListener(saveEvent -> {
 
 			String name = nameField.getValue();
@@ -380,13 +588,15 @@ public class DistrictView extends VerticalLayout {
 //		dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
 		if (districtIndexDto == null) {
 			dialog.setHeaderTitle("Add New District");
+			dialog.getFooter().add(discardButton, saveButton);
 		} else {
 			dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+			dialog.getFooter().add( archiveButton, discardButton, saveButton);
 
 		}
 		fmr.add(nameField, dCodeField, provinceOfDistrict, risk);
 		dialog.add(fmr);
-		dialog.getFooter().add(discardButton, saveButton);
+		
 
 //       getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 //		.set("display", "flex").set("align-items", "center").set("justify-content", "center");
