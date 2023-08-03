@@ -10,7 +10,8 @@ public interface Captions {
 	 * constants of this class is accepted: Close as false positive.
 	 */
 
-	String about = "ABOUT APMIS";
+	String about = "about";
+	
 	String clusterNumber = "clusterNumber";
 	String formPhase = "formPhase";
 	String formAccess = "formAccess";
@@ -28,7 +29,34 @@ public interface Captions {
 	String dataEntry = "dataEntry";
 	String dataImport = "dataImport";
 	String importance = "importance";
-	String campaignDataInformation = "campaignDatainformation"; 
+	String campaignDataInformation = "campaignDatainformation";
+	String archive="archive";
+	String saveAndContinue="saveAndContinue";
+	String chart="chart";
+	String downloadImportTemplate="downloadImportTemplate";
+	String startDataImport="startDataImport";
+	String downloadErrorReport="downloadErrorReport";
+	String importCampaignForm="importCampaignForm";
+	String importCampaignFormData="importCampaignFormData";
+	String campaignStatus="campaignStatus";
+	String addNewForm="addNewForm";
+	String campaignBasics="campaignBasics";
+	String uuid="uuid";
+	String preCampaignDashboard="preCampaignDashboard";
+	String preCampaignPhase="preCampaignPhase";
+	String intraCampaignForms="intraCampaignForms";
+	String intraCampaignDashboard="intraCampaignDashboard";
+	String intraCampaignPhase="intraCampaignPhase";
+	String postCampaignForms="postCampaignForms";
+	String postCampaignDashboard="postCampaignDashboard";
+	String postCampaignPhase="postCampaignPhase";
+	String associateCampaign="associateCampaign";
+	String preCampaignForms="preCampaignForms";
+	String round="round";
+	
+	
+	
+	
 	String aboutAdditionalInfo="aboutAdditionalInfo";
 	String aboutBrandedSormasVersion = "aboutBrandedSormasVersion";
 	String aboutCaseClassificationRules = "aboutCaseClassificationRules";

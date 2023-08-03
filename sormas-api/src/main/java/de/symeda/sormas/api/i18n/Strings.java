@@ -4,14 +4,37 @@ import javax.annotation.Generated;
 
 @Generated(value = "de.symeda.sormas.api.i18n.I18nConstantGenerator")
 public interface Strings {
-
+;
 	/*
 	 * Hint for SonarQube issues:
 	 * 1. java:S115: Violation of name convention for constants of this class is accepted: Close as false positive.
 	 */
 
 	String active = "active";
+	
 	String dataSavedSuccessfully = "dataSavedSuccessfully";
+	String openCampaign="openCampaign";
+	String duplicate="duplicate";
+	String campaignDataUpdated="campaignDataUpdated";
+	String campaignDataSaved="campaignDataSaved";
+	String addNewForm="addNewForm";
+	String removeThisForm="removeThisForm";
+	String pleaseSelectFormFirst="pleaseSelectFormFirst";
+	String wasRemovedFromCampaign="wasRemovedFromCampaign";
+	String newDashboardChartSuccess="newDashboardChartSuccess";
+	String pleaseSelectFormUpdate="pleaseSelectFormUpdate";
+	String step1="step1";
+	String step1Description="step1Description";
+	String step2="step2";
+	String stepDesciption="stepDesciption";
+	String step3="step3";
+	String step3Description="step3Description";
+	String campaignNameRequired="campaignNameRequired";
+	String campaignRoundrequired="campaignRoundrequired";
+	String campaignDescriptionRequired="campaignDescriptionRequired";
+	String contentGoeshere="contentGoeshere";
+	String errorCampaignForm="errorCampaignForm";
+	
 	String address = "address";
 	String alluserstype = "alluserstype";
 	String aggregateReportLegend = "aggregateReportLegend";

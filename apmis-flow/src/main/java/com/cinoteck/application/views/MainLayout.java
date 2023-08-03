@@ -153,7 +153,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.CHAT, "navitem"));
-		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
 		if (nav != null) {
@@ -229,18 +229,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		return dialog;
 	}	
 	 
-	void rtlswitcher() {
+	void rtlswitcher() {		
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+		I18nProperties.getUserLanguage();
 		
 		if (userProvider.getUser().getLanguage().toString() != null) {
 
 			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
-//			currentUserToSave.setLanguage(languagee.getValue());
-//			FacadeProvider.getUserFacade().saveUser(currentUserToSave);
-//			I18nProperties.setUserLanguage(languagee.getValue());
-//			I18nProperties.getUserLanguage();
-//			Notification.show("Language setting saved successfully " + languagee.getValue());
-//
-//			System.out.println(userProvider.getUser().getLanguage().toString());
+
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 
 			if (userLanguage.equals("Pashto")) {

@@ -561,6 +561,7 @@ public class CampaignDataView extends VerticalLayout {
 		anchor.getElement().setAttribute("download", true);
 		anchor.setClassName("exportJsonGLoss");
 		anchor.setId("campDatAnchor");
+		anchor.getStyle().set("width", "100px");
 		Icon icon = VaadinIcon.UPLOAD_ALT.create();
 		icon.getStyle().set("margin-right", "8px");
 		icon.getStyle().set("font-size", "10px");

@@ -77,6 +77,15 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 	
 
 	public MyAccountView() {
+		
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 		setSpacing(false);
 		setPadding(false);
 		Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);

@@ -99,7 +99,7 @@ public class CampaignsView extends VerticalLayout {
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.actionStatusChangeDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -140,7 +140,7 @@ public class CampaignsView extends VerticalLayout {
 		
 		
 
-		filterDisplayToggle = new Button("Show Filters");
+		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.showFilters));
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
 		filterDisplayToggle.getStyle().set("margin-top", "12px");
 		filterDisplayToggle.setIcon(new Icon(VaadinIcon.SLIDERS));
@@ -152,11 +152,11 @@ public class CampaignsView extends VerticalLayout {
 		filterDisplayToggle.addClickListener(e -> {
 			if (!filterLayout.isVisible()) {
 				filterLayout.setVisible(true);
-				filterDisplayToggle.setText("Hide Filters");
+				filterDisplayToggle.setText(I18nProperties.getCaption(Captions.hideFilters));
 
 			} else {
 				filterLayout.setVisible(false);
-				filterDisplayToggle.setText("Show Filters");
+				filterDisplayToggle.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 
 		});
@@ -185,7 +185,7 @@ public class CampaignsView extends VerticalLayout {
 		}));
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
-		relevanceStatusFilter.setLabel("Campaign Status");
+		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.setClassName("col-sm-6, col-xs-6");

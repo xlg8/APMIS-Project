@@ -43,7 +43,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader("Chart").setAutoWidth(true).setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
@@ -77,22 +77,22 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		
 		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
 		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
-		plusButton.setTooltipText("Add new form");
+		plusButton.setTooltipText(I18nProperties.getString(Strings.addNewForm));
 		
 		
 		 Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
 		 deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
 		 deleteButton.getStyle().set("background-color", "red!important");
-		 deleteButton.setTooltipText("Remove this form");
+		 deleteButton.setTooltipText(I18nProperties.getString(Strings.removeThisForm));
 	        
-	        Button saveButton = new Button("Save",
+	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
 	        
 	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
 	                new Icon(VaadinIcon.REFRESH));
 		
 		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
-		charts.setLabel("Charts");
+		charts.setLabel(I18nProperties.getCaption(Captions.chart));
 		charts.setItems(allElements);
 		charts.setItemLabelGenerator(item -> getItemCaption(item));
 		// if its a clicked action set the value from the item....TODO
@@ -194,12 +194,12 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		 
 		 deleteButton.addClickListener(dex->{
 			 if(formBeenEdited == null) {
-				 Notification.show("Please select a form first");
+				 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
 			 } else {
 
 			 campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
 			// FacadeProvider.getCampaignFacade().saveCampaign(capdto); 
-			 Notification.show(formBeenEdited+" was removed from the Campaign");
+			 Notification.show(formBeenEdited+ I18nProperties.getString(Strings.wasRemovedFromCampaign));
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
 			 }
 			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
@@ -267,7 +267,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				 charts.setItems(allElements);
 				 
 				 
-				 Notification.show("New Dashboard Chart added successfully");
+				 Notification.show(I18nProperties.getString(Strings.newDashboardChartSuccess));
 				 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
 			 } else {
 				 //formBeenEdited
@@ -290,7 +290,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				 
 				 Notification.show(I18nProperties.getString(Strings.headingCampaignDashboard));
 				 } else {
-					 Notification.show("Please select a form before you update");
+					 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormUpdate));
 				 }
 			 }
 			 grid.setHeight("");

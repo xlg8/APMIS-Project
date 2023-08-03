@@ -24,13 +24,13 @@ import de.symeda.sormas.api.infrastructure.InfrastructureType;
 public class CampaignDataImportDialog extends Dialog{
 	
 	ComboBox campaignFilter = new ComboBox<>();
-	Button downloadImportTemplate = new Button("Download Import Template");
-	Button startDataImport = new Button("Start Data Import");
-	Button donloadErrorReport = new Button("Download Error Report");
+	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.downloadImportTemplate));
+	Button startDataImport = new Button(I18nProperties.getCaption(Captions.startDataImport));
+	Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.downloadErrorReport));
 	ComboBox valueSeperator = new ComboBox<>();
 	
 	public CampaignDataImportDialog() {
-		this.setHeaderTitle("Import Campaign Form Data");
+		this.setHeaderTitle(I18nProperties.getCaption(Captions.importCampaignFormData));
 //		this.getStyle().set("color" , "#0D6938");
 		
 		Hr seperatorr = new Hr();
@@ -47,19 +47,19 @@ public class CampaignDataImportDialog extends Dialog{
 //		Label lblCollectionDateInfo = new Label(I18nProperties.getString(Strings.infoPopulationCollectionDate));
 		
 	H3 step2 = new H3();
-	step2.add("Step 1: Download the Import Template");
-	Label lblImportTemplateInfo = new Label("You can use this template .csv file to bring your data into a format APMIS can read. Please do this every time you import data, never use a file you have downloaded before.");
+	step2.add(I18nProperties.getString(Strings.step1));
+	Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.step1Description));
 	downloadImportTemplate.addClickListener(null);
 	
 	H3 step3 = new H3();
-	step3.add("Step 2: Import CSV File");
-	Label lblImportCsvFile = new Label("Depending on the amount of rows you want to import, this may take a while. You will receive a notification when the import process has finished.");
+	step3.add(I18nProperties.getString(Strings.step2));
+	Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.stepDesciption));
 	startDataImport.addClickListener(null);
 	
 	
 	H3 step4 = new H3();
-	step4.add("Step 3: Download Error Report");
-	Label lblDnldErrorReport = new Label("If there were any rows that could not be imported, you will be offered a .csv file containing all these rows as well as the error descriptions.");
+	step4.add(I18nProperties.getString(Strings.step3));
+	Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.step3Description));
 	donloadErrorReport.addClickListener(null);
 	
 	

@@ -22,9 +22,9 @@ public class CampaignActionButtons extends HorizontalLayout {
 	public CampaignActionButtons() {
 		setWidthFull();
 		openCloseCampaign = new Button();
-		openCloseCampaign.setText("Open Campaign");
+		openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		duplicateCampaign = new Button();
-		duplicateCampaign.setText("Duplicate");
+		duplicateCampaign.setText(I18nProperties.getString(Strings.duplicate));
 		deleteCampaign = new Button();
 		deleteCampaign.setText(I18nProperties.getCaption(Captions.actionDelete));
 		deleteCampaign.getStyle().set("background", "red");

@@ -31,7 +31,7 @@ public class CampaignFilterView extends VerticalLayout {
 
 	private TextField searchField = new TextField();
 
-	private Button displayFilters = new Button("Show Filters");
+	private Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters));
 
 	public CampaignFilterView() {
 		
@@ -49,28 +49,28 @@ public class CampaignFilterView extends VerticalLayout {
 		displayFilters.addClickListener(e -> {
 			if (!campaignDataFilterLayout.isVisible()) {
 				campaignDataFilterLayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 
 			} else {
 				campaignDataFilterLayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 
 		});
 
 		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		
 
 		ComboBox<EntityRelevanceStatus> campaignStatus = new ComboBox<EntityRelevanceStatus>();
-		campaignStatus.setLabel("Campaign Status");
+		campaignStatus.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
 
 		campaignStatus.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		Button validateForms = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
-		Button addNewForm = new Button("Add New Forms", new Icon(VaadinIcon.PLUS_CIRCLE));
+		Button addNewForm = new Button(I18nProperties.getCaption(Captions.addNewForm), new Icon(VaadinIcon.PLUS_CIRCLE));
 
 		campaignDataFilterLayout.add(searchField, campaignStatus, validateForms, addNewForm);
 
