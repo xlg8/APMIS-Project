@@ -153,7 +153,6 @@ public class UserAnalysisGridView extends VerticalLayout {
 				criteria.errorStatusEnum((ErrorStatusEnum) selectedErrorStatus);
 				refreshGridData(formAccess);
 			} else {
-
 				criteria.errorStatusEnum(ErrorStatusEnum.ALL_REPORT);
 				refreshGridData(formAccess);
 			}
@@ -162,14 +161,17 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		resetButton = new Button("Reset Filters");
 		resetButton.addClickListener(e -> {
-			provinceFilter.clear();
-			districtFilter.clear();
-            regionFilter.clear();
-            errorStatusFilter.clear();
+			
+//            errorStatusFilter.clear();
 //            criteria.area(null);
+			criteria.area(null);
+
 			criteria.region(null);
 			criteria.district(null);
-			criteria.area(null);
+			  regionFilter.clear();
+				provinceFilter.clear();
+				districtFilter.clear();
+	          
 //			criteria.errorStatusEnum(null);
 			refreshGridData(formAccess);
 //            updateText(formAccess);

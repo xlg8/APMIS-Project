@@ -616,9 +616,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
 		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
-		if(max > 100000) {
-			max = 100;
-			}
+//		if(max > 100000) {
+//			max = 100;
+//			}
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
 		Root<Community> community = cq.from(Community.class);

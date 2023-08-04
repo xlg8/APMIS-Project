@@ -316,7 +316,7 @@ public class CampaignsView extends VerticalLayout {
 //			formLayout.archiveDearchive.setText("De-archive");
 			dialog.setHeader("De-Archive Campaign");
 			dialog.setText(
-					"Are you sure you want to de-archive this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to de-archive this campaign? This will make it appear in the active campaign directory again.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().archiveOrDearchiveCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updateArchiveButtonText(false);
@@ -327,7 +327,7 @@ public class CampaignsView extends VerticalLayout {
 
 			dialog.setHeader("Archive Campaign");
 			dialog.setText(
-					"Are you sure you want to Archive this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to Archive this campaign? This will make it not appear in the normal campaign directory again.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().archiveOrDearchiveCampaign(event.getCampaign().getUuid(), true);
 				formLayout.updateArchiveButtonText(true);
@@ -353,7 +353,7 @@ public class CampaignsView extends VerticalLayout {
 
 			dialog.setHeader("Publish Campaign");
 			dialog.setText(
-					"Are you sure you want to Un-Publish this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to Publish Report from this campaign? This will make the Report Available in Aggregate Reports.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().publishandUnPublishCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updatePublishButtonText(false);
@@ -362,7 +362,7 @@ public class CampaignsView extends VerticalLayout {
 		} else {
 			dialog.setHeader("Un-Publish Campaign");
 			dialog.setText(
-					"Are you sure you want to Publish this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to Un-Publish Report from this campaign? This will make the Report Un-Available in Aggregate Reports.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().publishandUnPublishCampaign(event.getCampaign().getUuid(), true);
 				formLayout.updatePublishButtonText(true);
@@ -388,7 +388,7 @@ public class CampaignsView extends VerticalLayout {
 
 			dialog.setHeader("Open Campaign");
 			dialog.setText(
-					"Are you sure you want to Open this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to Open this campaign? This will make this campaign status Open.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updateOpenCloseButtonText(false);
@@ -397,7 +397,7 @@ public class CampaignsView extends VerticalLayout {
 		} else {
 			dialog.setHeader("Close Campaign");
 			dialog.setText(
-					"Are you sure you want to Close this campaign? This will make it appear in the normal campaign directory again.");
+					"Are you sure you want to Close this campaign?  This will make this campaign status Closed.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), true);
 				formLayout.updateOpenCloseButtonText(true);
@@ -420,7 +420,7 @@ public class CampaignsView extends VerticalLayout {
 //	    boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
 		dialog.setHeader("Delete Campaign");
 		dialog.setText(
-				"Are you sure you want to Delete this campaign? This will make it appear in the normal campaign directory again.");
+				"Are you sure you want to Delete this campaign? This will make it Un-Available in the normal campaign directory again.");
 		dialog.addConfirmListener(e -> {
 			FacadeProvider.getCampaignFacade().deleteCampaign(event.getCampaign().getUuid());
 			UI.getCurrent().getPage().reload();
@@ -442,7 +442,7 @@ public class CampaignsView extends VerticalLayout {
 //	    boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
 		dialog.setHeader("Duplicate Campaign");
 		dialog.setText(
-				"Are you sure you want to Clone this campaign? This will make it appear in the normal campaign directory again.");
+				"Are you sure you want to Clone this campaign? .");
 		dialog.addConfirmListener(e -> {
 			FacadeProvider.getCampaignFacade().cloneCampaign(event.getCampaign().getUuid(),
 					usr.getUser().getUserName());

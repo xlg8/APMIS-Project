@@ -603,7 +603,12 @@ vaadin-horizontal-layout[fcgh-footer] {
 }
 
 #exportArea{
-	width: 135px;
+	width: 100px;
+    margin-bottom: 6px;
+}
+
+#exportProvince{
+	width: 100px;
     margin-bottom: 6px;
 }
 

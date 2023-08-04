@@ -53,6 +53,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Label;
 
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
@@ -127,6 +128,22 @@ public class CampaignDataView extends VerticalLayout {
 		createCampaignDataFilter();
 
 		configureGrid(criteria);
+	}
+	
+	private String getLabelForEnum(CampaignPhase campaignPhase) {
+		switch (campaignPhase) {
+		case PRE:
+			return "Pre-Campaign";
+
+		case POST:
+			return "Post-Campaign";
+			
+		case INTRA:
+			return "Intra-Campaign";
+
+		default:
+			return campaignPhase.toString();
+		}
 	}
 
 	private void createCampaignDataFilter() {
@@ -331,6 +348,8 @@ public class CampaignDataView extends VerticalLayout {
 		campaignz.setItems(allCampaigns);
 		campaignz.setValue(lastStarted);
 
+		
+		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.POST);
 			campaignPhase.setValue(CampaignPhase.INTRA);

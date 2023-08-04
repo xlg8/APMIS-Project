@@ -336,7 +336,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.setWidth("30%");
+		searchField.setWidth("15%");
 
 		searchField.addClassName("filterBar");
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
