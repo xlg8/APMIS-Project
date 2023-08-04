@@ -195,10 +195,10 @@ vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a {
 	color: white !important;
 }
 
-vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
+/*vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
 	background: #F08F3E !important;
 	color: white !important;
-}
+}*/
 
 input {
 	font-weight: 300;
