@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 
 @PageTitle("Logout")
 @Route(value = "logout", layout = MainLayout.class)
@@ -46,7 +47,7 @@ public class LogoutView extends VerticalLayout {
 		Div aboutText = new Div();
 		
 //		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
-		Paragraph text = new Paragraph("Are you sure you want to logout?");
+		Paragraph text = new Paragraph(I18nProperties.getString(Strings.areSureYouWantToLogout));
 		
 		
 		text.getStyle().set("color", "black");
@@ -68,7 +69,7 @@ public class LogoutView extends VerticalLayout {
 		final AccessControl accessControl = AccessControlFactory.getInstance()
                 .createAccessControl();
 		//TODO make this check the sesssion and invalidate it... it terms of Spring.. let use another method
-		confirmButton = new Button("Confirm", event -> {
+		confirmButton = new Button(I18nProperties.getCaption(Captions.actionConfirm), event -> {
 			accessControl.signOut();
 			
 			//confirmButton.getUI().ifPresent(ui -> ui.navigate(""));

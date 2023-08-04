@@ -34,6 +34,24 @@ public interface Strings {
 	String campaignDescriptionRequired="campaignDescriptionRequired";
 	String contentGoeshere="contentGoeshere";
 	String errorCampaignForm="errorCampaignForm";
+	String max60DaysFromStartDate="max60DaysFromStartDate";
+	String newFormAddedSucces="newFormAddedSucces";
+	String campaignUpdated="campaignUpdated";
+	String pleaseSelectaFormBeforeUpdate="pleaseSelectaFormBeforeUpdate";
+	String emailAddressRequired="emailAddressRequired";
+	String passwordAccessibility="passwordAccessibility";
+	String languageRequired="languageRequired";
+	String languageSetingSavedSuccess="languageSetingSavedSuccess";
+	String choosePreferredLanguage="choosePreferredLanguage";
+	String confirmPassword="confirmPassword";
+	String choosePassword="choosePassword";
+	String mustBeAt8Char="mustBeAt8Char";
+	String mustContain1UppercaseChar="mustContain1UppercaseChar";
+	String apmisJsonGlossary="apmisJsonGlossary";
+	String areSureYouWantToLogout="areSureYouWantToLogout";
+	
+	
+	
 	
 	String address = "address";
 	String alluserstype = "alluserstype";

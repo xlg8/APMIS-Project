@@ -53,6 +53,18 @@ public interface Captions {
 	String associateCampaign="associateCampaign";
 	String preCampaignForms="preCampaignForms";
 	String round="round";
+	String formname="formname";
+	String expiry="expiry";
+	String removeThisForm="removeThisForm";
+	String daysTOExpiry="daysTOExpiry";
+	String update="update";
+	String createNewCampaign="createNewCampaign";
+	String personalInformation="personalInformation";
+	String phoneNumber="phoneNumber";
+	String changePassword="changePassword";
+	String mobileUserGuide="mobileUserGuide";
+	String exportFormGlossary="exportFormGlossary";
+	
 	
 	
 	

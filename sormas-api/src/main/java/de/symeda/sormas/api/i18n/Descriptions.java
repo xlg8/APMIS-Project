@@ -17,6 +17,7 @@ public interface Descriptions {
 	String campaign_dataImport = "campaign.dataImport";
 	String campaign_importance = "campaign.importance";
 	String saveCampaignValidation = "saveCampaignValidation";
+	String about_description = "about.description";
 	
 	String CaseData_caseClassification = "CaseData.caseClassification";
 	String CaseData_clinicianDetails = "CaseData.clinicianDetails";

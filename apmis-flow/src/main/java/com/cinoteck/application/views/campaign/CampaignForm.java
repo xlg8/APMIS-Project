@@ -70,7 +70,7 @@ public class CampaignForm extends VerticalLayout {
 	private static final String INTRA_CAMPAIGN = "intra-campaign";
 	private static final String POST_CAMPAIGN = "post-campaign";
 
-	Button archiveDearchive = new Button("Archive");
+	Button archiveDearchive = new Button(I18nProperties.getCaption(Captions.actionArchive));
 	Button openCloseCampaign;
 	Button duplicateCampaign;
 	Button deleteCampaign;

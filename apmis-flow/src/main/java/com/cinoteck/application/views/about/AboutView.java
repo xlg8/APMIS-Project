@@ -21,10 +21,12 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("APMIS | About")
+@PageTitle("APMIS-About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 	
@@ -56,8 +58,7 @@ public class AboutView extends VerticalLayout {
 
 		Div aboutText = new Div();
 		
-		Paragraph text = new Paragraph(
-				"The Afghanistan Polio Management Information System (APMIS) is an online data system that simplifies and improves the use and management of polio immunization-related data. APMIS facilitates field data entry, immunization data storage, data visualization, and real-time monitoring of polio immunization activities in Afghanistan.  Using this system will assist in evaluating immunization campaign activities and identifying program challenges.");
+		Paragraph text = new Paragraph(I18nProperties.getDescription(Descriptions.about_description));
 		text.getStyle().set("color", "black");
 		text.getStyle().set("font-size", "20px");
 		text.getStyle().set("margin-bottom", "30px");
@@ -94,7 +95,7 @@ public class AboutView extends VerticalLayout {
 		getTechnicalGuide.setIcon(new Icon(VaadinIcon.DIPLOMA_SCROLL));
 		getTechnicalGuide.setVisible(false);
 		
-		Button getMobileGuide =  new Button("Mobile User Guide");
+		Button getMobileGuide =  new Button(I18nProperties.getCaption(Captions.mobileUserGuide));
 		getMobileGuide.setIcon(new Icon(VaadinIcon.MOBILE));
 		getMobileGuide.setVisible(false);
 		getMobileGuide.addClassName("wrap-button-label"); // Add a CSS class for styling
@@ -104,9 +105,9 @@ public class AboutView extends VerticalLayout {
 		GridExporter<JsonDictionaryReportModelDto> exporter = GridExporter.createFor(grid);
 
 	    exporter.setAutoAttachExportButtons(false);
-	    exporter.setTitle("APMIS Json Glossary");
-	    exporter.setFileName("APMIS Json Glossary" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
-	    Anchor excelLink= new Anchor("", "Export Forms & Diagrams Glossary");
+	    exporter.setTitle(I18nProperties.getString(Strings.apmisJsonGlossary));
+	    exporter.setFileName(I18nProperties.getString(Strings.apmisJsonGlossary) + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+	    Anchor excelLink= new Anchor("", I18nProperties.getCaption(Captions.exportFormGlossary));
 	    excelLink.setHref(exporter.getCsvStreamResource());
 	    excelLink.getElement().setAttribute("download", true);
 		

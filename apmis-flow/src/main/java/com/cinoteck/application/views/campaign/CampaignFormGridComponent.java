@@ -16,6 +16,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
 
@@ -40,8 +41,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		this.campaignPhase = campaignPhase;
 		
 
-		grid.addColumn(CampaignFormMetaReferenceDto::getCaption).setHeader("Form Name");
-		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired).setHeader("Expiry");
+		grid.addColumn(CampaignFormMetaReferenceDto::getCaption).setHeader(I18nProperties.getCaption(Captions.formname));
+		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired).setHeader(I18nProperties.getCaption(Captions.expiry));
 		grid.setItems(savedCampaignFormMetas);
 		addClassName("list-view");
 		setSizeFull();
@@ -66,13 +67,13 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		
 		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
 		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
-		plusButton.setTooltipText("Add new form");
+		plusButton.setTooltipText(I18nProperties.getCaption(Captions.addNewForm));
 		
 		
 		 Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
 		 deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
 		 deleteButton.getStyle().set("background-color", "red!important");
-		 deleteButton.setTooltipText("Remove this form");
+		 deleteButton.setTooltipText(I18nProperties.getCaption(Captions.removeThisForm));
 	        
 	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
 	                new Icon(VaadinIcon.CHECK));
@@ -87,12 +88,12 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		
 		IntegerField daysExpire = new IntegerField();
-		daysExpire.setLabel("Days to Expiry");
+		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
 		if(capaingDto != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
 		}
-		daysExpire.setHelperText("Max 60 days from Campaign Start Date "+datd);
+		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) +datd);
 		daysExpire.setMin(1);
 		daysExpire.setMax(60);
 		daysExpire.setStepButtonsVisible(true);
@@ -123,7 +124,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				
 			    //delete.setEnabled(size != 0);
 			    forms.setValue(selectedCamp);
-			    saveButton.setText("Update");
+			    saveButton.setText(I18nProperties.getCaption(Captions.update));
 			    daysExpire.setValue(selectedCamp.getDaysExpired());
 			    } else {
 			    	formBeenEdited = new CampaignFormMetaReferenceDto();
@@ -132,12 +133,12 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		 
 		 deleteButton.addClickListener(dex->{
 			 if(formBeenEdited == null) {
-				 Notification.show("Please select a form first");
+				 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
 			 } else {
 
 			 capaingDto.getCampaignFormMetas().remove(formBeenEdited);
 			// FacadeProvider.getCampaignFacade().saveCampaign(capdto); 
-			 Notification.show(formBeenEdited+" was removed from the Campaign");
+			 Notification.show(formBeenEdited+ I18nProperties.getString(Strings.wasRemovedFromCampaign));
 			 grid.setItems(capaingDto.getCampaignFormMetas());
 			 }
 			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
@@ -183,7 +184,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				 
 				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 				 
-				 Notification.show("New Form Added Successfully");
+				 Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
 				 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 			 } else {
 				 //formBeenEdited
@@ -195,9 +196,9 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				 //FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 				 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 				 
-				 Notification.show("Campaign Updated");
+				 Notification.show(I18nProperties.getString(Strings.campaignUpdated));
 				 } else {
-					 Notification.show("Please select a form before you update");
+					 Notification.show(I18nProperties.getString(Strings.pleaseSelectaFormBeforeUpdate));
 				 }
 			 }
 			 grid.setHeight("");

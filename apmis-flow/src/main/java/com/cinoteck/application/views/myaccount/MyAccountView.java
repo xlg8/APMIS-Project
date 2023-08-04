@@ -113,7 +113,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infoood.getStyle().set("margin-bottom", "0px");
 
 		// Div personalInfoo = new Div();
-		H3 infoo = new H3("Personal Information");
+		H3 infoo = new H3(I18nProperties.getCaption(Captions.personalInformation));
 		infoo.getStyle().set("color", "green");
 		infoo.getStyle().set("font-size", "20px");
 		infoo.getStyle().set("font-weight", "600");
@@ -146,13 +146,13 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 			emailAddresss.setValue(currentUser.getUserEmail());
 		}
 		emailAddresss.setReadOnly(true);
-		binder.forField(emailAddresss).asRequired("Email Address is Required").bind(UserDto::getUserEmail,
+		binder.forField(emailAddresss).asRequired(I18nProperties.getString(Strings.emailAddressRequired)).bind(UserDto::getUserEmail,
 				UserDto::setUserEmail);
 
 		TextField phoneNumberr = new TextField();
-		phoneNumberr.setLabel("Phone number");
+		phoneNumberr.setLabel(I18nProperties.getCaption(Captions.phoneNumber));
 		if (currentUser.getPhone() == null) {
-			phoneNumberr.setPlaceholder("Phone Number");
+			phoneNumberr.setPlaceholder(I18nProperties.getCaption(Captions.phoneNumber));
 		} else {
 			phoneNumberr.setValue(currentUser.getPhone());
 		}
@@ -255,8 +255,8 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		areaTypee.setItems("", "Urban", "Rural");
 		areaTypee.setValue("");
 
-		TextField contacPersonn = new TextField();
-		contacPersonn.setLabel(I18nProperties.getCaption(Captions.Location_details));
+//		TextField contacPersonn = new TextField();
+//		contacPersonn.setLabel(I18nProperties.getCaption(Captions.Location_details));
 
 		FormLayout fielddataVieww = new FormLayout();
 		fielddataVieww.setResponsiveSteps(
@@ -266,12 +266,12 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				new ResponsiveStep("320px", 2),
 				// Use three columns, if the layout's width exceeds 500px
 				new ResponsiveStep("500px", 3));
-		fielddataVieww.add(provincee, regionn, districtt, cluster, streett, houseNumm, addInfoo, postalCodee, cityy,
-				areaTypee, contacPersonn);
+		fielddataVieww.add(regionn, provincee, districtt, cluster, streett, houseNumm, addInfoo, postalCodee, cityy,
+				areaTypee);
 		fielddataVieww.getStyle().set("margin-left", "20px");
 		fielddataVieww.getStyle().set("margin-right", "20px");
 
-		H3 security = new H3("Password & Accesibility");
+		H3 security = new H3(I18nProperties.getString(Strings.passwordAccessibility));
 		security.getStyle().set("color", "green");
 		security.getStyle().set("font-size", "20px");
 		security.getStyle().set("font-weight", "600");
@@ -288,7 +288,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		// Dialog passwordDialog = new Dialog();
 		// change password button. set it to figma design
-		Button openPasswordPopupButton = new Button("Change Password");
+		Button openPasswordPopupButton = new Button(I18nProperties.getCaption(Captions.changePassword));
 //		passwordDialog.getStyle().set("margin-bottom", "0px");
 //		passwordDialog.getStyle().set("margin-top", "12px !important");
 
@@ -306,7 +306,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
 
-		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+		binder.forField(languagee).asRequired(I18nProperties.getString(Strings.languageRequired)).bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		languagee.setRequired(true);
 		// binder.forField(languagee).asRequired("Language is
@@ -348,7 +348,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
 				I18nProperties.setUserLanguage(languagee.getValue());
 				I18nProperties.getUserLanguage();
-				Notification.show("Language setting saved successfully " + languagee.getValue());
+				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
 
 				System.out.println(userProvider.getUser().getLanguage().toString());
 				String userLanguage = userProvider.getUser().getLanguage().toString();
@@ -366,7 +366,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 			} else {
 
-				Notification.show("Choose prefered language: " + languagee.isInvalid());
+				Notification.show(I18nProperties.getString(Strings.choosePreferredLanguage) + languagee.isInvalid());
 			}
 
 		});
@@ -417,12 +417,12 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		PasswordField newPasswordField = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		newPasswordField.setRevealButtonVisible(true);
-		PasswordField confirmPasswordField = new PasswordField("Confirm Password");
+		PasswordField confirmPasswordField = new PasswordField(I18nProperties.getString(Strings.confirmPassword));
 		confirmPasswordField.setRevealButtonVisible(true);
 
 		Label instructionLabel = new Label(
-				"Choose a new password for your account\r\n <br>" + "*Must be at least 8 characters\r\n <br>"
-						+ "*Must contain 1 Uppercase and 1 special character\r\n" + "");
+				I18nProperties.getString(Strings.choosePassword) +"\r\n <br>" +  I18nProperties.getString(Strings.mustBeAt8Char) + "\r\n <br>"
+						+ I18nProperties.getString(Strings.mustContain1UppercaseChar) + "\r\n" + "");
 		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
 
 		// setting action buttons for password change

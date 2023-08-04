@@ -12,7 +12,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 public class CampaignActionButtons2 extends HorizontalLayout {
-	Anchor archiveDearchive = new Anchor(I18nProperties.getCaption(Captions.archive));
+	Anchor archiveDearchive = new Anchor(I18nProperties.getCaption(Captions.actionDearchive));
 	Button saveandcontinue;
 	
 	
