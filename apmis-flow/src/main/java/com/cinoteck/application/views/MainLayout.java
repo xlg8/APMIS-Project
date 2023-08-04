@@ -11,7 +11,6 @@ import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
-import com.cinoteck.application.views.Test.TestView;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
@@ -40,8 +39,10 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.notification.Notification;
+
+//import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+//import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -51,6 +52,12 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.user.UserDto;
 
 
 /**
@@ -79,7 +86,17 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 	boolean isToggleOpen = false;
 
-	public MainLayout() {
+	public MainLayout() {	
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+		
+		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
@@ -87,12 +104,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
-
-
 	private void addHeaderContent() {
 		DrawerToggle toggle = new DrawerToggle();
 		toggle.getElement().setAttribute("aria-label", "Menu toggle");
 		toggle.getStyle().set("color", "white");
+
 		toggle.getStyle().set("z-index", "10000000");
 		
 
@@ -154,23 +170,20 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		Button myButton = new Button();
 		
-		nav.addItem(new AppNavItem("Dashboard", DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
-		nav.addItem(new AppNavItem("Campaign Data", CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
-		nav.addItem(new AppNavItem("All Campaigns", CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
-		nav.addItem(new AppNavItem("Configuration", ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
-		nav.addItem(new AppNavItem("Users", UserView.class, VaadinIcon.USERS, "navitem"));
-		nav.addItem(new AppNavItem("Reports", ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.Campaign), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class, VaadinIcon.USERS, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuReports), ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
 		nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		//nav.addItem(new AppNavItem("Pivot", PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem("Support", SupportView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
-		nav.addItem(new AppNavItem("About", AboutView.class, VaadinIcon.CHAT, "navitem"));
-//		nav.addItem(new AppNavItem("Test", TestView.class, VaadinIcon.CHAT, "navitem"));
-
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		
-		
-		nav.addItem(new AppNavItem("Sign Out", LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
 		if (nav != null) {
 		    nav.addClassName("active");
 		}
@@ -242,11 +255,31 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 //		add(dialog);
 //		return dialog;
+	}	
+	 
+	void rtlswitcher() {		
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+		I18nProperties.getUserLanguage();
+		
+		if (userProvider.getUser().getLanguage().toString() != null) {
 
+			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
+
+			String userLanguage = userProvider.getUser().getLanguage().toString();
+
+			if (userLanguage.equals("Pashto")) {
+
+				languageSwitcher.mainSwitchLanguage(new Locale("ps"));
+			} else if (userLanguage.equals("Dari")) {
+
+				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
+			} else {
+				
+				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);
+			}
+
+		}
 	}
-
-	
-	
 	
 	private Tabs getTabs() {
 	    Tabs tabs = new Tabs();

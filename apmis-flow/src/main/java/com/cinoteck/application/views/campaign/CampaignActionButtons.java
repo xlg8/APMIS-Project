@@ -4,8 +4,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
+
 public class CampaignActionButtons extends HorizontalLayout {
-	Anchor archiveDearchive = new Anchor("Archive");
+	Anchor archiveDearchive = new Anchor(I18nProperties.getCaption(Captions.actionDearchive));
 	Button openCloseCampaign;
 	Button duplicateCampaign;
 	Button deleteCampaign;
@@ -18,18 +22,18 @@ public class CampaignActionButtons extends HorizontalLayout {
 	public CampaignActionButtons() {
 		setWidthFull();
 		openCloseCampaign = new Button();
-		openCloseCampaign.setText("Open Campaign");
+		openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		duplicateCampaign = new Button();
-		duplicateCampaign.setText("Duplicate");
+		duplicateCampaign.setText(I18nProperties.getString(Strings.duplicate));
 		deleteCampaign = new Button();
-		deleteCampaign.setText("Delete");
+		deleteCampaign.setText(I18nProperties.getCaption(Captions.actionDelete));
 		deleteCampaign.getStyle().set("background", "red");
 		publishUnpublishCampaign = new Button();
-		publishUnpublishCampaign.setText("Publish Campaign");
+		publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 		discardChanges = new Button();
-		discardChanges.setText("Discard Changes");
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
 		saveChanges = new Button();
-		saveChanges.setText("Save");
+		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
 		
 //		 setVerticalComponentAlignment(Alignment.END, discardChanges, saveChanges);
 //		

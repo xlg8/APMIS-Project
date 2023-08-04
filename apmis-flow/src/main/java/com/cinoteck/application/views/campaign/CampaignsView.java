@@ -1,7 +1,10 @@
 package com.cinoteck.application.views.campaign;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
+import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -31,10 +34,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
@@ -72,7 +77,7 @@ public class CampaignsView extends VerticalLayout {
 		setHeightFull();
 		createFilterBar();
 		campaignsGrid();
-
+		
 	}
 
 	private boolean matchesTerm() {
@@ -80,8 +85,8 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void campaignsGrid() {
-
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+
 
 //		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //		
@@ -115,11 +120,12 @@ public class CampaignsView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CampaignIndexDto.NAME).setHeader("Name").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader("Status").setSortable(true).setResizable(true);
-		grid.addColumn(startDateRenderer).setHeader("Start Date").setSortable(true).setResizable(true);
-		grid.addColumn(endDateRenderer).setHeader("End Date").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader("Campaign Year").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.actionStatusChangeDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
+
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -156,7 +162,7 @@ public class CampaignsView extends VerticalLayout {
 		
 		
 
-		filterDisplayToggle = new Button("Show Filters");
+		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.showFilters));
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
 		filterDisplayToggle.getStyle().set("margin-top", "12px");
 		filterDisplayToggle.setIcon(new Icon(VaadinIcon.SLIDERS));
@@ -168,18 +174,18 @@ public class CampaignsView extends VerticalLayout {
 		filterDisplayToggle.addClickListener(e -> {
 			if (!filterLayout.isVisible()) {
 				filterLayout.setVisible(true);
-				filterDisplayToggle.setText("Hide Filters");
+				filterDisplayToggle.setText(I18nProperties.getCaption(Captions.hideFilters));
 
 			} else {
 				filterLayout.setVisible(false);
-				filterDisplayToggle.setText("Show Filters");
+				filterDisplayToggle.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 
 		});
 
 		searchField = new TextField();
-		searchField.setLabel("Search Campaign");
-		searchField.setPlaceholder("Search");
+		searchField.setLabel(I18nProperties.getCaption(Captions.campaignSearch));
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClassName("col-sm-6, col-xs-6");
 
@@ -194,7 +200,7 @@ public class CampaignsView extends VerticalLayout {
 		}));
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
-		relevanceStatusFilter.setLabel("Campaign Status");
+		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.setClassName("col-sm-6, col-xs-6");
@@ -206,7 +212,7 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		validateFormsButton = new Button("Validate Forms", new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
 		validateFormsButton.setClassName("col-sm-6, col-xs-6");
 		validateFormsButton.addClickListener(e -> {
 			try {
@@ -222,7 +228,7 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		createButton = new Button("New Campaign", new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton = new Button(I18nProperties.getCaption(Captions.campaignNewCampaign), new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
 			newCampaign(dto);
@@ -250,7 +256,8 @@ public class CampaignsView extends VerticalLayout {
 //		formLayout.addArchiveListener(this::archiveCampaign);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("New Campaign");
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
+
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);
@@ -268,7 +275,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDeleteListener(this::deleteCampaign);
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle("Edit Campaign");
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit));
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setDraggable(true);
