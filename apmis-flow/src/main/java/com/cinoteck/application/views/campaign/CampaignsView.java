@@ -167,6 +167,8 @@ public class CampaignsView extends VerticalLayout {
 	private void createFilterBar() {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
+		
+		
 
 		filterDisplayToggle = new Button("Show Filters");
 		filterDisplayToggle.getStyle().set("margin-left", "12px");

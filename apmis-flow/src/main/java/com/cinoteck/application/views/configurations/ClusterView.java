@@ -182,6 +182,7 @@ public class ClusterView extends VerticalLayout {
 
 	// TODO: Hide the filter bar on smaller screens
 	public Component addFilters() {
+
 		if (criteria == null) {
 			criteria = new CommunityCriteriaNew();
 		}
@@ -201,6 +202,7 @@ public class ClusterView extends VerticalLayout {
 
 		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph("Rows : " + itemCount);
+
 		countRowItems.setId("rowCount");
 
 		HorizontalLayout layout = new HorizontalLayout();
@@ -214,6 +216,7 @@ public class ClusterView extends VerticalLayout {
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
 		relevancelayout.setClassName("row");
+
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);

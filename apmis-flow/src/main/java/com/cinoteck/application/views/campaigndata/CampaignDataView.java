@@ -195,6 +195,7 @@ public class CampaignDataView extends VerticalLayout {
 		level1Filters.setAlignItems(Alignment.END);
 		level1Filters.setClassName("row pl-3");
 
+
 		HorizontalLayout rightFloat = new HorizontalLayout();
 		rightFloat.setWidth("100%");
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
@@ -225,14 +226,17 @@ public class CampaignDataView extends VerticalLayout {
 		campaignz.getStyle().set("padding-top", "0px !important");
 		campaignz.setClassName("col-sm-6, col-xs-6");
 
+
 		campaignPhase.setLabel("Campaign Phase");
 		campaignPhase.getStyle().set("padding-top", "0px !important");
 		campaignz.setClassName("col-sm-6, col-xs-6");
+
 
 		campaignFormCombo.setLabel("Form");
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		campaignFormCombo.setClassName("col-sm-6, col-xs-6");
+
 
 		regionCombo.setLabel("Region");
 		regionCombo.getStyle().set("padding-top", "0px !important");
