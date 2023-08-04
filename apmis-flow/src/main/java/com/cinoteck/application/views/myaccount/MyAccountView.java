@@ -28,7 +28,6 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.EmailField;
 
-
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -79,7 +78,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		List<CommunityReferenceDto> communitiess;
 
 		UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
-		// currentUser.getFirstName();
 
 		Div userentry = new Div();
 
@@ -91,11 +89,9 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infooo.getStyle().set("margin-bottom", "15px");
 
 		Paragraph infoood = new Paragraph(currentUser.getUserName());
-		// Paragraph infoood = new Paragraph(currentUser.getUserRoles().size()+ "");
 		infoood.getStyle().set("margin-left", "20px");
 		infoood.getStyle().set("margin-bottom", "0px");
 
-		// Div personalInfoo = new Div();
 		H3 infoo = new H3("Personal Information");
 		infoo.getStyle().set("color", "green");
 		infoo.getStyle().set("font-size", "20px");
@@ -106,21 +102,16 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		TextField firstnamee = new TextField("");
 		firstnamee.setLabel("First Name");
 		firstnamee.setValue(currentUser.getFirstName());
-		// firstnamee.setClassName("fName");
 		firstnamee.setId("my-disabled-textfield");
 		firstnamee.getStyle().set("-webkit-text-fill-color", "green");
 		firstnamee.setReadOnly(true);
-		// binder.forField(firstnamee).asRequired("First Name is
-		// Required").bind(UserDto::getFirstName, UserDto::setFirstName);
-
+		
 		TextField lastnamee = new TextField("");
 		lastnamee.setLabel("Last Name");
 		lastnamee.setValue(currentUser.getLastName());
 		lastnamee.getStyle().set("-webkit-text-fill-color", "green");
 		lastnamee.setReadOnly(true);
-		// binder.forField(lastnamee).asRequired("Last Name is
-		// Required").bind(UserDto::getLastName, UserDto::setLastName);
-
+		
 		TextField emailAddresss = new TextField("");
 		emailAddresss.setLabel("Email address");
 		if (currentUser.getUserEmail() == null) {
@@ -140,31 +131,21 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 			phoneNumberr.setValue(currentUser.getPhone());
 		}
 		phoneNumberr.setReadOnly(true);
-//		binder.forField(phoneNumberr).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-//				.bind(UserDto::getPhone, UserDto::setPhone);
 
-//		Select<String> positionn = new Select<>();
-//		positionn.setLabel("Position");
-//		positionn.setItems("");
-//		positionn.setValue("");
 
 		TextField positionn = new TextField();
 		positionn.setLabel("Position");
-		// positionn.setValue(currentUser.getUserPosition());
 		if (currentUser.getPhone() == null) {
 			positionn.setPlaceholder("Position");
 		} else {
 			positionn.setValue(currentUser.getUserPosition());
 		}
 		positionn.setReadOnly(true);
-		// binder.forField(positionn).bind(UserDto::getUserPosition,
-		// UserDto::setUserPosition);
+		
 
-//TODO:: add a model for address in userDto
 		TextField addresss = new TextField();
 		addresss.setLabel("Address");
 		addresss.setReadOnly(true);
-		// binder.forField(addresss).bind(UserDto::getAddress,UserDto::setAddress);
 
 		FormLayout dataVieww = new FormLayout();
 		dataVieww.add(firstnamee, lastnamee, emailAddresss, phoneNumberr, positionn, addresss);
@@ -179,44 +160,26 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infodataa.getStyle().set("margin-left", "20px");
 		infodataa.getStyle().set("margin-bottom", "0px");
 
-		// Select<String> regionn = new Select<>();
 		ComboBox<AreaReferenceDto> regionn = new ComboBox<>("Region");
-		// regionn.setLabel("Region");
 		binder.forField(regionn).bind(UserDto::getArea, UserDto::setArea);
 		regionss = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionn.setItems(regionss);
 		regionn.setItemLabelGenerator(AreaReferenceDto::getCaption);
-		// TODO: come back to add valuechangelistener
-
-//		regionn.setItems("", "Region", "Region", "Region", "Region", "Region", "Region");
-//		regionn.setValue("");
-
-		// Select<String> provincee = new Select<>();
+		
 		ComboBox<RegionReferenceDto> provincee = new ComboBox<>("Province");
-		// provincee.setLabel("Province");
 		binder.forField(provincee).bind(UserDto::getRegion, UserDto::setRegion);
 		provincee.setItemLabelGenerator(RegionReferenceDto::getCaption);
-		// provincee.setItems("", "Province", "Province", "Province", "Province",
-		// "Province");
-//		provincee.setValue("");
+		
 
-
-		// Select<String> districtt = new Select<>();
 		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>("District");
-		// districtt.setLabel("District");
 		binder.forField(districtt).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districtt.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 
-//		districtt.setItems("", "District", "District", "District", "District", "District");
-//		districtt.setValue("");
-
-		// Select<String> clusterr = new Select();
 
 		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>("Community");
 		cluster.setLabel("Cluster");
 		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
 
-		// clusterr.setItems("", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster");
 
 		TextField streett = new TextField();
 		streett.setLabel("Street");
@@ -254,7 +217,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		fielddataVieww.getStyle().set("margin-left", "20px");
 		fielddataVieww.getStyle().set("margin-right", "20px");
 
-		H3 security = new H3("Password & Accesibility");
+		H3 security = new H3("Password & Accessibility");
 		security.getStyle().set("color", "green");
 		security.getStyle().set("font-size", "20px");
 		security.getStyle().set("font-weight", "600");
@@ -262,26 +225,14 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-bottom", "15px");
 		security.getStyle().set("margin-top", "16px !important");
 
-//<<<<<<< HEAD
+
 		Dialog passwordDialog = new Dialog();
-		// change password button. set it to figma design
-		//Button openPasswordPopupButton = new Button("Change Password");
-//		passwordDialog.getStyle().set("margin-bottom", "0px");
-//		passwordDialog.getStyle().set("margin-top", "12px !important");
-		//openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
-//=======
-		//Dialog passwordDialog = new Dialog();
-		// change password button. set it to figma design
+
 		Button openPasswordPopupButton = new Button("Change Password");
-//		passwordDialog.getStyle().set("margin-bottom", "0px");
-//		passwordDialog.getStyle().set("margin-top", "12px !important");
-		
-		
-		
+
 		openPasswordPopupButton.addClickListener(event -> {
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
-			});
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
+		});
 		add();
 
 		VerticalLayout pwdSecc = new VerticalLayout();
@@ -292,25 +243,21 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		languagee.setItems(Language.getAssignableLanguages());
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
-//<<<<<<< HEAD
+
 		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-//=======
+
 		languagee.setRequired(true);
-		//binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-		languagee.setValue(currentUser.getLanguage());
 		
-		languagee.getStyle().set("width", "400px");
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
+		languagee.setValue(currentUser.getLanguage());
 
-//<<<<<<< HEAD
 		languagee.getStyle().set("width", "400px");
 
-//=======
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
+		languagee.getStyle().set("width", "400px");
+
 		Div anch = new Div();
 		anch.setClassName("anchDiv");
 		pwdSecc.getStyle().set("margin-left", "20px");
-		
+
 		pwdSecc.add(openPasswordPopupButton, languagee, anch);
 
 		Div actionss = new Div();
@@ -331,18 +278,17 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Button savee = new Button("Save", vadIcc);
 		savee.addClickListener(e -> {
 			UserDto currentUserToSave = FacadeProvider.getUserFacade().getCurrentUser();
-			if(languagee.getValue() != null) {
-				
-			currentUserToSave.setLanguage(languagee.getValue());
-			FacadeProvider.getUserFacade().saveUser(currentUserToSave);
-			
-			Notification.show("Language setting saved successfully");
+			if (languagee.getValue() != null) {
+
+				currentUserToSave.setLanguage(languagee.getValue());
+				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
+
+				Notification.show("Language setting saved successfully");
 			} else {
-				
-				Notification.show("Choose prefered language: "+languagee.isInvalid());
+
+				Notification.show("Choose prefered language: " + languagee.isInvalid());
 			}
-			
-			
+
 		});
 		actionss.getStyle().set("margin", "20px");
 		actionss.add(discard, savee);
@@ -350,40 +296,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				actionss);
 
 		add(userentry);
-
-//<<<<<<< HEAD
-		// initial idea for a change of password
-//		Dialog dialog = new Dialog();
-//		dialog.setCloseOnEsc(false);
-//		dialog.setCloseOnOutsideClick(false);
-//
-//		Label messageLabel = new Label("Update Password");
-//		
-//		TextField newPasswordField = new TextField("New Password");
-//		TextField confirmNewPasswordField = new TextField("Confirm New Password");
-//		
-//		Label instructionLabel = new Label("Choose a new password for your account\r\n <br>"
-//				+ "*Must be at least 8 characters\r\n <br>"
-//				+ "*Must contain 1 Uppercase and 1 special character\r\n"
-//				+ "");
-//		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
-//		
-//		Button closeButton = new Button("Close");
-//		closeButton.addClickListener(event -> dialog.close());
-//		
-//		VerticalLayout layout = new VerticalLayout();
-//		layout.add(messageLabel, newPasswordField);
-//		layout.add(confirmNewPasswordField);
-//		
-//		dialog.add(layout, instructionLabel, closeButton);
-//
-//	//show popup	
-//		Button openDialogButton = new Button("Change Password");
-//		openDialogButton.addClickListener(event -> dialog.open());
-//
-//		add(openDialogButton);
-
-		// trying out a new change password field
 
 		passwordDialog.setCloseOnEsc(false);
 		passwordDialog.setCloseOnOutsideClick(false);
@@ -426,10 +338,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		layout.add(newPasswordField);
 		layout.add(confirmPasswordField);
 		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
-
-//=======
-//>>>>>>> branch 'development' of https://github.com/abahsuccess/APMIS-Project.git
 	}
-
 
 }

@@ -403,25 +403,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			List<SortProperty> sortProperties, FormAccess frms) {
 		System.out.println(" ==============getByCompletionAnalysisCountgetByCompletionAnalysisCount======= ");
 		
-		boolean filterIsNull = criteria.getArea() == null;
+		boolean filterIsNull = criteria.getCampaign() == null;
 		
 		String joiner = "";
 		
 		if(!filterIsNull) {
-			
+			final CampaignReferenceDto campaign = criteria.getCampaign();
 			final AreaReferenceDto area = criteria.getArea();
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
-			final CampaignReferenceDto campaign = criteria.getCampaign();
+			
 			
 			//@formatter:off
 			
-			
-			final String areaFilter = area != null ? " area3_x.uuid = '"+area.getUuid()+"'" : "";
+			final String campaignFilter = campaign != null ? "campaignfo0_x.uuid = '"+campaign.getUuid()+"'" : "";
+
+			final String areaFilter = area != null ? " AND  area3_x.uuid = '"+area.getUuid()+"'" : "";
 			final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 			final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
-			final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
-			joiner = "where " +areaFilter + regionFilter + districtFilter +campaignFilter;
+			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
 			
 			System.out.println(campaignFilter+" ===================== "+joiner);
 		}
@@ -432,7 +432,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
 				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
-				+ "left outer join campaigns campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+				+ "left outer join ( SELECT id, uuid  FROM campaigns) campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
 				+ ""+joiner+"\n";
 		
@@ -452,26 +452,27 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			int noUse = prepareAllCompletionAnalysis();
 		}
 		
-		boolean filterIsNull = criteria.getArea() == null ;
+		boolean filterIsNull = criteria.getCampaign() == null ;
 		
 		String joiner = "";
 		
 		if(!filterIsNull) {
+		final CampaignReferenceDto campaign = criteria.getCampaign();
 		final AreaReferenceDto area = criteria.getArea();
 		final RegionReferenceDto region = criteria.getRegion();
 		final DistrictReferenceDto district = criteria.getDistrict();
-		final CampaignReferenceDto campaign = criteria.getCampaign();
+		
 		
 		
 		
 		//@formatter:off
 		
-		
-		final String areaFilter = area != null ? " area3_x.uuid = '"+area.getUuid()+"'" : "";
+		final String campaignFilter = campaign != null ? "campaignfo0_x.uuid = '"+campaign.getUuid()+"'" : "";
+		final String areaFilter = area != null ? "AND area3_x.uuid = '"+area.getUuid()+"'" : "";
 		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
-		final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
-		joiner = "where " +areaFilter + regionFilter + districtFilter +campaignFilter;
+		
+		joiner = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
 		
 		System.out.println(campaignFilter+" ===================== "+joiner);
 		}
@@ -483,7 +484,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
 				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
-				+ "left outer join campaigns campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
 				+ ""+joiner+"\n"
 				+ "limit "+max+" offset "+first+";";

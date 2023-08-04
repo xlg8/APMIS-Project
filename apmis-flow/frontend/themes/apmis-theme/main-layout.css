@@ -468,8 +468,8 @@ vcf-nav-item::part(item) {
 	color: white;
 }
 
-#forgotPasswordButton{
-	color: #0D6938 !important;
+#forgotPasswordButton {
+	color: green !important;
 } 
 
 .vieLangiuageSwitcher  vaadin-button {
@@ -543,7 +543,7 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
     margin-top: 6px;
     background: rgb(13, 105, 56) !important;
     color: white !important;
-    width: 28%;
+    width: 17%;
 	
 }
 
@@ -605,12 +605,18 @@ vaadin-horizontal-layout[fcgh-footer] {
 }
 
 #exportArea{
-	width: 135px;
+
+	width: 100px;
+    margin-bottom: 6px;
+}
+
+#exportProvince{
+	width: 100px;
     margin-bottom: 6px;
 }
 
 #exportCluster{
-	width: 140px;
+	width: 100px;
     margin-bottom: 6px;
 }
 

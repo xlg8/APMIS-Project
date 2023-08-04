@@ -95,15 +95,12 @@ public class AboutView extends VerticalLayout {
 		
 		Button getUserGuide =  new Button("User Guide");
 		getUserGuide.setIcon(new Icon(VaadinIcon.NURSE));
-		getUserGuide.setVisible(false);
 		
 		Button getTechnicalGuide =  new Button("Technical Guide");
 		getTechnicalGuide.setIcon(new Icon(VaadinIcon.DIPLOMA_SCROLL));
-		getTechnicalGuide.setVisible(false);
 		
 		Button getMobileGuide =  new Button("Mobile User Guide");
 		getMobileGuide.setIcon(new Icon(VaadinIcon.MOBILE));
-		getMobileGuide.setVisible(false);
 		getMobileGuide.addClassName("wrap-button-label"); // Add a CSS class for styling
 
 		
@@ -117,23 +114,22 @@ public class AboutView extends VerticalLayout {
 	    excelLink.setHref(exporter.getCsvStreamResource());
 	    excelLink.getElement().setAttribute("download", true);
 		
-		excelLink.setVisible(false);
 		
-		displayActionButtons.addClickListener(e->{
-			if(getUserGuide.isVisible() == false) {
-				getUserGuide.setVisible(true);
-				getTechnicalGuide.setVisible(true);
-				excelLink.setVisible(true);
-				getMobileGuide.setVisible(true);
-				displayActionButtons.setText("Hide Action Buttons");
-			}else {
-			getUserGuide.setVisible(false);
-			getTechnicalGuide.setVisible(false);
-			excelLink.setVisible(false);
-			getMobileGuide.setVisible(false);
-			displayActionButtons.setText("Show Action Buttons");
-			} 
-		});
+//		displayActionButtons.addClickListener(e->{
+//			if(getUserGuide.isVisible() == false) {
+//				getUserGuide.setVisible(true);
+//				getTechnicalGuide.setVisible(true);
+//				excelLink.setVisible(true);
+//				getMobileGuide.setVisible(true);
+//				displayActionButtons.setText("Hide Action Buttons");
+//			}else {
+//			getUserGuide.setVisible(false);
+//			getTechnicalGuide.setVisible(false);
+//			excelLink.setVisible(false);
+//			getMobileGuide.setVisible(false);
+//			displayActionButtons.setText("Show Action Buttons");
+//			} 
+//		});
 		
 		getUserGuide.addClickListener(e->{
 			  UI.getCurrent().getPage().open("https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/APMIS_User_Guide.pdf");
@@ -152,7 +148,9 @@ public class AboutView extends VerticalLayout {
 		excelLink.getStyle().set("color", "0D6938 !important");
 		HorizontalLayout buttonsLayout  = new HorizontalLayout();
 		buttonsLayout.getStyle().set("padding-left", "90px");
-		buttonsLayout.add(displayActionButtons, getUserGuide, getTechnicalGuide, getMobileGuide,  excelLink);
+		buttonsLayout.setWidth("100%");
+//		buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide,  excelLink);
 		add(buttonsLayout);
 		
 	
