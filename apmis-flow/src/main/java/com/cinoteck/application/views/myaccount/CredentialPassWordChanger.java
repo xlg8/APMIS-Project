@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserDto;
 
@@ -33,7 +34,7 @@ public class CredentialPassWordChanger extends Div {
 		this.userName = usedto;
 
 		_dialog = new ConfirmDialog();
-		_dialog.setHeader("Password?");
+		_dialog.setHeader(I18nProperties.getCaption(Captions.Login_password)+"?");
 		_dialog.setText("Do you really want to change your password?");
 		_dialog.setCloseOnEsc(false);
 		_dialog.setCancelable(true);
@@ -43,7 +44,7 @@ public class CredentialPassWordChanger extends Div {
 //		 	_dialog.setRejectText("Discard");
 //		 	_dialog.addRejectListener(event -> setStatus("Discarded"));
 
-		_dialog.setConfirmText("Continue");
+		_dialog.setConfirmText(I18nProperties.getCaption(Captions.actionContinue));
 		_dialog.addConfirmListener(event -> continuePasswrd());
 
 		_dialog.open();
@@ -93,7 +94,7 @@ public class CredentialPassWordChanger extends Div {
 		passField2.setSizeFull();
 		layout.add(passField2, instructionLabel);
 
-		Button saveButton = new Button("Save");
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 //				changePassword.setStyleName(CssStyles.VAADIN_BUTTON);
 //				changePassword.setStyleName(ValoTheme.BUTTON_PRIMARY);
 //				changePassword.setStyleName(CssStyles.FLOAT_RIGHT);
@@ -122,7 +123,7 @@ public class CredentialPassWordChanger extends Div {
 
 		dialog.add(layout);
 
-		Button cancelButton = new Button("Cancel", e -> dialog.close());
+		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), e -> dialog.close());
 		dialog.getFooter().add(cancelButton);
 		dialog.getFooter().add(saveButton);
 

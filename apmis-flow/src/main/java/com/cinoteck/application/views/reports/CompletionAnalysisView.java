@@ -33,6 +33,8 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -97,8 +99,8 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		filterLayout.setVisible(false);
 		filterLayout.setAlignItems(Alignment.END);
 
-		campaign.setLabel("Campaigns");
-		campaign.setPlaceholder("All Campaigns");
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
+		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
 		campaign.addValueChangeListener(e-> {
@@ -114,8 +116,8 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		});
 		
 
-		regionFilter.setLabel("Region");
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.addValueChangeListener(e -> {
@@ -136,8 +138,8 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 
 
 		
-		provinceFilter.setLabel("Province");
-		provinceFilter.setPlaceholder("All Province");
+		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceFilter.addValueChangeListener(e -> {
             RegionReferenceDto selectedRegion = e.getValue();
@@ -153,9 +155,8 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
         });
 
 		
-		districtFilter.setLabel("District");
-		districtFilter.setPlaceholder("All District");
-		districtFilter.setClearButtonVisible(true);
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 //		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 		   districtFilter.addValueChangeListener(e -> {
 	            DistrictReferenceDto selectedDistrict = e.getValue();
@@ -168,8 +169,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 
 	            }
 	        });
-		
-		resetButton =  new Button("Reset Filters");
+		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e->{
 			campaign.clear();
 			provinceFilter.clear();
@@ -232,16 +232,17 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-//		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader("Campaign").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader("Region").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Region");
-		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Province");
-		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader("District").setSortable(true).setResizable(true).setTooltipGenerator(e -> "District");;
-		grid.addColumn(CampaignFormDataIndexDto::getCcode).setHeader("CCode").setSortable(true).setResizable(true).setTooltipGenerator(e -> "CCode");
-		grid.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader("Cluster Number").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Cluster Number");
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Household Monitoring").setSortable(true).setResizable(true).setTooltipGenerator(e -> "ICM Household Monitoring");
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader("ICM Revisits").setSortable(true).setResizable(true).setTooltipGenerator(e -> "ICM Revisits");
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true).setTooltipGenerator(e -> "ICM Supervisor Monitoring");
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader("ICM Team Monitoring").setSortable(true).setResizable(true).setTooltipGenerator(e -> "ICM Team Monitoring");
+
+		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Household Monitoring").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader("ICM Revisits").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader("ICM Team Monitoring").setSortable(true).setResizable(true);
+
 
 		grid.setVisible(true);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade()

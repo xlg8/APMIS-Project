@@ -154,7 +154,7 @@ public class MultiAuthenticationMechanism implements HttpAuthenticationMechanism
 			client.target(logoutEndpoint).request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.form(form));
 
 		if (response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
-			logger.error("Cannot logout the use because: {}. For more information, check the IDP logs", response.getStatusInfo().getReasonPhrase());
+			logger.error("Cannot logout the user because: {}. For more information, check the IDP logs", response.getStatusInfo().getReasonPhrase());
 			throw new AuthenticationException("Cannot logout the user");
 		}
 
