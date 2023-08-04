@@ -175,7 +175,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbCampaign.setEnabled(false);
 
 		formDate.setLabel(CampaignFormDataDto.FORM_DATE);
-		 LocalDate today = LocalDate.now();
+		LocalDate today = LocalDate.now();
 		formDate.setValue(today);
 		formDate.setRequired(true);
 

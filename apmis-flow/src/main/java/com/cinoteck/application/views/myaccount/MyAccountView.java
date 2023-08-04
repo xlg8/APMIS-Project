@@ -96,7 +96,6 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		List<CommunityReferenceDto> communitiess;
 
 		UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
-		// currentUser.getFirstName();
 
 		Div userentry = new Div();
 
@@ -108,12 +107,12 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infooo.getStyle().set("margin-bottom", "15px");
 
 		Paragraph infoood = new Paragraph(currentUser.getUserName());
-		// Paragraph infoood = new Paragraph(currentUser.getUserRoles().size()+ "");
 		infoood.getStyle().set("margin-left", "20px");
 		infoood.getStyle().set("margin-bottom", "0px");
 
 		// Div personalInfoo = new Div();
 		H3 infoo = new H3(I18nProperties.getCaption(Captions.personalInformation));
+
 		infoo.getStyle().set("color", "green");
 		infoo.getStyle().set("font-size", "20px");
 		infoo.getStyle().set("font-weight", "600");
@@ -123,21 +122,16 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		TextField firstnamee = new TextField("");
 		firstnamee.setLabel(I18nProperties.getCaption(Captions.firstName));
 		firstnamee.setValue(currentUser.getFirstName());
-		// firstnamee.setClassName("fName");
 		firstnamee.setId("my-disabled-textfield");
 		firstnamee.getStyle().set("-webkit-text-fill-color", "green");
 		firstnamee.setReadOnly(true);
-		// binder.forField(firstnamee).asRequired("First Name is
-		// Required").bind(UserDto::getFirstName, UserDto::setFirstName);
-
+		
 		TextField lastnamee = new TextField("");
 		lastnamee.setLabel(I18nProperties.getCaption(Captions.lastName));
 		lastnamee.setValue(currentUser.getLastName());
 		lastnamee.getStyle().set("-webkit-text-fill-color", "green");
 		lastnamee.setReadOnly(true);
-		// binder.forField(lastnamee).asRequired("Last Name is
-		// Required").bind(UserDto::getLastName, UserDto::setLastName);
-
+		
 		TextField emailAddresss = new TextField("");
 		emailAddresss.setLabel(I18nProperties.getCaption(Captions.User_userEmail));
 		if (currentUser.getUserEmail() == null) {
@@ -157,31 +151,23 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 			phoneNumberr.setValue(currentUser.getPhone());
 		}
 		phoneNumberr.setReadOnly(true);
-//		binder.forField(phoneNumberr).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-//				.bind(UserDto::getPhone, UserDto::setPhone);
 
-//		Select<String> positionn = new Select<>();
-//		positionn.setLabel("Position");
-//		positionn.setItems("");
-//		positionn.setValue("");
 
 		TextField positionn = new TextField();
 		positionn.setLabel(I18nProperties.getCaption(Captions.User_userPosition));
 		// positionn.setValue(currentUser.getUserPosition());
+
 		if (currentUser.getPhone() == null) {
 			positionn.setPlaceholder(I18nProperties.getCaption(Captions.User_userPosition));
 		} else {
 			positionn.setValue(currentUser.getUserPosition());
 		}
 		positionn.setReadOnly(true);
-		// binder.forField(positionn).bind(UserDto::getUserPosition,
-		// UserDto::setUserPosition);
+		
 
-//TODO:: add a model for address in userDto
 		TextField addresss = new TextField();
 		addresss.setLabel(I18nProperties.getCaption(Captions.address));
 		addresss.setReadOnly(true);
-		// binder.forField(addresss).bind(UserDto::getAddress,UserDto::setAddress);
 
 		FormLayout dataVieww = new FormLayout();
 		dataVieww.add(firstnamee, lastnamee, emailAddresss, phoneNumberr, positionn, addresss);
@@ -199,41 +185,29 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		// Select<String> regionn = new Select<>();
 		ComboBox<AreaReferenceDto> regionn = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 		// regionn.setLabel("Region");
+
 		binder.forField(regionn).bind(UserDto::getArea, UserDto::setArea);
 		regionss = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionn.setItems(regionss);
 		regionn.setItemLabelGenerator(AreaReferenceDto::getCaption);
-		// TODO: come back to add valuechangelistener
 
-//		regionn.setItems("", "Region", "Region", "Region", "Region", "Region", "Region");
-//		regionn.setValue("");
-
-		// Select<String> provincee = new Select<>();
+		
 		ComboBox<RegionReferenceDto> provincee = new ComboBox<>(I18nProperties.getCaption(Captions.region));
-		// provincee.setLabel("Province");
 		binder.forField(provincee).bind(UserDto::getRegion, UserDto::setRegion);
 		provincee.setItemLabelGenerator(RegionReferenceDto::getCaption);
-		// provincee.setItems("", "Province", "Province", "Province", "Province",
-		// "Province");
-//		provincee.setValue("");
+		
 
-		// Select<String> districtt = new Select<>();
 		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-		// districtt.setLabel("District");
+
 		binder.forField(districtt).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districtt.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 
-//		districtt.setItems("", "District", "District", "District", "District", "District");
-//		districtt.setValue("");
-
-		// Select<String> clusterr = new Select();
 
 		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>(
 				I18nProperties.getCaption(Captions.community));
 		cluster.setLabel(I18nProperties.getCaption(Captions.community));
 		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
 
-		// clusterr.setItems("", "Cluster", "Cluster", "Cluster", "Cluster", "Cluster");
 
 		TextField streett = new TextField();
 		streett.setLabel(I18nProperties.getCaption(Captions.Location_street));
@@ -272,6 +246,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		fielddataVieww.getStyle().set("margin-right", "20px");
 
 		H3 security = new H3(I18nProperties.getString(Strings.passwordAccessibility));
+
 		security.getStyle().set("color", "green");
 		security.getStyle().set("font-size", "20px");
 		security.getStyle().set("font-weight", "600");
@@ -279,18 +254,12 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-bottom", "15px");
 		security.getStyle().set("margin-top", "16px !important");
 
-		Dialog passwordDialog = new Dialog();
-		// change password button. set it to figma design
-		// Button openPasswordPopupButton = new Button("Change Password");
-//		passwordDialog.getStyle().set("margin-bottom", "0px");
-//		passwordDialog.getStyle().set("margin-top", "12px !important");
-		// openPasswordPopupButton.addClickListener(event -> passwordDialog.open());
 
-		// Dialog passwordDialog = new Dialog();
-		// change password button. set it to figma design
+
+		Dialog passwordDialog = new Dialog();
+
 		Button openPasswordPopupButton = new Button(I18nProperties.getCaption(Captions.changePassword));
-//		passwordDialog.getStyle().set("margin-bottom", "0px");
-//		passwordDialog.getStyle().set("margin-top", "12px !important");
+
 
 		openPasswordPopupButton.addClickListener(event -> {
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
@@ -306,11 +275,11 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
 
+
 		binder.forField(languagee).asRequired(I18nProperties.getString(Strings.languageRequired)).bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		languagee.setRequired(true);
-		// binder.forField(languagee).asRequired("Language is
-		// Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+
 		languagee.setValue(currentUser.getLanguage());
 
 		languagee.getStyle().set("width", "400px");

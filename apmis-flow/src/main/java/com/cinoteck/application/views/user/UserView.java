@@ -193,6 +193,7 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.User_active)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
@@ -217,6 +218,7 @@ public class UserView extends VerticalLayout {
 		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea)
 				.setHeader(I18nProperties.getCaption(Captions.area)).setResizable(true)
 				.setAutoWidth(true).setSortable(true);
+
 
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);

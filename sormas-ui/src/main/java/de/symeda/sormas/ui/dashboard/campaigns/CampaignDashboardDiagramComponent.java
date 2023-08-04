@@ -338,7 +338,7 @@ public class CampaignDashboardDiagramComponent extends VerticalLayout {
 			String fieldName = assembleFieldname(values, series, seriesKey);
 			if (showPercentages) {
 				if (campaignJurisdictionLevelGroupBy == CampaignJurisdictionLevel.COMMUNITY) {
-					fieldName = I18nProperties.getString(Strings.populationDataByCommunity);
+				//	fieldName = I18nProperties.getString(Strings.populationDataByCommunity);
 				}
 			}
 

@@ -63,7 +63,7 @@ public class CampaignView extends AbstractDetailView<CampaignReferenceDto> {
 		editComponent = ControllerProvider.getCampaignController().getCampaignComponent(campaignDto, () -> {
 		System.out.println("############################## -  -  "+campaignDto.getPopulationdata().size());
 		
-		//Do the facade save stuff for popu;lation list here
+		//Do the facade save stuff for population list here
 		
 		FacadeProvider.getPopulationDataFacade().savePopulationList(campaignDto.getPopulationdata());
 			

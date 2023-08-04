@@ -89,6 +89,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
     }
 	
 	public CompletionAnalysisView() {
+		
 		this.criteria = new CampaignFormDataCriteria();
 		
 		setHeightFull();
@@ -107,22 +108,26 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 			   if (selectedCAmpaign != null) {
 				   criteria.campaign(selectedCAmpaign);
 				   refreshGridData(formAccess);
+			   }else {
+				   criteria.campaign(null);
+				   refreshGridData(formAccess);
 			   }
-			   refreshGridData(formAccess);
+			   
 		});
 		
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-		
+		regionFilter.setClearButtonVisible(true);
 		regionFilter.addValueChangeListener(e -> {
             AreaReferenceDto selectedArea = e.getValue();
             if (selectedArea != null) {
                 provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
                 provinceFilter.setItems(provinces);
+                criteria.campaign(campaign.getValue());
                 criteria.area(selectedArea);
-                criteria.region(null);
+                
                 refreshGridData(formAccess);
             }
             else {
@@ -166,6 +171,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 	        });
 		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e->{
+			campaign.clear();
 			provinceFilter.clear();
 			districtFilter.clear();
 			regionFilter.clear();
@@ -226,6 +232,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
+
 		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
@@ -235,6 +242,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader("ICM Revisits").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader("ICM Team Monitoring").setSortable(true).setResizable(true);
+
 
 		grid.setVisible(true);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade()
@@ -251,13 +259,6 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 												.collect(Collectors.toList()), null)
 								.stream(), 
 						query -> numberOfRows
-//						Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
-//								.getByCompletionAnalysisCount(criteria, query.getOffset(), //query.getFilter().orElse(null)
-//										query.getLimit(),
-//										query.getSortOrders().stream()
-//												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-//														sortOrder.getDirection() == SortDirection.ASCENDING))
-//												.collect(Collectors.toList()), null))
 								);
 		grid.setDataProvider(dataProvider);
 		add(grid);

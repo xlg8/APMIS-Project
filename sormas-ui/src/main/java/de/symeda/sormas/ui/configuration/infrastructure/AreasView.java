@@ -95,7 +95,7 @@ public class AreasView extends AbstractConfigurationView {
 
 			addHeaderComponent(btnImport);
 		}
-
+//Are you sure you want to archive this cluster?
 		if (UserProvider.getCurrent().hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
 			 btnExport = ButtonHelper.createIconButton(Captions.export, VaadinIcons.TABLE, null, ValoTheme.BUTTON_PRIMARY);
 			btnExport.setDescription(I18nProperties.getDescription(Descriptions.descExportButton));

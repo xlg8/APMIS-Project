@@ -184,6 +184,8 @@ vcf-nav-item#navitem:hover, vcf-nav-item#navitem:focus-visible {
 	text-shadow: none !important;
 }
 
+
+
 vaadin-vertical-layout {
 	padding: 0 !important;
 }
@@ -193,10 +195,10 @@ vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a {
 	color: white !important;
 }
 
-vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
+/*vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
 	background: #F08F3E !important;
 	color: white !important;
-}
+}*/
 
 input {
 	font-weight: 300;
@@ -457,7 +459,7 @@ vcf-nav-item::part(item) {
 }
 
 .login-screen {
-	background-image: url("images/loginBackground.png");
+	background-image: url("images/afghanistan-map.svg");
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -466,8 +468,8 @@ vcf-nav-item::part(item) {
 	color: white;
 }
 
-#forgotPasswordButton{
-	color: #0D6938 !important;
+#forgotPasswordButton {
+	color: green !important;
 } 
 
 .vieLangiuageSwitcher  vaadin-button {
@@ -489,9 +491,9 @@ vcf-nav-item[active]::part(item) {
 }
 
 #vaadinLoginUsername label, #vaadinLoginPassword label {
-	color: white !important;
-	font-family: Lato;
-	font-size: large;
+	color: green !important;
+	font-family: sans-serif;
+	font-size: small;
 }
 
 vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-container
@@ -541,7 +543,7 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
     margin-top: 6px;
     background: rgb(13, 105, 56) !important;
     color: white !important;
-    width: 28%;
+    width: 17%;
 	
 }
 
@@ -603,15 +605,24 @@ vaadin-horizontal-layout[fcgh-footer] {
 }
 
 #exportArea{
-	width: 135px;
+
+	width: 100px;
+    margin-bottom: 6px;
+}
+
+#exportProvince{
+	width: 100px;
     margin-bottom: 6px;
 }
 
 #exportCluster{
-	width: 140px;
+	width: 100px;
     margin-bottom: 6px;
 }
 
+vaadin-vertical-layout::-webkit-scrollbar {
+	display: none;
+}
 
 #rowCount {
 	font-weight: 600;
@@ -619,3 +630,19 @@ vaadin-horizontal-layout[fcgh-footer] {
 	color: #0D6938 !important;
 }
 
+
+.login-information{
+	background-color: #0f4502a3;
+}
+
+vaadin-button{
+   cursor: pointer;
+   }
+vaadin-button:hover {
+  opacity: 0.6;
+  box-shadow: 0 5px 7px 0 rgba(0,0,0,0.24), 0 2px 5px 0 rgba(0,0,0,0.19);
+}
+
+.v-button {
+   cursor: pointer;
+   }
