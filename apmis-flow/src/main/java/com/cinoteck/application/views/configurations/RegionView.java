@@ -6,9 +6,11 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -40,9 +42,12 @@ import com.vaadin.flow.server.StreamResource;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -52,7 +57,10 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 //import org.vaadin.olli.FileDownloadWrapper;
@@ -87,28 +95,25 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
 	Button leaveBulkEdit = new Button("Leave Bulk Edit");
 	Paragraph countRowItems;
-	
+
 	List<AreaDto> data;
 	MenuBar dropdownBulkOperations = new MenuBar();
-	ListDataProvider<AreaDto> dataProvider = DataProvider
-			.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+	SubMenu subMenu ;
+	ListDataProvider<AreaDto> dataProvider ;
+	int itemCount;// = dataProvider.getItems().size();
+
 	
-	int itemCount = dataProvider.getItems().size();
+	String uuidsz = "";
+	
+	ConfirmDialog archiveDearchiveConfirmation;
+	
 	public RegionView() {
 		setSpacing(false);
 		setHeightFull();
 		addRegionFilter();
 		regionGrid(criteria);
-		 
-	}
 
-//	private void updateRowCount() {
-//		itemCount = data.size();
-//		String newText = "No. of Regions : " + itemCount;
-//		countRowItems.setText(newText);
-//		countRowItems.setId("rowCount");
-////        Notification.show("Text updated: " + newText);
-//	}
+	}
 
 	private void regionGrid(AreaCriteria criteria) {
 //		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE); Archive
@@ -123,9 +128,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true);
+		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Region");
 		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true)
-				.setAutoWidth(true);
+				.setAutoWidth(true).setTooltipGenerator(e -> "Rcode");
 
 		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
@@ -134,14 +139,14 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 //		List<AreaDto> regions = FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null);
 //		this.dataView = grid.setItems(regions);
-		if (criteria.getRelevanceStatus() == null) {
+//		if (criteria.getRelevanceStatus() == null) {
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-		}
+//		}
 		dataProvider = DataProvider
-		.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
-		
+				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+
 		dataView = grid.setItems(dataProvider);
-		 
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
@@ -165,14 +170,14 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		icon.getStyle().set("font-size", "10px");
 
 		anchor.getElement().insertChild(0, icon.getElement());
-		
+
 //		exportArea();
 	}
 
 	private void refreshGridData() {
 		ListDataProvider<AreaDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
-		
+
 		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
 		String newText = "Rows : " + itemCount;
@@ -281,9 +286,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	}
 
 	private void addRegionFilter() {
-		
-		
-		
+//		criteria = new AreaCriteria();
+
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button("Enter Bulk Edit Mode");
 			leaveBulkEdit = new Button();
@@ -323,7 +327,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
 		layout.setWidth("80%");
-	
+
 
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938 !important");
@@ -333,7 +337,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.setWidth("30%");
+		searchField.setWidth("15%");
 
 		searchField.addClassName("filterBar");
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
@@ -351,8 +355,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 			return matchesDistrictName || matchesDistrictNumber;
 
-		}
-		));
+		}));
 
 		clear = new Button("Clear Search");
 		clear.getStyle().set("color", "white");
@@ -377,17 +380,37 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		importArea.addClickListener(event -> {
 
 		});
+		
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			leaveBulkEdit = new Button();
+			dropdownBulkOperations = new MenuBar();
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			subMenu = bulkActionsItem.getSubMenu();
+			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
 
+		}
+		
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
-		relevanceStatusFilter.setLabel("Campaign Status");
+		relevanceStatusFilter.setLabel("Relevance");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
+			if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
+				subMenu.removeAll();
+				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
+			}else if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)){
+				subMenu.removeAll();
+				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
 
+			}else {
+				subMenu.removeAll();
+				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk  action ");
+			}
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 			refreshGridData();
 //			updateRowCount();
-			
+
 		});
 		searchField.addClassName("filter-item");
 		relevanceStatusFilter.addClassName("filter-item");
@@ -395,9 +418,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		addNew.addClassName("filter-item");
 		anchor.addClassName("filter-item");
 		layout.add(searchField, relevanceStatusFilter, clear, addNew, anchor);
-		
+
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
-		
+
+
+		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+		dataProvider = DataProvider
+				.fromStream(FacadeProvider.getAreaFacade().getIndexList(criteria, null, null, null).stream());
+
+		itemCount = dataProvider.getItems().size();
+
 		countRowItems = new Paragraph("Rows : " + itemCount);
 		countRowItems.setId("rowCount");
 
@@ -406,7 +436,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
 
-		leaveBulkEdit.setText("Enter Bulk Edit Mode");
+		
+		dropdownBulkOperations.getStyle().set("margin-top", "5px");
 
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -429,58 +460,86 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.add(leaveBulkEdit);
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
-		
-		
+
 		leaveBulkEdit.addClickListener(e -> {
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			enterBulkEdit.setVisible(true);
 			leaveBulkEdit.setVisible(false);
 			dropdownBulkOperations.setVisible(false);
 		});
-
 		dropdownBulkOperations.setVisible(false);
-//		MenuItem item = dropdownBulkOperations.addItem(Captions.bulkActions,selectedItem -> {
-//			ControllerProvider.getInfrastructureController()
-//			.archiveOrDearchiveAllSelectedItems(
-//				true,
-//				grid.asMultiSelect().getSelectedItems(),
-//				InfrastructureType.AREA,
-//				() -> navigateTo(criteria));
-//	}
-//		);
-//		SubMenu subMenu = item.getSubMenu();
-//		subMenu.addItem(new Checkbox("Archive"));
-		dropdownBulkOperations.getStyle().set("margin-top", "5px");
-//		layout.add(dropdownBulkOperations);
+		layout.add(dropdownBulkOperations);
 
-//		if (UserProvider.getCurrent().hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-//			dropdownBulkOperations = MenuBarHelper.createDropDown(Captions.bulkActions,
-//				new MenuBarHelper.MenuBarItem(I18nProperties.getCaption(Captions.actionArchive),
-//						VaadinIcons.ARCHIVE, 
-//						selectedItem -> {
-//					ControllerProvider.getInfrastructureController()
-//						.archiveOrDearchiveAllSelectedItems(
-//							true,
-//							grid.asMultiSelect().getSelectedItems(),
-//							InfrastructureType.AREA,
-//							() -> navigateTo(criteria));
-//				}, 
-//						EntityRelevanceStatus.ACTIVE.equals(criteria.getRelevanceStatus())),
-//				
-//				new MenuBarHelper.MenuBarItem(I18nProperties.getCaption(Captions.actionDearchive), VaadinIcons.ARCHIVE, selectedItem -> {
-//					ControllerProvider.getInfrastructureController()
-//						.archiveOrDearchiveAllSelectedItems(
-//							false,
-//							grid.asMultiSelect().getSelectedItems(),
-//							InfrastructureType.AREA,
-//							() -> navigateTo(criteria));
-//				}, EntityRelevanceStatus.ARCHIVED.equals(criteria.getRelevanceStatus())));
-//
-//			dropdownBulkOperations
-//				.setVisible(viewConfiguration.isInEagerMode() && !EntityRelevanceStatus.ALL.equals(criteria.getRelevanceStatus()));
-//			actionButtonsLayout.addComponent(dropdownBulkOperations);
-//		}
+	}
 
+	private void handleArchiveDearchiveAction() {
+
+		archiveDearchiveAllSelectedItems(grid.getSelectedItems() );
+		Notification.show("Delete action selected!");
+	}
+
+	public void archiveDearchiveAllSelectedItems(Collection<AreaDto> selectedRows) {
+		archiveDearchiveConfirmation = new ConfirmDialog();
+		
+		if (selectedRows.size() == 0) {
+			
+			archiveDearchiveConfirmation.setCancelable(true);
+			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.setConfirmText("Ok");
+			
+			archiveDearchiveConfirmation.setHeader("Error Archiving");
+			archiveDearchiveConfirmation.setText(
+					"You have not selected any data to be Archived, please make a selection.");
+			
+			archiveDearchiveConfirmation.open();
+//			Notification.show(I18nProperties.getString(Strings.messageNodataSelected));
+
+		} else {
+			archiveDearchiveConfirmation.setCancelable(true);
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.setRejectText("No");
+			archiveDearchiveConfirmation.setConfirmText("Yes");
+			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.open();
+			
+			for (AreaDto selectedRow : (Collection<AreaDto>) selectedRows) {
+				boolean archive = selectedRow.isArchived();
+				if (!archive) {
+					archiveDearchiveConfirmation.setHeader("Archive Selected Regions");
+					archiveDearchiveConfirmation.setText("Are you sure you want to Archive the selected Regions?");
+					archiveDearchiveConfirmation.addConfirmListener(e -> {
+						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
+//						if (leaveBulkEdit.isVisible()) {
+//							leaveBulkEdit.setVisible(false);
+//							enterBulkEdit.setVisible(true);
+//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//							dropdownBulkOperations.setVisible(false);
+//						}
+						refreshGridData();
+					});
+					
+//					Notification.show("Archiving Selected Rows ");
+				} else {
+					archiveDearchiveConfirmation.setHeader("De-Archive Selected Regions");
+					archiveDearchiveConfirmation.setText("Are you sure you want to De-Archive the selected Regions?");
+					archiveDearchiveConfirmation.addConfirmListener(e -> {
+						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
+//						if (leaveBulkEdit.isVisible()) {
+//							leaveBulkEdit.setVisible(false);
+//							enterBulkEdit.setVisible(true);
+//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//							dropdownBulkOperations.setVisible(false);
+//						}
+						refreshGridData();
+					});
+//					Notification.show("De- Archiving Selected Rows ");
+				}
+			}
+
+		}
 	}
 
 	public boolean createOrEditArea(AreaDto areaDto) {
@@ -513,7 +572,65 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //		});
 		Button saveButton = new Button("Save");
 		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button archiveButton = new Button();
+		if (areaDto != null) {
+			boolean isArchivedx = areaDto.isArchived();
+			archiveButton.setText(isArchivedx ? "De-Archive" : "Archive");
+			Collection<?> selectedRows;
+			selectedRows = grid.getSelectedItems();
+			Set<String> selectedRowsUuids = selectedRows.stream().map(row -> ((HasUuid) row).getUuid())
+					.collect(Collectors.toSet());
+			
+			
+			
+			archiveButton.addClickListener(archiveEvent -> {
+				
+				
+				if (areaDto != null) {
+					archiveDearchiveConfirmation = new ConfirmDialog();
+					archiveDearchiveConfirmation.setCancelable(true);
+					archiveDearchiveConfirmation.addCancelListener(e -> dialog.close());
+					archiveDearchiveConfirmation.setRejectable(true);
+					archiveDearchiveConfirmation.setRejectText("No");
+					archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());
+					archiveDearchiveConfirmation.setConfirmText("Yes");
+					archiveDearchiveConfirmation.open();
+					
+					uuidsz = areaDto.getUuid();
+					boolean isArchived = areaDto.isArchived();
+					if (uuidsz != null) {
+						
+						if (isArchived == true) {
+							archiveDearchiveConfirmation.setHeader("De-Archive Region");
+							archiveDearchiveConfirmation.setText(
+									"Are you sure you want to De-archive this Region? ");
+							
+							archiveDearchiveConfirmation.addConfirmListener(e -> {
+								FacadeProvider.getAreaFacade().dearchive(uuidsz);
+								dialog.close();
+								refreshGridData();
+							});
+							
+							
+						} else {
+							archiveDearchiveConfirmation.setHeader("Archive Region");
+							archiveDearchiveConfirmation.setText(
+									"Are you sure you want to Archive this Region? ");
+							
+							archiveDearchiveConfirmation.addConfirmListener(e -> {
+								FacadeProvider.getAreaFacade().archive(uuidsz);
+								dialog.close();
+								refreshGridData();
+							});
+							
+						}
+					}
+				}
+			});
+		}
+
 		saveButton.getStyle().set("margin-right", "10px");
+
 		saveButton.addClickListener(saveEvent -> {
 
 			String name = nameField.getValue();
@@ -560,12 +677,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		if (areaDto == null) {
 			dialog.setHeaderTitle("Add New Region");
+			dialog.getFooter().add(discardButton, saveButton);
 		} else {
 			dialog.setHeaderTitle("Edit " + areaDto.getName());
+			dialog.getFooter().add(archiveButton, discardButton, saveButton);
 
 		}
 		dialog.add(fmr);
-		dialog.getFooter().add(discardButton, saveButton);
 
 //         getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
 // 		.set("display", "flex").set("align-items", "center").set("justify-content", "center");

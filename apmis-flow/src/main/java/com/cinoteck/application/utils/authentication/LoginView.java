@@ -12,6 +12,7 @@ import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -56,6 +57,7 @@ public class LoginView extends FlexLayout {
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
 		loginInformation.setAlignItems(Alignment.CENTER);
 
+		
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
@@ -74,6 +76,8 @@ public class LoginView extends FlexLayout {
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 			
 			getUI().get().navigate("/dashboard");
+//			UI.getCurrent().getPage().reload();
+			
 			
 		} else {
 			event.getSource().setError(true);
