@@ -134,6 +134,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
+		
+		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.add(campaignYear, campaignz, groupBy, campaignFormCombo, regionCombo, provinceCombo,
 				districtCombo, resetHandler);
 

@@ -22,6 +22,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -34,8 +36,11 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.StreamResource;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -55,6 +60,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import com.cinoteck.application.views.utils.DownloadUtil;
 
 @PageTitle("Edit Campaign")
 @Route(value = "/data")
@@ -83,6 +89,8 @@ public class CampaignForm extends VerticalLayout {
 //	CampaignRounds rounds;
 	private CampaignDto campaignDto;
 	private CampaignIndexDto campaignDtox;
+	
+	H5 campaignBasics = new H5("Campaign Basics");
 
 	TextField campaignName = new TextField("Campaign name");
 	ComboBox round = new ComboBox<>("Round");
@@ -475,6 +483,7 @@ public class CampaignForm extends VerticalLayout {
 				}
 
 			}
+			
 			if (campaignDto != null) {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 				campaignDto.setRegion((Set<RegionReferenceDto>) region);
@@ -512,12 +521,23 @@ public class CampaignForm extends VerticalLayout {
 
 		poplayout.add(btnImport);
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnImport);
-
-		Button btnExport = new Button("Export"); // poplayout.addComponent(btnExport);
-		poplayout.add(btnExport);
-		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
-
+//
+//		//we need to hack the old vaadin button to enable the downloader to accept the button componenet as an abstractComponent in v7
+//		com.vaadin.ui.Button btnExport = new com.vaadin.ui.Button("Export"); // poplayout.addComponent(btnExport);
+//		Button btnExportDummy = new Button("Export");
+//		poplayout.add(btnExportDummy);
+//		
+//		btnExportDummy.addClickListener(e -> {
+//			btnExport.click();
+//		});
+//		
+//		StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
+//		new FileDownloader(populationDataExportResource).extend((AbstractComponent) btnExport);
+//		
 		parentTab5.add(poplayout);
+//		
+		
+		
 
 		tabsheetParent.add("Population Data", parentTab5);
 		tabsheetParent.setWidthFull();
@@ -588,12 +608,13 @@ public class CampaignForm extends VerticalLayout {
 		formL.setColspan(rightFloat, 1);
 //		formL.setColspan(actionButtonsLayout, 2);
 		
-		
+		campaignBasics.getStyle().set("margin-top", "0px");
+		campaignBasics.getStyle().set("margin-bottom", "0px");
 		//actionButtonsLayout.setJustifyContentMode(JustifyContentMode.END);
 //		actionButtonsLayout.setResponsiveSteps(
 //				// Use one column by default
 //				new ResponsiveStep("0", 1), new ResponsiveStep("520px", 7), new ResponsiveStep("1000px", 7));
-		add(formL, layoutParent,
+		add(campaignBasics, formL, layoutParent,
 				actionButtonsLayout); // ,
 		// layoutParent,
 		// actionButtons

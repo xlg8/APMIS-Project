@@ -175,7 +175,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		
 		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
-		String newText = "No. of Regions : " + itemCount;
+		String newText = "Rows : " + itemCount;
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 	}
@@ -298,7 +298,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevancelayout.setVisible(false);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
-		relevancelayout.setWidth("54%");
+		relevancelayout.setWidth("10%");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -322,6 +322,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.setPadding(false);
 		layout.setVisible(false);
 		layout.setAlignItems(Alignment.END);
+		layout.setWidth("80%");
+	
 
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938 !important");
@@ -387,12 +389,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //			updateRowCount();
 			
 		});
-
+		searchField.addClassName("filter-item");
+		relevanceStatusFilter.addClassName("filter-item");
+		clear.addClassName("filter-item");
+		addNew.addClassName("filter-item");
+		anchor.addClassName("filter-item");
 		layout.add(searchField, relevanceStatusFilter, clear, addNew, anchor);
 		
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
 		
-		countRowItems = new Paragraph("No. of Regions : " + itemCount);
+		countRowItems = new Paragraph("Rows : " + itemCount);
 		countRowItems.setId("rowCount");
 
 		relevancelayout.add(countRowItems);
@@ -421,7 +427,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		leaveBulkEdit.setIcon(leaveBulkModeButtonnIcon);
 		layout.add(leaveBulkEdit);
-
+		layout.addClassName("pl-3");
+		layout.addClassName("row");
+		
+		
 		leaveBulkEdit.addClickListener(e -> {
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			enterBulkEdit.setVisible(true);

@@ -1,0 +1,79 @@
+.idle-notification-container[part="container"] {
+  --notification-background-color: var(
+    --idle-notification-background-color,
+    #ffc13f
+  );
+  --notification-color: var(--idle-notification-color, var(--lumo-contrast));
+  color: var(--notification-color);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--notification-background-color);
+  padding: 1em;
+}
+
+.idle-notification-container [part="message-container"] {
+  display: flex;
+}
+
+.idle-notification-container #warning-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: 1em;
+}
+
+.idle-notification-container [part="header"].hidden {
+  display: none;
+}
+
+.idle-notification-container [part="header"].visible {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1em;
+}
+
+.idle-notification-container #close-icon {
+  display: flex;
+  font-size: var(--lumo-font-size-xs);
+  height: 1em;
+  width: 1em;
+  cursor: pointer;
+}
+
+.idle-notification-container [part="message"] {
+  display: flex;
+}
+
+.idle-notification-container [part="actions"].visible {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1em;
+}
+
+.idle-notification-container [part="actions"].hidden {
+  display: none;
+}
+
+.idle-notification-container vaadin-button {
+  --fallback-border-radius: calc(var(--lumo-size-m) / 2);
+  color: var(--idle-notification-button-color, var(--notification-color));
+  background-color: var(--idle-notification-button-background-color, var(--lumo-tint-80pct));
+  border-radius: var(--lumo-border-radius-m, var(--fallback-border-radius));
+  cursor: pointer;
+}
+
+.idle-notification-container #extend-session.visible {
+  margin-left: 1em;
+}
+
+.idle-notification-container #extend-session.hidden {
+  display: none;
+}
+
+.idle-notification-container #redirect.hidden {
+  display: none;
+}
+
+.idle-notification-container #redirect {
+  background-color: var(--idle-notification-button-secondary-background-color, var(--lumo-contrast-10pct));
+}

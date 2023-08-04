@@ -1,9 +1,7 @@
 package com.cinoteck.application.views.campaign;
 
-import java.util.Collections;
 import java.util.List;
 import com.cinoteck.application.views.MainLayout;
-import com.vaadin.data.sort.SortOrder;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -11,7 +9,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -23,12 +20,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility.Gap.Column;
-
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
@@ -130,6 +124,8 @@ public class CampaignsView extends VerticalLayout {
 	private void createFilterBar() {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
+		
+		
 
 		filterDisplayToggle = new Button("Show Filters");
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
@@ -156,6 +152,7 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setLabel("Search Campaign");
 		searchField.setPlaceholder("Search");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchField.setClassName("col-sm-6, col-xs-6");
 
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 //		searchField.addValueChangeListener(e -> dataView.addFilter(campaignsz -> {
@@ -178,6 +175,8 @@ public class CampaignsView extends VerticalLayout {
 		relevanceStatusFilter.setLabel("Campaign Status");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.setClearButtonVisible(true);
+		relevanceStatusFilter.setClassName("col-sm-6, col-xs-6");
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
 
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
@@ -186,6 +185,7 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 		validateFormsButton = new Button("Validate Forms", new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton.setClassName("col-sm-6, col-xs-6");
 		validateFormsButton.addClickListener(e -> {
 			try {
 				FacadeProvider.getCampaignFormMetaFacade().validateAllFormMetas();
@@ -201,12 +201,13 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 		createButton = new Button("New Campaign", new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 		filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
-
+		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);
 
 		add(campaignsFilterLayout);

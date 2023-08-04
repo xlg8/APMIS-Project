@@ -126,7 +126,7 @@ public class DistrictView extends VerticalLayout {
 
 	public Component addFiltersLayout() {
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		countRowItems = new Paragraph("No. of Data Rows : " + numberOfRows);
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
 		
 
@@ -140,7 +140,7 @@ public class DistrictView extends VerticalLayout {
 		relevancelayout.setVisible(false);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
-		relevancelayout.setWidth("54%");
+		relevancelayout.setClassName("row");
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -292,6 +292,9 @@ public class DistrictView extends VerticalLayout {
 			createOrEditDistrict(districtIndexDto);
 		});
 		layout.add( addNew, anchor);
+		layout.setWidth("75%");
+		layout.addClassName("pl-3");
+		layout.addClassName("row");
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		add(vlayout);
@@ -320,7 +323,7 @@ public class DistrictView extends VerticalLayout {
 			provinceOfDistrict.setItems(districtIndexDto.getRegion());
 			provinceOfDistrict.setValue(districtIndexDto.getRegion());
 //		provinceOfDistrict.isReadOnly();
-			provinceOfDistrict.setEnabled(false);
+			provinceOfDistrict.setEnabled(true);
 		}
 
 		// this can generate null
@@ -395,7 +398,7 @@ public class DistrictView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		String newText = "No. of Data Rows : " + numberOfRows;
+		String newText = "Rows : " + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");

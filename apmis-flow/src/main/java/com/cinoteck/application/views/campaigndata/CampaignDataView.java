@@ -113,7 +113,7 @@ public class CampaignDataView extends VerticalLayout {
 		setMargin(true);
 
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-		countRowItems = new Paragraph("Total No. of Data Rows : " + numberOfRows);
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
 		countRowItems.setId("rowCount");
 
 		ComboBox<CampaignFormMetaReferenceDto> newForm = new ComboBox<>();
@@ -146,6 +146,7 @@ public class CampaignDataView extends VerticalLayout {
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
+		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
 		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importFormData, anchor);
@@ -155,6 +156,8 @@ public class CampaignDataView extends VerticalLayout {
 		level1Filters.setVisible(false);
 		level1Filters.setWidth("98%");
 		level1Filters.setAlignItems(Alignment.END);
+		level1Filters.setClassName("row pl-3");
+
 
 		HorizontalLayout rightFloat = new HorizontalLayout();
 		rightFloat.setWidth("100%");
@@ -180,19 +183,28 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignYear.setLabel("Campaign Year");
 		campaignYear.getStyle().set("padding-top", "0px !important");
+		campaignYear.setClassName("col-sm-6, col-xs-6");
 
 		campaignz.setLabel("Campaign");
 		campaignz.getStyle().set("padding-top", "0px !important");
+		campaignz.setClassName("col-sm-6, col-xs-6");
+
 
 		campaignPhase.setLabel("Campaign Phase");
 		campaignPhase.getStyle().set("padding-top", "0px !important");
+		campaignz.setClassName("col-sm-6, col-xs-6");
+
 
 		campaignFormCombo.setLabel("Form");
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
+		campaignFormCombo.setClassName("col-sm-6, col-xs-6");
+
 
 		regionCombo.setLabel("Region");
 		regionCombo.getStyle().set("padding-top", "0px !important");
+		regionCombo.setClassName("col-sm-6, col-xs-6");
+
 		regionCombo.setPlaceholder("Regions");
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
@@ -204,6 +216,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		provinceCombo.setLabel("Province");
 		provinceCombo.getStyle().set("padding-top", "0px !important");
+		provinceCombo.setClassName("col-sm-6, col-xs-6");
+
 		provinceCombo.setPlaceholder("Provinces");
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
@@ -217,6 +231,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		districtCombo.setLabel("District");
 		districtCombo.getStyle().set("padding-top", "0px !important");
+		districtCombo.setClassName("col-sm-6, col-xs-6");
+
 		districtCombo.setPlaceholder("Districts");
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
@@ -234,12 +250,15 @@ public class CampaignDataView extends VerticalLayout {
 //			clusterCombo.setValue(userProvider.getUser().getCommunity());
 //		}
 		clusterCombo.setPlaceholder("Clusters");
+		clusterCombo.setClassName("col-sm-6, col-xs-6");
+
 		clusterCombo.setEnabled(false);
 
 		// TODO Importance filter switcher should be visible only on the change of form
 		importanceSwitcher.setLabel("Importance");
 		importanceSwitcher.getStyle().set("padding-top", "0px !important");
-		;
+		importanceSwitcher.setClassName("col-sm-6, col-xs-6");
+		
 		importanceSwitcher.setPlaceholder("Importance");
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 		importanceSwitcher.setClearButtonVisible(true);
@@ -667,7 +686,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-		String newText = "No. of Data Rows : " + numberOfRows;
+		String newText = "Rows : " + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
