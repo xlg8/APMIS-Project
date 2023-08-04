@@ -57,6 +57,7 @@ public class LoginView extends FlexLayout {
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
 		loginInformation.setAlignItems(Alignment.CENTER);
 
+		
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
