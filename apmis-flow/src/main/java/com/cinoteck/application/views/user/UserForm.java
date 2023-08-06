@@ -2,11 +2,13 @@ package com.cinoteck.application.views.user;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -24,6 +26,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -59,6 +62,7 @@ public class UserForm extends FormLayout {
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
+	List<CommunityReferenceDto> communitiesx;
 
 	// TODO: Change labels to use IL8N names for internationalisation
 	// NOTE: Fields should use the same naming convention as in UserDto.class
@@ -68,17 +72,16 @@ public class UserForm extends FormLayout {
 	TextField phone = new TextField("Phone Number");
 	TextField userPosition = new TextField("Position");
 	TextField userOrganisation = new TextField("Organisation");
-	
+
 	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>("Region");
 	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>("Province");
 	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>("Community");
-
+	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>("Cluster");
 
 	ComboBox<AreaReferenceDto> region = new ComboBox<>("Region");
 	ComboBox<RegionReferenceDto> province = new ComboBox<>("Province");
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Community");
+	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Cluster");
 
 	TextField street = new TextField("Street");
 	TextField houseNumber = new TextField("House Number");
@@ -90,7 +93,7 @@ public class UserForm extends FormLayout {
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
-	CheckboxGroup<UserType> usertype = new CheckboxGroup("Common User?");
+	Checkbox usertype = new Checkbox("Common User?");
 	ComboBox<Language> language = new ComboBox<>("Language");
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
 	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
@@ -104,17 +107,17 @@ public class UserForm extends FormLayout {
 	RegexpValidator patternValidator = new RegexpValidator("^[A-Za-z]+$", "Only letters are allowed");
 
 	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
-
-	
+	String initialLastNameValue = "";
+UserDto usr = new UserDto();
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts) {
+			List<DistrictReferenceDto> districts,UserDto user) {
 
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT_O);
 		Span prefixText = new Span("All Users");
 		prefixText.setClassName("backButtonText");
-		HorizontalLayout layout = new HorizontalLayout( vaadinIcon, prefixText);
+		HorizontalLayout layout = new HorizontalLayout(vaadinIcon, prefixText);
 		vaadinIcon.setClassName("backButton");
 		hor.setJustifyContentMode(JustifyContentMode.START);
 //		hor.setWidthFull();
@@ -126,17 +129,13 @@ public class UserForm extends FormLayout {
 		layout.addClickListener(event -> fireEvent(new CloseEvent(this)));
 		add(hor);
 		// Configure what is passed to the fields here
-		configureFields();
-	}
-	
-	private void suggestUserName() {
-		;
-		if (!firstName.isEmpty() && !lastName.isEmpty() && userName.isEmpty() && !userName.isReadOnly()) {
-			userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
-		}
+		configureFields(user);
 	}
 
-	private void configureFields() {
+	
+
+	private void configureFields(UserDto user) {
+		this.usr = user;
 		H2 pInfo = new H2("Personal Information");
 		this.setColspan(pInfo, 2);
 
@@ -148,24 +147,20 @@ public class UserForm extends FormLayout {
 
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
 				UserDto::setFirstName);
-		firstName.addValueChangeListener(e -> suggestUserName());
-		lastName.addValueChangeListener(e -> suggestUserName());
-
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
+		
+		binder.forField(userEmail).bind(UserDto::getUserEmail, UserDto::setUserEmail);
+//		map.put("email", userEmail);
 
-		binder.forField(userEmail).asRequired("Email is Required").bind(UserDto::getUserEmail, UserDto::setUserEmail);
-		map.put("email", userEmail);
-
-		binder.forField(phone).withValidator(e -> e.length() >= 13, "Enter a valid Phone Number")
-				.bind(UserDto::getPhone, UserDto::setPhone);
+		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
 		binder.forField(userOrganisation).bind(UserDto::getUserOrganisation, UserDto::setUserOrganisation);
 
 		binder.forField(language).bind(UserDto::getLanguage, UserDto::setLanguage);
-		
+
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setItems(regions);
@@ -187,18 +182,61 @@ public class UserForm extends FormLayout {
 				district.setItems(districts);
 			}
 		});
+		CheckboxGroup checkboxGroup = new CheckboxGroup<>();
+		binder.bind(checkboxGroup, UserDto::getCommunity, UserDto::setCommunity);
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
+
+			DistrictReferenceDto districtDto = (DistrictReferenceDto) e.getValue();
+			System.out.println(districtDto + " vvvvvvvddddddDISTRICT CHANGES!!ssssssssssefasdfa:" + e.getValue());
+
 			if (e.getValue() != null) {
+				checkboxGroup.setVisible(true);
+				this.setColspan(checkboxGroup, 2);
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+
 				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 				community.setItems(communities);
+
+				checkboxGroup.setLabel("Cluster Numbers");
+				UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
+				currentUser.setCommunity(data);
+				FacadeProvider.getUserFacade().saveUser(currentUser);
+
+				if (districtDto != null) {
+					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
+							.getAllActiveByDistrict(districtDto.getUuid());
+					for (CommunityReferenceDto item : items) {
+						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
+					}
+					Collections.sort(items, CommunityReferenceDto.clusternumber);
+
+					checkboxGroup.setItems(items);
+//		             FieldHelper
+//		                    .updateItems(community, districtDto != null ? items : null);    
+				}
 			}
 		});
-
+//		checkboxGroup.setValue(UserDto.getCommunitynos());
 		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+
+//		checkboxGroup.setItems(communitiesx);
+
+		checkboxGroup.addValueChangeListener(event -> {
+			// Do something with the selected options (if multiple selection is allowed)
+			CommunityReferenceDto communityDto = (CommunityReferenceDto) event.getValue();
+			
+//			if (event.getValue() != null) {
+//				for (CommunityReferenceDto item : communityDto) {
+//					item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
+//				}
+//			Set<CommunityReferenceDto> data = Collections.sort(items, CommunityReferenceDto.clusternumber);
+//			}
+		});
+
 		street.setPlaceholder("Enter street here");
 		houseNumber.setPlaceholder("Enter House Number here");
 		additionalInformation.setPlaceholder("Enter Additional Information here");
@@ -208,11 +246,9 @@ public class UserForm extends FormLayout {
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
-		
-		binder.forField(userName).asRequired("Please Fill Out a First and Last Name").bind(UserDto::getUserName, UserDto::setUserName);
+		binder.forField(userName).asRequired("Please Fill Out a First and Last Name").bind(UserDto::getUserName,
+				UserDto::setUserName);
 
-		
-		
 		// TODO: Change implemenation to only add assignable roles sormas style.
 		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
@@ -222,28 +258,69 @@ public class UserForm extends FormLayout {
 
 		formAccess.setLabel("Form Access");
 		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess, UserDto::setFormAccess);
+		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
+				UserDto::setFormAccess);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel("Active ?");
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
-		usertype.setItems(UserType.values());
+//		usertype.setItems(UserType.values());
+		UserProvider currentUser = UserProvider.getCurrent();
 //		binder.forField(usertype).bind(UserD);
+		
+//		if(currentUser.getUser().getUsertype().equals(UserType.WHO_USER)) {
+//			
+//		}
+		
+
+		usertype.addValueChangeListener(e -> {
+        	System.out.println((boolean) e.getValue());
+        	if ((boolean) e.getValue() ==  true ) {
+//        		usertype.setValue(UserType.COMMON_USER);
+        		userRoles.clear();
+//            	 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
+//            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
+//            	 userRolesRemoval.removeAllItems();
+        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
+//        		userRoles.re .remove(UserRole.COMMUNITY_INFORMANT);
+//            	 userRoles.getEl;
+//            	 userRolesRemoval.removeItem(UserRole.COMMUNITY_INFORMANT);
+//            	 userRolesRemoval.removeItem(UserRole.AREA_ADMIN_SUPERVISOR);
+//            	 userRolesRemoval.removeItem(UserRole.ADMIN_SUPERVISOR);
+                 
+    		}
+    		else {
+//    			 userTypes.setValue(UserProvider.getCurrent().getUser().getUsertype());
+        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
+
+//    			 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
+//            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
+//            	 userRolesRemoval.removeAllItems();
+//            	 userRolesRemoval.addItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles() ));
+            	// userRolesRemoval.removeItem(UserRole.ADMIN);
+    		} 	
+        	
+        });
 
 		// this.setColspan(usertype, 2);
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
-		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion, userProvince,
-				userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city, areaType, userData,
-				userName, activeCheck, usertype, userRoles, formAccess, language, region, province, district,
-				community);
+		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
+				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
+				areaType, userData, userName, activeCheck, usertype, userRoles, formAccess, language, region, province,
+				district, community, checkboxGroup);
 		createButtonsLayout();
 	}
 
+	public void suggestUserName() {
+		if (userName.isEmpty()) {
+		userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
+		}
+	}
 	private void createButtonsLayout() {
 //		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -255,15 +332,12 @@ public class UserForm extends FormLayout {
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-
 		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
 		horizontallayout.setJustifyContentMode(JustifyContentMode.END);
 		horizontallayout.setMargin(true);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
 	}
-
-
 
 	private void validateAndSave() {
 		map.forEach((key, value) -> {

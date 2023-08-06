@@ -47,7 +47,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
-		
+		dialog.setCloseOnOutsideClick(false);
 		Button deleteButton =new Button("Cancel", (e) -> dialog.close());
 		deleteButton.setIcon(new Icon(VaadinIcon.REFRESH));
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,

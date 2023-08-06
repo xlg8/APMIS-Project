@@ -138,21 +138,301 @@ public class UserView extends VerticalLayout {
 		addFilters();
 		configureGrid();
 		configureForm(userDto);
-//		configureNewUserForm();
 		add(getContent());
 		closeEditor();
 	}
+	public void addFilters() {
+		criteria = new UserCriteria();
 
-	private Component getContent() {
-		HorizontalLayout content = new HorizontalLayout();
-		// content.setFlexGrow(2, grid);
-		content.setFlexGrow(4, form);
-		content.addClassNames("content");
-		content.setSizeFull();
-		content.add(grid, form);
-		return content;
+		int numberOfRows = filterDataProvider.size(new Query<>());
+		countRowItems = new Paragraph("Rows : " + numberOfRows);
+		countRowItems.setId("rowCount");
+
+		layout.setMargin(true);
+		layout.setPadding(false);
+		layout.setWidthFull();
+
+		createUserButton = new Button("New User");
+		createUserButton.addClassName("createUserButton");
+		createUserButton.getStyle().set("margin-left", "0.1rem");
+		layout.add(createUserButton);
+		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
+		createUserButton.setIcon(createIcon);
+		createUserButton.addClickListener(e -> {
+
+			editUser(false);
+
+		});
+
+		layout.add(anchor);
+		layout.addClassNames("row pl-4");
+
+		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
+		bulkModeButton.addClassName("bulkActionButton");
+//		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		bulkModeButton.setIcon(bulkModeButtonnIcon);
+		layout.add(bulkModeButton);
+
+		bulkModeButton.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+			bulkModeButton.setVisible(false);
+			leaveBulkModeButton.setVisible(true);
+			menuBar.setVisible(true);
+		});
+
+		leaveBulkModeButton.setText("Leave Bulk Edit Mode");
+		leaveBulkModeButton.addClassName("leaveBulkActionButton");
+//		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		leaveBulkModeButton.setVisible(false);
+		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
+		layout.add(leaveBulkModeButton);
+
+		leaveBulkModeButton.addClickListener(e -> {
+			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+			bulkModeButton.setVisible(true);
+			leaveBulkModeButton.setVisible(false);
+			menuBar.setVisible(false);
+		});
+
+		menuBar.setVisible(false);
+		MenuItem item = menuBar.addItem(Captions.bulkActions);
+		SubMenu subMenu = item.getSubMenu();
+		subMenu.addItem(new Checkbox(Captions.actionEnable));
+		subMenu.addItem(new Checkbox(Captions.actionDisable));
+		menuBar.getStyle().set("margin-top", "5px");
+		layout.add(menuBar);
+
+		layout.setPadding(false);
+
+		HorizontalLayout filterLayout = new HorizontalLayout();
+
+		filterLayout.setPadding(false);
+		filterLayout.setVisible(false);
+		filterLayout.setMargin(false);
+		filterLayout.setAlignItems(Alignment.END);
+		filterLayout.setWidthFull();
+		HorizontalLayout vlayout = new HorizontalLayout();
+		vlayout.setPadding(false);
+
+		vlayout.setAlignItems(Alignment.END);
+
+		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters.getStyle().set("margin-left", "10px");
+		displayFilters.addClickListener(e -> {
+			if (filterLayout.isVisible() == false) {
+				filterLayout.setVisible(true);
+				displayFilters.setText("Hide Filters");
+			} else {
+				filterLayout.setVisible(false);
+				displayFilters.setText("Show Filters");
+			}
+		});
+
+		searchField.addClassName("searchField");
+		searchField.setPlaceholder("Search Users");
+		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+		searchField.setClearButtonVisible(true);
+		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.freeText(e.getValue());
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+				updateRowCount();
+			}
+		});
+		filterLayout.add(searchField);
+		activeFilter = new ComboBox<String>();
+		activeFilter.setId(UserDto.ACTIVE);
+		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
+		activeFilter.setPlaceholder("Active");
+		activeFilter.getStyle().set("margin-left", "12px");
+		activeFilter.getStyle().set("margin-top", "12px");
+		activeFilter.setItems("Active", "Inactive");
+		activeFilter.addValueChangeListener(e -> {
+
+			if (e.getValue().equals("Active")) {
+				criteria.active(true);
+			} else if (e.getValue().equals("Inactive")) {
+				criteria.active(false);
+			}
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+			updateRowCount();
+
+		});
+
+		filterLayout.add(activeFilter);
+
+		userRolesFilter = new ComboBox<UserRole>();
+		userRolesFilter.setId(UserDto.USER_ROLES);
+		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+		userRolesFilter.setPlaceholder("User Roles");
+		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+		userRolesFilter.getStyle().set("padding-top", "0px!important");
+		userRolesFilter.setClearButtonVisible(true);
+		userRolesFilter
+				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		userRolesFilter.addValueChangeListener(e -> {
+
+			UserRole userRole = e.getValue();
+			criteria.userRole(userRole);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+			updateRowCount();
+
+		});
+
+		filterLayout.add(userRolesFilter);
+
+		areaFilter = new ComboBox<AreaReferenceDto>();
+		areaFilter.setId(CaseDataDto.AREA);
+		// areaFilter.setWidth(200, Unit.PIXELS);
+		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
+		areaFilter.setPlaceholder("Region");
+		areaFilter.getStyle().set("margin-left", "0.1rem");
+		areaFilter.getStyle().set("padding-top", "0px!important");
+		areaFilter.setItems(regions);
+		areaFilter.setClearButtonVisible(true);
+		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
+			areaFilter.setValue(userProvider.getUser().getArea());
+			if (regionFilter != null) {
+				regionFilter.clear();
+				if (userProvider.getUser().getArea().getUuid() != null) {
+					regionFilter.setItems(FacadeProvider.getRegionFacade()
+							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+				}
+			}
+			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+			areaFilter.setEnabled(false);
+
+		}
+
+		areaFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				AreaReferenceDto area = e.getValue();
+				regionFilter.clear();
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				regionFilter.setItems(provinces);
+				criteria.area(area);
+				regionFilter.setReadOnly(false);
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+				criteria.district(null);
+			} else {
+				regionFilter.clear();
+				regionFilter.setReadOnly(true);
+				criteria.area(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+			updateRowCount();
+
+		});
+
+		filterLayout.add(areaFilter);
+
+		regionFilter = new ComboBox<RegionReferenceDto>();
+		regionFilter.setId(CaseDataDto.REGION);
+		regionFilter.setWidth(200, Unit.PIXELS);
+		regionFilter.setLabel(
+				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
+		regionFilter.setPlaceholder("Province");
+		regionFilter.getStyle().set("margin-left", "0.1rem");
+		regionFilter.getStyle().set("padding-top", "0px!important");
+		regionFilter.setClearButtonVisible(true);
+		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
+			regionFilter.setItems(userProvider.getUser().getRegion());
+			regionFilter.setValue(userProvider.getUser().getRegion());
+			if (districtFilter != null) {
+				districtFilter.clear();
+				if (userProvider.getUser().getRegion().getUuid() != null) {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade()
+							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
+				}
+			}
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+			regionFilter.setEnabled(false);
+		} else if (userProvider.getUser().getRegion() == null) {
+
+		}
+
+		regionFilter.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				RegionReferenceDto region = e.getValue();
+				districtFilter.clear();
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districtFilter.setItems(districts);
+				criteria.region(region);
+
+				districtFilter.setReadOnly(false);
+				criteria.district(null);
+			} else {
+				districtFilter.clear();
+				districtFilter.setReadOnly(true);
+				criteria.region(null);
+
+			}
+			filterDataProvider.setFilter(criteria);
+			updateRowCount();
+
+		});
+
+		filterLayout.add(regionFilter);
+
+		districtFilter = new ComboBox<DistrictReferenceDto>();
+		districtFilter.setId(CaseDataDto.DISTRICT);
+		// districtFilter.setWidth(200, Unit.PIXELS);
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder("District");
+		districtFilter.getStyle().set("margin-left", "0.1rem");
+		districtFilter.getStyle().set("padding-top", "0px!important");
+		districtFilter.setClearButtonVisible(true);
+		districtFilter.setReadOnly(true);
+		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {
+			districtFilter.setItems(userProvider.getUser().getDistrict());
+
+			districtFilter.setValue(userProvider.getUser().getDistrict());
+
+			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+			districtFilter.setEnabled(false);
+
+		}
+		districtFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				DistrictReferenceDto district = e.getValue();
+				criteria.district(district);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+				updateRowCount();
+
+			} else {
+				criteria.district(null);
+				filterDataProvider.setFilter(criteria);
+				filterDataProvider.refreshAll();
+				updateRowCount();
+
+			}
+		});
+		HorizontalLayout coluntLay = new HorizontalLayout();
+		coluntLay.setJustifyContentMode(JustifyContentMode.END);
+		coluntLay.setWidth("20%");
+		coluntLay.add(countRowItems);
+		filterLayout.setClassName("row pl-3");
+		filterLayout.add(districtFilter, coluntLay);
+		vlayout.add(displayFilters, filterLayout);
+		vlayout.setWidth("98%");
+		add(layout, vlayout);
 	}
 
+	
 	private void configureGrid() {
 
 		ComponentRenderer<Span, UserDto> userRolesRenderer = new ComponentRenderer<>(reportModelDto -> {
@@ -260,6 +540,31 @@ public class UserView extends VerticalLayout {
 		return;
 
 	}
+	
+	
+	private void configureForm(UserDto user) {
+
+		System.out.println(user + "userddddddddddddto in formconfigure");
+		form = new UserForm(regions, provinces, districts, user);
+		form.setSizeFull();
+
+		form.addSaveListener(this::saveUser);
+		form.addDeleteListener(this::deleteContact);
+		form.addCloseListener(e -> closeEditor());
+		
+	}
+	
+	private Component getContent() {
+		HorizontalLayout content = new HorizontalLayout();
+		// content.setFlexGrow(2, grid);
+		content.setFlexGrow(4, form);
+		content.addClassNames("content");
+		content.setSizeFull();
+		content.add(grid, form);
+		return content;
+	}
+
+	
 
 	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
 		UserDto user;
@@ -286,363 +591,25 @@ public class UserView extends VerticalLayout {
 		setFiltersVisible(false);
 	}
 
-	private void configureForm(UserDto user) {
+	
 
-		System.out.println(user + "userddddddddddddto in formconfigure");
-		form = new UserForm(regions, provinces, districts);
-		form.setSizeFull();
 
-		form.addSaveListener(this::saveUser);
-
-		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e -> closeEditor());
-	}
-
-	// TODO: Hide the filter bar on smaller screens
-	public void addFilters() {
-		criteria = new UserCriteria();
-
-		int numberOfRows = filterDataProvider.size(new Query<>());
-		countRowItems = new Paragraph("Rows : " + numberOfRows);
-		countRowItems.setId("rowCount");
-
-		layout.setMargin(true);
-		layout.setPadding(false);
-		layout.setWidthFull();
-
-		createUserButton = new Button("New User");
-		createUserButton.addClassName("createUserButton");
-		createUserButton.getStyle().set("margin-left", "0.1rem");
-		layout.add(createUserButton);
-		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
-		createUserButton.setIcon(createIcon);
-		createUserButton.addClickListener(e -> {
-
-			editUser(false);
-
-		});
-
-		layout.add(anchor);
-		layout.addClassNames("row pl-4");
-
-		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
-		bulkModeButton.addClassName("bulkActionButton");
-//		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
-		bulkModeButton.setIcon(bulkModeButtonnIcon);
-		layout.add(bulkModeButton);
-
-		bulkModeButton.addClickListener(e -> {
-			grid.setSelectionMode(Grid.SelectionMode.MULTI);
-			bulkModeButton.setVisible(false);
-			leaveBulkModeButton.setVisible(true);
-			menuBar.setVisible(true);
-		});
-
-		leaveBulkModeButton.setText("Leave Bulk Edit Mode");
-		leaveBulkModeButton.addClassName("leaveBulkActionButton");
-//		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		leaveBulkModeButton.setVisible(false);
-		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
-		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
-		layout.add(leaveBulkModeButton);
-
-		leaveBulkModeButton.addClickListener(e -> {
-			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-			bulkModeButton.setVisible(true);
-			leaveBulkModeButton.setVisible(false);
-			menuBar.setVisible(false);
-		});
-
-		menuBar.setVisible(false);
-		MenuItem item = menuBar.addItem(Captions.bulkActions);
-		SubMenu subMenu = item.getSubMenu();
-		subMenu.addItem(new Checkbox(Captions.actionEnable));
-		subMenu.addItem(new Checkbox(Captions.actionDisable));
-		menuBar.getStyle().set("margin-top", "5px");
-		layout.add(menuBar);
-
-//		layout.add(searchField);
-		layout.setPadding(false);
-
-		HorizontalLayout filterLayout = new HorizontalLayout();
-
-		filterLayout.setPadding(false);
-		filterLayout.setVisible(false);
-		filterLayout.setMargin(false);
-		filterLayout.setAlignItems(Alignment.END);
-		filterLayout.setWidthFull();
-		HorizontalLayout vlayout = new HorizontalLayout();
-		vlayout.setPadding(false);
-
-		vlayout.setAlignItems(Alignment.END);
-
-		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
-		displayFilters.getStyle().set("margin-left", "10px");
-		displayFilters.addClickListener(e -> {
-			if (filterLayout.isVisible() == false) {
-				filterLayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
-			} else {
-				filterLayout.setVisible(false);
-				displayFilters.setText("Show Filters");
-			}
-		});
-
-		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Users");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setClearButtonVisible(true);
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				criteria.freeText(e.getValue());
-				filterDataProvider.setFilter(criteria);
-
-				filterDataProvider.refreshAll();
-				updateRowCount();
-			}
-		});
-		filterLayout.add(searchField);
-		activeFilter = new ComboBox<String>();
-		activeFilter.setId(UserDto.ACTIVE);
-		// activeFilter.setWidth(200, Unit.PIXELS);
-		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-		activeFilter.setPlaceholder("Active");
-		activeFilter.getStyle().set("margin-left", "12px");
-		activeFilter.getStyle().set("margin-top", "12px");
-		activeFilter.setItems("Active", "Inactive");
-		activeFilter.addValueChangeListener(e -> {
-
-			if (e.getValue().equals("Active")) {
-				criteria.active(true);
-
-			} else if (e.getValue().equals("Inactive")) {
-
-				criteria.active(false);
-			}
-
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-			updateRowCount();
-
-		});
-
-		filterLayout.add(activeFilter);
-
-		userRolesFilter = new ComboBox<UserRole>();
-		userRolesFilter.setId(UserDto.USER_ROLES);
-		// userRolesFilter.setWidth(200, Unit.PIXELS);
-		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-		userRolesFilter.setPlaceholder("User Roles");
-		userRolesFilter.getStyle().set("margin-left", "0.1rem");
-		userRolesFilter.getStyle().set("padding-top", "0px!important");
-		userRolesFilter.setClearButtonVisible(true);
-		userRolesFilter
-				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-//		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
-		userRolesFilter.addValueChangeListener(e -> {
-
-			UserRole userRole = e.getValue();
-			criteria.userRole(userRole);
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-			updateRowCount();
-
-		});
-
-		filterLayout.add(userRolesFilter);
-
-		areaFilter = new ComboBox<AreaReferenceDto>();
-		areaFilter.setId(CaseDataDto.AREA);
-		// areaFilter.setWidth(200, Unit.PIXELS);
-		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
-		areaFilter.setPlaceholder("Region");
-		areaFilter.getStyle().set("margin-left", "0.1rem");
-		areaFilter.getStyle().set("padding-top", "0px!important");
-		areaFilter.setItems(regions);
-		areaFilter.setClearButtonVisible(true);
-		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
-			areaFilter.setValue(userProvider.getUser().getArea());
-			if (regionFilter != null) {
-				regionFilter.clear();
-				if (userProvider.getUser().getArea().getUuid() != null) {
-					regionFilter.setItems(FacadeProvider.getRegionFacade()
-							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
-				}
-			}
-			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
-			areaFilter.setEnabled(false);
-
-		}
-
-		areaFilter.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				AreaReferenceDto area = e.getValue();
-				regionFilter.clear();
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				regionFilter.setItems(provinces);
-				criteria.area(area);
-				regionFilter.setReadOnly(false);
-				districtFilter.clear();
-				districtFilter.setReadOnly(true);
-				criteria.region(null);
-				criteria.district(null);
-			} else {
-				regionFilter.clear();
-				regionFilter.setReadOnly(true);
-//				AreaReferenceDto area = new AreaReferenceDto();
-				criteria.area(null);
-
-			}
-			filterDataProvider.setFilter(criteria);
-			updateRowCount();
-
-		});
-
-		filterLayout.add(areaFilter);
-
-		regionFilter = new ComboBox<RegionReferenceDto>();
-		regionFilter.setId(CaseDataDto.REGION);
-		regionFilter.setWidth(200, Unit.PIXELS);
-		regionFilter.setLabel(
-				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
-		regionFilter.setPlaceholder("Province");
-		regionFilter.getStyle().set("margin-left", "0.1rem");
-		regionFilter.getStyle().set("padding-top", "0px!important");
-		regionFilter.setClearButtonVisible(true);
-//		regionFilter.setReadOnly(true);
-		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
-			regionFilter.setItems(userProvider.getUser().getRegion());
-			regionFilter.setValue(userProvider.getUser().getRegion());
-			if (districtFilter != null) {
-				districtFilter.clear();
-				if (userProvider.getUser().getRegion().getUuid() != null) {
-					districtFilter.setItems(FacadeProvider.getDistrictFacade()
-							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
-				}
-			}
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
-			regionFilter.setEnabled(false);
-		} else if (userProvider.getUser().getRegion() == null) {
-//				regionFilter.clear();
-//				regionFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(areaFilter.getValue().getUuid()));
-
-		}
-
-		regionFilter.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				RegionReferenceDto region = e.getValue();
-				districtFilter.clear();
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				districtFilter.setItems(districts);
-				criteria.region(region);
-
-				districtFilter.setReadOnly(false);
-				criteria.district(null);
-			} else {
-				districtFilter.clear();
-				districtFilter.setReadOnly(true);
-				criteria.region(null);
-
-			}
-			filterDataProvider.setFilter(criteria);
-			updateRowCount();
-
-		});
-
-		filterLayout.add(regionFilter);
-
-		districtFilter = new ComboBox<DistrictReferenceDto>();
-		districtFilter.setId(CaseDataDto.DISTRICT);
-		// districtFilter.setWidth(200, Unit.PIXELS);
-		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
-		districtFilter.setPlaceholder("District");
-		districtFilter.getStyle().set("margin-left", "0.1rem");
-		districtFilter.getStyle().set("padding-top", "0px!important");
-		districtFilter.setClearButtonVisible(true);
-		districtFilter.setReadOnly(true);
-		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {
-			districtFilter.setItems(userProvider.getUser().getDistrict());
-
-			districtFilter.setValue(userProvider.getUser().getDistrict());
-
-			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
-			districtFilter.setEnabled(false);
-
-		}
-		districtFilter.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				DistrictReferenceDto district = e.getValue();
-				criteria.district(district);
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-				updateRowCount();
-
-			} else {
-				criteria.district(null);
-				filterDataProvider.setFilter(criteria);
-				filterDataProvider.refreshAll();
-				updateRowCount();
-
-			}
-		});
-		HorizontalLayout coluntLay = new HorizontalLayout();
-		coluntLay.setJustifyContentMode(JustifyContentMode.END);
-		coluntLay.setWidth("20%");
-		coluntLay.add(countRowItems);
-		
-		filterLayout.setClassName("row pl-3");
-		filterLayout.add(districtFilter, coluntLay);
-
-		vlayout.add(displayFilters, filterLayout);
-		vlayout.setWidth("98%");
-		add(layout, vlayout);
-	}
 
 	private void updateRowCount() {
 		int numberOfRows = filterDataProvider.size(new Query<>());
 		String newText = "Rows : " + numberOfRows;
-
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
-//	        Notification.show("Text updated: " + newText);
 	}
 
-	private String formatDataAsCsv(String data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	private String getDataAsString(Grid<UserDto> grid2) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-//	protected String createFileNameWithCurrentDate(ExportEntityName entityName, String fileExtension) {
-//		return DownloadUtil.createFileNameWithCurrentDate(entityName, fileExtension);
-//	}
 
 	private void closeEditor() {
-
 		form.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);
 		removeClassName("editing");
 		form.setUser(new UserDto());
-	}
-
-	private void closeNewUserForm() {
-
-		setFiltersVisible(true);
-		grid.setVisible(true);
-		form.setVisible(false);
-		form.setUser(new UserDto());
-//		createUserForm.setVisible(false);
-		removeClassName("editing");
 	}
 
 	private void setFiltersVisible(boolean state) {
@@ -657,49 +624,39 @@ public class UserView extends VerticalLayout {
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
 		regionFilter.setVisible(state);
-countRowItems.setVisible(state);
+		countRowItems.setVisible(state);
 		districtFilter.setVisible(state);
-
-//		displayFilters.setVisible(state);
 	}
-
-//	private void addContact() {
-//
-//		grid.asSingleSelect().clear();
-//		editUser(new UserDto());
-//	}
 
 	private void saveUser(UserForm.SaveEvent event) {
 		System.out.println(isEditingMode + "eeeeeeeeeeeddddddddddddddittttttttttt");
 
 		UserDto dto = new UserDto();
+		
+		System.out.println(dto.getUsertype() + "dto check eeeeeeeeeeeddddddddddddddittttttttttt");
+		if(dto.getUsertype() == null) {
+			
+			if (UserProvider.getCurrent().getUser().getUsertype().equals(UserType.EOC_USER)) {
+				dto.setUsertype(UserType.EOC_USER);
+			}
+			else {
+				dto.setUsertype(UserType.WHO_USER);
+			}
+		}
 		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
 
 		if (!isEditingMode) {
 			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
 
 		}
-//		//		 updateList();
 		grid.getDataProvider().refreshAll();
 		closeEditor();
 	}
 
-	private void saveNewUser(UserForm.SaveEvent event) {
-
-		UserDto dto = new UserDto();
-		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		Date now = new Date();
-		dto.setCreationDate(now);
-		makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
-		grid.getDataProvider().refreshAll();
-
-		closeEditor();
-	}
+	
 
 	private void deleteContact(UserForm.DeleteEvent event) {
-		// FacadeProvider.getUserFacade(). .getContact());
-		// updateList();
+
 		closeEditor();
 	}
 
@@ -730,200 +687,6 @@ countRowItems.setVisible(state);
 
 			newUserPop.setOpened(true);
 		}
-//		else {
-//			showAccountCreatedSuccessful();
-//		}
-	}
-
-	private FormLayout createDialogLayout() {
-
-		FormLayout formLayout = new FormLayout();
-
-		H3 createUserSubHeading = new H3("Personal Information");
-		formLayout.setColspan(createUserSubHeading, 2);
-		formLayout.add(createUserSubHeading);
-
-		TextField firstName = new TextField("First Name");
-		firstName.isRequired();
-		formLayout.add(firstName);
-
-		TextField lastName = new TextField("Last Name");
-		lastName.isRequired();
-		formLayout.add(lastName);
-
-		TextField userEmail = new TextField("Email Address");
-		userEmail.setHelperText("Used to send Email Notification");
-		formLayout.add(userEmail);
-
-		TextField phone = new TextField("Phone Number");
-		phone.setHelperText("Used to send SMS notification needs to contain Country code");
-		formLayout.add(phone);
-
-		TextField userPosition = new TextField("Position");
-		TextField userOrganisation = new TextField("Organisation");
-		formLayout.add(userPosition, userOrganisation);
-
-		ComboBox<Language> language = new ComboBox<>();
-		language.setLabel("Language");
-		language.setItems(Language.getAssignableLanguages());
-		formLayout.add(language);
-
-		H3 createUserSubHeading2 = new H3("Address");
-		formLayout.setColspan(createUserSubHeading2, 2);
-		formLayout.add(createUserSubHeading2);
-
-		ComboBox<AreaReferenceDto> region = new ComboBox<>();
-		region.setLabel("Region");
-		region.setItems(regions);
-		formLayout.add(region);
-
-		ComboBox<RegionReferenceDto> province = new ComboBox<>();
-		province.setLabel("Province");
-		province.setItems(provinces);
-		formLayout.add(province);
-
-		ComboBox<DistrictReferenceDto> district = new ComboBox<>();
-		district.setLabel("District");
-		district.setItems(districts);
-		formLayout.add(district);
-
-		ComboBox<CommunityReferenceDto> cluster = new ComboBox<>();
-		cluster.setLabel("Cluster");
-		cluster.setItems();
-		formLayout.add(cluster);
-
-		TextField street = new TextField("Street");
-		street.setPlaceholder("Enter street here");
-		formLayout.add(street);
-
-		TextField houseNumber = new TextField("House Number");
-		houseNumber.setPlaceholder("Enter House Number here");
-		formLayout.add(houseNumber);
-
-		TextField additionalInformation = new TextField("Additional Information");
-		additionalInformation.setPlaceholder("Enter Additional Information here");
-		formLayout.add(additionalInformation);
-
-		TextField postalCode = new TextField("Postal Code");
-		postalCode.setPlaceholder("Enter postal Code here");
-		formLayout.add(postalCode);
-
-		TextField city = new TextField("City");
-		city.setPlaceholder("Enter City here");
-		formLayout.add(city);
-
-		ComboBox<AreaType> areaType = new ComboBox<>();
-		areaType.setLabel("Area Type");
-		areaType.setItems(AreaType.values());
-		formLayout.add(areaType);
-
-		H3 createUserSubHeading3 = new H3("User Data");
-		formLayout.setColspan(createUserSubHeading3, 2);
-		formLayout.add(createUserSubHeading3);
-
-		TextField userName = new TextField("Username");
-		userName.isRequired();
-		userName.setRequiredIndicatorVisible(true);
-		formLayout.add(userName);
-
-		Checkbox active = new Checkbox();
-		active.setLabel("Active?");
-		formLayout.setColspan(active, 2);
-		active.setValue(true);
-		formLayout.add(active);
-
-		CheckboxGroup<UserType> userType = new CheckboxGroup<>();
-		userType.setLabel("Type of Users");
-		userType.setItems(UserType.values());
-		formLayout.setColspan(userType, 2);
-		formLayout.add(userType);
-
-		CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
-		formAccess.setLabel("Forms Access");
-		formAccess.setItems(UserUiHelper.getAssignableForms());
-		formAccess.isRequired();
-		formAccess.setRequiredIndicatorVisible(true);
-		formLayout.add(formAccess);
-
-		CheckboxGroup<UserRole> userRole = new CheckboxGroup<>();
-		userRole.setLabel("User Roles");
-		userRole.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		userRole.isRequired();
-		userRole.setRequiredIndicatorVisible(true);
-		formLayout.add(userRole);
-
-		formLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("500px", 2));
-
-		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
-				UserDto::setFirstName);
-
-		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
-
-		binder.forField(userEmail).asRequired("Last Name is Required").bind(UserDto::getUserEmail,
-				UserDto::setUserEmail);
-
-		binder.forField(phone).withValidator(e -> e.length() >= 10, "Enter a valid Phone Number")
-				.bind(UserDto::getPhone, UserDto::setPhone);
-
-		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
-
-		binder.forField(userOrganisation).bind(UserDto::getUserOrganisation, UserDto::setUserOrganisation);
-
-		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
-		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-		region.setItems(regions);
-		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
-		region.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				province.setItems(provinces);
-			}
-		});
-
-		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
-		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
-		province.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				district.setItems(districts);
-			}
-		});
-
-		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
-		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
-		district.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
-				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
-				community.setItems(communities);
-			}
-		});
-
-		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-
-//		// TODO: Change implemenation to only add assignable roles sormas style.
-		userRole.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRole).asRequired("User Role is Required").bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
-		formLayout.setColspan(userRole, 1);
-//		userRole.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
-
-		formAccess.setLabel("Form Access");
-		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-
-		binder.forField(active).bind(UserDto::isActive, UserDto::setActive);
-
-		userType.setItems(UserType.values());
-
-		language.setItemLabelGenerator(Language::toString);
-		language.setItems(Language.getAssignableLanguages());
-		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-
-		return formLayout;
 	}
 
 }
