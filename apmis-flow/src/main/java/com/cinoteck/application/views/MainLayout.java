@@ -40,7 +40,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 //import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 //import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -170,7 +171,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		Button myButton = new Button();
 		
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.Campaign), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));

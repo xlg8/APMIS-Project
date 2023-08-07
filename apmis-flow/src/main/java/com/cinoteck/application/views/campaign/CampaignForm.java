@@ -312,6 +312,8 @@ public class CampaignForm extends VerticalLayout {
 		tabsheetParent.add(I18nProperties.getCaption(Captions.preCampaignPhase), parentTab1);
 
 		VerticalLayout parentTab2 = new VerticalLayout();
+		
+		VerticalLayout parentTab3 = new VerticalLayout();
 
 		final HorizontalLayout layoutIntra = new HorizontalLayout();
 		layoutIntra.setWidthFull();
@@ -349,7 +351,6 @@ public class CampaignForm extends VerticalLayout {
 
 	//	parentTab2.getStyle().set("color", "green");
 		tabsheetParent.add(I18nProperties.getCaption(Captions.intraCampaignPhase), parentTab2);
-alLayout();
 		final HorizontalLayout layoutPost = new HorizontalLayout();
 		layoutPost.setWidthFull();
 
