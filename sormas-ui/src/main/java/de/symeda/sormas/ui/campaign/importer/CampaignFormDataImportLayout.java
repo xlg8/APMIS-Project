@@ -29,7 +29,10 @@ public class CampaignFormDataImportLayout extends AbstractImportLayout {
 
 		String templateFileName = DataHelper.sanitizeFileName(campaignReferenceDto.getCaption().replaceAll(" ", "_")) + "_"
 			+ DataHelper.sanitizeFileName(campaignForm.getCaption().replaceAll(" ", "_")) + ".csv";
+		
 		addDownloadImportTemplateComponent(1, importFacade.getCampaignFormImportTemplateFilePath(), templateFileName);
+		
+		
 		addImportCsvComponent(2, new ImportReceiver("_campaign_data_import_", file -> {
 			resetDownloadErrorReportButton();
 

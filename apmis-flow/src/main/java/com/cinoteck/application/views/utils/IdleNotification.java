@@ -32,13 +32,13 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
 @Tag("idle-notification")
-//@JsModule("/idle-notification.js")
+@JsModule("/idle-notification.js")
 @CssImport("/idle-notification.css")
 @CssImport(value = "/vaadin-dialog-overlay.css", themeFor = "vaadin-dialog-overlay")
 @Uses(Dialog.class)
 public class IdleNotification extends Component {
 
-    public static final int DEFAULT_SECONDS_BEFORE_NOTIFICATION = 60;
+    public static final int DEFAULT_SECONDS_BEFORE_NOTIFICATION = 40;
     public static final String DEFAULT_BEFORE_EXPIRE_MESSAGE = "Your session will expire in less than "
             + MessageFormatting.SECS_TO_TIMEOUT + " seconds. ";
     public static final String DEFAULT_AFTER_EXPIRE_MESSAGE = "Your session has expired due to inactivity.";

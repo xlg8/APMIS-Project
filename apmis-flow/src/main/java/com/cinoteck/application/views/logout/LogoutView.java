@@ -2,9 +2,13 @@ package com.cinoteck.application.views.logout;
 
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+
+import java.util.concurrent.TimeUnit;
+
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.MainLayout;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -14,13 +18,15 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.server.Page;
+import com.vaadin.server.VaadinSession;
 
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 @PageTitle("Logout")
-@Route(value = "logout", layout = MainLayout.class)
+@Route(value = "logout")//, layout = MainLayout.class)
 
 public class LogoutView extends VerticalLayout {
 	private Button confirmButton;
@@ -71,6 +77,9 @@ public class LogoutView extends VerticalLayout {
 		//TODO make this check the sesssion and invalidate it... it terms of Spring.. let use another method
 		confirmButton = new Button(I18nProperties.getCaption(Captions.actionConfirm), event -> {
 			accessControl.signOut();
+			UI.getCurrent().getSession().close();
+//			UI ui = getUI().get();
+//			ui.getSession().close();
 			
 			//confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
 		});
