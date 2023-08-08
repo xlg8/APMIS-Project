@@ -66,7 +66,7 @@ public class SormasUI extends UI implements HasUserProvider, HasViewModelProvide
 
 		VaadinSession.getCurrent().setConverterFactory(new SormasDefaultConverterFactory());
 		VaadinSession.getCurrent().getSession().setMaxInactiveInterval ( 
-				( int ) TimeUnit.MINUTES.toSeconds( 30 ) 
+				( int ) TimeUnit.MINUTES.toSeconds( 1 ) 
 				);
 
 		getPage().setTitle("APMIS Server");//FacadeProvider.getConfigFacade().getSormasInstanceName());

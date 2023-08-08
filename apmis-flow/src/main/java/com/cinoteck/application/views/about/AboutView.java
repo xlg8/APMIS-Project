@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.utils.SessionTimeout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -39,6 +40,7 @@ public class AboutView extends VerticalLayout {
  
 
     public AboutView() {
+    	SessionTimeout sessionTimeout = new SessionTimeout();
     	 Div aboutView = new Div();
 		aboutView.getStyle().set("height", "100%");
 		aboutView.getStyle().set("padding-left", "90px");
@@ -66,7 +68,7 @@ public class AboutView extends VerticalLayout {
 		aboutText.add(text);
 
 		aboutView.add(apmisImageContainer, aboutText);
-		add(aboutView);
+		add(aboutView, sessionTimeout);
 		configureActionButtonVisibility();
 
 
