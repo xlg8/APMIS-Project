@@ -1,7 +1,10 @@
 package com.cinoteck.application.views.myaccount;
 
+import com.cinoteck.application.LanguageSwitcher;
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -32,6 +35,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -39,7 +43,7 @@ import com.vaadin.flow.router.RouterLayout;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -59,6 +63,7 @@ import de.symeda.sormas.api.user.UserDto;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @PageTitle("APMIS-My Account")
@@ -67,7 +72,20 @@ import java.util.Map;
 public class MyAccountView extends VerticalLayout implements RouterLayout {
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
 
+	UserProvider userProvider = new UserProvider();
+	
+	
+
 	public MyAccountView() {
+		
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 		setSpacing(false);
 		setPadding(false);
 		Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
@@ -81,7 +99,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		Div userentry = new Div();
 
-		H3 infooo = new H3("Username");
+		H3 infooo = new H3(I18nProperties.getCaption(Captions.User_userName));
 		infooo.getStyle().set("color", "green");
 		infooo.getStyle().set("font-size", "20px");
 		infooo.getStyle().set("font-weight", "600");
@@ -92,7 +110,9 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infoood.getStyle().set("margin-left", "20px");
 		infoood.getStyle().set("margin-bottom", "0px");
 
-		H3 infoo = new H3("Personal Information");
+		// Div personalInfoo = new Div();
+		H3 infoo = new H3(I18nProperties.getCaption(Captions.personalInformation));
+
 		infoo.getStyle().set("color", "green");
 		infoo.getStyle().set("font-size", "20px");
 		infoo.getStyle().set("font-weight", "600");
@@ -100,33 +120,33 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infoo.getStyle().set("margin-bottom", "0px");
 
 		TextField firstnamee = new TextField("");
-		firstnamee.setLabel("First Name");
+		firstnamee.setLabel(I18nProperties.getCaption(Captions.firstName));
 		firstnamee.setValue(currentUser.getFirstName());
 		firstnamee.setId("my-disabled-textfield");
 		firstnamee.getStyle().set("-webkit-text-fill-color", "green");
 		firstnamee.setReadOnly(true);
 		
 		TextField lastnamee = new TextField("");
-		lastnamee.setLabel("Last Name");
+		lastnamee.setLabel(I18nProperties.getCaption(Captions.lastName));
 		lastnamee.setValue(currentUser.getLastName());
 		lastnamee.getStyle().set("-webkit-text-fill-color", "green");
 		lastnamee.setReadOnly(true);
 		
 		TextField emailAddresss = new TextField("");
-		emailAddresss.setLabel("Email address");
+		emailAddresss.setLabel(I18nProperties.getCaption(Captions.User_userEmail));
 		if (currentUser.getUserEmail() == null) {
-			emailAddresss.setPlaceholder("Email address");
+			emailAddresss.setPlaceholder(I18nProperties.getCaption(Captions.User_userEmail));
 		} else {
 			emailAddresss.setValue(currentUser.getUserEmail());
 		}
 		emailAddresss.setReadOnly(true);
-		binder.forField(emailAddresss).asRequired("Email Address is Required").bind(UserDto::getUserEmail,
+		binder.forField(emailAddresss).asRequired(I18nProperties.getString(Strings.emailAddressRequired)).bind(UserDto::getUserEmail,
 				UserDto::setUserEmail);
 
 		TextField phoneNumberr = new TextField();
-		phoneNumberr.setLabel("Phone number");
+		phoneNumberr.setLabel(I18nProperties.getCaption(Captions.phoneNumber));
 		if (currentUser.getPhone() == null) {
-			phoneNumberr.setPlaceholder("Phone Number");
+			phoneNumberr.setPlaceholder(I18nProperties.getCaption(Captions.phoneNumber));
 		} else {
 			phoneNumberr.setValue(currentUser.getPhone());
 		}
@@ -134,9 +154,11 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 
 		TextField positionn = new TextField();
-		positionn.setLabel("Position");
+		positionn.setLabel(I18nProperties.getCaption(Captions.User_userPosition));
+		// positionn.setValue(currentUser.getUserPosition());
+
 		if (currentUser.getPhone() == null) {
-			positionn.setPlaceholder("Position");
+			positionn.setPlaceholder(I18nProperties.getCaption(Captions.User_userPosition));
 		} else {
 			positionn.setValue(currentUser.getUserPosition());
 		}
@@ -144,7 +166,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		
 
 		TextField addresss = new TextField();
-		addresss.setLabel("Address");
+		addresss.setLabel(I18nProperties.getCaption(Captions.address));
 		addresss.setReadOnly(true);
 
 		FormLayout dataVieww = new FormLayout();
@@ -160,49 +182,55 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		infodataa.getStyle().set("margin-left", "20px");
 		infodataa.getStyle().set("margin-bottom", "0px");
 
-		ComboBox<AreaReferenceDto> regionn = new ComboBox<>("Region");
+		// Select<String> regionn = new Select<>();
+		ComboBox<AreaReferenceDto> regionn = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+		// regionn.setLabel("Region");
+
 		binder.forField(regionn).bind(UserDto::getArea, UserDto::setArea);
 		regionss = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionn.setItems(regionss);
 		regionn.setItemLabelGenerator(AreaReferenceDto::getCaption);
+
 		
-		ComboBox<RegionReferenceDto> provincee = new ComboBox<>("Province");
+		ComboBox<RegionReferenceDto> provincee = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		binder.forField(provincee).bind(UserDto::getRegion, UserDto::setRegion);
 		provincee.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		
 
-		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>("District");
+		ComboBox<DistrictReferenceDto> districtt = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+
 		binder.forField(districtt).bind(UserDto::getDistrict, UserDto::setDistrict);
 		districtt.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 
 
-		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>("Community");
-		cluster.setLabel("Cluster");
+		MultiSelectComboBox<CommunityReferenceDto> cluster = new MultiSelectComboBox<>(
+				I18nProperties.getCaption(Captions.community));
+		cluster.setLabel(I18nProperties.getCaption(Captions.community));
 		binder.forField(cluster).bind(UserDto::getCommunity, UserDto::setCommunity);
 
 
 		TextField streett = new TextField();
-		streett.setLabel("Street");
+		streett.setLabel(I18nProperties.getCaption(Captions.Location_street));
 
 		TextField houseNumm = new TextField();
-		houseNumm.setLabel("House Number");
+		houseNumm.setLabel(I18nProperties.getCaption(Captions.Location_houseNumber));
 
 		TextField addInfoo = new TextField();
-		addInfoo.setLabel("Additional information");
+		addInfoo.setLabel(I18nProperties.getCaption(Captions.Location_additionalInformation));
 
 		TextField postalCodee = new TextField();
-		postalCodee.setLabel("Postal code");
+		postalCodee.setLabel(I18nProperties.getCaption(Captions.Location_postalCode));
 
 		TextField cityy = new TextField();
-		cityy.setLabel("City");
+		cityy.setLabel(I18nProperties.getCaption(Captions.city));
 
 		Select<String> areaTypee = new Select<>();
-		areaTypee.setLabel("Area type (Urban/Rural)");
+		areaTypee.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
 		areaTypee.setItems("", "Urban", "Rural");
 		areaTypee.setValue("");
 
-		TextField contacPersonn = new TextField();
-		contacPersonn.setLabel("Cluster contact person");
+//		TextField contacPersonn = new TextField();
+//		contacPersonn.setLabel(I18nProperties.getCaption(Captions.Location_details));
 
 		FormLayout fielddataVieww = new FormLayout();
 		fielddataVieww.setResponsiveSteps(
@@ -212,12 +240,13 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				new ResponsiveStep("320px", 2),
 				// Use three columns, if the layout's width exceeds 500px
 				new ResponsiveStep("500px", 3));
-		fielddataVieww.add(provincee, regionn, districtt, cluster, streett, houseNumm, addInfoo, postalCodee, cityy,
-				areaTypee, contacPersonn);
+		fielddataVieww.add(regionn, provincee, districtt, cluster, streett, houseNumm, addInfoo, postalCodee, cityy,
+				areaTypee);
 		fielddataVieww.getStyle().set("margin-left", "20px");
 		fielddataVieww.getStyle().set("margin-right", "20px");
 
-		H3 security = new H3("Password & Accessibility");
+		H3 security = new H3(I18nProperties.getString(Strings.passwordAccessibility));
+
 		security.getStyle().set("color", "green");
 		security.getStyle().set("font-size", "20px");
 		security.getStyle().set("font-weight", "600");
@@ -226,9 +255,11 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		security.getStyle().set("margin-top", "16px !important");
 
 
+
 		Dialog passwordDialog = new Dialog();
 
-		Button openPasswordPopupButton = new Button("Change Password");
+		Button openPasswordPopupButton = new Button(I18nProperties.getCaption(Captions.changePassword));
+
 
 		openPasswordPopupButton.addClickListener(event -> {
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
@@ -238,16 +269,17 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		VerticalLayout pwdSecc = new VerticalLayout();
 		pwdSecc.setClassName("superDiv");
 
-		ComboBox<Language> languagee = new ComboBox<>("Language");
+		ComboBox<Language> languagee = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 		languagee.setItemLabelGenerator(Language::toString);
 		languagee.setItems(Language.getAssignableLanguages());
 		languagee.getStyle().set("margin-bottom", "0px");
 		languagee.getStyle().set("margin-top", "-15px !important");
 
-		binder.forField(languagee).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
+
+		binder.forField(languagee).asRequired(I18nProperties.getString(Strings.languageRequired)).bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		languagee.setRequired(true);
-		
+
 		languagee.setValue(currentUser.getLanguage());
 
 		languagee.getStyle().set("width", "400px");
@@ -269,24 +301,41 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Icon vadIcc = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		vadIc.getStyle().set("color", "white");
 
-		Button discard = new Button("Discard Changes", vadIc);
+		Button discard = new Button(I18nProperties.getCaption(Captions.actionDiscard), vadIc);
 		discard.getStyle().set("margin-right", "20px");
 		discard.getStyle().set("color", "green");
 		discard.getStyle().set("background", "white");
 		discard.getStyle().set("border", "1px solid green");
 
-		Button savee = new Button("Save", vadIcc);
+		Button savee = new Button(I18nProperties.getCaption(Captions.actionSave), vadIcc);
 		savee.addClickListener(e -> {
 			UserDto currentUserToSave = FacadeProvider.getUserFacade().getCurrentUser();
 			if (languagee.getValue() != null) {
 
+				LanguageSwitcher languageSwitcher = new LanguageSwitcher();
 				currentUserToSave.setLanguage(languagee.getValue());
 				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
+				I18nProperties.setUserLanguage(languagee.getValue());
+				I18nProperties.getUserLanguage();
+				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
 
-				Notification.show("Language setting saved successfully");
+				System.out.println(userProvider.getUser().getLanguage().toString());
+				String userLanguage = userProvider.getUser().getLanguage().toString();
+
+				if (userLanguage.equals("Pashto")) {
+
+					languageSwitcher.switchLanguage(new Locale("ps"));
+				} else if (userLanguage.equals("Dari")) {
+
+					languageSwitcher.switchLanguage(new Locale("fa"));
+				} else {
+					
+					languageSwitcher.switchLanguage(Locale.ENGLISH);
+				}
+
 			} else {
 
-				Notification.show("Choose prefered language: " + languagee.isInvalid());
+				Notification.show(I18nProperties.getString(Strings.choosePreferredLanguage) + languagee.isInvalid());
 			}
 
 		});
@@ -297,26 +346,59 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		add(userentry);
 
+		// initial idea for a change of password
+//		Dialog dialog = new Dialog();
+//		dialog.setCloseOnEsc(false);
+//		dialog.setCloseOnOutsideClick(false);
+//
+//		Label messageLabel = new Label("Update Password");
+//		
+//		TextField newPasswordField = new TextField("New Password");
+//		TextField confirmNewPasswordField = new TextField("Confirm New Password");
+//		
+//		Label instructionLabel = new Label("Choose a new password for your account\r\n <br>"
+//				+ "*Must be at least 8 characters\r\n <br>"
+//				+ "*Must contain 1 Uppercase and 1 special character\r\n"
+//				+ "");
+//		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
+//		
+//		Button closeButton = new Button("Close");
+//		closeButton.addClickListener(event -> dialog.close());
+//		
+//		VerticalLayout layout = new VerticalLayout();
+//		layout.add(messageLabel, newPasswordField);
+//		layout.add(confirmNewPasswordField);
+//		
+//		dialog.add(layout, instructionLabel, closeButton);
+//
+//	//show popup	
+//		Button openDialogButton = new Button("Change Password");
+//		openDialogButton.addClickListener(event -> dialog.open());
+//
+//		add(openDialogButton);
+
+		// trying out a new change password field
+
 		passwordDialog.setCloseOnEsc(false);
 		passwordDialog.setCloseOnOutsideClick(false);
 
 		FormLayout formLayout = new FormLayout();
 
-		PasswordField newPasswordField = new PasswordField("New Password");
+		PasswordField newPasswordField = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		newPasswordField.setRevealButtonVisible(true);
-		PasswordField confirmPasswordField = new PasswordField("Confirm Password");
+		PasswordField confirmPasswordField = new PasswordField(I18nProperties.getString(Strings.confirmPassword));
 		confirmPasswordField.setRevealButtonVisible(true);
 
 		Label instructionLabel = new Label(
-				"Choose a new password for your account\r\n <br>" + "*Must be at least 8 characters\r\n <br>"
-						+ "*Must contain 1 Uppercase and 1 special character\r\n" + "");
+				I18nProperties.getString(Strings.choosePassword) +"\r\n <br>" +  I18nProperties.getString(Strings.mustBeAt8Char) + "\r\n <br>"
+						+ I18nProperties.getString(Strings.mustContain1UppercaseChar) + "\r\n" + "");
 		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
 
 		// setting action buttons for password change
-		Button cancelButton = new Button("Cancel");
+		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel));
 		cancelButton.addClickListener(event -> passwordDialog.close());
 
-		Button saveButton = new Button("Save");
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 		saveButton.addClickListener(event -> {
 			// Perform password validation and saving logic here
 			passwordDialog.close();
@@ -338,6 +420,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		layout.add(newPasswordField);
 		layout.add(confirmPasswordField);
 		formLayout.add(newPasswordField, confirmPasswordField, instructionLabel);
+
 	}
 
 }

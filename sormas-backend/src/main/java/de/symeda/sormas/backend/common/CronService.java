@@ -91,12 +91,12 @@ public class CronService {
 	@Schedule(hour = "*", minute = "*/10", second = "0", persistent = false)
 	public void calculateCaseCompletion() {
 		long timeStart = DateHelper.startTime();
-		
-		
-		DashboardRunnable myRunnable = new DashboardRunnable();
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(myRunnable);
-        executor.shutdown();
+		campaingDataFacade.checkLastAnalytics();
+//		
+//		DashboardRunnable myRunnable = new DashboardRunnable();
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        executor.execute(myRunnable);
+//        executor.shutdown();
 		//int casesUpdated = campaingDataFacade..updateCompleteness();
 		logger.debug("running analytics updates finished. {} cases, {} s", 0, DateHelper.durationSeconds(timeStart));
 	}

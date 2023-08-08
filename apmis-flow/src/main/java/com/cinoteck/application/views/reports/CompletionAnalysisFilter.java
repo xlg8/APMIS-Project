@@ -10,6 +10,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -30,31 +32,31 @@ public class CompletionAnalysisFilter extends VerticalLayout {
 		filterLayout.setVisible(false);
 		filterLayout.setAlignItems(Alignment.END);
 
-		campaign.setLabel("Campaigns");
-		campaign.setPlaceholder("All Campaigns");
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
+		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
 
-		regionFilter.setLabel("Region");
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.addValueChangeListener(e -> {
 			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		});
 
 		
-		provinceFilter.setLabel("Province");
-		provinceFilter.setPlaceholder("All Province");
+		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceFilter.addValueChangeListener(e -> {
 			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 		});
 		
-		districtFilter.setLabel("District");
-		districtFilter.setPlaceholder("All District");
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
 		
-		resetButton =  new Button("Reset Filters");
+		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		
 		
 		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));

@@ -109,6 +109,7 @@
     "@vaadin/virtual-list": "23.3.7",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
+    "highcharts": "^9.2.2",
     "line-awesome": "1.3.0",
     "lit": "2.6.1",
     "lumo-css-framework": "^4.0.10"
@@ -276,7 +277,7 @@
       "workbox-precaching": "6.5.4",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "0a4d8b0a12dec79a4c7fe53069e9953e3ecf8411527fbfb4cc784af74cbc8602"
+    "hash": "eaa6c583ad0f307ed0d8f39a55b0dac9bd4d58c3713af1b85f7380a18917a050"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -389,6 +390,7 @@
     "line-awesome": "$line-awesome",
     "lit": "$lit",
     "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar"
+    "chokidar": "$chokidar",
+    "highcharts": "$highcharts"
   }
 }

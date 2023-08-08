@@ -214,7 +214,7 @@ public class CampaignDashboardDataProvider {
 					
 				
 					List<CampaignDiagramDataDto> diagramData = FacadeProvider.getCampaignFormDataFacade()
-							.getDiagramDataByGroups(
+							.getDiagramDataByGroupsFlow(
 								campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
 								new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 						
@@ -241,7 +241,7 @@ public class CampaignDashboardDataProvider {
 									}
 								} else {
 									percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
-										.getDiagramDataByGroups(
+										.getDiagramDataByGroupsFlow(
 											campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
 											new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 								}
@@ -290,7 +290,7 @@ public class CampaignDashboardDataProvider {
 									logger.warn("new - "+String.format(I18nProperties.getString(Strings.errorFormIdPopulationAgeGroup)));
 								}
 							} else {	diagramDatax = FacadeProvider.getCampaignFormDataFacade()
-										.getDiagramDataByGroups(
+										.getDiagramDataByGroupsFlow(
 												campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
 												new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 								
@@ -332,7 +332,7 @@ public class CampaignDashboardDataProvider {
 								}
 							} else {
 								percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
-									.getDiagramDataByGroups(
+									.getDiagramDataByGroupsFlow(
 										campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
 										new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 							}
@@ -352,7 +352,7 @@ public class CampaignDashboardDataProvider {
 					
 				}else {
 					List<CampaignDiagramDataDto> diagramData = FacadeProvider.getCampaignFormDataFacade()
-						.getDiagramDataCard(
+						.getDiagramDataCardFlow(
 							campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
 							new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 					
@@ -380,7 +380,7 @@ public class CampaignDashboardDataProvider {
 								}
 							} else {
 								percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
-									.getDiagramDataByGroups(
+									.getDiagramDataByGroupsFlow(
 										campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
 										new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 							}
@@ -426,7 +426,7 @@ public class CampaignDashboardDataProvider {
 						} else
 						{
 							diagramData = FacadeProvider.getCampaignFormDataFacade()
-									.getDiagramDataByGroups(
+									.getDiagramDataByGroupsFlow(
 											campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
 											new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 							
@@ -468,7 +468,7 @@ public class CampaignDashboardDataProvider {
 								}
 							} else {
 								percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
-									.getDiagramDataByGroups(
+									.getDiagramDataByGroupsFlow(
 										campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
 										new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 							}
@@ -482,9 +482,11 @@ public class CampaignDashboardDataProvider {
 							campaignFormTotalsMap.put(campaignDashboardDiagramDto, percentageMap);
 						}
 					}*/
-		}} else {
+			}
+				
+	} else {
 				List<CampaignDiagramDataDto> diagramData = FacadeProvider.getCampaignFormDataFacade()
-					.getDiagramData(
+					.getDiagramDataFlow(
 						campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
 						new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 				
@@ -511,7 +513,7 @@ public class CampaignDashboardDataProvider {
 							}
 						} else {
 							percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
-								.getDiagramData(
+								.getDiagramDataFlow(
 									campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
 									new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGroupBy));
 						}

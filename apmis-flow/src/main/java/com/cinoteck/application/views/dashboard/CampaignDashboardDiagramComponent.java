@@ -425,11 +425,11 @@ public class CampaignDashboardDiagramComponent extends Div {
 
 			Collection<CampaignDiagramDataDto> values = seriesData.values();
 			String fieldName = assembleFieldname(values, series, seriesKey);
-			if (showPercentages) {
-				if (campaignJurisdictionLevelGroupBy == CampaignJurisdictionLevel.COMMUNITY) {
-					fieldName = I18nProperties.getString(Strings.populationDataByCommunity);
-				}
-			}
+//			if (showPercentages) {
+//				if (campaignJurisdictionLevelGroupBy == CampaignJurisdictionLevel.COMMUNITY) {
+//					fieldName = I18nProperties.getString(Strings.populationDataByCommunity);
+//				}
+//			}
 
 			if (chartType.equalsIgnoreCase(DiagramType.PIE.toString())) {
 				// hcjs.append("data: [{");

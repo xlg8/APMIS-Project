@@ -187,7 +187,7 @@ import de.symeda.sormas.api.i18n.Strings;
 
 public abstract class AbstractEditableGrid<T> extends VerticalLayout {
 
-    public static final String DELETE = "delete";
+    public static final String DELETE = I18nProperties.getCaption(Captions.actionDelete);
 
     protected Grid<T> grid = new Grid<>();
     protected List<T> savedItems = new ArrayList<>();

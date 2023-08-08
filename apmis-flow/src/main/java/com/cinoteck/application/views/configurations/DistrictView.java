@@ -165,6 +165,7 @@ public class DistrictView extends VerticalLayout {
 	}
 
 	public Component addFiltersLayout() {
+
 		if (criteria == null) {
 			criteria = new DistrictCriteria();
 		}
@@ -184,6 +185,7 @@ public class DistrictView extends VerticalLayout {
 
 		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph("Rows : " + itemCount);
+
 		countRowItems.setId("rowCount");
 
 		HorizontalLayout layout = new HorizontalLayout();
@@ -381,6 +383,7 @@ public class DistrictView extends VerticalLayout {
 		});
 		layout.add(addNew, anchor);
 		layout.setWidth("88%");
+
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
 		vlayout.setWidth("99%");

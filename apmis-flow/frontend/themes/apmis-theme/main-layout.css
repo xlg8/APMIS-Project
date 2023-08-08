@@ -184,6 +184,8 @@ vcf-nav-item#navitem:hover, vcf-nav-item#navitem:focus-visible {
 	text-shadow: none !important;
 }
 
+
+
 vaadin-vertical-layout {
 	padding: 0 !important;
 }
@@ -193,10 +195,10 @@ vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a {
 	color: white !important;
 }
 
-vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
+/*vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
 	background: #F08F3E !important;
 	color: white !important;
-}
+}*/
 
 input {
 	font-weight: 300;
@@ -457,7 +459,7 @@ vcf-nav-item::part(item) {
 }
 
 .login-screen {
-	background-image: url("images/loginBackground.png");
+	background-image: url("images/afghanistan-map.svg");
 	background-repeat: no-repeat;
 	background-size: cover;
 }
@@ -489,9 +491,9 @@ vcf-nav-item[active]::part(item) {
 }
 
 #vaadinLoginUsername label, #vaadinLoginPassword label {
-	color: white !important;
-	font-family: Lato;
-	font-size: large;
+	color: green !important;
+	font-family: sans-serif;
+	font-size: small;
 }
 
 vaadin-text-field#vaadinLoginUsername .vaadin-field-container vaadin-input-container
@@ -603,6 +605,7 @@ vaadin-horizontal-layout[fcgh-footer] {
 }
 
 #exportArea{
+
 	width: 100px;
     margin-bottom: 6px;
 }
@@ -617,6 +620,9 @@ vaadin-horizontal-layout[fcgh-footer] {
     margin-bottom: 6px;
 }
 
+vaadin-vertical-layout::-webkit-scrollbar {
+	display: none;
+}
 
 #rowCount {
 	font-weight: 600;
@@ -624,3 +630,19 @@ vaadin-horizontal-layout[fcgh-footer] {
 	color: #0D6938 !important;
 }
 
+
+.login-information{
+	background-color: #0f4502a3;
+}
+
+vaadin-button{
+   cursor: pointer;
+   }
+vaadin-button:hover {
+  opacity: 0.6;
+  box-shadow: 0 5px 7px 0 rgba(0,0,0,0.24), 0 2px 5px 0 rgba(0,0,0,0.19);
+}
+
+.v-button {
+   cursor: pointer;
+   }

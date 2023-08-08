@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.cinoteck.application.UserProvider;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -19,6 +22,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -37,10 +42,12 @@ import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
+import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.area.AreaType;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -68,39 +75,45 @@ public class UserForm extends FormLayout {
 	// NOTE: Fields should use the same naming convention as in UserDto.class
 	TextField firstName = new TextField(I18nProperties.getCaption(Captions.firstName));
 	TextField lastName = new TextField(I18nProperties.getCaption(Captions.lastName));
-	TextField userEmail = new TextField("Email Address");
-	TextField phone = new TextField("Phone Number");
-	TextField userPosition = new TextField("Position");
-	TextField userOrganisation = new TextField("Organisation");
 
-	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>("Region");
-	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>("Province");
-	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>("Cluster");
+	TextField userEmail = new TextField(I18nProperties.getCaption(Captions.User_userEmail));
+	TextField phone = new TextField(I18nProperties.getCaption(Captions.User_phone));
+	TextField userPosition = new TextField(I18nProperties.getCaption(Captions.User_userPosition));
+	TextField userOrganisation = new TextField(I18nProperties.getCaption(Captions.User_userOrganisation));
 
-	ComboBox<AreaReferenceDto> region = new ComboBox<>("Region");
-	ComboBox<RegionReferenceDto> province = new ComboBox<>("Province");
-	ComboBox<DistrictReferenceDto> district = new ComboBox<>("District");
-	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Cluster");
+	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>(
+			I18nProperties.getCaption(Captions.community));
 
-	TextField street = new TextField("Street");
-	TextField houseNumber = new TextField("House Number");
+	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> district = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(
+			I18nProperties.getCaption(Captions.community));
+
+	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
+	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
 	TextField additionalInformation = new TextField("Additional Information");
-	TextField postalCode = new TextField("Postal Code");
-	ComboBox<AreaType> areaType = new ComboBox<>();
-	TextField city = new TextField("City");
-	TextField userName = new TextField("Username");
+	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
+	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
+	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
+	TextField userName = new TextField(I18nProperties.getCaption(Captions.User_userName));
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
-	Checkbox usertype = new Checkbox("Common User?");
-	ComboBox<Language> language = new ComboBox<>("Language");
+	CheckboxGroup<UserType> usertype = new CheckboxGroup(I18nProperties.getCaption(Captions.User_commonUser));
+	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
-	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("User Role");
+	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>(
+			I18nProperties.getCaption(Captions.User_userRoles));
 
-	Button save = new Button("Save");
-	Button delete = new Button("Delete");
-	Button close = new Button("Cancel");
+	Button save = new Button(I18nProperties.getCaption(Captions.actionSave));
+	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
+	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
+
+	Anchor createPassword = new Anchor("", "CreateNew Password");
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -108,9 +121,10 @@ public class UserForm extends FormLayout {
 
 	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
 	String initialLastNameValue = "";
-UserDto usr = new UserDto();
+	UserDto usr = new UserDto();
+
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts,UserDto user) {
+			List<DistrictReferenceDto> districts, UserDto user) {
 
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
@@ -132,17 +146,17 @@ UserDto usr = new UserDto();
 		configureFields(user);
 	}
 
-	
-
-	private void configureFields(UserDto user) {
+	public void configureFields(UserDto user) {
 		this.usr = user;
-		H2 pInfo = new H2("Personal Information");
+
+		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
+
 		this.setColspan(pInfo, 2);
 
-		H2 fInfo = new H2("Address");
+		H2 fInfo = new H2(I18nProperties.getCaption(Captions.address));
 		this.setColspan(fInfo, 2);
 
-		H2 userData = new H2("User Data");
+		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
 		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
@@ -242,7 +256,7 @@ UserDto usr = new UserDto();
 		additionalInformation.setPlaceholder("Enter Additional Information here");
 		postalCode.setPlaceholder("Enter postal Code here");
 		city.setPlaceholder("Enter City here");
-		areaType.setLabel("Area Type");
+		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
@@ -256,8 +270,9 @@ UserDto usr = new UserDto();
 		this.setColspan(userRoles, 1);
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
-		formAccess.setLabel("Form Access");
+		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
+
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
 				UserDto::setFormAccess);
 
@@ -275,52 +290,55 @@ UserDto usr = new UserDto();
 //		}
 		
 
-		usertype.addValueChangeListener(e -> {
-        	System.out.println((boolean) e.getValue());
-        	if ((boolean) e.getValue() ==  true ) {
-//        		usertype.setValue(UserType.COMMON_USER);
-        		userRoles.clear();
-//            	 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
-//            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
-//            	 userRolesRemoval.removeAllItems();
-        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
-//        		userRoles.re .remove(UserRole.COMMUNITY_INFORMANT);
-//            	 userRoles.getEl;
-//            	 userRolesRemoval.removeItem(UserRole.COMMUNITY_INFORMANT);
-//            	 userRolesRemoval.removeItem(UserRole.AREA_ADMIN_SUPERVISOR);
-//            	 userRolesRemoval.removeItem(UserRole.ADMIN_SUPERVISOR);
-                 
-    		}
-    		else {
-//    			 userTypes.setValue(UserProvider.getCurrent().getUser().getUsertype());
-        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
-
-//    			 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
-//            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
-//            	 userRolesRemoval.removeAllItems();
-//            	 userRolesRemoval.addItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles() ));
-            	// userRolesRemoval.removeItem(UserRole.ADMIN);
-    		} 	
-        	
-        });
+//		usertype.addValueChangeListener(e -> {
+//        	System.out.println((boolean) e.getValue());
+//        	if ((boolean) e.getValue() ==  true ) {
+////        		usertype.setValue(UserType.COMMON_USER);
+//        		userRoles.clear();
+////            	 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
+////            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
+////            	 userRolesRemoval.removeAllItems();
+//        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
+////        		userRoles.re .remove(UserRole.COMMUNITY_INFORMANT);
+////            	 userRoles.getEl;
+////            	 userRolesRemoval.removeItem(UserRole.COMMUNITY_INFORMANT);
+////            	 userRolesRemoval.removeItem(UserRole.AREA_ADMIN_SUPERVISOR);
+////            	 userRolesRemoval.removeItem(UserRole.ADMIN_SUPERVISOR);
+//                 
+//    		}
+//    		else {
+////    			 userTypes.setValue(UserProvider.getCurrent().getUser().getUsertype());
+//        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
+//
+////    			 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
+////            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
+////            	 userRolesRemoval.removeAllItems();
+////            	 userRolesRemoval.addItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles() ));
+//            	// userRolesRemoval.removeItem(UserRole.ADMIN);
+//    		} 	
+//        	
+//        });
 
 		// this.setColspan(usertype, 2);
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
+
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, usertype, userRoles, formAccess, language, region, province,
-				district, community, checkboxGroup);
+				district, community, checkboxGroup,createPassword);
+
 		createButtonsLayout();
 	}
 
 	public void suggestUserName() {
 		if (userName.isEmpty()) {
-		userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
+			userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
 		}
 	}
+
 	private void createButtonsLayout() {
 //		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -358,6 +376,20 @@ UserDto usr = new UserDto();
 			}
 
 		});
+	}
+
+	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+			System.out.println(newPassword + "     " + "password");
+			System.out.println(userName + "     " + "username");
+			System.out.println(userEmail + "     " + "email");
+//			new Dialog(newPassword, userName);
+		} else {
+//			showPasswordResetExternalSuccessPopup();
+		}
 	}
 
 	public void setUser(UserDto user) {

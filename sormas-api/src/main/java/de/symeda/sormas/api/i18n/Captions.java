@@ -10,15 +10,66 @@ public interface Captions {
 	 * constants of this class is accepted: Close as false positive.
 	 */
 
-	String about = "ABOUT APMIS";
-	String clusterNumber = "Cluster Number";
-	String formAccess = "Form Access";
-	String aboutGuides= "GUIDES";
-	String aboutvideos= "Videos";
+	String about = "about";
+	
+	String clusterNumber = "clusterNumber";
+	String formPhase = "formPhase";
+	String formAccess = "formAccess";
+	String aboutGuides = "GUIDES";
+	String aboutvideos = "Videos";
 	String apmisaboutguides = "User Guides";
 	String abouttechguides = "Technical Guides";
 	String apmishziguides = "HZI Guides";
-	String aboutAdditionalInfo = "aboutAdditionalInfo";
+	String campaignYear = "campaignYear";
+	String showFilters = "showFilters";
+	String hideFilters = "hideFilters";
+	String rows = "rows";
+	String resetFilters = "resetFilters";
+	String applyFilters = "applyFilters";
+	String dataEntry = "dataEntry";
+	String dataImport = "dataImport";
+	String importance = "importance";
+	String campaignDataInformation = "campaignDatainformation";
+	String archive="archive";
+	String saveAndContinue="saveAndContinue";
+	String chart="chart";
+	String downloadImportTemplate="downloadImportTemplate";
+	String startDataImport="startDataImport";
+	String downloadErrorReport="downloadErrorReport";
+	String importCampaignForm="importCampaignForm";
+	String importCampaignFormData="importCampaignFormData";
+	String campaignStatus="campaignStatus";
+	String addNewForm="addNewForm";
+	String campaignBasics="campaignBasics";
+	String uuid="uuid";
+	String preCampaignDashboard="preCampaignDashboard";
+	String preCampaignPhase="preCampaignPhase";
+	String intraCampaignForms="intraCampaignForms";
+	String intraCampaignDashboard="intraCampaignDashboard";
+	String intraCampaignPhase="intraCampaignPhase";
+	String postCampaignForms="postCampaignForms";
+	String postCampaignDashboard="postCampaignDashboard";
+	String postCampaignPhase="postCampaignPhase";
+	String associateCampaign="associateCampaign";
+	String preCampaignForms="preCampaignForms";
+	String round="round";
+	String formname="formname";
+	String expiry="expiry";
+	String removeThisForm="removeThisForm";
+	String daysTOExpiry="daysTOExpiry";
+	String update="update";
+	String createNewCampaign="createNewCampaign";
+	String personalInformation="personalInformation";
+	String phoneNumber="phoneNumber";
+	String changePassword="changePassword";
+	String mobileUserGuide="mobileUserGuide";
+	String exportFormGlossary="exportFormGlossary";
+	
+	
+	
+	
+	
+	String aboutAdditionalInfo="aboutAdditionalInfo";
 	String aboutBrandedSormasVersion = "aboutBrandedSormasVersion";
 	String aboutCaseClassificationRules = "aboutCaseClassificationRules";
 	String aboutChangelog = "aboutChangelog";
@@ -53,7 +104,7 @@ public interface Captions {
 	String actionBack = "actionBack";
 	String actionBackToNationOverview = "actionBackToNationOverview";
 	String actionCancel = "actionCancel";
-	String commomUser = "commomUser";
+	String User_commonUser = "User.commonUser";
 	String actionClear = "actionClear";
 	String actionClearAll = "actionClearAll";
 	String actionClose = "actionClose";
@@ -2285,8 +2336,8 @@ public interface Captions {
 	String User_limitedDisease = "User.limitedDisease";
 	String User_phone = "User.phone";
 	String User_userPosition = "User.userPosition";
-	String User_userOrganisation ="User.userOrganisation";
-	String User_language ="User.language";
+	String User_userOrganisation = "User.userOrganisation";
+	String User_language = "User.language";
 	String User_pointOfEntry = "User.pointOfEntry";
 	String User_userEmail = "User.userEmail";
 	String User_userName = "User.userName";

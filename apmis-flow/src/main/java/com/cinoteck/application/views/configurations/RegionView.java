@@ -328,6 +328,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.setAlignItems(Alignment.END);
 		layout.setWidth("80%");
 
+
 		Icon searchIcon = new Icon(VaadinIcon.SEARCH);
 		searchIcon.getStyle().set("color", "#0D6938 !important");
 
@@ -419,6 +420,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.add(searchField, relevanceStatusFilter, clear, addNew, anchor);
 
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
+
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		dataProvider = DataProvider

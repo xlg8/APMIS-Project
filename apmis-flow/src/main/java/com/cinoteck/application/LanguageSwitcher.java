@@ -63,9 +63,14 @@ public class LanguageSwitcher extends HorizontalLayout implements LocaleChangeOb
         });
     }
 
-    protected void switchLanguage(Locale locale) {
+    public void switchLanguage(Locale locale) {
         VaadinSession.getCurrent().setLocale(locale);
         UI.getCurrent().getPage().reload();
+    }
+    
+    public void mainSwitchLanguage(Locale locale) {
+        VaadinSession.getCurrent().setLocale(locale);
+//        UI.getCurrent().getPage().reload();
     }
 
     @Override

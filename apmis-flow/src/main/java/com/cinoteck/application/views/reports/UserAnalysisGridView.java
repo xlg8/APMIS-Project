@@ -198,6 +198,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		countAndButtons.add(layout);
 		add(countAndButtons);
 	}
+
 //    private void updateText( FormAccess formAccess) {
 //    	int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(criteria, null, null, null, formAccess);
 //        String newText = numberOfRows+"";

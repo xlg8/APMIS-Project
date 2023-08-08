@@ -184,11 +184,13 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		}
 		
+
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		dataProvider = DataProvider
 				.fromStream(FacadeProvider.getRegionFacade().getIndexList(criteria, null, null, null).stream());
 
 		itemCount = dataProvider.getItems().size();
+
 		
 //		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph("Rows : " + itemCount);
