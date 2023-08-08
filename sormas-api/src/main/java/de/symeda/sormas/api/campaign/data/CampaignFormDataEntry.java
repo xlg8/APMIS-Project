@@ -80,9 +80,19 @@ public class CampaignFormDataEntry implements Serializable, JsonDataEntry {
 		if (value instanceof Boolean) {
 			return value.equals(Boolean.TRUE) ? I18nProperties.getString(Strings.yes) : I18nProperties.getString(Strings.no);
 		}
-		DateFormat dfx = new SimpleDateFormat("dd/MM/yyyy");
-		return (NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11)) ? dfx.format(new Date((Long) value)) : value.toString();
+		DateFormat dfx = new SimpleDateFormat("yyyy/MM/dd");
 		
+		System.out.println((NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11)) + "ccccccccccccccc11111111ccccccccccc" + value);
+		if((NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11))) {
+			System.out.println(dfx.format(new Date(Long.parseLong(value.toString()))) + "ccccccccccccccc111111222222222222222211ccccccccccc");
+		
+		}
+		
+		System.out.println(value.toString() + "ccccccccccccccc1111113333333333333333311ccccccccccc");
+
+
+		return (NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11)) ? dfx.format(new Date(Long.parseLong(value.toString()))) : value.toString();
+
 	}
 
 	public static void removeNullValueEntries(Collection<CampaignFormDataEntry> entries) {

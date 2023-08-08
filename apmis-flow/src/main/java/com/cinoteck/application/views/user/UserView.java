@@ -3,6 +3,7 @@ package com.cinoteck.application.views.user;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -47,6 +50,9 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.server.Page;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -70,7 +76,6 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
-//
 
 @PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
@@ -109,11 +114,11 @@ public class UserView extends VerticalLayout {
 
 	MenuBar menuBar = new MenuBar();
 
-	Button createUserButton = new Button("New User");
-	Button exportUsersButton = new Button("Export");
-	Button exportRolesButton = new Button("Export User Roles");
-	Button bulkModeButton = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkModeButton = new Button("Leave Bulk Edit");
+	Button createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
+	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
+	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
+	Button bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	TextField searchField = new TextField();
 
 	Button displayFilters;
@@ -122,17 +127,27 @@ public class UserView extends VerticalLayout {
 	UserDto userDto;
 
 	HorizontalLayout layout = new HorizontalLayout();
-	Anchor anchor = new Anchor("", "Export");
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Paragraph countRowItems;
 	boolean isEditingMode;
 
 	public UserView() {
-		filterDataProvider = usersDataProvider.withConfigurableFilter();
-		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			bulkModeButton = new Button("Enter Bulk Edit Mode");
-			leaveBulkModeButton = new Button();
-			menuBar = new MenuBar();
+		
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
 		}
+		filterDataProvider = usersDataProvider.withConfigurableFilter();
+
+//		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+//			bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+//			leaveBulkModeButton = new Button();
+//			menuBar = new MenuBar();
+//		}
 
 		setHeightFull();
 		addFilters();
@@ -458,26 +473,36 @@ public class UserView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		Column<UserDto> activeColumn = grid.addColumn(activeRenderer).setHeader("Active").setSortable(true)
-				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Active");
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer).setHeader("User Roles").setSortable(true)
-				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "User Roles");
-		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName).setHeader("Username").setSortable(true)
-				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Username");
-		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName).setHeader("Name").setSortable(true)
-				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Name");
-		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail).setHeader("Email").setSortable(true)
-				.setAutoWidth(true).setResizable(true).setTooltipGenerator(e -> "Email");
-		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition).setHeader("Organisation")
-				.setAutoWidth(true).setSortable(true).setResizable(true).setTooltipGenerator(e -> "Organisation");
-		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation).setHeader("Position")
-				.setAutoWidth(true).setSortable(true).setResizable(true).setTooltipGenerator(e -> "Position");
-		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea).setHeader("Region").setResizable(true)
-				.setAutoWidth(true).setSortable(true).setTooltipGenerator(e -> "Region");
+
+		Column<UserDto> activeColumn = grid.addColumn(activeRenderer)
+				.setHeader(I18nProperties.getCaption(Captions.User_active)).setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer)
+				.setHeader(I18nProperties.getCaption(Captions.User_userRoles)).setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName)
+				.setHeader(I18nProperties.getCaption(Captions.User_userName)).setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> nameColumn = grid.addColumn(UserDto::getName)
+				.setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> emailCoulmn = grid.addColumn(UserDto::getUserEmail)
+				.setHeader(I18nProperties.getCaption(Captions.User_userEmail)).setSortable(true).setAutoWidth(true)
+				.setResizable(true);
+		Column<UserDto> userPositionColumn = grid.addColumn(UserDto::getUserPosition)
+				.setHeader(I18nProperties.getCaption(Captions.User_userPosition)).setAutoWidth(true).setSortable(true)
+				.setResizable(true);
+		Column<UserDto> userOrgColumn = grid.addColumn(UserDto::getUserOrganisation)
+				.setHeader(I18nProperties.getCaption(Captions.User_userOrganisation)).setAutoWidth(true)
+				.setSortable(true).setResizable(true);
+		Column<UserDto> userAreaColumn = grid.addColumn(UserDto::getArea)
+				.setHeader(I18nProperties.getCaption(Captions.area)).setResizable(true)
+				.setAutoWidth(true).setSortable(true);
+
 
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
-		exporter.setTitle("Users");
+		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
@@ -593,7 +618,332 @@ public class UserView extends VerticalLayout {
 
 	
 
-
+//
+//<<<<<<< HEAD
+//=======
+//		form.addSaveListener(this::saveUser);
+//
+//		form.addDeleteListener(this::deleteContact);
+//		form.addCloseListener(e -> closeEditor());
+//	}
+//
+//	// TODO: Hide the filter bar on smaller screens
+//	public void addFilters() {
+//		criteria = new UserCriteria();
+//
+//		int numberOfRows = filterDataProvider.size(new Query<>());
+//		countRowItems = new Paragraph("Rows : " + numberOfRows);
+//		countRowItems.setId("rowCount");
+//
+//		layout.setMargin(true);
+//		layout.setPadding(false);
+//		layout.setWidthFull();
+//
+//		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
+//		createUserButton.addClassName("createUserButton");
+//		createUserButton.getStyle().set("margin-left", "0.1rem");
+//		layout.add(createUserButton);
+//		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
+//		createUserButton.setIcon(createIcon);
+//		createUserButton.addClickListener(e -> {
+//
+//			editUser(false);
+//		});
+//
+//		layout.add(anchor);
+//		layout.addClassNames("row pl-4");
+//
+//		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+//		bulkModeButton.addClassName("bulkActionButton");
+////		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+//		bulkModeButton.setIcon(bulkModeButtonnIcon);
+//		layout.add(bulkModeButton);
+//
+//		bulkModeButton.addClickListener(e -> {
+//			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+//			bulkModeButton.setVisible(false);
+//			leaveBulkModeButton.setVisible(true);
+//			menuBar.setVisible(true);
+//		});
+//
+//		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
+//		leaveBulkModeButton.addClassName("leaveBulkActionButton");
+////		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//		leaveBulkModeButton.setVisible(false);
+//		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
+//		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
+//		layout.add(leaveBulkModeButton);
+//
+//		leaveBulkModeButton.addClickListener(e -> {
+//			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+//			bulkModeButton.setVisible(true);
+//			leaveBulkModeButton.setVisible(false);
+//			menuBar.setVisible(false);
+//		});
+//
+//		menuBar.setVisible(false);
+//		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
+//		SubMenu subMenu = item.getSubMenu();
+//		Checkbox enable = new Checkbox(I18nProperties.getCaption(Captions.actionEnable));
+//		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
+//		enable.addClickListener(e -> {
+//			Collection<UserDto> selected = grid.getSelectedItems();
+//			enableUser(selected);
+//			filterDataProvider.refreshAll();
+//		});
+//
+//		disable.addClickListener(e -> {
+//			Collection<UserDto> selected = grid.getSelectedItems();
+//			disableUser(selected);
+//			filterDataProvider.refreshAll();
+//		});
+//
+//		subMenu.addItem(enable);
+//		subMenu.addItem(disable);
+//		menuBar.getStyle().set("margin-top", "5px");
+//		layout.add(menuBar);
+//
+////		layout.add(searchField);
+//		layout.setPadding(false);
+//
+//		HorizontalLayout filterLayout = new HorizontalLayout();
+//
+//		filterLayout.setPadding(false);
+//		filterLayout.setVisible(false);
+//		filterLayout.setMargin(false);
+//		filterLayout.setAlignItems(Alignment.END);
+//		filterLayout.setWidthFull();
+//		HorizontalLayout vlayout = new HorizontalLayout();
+//		vlayout.setPadding(false);
+//
+//		vlayout.setAlignItems(Alignment.END);
+//
+//		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+//		displayFilters.getStyle().set("margin-left", "10px");
+//		displayFilters.addClickListener(e -> {
+//			if (filterLayout.isVisible() == false) {
+//				filterLayout.setVisible(true);
+//				displayFilters.setText("Hide Filters");
+//			} else {
+//				filterLayout.setVisible(false);
+//				displayFilters.setText("Show Filters");
+//			}
+//		});
+//
+//		searchField.addClassName("searchField");
+//		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
+//		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
+//		searchField.setClearButtonVisible(true);
+//		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+//		searchField.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				criteria.freeText(e.getValue());
+//				filterDataProvider.setFilter(criteria);
+//
+//				filterDataProvider.refreshAll();
+//				updateRowCount();
+//			}
+//		});
+//		filterLayout.add(searchField);
+//		activeFilter = new ComboBox<String>();
+//		activeFilter.setId(UserDto.ACTIVE);
+//		// activeFilter.setWidth(200, Unit.PIXELS);
+//		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
+//		activeFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_active));
+//		activeFilter.getStyle().set("margin-left", "12px");
+//		activeFilter.getStyle().set("margin-top", "12px");
+//		activeFilter.setItems("Active", "Inactive");
+//		activeFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue().equals("Active")) {
+//				criteria.active(true);
+//
+//			} else if (e.getValue().equals("Inactive")) {
+//
+//				criteria.active(false);
+//			}
+//
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//			updateRowCount();
+//
+//		});
+//
+//		filterLayout.add(activeFilter);
+//
+//		userRolesFilter = new ComboBox<UserRole>();
+//		userRolesFilter.setId(UserDto.USER_ROLES);
+//		// userRolesFilter.setWidth(200, Unit.PIXELS);
+//		userRolesFilter.setLabel(I18nProperties.getCaption(Captions.User_userRoles));
+//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+//		userRolesFilter.getStyle().set("padding-top", "0px!important");
+//		userRolesFilter.setClearButtonVisible(true);
+//		userRolesFilter
+//				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+////		userRolesFilter.setItems(UserUiHelper.getAssignableRoles(Collections.emptySet()));
+//		userRolesFilter.addValueChangeListener(e -> {
+//
+//			UserRole userRole = e.getValue();
+//			criteria.userRole(userRole);
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//			updateRowCount();
+//
+//		});
+//
+//		filterLayout.add(userRolesFilter);
+//
+//		areaFilter = new ComboBox<AreaReferenceDto>();
+//		areaFilter.setId(CaseDataDto.AREA);
+//		// areaFilter.setWidth(200, Unit.PIXELS);
+//		areaFilter.setLabel(I18nProperties.getCaption(Captions.area));
+//		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
+//		areaFilter.getStyle().set("margin-left", "0.1rem");
+//		areaFilter.getStyle().set("padding-top", "0px!important");
+//		areaFilter.setItems(regions);
+//		areaFilter.setClearButtonVisible(true);
+//		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
+//			areaFilter.setValue(userProvider.getUser().getArea());
+//			if (regionFilter != null) {
+//				regionFilter.clear();
+//				if (userProvider.getUser().getArea().getUuid() != null) {
+//					regionFilter.setItems(FacadeProvider.getRegionFacade()
+//							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+//				}
+//			}
+//			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
+//			areaFilter.setEnabled(false);
+//
+//		}
+//
+//		areaFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				AreaReferenceDto area = e.getValue();
+//				regionFilter.clear();
+//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+//				regionFilter.setItems(provinces);
+//				criteria.area(area);
+//				regionFilter.setReadOnly(false);
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//				criteria.district(null);
+//			} else {
+//				regionFilter.clear();
+//				regionFilter.setReadOnly(true);
+////				AreaReferenceDto area = new AreaReferenceDto();
+//				criteria.area(null);
+//
+//			}
+//			filterDataProvider.setFilter(criteria);
+//			updateRowCount();
+//
+//		});
+//
+//		filterLayout.add(areaFilter);
+//
+//		regionFilter = new ComboBox<RegionReferenceDto>();
+//		regionFilter.setId(CaseDataDto.REGION);
+//		regionFilter.setWidth(200, Unit.PIXELS);
+//		regionFilter.setLabel(I18nProperties.getCaption(Captions.region));
+//		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.region));
+//		regionFilter.getStyle().set("margin-left", "0.1rem");
+//		regionFilter.getStyle().set("padding-top", "0px!important");
+//		regionFilter.setClearButtonVisible(true);
+////		regionFilter.setReadOnly(true);
+//		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
+//			regionFilter.setItems(userProvider.getUser().getRegion());
+//			regionFilter.setValue(userProvider.getUser().getRegion());
+//			if (districtFilter != null) {
+//				districtFilter.clear();
+//				if (userProvider.getUser().getRegion().getUuid() != null) {
+//					districtFilter.setItems(FacadeProvider.getDistrictFacade()
+//							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
+//				}
+//			}
+//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+//			regionFilter.setEnabled(false);
+//		} else if (userProvider.getUser().getRegion() == null) {
+////				regionFilter.clear();
+////				regionFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(areaFilter.getValue().getUuid()));
+//
+//		}
+//
+//		regionFilter.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+//				RegionReferenceDto region = e.getValue();
+//				districtFilter.clear();
+//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+//				districtFilter.setItems(districts);
+//				criteria.region(region);
+//
+//				districtFilter.setReadOnly(false);
+//				criteria.district(null);
+//			} else {
+//				districtFilter.clear();
+//				districtFilter.setReadOnly(true);
+//				criteria.region(null);
+//
+//			}
+//			filterDataProvider.setFilter(criteria);
+//			updateRowCount();
+//
+//		});
+//
+//		filterLayout.add(regionFilter);
+//
+//		districtFilter = new ComboBox<DistrictReferenceDto>();
+//		districtFilter.setId(CaseDataDto.DISTRICT);
+//		// districtFilter.setWidth(200, Unit.PIXELS);
+//		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+//		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
+//		districtFilter.getStyle().set("margin-left", "0.1rem");
+//		districtFilter.getStyle().set("padding-top", "0px!important");
+//		districtFilter.setClearButtonVisible(true);
+//		districtFilter.setReadOnly(true);
+//		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {
+//			districtFilter.setItems(userProvider.getUser().getDistrict());
+//
+//			districtFilter.setValue(userProvider.getUser().getDistrict());
+//
+//			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+//			districtFilter.setEnabled(false);
+//
+//		}
+//		districtFilter.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				DistrictReferenceDto district = e.getValue();
+//				criteria.district(district);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//				updateRowCount();
+//
+//			} else {
+//				criteria.district(null);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//				updateRowCount();
+//
+//			}
+//		});
+//		HorizontalLayout coluntLay = new HorizontalLayout();
+//		coluntLay.setJustifyContentMode(JustifyContentMode.END);
+//		coluntLay.setWidth("20%");
+//		coluntLay.add(countRowItems);
+//
+//		filterLayout.setClassName("row pl-3");
+//		filterLayout.add(districtFilter, coluntLay);
+//
+//		vlayout.add(displayFilters, filterLayout);
+//		vlayout.setWidth("98%");
+//		add(layout, vlayout);
+//	}
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 
 	private void updateRowCount() {
 		int numberOfRows = filterDataProvider.size(new Query<>());
@@ -632,17 +982,21 @@ public class UserView extends VerticalLayout {
 		System.out.println(isEditingMode + "eeeeeeeeeeeddddddddddddddittttttttttt");
 
 		UserDto dto = new UserDto();
+		UserProvider userProvider = new UserProvider();
+		
+		
 		
 		System.out.println(dto.getUsertype() + "dto check eeeeeeeeeeeddddddddddddddittttttttttt");
-		if(dto.getUsertype() == null) {
-			
-			if (UserProvider.getCurrent().getUser().getUsertype().equals(UserType.EOC_USER)) {
+		System.out.println(userProvider.getUser().getUserName() + "dto check eeeeeeeeeeeddddddddddddddittttttttttt");
+
+		if(!isEditingMode && dto.getUsertype() == null) {
+
 				dto.setUsertype(UserType.EOC_USER);
 			}
 			else {
 				dto.setUsertype(UserType.WHO_USER);
 			}
-		}
+	
 		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
 
 		if (!isEditingMode) {
@@ -675,10 +1029,10 @@ public class UserView extends VerticalLayout {
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
-			H3 username = new H3("Username : " + userName);
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
 
-			H3 password = new H3("Password : " + newPassword);
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
 			password.getStyle().set("color", "#0D6938");
 
 			infoLayout.add(username, password);
@@ -687,6 +1041,58 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
+
+//		else {
+//			showAccountCreatedSuccessful();
+//		}
 	}
+
+	public void enableUser(Collection<UserDto> selectedRows) {
+
+		if (selectedRows.size() == 0) {
+
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingNoUsersSelected) + " "
+					+ I18nProperties.getString(Strings.messageNoUsersSelected));
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {
+
+			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
+			FacadeProvider.getUserFacade().enableUsers(uuids);
+			System.out.println("Activated");
+
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersEnabled) + "  "
+					+ I18nProperties.getString(Strings.messageUsersEnabled));
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		}
+	}
+
+	public void disableUser(Collection<UserDto> selectedRows) {
+
+		if (selectedRows.size() == 0) {
+
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingNoUsersSelected)
+					+ "  " + I18nProperties.getString(Strings.messageNoUsersSelected));
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {
+
+			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
+			FacadeProvider.getUserFacade().disableUsers(uuids);
+			System.out.println("Deactivated");
+
+			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersDisabled) + "  "
+					+ I18nProperties.getString(Strings.messageUsersDisabled));
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		}
+	}
+
+	
 
 }

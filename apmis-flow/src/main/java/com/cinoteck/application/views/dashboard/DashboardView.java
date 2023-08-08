@@ -152,7 +152,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		}
 
 		// Filter initializers
-		region.setLabel(I18nProperties.getCaption(Captions.region));
+		region.setLabel(I18nProperties.getCaption(Captions.area));
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setClearButtonVisible(true);
@@ -165,7 +165,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		region.getStyle().set("padding-top", "0px");
 		region.setClassName("col-sm-6, col-xs-6");
 
-		province.setLabel("Province");
+		province.setLabel(I18nProperties.getCaption(Captions.region));
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		province.setItems(provinces);

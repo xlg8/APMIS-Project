@@ -4,6 +4,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -148,6 +149,8 @@ public class UserForm extends FormLayout {
 
 	public void configureFields(UserDto user) {
 		this.usr = user;
+		
+		System.out.println(usr + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -165,7 +168,7 @@ public class UserForm extends FormLayout {
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
 		
 		binder.forField(userEmail).bind(UserDto::getUserEmail, UserDto::setUserEmail);
-//		map.put("email", userEmail);
+		map.put("email", userEmail);
 
 		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
@@ -221,6 +224,7 @@ public class UserForm extends FormLayout {
 				FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
+					
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
@@ -241,14 +245,12 @@ public class UserForm extends FormLayout {
 
 		checkboxGroup.addValueChangeListener(event -> {
 			// Do something with the selected options (if multiple selection is allowed)
-			CommunityReferenceDto communityDto = (CommunityReferenceDto) event.getValue();
-			
-//			if (event.getValue() != null) {
-//				for (CommunityReferenceDto item : communityDto) {
-//					item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
-//				}
+			HashSet<CommunityReferenceDto> communityDto =  (HashSet<CommunityReferenceDto>) event.getValue();
+			System.out.println(event.getValue() + "rnobrobnrbnornborborobn or");
+			if (event.getValue() != null) {
+				
 //			Set<CommunityReferenceDto> data = Collections.sort(items, CommunityReferenceDto.clusternumber);
-//			}
+			}
 		});
 
 		street.setPlaceholder("Enter street here");
@@ -358,24 +360,24 @@ public class UserForm extends FormLayout {
 	}
 
 	private void validateAndSave() {
-		map.forEach((key, value) -> {
-			Component formField = map.get(key);
-			if (value instanceof TextField) {
-
-				TextField formFieldxx = (TextField) value;
-				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
-//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
-				if (requiredValidation.isError()) {
-
-					// Handle required field validation error
-					formFieldxx.setInvalid(true);
-					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
-				} else {
+//		map.forEach((key, value) -> {
+//			Component formField = map.get(key);
+//			if (value instanceof TextField) {
+//
+//				TextField formFieldxx = (TextField) value;
+//				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
+////				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
+//				if (requiredValidation.isError()) {
+//
+//					// Handle required field validation error
+//					formFieldxx.setInvalid(true);
+//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
+//				} else {
 					fireEvent(new SaveEvent(this, binder.getBean()));
-				}
-			}
-
-		});
+//				}
+//			}
+//
+//		});
 	}
 
 	public void makeNewPassword(String userUuid, String userEmail, String userName) {

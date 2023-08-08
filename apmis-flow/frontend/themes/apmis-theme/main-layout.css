@@ -536,7 +536,7 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
 }
 
 .exportJsonGLoss2{
-    padding: 3px 15px;
+    padding: 5px 15px;
     font-weight: 600;
     border-radius: 5px;
     height: 2.3em;

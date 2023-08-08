@@ -1,6 +1,8 @@
 package com.cinoteck.application.views.campaign;
 
-import java.sql.Date;
+import java.util.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -114,19 +116,19 @@ public class CampaignsView extends VerticalLayout {
 //		        return localDate.format(dateFormatter);
 //		    });
 		    
-		    ComponentRenderer<Span, CampaignIndexDto> startDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-				String value = String.valueOf(reportModelDto.getStartDate()).replace("00:00:00.0", "");
-				Span label = new Span(value);
-				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-				return label;
-			});
-		    
-		    ComponentRenderer<Span, CampaignIndexDto> endDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-				String value = String.valueOf(reportModelDto.getEndDate()).replace("00:00:00.0", "");
-				Span label = new Span(value);
-				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-				return label;
-			});
+//		    ComponentRenderer<Span, CampaignIndexDto> startDateRenderer = new ComponentRenderer<>(reportModelDto -> {
+//				String value = String.valueOf(reportModelDto.getStartDate()).replace("00:00:00.0", "");
+//				Span label = new Span(value);
+//				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+//				return label;
+//			});
+//		    
+//		    ComponentRenderer<Span, CampaignIndexDto> endDateRenderer = new ComponentRenderer<>(reportModelDto -> {
+//				String value = String.valueOf(reportModelDto.getEndDate()).replace("00:00:00.0", "");
+//				Span label = new Span(value);
+//				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+//				return label;
+//			});
 
 
 		this.criteria = new CampaignCriteria();
@@ -134,13 +136,35 @@ public class CampaignsView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
+		
+			
+		TextRenderer<CampaignIndexDto> startDateRenderer = new TextRenderer<>(
+			    dto -> {
+			        Date timestamp = dto.getStartDate();
+			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			        return dateFormat.format(timestamp);
+			    }
+			);
+		
+		TextRenderer<CampaignIndexDto> endDateRenderer = new TextRenderer<>(
+			    dto -> {
+			        Date timestamp = dto.getEndDate();
+			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			        return dateFormat.format(timestamp);
+			    }
+			);
 		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.actionStatusChangeDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.campaignStatus)).setSortable(true).setResizable(true);
+		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
+		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader("Relevance Status").setSortable(true).setResizable(true);
+		
+//		LocalDateTimeRenderer<CampaignIndexDto> dateRenderer = new LocalDateTimeRenderer<>(
+//			    CampaignIndexDto.getStartDate(), "dd/MM/yyyy HH:mm:ss");//		dateColumn.setRenderer(dateRenderer);
 
-
+		
+		
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);

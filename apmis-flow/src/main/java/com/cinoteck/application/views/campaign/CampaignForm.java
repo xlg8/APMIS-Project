@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -27,6 +28,9 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.H1;
+
+import com.vaadin.flow.component.html.H3;
+
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
@@ -44,8 +48,11 @@ import com.vaadin.flow.data.converter.LocalDateToDateConverter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.ui.Window;
+import com.vaadin.server.FileDownloader;
+import com.vaadin.server.StreamResource;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.flow.component.treegrid.TreeGrid;
+
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -55,6 +62,7 @@ import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
@@ -66,6 +74,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import com.cinoteck.application.views.utils.DownloadUtil;
 
 @PageTitle("Edit Campaign")
 @Route(value = "/data")
@@ -78,7 +87,8 @@ public class CampaignForm extends VerticalLayout {
 	private static final String INTRA_CAMPAIGN = "intra-campaign";
 	private static final String POST_CAMPAIGN = "post-campaign";
 
-	Button archiveDearchive = new Button();
+	Button archiveDearchive = new Button(I18nProperties.getCaption(Captions.actionArchive));
+
 	Button openCloseCampaign;
 	Button duplicateCampaign;
 	Button deleteCampaign;
@@ -95,17 +105,18 @@ public class CampaignForm extends VerticalLayout {
 	private CampaignDto campaignDto;
 	private CampaignIndexDto campaignDtox;
 
-	H5 campaignBasics = new H5("Campaign Basics");
+	H5 campaignBasics = new H5(I18nProperties.getCaption(Captions.campaignBasics));
 
-	TextField campaignName = new TextField("Campaign name");
-	ComboBox round = new ComboBox<>("Round");
-	DatePicker startDate = new DatePicker("Start date");
-	DatePicker endDate = new DatePicker("End date");
-	TextField creatingUser = new TextField("Creating User");
-	TextField creatingUuid = new TextField("UUID");
-	TextField campaaignYear = new TextField("Campaign Year");
+	TextField campaignName = new TextField(I18nProperties.getCaption(Captions.Campaign_name));
+	ComboBox round = new ComboBox<>(I18nProperties.getCaption(Captions.round));
+	DatePicker startDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_startDate));
+	DatePicker endDate = new DatePicker(I18nProperties.getCaption(Captions.Campaign_endDate));
+	TextField creatingUser = new TextField(I18nProperties.getCaption(Captions.Campaign_creatingUser));
+	TextField creatingUuid = new TextField(I18nProperties.getCaption(Captions.uuid));
+	TextField campaaignYear = new TextField(I18nProperties.getCaption(Captions.campaignYear));
+
 	UUID uuid = UUID.randomUUID();
-	TextArea description = new TextArea("Description");
+	TextArea description = new TextArea(I18nProperties.getCaption(Captions.description));
 
 	TreeGrid<CampaignTreeGridDto> treeGrid = new TreeGrid<>();
 
@@ -234,22 +245,32 @@ public class CampaignForm extends VerticalLayout {
 
 		binderx.forField(creatingUser).bind(CampaignDto.CREATING_USER_NAME);
 		binderx.forField(campaaignYear).bind(CampaignDto.CAMPAIGN_YEAR);
-		binderx.forField(campaignName).asRequired("Campaign Name is Required").bind(CampaignDto.NAME);
-		binderx.forField(round).asRequired("Campaign Round is Required").bind(CampaignDto.ROUND);
+
+		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired)).bind(CampaignDto.NAME);
+		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired)).bind(CampaignDto.ROUND);
+
+
 		binderx.forField(startDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getStartDate,
 				CampaignDto::setStartDate);
 
 		binderx.forField(endDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getEndDate,
 				CampaignDto::setEndDate);
 
+
 		if (formData != null) {
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d. M. yyyy");
+
 			LocalDate timestamp = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate localDatex = formData.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			startDate.setValue(timestamp);
+			String formString = timestamp.format(dateTimeFormatter);
+			LocalDate localDate = LocalDate.parse(formString ,dateTimeFormatter);
+			startDate.setValue(localDate);
 			endDate.setValue(localDatex);
 		}
 
-		binderx.forField(description).asRequired("Campaign Description is Required").bind(CampaignDto::getDescription,
+//		binderx.forField(endDate).bind(CampaignDto.END_DATE);
+		binderx.forField(description).asRequired(I18nProperties.getString(Strings.campaignDescriptionRequired)).bind(CampaignDto::getDescription,
+
 				CampaignDto::setDescription);
 
 		final HorizontalLayout layoutParent = new HorizontalLayout();
@@ -276,7 +297,8 @@ public class CampaignForm extends VerticalLayout {
 		// this might blow our in new campaign saying null
 		this.campaignDto = comp.getModifiedDto();
 
-		tabsheet.add("Pre Campaign Forms", tab1);
+		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignForms), tab1);
+
 
 		VerticalLayout tab2 = new VerticalLayout();
 
@@ -287,10 +309,10 @@ public class CampaignForm extends VerticalLayout {
 						: new ArrayList<>(campaignDto.getCampaignDashboardElements(PRE_CAMPAIGN)),
 				getListDashboardFromType(PRE_CAMPAIGN), campaignDto, PRE_CAMPAIGN);
 		tab2.add(comp1);
-		tabsheet.add("Pre Campaign Dashboard", tab2);
+		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignDashboard), tab2);
 		tabsheet.setWidthFull();
 		parentTab1.add(layout);
-		tabsheetParent.add("Pre-Campaign Phase", parentTab1);
+		tabsheetParent.add(I18nProperties.getCaption(Captions.preCampaignPhase), parentTab1);
 
 		VerticalLayout parentTab2 = new VerticalLayout();
 
@@ -302,7 +324,7 @@ public class CampaignForm extends VerticalLayout {
 
 		VerticalLayout tab1Intra = new VerticalLayout();
 
-		H1 text = new H1("Content Goes Here");
+		H1 text = new H1(I18nProperties.getString(Strings.contentGoeshere));
 		CampaignFormGridComponent compp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
 						: new ArrayList<>(campaignDto.getCampaignFormMetas("intra-campaign")),
@@ -310,7 +332,7 @@ public class CampaignForm extends VerticalLayout {
 				campaignDto, INTRA_CAMPAIGN);
 		tab1Intra.add(compp);
 		this.campaignDto = compp.getModifiedDto();
-		tabsheetIntra.add("Intra Campaign Forms", tab1Intra);
+		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignForms), tab1Intra);
 		tabsheetIntra.setWidthFull();
 
 		System.out.println(this.campaignDto + "campdto null check");
@@ -325,12 +347,14 @@ public class CampaignForm extends VerticalLayout {
 				getListDashboardFromType(INTRA_CAMPAIGN), campaignDto, INTRA_CAMPAIGN);
 		tab2Intra.add(compp2);
 
-		tabsheetIntra.add("Intra Campaign Dashboard", tab2Intra);
+		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignDashboard), tab2Intra);
 		parentTab2.add(layoutIntra);
-		// parentTab2.getStyle().set("color", "green");
-		tabsheetParent.add("Intra-Campaign Phase", parentTab2);
 
+	//	parentTab2.getStyle().set("color", "green");
+		tabsheetParent.add(I18nProperties.getCaption(Captions.intraCampaignPhase), parentTab2);
+		
 		VerticalLayout parentTab3 = new VerticalLayout();
+
 		final HorizontalLayout layoutPost = new HorizontalLayout();
 		layoutPost.setWidthFull();
 
@@ -346,7 +370,7 @@ public class CampaignForm extends VerticalLayout {
 				campaignDto, POST_CAMPAIGN);
 		tab1Post.add(comppp);
 		this.campaignDto = comppp.getModifiedDto();
-		tabsheetPost.add("Post Campaign Forms", tab1Post);
+		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignForms), tab1Post);
 
 		VerticalLayout tab2Post = new VerticalLayout();
 
@@ -358,10 +382,10 @@ public class CampaignForm extends VerticalLayout {
 				getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 		tab2Post.add(comppp2);
 
-		tabsheetPost.add("Post Campaign Dashboard", tab2Post);
+		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignDashboard), tab2Post);
 		tabsheetPost.setWidthFull();
 		parentTab3.add(layoutPost);
-		tabsheetParent.add("Post-Campaign Phase", parentTab3);
+		tabsheetParent.add(I18nProperties.getCaption(Captions.postCampaignPhase), parentTab3);
 
 		System.out.println(campaignDto + "campaign DTOoooooooooooooooooooooooooooooooooo");
 
@@ -376,9 +400,9 @@ public class CampaignForm extends VerticalLayout {
 
 			treeGrid.setWidthFull();
 
-			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader("Location");
+			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader(I18nProperties.getCaption(Captions.Location));
 
-			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader("Population");
+			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
 
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
@@ -523,6 +547,7 @@ public class CampaignForm extends VerticalLayout {
 				}
 
 			}
+			
 			if (campaignDto != null) {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 				campaignDto.setRegion((Set<RegionReferenceDto>) region);
@@ -536,7 +561,7 @@ public class CampaignForm extends VerticalLayout {
 		parentTab4.add(treeGrid);
 
 		parentTab4.add(layoutAssocCamp);
-		tabsheetParent.add("Associate Campaign ", parentTab4);
+		tabsheetParent.add(I18nProperties.getCaption(Captions.associateCampaign), parentTab4);
 
 		VerticalLayout parentTab5 = new VerticalLayout();
 		parentTab5.setId("parentTab5");
@@ -551,7 +576,7 @@ public class CampaignForm extends VerticalLayout {
 
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, lblIntroduction);// .setHorizontalComponentAlignment(lblIntroduction,
 
-		Button btnImport = new Button("Import");// , e -> {
+		Button btnImport = new Button(I18nProperties.getCaption(Captions.actionImport));// , e -> {
 
 		btnImport.addClickListener(e -> {
 			ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(null, campaignDto);
@@ -561,33 +586,53 @@ public class CampaignForm extends VerticalLayout {
 		poplayout.add(btnImport);
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnImport);
 
-		Button btnExport = new Button("Export"); // poplayout.addComponent(btnExport);
-		poplayout.add(btnExport);
-		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
+
+// 		Button btnExport = new Button(I18nProperties.getCaption(Captions.export)); // poplayout.addComponent(btnExport);
+// 		poplayout.add(btnExport);
+// 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
+
+
+//
+//		//we need to hack the old vaadin button to enable the downloader to accept the button componenet as an abstractComponent in v7
+//		com.vaadin.ui.Button btnExport = new com.vaadin.ui.Button("Export"); // poplayout.addComponent(btnExport);
+//		Button btnExportDummy = new Button("Export");
+//		poplayout.add(btnExportDummy);
+//		
+//		btnExportDummy.addClickListener(e -> {
+//			btnExport.click();
+//		});
+//		
+//		StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
+//		new FileDownloader(populationDataExportResource).extend((AbstractComponent) btnExport);
+//		
 
 		parentTab5.add(poplayout);
+//		
+		
+		
 
-		tabsheetParent.add("Population Data", parentTab5);
+		tabsheetParent.add(I18nProperties.getCaption(Captions.View_configuration_populationdata), parentTab5);
 		tabsheetParent.setWidthFull();
 		tabsheetParent.setId("tabsheetParent");
 
 		openCloseCampaign = new Button();
-	
 
-		duplicateCampaign = new Button("Duplicate");
+openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
+		duplicateCampaign = new Button(I18nProperties.getString(Strings.duplicate));
 		duplicateCampaign.addClickListener(e -> {
 			duplicateCampaign();
 //			updatePublishButtonText(isPublished);
 		});
 
 		deleteCampaign = new Button();
-		deleteCampaign.setText("Delete");
+		deleteCampaign.setText(I18nProperties.getCaption(Captions.actionDelete));
 		deleteCampaign.getStyle().set("background", "red");
 		deleteCampaign.addClickListener(e -> {
 			deleteCampaign();
 		});
 
 		publishUnpublishCampaign = new Button();
+
 
 		if (campaignDto != null) {
 			isArchived = FacadeProvider.getCampaignFacade().isArchived(campaignDto.getUuid());
@@ -615,7 +660,8 @@ public class CampaignForm extends VerticalLayout {
 
 		
 		discardChanges = new Button();
-		discardChanges.setText("Discard");
+		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
+
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		discardChanges.addClickListener(e -> {
 
@@ -623,7 +669,9 @@ public class CampaignForm extends VerticalLayout {
 		});
 
 		saveChanges = new Button();
-		saveChanges.setText("Save");
+
+		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
+
 		saveChanges.addClickListener(e -> {
 			validateAndSave();
 		});
@@ -636,7 +684,7 @@ public class CampaignForm extends VerticalLayout {
 		if (campaignDto != null) {
 		leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign, deleteCampaign);
 		}else {
-			publishUnpublishCampaign.setText("Publish Campaign");
+			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
 			leftFloat.add(publishUnpublishCampaign, openCloseCampaign);
 		}
@@ -655,6 +703,7 @@ public class CampaignForm extends VerticalLayout {
 		formL.setColspan(leftFloat, 1);
 		formL.setColspan(rightFloat, 1);
 //		formL.setColspan(actionButtonsLayout, 2);
+
 
 		campaignBasics.getStyle().set("margin-top", "0px");
 		campaignBasics.getStyle().set("margin-bottom", "0px");
@@ -763,10 +812,11 @@ public class CampaignForm extends VerticalLayout {
 			fireEvent(new SaveEvent(this, binderx.getBean()));
 
 			UI.getCurrent().getPage().reload();
-			Notification.show("Success!");
 
+			Notification.show(I18nProperties.getString(Strings.headingUploadSuccess)+"!");
+		
 		} else {
-			Notification.show("error in vampaing form");
+			Notification.show(I18nProperties.getString(Strings.errorCampaignForm));
 		}
 	}
 
