@@ -29,6 +29,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
+
 
 
 @PageTitle("APMIS-Support")
@@ -73,7 +76,7 @@ public class SupportView extends VerticalLayout {
 
 	        Div aboutText = new Div();
 //			aboutText.getStyle().set("height", "121px");
-	        Paragraph text = new Paragraph("The Afghanistan Polio Management Information System(APMIS) is an online data system for inputting, storing, managing and visualizing monitoring data of polio immunization activities in Afghanistan.");
+	        Paragraph text = new Paragraph(I18nProperties.getString(Strings.supportPageHeaderText));
 	        text.getStyle().set("color", "black");
 	        text.getStyle().set("font-size", "20px");
 	        text.getStyle().set("text-align", "justify");

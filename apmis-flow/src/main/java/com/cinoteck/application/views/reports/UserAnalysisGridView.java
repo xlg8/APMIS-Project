@@ -27,6 +27,8 @@ import com.vaadin.flow.router.Route;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
@@ -84,8 +86,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 		filterLayout.setVisible(false);
 		filterLayout.setAlignItems(Alignment.END);
 
-		regionFilter.setLabel("Region");
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
 		regionFilter.addValueChangeListener(e -> {
@@ -103,8 +105,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 //            updateText(formAccess);
 		});
 
-		provinceFilter.setLabel("Province");
-		provinceFilter.setPlaceholder("All Province");
+		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
 			if (selectedRegion != null) {
@@ -119,8 +121,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 //            updateText(formAccess);
 		});
 
-		districtFilter.setLabel("District");
-		districtFilter.setPlaceholder("All District");
+		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 		districtFilter.addValueChangeListener(e -> {
 			DistrictReferenceDto selectedDistrict = e.getValue();
 			if (selectedDistrict != null) {
@@ -135,8 +137,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		errorStatusFilter = new ComboBox<ErrorStatusEnum>();
 		errorStatusFilter.setItems(ErrorStatusEnum.values());
-		errorStatusFilter.setLabel("Error Status");
-		errorStatusFilter.setPlaceholder("Error Status");
+		errorStatusFilter.setLabel(I18nProperties.getCaption(Captions.errorStatus));
+		errorStatusFilter.setPlaceholder(I18nProperties.getCaption(Captions.errorStatus));
 		errorStatusFilter.setId("errorStatusFilter");
 		errorStatusFilter.setAllowCustomValue(false);
 
@@ -145,8 +147,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		errorStatusFilter.addValueChangeListener(e -> {
 			ErrorStatusEnum selectedErrorStatus = e.getValue();
 //        	String stringg = "ErrorStatusEnum."+selectedErrorStatus;
-			System.out.println(
-					e.getValue() + " erorvalue chaged to " );
+			System.out.println(e.getValue() + " erorvalue chaged to ");
 
 			if (e.getValue() != null) {
 
@@ -159,19 +160,19 @@ public class UserAnalysisGridView extends VerticalLayout {
 //            updateText(formAccess);
 		});
 
-		resetButton = new Button("Reset Filters");
+		resetButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
 		resetButton.addClickListener(e -> {
-			
+
 //            errorStatusFilter.clear();
 //            criteria.area(null);
 			criteria.area(null);
 
 			criteria.region(null);
 			criteria.district(null);
-			  regionFilter.clear();
-				provinceFilter.clear();
-				districtFilter.clear();
-	          
+			regionFilter.clear();
+			provinceFilter.clear();
+			districtFilter.clear();
+
 //			criteria.errorStatusEnum(null);
 			refreshGridData(formAccess);
 //            updateText(formAccess);
@@ -179,7 +180,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		Div countAndButtons = new Div();
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters),
+				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
 			filterLayout.setVisible(!filterLayout.isVisible());
 			displayFilters.setText(filterLayout.isVisible() ? "Hide Filters" : "Show Filters");
@@ -227,25 +229,34 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CommunityUserReportModelDto::getArea).setHeader("Region").setSortProperty("region")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "Region");
-		grid.addColumn(CommunityUserReportModelDto::getRegion).setHeader("Province").setSortProperty("province")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "Province");
-		grid.addColumn(CommunityUserReportModelDto::getDistrict).setHeader("District").setSortProperty("district")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "District");
-		grid.addColumn(CommunityUserReportModelDto::getFormAccess).setHeader("Form Access")
-				.setSortProperty("formAccess").setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> "Form Access");
-		grid.addColumn(CommunityUserReportModelDto::getClusterNumberr).setHeader("Cluster Number")
-				.setSortProperty("clusterNumberr").setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> "Cluster Number");
-		grid.addColumn(CommunityUserReportModelDto::getcCode).setHeader("CCode").setSortProperty("ccode")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "CCode");
-
-		grid.addColumn(CommunityUserReportModelDto::getUsername).setHeader("Username").setSortProperty("username")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "Username");
-		grid.addColumn(CommunityUserReportModelDto::getMessage).setHeader("Message").setSortProperty("message")
-				.setSortable(true).setResizable(true).setTooltipGenerator(e -> "Message");
+		grid.addColumn(CommunityUserReportModelDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+				.setSortProperty("region").setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(CommunityUserReportModelDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+				.setSortProperty("province").setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+		grid.addColumn(CommunityUserReportModelDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+				.setSortProperty("district").setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+		grid.addColumn(CommunityUserReportModelDto::getFormAccess)
+				.setHeader(I18nProperties.getCaption(Captions.formAccess)).setSortProperty("formAccess")
+				.setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formAccess));
+		grid.addColumn(CommunityUserReportModelDto::getClusterNumberr)
+				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr")
+				.setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+		grid.addColumn(CommunityUserReportModelDto::getcCode)
+				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
+				.setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		grid.addColumn(CommunityUserReportModelDto::getUsername)
+				.setHeader(I18nProperties.getCaption(Captions.Login_username)).setSortProperty("username")
+				.setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Login_username));
+		grid.addColumn(CommunityUserReportModelDto::getMessage).setHeader(I18nProperties.getCaption(Captions.message))
+				.setSortProperty("message").setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.message));
 
 		DataProvider<CommunityUserReportModelDto, CommunityCriteriaNew> dataProvider = DataProvider
 				.fromFilteringCallbacks(

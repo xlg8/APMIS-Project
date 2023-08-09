@@ -12,6 +12,8 @@ public interface Strings {
 
 	String active = "active";
 	
+	
+	
 	String dataSavedSuccessfully = "dataSavedSuccessfully";
 	String openCampaign="openCampaign";
 	String duplicate="duplicate";
@@ -49,6 +51,34 @@ public interface Strings {
 	String mustContain1UppercaseChar="mustContain1UppercaseChar";
 	String apmisJsonGlossary="apmisJsonGlossary";
 	String areSureYouWantToLogout="areSureYouWantToLogout";
+	String selectActiveArchivedRelevance="selectActiveArchivedRelevance";
+	String deleteActionSelected="deleteActionSelected";
+	String youHaveNotSeleceted="youHaveNotSeleceted";
+	String saved="saved";
+	String areYouSureYouWantToDearchive="areYouSureYouWantToDearchive";
+	String areSureYouWantToArchive="areSureYouWantToArchive";
+	String areSureYouWantArchiveCluster="areSureYouWantArchiveCluster";
+	String archivingSelected="archivingSelected";
+	String areYouSureYouWantToDearchiveSelected="areYouSureYouWantToDearchiveSelected";
+	String dearchiveSelectedRows="dearchiveSelectedRows";
+	String areYouSureYouWantToArchiveDistrict="areYouSureYouWantToArchiveDistrict";
+	String areYouSureYouWantToDearchiveSelectedDistricts="areYouSureYouWantToDearchiveSelectedDistricts";
+	String areYouSureWantToDearchiveDistrict="areYouSureWantToDearchiveDistrict";
+	String areYouSureWantARchiveDistrict="areYouSureWantARchiveDistrict";
+	String archiveSelectedProvinces="archiveSelectedProvinces";
+	String areYouSureYouWantToArchiveProvinces="areYouSureYouWantToArchiveProvinces";
+	String dearchiveSelecetdProvinces="dearchiveSelecetdProvinces";
+	String areYouSureYouWantToDearchiveSelectedProvinces="areYouSureYouWantToDearchiveSelectedProvinces";
+	String areYouSureYouWantToDearchiveSelectedProvince="areYouSureYouWantToDearchiveSelectedProvince";
+	String areSureYouWantToArchiveProvince="areSureYouWantToArchiveProvince";
+	String savedNewRegion="savedNewRegion";
+	String pleaseSelectEitherArchivedUnitToCarryOutBulkAction="pleaseSelectEitherArchivedUnitToCarryOutBulkAction";
+	String areYouSureYouWantToArchiveSelecetdRegions="areYouSureYouWantToArchiveSelecetdRegions";
+	String areYouSureYouWantToDearchiveSelectedRegions="areYouSureYouWantToDearchiveSelectedRegions";
+	String areYouSureYouWantDearchiveRegion="areYouSureYouWantDearchiveRegion";
+	String areYouSureYouWantToArchiveRegion="areYouSureYouWantToArchiveRegion";
+	String supportPageHeaderText="supportPageHeaderText";
+	
 	
 	
 	

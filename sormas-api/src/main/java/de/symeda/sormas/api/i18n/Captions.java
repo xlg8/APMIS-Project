@@ -11,7 +11,6 @@ public interface Captions {
 	 */
 
 	String about = "about";
-	
 	String clusterNumber = "clusterNumber";
 	String formPhase = "formPhase";
 	String formAccess = "formAccess";
@@ -64,6 +63,43 @@ public interface Captions {
 	String changePassword="changePassword";
 	String mobileUserGuide="mobileUserGuide";
 	String exportFormGlossary="exportFormGlossary";
+	String relevanceStatus="relevanceStatus";
+	String addNewCluster="addNewCluster";
+	String errorArchiving="errorArchiving";
+	String notValidValue="notValidValue";
+	String dearchiveCluster="dearchiveCluster";
+	String archiveCluster="archiveCluster";
+	String archiveSelectedCluster="archiveSelectedCluster";
+	String dearchiveSelectedClusters="dearchiveSelectedClusters";
+	String risk="risk";
+	String addNewDistrict="addNewDistrict";
+	String archiveSelectedDistricts="archiveSelectedDistricts";
+	String dearchiveSelectedDistricts="dearchiveSelectedDistricts";
+	String dearchiveDistrict="dearchiveDistrict";
+	String archiveDistrict="archiveDistrict";
+	String addNewProvince="addNewProvince";
+	String dearchiveProvince="dearchiveProvince";
+	String archiveProvince="archiveProvince";
+	String createNewRegion="createNewRegion";
+	String clearSearch="clearSearch";
+	String addNewRegion="addNewRegion";
+	String archiveSelectedRegions="archiveSelectedRegions";
+	String dearchivedSelectedRegions="dearchivedSelectedRegions";
+	String dearchiveRegion="dearchiveRegion";
+	String archiveRegion="archiveRegion";
+	String formCount="formCount";
+	String selectFormFirst="selectFormFirst";
+	String icmHouseholdMonitoring="icmHouseholdMonitoring";
+	String icmRevisits="icmRevisits";
+	String icmSupervisorMonitoring="icmSupervisorMonitoring";
+	String icmTeamMonitoring="icmTeamMonitoring";
+	String aggregateReport="aggregateReport";
+	String dataCompleteness="dataCompleteness";
+	String mobileUsers="mobileUsers";
+	String errorStatus="errorStatus";
+	String message="message";
+	
+	
 	
 	
 	

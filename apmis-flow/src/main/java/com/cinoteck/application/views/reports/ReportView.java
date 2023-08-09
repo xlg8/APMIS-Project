@@ -17,6 +17,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.FormAccess;
 
 @PageTitle("APMIS-Reports")
@@ -33,9 +35,9 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 
 
 	private Tabs createTabs() {
-		tabComponentMap.put(new Tab("Aggregate Report"),new AggregateReportView());
-		tabComponentMap.put(new Tab("Data Completeness"), new CompletionAnalysisView());
-		tabComponentMap.put(new Tab("Mobile Users"), new UserAnalysisView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.aggregateReport)),new AggregateReportView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)), new CompletionAnalysisView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.mobileUsers)), new UserAnalysisView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 
