@@ -10,14 +10,15 @@ public interface Captions {
 	 * constants of this class is accepted: Close as false positive.
 	 */
 
+	//New added by Yahaya, end by the next big space 
 	String about = "about";
 	String clusterNumber = "clusterNumber";
 	String formPhase = "formPhase";
 	String formAccess = "formAccess";
 	String aboutGuides = "GUIDES";
 	String aboutvideos = "Videos";
-	String apmisaboutguides = "User Guides";
-	String abouttechguides = "Technical Guides";
+	String aboutuserguides = "userGuides";
+	String abouttechguides = "technicalGuides";
 	String apmishziguides = "HZI Guides";
 	String campaignYear = "campaignYear";
 	String showFilters = "showFilters";
@@ -98,6 +99,26 @@ public interface Captions {
 	String mobileUsers="mobileUsers";
 	String errorStatus="errorStatus";
 	String message="message";
+	String notaValidEmail="notaValidEmail";
+	String allUsers="allUsers";
+	String firstNameRequired="firstNameRequired";
+	String lastNameRequired="lastNameRequired";
+	String emailRequired="emailRequired";
+	String enterValidPhoneNumber="enterValidPhoneNumber";
+	String enterStreetHere="enterStreetHere";
+	String enterHouseNumberHere="enterHouseNumberHere";
+	String enterAdditionalInformationHere="enterAdditionalInformationHere";
+	String enterPostalCodeHere="enterPostalCodeHere";
+	String enterCityHere="enterCityHere";
+	String pleaseFillOutFirstLastname="pleaseFillOutFirstLastname";
+	String userRoleRequired="userRoleRequired";
+	String pleaseFillFormAccess="pleaseFillFormAccess";
+	String salesReport="salesReport";
+	String fieldInformation="fieldInformation";
+	
+	
+	
+	
 	
 	
 	

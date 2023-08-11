@@ -13,7 +13,7 @@ public interface Strings {
 	String active = "active";
 	
 	
-	
+	//New added by Yahaya, end by the next big space 
 	String dataSavedSuccessfully = "dataSavedSuccessfully";
 	String openCampaign="openCampaign";
 	String duplicate="duplicate";

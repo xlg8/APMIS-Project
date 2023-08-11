@@ -3,6 +3,7 @@ package com.cinoteck.application.views.reports;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.dashboard.CampaignSummaryGridView;
 import com.vaadin.flow.component.Component;
@@ -17,6 +18,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.FormAccess;
@@ -43,9 +45,17 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 
 	}
 	
-	
+	UserProvider userProvider = new UserProvider();
 	
 	public ReportView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 //		setSizeFull();
 		 HorizontalLayout reportTabsheetLayout = new HorizontalLayout();
 		 reportTabsheetLayout.setClassName("campDatFill");

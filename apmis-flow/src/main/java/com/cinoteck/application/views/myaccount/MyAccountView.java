@@ -175,7 +175,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		dataVieww.getStyle().set("margin-right", "20px");
 
 		Div fieldInfoo = new Div();
-		H3 infodataa = new H3("Field Information");
+		H3 infodataa = new H3(I18nProperties.getCaption(Captions.fieldInformation));
 		infodataa.getStyle().set("color", "green");
 		infodataa.getStyle().set("font-size", "20px");
 		infodataa.getStyle().set("font-weight", "600");

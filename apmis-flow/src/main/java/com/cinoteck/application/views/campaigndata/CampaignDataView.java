@@ -116,8 +116,8 @@ public class CampaignDataView extends VerticalLayout {
 
 	CampaignFormDataEditForm campaignFormDataEditForm;
 
-	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	MenuBar dropdownBulkOperations = new MenuBar();
 	ConfirmDialog confirmationDialog;
 
@@ -501,12 +501,12 @@ public class CampaignDataView extends VerticalLayout {
 
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			enterBulkEdit = new Button("Enter Bulk Edit Mode");
-			leaveBulkEdit = new Button("Leave Bulk Edit Mode");
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+			leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 			dropdownBulkOperations = new MenuBar();
-			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem(I18nProperties.getCaption(Captions.bulkActions));
 			SubMenu subMenu = bulkActionsItem.getSubMenu();
-			subMenu.addItem("Delete", e -> handleDeleteAction());
+			subMenu.addItem(I18nProperties.getCaption(Captions.actionDelete), e -> handleDeleteAction());
 
 
 		}
@@ -525,7 +525,7 @@ public class CampaignDataView extends VerticalLayout {
 //			dropdownBulkOperations.setVisible(true);
 		});
 
-		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
 		leaveBulkEdit.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -646,14 +646,14 @@ public class CampaignDataView extends VerticalLayout {
 // 		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase)).setSortable(true).setResizable(true).setAutoWidth(true);
 // =======
 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> "Campaign");// .setFooter(String.format("Row Count: %s", (int)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaigns));// .setFooter(String.format("Row Count: %s", (int)
 									// FacadeProvider.getCampaignFormDataFacade().count(criteria)));
 		grid.addColumn(CampaignFormDataIndexDto.FORM).setHeader(I18nProperties.getCaption(Captions.campaignCampaignForm)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> "Form");
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.campaignCampaignForm));
 		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> "Region");
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
 		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> "RCode");
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true)
 				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
 		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true).setResizable(true)
@@ -839,7 +839,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-		String newText = "Rows : " + numberOfRows;
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");

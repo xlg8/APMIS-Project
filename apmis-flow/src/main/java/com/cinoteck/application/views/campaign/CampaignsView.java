@@ -85,7 +85,16 @@ public class CampaignsView extends VerticalLayout {
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
 
+	UserProvider userProvider = new UserProvider();
 	public CampaignsView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
 
 		setSpacing(false);
 		setHeightFull();
