@@ -18,6 +18,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -56,6 +57,7 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 //		setSizeFull();
 		 HorizontalLayout reportTabsheetLayout = new HorizontalLayout();
 		 reportTabsheetLayout.setClassName("campDatFill");

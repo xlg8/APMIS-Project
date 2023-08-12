@@ -141,6 +141,7 @@ public class UserView extends VerticalLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
 //		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {

@@ -107,6 +107,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		setSpacing(false);
 		// UI.getCurrent().getPage().reload();
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);

@@ -96,7 +96,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
-		
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();

@@ -40,8 +40,7 @@ public class AboutView extends VerticalLayout {
 	
  
 
-    public AboutView() {
-    	
+    public AboutView() {	
     	if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);			
@@ -50,7 +49,7 @@ public class AboutView extends VerticalLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
-    	
+    	FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
     	Div aboutView = new Div();
 		aboutView.getStyle().set("height", "100%");
 		aboutView.getStyle().set("padding-left", "90px");

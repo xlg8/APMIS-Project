@@ -123,8 +123,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
-	public CampaignDataView() {
-		
+	public CampaignDataView() {	
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);			
@@ -133,6 +132,7 @@ public class CampaignDataView extends VerticalLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		setSizeFull();
 		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
