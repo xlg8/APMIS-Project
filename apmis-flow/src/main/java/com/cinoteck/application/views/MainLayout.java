@@ -18,15 +18,13 @@ import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.logout.LogoutView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
-import com.cinoteck.application.views.pivot.PivotTableView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 //import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
-import com.vaadin.componentfactory.ToggleButton;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -39,7 +37,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 //import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -51,14 +48,12 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
-import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.user.UserDto;
 
 
 /**
@@ -136,6 +131,20 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		           }
 		    }
 		});
+		
+		IdleNotification idleNotification = new IdleNotification();
+		idleNotification
+		        .setMessage("Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT
+		                + " seconds.");
+		idleNotification.addExtendSessionButton("Extend session");
+		idleNotification.addRedirectButton("Logout now", "logout");
+		idleNotification.addCloseButton();
+		idleNotification.setExtendSessionOnOutsideClick(true);
+		idleNotification.setRedirectAtTimeoutUrl("logout");
+
+		UI.getCurrent().add(idleNotification);
+		
+	//	System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
 
 		addToNavbar(true, toggle, titleLayout);
 	}
@@ -151,12 +160,12 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		addToDrawer(header, scroller);
 		
 		
-		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
-                new Locale("fa","IR", "فارسی"));
-		
-		languageSwitcher.setClassName("vieLangiuageSwitcher");
-		
-		addToDrawer(languageSwitcher);
+//		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
+//                new Locale("fa","IR", "فارسی"));
+//		
+//		languageSwitcher.setClassName("vieLangiuageSwitcher");
+//		
+//		addToDrawer(languageSwitcher);
 		
 		addToDrawer(createFooter());
 		
@@ -171,7 +180,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		Button myButton = new Button();
 		
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.View_dashboard_campaigns), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
@@ -185,9 +194,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
 		
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
+		
 		if (nav != null) {
 		    nav.addClassName("active");
 		}
+		
 		return nav;
 		
 		

@@ -14,13 +14,12 @@
  * the License.
  */
 
-import "@vaadin/button";
-import "@vaadin/dialog";
-import { dialogRenderer } from "@vaadin/dialog/lit.js";
-import { ThemableMixin } from "@vaadin/vaadin-themable-mixin/vaadin-themable-mixin.js";
-import { html, LitElement } from "lit";
+import { html, PolymerElement } from '@polymer/polymer/polymer-element.js';
+import { ThemableMixin } from '@vaadin/vaadin-themable-mixin/vaadin-themable-mixin.js';
+import '@vaadin/vaadin-dialog/src/vaadin-dialog.js';
+import '@vaadin/vaadin-button/src/vaadin-button.js';
 
-class IdleNotification extends ThemableMixin(LitElement) {
+class IdleNotification extends ThemableMixin(PolymerElement) {
   static get properties() {
     return {
       /**
@@ -29,9 +28,10 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       opened: {
         type: Boolean,
-
+        value: false,
         notify: true,
-        reflect: true,
+        reflectToAttribute: true,
+        observer: '_openedChanged',
       },
 
       /**
@@ -40,8 +40,9 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       closeButtonEnabled: {
         type: Boolean,
-
+        value: false,
         notify: true,
+        observer: '_closeButtonEnabledChanged',
       },
 
       /**
@@ -50,8 +51,9 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       extendSessionButtonEnabled: {
         type: Boolean,
-
+        value: false,
         notify: true,
+        observer: '_extendSessionButtonEnabledChanged',
       },
 
       /**
@@ -60,8 +62,9 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       redirectButtonEnabled: {
         type: Boolean,
-
+        value: false,
         notify: true,
+        observer: '_redirectButtonEnabledChanged',
       },
 
       /**
@@ -70,8 +73,9 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       beforeExpiredMessage: {
         type: String,
-
+        value: '',
         notify: true,
+        observer: '_beforeExpiredMessageChanged',
       },
 
       /**
@@ -80,6 +84,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       extendSessionButtonCaption: {
         type: String,
+        value: 'Stay logged In',
       },
 
       /**
@@ -88,6 +93,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       redirectButtonCaption: {
         type: String,
+        observer: '_redirectButtonCaptionChanged',
       },
 
       /**
@@ -96,6 +102,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       redirectButtonUrl: {
         type: String,
+        observer: '_redirectButtonUrlChanged',
       },
 
       /**
@@ -114,6 +121,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       redirectAtTimeoutEnabled: {
         type: Boolean,
+        value: true,
       },
 
       /**
@@ -122,6 +130,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       afterExpiredMessage: {
         type: String,
+        value: '',
       },
 
       /**
@@ -130,6 +139,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       maxInactiveInterval: {
         type: Number,
+        observer: '_maxInactiveIntervalChanged',
       },
 
       /**
@@ -139,6 +149,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       secondsBeforeNotification: {
         type: Number,
+        observer: '_secondsBeforeNotificationChanged',
       },
 
       /**
@@ -147,9 +158,10 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       activated: {
         type: Boolean,
-
+        value: false,
         notify: true,
-        reflect: true,
+        reflectToAttribute: true,
+        observer: '_activatedChanged',
       },
 
       /**
@@ -158,6 +170,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       extendSessionOnOutsideClick: {
         type: Boolean,
+        value: true,
       },
 
       /**
@@ -169,6 +182,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
        */
       closeNotificationOnOutsideClick: {
         type: Boolean,
+        value: false,
       },
 
       /** @private */
@@ -180,21 +194,25 @@ class IdleNotification extends ThemableMixin(LitElement) {
       /** @private */
       _actionsVisibility: {
         type: String,
+        value: 'hidden',
       },
 
       /** @private */
       _redirectButtonVisibility: {
         type: String,
+        value: 'hidden',
       },
 
       /** @private */
       _extendSessionButtonVisibility: {
         type: String,
+        value: 'hidden',
       },
 
       /** @private */
       _headerVisibility: {
         type: String,
+        value: 'hidden',
       },
 
       /** @private */
@@ -205,85 +223,123 @@ class IdleNotification extends ThemableMixin(LitElement) {
 
       /** @private */
       _handleLoadListener: {
-        type: Object,
-      },
+         type: Object,
+         value: null,
+      }
     };
   }
 
-  // render() {
-  //   return html`
-  //     <vaadin-dialog
-  //       id="notification-dialog"
-  //       part="notification-dialog"
-  //       theme="notification-dialog-theme"
-  //       ${dialogRenderer(this.renderDialog, [this._messageContent])}
-  //     >
-  //     </vaadin-dialog>
-  //   `;
-  // }
-
-
-  render() {
-    const dialogContent = this.renderDialog(); // Call renderDialog function
+  static get template() {
     return html`
-      <vaadin-dialog
-        id="notification-dialog"
-        part="notification-dialog"
-        theme="notification-dialog-theme"
-      >
-        ${dialogContent} <!-- Use the rendered dialog content here -->
+      <style>
+        [part='container'] {
+          --notification-background-color: var(--idle-notification-background-color, #ffc13f);
+          --notification-color: var(--idle-notification-color, var(--lumo-contrast));
+          color: var(--notification-color);
+          display: flex;
+          flex-direction: column;
+          background-color: var(--notification-background-color);
+          padding: 1em;
+          border-radius: var(--lumo-border-radius-m);
+        }
+
+        [part='message-container'] {
+          display: flex;
+        }
+
+        #warning-icon {
+          display: flex;
+          flex-shrink: 0;
+          align-self: center;
+          margin-right: 1em;
+        }
+
+        [part='header'].hidden {
+          display: none;
+        }
+
+        [part='header'].visible {
+          display: flex;
+          justify-content: flex-end;
+          margin-bottom: 1em;
+        }
+
+        #close-icon {
+          display: flex;
+          font-size: var(--lumo-font-size-xs);
+          height: 1em;
+          width: 1em;
+        }
+
+        [part='message'] {
+          display: flex;
+        }
+
+        [part='actions'].visible {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 1em;
+        }
+
+        [part='actions'].hidden {
+          display: none;
+        }
+
+        vaadin-button {
+          --fallback-border-radius: calc(var(--lumo-size-m) / 2);
+          color: var(--idle-notification-button-color, --notification-color);
+          background-color: var(--idle-notification-button-background-color, white);
+          border-radius: var(--lumo-border-radius-m, var(--fallback-border-radius));
+        }
+
+        #extend-session.visible {
+          margin-left: 1em;
+        }
+
+        #extend-session.hidden {
+          display: none;
+        }
+
+        #redirect.hidden {
+          display: none;
+        }
+      </style>
+
+      <vaadin-dialog id="notification-dialog" part="notification-dialog" theme="notification-dialog-theme">
+        <template>
+          <div part="container" class="idle-notification-container">
+            <div part="header" class$="[[_headerVisibility]]">
+              <iron-icon icon="vaadin:close-small" id="close-icon" on-click="_handleCloseIconClick"></iron-icon>
+            </div>
+            <div part="message-container">
+              <iron-icon icon="vaadin:exclamation-circle-o" id="warning-icon"></iron-icon>
+              <div part="message">[[_messageContent]]</div>
+            </div>
+            <div part="actions" class$="[[_actionsVisibility]]">
+              <vaadin-button id="redirect" on-click="_handleRedirectButtonClick" class$="[[_redirectButtonVisibility]]">
+                [[redirectButtonCaption]]
+              </vaadin-button>
+              <vaadin-button
+                id="extend-session"
+                on-click="_handleExtendSessionButtonClick"
+                class$="[[_extendSessionButtonVisibility]]"
+              >
+                [[extendSessionButtonCaption]]
+              </vaadin-button>
+            </div>
+          </div>
+        </template>
       </vaadin-dialog>
     `;
   }
 
-
-
-  renderDialog = () => html`
-    <div part="container" class="idle-notification-container">
-      <div part="header" class="${this._headerVisibility}">
-        <vaadin-icon
-          icon="vaadin:close-small"
-          id="close-icon"
-          @click="${this._handleCloseIconClick}"
-        ></vaadin-icon>
-      </div>
-      <div part="message-container">
-        <vaadin-icon
-          icon="vaadin:exclamation-circle-o"
-          id="warning-icon"
-        ></vaadin-icon>
-        <div part="message">${this._messageContent}</div>
-      </div>
-      <div part="actions" class="${this._actionsVisibility}">
-        <vaadin-button
-          id="redirect"
-          @click="${this._handleRedirectButtonClick}"
-          class="${this._redirectButtonVisibility}"
-        >
-          ${this.redirectButtonCaption}
-        </vaadin-button>
-        <vaadin-button
-          id="extend-session"
-          @click="${this._handleExtendSessionButtonClick}"
-          class="${this._extendSessionButtonVisibility}"
-        >
-          ${this.extendSessionButtonCaption}
-        </vaadin-button>
-      </div>
-    </div>
-  `;
-
   /** @protected */
-  firstUpdated(_changedProperties) {
-    super.firstUpdated(_changedProperties);
+  ready() {
+    super.ready();
 
-    this._dialogElement = this.shadowRoot.querySelector("vaadin-dialog");
-    this._dialogElement.$.overlay.addEventListener(
-      "vaadin-overlay-outside-click",
-      this._handleOutsideClick.bind(this)
-    );
-    this._dialogElement.noCloseOnOutsideClick =
-      !this.closeNotificationOnOutsideClick;
+    this._dialogElement = this.shadowRoot.querySelector('vaadin-dialog');
+    this._dialogElement.$.overlay.addEventListener('vaadin-overlay-outside-click', this._handleOutsideClick.bind(this));
+    this._dialogElement.noCloseOnOutsideClick = !this.closeNotificationOnOutsideClick;
     this._dialogElement.noCloseOnEsc = true;
     this._dialogElement.modeless = false;
 
@@ -293,7 +349,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
   /** @protected */
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener("load", this._handleLoadListener);
+    this.removeEventListener('load', this._handleLoadListener);
     this._clearTimeoutObject();
     // to not trigger _handleLoad after disconnecting the component
     this._displayProcessStarted = true;
@@ -306,9 +362,8 @@ class IdleNotification extends ThemableMixin(LitElement) {
     let thisComponent = this;
     XMLHttpRequest.prototype.open = function () {
       currRequest = this;
-      thisComponent._handleLoadListener = (e) =>
-        thisComponent._handleLoad(currRequest);
-      this.addEventListener("load", thisComponent._handleLoadListener);
+      thisComponent._handleLoadListener = (e) => thisComponent._handleLoad(currRequest);
+      this.addEventListener('load', thisComponent._handleLoadListener);
       origOpen.apply(this, arguments);
     };
   }
@@ -316,89 +371,58 @@ class IdleNotification extends ThemableMixin(LitElement) {
   /** @private */
   _handleLoad(currRequest) {
     if (
-      currRequest.status === 200 &&
-      !this._displayProcessStarted &&
-      this._isVaadinRequest(currRequest)
+        currRequest.status === 200 &&
+        !this._displayProcessStarted &&
+        this._isVaadinRequest(currRequest)
     ) {
       this._resetTimer();
       if (this.opened) {
         this.opened = false;
       }
     }
-  }
+  };
 
   /** @private */
   _closeButtonEnabledChanged(isCloseButtonEnabled, wasCloseButtonEnabled) {
     if (isCloseButtonEnabled) {
-      this._headerVisibility = "visible";
+      this._headerVisibility = 'visible';
     } else {
-      this._headerVisibility = "hidden";
+      this._headerVisibility = 'hidden';
     }
   }
 
   /** @private */
-  _extendSessionButtonEnabledChanged(
-    isExtendSessionButtonEnabled,
-    wasExtendSessionButtonEnabled
-  ) {
+  _extendSessionButtonEnabledChanged(isExtendSessionButtonEnabled, wasExtendSessionButtonEnabled) {
     if (isExtendSessionButtonEnabled) {
-      this._extendSessionButtonVisibility = "visible";
-      this._actionsVisibility = "visible";
-    } else if (
-      !(
-        this.redirectButtonEnabled &&
-        this.redirectButtonCaption &&
-        this.redirectUrl
-      )
-    ) {
-      this._actionsVisibility = "hidden";
+      this._extendSessionButtonVisibility = 'visible';
+      this._actionsVisibility = 'visible';
+    } else if (!(this.redirectButtonEnabled && this.redirectButtonCaption && this.redirectUrl)) {
+      this._actionsVisibility = 'hidden';
     }
   }
 
   /** @private */
-  _redirectButtonEnabledChanged(
-    isRedirectButtonEnabled,
-    wasRedirectButtonEnabled
-  ) {
-    this._validateRedirectButton(
-      isRedirectButtonEnabled,
-      this.redirectButtonCaption,
-      this.redirectButtonUrl
-    );
+  _redirectButtonEnabledChanged(isRedirectButtonEnabled, wasRedirectButtonEnabled) {
+    this._validateRedirectButton(isRedirectButtonEnabled, this.redirectButtonCaption, this.redirectButtonUrl);
   }
 
   /** @private */
-  _redirectButtonCaptionChanged(
-    newRedirectButtonCaption,
-    oldRedirectButtonCaption
-  ) {
-    this._validateRedirectButton(
-      this.redirectButtonEnabled,
-      newRedirectButtonCaption,
-      this.redirectButtonUrl
-    );
+  _redirectButtonCaptionChanged(newRedirectButtonCaption, oldRedirectButtonCaption) {
+    this._validateRedirectButton(this.redirectButtonEnabled, newRedirectButtonCaption, this.redirectButtonUrl);
   }
 
   /** @private */
   _redirectButtonUrlChanged(newRedirectButtonUrl, oldRedirectButtonUrl) {
-    this._validateRedirectButton(
-      this.redirectButtonEnabled,
-      this.redirectButtonCaption,
-      newRedirectButtonUrl
-    );
+    this._validateRedirectButton(this.redirectButtonEnabled, this.redirectButtonCaption, newRedirectButtonUrl);
   }
 
   /** @private */
-  _validateRedirectButton(
-    isRedirectButtonEnabled,
-    redirectButtonCaption,
-    redirectButtonUrl
-  ) {
+  _validateRedirectButton(isRedirectButtonEnabled, redirectButtonCaption, redirectButtonUrl) {
     if (isRedirectButtonEnabled && redirectButtonCaption && redirectButtonUrl) {
-      this._redirectButtonVisibility = "visible";
-      this._actionsVisibility = "visible";
+      this._redirectButtonVisibility = 'visible';
+      this._actionsVisibility = 'visible';
     } else if (!this.extendSessionButtonEnabled) {
-      this._actionsVisibility = "hidden";
+      this._actionsVisibility = 'hidden';
     }
   }
 
@@ -419,23 +443,13 @@ class IdleNotification extends ThemableMixin(LitElement) {
   /** @private */
   _handleExtendSessionButtonClick(e) {
     this._pokeServer();
-    this.dispatchEvent(
-      new CustomEvent("vaadin-idle-notification-extend-session", {
-        bubbles: true,
-        composed: true,
-      })
-    );
+    this.dispatchEvent(new CustomEvent('vaadin-idle-notification-extend-session', { bubbles: true, composed: true }));
   }
 
   /** @private */
   _handleRedirectButtonClick(e) {
     if (this.redirectButtonUrl) {
-      this.dispatchEvent(
-        new CustomEvent("vaadin-idle-notification-redirect", {
-          bubbles: true,
-          composed: true,
-        })
-      );
+      this.dispatchEvent(new CustomEvent('vaadin-idle-notification-redirect', { bubbles: true, composed: true }));
       this._doRedirect(this.redirectButtonUrl);
     }
   }
@@ -453,10 +467,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
   _isVaadinRequest(req) {
     const reqUrl = new URL(req.responseURL);
     // ignore heartbeat requests, so timeout value can be larger than heartbeat interval
-    return (
-      reqUrl.searchParams.has("v-r") &&
-      reqUrl.searchParams.get("v-r") !== "heartbeat"
-    );
+    return reqUrl.searchParams.has('v-r') && reqUrl.searchParams.get('v-r') !== 'heartbeat';
   }
 
   /** @private */
@@ -482,12 +493,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
 
   /** @private */
   _handleSessionTimeout(e) {
-    this.dispatchEvent(
-      new CustomEvent("vaadin-idle-notification-timeout", {
-        bubbles: true,
-        composed: true,
-      })
-    );
+    this.dispatchEvent(new CustomEvent('vaadin-idle-notification-timeout', { bubbles: true, composed: true }));
 
     if (this.redirectAtTimeoutEnabled && this.redirectAtTimeoutUrl) {
       this._doRedirect(this.redirectAtTimeoutUrl);
@@ -495,7 +501,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
       this._updateFormattedMessage(this.afterExpiredMessage, 0);
       this.extendSessionOnOutsideClick = false;
       this.closeNotificationOnOutsideClick = true;
-      this._actionsVisibility = "hidden";
+      this._actionsVisibility = 'hidden';
     }
   }
 
@@ -517,26 +523,11 @@ class IdleNotification extends ThemableMixin(LitElement) {
       this._dialogElement.opened = opened;
     }
     if (opened) {
-      this._updateFormattedMessage(
-        this.beforeExpiredMessage,
-        this.secondsBeforeNotification
-      );
-      if (!wasOpened)
-        this.dispatchEvent(
-          new CustomEvent("vaadin-idle-notification-open", {
-            bubbles: true,
-            composed: true,
-          })
-        );
+      this._updateFormattedMessage(this.beforeExpiredMessage, this.secondsBeforeNotification);
+      if(!wasOpened) this.dispatchEvent(new CustomEvent('vaadin-idle-notification-open', { bubbles: true, composed: true }));
     } else {
       this._displayProcessStarted = false;
-      if (wasOpened)
-        this.dispatchEvent(
-          new CustomEvent("vaadin-idle-notification-close", {
-            bubbles: true,
-            composed: true,
-          })
-        );
+      if(wasOpened) this.dispatchEvent(new CustomEvent('vaadin-idle-notification-close', { bubbles: true, composed: true }));
     }
   }
 
@@ -547,18 +538,14 @@ class IdleNotification extends ThemableMixin(LitElement) {
 
   /** @private */
   _updateFormattedMessage(message, secondsToTimeout) {
-    this._messageContent = message
-      .replace("${SECS_TO_TIMEOUT}", secondsToTimeout)
-      .replace("${SECS_MAX_IDLE_TIMEOUT}", this.maxInactiveInterval);
+    let SECS_TO_TIMEOUT = secondsToTimeout;
+    let SECS_MAX_IDLE_TIMEOUT = this.maxInactiveInterval;
+    this._messageContent = eval('`' + message + '`');
   }
 
   /** @private */
   _maxInactiveIntervalChanged(newValue, oldValue) {
-    if (
-      newValue &&
-      this.secondsBeforeNotification &&
-      newValue > this.secondsBeforeNotification
-    ) {
+    if (newValue && this.secondsBeforeNotification && newValue > this.secondsBeforeNotification) {
       this.activated = true;
     } else {
       this.activated = false;
@@ -567,11 +554,7 @@ class IdleNotification extends ThemableMixin(LitElement) {
 
   /** @private */
   _secondsBeforeNotificationChanged(newValue, oldValue) {
-    if (
-      newValue &&
-      this.maxInactiveInterval &&
-      newValue < this.maxInactiveInterval
-    ) {
+    if (newValue && this.maxInactiveInterval && newValue < this.maxInactiveInterval) {
       this.activated = true;
     } else {
       this.activated = false;
@@ -591,197 +574,17 @@ class IdleNotification extends ThemableMixin(LitElement) {
   _pokeServer(e) {
     this.$server.pokeServer().then((result) => {
       if (result === true) {
-        console.log(
-          "Idle-Notification: Server poked successfully. Session extended."
-        );
+        console.log('Idle-Notification: Server poked successfully. Session extended.');
         this.opened = false;
         this._resetTimer();
       } else {
-        console.error("Could not poke the server");
+        console.error('Could not poke the server');
       }
     });
   }
 
   static get is() {
-    return "idle-notification";
-  }
-  set opened(newValue) {
-    const oldValue = this.opened;
-    this._opened = newValue;
-    if (oldValue !== newValue) {
-      this._openedChanged(newValue, oldValue);
-      this.requestUpdate(
-        "opened",
-        oldValue,
-        this.constructor.properties.opened
-      );
-    }
-  }
-  get opened() {
-    return this._opened;
-  }
-
-  set closeButtonEnabled(newValue) {
-    const oldValue = this.closeButtonEnabled;
-    this._closeButtonEnabled = newValue;
-    if (oldValue !== newValue) {
-      this._closeButtonEnabledChanged(newValue, oldValue);
-      this.requestUpdate(
-        "closeButtonEnabled",
-        oldValue,
-        this.constructor.properties.closeButtonEnabled
-      );
-    }
-  }
-  get closeButtonEnabled() {
-    return this._closeButtonEnabled;
-  }
-
-  set extendSessionButtonEnabled(newValue) {
-    const oldValue = this.extendSessionButtonEnabled;
-    this._extendSessionButtonEnabled = newValue;
-    if (oldValue !== newValue) {
-      this._extendSessionButtonEnabledChanged(newValue, oldValue);
-      this.requestUpdate(
-        "extendSessionButtonEnabled",
-        oldValue,
-        this.constructor.properties.extendSessionButtonEnabled
-      );
-    }
-  }
-  get extendSessionButtonEnabled() {
-    return this._extendSessionButtonEnabled;
-  }
-
-  set redirectButtonEnabled(newValue) {
-    const oldValue = this.redirectButtonEnabled;
-    this._redirectButtonEnabled = newValue;
-    if (oldValue !== newValue) {
-      this._redirectButtonEnabledChanged(newValue, oldValue);
-      this.requestUpdate(
-        "redirectButtonEnabled",
-        oldValue,
-        this.constructor.properties.redirectButtonEnabled
-      );
-    }
-  }
-  get redirectButtonEnabled() {
-    return this._redirectButtonEnabled;
-  }
-
-  set beforeExpiredMessage(newValue) {
-    const oldValue = this.beforeExpiredMessage;
-    this._beforeExpiredMessage = newValue;
-    if (oldValue !== newValue) {
-      this._beforeExpiredMessageChanged(newValue, oldValue);
-      this.requestUpdate(
-        "beforeExpiredMessage",
-        oldValue,
-        this.constructor.properties.beforeExpiredMessage
-      );
-    }
-  }
-  get beforeExpiredMessage() {
-    return this._beforeExpiredMessage;
-  }
-
-  set redirectButtonCaption(newValue) {
-    const oldValue = this.redirectButtonCaption;
-    this._redirectButtonCaption = newValue;
-    if (oldValue !== newValue) {
-      this._redirectButtonCaptionChanged(newValue, oldValue);
-      this.requestUpdate(
-        "redirectButtonCaption",
-        oldValue,
-        this.constructor.properties.redirectButtonCaption
-      );
-    }
-  }
-  get redirectButtonCaption() {
-    return this._redirectButtonCaption;
-  }
-
-  set redirectButtonUrl(newValue) {
-    const oldValue = this.redirectButtonUrl;
-    this._redirectButtonUrl = newValue;
-    if (oldValue !== newValue) {
-      this._redirectButtonUrlChanged(newValue, oldValue);
-      this.requestUpdate(
-        "redirectButtonUrl",
-        oldValue,
-        this.constructor.properties.redirectButtonUrl
-      );
-    }
-  }
-  get redirectButtonUrl() {
-    return this._redirectButtonUrl;
-  }
-
-  set maxInactiveInterval(newValue) {
-    const oldValue = this.maxInactiveInterval;
-    this._maxInactiveInterval = newValue;
-    if (oldValue !== newValue) {
-      this._maxInactiveIntervalChanged(newValue, oldValue);
-      this.requestUpdate(
-        "maxInactiveInterval",
-        oldValue,
-        this.constructor.properties.maxInactiveInterval
-      );
-    }
-  }
-  get maxInactiveInterval() {
-    return this._maxInactiveInterval;
-  }
-
-  set secondsBeforeNotification(newValue) {
-    const oldValue = this.secondsBeforeNotification;
-    this._secondsBeforeNotification = newValue;
-    if (oldValue !== newValue) {
-      this._secondsBeforeNotificationChanged(newValue, oldValue);
-      this.requestUpdate(
-        "secondsBeforeNotification",
-        oldValue,
-        this.constructor.properties.secondsBeforeNotification
-      );
-    }
-  }
-  get secondsBeforeNotification() {
-    return this._secondsBeforeNotification;
-  }
-
-  set activated(newValue) {
-    const oldValue = this.activated;
-    this._activated = newValue;
-    if (oldValue !== newValue) {
-      this._activatedChanged(newValue, oldValue);
-      this.requestUpdate(
-        "activated",
-        oldValue,
-        this.constructor.properties.activated
-      );
-    }
-  }
-  get activated() {
-    return this._activated;
-  }
-  constructor() {
-    super();
-    this.opened = false;
-    this.closeButtonEnabled = false;
-    this.extendSessionButtonEnabled = false;
-    this.redirectButtonEnabled = false;
-    this.beforeExpiredMessage = "";
-    this.extendSessionButtonCaption = "Stay logged In";
-    this.redirectAtTimeoutEnabled = true;
-    this.afterExpiredMessage = "";
-    this.activated = false;
-    this.extendSessionOnOutsideClick = true;
-    this.closeNotificationOnOutsideClick = false;
-    this._actionsVisibility = "hidden";
-    this._redirectButtonVisibility = "hidden";
-    this._extendSessionButtonVisibility = "hidden";
-    this._headerVisibility = "hidden";
-    this._handleLoadListener = null;
+    return 'idle-notification';
   }
 }
 customElements.define(IdleNotification.is, IdleNotification);

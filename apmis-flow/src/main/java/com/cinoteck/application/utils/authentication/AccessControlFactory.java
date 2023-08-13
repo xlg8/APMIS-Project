@@ -6,6 +6,7 @@ public class AccessControlFactory {
 
     private AccessControlFactory() {
     }
+    
 
     public static AccessControlFactory getInstance() {
         return INSTANCE;

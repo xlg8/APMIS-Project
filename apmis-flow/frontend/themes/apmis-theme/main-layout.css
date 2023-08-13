@@ -646,3 +646,11 @@ vaadin-button:hover {
 .v-button {
    cursor: pointer;
    }
+   
+
+@media (hover: hover) {
+a:hover {
+    color: white!important;
+}
+}
+
