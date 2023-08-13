@@ -238,9 +238,9 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Household Monitoring").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader("ICM Revisits").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM Supervisor Monitoring").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader("ICM HouseHold Monitoring").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader("ICM Team Monitoring").setSortable(true).setResizable(true);
 
 

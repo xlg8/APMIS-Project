@@ -44,6 +44,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -54,6 +55,7 @@ import com.vaadin.ui.Label;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
@@ -680,7 +682,16 @@ public class CampaignDataView extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true)
 				.setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
-		grid.addColumn(CampaignFormDataIndexDto.FORM_DATE)
+		
+		TextRenderer<CampaignFormDataIndexDto> formDateRenderer = new TextRenderer<>(
+			    dto -> {
+			        Date timestamp = dto.getFormDate();
+			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			        return dateFormat.format(timestamp);
+			    }
+			);
+		
+		grid.addColumn(formDateRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.CampaignFormData_formDate)).setSortable(true)
 				.setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.CampaignFormData_formDate));

@@ -95,6 +95,8 @@ public class DistrictView extends VerticalLayout {
 	GridListDataView<DistrictIndexDto> dataView;
 	ListDataProvider<DistrictIndexDto> dataProvider;
 	int itemCount;
+	UserProvider userProvider = new UserProvider();
+
 
 	@SuppressWarnings("deprecation")
 	public DistrictView() {
@@ -140,11 +142,16 @@ public class DistrictView extends VerticalLayout {
 		dataView = grid.setItems(dataProvider);
 //		grid.setDataProvider(filteredDataProvider);
 
+		
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditDistrict(event.getValue());
 			}
 		});
+		}
+		
 		add(grid);
 
 		GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
@@ -381,7 +388,21 @@ public class DistrictView extends VerticalLayout {
 		addNew.addClickListener(event -> {
 			createOrEditDistrict(districtIndexDto);
 		});
-		layout.add(addNew, anchor);
+		
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
+		layout.add(addNew);
+		}
+		
+		Button exportDistrict = new Button("Export");
+		exportDistrict.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportDistrict.addClickListener(e->{
+			anchor.getElement().setAttribute("download", true);
+			anchor.getElement().callJsFunction("click");
+			
+	    });
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
+		layout.add(exportDistrict);
+		}
 		layout.setWidth("88%");
 
 		layout.addClassName("pl-3");
@@ -395,7 +416,9 @@ public class DistrictView extends VerticalLayout {
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		enterBulkEdit.setIcon(bulkModeButtonnIcon);
-		layout.add(enterBulkEdit);
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			layout.add(enterBulkEdit);
+			}
 
 		enterBulkEdit.addClickListener(e -> {
 			dropdownBulkOperations.setVisible(true);

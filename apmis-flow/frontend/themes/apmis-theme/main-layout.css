@@ -654,3 +654,12 @@ a:hover {
 }
 }
 
+
+vaadin-checkbox.custom-checkbox-class{
+	border: 1px solid green;
+}
+
+vaadin-checkbox.custom-checkbox-class label{
+	margin-bottom: 0px !important;
+}
+

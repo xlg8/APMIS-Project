@@ -107,25 +107,18 @@ public class AboutView extends VerticalLayout {
 	    exporter.setTitle(I18nProperties.getString(Strings.apmisJsonGlossary));
 	    exporter.setFileName(I18nProperties.getString(Strings.apmisJsonGlossary) + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
 	    Anchor excelLink= new Anchor("", I18nProperties.getCaption(Captions.exportFormGlossary));
-	    excelLink.setHref(exporter.getCsvStreamResource());
-	    excelLink.getElement().setAttribute("download", true);
+    	excelLink.setHref(exporter.getCsvStreamResource());
+
 		
-		
-//		displayActionButtons.addClickListener(e->{
-//			if(getUserGuide.isVisible() == false) {
-//				getUserGuide.setVisible(true);
-//				getTechnicalGuide.setVisible(true);
-//				excelLink.setVisible(true);
-//				getMobileGuide.setVisible(true);
-//				displayActionButtons.setText("Hide Action Buttons");
-//			}else {
-//			getUserGuide.setVisible(false);
-//			getTechnicalGuide.setVisible(false);
-//			excelLink.setVisible(false);
-//			getMobileGuide.setVisible(false);
-//			displayActionButtons.setText("Show Action Buttons");
-//			} 
-//		});
+	    
+	    Button exportJsonGloassary = new Button(I18nProperties.getCaption(Captions.exportFormGlossary));
+	    exportJsonGloassary.setIcon(new Icon(VaadinIcon.FILE_TABLE));
+	    exportJsonGloassary.addClickListener(e->{
+		    excelLink.getElement().setAttribute("download", true);
+		    excelLink.getElement().callJsFunction("click");
+			
+	    });
+	    
 		
 		getUserGuide.addClickListener(e->{
 			  UI.getCurrent().getPage().open("https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/APMIS_User_Guide.pdf");
@@ -137,7 +130,7 @@ public class AboutView extends VerticalLayout {
 		
 		getMobileGuide.addClickListener(e->{
 			  UI.getCurrent().getPage().open("https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/Apmis_MobileUser_Guide.pdf");
-		});
+		});;
 		
 		excelLink.setClassName("exportJsonGLoss2");
 		
@@ -146,7 +139,7 @@ public class AboutView extends VerticalLayout {
 		buttonsLayout.getStyle().set("padding-left", "90px");
 		buttonsLayout.setWidth("100%");
 //		buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide,  excelLink);
+		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide,exportJsonGloassary);
 		add(buttonsLayout);
 	
 	}

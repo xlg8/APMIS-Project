@@ -156,11 +156,15 @@ public class ClusterView extends VerticalLayout {
 
 		dataView = grid.setItems(dataProvider);
 
+		
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditCluster(event.getValue());
 			}
 		});
+		}
 
 		add(grid);
 
@@ -375,7 +379,21 @@ public class ClusterView extends VerticalLayout {
 		addNew.addClickListener(event -> {
 			createOrEditCluster(communityDto);
 		});
-		layout.add(addNew, anchor);
+		
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
+		layout.add(addNew);
+		}
+		Button exportCluster = new Button("Export");
+		exportCluster.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportCluster.addClickListener(e->{
+			anchor.getElement().setAttribute("download", true);
+			anchor.getElement().callJsFunction("click");
+			
+	    });
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
+		layout.add(exportCluster);
+		}
+//		layout.addComponentAsFirst(anchor);
 		layout.setWidth("75%");
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
@@ -390,7 +408,9 @@ public class ClusterView extends VerticalLayout {
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		enterBulkEdit.setIcon(bulkModeButtonnIcon);
-		layout.add(enterBulkEdit);
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			layout.add(enterBulkEdit);
+			}
 
 		enterBulkEdit.addClickListener(e -> {
 			dropdownBulkOperations.setVisible(true);

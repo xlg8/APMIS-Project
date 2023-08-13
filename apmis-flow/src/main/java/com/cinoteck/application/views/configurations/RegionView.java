@@ -147,12 +147,14 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		dataView = grid.setItems(dataProvider);
 
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
+
 		grid.asSingleSelect().addValueChangeListener(event -> {
 			if (event.getValue() != null) {
 				createOrEditArea(event.getValue());
 			}
 		});
-
+		}
 		add(grid);
 
 		GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
@@ -288,11 +290,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private void addRegionFilter() {
 //		criteria = new AreaCriteria();
 
-		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button("Enter Bulk Edit Mode");
 			leaveBulkEdit = new Button();
 			dropdownBulkOperations = new MenuBar();
-		}
+		
 		setMargin(true);
 		layout.setPadding(false);
 		layout.setVisible(false);
@@ -365,6 +366,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //			updateRowCount();
 
 		});
+		
 
 		Button addNew = new Button("Add New Region");
 		addNew.getElement().getStyle().set("white-space", "normal");
@@ -373,7 +375,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		addNew.addClickListener(event -> {
 			createOrEditArea(areaDto);
 		});
-
+		
 		Button importArea = new Button("Import");
 		importArea.getStyle().set("color", "white");
 		importArea.getStyle().set("background", "#0D6938");
@@ -396,6 +398,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
+			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+			refreshGridData();
 			if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
 				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
@@ -407,9 +411,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				subMenu.removeAll();
 				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk  action ");
 			}
-			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
-			refreshGridData();
-//			updateRowCount();
+			
 
 		});
 		searchField.addClassName("filter-item");
@@ -417,8 +419,23 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		clear.addClassName("filter-item");
 		addNew.addClassName("filter-item");
 		anchor.addClassName("filter-item");
-		layout.add(searchField, relevanceStatusFilter, clear, addNew, anchor);
-
+		layout.add(searchField);
+		layout.add(relevanceStatusFilter);
+		layout.add(clear);
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
+		layout.add(addNew);
+		}
+		
+		Button exportRegion = new Button("Export");
+		exportRegion.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportRegion.addClickListener(e->{
+			anchor.getElement().setAttribute("download", true);
+			anchor.getElement().callJsFunction("click");
+			
+	    });
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
+		layout.add(exportRegion);
+		}
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
 
 
@@ -442,8 +459,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		enterBulkEdit.setIcon(bulkModeButtonnIcon);
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 		layout.add(enterBulkEdit);
-
+		}
 		enterBulkEdit.addClickListener(e -> {
 			dropdownBulkOperations.setVisible(true);
 			grid.setSelectionMode(Grid.SelectionMode.MULTI);

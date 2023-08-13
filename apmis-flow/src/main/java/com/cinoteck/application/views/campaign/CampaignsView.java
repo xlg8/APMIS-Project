@@ -52,6 +52,7 @@ import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
 @PageTitle("APMIS - All Campaigns")
@@ -80,6 +81,9 @@ public class CampaignsView extends VerticalLayout {
 	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
+	
+	private final UserProvider userProvider = new UserProvider();
+
 
 	public CampaignsView() {
 
@@ -96,33 +100,6 @@ public class CampaignsView extends VerticalLayout {
 
 	private void campaignsGrid() {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-
-
-//		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//		
-////		LocalDateTimeRenderer<CampaignIndexDto> dateRenderer = new LocalDateTimeRenderer<>(CampaignIndexDto.START_DATE, dateFormatter.format);
-//		TextRenderer<CampaignIndexDto> dateRenderer = new TextRenderer<>(item -> item.getStartDate().getDate().format(dateFormatter));
-		
-//		 DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//		    TextRenderer<CampaignIndexDto> dateRenderer = new TextRenderer<>(item -> {
-//		        Date startDate = (Date) item.getStartDate(); // Assuming getStartDate() returns a java.util.Date
-//		        LocalDate localDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//		        return localDate.format(dateFormatter);
-//		    });
-		    
-//		    ComponentRenderer<Span, CampaignIndexDto> startDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-//				String value = String.valueOf(reportModelDto.getStartDate()).replace("00:00:00.0", "");
-//				Span label = new Span(value);
-//				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-//				return label;
-//			});
-//		    
-//		    ComponentRenderer<Span, CampaignIndexDto> endDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-//				String value = String.valueOf(reportModelDto.getEndDate()).replace("00:00:00.0", "");
-//				Span label = new Span(value);
-//				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-//				return label;
-//			});
 
 
 		this.criteria = new CampaignCriteria();
@@ -154,10 +131,7 @@ public class CampaignsView extends VerticalLayout {
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader("Relevance Status").setSortable(true).setResizable(true);
 		
-//		LocalDateTimeRenderer<CampaignIndexDto> dateRenderer = new LocalDateTimeRenderer<>(
-//			    CampaignIndexDto.getStartDate(), "dd/MM/yyyy HH:mm:ss");//		dateColumn.setRenderer(dateRenderer);
 
-		
 		
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -167,7 +141,10 @@ public class CampaignsView extends VerticalLayout {
 				.fromStream(FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null).stream());
 
 		dataView = grid.setItems(dataProvider);
+		
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+		}
 		add(grid);
 	}
 
@@ -266,7 +243,13 @@ public class CampaignsView extends VerticalLayout {
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
-		filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
+		
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
+			filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
+		}else {
+			filterToggleLayout.add(filterDisplayToggle, filterLayout);
+		}
+		
 		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);
 

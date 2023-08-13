@@ -2,6 +2,8 @@ package com.cinoteck.application.views.user;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +15,7 @@ import com.cinoteck.application.UserProvider;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -23,27 +26,23 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
-import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.AuthProvider;
+import de.symeda.sormas.api.CountryHelper;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
@@ -91,8 +90,8 @@ public class UserForm extends FormLayout {
 	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(
-			I18nProperties.getCaption(Captions.community));
+//	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(
+//			I18nProperties.getCaption(Captions.community));
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
@@ -100,15 +99,20 @@ public class UserForm extends FormLayout {
 	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
 	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
 	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
+
 	TextField userName = new TextField(I18nProperties.getCaption(Captions.User_userName));
 	Checkbox activeCheck = new Checkbox();
 	private boolean active = true;
 
-	CheckboxGroup<UserType> usertype = new CheckboxGroup(I18nProperties.getCaption(Captions.User_commonUser));
-	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
-	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	Checkbox commusr = new Checkbox(I18nProperties.getCaption(Captions.User_commonUser));
+	private boolean isCommonUser = false;
 	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>(
 			I18nProperties.getCaption(Captions.User_userRoles));
+
+	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
+
+	CheckboxGroup clusterNo = new CheckboxGroup<>();
 
 	Button save = new Button(I18nProperties.getCaption(Captions.actionSave));
 	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
@@ -123,6 +127,12 @@ public class UserForm extends FormLayout {
 	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
 	String initialLastNameValue = "";
 	UserDto usr = new UserDto();
+	static UserProvider currentUser = new UserProvider();
+	Set<UserRole> roles = new HashSet<UserRole>();
+	Set<FormAccess> formAccessesList = new HashSet<FormAccess>();
+	private final UserProvider userProvider = new UserProvider();
+
+	boolean editmode = false;
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user) {
@@ -148,9 +158,7 @@ public class UserForm extends FormLayout {
 	}
 
 	public void configureFields(UserDto user) {
-		this.usr = user;
-		
-		System.out.println(usr + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+		System.out.println(user + " userrrr value in configure field ");
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -166,7 +174,8 @@ public class UserForm extends FormLayout {
 				UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
-		
+
+		suggestUserName(editmode);
 		binder.forField(userEmail).bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
@@ -176,9 +185,38 @@ public class UserForm extends FormLayout {
 
 		binder.forField(userOrganisation).bind(UserDto::getUserOrganisation, UserDto::setUserOrganisation);
 
-		binder.forField(language).bind(UserDto::getLanguage, UserDto::setLanguage);
+		binder.forField(userName).asRequired("Please Fill Out a First and Last Name").bind(UserDto::getUserName,
+				UserDto::setUserName);
+
+		this.setColspan(activeCheck, 2);
+		activeCheck.setLabel("Active ?");
+		activeCheck.setValue(active);
+		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
+
+		commusr.setLabel("Common User ? ");
+
+		binder.forField(commusr).bind(UserDto::isCommomUser, UserDto::setCommomUser);
+
+		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
+				UserDto::setUserRoles);
+		this.setColspan(userRoles, 1);
+
+		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
+		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
+				UserDto::setFormAccess);
+
+		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
+
+		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
+
+		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
+
+//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+
+		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
+
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setItems(regions);
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
@@ -190,7 +228,6 @@ public class UserForm extends FormLayout {
 			}
 		});
 
-		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
 
@@ -199,10 +236,7 @@ public class UserForm extends FormLayout {
 				district.setItems(districts);
 			}
 		});
-		CheckboxGroup checkboxGroup = new CheckboxGroup<>();
-		binder.bind(checkboxGroup, UserDto::getCommunity, UserDto::setCommunity);
 
-		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
 
@@ -210,21 +244,21 @@ public class UserForm extends FormLayout {
 			System.out.println(districtDto + " vvvvvvvddddddDISTRICT CHANGES!!ssssssssssefasdfa:" + e.getValue());
 
 			if (e.getValue() != null) {
-				checkboxGroup.setVisible(true);
-				this.setColspan(checkboxGroup, 2);
+				clusterNo.setVisible(true);
+				this.setColspan(clusterNo, 2);
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 
-				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
-				community.setItems(communities);
+//				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
+//				community.setItems(communities);
 
-				checkboxGroup.setLabel("Cluster Numbers");
+				clusterNo.setLabel("Cluster Numbers");
 				UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
 				currentUser.setCommunity(data);
 				FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
-					
+
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
@@ -232,23 +266,61 @@ public class UserForm extends FormLayout {
 					}
 					Collections.sort(items, CommunityReferenceDto.clusternumber);
 
-					checkboxGroup.setItems(items);
+					clusterNo.setItems(items);
+					clusterNo.getChildren().forEach(checkbox -> {
+//			            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
+						checkbox.getElement().getClassList().add("custom-checkbox-class");
+
+					});
 //		             FieldHelper
 //		                    .updateItems(community, districtDto != null ? items : null);    
 				}
 			}
 		});
 //		checkboxGroup.setValue(UserDto.getCommunitynos());
-		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 
 //		checkboxGroup.setItems(communitiesx);
+//		clusterNo.getChildren().forEach(checkBox -> checkBox.getElement().setProperty("class", "clusterCheckChildren"));
+//.setProperty("id", "clusterCheckChildren");
 
-		checkboxGroup.addValueChangeListener(event -> {
+		clusterNo.getChildren().forEach(checkbox -> {
+//	            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
+			checkbox.getElement().getClassList().add("custom-checkbox-class");
+
+			Boolean isChecked = checkbox.getElement().getAttribute("checked") != null;
+			String label = ((Checkbox) checkbox).getLabel();
+
+			if (isChecked) {
+				System.out.println("Checkbox '" + label + "' is checked.");
+			} else {
+				System.out.println("Checkbox '" + label + "' is not checked.");
+			}
+		});
+
+		clusterNo.setId("checkboxesid");
+		clusterNo.addValueChangeListener(event -> {
+
+			boolean isChecked = ((Checkbox) event).getValue();
+			String label = ((Checkbox) event).getLabel();
+
+			if (isChecked) {
+				System.out.println("Check '" + label + "' is checked.");
+			} else {
+				System.out.println("Check '" + label + "' is not checked.");
+			}
 			// Do something with the selected options (if multiple selection is allowed)
-			HashSet<CommunityReferenceDto> communityDto =  (HashSet<CommunityReferenceDto>) event.getValue();
+			HashSet<CommunityReferenceDto> communityDto = (HashSet<CommunityReferenceDto>) event.getValue();
 			System.out.println(event.getValue() + "rnobrobnrbnornborborobn or");
 			if (event.getValue() != null) {
-				
+
+				boolean isCheckedx = ((Checkbox) event).getValue();
+				String labelx = ((Checkbox) event).getLabel();
+
+				if (isCheckedx) {
+					System.out.println("Checkboxesssss '" + labelx + "' is checked.");
+				} else {
+					System.out.println("Checkboxesssss '" + labelx + "' is not checked.");
+				}
 //			Set<CommunityReferenceDto> data = Collections.sort(items, CommunityReferenceDto.clusternumber);
 			}
 		});
@@ -262,82 +334,91 @@ public class UserForm extends FormLayout {
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
-		binder.forField(userName).asRequired("Please Fill Out a First and Last Name").bind(UserDto::getUserName,
-				UserDto::setUserName);
-
 		// TODO: Change implemenation to only add assignable roles sormas style.
-		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
-		this.setColspan(userRoles, 1);
+//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+		roles.remove(UserRole.BAG_USER);
+		System.out.println(roles + "tttttttttttttttttttttt");
+		userRoles.setItems(roles);
+
+		formAccessesList = UserUiHelper.getAssignableForms();
+		
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+			formAccess.setItems(formAccessesList);
+		} else {
+			formAccessesList.remove(FormAccess.TRAINING);
+			formAccessesList.remove(FormAccess.PCA);
+			formAccessesList.remove(FormAccess.LQAS);
+			formAccessesList.remove(FormAccess.FMS);
+			formAccessesList.remove(FormAccess.FLW);
+			formAccess.setItems(formAccessesList);
+		}
+//		commusr.setValue(isCommonUser);
+
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
-		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		formAccess.setItems(UserUiHelper.getAssignableForms());
+		ComboBox<UserType> userTypes = new ComboBox<UserType>();
 
-		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
-				UserDto::setFormAccess);
+		userTypes.setItems(UserType.values());
 
-		this.setColspan(activeCheck, 2);
-		activeCheck.setLabel("Active ?");
-		activeCheck.setValue(active);
-		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
+		commusr.addValueChangeListener(e -> {
 
-//		usertype.setItems(UserType.values());
-		UserProvider currentUser = UserProvider.getCurrent();
-//		binder.forField(usertype).bind(UserD);
-		
-//		if(currentUser.getUser().getUsertype().equals(UserType.WHO_USER)) {
-//			
-//		}
-		
+			UserProvider currentUser = new UserProvider();
 
-//		usertype.addValueChangeListener(e -> {
-//        	System.out.println((boolean) e.getValue());
-//        	if ((boolean) e.getValue() ==  true ) {
-////        		usertype.setValue(UserType.COMMON_USER);
-//        		userRoles.clear();
-////            	 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
-////            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
-////            	 userRolesRemoval.removeAllItems();
-//        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
-////        		userRoles.re .remove(UserRole.COMMUNITY_INFORMANT);
-////            	 userRoles.getEl;
-////            	 userRolesRemoval.removeItem(UserRole.COMMUNITY_INFORMANT);
-////            	 userRolesRemoval.removeItem(UserRole.AREA_ADMIN_SUPERVISOR);
-////            	 userRolesRemoval.removeItem(UserRole.ADMIN_SUPERVISOR);
-//                 
-//    		}
-//    		else {
-////    			 userTypes.setValue(UserProvider.getCurrent().getUser().getUsertype());
-//        		userRoles.setItems(UserUiHelper.getAssignableRoles(currentUser.getUser().getUserRoles() ));
-//
-////    			 final OptionGroup userRolesRemoval = (OptionGroup) getFieldGroup().getField(UserDto.USER_ROLES);
-////            	 UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
-////            	 userRolesRemoval.removeAllItems();
-////            	 userRolesRemoval.addItems(UserUiHelper.getAssignableRoles(userDto.getUserRoles() ));
-//            	// userRolesRemoval.removeItem(UserRole.ADMIN);
-//    		} 	
-//        	
-//        });
+			System.out.println((boolean) e.getValue());
+			if ((boolean) e.getValue() == true) {
+				userTypes.setValue(UserType.COMMON_USER);
+				roles.remove(UserRole.ADMIN);
+				roles.remove(UserRole.COMMUNITY_INFORMANT);
+				roles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
+				roles.remove(UserRole.ADMIN_SUPERVISOR);
+				roles.remove(UserRole.BAG_USER);
+				roles.remove(UserRole.REST_USER);
+				roles.add(UserRole.REST_USER);
 
-		// this.setColspan(usertype, 2);
+				userRoles.setItems(roles);
+			} else {
+				roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+				roles.remove(UserRole.BAG_USER);
+				userRoles.setItems(roles);
+			}
+
+		});
+
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
-		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
-
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
-				areaType, userData, userName, activeCheck, usertype, userRoles, formAccess, language, region, province,
-				district, community, checkboxGroup,createPassword);
+				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
+				district, clusterNo, createPassword);
 
 		createButtonsLayout();
 	}
 
-	public void suggestUserName() {
-		if (userName.isEmpty()) {
-			userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
+	public void suggestUserName(boolean editMode) {
+
+//		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
+		if (editMode) {
+
+			System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+			lastName.addValueChangeListener(e -> {
+				System.out.println(editMode + "mode ganxxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+//			
+				System.out.println(firstName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+				System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+//
+				System.out.println(userName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+				if (userName.isEmpty()) {
+					userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
+				}
+			});
+
 		}
 	}
 
@@ -346,6 +427,10 @@ public class UserForm extends FormLayout {
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
+
+		lastName.addValueChangeListener(e -> {
+			suggestUserName(true);
+		});
 
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
@@ -373,25 +458,11 @@ public class UserForm extends FormLayout {
 //					formFieldxx.setInvalid(true);
 //					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
 //				} else {
-					fireEvent(new SaveEvent(this, binder.getBean()));
+		fireEvent(new SaveEvent(this, binder.getBean()));
 //				}
 //			}
 //
 //		});
-	}
-
-	public void makeNewPassword(String userUuid, String userEmail, String userName) {
-		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
-
-		if (StringUtils.isBlank(userEmail)
-				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
-			System.out.println(newPassword + "     " + "password");
-			System.out.println(userName + "     " + "username");
-			System.out.println(userEmail + "     " + "email");
-//			new Dialog(newPassword, userName);
-		} else {
-//			showPasswordResetExternalSuccessPopup();
-		}
 	}
 
 	public void setUser(UserDto user) {
@@ -413,6 +484,12 @@ public class UserForm extends FormLayout {
 
 	public static class SaveEvent extends UserFormEvent {
 		SaveEvent(UserForm source, UserDto user) {
+			super(source, user);
+		}
+	}
+
+	public static class UserFieldValueChangeEvent extends UserFormEvent {
+		UserFieldValueChangeEvent(UserForm source, UserDto user) {
 			super(source, user);
 		}
 	}
@@ -442,6 +519,11 @@ public class UserForm extends FormLayout {
 		return addListener(CloseEvent.class, listener);
 	}
 
+	public Registration addUserFieldValueChangeEventListener(
+			ComponentEventListener<UserFieldValueChangeEvent> listener) {
+		return addListener(UserFieldValueChangeEvent.class, listener);
+	}
+
 	// TODO: This algorithm can be written better for good time and space complexity
 	private void updateFieldsByUserRole(Set<UserRole> userRoles) {
 
@@ -452,31 +534,55 @@ public class UserForm extends FormLayout {
 		final boolean useArea = jurisdictionLevel == JurisdictionLevel.AREA || useRegion;
 
 		if (useCommunity) {
-			community.setVisible(true);
+//			community.setVisible(true);
 			district.setVisible(true);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useDistrict) {
-			community.setVisible(false);
+//			community.setVisible(false);
 			district.setVisible(true);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useRegion) {
-			community.setVisible(false);
+//			community.setVisible(false);
 			district.setVisible(false);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useArea) {
-			community.setVisible(false);
+//			community.setVisible(false);
 			district.setVisible(false);
 			province.setVisible(false);
 			region.setVisible(true);
 		} else {
-			community.setVisible(false);
+//			community.setVisible(false);
 			district.setVisible(false);
 			province.setVisible(false);
 			region.setVisible(false);
 		}
 
 	}
+
+	public static Set<UserRole> getAssignableRoles(Set<UserRole> assignedUserRoles) {
+
+		final Set<UserRole> assignedRoles = assignedUserRoles == null ? Collections.emptySet() : assignedUserRoles;
+
+		try {
+			System.out.println(currentUser.getUser().getUserRoles() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Set<UserRole> allRoles = UserRole.getAssignableRoles(UserProvider.getCurrent().getUserRoles());
+
+		if (!FacadeProvider.getConfigFacade().isConfiguredCountry(CountryHelper.COUNTRY_CODE_SWITZERLAND)) {
+			allRoles.remove(UserRole.BAG_USER);
+		}
+
+		Set<UserRole> enabledUserRoles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+
+		allRoles.removeIf(userRole -> !enabledUserRoles.contains(userRole) && !assignedRoles.contains(userRole));
+
+		return allRoles;
+	}
+
 }

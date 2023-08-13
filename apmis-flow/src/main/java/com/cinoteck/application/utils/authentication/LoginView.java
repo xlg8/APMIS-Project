@@ -1,5 +1,6 @@
 package com.cinoteck.application.utils.authentication;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
@@ -8,11 +9,14 @@ import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
+
+import de.symeda.sormas.api.user.UserType;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -26,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 //@CssImport("./styles/shared-styles.css")
 public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private String intendedRoute;
+	private final UserProvider userProvider = new UserProvider();
+
 	/**
 	 * 
 	 */
@@ -90,18 +96,27 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			VaadinSession.getCurrent().getSession().setMaxInactiveInterval ( 
 					( int ) TimeUnit.MINUTES.toSeconds( 1 ) 
 					);
-			
-			
-			System.out.println("__________________________intended root = _________________________________________: "
-					+ intendedRoute);
+		
 			if (intendedRoute != null) {
+				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+					getUI().get().navigate("/campaigndata");
+				}
 				if (intendedRoute.equals("logout")) {
 					getUI().get().navigate("/dashboard");
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
 			}else {
-				getUI().get().navigate("/dashboard");
+//				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+//					getUI().get().navigate("/campaigndata");
+//				}
+//				
+				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER){
+					getUI().get().navigate("/campaigndata");
+				}else {
+					getUI().get().navigate("/dashboard");
+				}
+			
 			}
 //			UI.getCurrent().getPage().reload();
 
@@ -142,4 +157,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
 
 	}
+	
+	
 }

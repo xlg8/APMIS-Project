@@ -137,11 +137,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		dataView = grid.setItems(dataProvider);
 
-		grid.asSingleSelect().addValueChangeListener(event -> {
-			if (event.getValue() != null) {
-				createOrEditProvince(event.getValue());
-			}
-		});
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
+
+			grid.asSingleSelect().addValueChangeListener(event -> {
+				if (event.getValue() != null) {
+					createOrEditProvince(event.getValue());
+				}
+			});
+		}
 
 		add(grid);
 
@@ -183,7 +186,6 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
 
 		}
-		
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		dataProvider = DataProvider
@@ -191,11 +193,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		itemCount = dataProvider.getItems().size();
 
-		
 //		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph("Rows : " + itemCount);
 		countRowItems.setId("rowCount");
-
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
@@ -248,28 +248,24 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
-			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
+//			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
 			regionFilter.setEnabled(false);
 		}
 
 		regionFilter.addValueChangeListener(e -> {
-				criteria.area(regionFilter.getValue());
-				refreshGridData();
-		
+			criteria.area(regionFilter.getValue());
+			refreshGridData();
+
 		});
 
 		layout.add(regionFilter);
 
-		
-		
-		
-		
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel("Relevance");
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE) ) {
+			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
 				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
@@ -286,9 +282,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		});
 		layout.add(relevanceStatusFilter);
-		
-		
-		
+
 		Button resetButton = new Button("Reset Filters");
 		resetButton.addClassName("resetButton");
 		resetButton.addClickListener(e -> {
@@ -316,8 +310,20 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			createOrEditProvince(regionDto);
 		});
 
-		
-		layout.add(addNew, anchor);
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
+			layout.add(addNew);
+		}
+
+		Button exportProvince = new Button("Export");
+		exportProvince.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportProvince.addClickListener(e -> {
+			anchor.getElement().setAttribute("download", true);
+			anchor.getElement().callJsFunction("click");
+
+		});
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
+			layout.add(exportProvince);
+		}
 		layout.setWidth("80%");
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
@@ -331,7 +337,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		enterBulkEdit.setIcon(bulkModeButtonnIcon);
-		layout.add(enterBulkEdit);
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			layout.add(enterBulkEdit);
+		}
 
 		enterBulkEdit.addClickListener(e -> {
 			dropdownBulkOperations.setVisible(true);
@@ -471,7 +479,6 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		saveButton.getStyle().set("margin-right", "10px");
 
 		if (regionDto != null) {
-			
 
 			dto = new RegionDto();
 			String regionUUid = regionDto.getUuid();
@@ -487,8 +494,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());
 				archiveDearchiveConfirmation.setConfirmText("Yes");
 				archiveDearchiveConfirmation.open();
-				
-				
+
 				if (regionDto != null) {
 					uuidsz = dto.getUuid();
 
@@ -496,7 +502,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					if (uuidsz != null) {
 						if (isArchived == true) {
 							archiveDearchiveConfirmation.setHeader("De-Archive Province");
-							archiveDearchiveConfirmation.setText("Are you sure you want to De-archive the selected Province? ");
+							archiveDearchiveConfirmation
+									.setText("Are you sure you want to De-archive the selected Province? ");
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().dearchive(uuidsz);
