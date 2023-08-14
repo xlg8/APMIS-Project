@@ -173,7 +173,7 @@ public class ClusterView extends VerticalLayout {
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName(
-				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Clusters" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -391,7 +391,7 @@ public class ClusterView extends VerticalLayout {
 			
 	    });
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(exportCluster);
+		layout.add(anchor);
 		}
 //		layout.addComponentAsFirst(anchor);
 		layout.setWidth("75%");

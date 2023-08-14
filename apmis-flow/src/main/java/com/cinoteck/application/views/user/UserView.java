@@ -196,7 +196,7 @@ public class UserView extends VerticalLayout {
 			
 	    });
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(exportUsers);
+		layout.add(anchor);
 		}
 
 //		layout.add(anchor);

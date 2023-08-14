@@ -152,7 +152,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle("Users");
 		exporter.setFileName(
-				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Provinces" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -318,11 +318,11 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		exportProvince.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportProvince.addClickListener(e -> {
 			anchor.getElement().setAttribute("download", true);
-			anchor.getElement().callJsFunction("click");
+			anchor.getElement().callJsFunction("click();");
 
 		});
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(exportProvince);
+			layout.add(anchor);
 		}
 		layout.setWidth("80%");
 		layout.addClassName("pl-3");

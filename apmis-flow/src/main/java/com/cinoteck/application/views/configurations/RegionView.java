@@ -95,7 +95,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
 	Button leaveBulkEdit = new Button("Leave Bulk Edit");
 	Paragraph countRowItems;
-
+	Button exportRegion = new Button("Export");
 	List<AreaDto> data;
 	MenuBar dropdownBulkOperations = new MenuBar();
 	SubMenu subMenu ;
@@ -165,6 +165,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
+		
 		anchor.setClassName("exportJsonGLoss");
 		anchor.setId("exportArea");
 		Icon icon = VaadinIcon.UPLOAD_ALT.create();
@@ -426,15 +427,32 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.add(addNew);
 		}
 		
-		Button exportRegion = new Button("Export");
+		
 		exportRegion.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportRegion.addClickListener(e->{
+			GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
+			exporter.setAutoAttachExportButtons(false);
+			exporter.setTitle("Users");
+			exporter.setFileName(
+					"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+
+			anchor.setHref(exporter.getCsvStreamResource());
 			anchor.getElement().setAttribute("download", true);
-			anchor.getElement().callJsFunction("click");
 			
+			anchor.setClassName("exportJsonGLoss");
+			anchor.setId("exportArea");
+			Icon icon = VaadinIcon.UPLOAD_ALT.create();
+			icon.getStyle().set("margin-right", "8px");
+			icon.getStyle().set("font-size", "10px");
+
+			anchor.setVisible(false);
+			anchor.getElement().insertChild(0, icon.getElement());
+			
+			
+			 anchor.getElement().callJsFunction("click");
 	    });
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(exportRegion);
+		layout.add(anchor);
 		}
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
 
