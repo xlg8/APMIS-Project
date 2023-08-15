@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -31,6 +32,8 @@ import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.cinoteck.application.UserProvider;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 
 //import org.hibernate.internal.build.AllowSysOut;
@@ -110,34 +113,32 @@ public class CampaignFormBuilder extends VerticalLayout {
 	List<CommunityReferenceDto> communities;
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
 	UserProvider currentUser = new UserProvider();
-	
+
 	private ExpressionProcessor expressionProcessor;
-	
+
 	private final ExpressionParser expressionParser = new SpelExpressionParser();
 
-
 	private boolean invalidForm = false;
-	
+
 	private boolean openedOnce = false;
 
 	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
 	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
 	ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
 	ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
-	
+
 	FormLayout vertical = new FormLayout();
 
 	DatePicker formDate = new DatePicker();
 	private boolean openData = false;
 	private String uuidForm;
-	
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
 			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
 			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm) {
-		
-		System.out.println("+++++++++++CampaignFormBuilder+++++: "+openData);
-		
+
+		System.out.println("+++++++++++CampaignFormBuilder+++++: " + openData);
+
 		this.openData = openData;
 		this.uuidForm = uuidForm;
 		this.formElements = formElements;
@@ -187,7 +188,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbDistrict.setRequired(true);
 		cbCommunity.setEnabled(false);
 		cbCommunity.setRequired(true);
-		
+
 		cbArea.setRequired(true);
 		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
@@ -240,59 +241,59 @@ public class CampaignFormBuilder extends VerticalLayout {
 				cbCommunity.setEnabled(false);
 			}
 		});
-		
-		
-		
 
 		cbCommunity.addValueChangeListener(e -> {
-			
-		if(!openData) {
-			if (cbCommunity.getValue() != null && cbDistrict.getValue() != null && !openedOnce) {
-				openedOnce = true;
-				CampaignFormMetaDto campaignForm = FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetaByUuid(campaignFormMeta.getUuid());
 
-				CampaignDto campaign = FacadeProvider.getCampaignFacade()
-						.getByUuid(campaignReferenceDto.getUuid());
+			if (!openData) {
+				if (cbCommunity.getValue() != null && cbDistrict.getValue() != null && !openedOnce) {
+					openedOnce = true;
+					CampaignFormMetaDto campaignForm = FacadeProvider.getCampaignFormMetaFacade()
+							.getCampaignFormMetaByUuid(campaignFormMeta.getUuid());
 
-				CommunityReferenceDto community = (CommunityReferenceDto) cbCommunity.getValue();
-				
-				CommunityDto comdto = FacadeProvider.getCommunityFacade().getByUuid(community.getUuid());
-				
-				String formuuid = FacadeProvider.getCampaignFormDataFacade().getByClusterDropDown(community,
-						campaignForm, campaign);
-				
-				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
-				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
+					CampaignDto campaign = FacadeProvider.getCampaignFacade().getByUuid(campaignReferenceDto.getUuid());
+
+					CommunityReferenceDto community = (CommunityReferenceDto) cbCommunity.getValue();
+
+					CommunityDto comdto = FacadeProvider.getCommunityFacade().getByUuid(community.getUuid());
+
+					String formuuid = FacadeProvider.getCampaignFormDataFacade().getByClusterDropDown(community,
+							campaignForm, campaign);
+
+					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
+							comdto.getExternalId());
+					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
+							comdto.getExternalId());
 //				
-				System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session |"+formuuid+"| >>>>>>"+comdto.getClusterNumber());
+					System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
+							+ "| >>>>>>" + comdto.getClusterNumber());
 //				
 
-				if (!formuuid.equals("nul")) {
-					
-					CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade().getCampaignFormDataByUuid(formuuid);
-					
-					if (formData.getFormValues() != null) {
-						
-						formData.getFormValues().forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
+					if (!formuuid.equals("nul")) {
+
+						CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+								.getCampaignFormDataByUuid(formuuid);
+
+						if (formData.getFormValues() != null) {
+
+							formData.getFormValues()
+									.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
+						}
+
+						// setFormValues(formData.getFormValues());
+						remove(vertical);
+						buildForm(false);
+						vertical.setVisible(true);
+
+					} else {
+						buildForm(true);
+						vertical.setVisible(true);
 					}
-					
-					
-					//setFormValues(formData.getFormValues());
-					remove(vertical);
-					buildForm(false);
-					vertical.setVisible(true);
-					
-				} else {
-					buildForm(true);
-					vertical.setVisible(true);
 				}
+
 			}
-			
-		}
-			
+
 			// this should open the rest of the form
-			
+
 //			dataView.addFilter(t -> t.getCommunity().toString().equalsIgnoreCase(clusterCombo.getValue().toString()));
 		});
 
@@ -338,9 +339,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 			cbCommunity.setItems(districts);
 		}
 
-		
-		System.out.println("++++++++++++++++: "+openData);
-		if(openData) {
+		System.out.println("++++++++++++++++: " + openData);
+		if (openData) {
 //			CampaignFormMetaDto campaignForm = FacadeProvider.getCampaignFormMetaFacade()
 //					.getCampaignFormMetaByUuid(campaignFormMeta.getUuid());
 
@@ -353,42 +353,40 @@ public class CampaignFormBuilder extends VerticalLayout {
 //			
 //			String formuuid = FacadeProvider.getCampaignFormDataFacade().getByClusterDropDown(community,
 //					campaignForm, campaign);
-			
-				
-				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade().getCampaignFormDataByUuid(uuidForm);
-				
-				
-				LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-				
-				formDate.setValue(localDate);
-				cbArea.clear();
-				cbArea.setValue(formData.getArea());
-				cbRegion.clear();
-				cbRegion.setValue(formData.getRegion());
-				cbDistrict.clear();
-				cbDistrict.setValue(formData.getDistrict());
-				cbCommunity.clear();
-				cbCommunity.setValue(formData.getCommunity());
-				
-				if (formData.getFormValues() != null) {
-					
-					formData.getFormValues().forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
-				}
-				
-				
-				//setFormValues(formData.getFormValues());
-				buildForm(false);
-				vertical.setVisible(true);
-				
-			
+
+			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+					.getCampaignFormDataByUuid(uuidForm);
+
+			LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+			formDate.setValue(localDate);
+			cbArea.clear();
+			cbArea.setValue(formData.getArea());
+			cbRegion.clear();
+			cbRegion.setValue(formData.getRegion());
+			cbDistrict.clear();
+			cbDistrict.setValue(formData.getDistrict());
+			cbCommunity.clear();
+			cbCommunity.setValue(formData.getCommunity());
+
+			if (formData.getFormValues() != null) {
+
+				formData.getFormValues()
+						.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
+			}
+
+			// setFormValues(formData.getFormValues());
+			buildForm(false);
+			vertical.setVisible(true);
+
 			cbArea.setEnabled(false);
 			cbRegion.setEnabled(false);
 			cbDistrict.setEnabled(false);
 			cbCommunity.setEnabled(false);
 			formDate.setEnabled(false);
-		
+
 		}
-		
+
 	}
 
 	public void buildForm(boolean isNewForm) {
@@ -398,7 +396,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		int ii = 0;
 		// System.out.println("Got one____");
-		
+
 		TabSheet accrd = new TabSheet();
 		accrd.setHeight(750, Unit.PIXELS);
 
@@ -515,7 +513,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					toggle.setId(formElement.getId());
 					toggle.setSizeFull();
 					toggle.setRequiredIndicatorVisible(formElement.isImportant());
-					toggle.setLabelAsHtml(formElement.getCaption() + " : No ");
+					toggle.setLabelAsHtml(formElement.getCaption() );
 
 					toggle.addValueChangeListener(evt -> toggle
 							.setLabel(formElement.getCaption() + " : " + (evt.getValue() == true ? "YES " : "NO ")));
@@ -523,7 +521,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type);
@@ -541,7 +539,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(textField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(textField);
 					fields.put(formElement.getId(), textField);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(textField, dependingOnId, dependingOnValues, type);
@@ -666,7 +664,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 							// care by expression
 						}
 					}
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(integerField, dependingOnId, dependingOnValues, type);
@@ -684,7 +682,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 							null);
 					vertical.add(bigDecimalField);
 					fields.put(formElement.getId(), bigDecimalField);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(bigDecimalField, dependingOnId, dependingOnValues, type);
@@ -700,7 +698,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(textArea, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(textArea);
 					fields.put(formElement.getId(), textArea);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(textArea, dependingOnId, dependingOnValues, type);
@@ -719,7 +717,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(radioGroup, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(radioGroup);
 					fields.put(formElement.getId(), radioGroup);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(radioGroup, dependingOnId, dependingOnValues, type);
@@ -741,7 +739,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(radioGroupVert, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(radioGroupVert);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(radioGroupVert, dependingOnId, dependingOnValues, type);
@@ -751,18 +749,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
 
-					// campaignFormElementOptions.getOptionsListValues();
-
 					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
 							.getOptionsListValues();
+				
 
-					select.setItems(data.keySet().stream().collect(Collectors.toList()));
+					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
+					System.out.println(data + "drp[oksnfonsofnosnfon orderrrrrr" + sortedKeys);
+
+					select.setItems(sortedKeys);
 
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					setFieldValue(select, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(select);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(select, dependingOnId, dependingOnValues, type);
@@ -784,7 +784,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 							null);
 					vertical.add(checkboxGroup);
 					fields.put(formElement.getId(), checkboxGroup);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type);
@@ -807,7 +807,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 							null);
 					vertical.add(checkboxGroup);
 					fields.put(formElement.getId(), checkboxGroup);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type);
@@ -826,12 +826,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(datePicker, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(datePicker);
 					fields.put(formElement.getId(), datePicker);
-					
+
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						setVisibilityDependency(datePicker, dependingOnId, dependingOnValues, type);
 					}
-					
+
 				}
 
 //needed
@@ -879,7 +879,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			break;
 		case RANGE:
-			
+
 			boolean isExxpression = false;
 			if (defaultErrorMsgr != null) {
 				if (defaultErrorMsgr.toString().endsWith("..")) {
@@ -894,10 +894,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 				Object tempz = defaultErrorMsgr != null ? defaultErrorMsgr
 						: "Data entered not in range or calculated rangexxx!";
 				String lb = field.getElement().getProperty("label");
-				
-				//clear the input
-				//field.getElement().executeJs("this.inputElement.value = ''");
-				
+
+				// clear the input
+				// field.getElement().executeJs("this.inputElement.value = ''");
+
 				field.getElement().setProperty("invalid", true);
 				field.getElement().setProperty("label", lb == null ? "" : lb);
 				field.getElement().setProperty("errorMessage", defaultErrorMsgr != null ? defaultErrorMsgr.toString()
@@ -905,8 +905,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				// Notification.show("Error found", tempz.toString(),
 				// Notification.TYPE_TRAY_NOTIFICATION);
-			} 
-			
+			}
+
 			if (value != null) {
 				((IntegerField) field).setValue(Integer.parseInt(value.toString()));
 
@@ -916,12 +916,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 				((IntegerField) field).setValue(null);
 			}
 
-		//	((IntegerField) field).setValue(value != null ? Integer.parseInt(value.toString()) : defaultvalue != null ? Integer.parseInt(defaultvalue) : null);
+			// ((IntegerField) field).setValue(value != null ?
+			// Integer.parseInt(value.toString()) : defaultvalue != null ?
+			// Integer.parseInt(defaultvalue) : null);
 
-			
 			break;
 		case TEXT:
-			
+
 			if (value != null) {
 				((TextField) field).setValue(value.toString());
 
@@ -931,7 +932,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 			break;
 		case NUMBER:
 
-			
 			if (value != null) {
 				((NumberField) field).setValue(Double.parseDouble(value.toString()));
 
@@ -968,13 +968,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 				try {
 
 					String vc = value + "";
-					
-					
-					 System.out.println(vc.isEmpty()+ "@@@="+vc.equals("")+"=="+vc != ""+"@@ date to parse |"+value+"|");
-						
-						if(vc != "" || !vc.isEmpty() || !vc.equals("")) {
+
+					System.out.println(vc.isEmpty() + "@@@=" + vc.equals("") + "==" + vc != "" + "@@ date to parse |"
+							+ value + "|");
+
+					if (vc != "" || !vc.isEmpty() || !vc.equals("")) {
 						Date dst = vc.contains("00:00:00") ? dateFormatter(value) : dateFormatterLongAndMobile(value);
-	
+
 						LocalDate value_Date = dst.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 						((DatePicker) field).setValue(value_Date);
 					}
@@ -1122,45 +1122,43 @@ public class CampaignFormBuilder extends VerticalLayout {
 		DateFormat formatterx = new SimpleDateFormat("dd/MM/yyyy");
 		DateFormat formatterxn = new SimpleDateFormat("yyyy-MM-dd");
 		Date date;
-		 System.out.println("date in question " + value); 
+		System.out.println("date in question " + value);
 		// +++++++++++++++++++++++===========
 //date = (Date) formatterxn.parse(dateStr);
-		 try {
-				date = (Date) formatterxn.parse(dateStr);
-			} catch (ParseException ne) {
-				System.out.println("date wont parse on " + ne.getMessage());
-				try {
-					date = (Date) formatter.parse(dateStr);
-				} catch (ParseException e) {
-					System.out.println("date wont parse on " + e.getMessage());
+		try {
+			date = (Date) formatterxn.parse(dateStr);
+		} catch (ParseException ne) {
+			System.out.println("date wont parse on " + ne.getMessage());
 			try {
-				date = (Date) formatter_.parse(dateStr);
-			} catch (ParseException ex) {
-				System.out.println("date wont parse on " + ex.getMessage());
+				date = (Date) formatter.parse(dateStr);
+			} catch (ParseException e) {
+				System.out.println("date wont parse on " + e.getMessage());
 				try {
-					date = (Date) formatter_x.parse(dateStr);
-				} catch (ParseException edz) {
-					System.out.println("date wont parse on " + edz.getMessage());
+					date = (Date) formatter_.parse(dateStr);
+				} catch (ParseException ex) {
+					System.out.println("date wont parse on " + ex.getMessage());
 					try {
-						date = (Date) formatterx.parse(dateStr);
-					} catch (ParseException ed) {
-						System.out.println("date wont parse on " + ed.getMessage());
-
+						date = (Date) formatter_x.parse(dateStr);
+					} catch (ParseException edz) {
+						System.out.println("date wont parse on " + edz.getMessage());
 						try {
-							date = (Date) formattercx.parse(dateStr);
-						} catch (ParseException edx) {
-							System.out.println("date wont parse on " + edx.getMessage());
-							
+							date = (Date) formatterx.parse(dateStr);
+						} catch (ParseException ed) {
+							System.out.println("date wont parse on " + ed.getMessage());
+
+							try {
+								date = (Date) formattercx.parse(dateStr);
+							} catch (ParseException edx) {
+								System.out.println("date wont parse on " + edx.getMessage());
+
 								date = new Date((Long) value);
-								
-						
-							
+
+							}
 						}
 					}
 				}
 			}
 		}
-			}
 		return date;
 	}
 
@@ -1242,14 +1240,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 //		System.out.println(Boolean.TRUE.equals(((ToggleButton) dependingOnField).getValue()) + "======= == =========: "
 //				+ Boolean.TRUE.equals(((ToggleButton) dependingOnField).getValue()));
 		if (dependingOnField instanceof ToggleButton) {
-		//	System.out.println("========getOptio");
-			
+			// System.out.println("========getOptio");
+
 			String stringValue = Boolean.TRUE.equals(((ToggleButton) dependingOnField).getValue()) ? "Yes" : "No";
 
 			return dependingOnValuesList.stream().anyMatch(v ->
 			// v.toString().equalsIgnoreCase(booleanValue) ||
 			v.toString().equalsIgnoreCase(stringValue));
-			
+
 		} else {
 
 			return dependingOnValuesList.stream().anyMatch(
@@ -1264,14 +1262,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 		}
 
 		if (dependingOnField instanceof ToggleButton) {
-		//	String booleanValue = Boolean.TRUE.equals(((ToggleButton) dependingOnField).getValue()) ? "false" : "true";
+			// String booleanValue = Boolean.TRUE.equals(((ToggleButton)
+			// dependingOnField).getValue()) ? "false" : "true";
 			String stringValue = Boolean.TRUE.equals(((ToggleButton) dependingOnField).getValue()) ? "no" : "yes";
 
-			return dependingOnValuesList.stream()
-					.anyMatch(v -> 
+			return dependingOnValuesList.stream().anyMatch(v ->
 //					v.toString().replaceAll("!", "").equalsIgnoreCase(booleanValue)
 //							||
-							v.toString().replaceAll("!", "").equalsIgnoreCase(stringValue));
+			v.toString().replaceAll("!", "").equalsIgnoreCase(stringValue));
 		} else {
 
 			return dependingOnValuesList.stream().anyMatch(v -> !v.toString().replaceAll("!", "")
@@ -1290,12 +1288,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 	public List<CampaignFormDataEntry> getFormValues() {
 		return fields.keySet().stream().map(id -> {
 			Component field = fields.get(id);
-			
+
 			if (field instanceof DatePicker) {
-				System.out.println(((DatePicker) field).getValue() +"______________________))");
-				
-				String valc = ((DatePicker) field).getValue() != null ? ((DatePicker) field).getValue().toString() : null;
-				
+				System.out.println(((DatePicker) field).getValue() + "______________________))");
+
+				String valc = ((DatePicker) field).getValue() != null ? ((DatePicker) field).getValue().toString()
+						: null;
+
 				return new CampaignFormDataEntry(id, valc);
 			} else if (field instanceof ToggleButton) {
 
@@ -1326,7 +1325,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 		fields.forEach((key, value) -> {
 			Component formField = fields.get(key);
 
-
 			if (cbArea.getValue() == null) {
 				cbArea.getElement().setProperty("invalid", true);
 				hasErrorFormValues(1);
@@ -1343,7 +1341,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				cbCommunity.getElement().setProperty("invalid", true);
 				hasErrorFormValues(4);
 			}
-			
+
 			if (formDate.getValue() == null) {
 				formDate.getElement().setProperty("invalid", true);
 				hasErrorFormValues(5);
@@ -1401,48 +1399,48 @@ public class CampaignFormBuilder extends VerticalLayout {
 //	}
 	public void hasErrorFormValues(int numer) {
 //		Notification.show("dddddddddddddddd: "+numer);
- 		invalidForm = true;
+		invalidForm = true;
 
 	}
 
 	public boolean saveFormValues() {
 		validateAndSave();
 		if (!invalidForm) {
-			if(openData) {
+			if (openData) {
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-				
-				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade().getCampaignFormDataByUuid(uuidForm);
-				
-				//maybe we want to check the name of the updating user here
-				//dataDto.setCreatingUser(userProvider.getUserReference());
+
+				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
+						.getCampaignFormDataByUuid(uuidForm);
+
+				// maybe we want to check the name of the updating user here
+				// dataDto.setCreatingUser(userProvider.getUserReference());
 				dataDto.setFormValues(entries);
-				
+
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
-					return true;
-			}else {
-			UserProvider userProvider = new UserProvider();
-			List<CampaignFormDataEntry> entries = getFormValues();
-			CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
-					cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
+				return true;
+			} else {
+				UserProvider userProvider = new UserProvider();
+				List<CampaignFormDataEntry> entries = getFormValues();
+				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
+						cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
 
 				// construct the newForm data and send
-				 LocalDate todday = LocalDate.now();
-				 
-				 Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
-				 
-				 
+				LocalDate todday = LocalDate.now();
+
+				Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 				dataDto.setFormDate(dateData);
 				dataDto.setCreatingUser(userProvider.getUserReference());
 				dataDto.setFormValues(entries);
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
-					return true;
+				return true;
 			}
 		} else {
 			// add notuification here for error in form
-			//Notification.show("jhgfdsdfghjkjhgfdfghj");
+			// Notification.show("jhgfdsdfghjkjhgfdfghj");
 
 		}
 		return false;
@@ -1455,23 +1453,21 @@ public class CampaignFormBuilder extends VerticalLayout {
 			((AbstractField) field).setValue(formValuesMap.get(key));
 		});
 	}
-	
+
 	public void setFormValues(List<CampaignFormDataEntry> formValuex) {
-	 Map<String, Object> formValuesMapSet = new HashMap<>();
+		Map<String, Object> formValuesMapSet = new HashMap<>();
 		if (formValuex != null) {
 			formValuex.forEach(formValue -> formValuesMapSet.put(formValue.getId(), formValue.getValue()));
 		}
-		
+
 		fields.keySet().forEach(key -> {
 			Component field = fields.get(key);
-			if(field instanceof NumberField) {
-				
+			if (field instanceof NumberField) {
+
 			}
 			((AbstractField) field).setValue(formValuesMapSet.get(key));
 		});
 	}
-	
-	
 
 	public List<CampaignFormElement> getFormElements() {
 		return formElements;
@@ -1480,90 +1476,93 @@ public class CampaignFormBuilder extends VerticalLayout {
 	public Map<String, Component> getFields() {
 		return fields;
 	}
-	
-	//Expression Logics
-	
+
+	// Expression Logics
+
 	private void checkExpression() {
-		//	System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-			
-			EvaluationContext context = refreshEvaluationContext(getFormValues());
-			final List<CampaignFormElement> formElements = getFormElements();
-			formElements.stream().filter(element -> element.getExpression() != null).forEach(e -> {
-				try {
-					final Expression expression = expressionParser.parseExpression(e.getExpression());
-					//System.out.println("------: "+expression.getExpressionString());
-					final Class<?> valueType = expression.getValueType(context);
-					final Object value = expression.getValue(context, valueType); 
-					//final Object valx = Precision.round((double) value, 3);
-					//final List <String> opt = null;
-					//System.out.println(value + "| range? "+e.getType().toString().equals("range")+ " value:  "+expression.getValue(context));
-					String valuex = value +"";
-				
-					if(!valuex.isBlank() && value != null) {
-					if(e.getType().toString().equals("range")) {
-						
-						if(value.toString().equals("0")) { 
-							setFieldValue(getFields().get(e.getId()), 
-									CampaignFormElementType.fromString(e.getType()),
-									null,
-									null, null, false, e.getErrormessage() != null ? e.getCaption() +" : "+e.getErrormessage() +".." : "..");
-							//return;
+		// System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+
+		EvaluationContext context = refreshEvaluationContext(getFormValues());
+		final List<CampaignFormElement> formElements = getFormElements();
+		formElements.stream().filter(element -> element.getExpression() != null).forEach(e -> {
+			try {
+				final Expression expression = expressionParser.parseExpression(e.getExpression());
+				// System.out.println("------: "+expression.getExpressionString());
+				final Class<?> valueType = expression.getValueType(context);
+				final Object value = expression.getValue(context, valueType);
+				// final Object valx = Precision.round((double) value, 3);
+				// final List <String> opt = null;
+				// System.out.println(value + "| range?
+				// "+e.getType().toString().equals("range")+ " value:
+				// "+expression.getValue(context));
+				String valuex = value + "";
+
+				if (!valuex.isBlank() && value != null) {
+					if (e.getType().toString().equals("range")) {
+
+						if (value.toString().equals("0")) {
+							setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
+									null, null, null, false,
+									e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() + ".."
+											: "..");
+							// return;
 						} else {
-							
+
 							Boolean isErrored = value.toString().endsWith(".0");
-						//	System.out.println(e.getCaption() +" : "+value+" = naija bet: Success vs Mathew " + isErrored);
-							
-							setFieldValue(getFields().get(e.getId()), 
-									CampaignFormElementType.fromString(e.getType()),
-									value.toString().endsWith(".0") ? value.toString().replace(".0", "") : value,
-									null, null, isErrored, e.getErrormessage() != null ? e.getCaption() +" : "+e.getErrormessage() +".." : "..");
-							//return;
+							// System.out.println(e.getCaption() +" : "+value+" = naija bet: Success vs
+							// Mathew " + isErrored);
+
+							setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
+									value.toString().endsWith(".0") ? value.toString().replace(".0", "") : value, null,
+									null, isErrored,
+									e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() + ".."
+											: "..");
+							// return;
 						}
-						
-						
-					
-							
-						} else if(valueType.isAssignableFrom(Double.class)) {
-						//System.out.println("yes double detected "+Double.isFinite((double) value) +" = "+ value);
-					setFieldValue(getFields().get(e.getId()), 
-								CampaignFormElementType.fromString(e.getType()),
-								!Double.isFinite((double) value) ? 0 : value.toString().endsWith(".0") ? value.toString().replace(".0", "") : Precision.round((double) value, 2),
-										null, null, false, e.getErrormessage() != null ? e.getCaption() +" : "+e.getErrormessage() : null);
-				//	return;
-					} else if(valueType.isAssignableFrom(Boolean.class)) {
-						setFieldValue(getFields().get(e.getId()), 
-								CampaignFormElementType.fromString(e.getType()), value,
-										null, null, false, e.getErrormessage() != null ? e.getCaption() +" : "+e.getErrormessage() : null);
-					//	return;
-					//	
+
+					} else if (valueType.isAssignableFrom(Double.class)) {
+						// System.out.println("yes double detected "+Double.isFinite((double) value) +"
+						// = "+ value);
+						setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
+								!Double.isFinite((double) value) ? 0
+										: value.toString().endsWith(".0") ? value.toString().replace(".0", "")
+												: Precision.round((double) value, 2),
+								null, null, false,
+								e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() : null);
+						// return;
+					} else if (valueType.isAssignableFrom(Boolean.class)) {
+						setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
+								value, null, null, false,
+								e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() : null);
+						// return;
+						//
 					} else {
-						
-						setFieldValue(getFields().get(e.getId()), 
-								CampaignFormElementType.fromString(e.getType()), value,
-										null, null, false, e.getErrormessage() != null ? e.getCaption() +" : "+e.getErrormessage() : null);
-						
+
+						setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
+								value, null, null, false,
+								e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() : null);
+
 					}
-					} else if(e.getType().toString().equals("range") && valuex == null && e.getDefaultvalue() != null) {
-						
-						//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++============================");
-						
-					}
-				} catch (SpelEvaluationException evaluationException) {
-					//LOG.error("Error evaluating expression: {} / {}", evaluationEx0rception.getMessageCode(), evaluationException.getMessage());
+				} else if (e.getType().toString().equals("range") && valuex == null && e.getDefaultvalue() != null) {
+
+					// System.out.println("++++++++++++++++++++++++++++++++++++++++++++++============================");
+
 				}
-			});
-			
-		}
-	
+			} catch (SpelEvaluationException evaluationException) {
+				// LOG.error("Error evaluating expression: {} / {}",
+				// evaluationEx0rception.getMessageCode(), evaluationException.getMessage());
+			}
+		});
+
+	}
+
 	public void disableExpressionFieldsForEditing() {
 		final Map<String, Component> fields_ = getFields();
-		getFormElements()
-			.stream()
-			.filter(formElement -> formElement.getExpression() != null)
-			.filter(formElement -> fields_.get(formElement.getId()) != null)
-			.filter(formElement -> !formElement.getType().equals("range"))
-			.filter(formElement -> !formElement.isIgnoredisable())
-			.forEach(formElement -> ((AbstractField) fields_.get(formElement.getId())).setEnabled(false));
+		getFormElements().stream().filter(formElement -> formElement.getExpression() != null)
+				.filter(formElement -> fields_.get(formElement.getId()) != null)
+				.filter(formElement -> !formElement.getType().equals("range"))
+				.filter(formElement -> !formElement.isIgnoredisable())
+				.forEach(formElement -> ((AbstractField) fields_.get(formElement.getId())).setEnabled(false));
 		addExpressionListener();
 	}
 
@@ -1571,22 +1570,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 		final Map<String, Component> fields_ = getFields();
 		final List<CampaignFormElement> formElements = getFormElements();
 		formElements.stream()
-			//.filter(formElement -> formElement.getExpression() == null)
-			.filter(formElement -> fields_.get(formElement.getId()) != null)
-			.forEach(formElement -> {
-				((AbstractField) fields_.get(formElement.getId())).addValueChangeListener(valueChangeEvent -> checkExpression());
-			});
+				// .filter(formElement -> formElement.getExpression() == null)
+				.filter(formElement -> fields_.get(formElement.getId()) != null).forEach(formElement -> {
+					((AbstractField) fields_.get(formElement.getId()))
+							.addValueChangeListener(valueChangeEvent -> checkExpression());
+				});
 		configureExpressionFieldsWithTooltip();
 	}
 
 	public void configureExpressionFieldsWithTooltip() {
 		final Map<String, Component> fields = getFields();
-		getFormElements()
-			.stream()
-			.filter(formElement -> formElement.getExpression() != null)
-			.filter(formElement -> fields.get(formElement.getId()) != null)
-			.filter(formElement -> fields.get(formElement.getId()) instanceof Component)
-			.forEach(this::buildTooltipDescription);
+		getFormElements().stream().filter(formElement -> formElement.getExpression() != null)
+				.filter(formElement -> fields.get(formElement.getId()) != null)
+				.filter(formElement -> fields.get(formElement.getId()) instanceof Component)
+				.forEach(this::buildTooltipDescription);
 	}
 
 	private void buildTooltipDescription(CampaignFormElement formElement) {
@@ -1600,10 +1597,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 		});
 		Tooltip tooltipx = Tooltip.forComponent(field)
-		        .withText(String.format("%s: %s", I18nProperties.getDescription(Descriptions.Campaign_calculatedBasedOn), StringUtils.join(fieldNamesInExpression, ", ")))
-		        .withPosition(Tooltip.TooltipPosition.TOP_START);
-		
-		//field.set .setDescription();
+				.withText(
+						String.format("%s: %s", I18nProperties.getDescription(Descriptions.Campaign_calculatedBasedOn),
+								StringUtils.join(fieldNamesInExpression, ", ")))
+				.withPosition(Tooltip.TooltipPosition.TOP_START);
+
+		// field.set .setDescription();
 	}
 
 }

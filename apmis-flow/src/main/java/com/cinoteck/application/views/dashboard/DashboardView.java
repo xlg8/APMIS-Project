@@ -54,7 +54,7 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
-@PageTitle("APMIS-Campaign Dashboard")
+@PageTitle("Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")

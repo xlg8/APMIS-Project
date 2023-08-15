@@ -35,6 +35,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -579,10 +581,10 @@ public class ClusterView extends VerticalLayout {
 			nameField.setValue(communityDto.getName());
 			clusterNumber.setValue(communityDto.getClusterNumber().toString());
 			cCodeField.setValue(communityDto.getExternalId().toString());
-			provinceOfDistrict.setItems(communityDto.getRegion());
+//			provinceOfDistrict.setItems(communityDto.getRegion());
 			provinceOfDistrict.setValue(communityDto.getRegion());
 			provinceOfDistrict.setEnabled(true);
-			districtOfCluster.setItems(communityDto.getDistrict());
+//			districtOfCluster.setItems(communityDto.getDistrict());
 			districtOfCluster.setValue(communityDto.getDistrict());
 			districtOfCluster.setEnabled(true);
 		}
@@ -689,11 +691,34 @@ public class ClusterView extends VerticalLayout {
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setDistrict(districtOfCluster.getValue());
 
-					FacadeProvider.getCommunityFacade().save(dcex, true);
+					
+					
+					try {
+						FacadeProvider.getCommunityFacade().save(dcex, true);
 
-					Notification.show("Saved: " + name + " " + code);
-					dialog.close();
-					refreshGridData();
+						Notification.show("Saved: " + name + " " + code);
+						dialog.close();
+						refreshGridData();
+						}catch (Exception e) {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+//					        Notification.show("An error occurred while saving: " + e.getMessage());
+					    }
 				}
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);

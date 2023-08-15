@@ -26,7 +26,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("APMIS-About")
+@PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 
@@ -64,11 +64,7 @@ public class AboutView extends VerticalLayout {
 		text.getStyle().set("text-align", "justify");
 		aboutText.add(text);
 		
-		Paragraph versionNum = new Paragraph("APMIS Version Number : APMIS 5.0.0");
-		versionNum.getStyle().set("font-size", "15px");
-		versionNum.getStyle().set("font-weight", "500");
-		versionNum.getStyle().set("color", "#0D6938");
-		aboutText.add(versionNum);
+		
 
 		aboutView.add(apmisImageContainer, aboutText);
 		add(aboutView, sessionTimeout);
@@ -144,7 +140,24 @@ public class AboutView extends VerticalLayout {
 		buttonsLayout.setWidth("100%");
 //		buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide, excelLink);
-		add(buttonsLayout);
+		
+		
+		VerticalLayout releaseDetailsLayout = new VerticalLayout();
+		Paragraph versionNum = new Paragraph("APMIS Version Number : APMIS 5.0.0");
+		versionNum.getStyle().set("font-size", "15px");
+		versionNum.getStyle().set("font-weight", "500");
+		versionNum.getStyle().set("color", "#0D6938");
+		
+		Paragraph releaseDate = new Paragraph("Release Date : 15/08/2023");
+		releaseDate.getStyle().set("font-size", "15px");
+		releaseDate.getStyle().set("font-weight", "500");
+		releaseDate.getStyle().set("color", "#0D6938");
+		
+		
+		releaseDetailsLayout.getStyle().set("padding-left", "90px !important");
+		releaseDetailsLayout.setWidth("100%");
+		releaseDetailsLayout.add(versionNum, releaseDate);
+		add(buttonsLayout, releaseDetailsLayout);
 
 	}
 }

@@ -13,6 +13,7 @@ import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -31,6 +32,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -465,7 +468,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		if (regionDto != null) {
 			nameField.setValue(regionDto.getName());
 			pCodeField.setValue(regionDto.getExternalId().toString());
-			areaField.setItems(regionDto.getArea());
+//			areaField.setItems(regionDto.getArea());
 			areaField.setValue(regionDto.getArea());
 			areaField.setEnabled(true);
 		}
@@ -556,10 +559,33 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					long rcodeValue = Long.parseLong(code);
 					dcex.setExternalId(rcodeValue);
 					dcex.setArea(areaField.getValue());
-					FacadeProvider.getRegionFacade().save(dcex, true);
-					Notification.show("Saved New Region: " + name + " " + code);
-					dialog.close();
-					refreshGridData();
+					
+					
+					try {
+						FacadeProvider.getRegionFacade().save(dcex, true);
+						Notification.show("Saved New Province: " + name + " " + code);
+						dialog.close();
+						refreshGridData();
+						}catch (Exception e) {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+//					        Notification.show("An error occurred while saving: " + e.getMessage());
+					    }
 				}
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);

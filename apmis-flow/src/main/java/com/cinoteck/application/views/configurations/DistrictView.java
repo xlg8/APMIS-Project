@@ -12,6 +12,7 @@ import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -29,8 +30,11 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
@@ -541,7 +545,7 @@ public class DistrictView extends VerticalLayout {
 		if (districtIndexDto != null) {
 			nameField.setValue(districtIndexDto.getName());
 			dCodeField.setValue(districtIndexDto.getExternalId().toString());
-			provinceOfDistrict.setItems(districtIndexDto.getRegion());
+//			provinceOfDistrict.setItems(districtIndexDto.getRegion());
 			provinceOfDistrict.setValue(districtIndexDto.getRegion());
 //		provinceOfDistrict.isReadOnly();
 			provinceOfDistrict.setEnabled(true);
@@ -647,10 +651,33 @@ public class DistrictView extends VerticalLayout {
 					dcex.setExternalId(rcodeValue);
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setRisk(risk.getValue());
-					FacadeProvider.getDistrictFacade().save(dcex, true);
-					Notification.show("Saved: " + name + " " + code);
-					dialog.close();
-					refreshGridData();
+					
+					
+					try {
+						FacadeProvider.getDistrictFacade().save(dcex, true);
+						Notification.show("Saved: " + name + " " + code);
+						dialog.close();
+						refreshGridData();
+						}catch (Exception e) {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+//					        Notification.show("An error occurred while saving: " + e.getMessage());
+					    }
 				}
 			} else {
 				Notification.show("Not Valid Value: " + name + " " + code);

@@ -286,7 +286,7 @@ public class UserForm extends FormLayout {
 		clusterNo.getChildren().forEach(checkbox -> {
 //	            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
 			checkbox.getElement().getClassList().add("custom-checkbox-class");
-
+			
 			Boolean isChecked = checkbox.getElement().getAttribute("checked") != null;
 			String label = ((Checkbox) checkbox).getLabel();
 

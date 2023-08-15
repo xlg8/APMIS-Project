@@ -78,7 +78,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("APMIS-Campaign Data")
+@PageTitle("Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
 public class CampaignDataView extends VerticalLayout {
 
