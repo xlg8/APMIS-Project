@@ -608,7 +608,7 @@ public class CampaignEditForm extends AbstractEditForm<CampaignDto> {
 			poplayout.addComponent(btnExport);
 			poplayout.setComponentAlignment(btnExport, Alignment.MIDDLE_CENTER);
 
-			StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
+			StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource(campaignDto.getUuid());
 			new FileDownloader(populationDataExportResource).extend(btnExport);
 
 			parentTab5.addComponent(poplayout);

@@ -50,8 +50,8 @@ public class PopulationDataView extends AbstractConfigurationView {
 		layout.addComponent(btnExport);
 		layout.setComponentAlignment(btnExport, Alignment.MIDDLE_CENTER);
 
-		StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
-		new FileDownloader(populationDataExportResource).extend(btnExport);
+//		StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
+//		new FileDownloader(populationDataExportResource).extend(btnExport);
 
 		addComponent(layout);
 	}

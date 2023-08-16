@@ -179,7 +179,7 @@ public final class DownloadUtil {
 	}
 
 	@SuppressWarnings("serial")
-	public static StreamResource createPopulationDataExportResource() {
+	public static StreamResource createPopulationDataExportResource(String campaignUUID) {
 
 		String exportFileName = createFileNameWithCurrentDate(ExportEntityName.POPULATION_DATA, ".csv");
 		StreamResource populationDataStreamResource = new StreamResource(new StreamSource() {
@@ -216,7 +216,7 @@ public final class DownloadUtil {
 
 						writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
 
-						List<Object[]> populationExportDataList = FacadeProvider.getPopulationDataFacade().getPopulationDataForExport();
+						List<Object[]> populationExportDataList = FacadeProvider.getPopulationDataFacade().getPopulationDataForExport(campaignUUID);
 
 						String[] exportLine = new String[columnNames.size()];
 						String regionName = "";
