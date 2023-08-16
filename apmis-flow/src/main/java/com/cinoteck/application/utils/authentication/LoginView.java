@@ -1,23 +1,27 @@
 package com.cinoteck.application.utils.authentication;
 
-import com.cinoteck.application.LanguageSwitcher;
-import com.vaadin.flow.component.Component;
+import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+
+import de.symeda.sormas.api.user.UserType;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 
 /**
  * UI content when the user is not logged in yet.
@@ -25,7 +29,10 @@ import java.util.ResourceBundle;
 @Route("")
 @PageTitle("Login | APMIS")
 //@CssImport("./styles/shared-styles.css")
-public class LoginView extends FlexLayout {
+public class LoginView extends FlexLayout implements BeforeEnterObserver {
+	private String intendedRoute;
+
+	private final UserProvider userProvider = new UserProvider();
 
 	/**
 	 * 
@@ -57,28 +64,37 @@ public class LoginView extends FlexLayout {
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
 		loginInformation.setAlignItems(Alignment.CENTER);
 
-		
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
 		loginInformation.add(imgApmis);
 		loginInformation.add(loginForm);
-		
-		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
-		langSwitch.setId("loginLanguageSwitcher");
-		langSwitch.getStyle().set("color", "white !important");
-		loginInformation.add(langSwitch);
+
+//		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
+//		langSwitch.setId("loginLanguageSwitcher");
+//		langSwitch.getStyle().set("color", "white !important");
+//		loginInformation.add(langSwitch);
 
 		add(loginInformation);
 	}
 
 	private void login(LoginForm.LoginEvent event) {
+		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
+		
+		if(httpSession.getAttribute("intendedRoute") != null) {
+		intendedRoute = (String) httpSession.getAttribute("intendedRoute");
+		System.out.println("____httpSession.getAttributhttpSession.getAttribut________: "+intendedRoute);
+		}else {
+			System.out.println("_httpSession.getAttribut___________: "+intendedRoute);
+		}
+		
+		
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
-			
+
 //			IdleNotification idleNotification = new IdleNotification();
 //
 //			// No. of secs before timeout, at which point the notification is displayed
-//			idleNotification.setSecondsBeforeNotification(10);
+//			idleNotification.setSecondsBeforeNotification(40);
 //			idleNotification.setMessage("Your session will expire in " +  
 //			    IdleNotification.MessageFormatting.SECS_TO_TIMEOUT  
 //			    + " seconds.");
@@ -86,13 +102,36 @@ public class LoginView extends FlexLayout {
 //			idleNotification.addRedirectButton("Logout now", "logout");
 //			idleNotification.addCloseButton();
 //			idleNotification.setExtendSessionOnOutsideClick(false);
+//
+//			 UI.getCurrent().add(idleNotification);
+			
+			VaadinSession.getCurrent().getSession().setMaxInactiveInterval ( 
+					( int ) TimeUnit.MINUTES.toSeconds( 30 ) 
+					);
 
-			//UI.getCurrent().add(idleNotification);
+			if (intendedRoute != null) {
+				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+					getUI().get().navigate("/campaigndata");
+				}
+				if (intendedRoute.equals("logout")) {
+					getUI().get().navigate("/dashboard");
+				} else {
+					getUI().get().navigate("/" + intendedRoute);
+				}
+			}else {
+//				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+//					getUI().get().navigate("/campaigndata");
+//				}
+//				
+				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER){
+					getUI().get().navigate("/campaigndata");
+				}else {
+					getUI().get().navigate("/dashboard");
+				}
 			
-			getUI().get().navigate("/dashboard");
+			}
 //			UI.getCurrent().getPage().reload();
-			
-			
+
 		} else {
 			event.getSource().setError(true);
 		}
@@ -111,69 +150,23 @@ public class LoginView extends FlexLayout {
 		i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg"));
 		return i18n;
 	}
-}
 
-//
-//import com.vaadin.flow.component.Html;
-//import com.vaadin.flow.component.dependency.StyleSheet;
-//import com.vaadin.flow.component.html.Div;
-//import com.vaadin.flow.component.html.H1;
-//import com.vaadin.flow.component.html.Image;
-//import com.vaadin.flow.component.html.Paragraph;
-//import com.vaadin.flow.component.login.LoginForm;
-//import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-//import com.vaadin.flow.router.BeforeEnterEvent;
-//import com.vaadin.flow.router.BeforeEnterObserver;
-//import com.vaadin.flow.router.PageTitle;
-//import com.vaadin.flow.router.Route;
-//
-//@Route("") 
-//@PageTitle("Login | APMIS")
-//public class LoginView extends VerticalLayout{
-//
-//	/**
-//	 * 
-//	 */
-//	private static final long serialVersionUID = 1551622595562424192L;
-//
-//	Div containerDiv = new Div();
-//	
-//	Div logoDiv = new Div();
-//
-//	
-//	Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
-//
-//	String content =  "<div class=" + "apmisDesc>" + "<p class=" + "apmisText>AFGHANISTAN POLIO MANAGEMENT INFORMATION SYSTEM.<p>"+"</div>";
-//
-//	Paragraph signInText = new Paragraph("Sign in to APMIS");
-//	
-//    Html html = new Html(content);
-//    
-//    private final LoginFormInput login = new LoginFormInput();
-//    
-//    
-//	
-//	public LoginView(){
-//
-//		addClassName("login-view");
-//		addClassName("loginView");
-//
-//		setSizeFull(); 
-//		setAlignItems(Alignment.CENTER);
-//		setJustifyContentMode(JustifyContentMode.CENTER);
-//
-//		login.setClassName("loginfORM");
-//		signInText.setId("signInText");
-//
-//		logoDiv.setClassName("logoContainer");
-//		imgApmis.setWidth("159px");
-//		imgApmis.setHeight("144px");
-//		logoDiv.add(imgApmis);
-//
-//		containerDiv.setClassName("loginContainer");
-//		containerDiv.add(logoDiv, html, signInText , login);
-//		add(containerDiv); 	
-//	}
-//
-//
-//}
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		// Store the intended route in the UI instance before navigating to the login
+		// page
+
+		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
+			if (pageTitle.contains("flow/")) {
+				intendedRoute = pageTitle.split("flow/")[1];
+				System.out
+						.println("___________________________/////___________________________________________________: "
+								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+			}
+//			Notification.show(String.format("Page title: '%s'", pageTitle));
+		});
+
+//		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
+
+	}
+}

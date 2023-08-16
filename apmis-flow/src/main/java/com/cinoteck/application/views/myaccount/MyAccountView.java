@@ -66,7 +66,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@PageTitle("APMIS-My Account")
+@PageTitle("My Account")
 @Route(value = "useraccount", layout = MainLayout.class)
 
 public class MyAccountView extends VerticalLayout implements RouterLayout {

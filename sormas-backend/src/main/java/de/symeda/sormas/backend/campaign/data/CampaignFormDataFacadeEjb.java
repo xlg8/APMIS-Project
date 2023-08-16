@@ -561,7 +561,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			+ "left outer join campaigns campaign1_ on campaignfo0_.campaign_id=campaign1_.id\n"
 			+ "left outer join areas area3_ on campaignfo0_.area_id=area3_.id\n"
 			+ "left outer join CampaignFormMeta campaignfo2_ on campaignfo0_.campaignFormMeta_id=campaignfo2_.id\n"
-			+ "where campaignfo2_.formCategory= 'ICM' and (campaignfo2_.formName like '%eamMonitori%')\n"
+			+ "where campaignfo2_.formCategory= 'ICM' and (campaignfo2_.formName like '%eam Monitori%')\n"
 			+ "group by campaignfo0_.community_id, campaignfo0_.community_id, campaignfo0_.campaign_id;",
 			
 			//Aggregate the tables 

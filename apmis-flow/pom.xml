@@ -116,8 +116,7 @@
 			<artifactId>grid-exporter-addon</artifactId>
 			<version>1.4.1</version>
 		</dependency>
-		
-		
+
 
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -246,6 +245,20 @@
 			<artifactId>crudui</artifactId>
 			<version>7.1.0</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.vaadin/vaadin-server -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-server</artifactId>
+			<version>7.7.40</version>
+
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.jsondb/jsondb-core -->
+		<dependency>
+			<groupId>io.jsondb</groupId>
+			<artifactId>jsondb-core</artifactId>
+			<version>1.0.106</version>
 		</dependency>
 
 	</dependencies>

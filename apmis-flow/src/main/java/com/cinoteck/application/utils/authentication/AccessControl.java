@@ -21,5 +21,5 @@ public interface AccessControl extends Serializable {
 
  //   String getPrincipalName();
 
-    void signOut();
+    void signOut(String oldUri);
 }

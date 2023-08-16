@@ -13,6 +13,7 @@ import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -31,6 +32,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -138,11 +141,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		dataView = grid.setItems(dataProvider);
 
-		grid.asSingleSelect().addValueChangeListener(event -> {
-			if (event.getValue() != null) {
-				createOrEditProvince(event.getValue());
-			}
-		});
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
+
+			grid.asSingleSelect().addValueChangeListener(event -> {
+				if (event.getValue() != null) {
+					createOrEditProvince(event.getValue());
+				}
+			});
+		}
 
 		add(grid);
 
@@ -150,7 +156,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.User));
 		exporter.setFileName(
-				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Provinces" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -184,7 +190,6 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
 
 		}
-		
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		dataProvider = DataProvider
@@ -192,11 +197,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		itemCount = dataProvider.getItems().size();
 
-		
 //		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + itemCount);
 		countRowItems.setId("rowCount");
-
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
@@ -254,23 +257,19 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		}
 
 		regionFilter.addValueChangeListener(e -> {
-				criteria.area(regionFilter.getValue());
-				refreshGridData();
-		
+			criteria.area(regionFilter.getValue());
+			refreshGridData();
+
 		});
 
 		layout.add(regionFilter);
 
-		
-		
-		
-		
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.relevanceStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE) ) {
+			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
@@ -287,10 +286,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		});
 		layout.add(relevanceStatusFilter);
-		
-		
+
 		
 		Button resetButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+
 		resetButton.addClassName("resetButton");
 		resetButton.addClickListener(e -> {
 			if (!searchField.isEmpty()) {
@@ -317,8 +316,20 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			createOrEditProvince(regionDto);
 		});
 
-		
-		layout.add(addNew, anchor);
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
+			layout.add(addNew);
+		}
+
+		Button exportProvince = new Button("Export");
+		exportProvince.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportProvince.addClickListener(e -> {
+			anchor.getElement().setAttribute("download", true);
+			anchor.getElement().callJsFunction("click();");
+
+		});
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
+			layout.add(anchor);
+		}
 		layout.setWidth("80%");
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
@@ -332,7 +343,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		enterBulkEdit.setIcon(bulkModeButtonnIcon);
-		layout.add(enterBulkEdit);
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			layout.add(enterBulkEdit);
+		}
 
 		enterBulkEdit.addClickListener(e -> {
 			dropdownBulkOperations.setVisible(true);
@@ -458,7 +471,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		if (regionDto != null) {
 			nameField.setValue(regionDto.getName());
 			pCodeField.setValue(regionDto.getExternalId().toString());
-			areaField.setItems(regionDto.getArea());
+//			areaField.setItems(regionDto.getArea());
 			areaField.setValue(regionDto.getArea());
 			areaField.setEnabled(true);
 		}
@@ -472,7 +485,6 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		saveButton.getStyle().set("margin-right", "10px");
 
 		if (regionDto != null) {
-			
 
 			dto = new RegionDto();
 			String regionUUid = regionDto.getUuid();
@@ -488,16 +500,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());
 				archiveDearchiveConfirmation.setConfirmText("Yes");
 				archiveDearchiveConfirmation.open();
-				
-				
+
 				if (regionDto != null) {
 					uuidsz = dto.getUuid();
 
 					boolean isArchived = dto.isArchived();
 					if (uuidsz != null) {
 						if (isArchived == true) {
+
 							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveProvince));
 							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedProvince));
+
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().dearchive(uuidsz);
@@ -550,10 +563,33 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					long rcodeValue = Long.parseLong(code);
 					dcex.setExternalId(rcodeValue);
 					dcex.setArea(areaField.getValue());
+
+					try {
 					FacadeProvider.getRegionFacade().save(dcex, true);
 					Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
 					dialog.close();
 					refreshGridData();
+						}catch (Exception e) {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+//					        Notification.show("An error occurred while saving: " + e.getMessage());
+					    }
+
 				}
 			} else {
 				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);

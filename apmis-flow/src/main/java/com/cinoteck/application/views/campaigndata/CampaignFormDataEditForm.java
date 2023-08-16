@@ -50,6 +50,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		Dialog dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
+		dialog.setCloseOnOutsideClick(false);
+
 		
 		Button deleteButton =new Button(I18nProperties.getCaption(Captions.actionCancel), (e) -> dialog.close());
 		deleteButton.setIcon(new Icon(VaadinIcon.REFRESH));
@@ -75,7 +77,11 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			}
 			//showConfirmationDialog();
 		});
-		
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("formI");
+		//dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
 	

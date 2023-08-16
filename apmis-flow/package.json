@@ -117,6 +117,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^11.2.0",
     "async": "3.2.2",
+    "babel-loader": "^8.3.0",
     "chokidar": "^3.5.0",
     "compression-webpack-plugin": "4.0.1",
     "css-loader": "5.2.7",
@@ -128,6 +129,9 @@
     "glob": "7.2.3",
     "html-webpack-plugin": "4.5.1",
     "lit-css-loader": "0.1.0",
+    "lit-element": "^3.3.3",
+    "lit-html": "^2.8.0",
+    "lit-loader": "^0.1.1",
     "loader-utils": "2.0.4",
     "rollup-plugin-lit-css": "^2.1.0",
     "rollup-plugin-styles": "^3.14.1",
@@ -247,6 +251,7 @@
       "@vaadin/vaadin-virtual-list": "23.3.7",
       "@vaadin/vertical-layout": "23.3.7",
       "@vaadin/virtual-list": "23.3.7",
+      "@webcomponents/webcomponentsjs": "^2.2.10",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "line-awesome": "1.3.0",
@@ -277,7 +282,7 @@
       "workbox-precaching": "6.5.4",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "eaa6c583ad0f307ed0d8f39a55b0dac9bd4d58c3713af1b85f7380a18917a050"
+    "hash": "ca947d67cbb8f7b2338b5c1470d38431b34b2f976f81a0bdee47c017f616b4cb"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -387,10 +392,10 @@
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "date-fns": "$date-fns",
+    "highcharts": "$highcharts",
     "line-awesome": "$line-awesome",
     "lit": "$lit",
     "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar",
-    "highcharts": "$highcharts"
+    "chokidar": "$chokidar"
   }
 }

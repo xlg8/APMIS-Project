@@ -3,8 +3,8 @@ package com.cinoteck.application.views.campaign;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -15,8 +15,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
+import com.cinoteck.application.views.utils.DownloadUtil;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -26,13 +29,15 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-
-import com.vaadin.flow.component.html.H3;
 
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -40,18 +45,16 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Result;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.LocalDateToDateConverter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.server.FileDownloader;
-import com.vaadin.server.StreamResource;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.shared.Position;
+//import com.vaadin.server.FileDownloader;
+//import com.vaadin.server.StreamResource;
+//import com.vaadin.ui.AbstractComponent;
 import com.vaadin.flow.component.treegrid.TreeGrid;
-
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -64,7 +67,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -73,7 +76,6 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import com.cinoteck.application.views.utils.DownloadUtil;
 
 @PageTitle("Edit Campaign")
 @Route(value = "/data")
@@ -135,8 +137,6 @@ public class CampaignForm extends VerticalLayout {
 	boolean isArchived;
 	boolean isPublished;
 	boolean isOpenClose;
-
-	
 
 	public CampaignForm(CampaignDto formData) {
 
@@ -228,7 +228,7 @@ public class CampaignForm extends VerticalLayout {
 //		round.setItemLabelGenerator(CampaignDto::getRound);
 		round.addValueChangeListener(e -> {
 			round.getValue();
-			if((round.getValue() == "Trainig") && (campaignName.getValue() != null)) {
+			if ((round.getValue() == "Trainig") && (campaignName.getValue() != null)) {
 				campaignName.clear();
 				campaignName.setValue(campaignName.getValue() + "[T]");
 			}
@@ -245,11 +245,17 @@ public class CampaignForm extends VerticalLayout {
 		binderx.forField(creatingUser).bind(CampaignDto.CREATING_USER_NAME);
 		binderx.forField(campaaignYear).bind(CampaignDto.CAMPAIGN_YEAR);
 
-		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired)).bind(CampaignDto.NAME);
-		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired)).bind(CampaignDto.ROUND);
+		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired))
+				.bind(CampaignDto.NAME);
+		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired))
+				.bind(CampaignDto.ROUND);
 //		LocalDate localDate = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 //		startDate.setValue(localDate);
 //		binderx.forField(startDate).bind(CampaignDto.START_DATE).toString();
+//		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired)).bind(CampaignDto.NAME);
+//		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired)).bind(CampaignDto.ROUND);
+
+
 
 		binderx.forField(startDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getStartDate,
 				CampaignDto::setStartDate);
@@ -257,16 +263,20 @@ public class CampaignForm extends VerticalLayout {
 		binderx.forField(endDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getEndDate,
 				CampaignDto::setEndDate);
 
-
 		if (formData != null) {
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d. M. yyyy");
+
 			LocalDate timestamp = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate localDatex = formData.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			startDate.setValue(timestamp);
+			String formString = timestamp.format(dateTimeFormatter);
+			LocalDate localDate = LocalDate.parse(formString ,dateTimeFormatter);
+			startDate.setValue(localDate);
 			endDate.setValue(localDatex);
 		}
 
 //		binderx.forField(endDate).bind(CampaignDto.END_DATE);
-		binderx.forField(description).asRequired(I18nProperties.getString(Strings.campaignDescriptionRequired)).bind(CampaignDto::getDescription,
+		binderx.forField(description).asRequired(I18nProperties.getString(Strings.campaignDescriptionRequired)).bind(
+				CampaignDto::getDescription,
 
 				CampaignDto::setDescription);
 
@@ -295,7 +305,6 @@ public class CampaignForm extends VerticalLayout {
 		this.campaignDto = comp.getModifiedDto();
 
 		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignForms), tab1);
-
 
 		VerticalLayout tab2 = new VerticalLayout();
 
@@ -348,9 +357,10 @@ public class CampaignForm extends VerticalLayout {
 
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignDashboard), tab2Intra);
 		parentTab2.add(layoutIntra);
+		// parentTab2.getStyle().set("color", "green");
 
-	//	parentTab2.getStyle().set("color", "green");
 		tabsheetParent.add(I18nProperties.getCaption(Captions.intraCampaignPhase), parentTab2);
+	
 		final HorizontalLayout layoutPost = new HorizontalLayout();
 		layoutPost.setWidthFull();
 
@@ -396,9 +406,11 @@ public class CampaignForm extends VerticalLayout {
 
 			treeGrid.setWidthFull();
 
-			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName).setHeader(I18nProperties.getCaption(Captions.Location));
+			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName)
+					.setHeader(I18nProperties.getCaption(Captions.Location));
 
-			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData).setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+			treeGrid.addColumn(CampaignTreeGridDto::getPopulationData)
+					.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
 
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
@@ -543,7 +555,7 @@ public class CampaignForm extends VerticalLayout {
 				}
 
 			}
-			
+
 			if (campaignDto != null) {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 				campaignDto.setRegion((Set<RegionReferenceDto>) region);
@@ -575,37 +587,85 @@ public class CampaignForm extends VerticalLayout {
 		Button btnImport = new Button(I18nProperties.getCaption(Captions.actionImport));// , e -> {
 
 		btnImport.addClickListener(e -> {
-			ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(null, campaignDto);
-			dialog.open();
+			if (campaignDto != null) {
+				ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(InfrastructureType.POPULATION_DATA,
+						campaignDto);
+				dialog.open();
+			} else {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+				Div textx = new Div(new Text(I18nProperties.getString(Strings.infoSaveCampaignFirst)));
+
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				HorizontalLayout layoutx = new HorizontalLayout(textx, closeButton);
+				layoutx.setAlignItems(Alignment.CENTER);
+				notification.setPosition(Notification.Position.MIDDLE);
+				notification.add(layoutx);
+				notification.open();
+			}
 		});
 
 		poplayout.add(btnImport);
 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnImport);
 
+		if (campaignDto != null) {
+			Button btnExport = new Button(I18nProperties.getCaption(Captions.export)); // poplayout.addComponent(btnExport);
+			poplayout.add(btnExport);
+			poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
 
-// 		Button btnExport = new Button(I18nProperties.getCaption(Captions.export)); // poplayout.addComponent(btnExport);
-// 		poplayout.add(btnExport);
-// 		poplayout.setHorizontalComponentAlignment(Alignment.CENTER, btnExport);
+			StreamResource populationDataStreamResource = DownloadFlowUtilityView
+					.createPopulationDataExportResource(campaignDto.getUuid());
 
+			populationDataStreamResource.setContentType("text/csv");
+			populationDataStreamResource.setCacheTime(0);
 
-//
-//		//we need to hack the old vaadin button to enable the downloader to accept the button componenet as an abstractComponent in v7
-//		com.vaadin.ui.Button btnExport = new com.vaadin.ui.Button("Export"); // poplayout.addComponent(btnExport);
-//		Button btnExportDummy = new Button("Export");
-//		poplayout.add(btnExportDummy);
-//		
-//		btnExportDummy.addClickListener(e -> {
-//			btnExport.click();
-//		});
-//		
+			// Create an anchor to trigger the download
+			Anchor downloadAnchor = new Anchor(populationDataStreamResource, "Download CSV");
+			downloadAnchor.getElement().setAttribute("download", true);
+			downloadAnchor.getStyle().set("display", "none");
+
+			poplayout.add(downloadAnchor);
+
+			// Simulate a click event on the hidden anchor to trigger the download
+
+			btnExport.addClickListener(e -> {
+				downloadAnchor.getElement().callJsFunction("click");
+				Notification.show("downloading...");
+			});
+		}
 //		StreamResource populationDataExportResource = DownloadUtil.createPopulationDataExportResource();
-//		new FileDownloader(populationDataExportResource).extend((AbstractComponent) btnExport);
-//		
+//		new FileDownloader(populationDataExportResource).extend(btnExportDummy);
+		poplayout.addClickListener(e -> {
+			if (campaignDto == null) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
+				Div textx = new Div(new Text(I18nProperties.getString(Strings.infoSaveCampaignFirst)));
+
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				HorizontalLayout layoutx = new HorizontalLayout(textx, closeButton);
+				layoutx.setAlignItems(Alignment.CENTER);
+
+				notification.add(layoutx);
+				notification.setPosition(Notification.Position.MIDDLE);
+				notification.open();
+			}
+		});
 		parentTab5.add(poplayout);
 //		
-		
-		
 
 		tabsheetParent.add(I18nProperties.getCaption(Captions.View_configuration_populationdata), parentTab5);
 		tabsheetParent.setWidthFull();
@@ -613,7 +673,7 @@ public class CampaignForm extends VerticalLayout {
 
 		openCloseCampaign = new Button();
 
-openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
+		openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		duplicateCampaign = new Button(I18nProperties.getString(Strings.duplicate));
 		duplicateCampaign.addClickListener(e -> {
 			duplicateCampaign();
@@ -629,7 +689,6 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 
 		publishUnpublishCampaign = new Button();
 
-
 		if (campaignDto != null) {
 			isArchived = FacadeProvider.getCampaignFacade().isArchived(campaignDto.getUuid());
 			isPublished = FacadeProvider.getCampaignFacade().isPublished(campaignDto.getUuid());
@@ -638,23 +697,20 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 			updatePublishButtonText(isPublished);
 			updateOpenCloseButtonText(isOpenClose);
 		}
-		
+
 		publishUnpublishCampaign.addClickListener(e -> {
 			publishUnpublish();
 		});
-		
+
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
 		});
-		
+
 		archiveDearchive.addClickListener(e -> {
 			archive();
-			
+
 		});
 
-		
-
-		
 		discardChanges = new Button();
 		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
 
@@ -678,8 +734,9 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
 		if (campaignDto != null) {
-		leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign, deleteCampaign);
-		}else {
+			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
+					deleteCampaign);
+		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
 			leftFloat.add(publishUnpublishCampaign, openCloseCampaign);
@@ -700,7 +757,6 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		formL.setColspan(rightFloat, 1);
 //		formL.setColspan(actionButtonsLayout, 2);
 
-
 		campaignBasics.getStyle().set("margin-top", "0px");
 		campaignBasics.getStyle().set("margin-bottom", "0px");
 		add(campaignBasics, formL, layoutParent, actionButtonsLayout); // ,
@@ -718,13 +774,14 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		this.isArchived = isArchived;
 		if (isArchived) {
 			archiveDearchive.setText("De-Archive");
-			
+
 		} else {
 
 			archiveDearchive.setText("Archive");
 		}
 
 	}
+
 	public void updatePublishButtonText(boolean isPublished) {
 		this.isPublished = isPublished;
 		if (isPublished) {
@@ -735,7 +792,7 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		}
 
 	}
-	
+
 	public void updateOpenCloseButtonText(boolean isOpenClose) {
 		this.isOpenClose = isOpenClose;
 		if (isOpenClose) {
@@ -809,8 +866,8 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 
 			UI.getCurrent().getPage().reload();
 
-			Notification.show(I18nProperties.getString(Strings.headingUploadSuccess)+"!");
-		
+			Notification.show(I18nProperties.getString(Strings.headingUploadSuccess) + "!");
+
 		} else {
 			Notification.show(I18nProperties.getString(Strings.errorCampaignForm));
 		}
@@ -821,13 +878,13 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 //		UI.getCurrent().getPage().reload();
 		try {
 			fireEvent(new ArchiveEvent(this, binderx.getBean()));
-		}finally {
+		} finally {
 //			isArchived = FacadeProvider.getCampaignFacade().isArchived(campaignDto.getUuid());
 //			updateArchiveButtonText(isArchived);
 		}
 
 	}
-	
+
 	private void publishUnpublish() {
 
 		fireEvent(new PublishUnpublishEvent(this, binderx.getBean()));
@@ -835,7 +892,7 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 //		UI.getCurrent().getPage().reload();
 
 	}
-	
+
 	private void deleteCampaign() {
 
 		fireEvent(new DeleteEvent(this, binderx.getBean()));
@@ -843,7 +900,7 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 //		UI.getCurrent().getPage().reload();
 
 	}
-	
+
 	private void duplicateCampaign() {
 
 		fireEvent(new DuplicateEvent(this, binderx.getBean()));
@@ -851,11 +908,10 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 //		UI.getCurrent().getPage().reload();
 
 	}
-	
+
 	private void openCloseCampaign() {
 
 		fireEvent(new OpenCloseEvent(this, binderx.getBean()));
-
 
 	}
 
@@ -876,13 +932,13 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 
 		}
 	}
-	
+
 	public static class PublishUnpublishEvent extends CampaignFormEvent {
 		PublishUnpublishEvent(CampaignForm source, CampaignDto campaign) {
 			super(source, campaign);
 		}
 	}
-	
+
 	public static class OpenCloseEvent extends CampaignFormEvent {
 		OpenCloseEvent(CampaignForm source, CampaignDto campaign) {
 			super(source, campaign);
@@ -895,7 +951,7 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		}
 
 	}
-	
+
 	public static class DuplicateEvent extends CampaignFormEvent {
 		DuplicateEvent(CampaignForm source, CampaignDto contact) {
 			super(source, contact);
@@ -912,7 +968,7 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
 		return addListener(DeleteEvent.class, listener);
 	}
-	
+
 	public Registration addDuplicateListener(ComponentEventListener<DuplicateEvent> listener) {
 		return addListener(DuplicateEvent.class, listener);
 	}
@@ -920,12 +976,11 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 	public Registration addArchiveListener(ComponentEventListener<ArchiveEvent> listener) {
 		return addListener(ArchiveEvent.class, listener);
 	}
-	
+
 	public Registration addPublishListener(ComponentEventListener<PublishUnpublishEvent> listener) {
 		return addListener(PublishUnpublishEvent.class, listener);
 	}
-	
-		
+
 	public Registration addOpenCloseListener(ComponentEventListener<OpenCloseEvent> listener) {
 		return addListener(OpenCloseEvent.class, listener);
 	}
@@ -957,5 +1012,4 @@ openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 
 	}
 
-	
 }
