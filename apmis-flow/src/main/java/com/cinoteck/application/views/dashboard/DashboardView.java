@@ -101,6 +101,15 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 	UserProvider userProvider = new UserProvider();
 
 	public DashboardView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		setSpacing(false);
 		// UI.getCurrent().getPage().reload();
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
@@ -111,7 +120,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		UserProvider usr = new UserProvider();
 
 
-		campaign.setLabel("Campaigns");
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
 
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
@@ -183,7 +192,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		district.setClassName("col-sm-6, col-xs-6");
 		// district.setEnabled(false);
 
-		groupby.setLabel("Group By");
+		groupby.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
 		groupby.setItems(campaignJurisdictionLevel.values());
 		groupby.getStyle().set("padding-top", "0px");
 		groupby.setClassName("col-sm-6, col-xs-6");
@@ -199,7 +208,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		selectFilterLayoutparent.getStyle().set("margin-left", "12px");
 		selectFilterLayoutparent.setVisible(false);
 
-		Button displayFilters = new Button("Show Filters");
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters));
 		displayFilters.getStyle().set("margin-left", "12px");
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
@@ -289,13 +298,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 
 			if (!selectFilterLayoutparent.isVisible()) {
 				selectFilterLayoutparent.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 				province.setEnabled(false);
 				district.setEnabled(false);
 
 			} else {
 				selectFilterLayoutparent.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 

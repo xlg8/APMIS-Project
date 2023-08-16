@@ -117,14 +117,14 @@ public class CampaignDataView extends VerticalLayout {
 
 	CampaignFormDataEditForm campaignFormDataEditForm;
 
-	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	MenuBar dropdownBulkOperations = new MenuBar();
 	ConfirmDialog confirmationDialog;
 
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
-	public CampaignDataView() {
+	public CampaignDataView() {	
 
 		if (I18nProperties.getUserLanguage() == null) {
 
@@ -134,6 +134,7 @@ public class CampaignDataView extends VerticalLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		setSizeFull();
 		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
@@ -505,12 +506,12 @@ public class CampaignDataView extends VerticalLayout {
 				});
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			enterBulkEdit = new Button("Enter Bulk Edit Mode");
-			leaveBulkEdit = new Button("Leave Bulk Edit Mode");
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+			leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 			dropdownBulkOperations = new MenuBar();
-			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem(I18nProperties.getCaption(Captions.bulkActions));
 			SubMenu subMenu = bulkActionsItem.getSubMenu();
-			subMenu.addItem("Delete", e -> handleDeleteAction());
+			subMenu.addItem(I18nProperties.getCaption(Captions.actionDelete), e -> handleDeleteAction());
 
 		}
 		dropdownBulkOperations.getStyle().set("margin-top", "5px");
@@ -529,7 +530,7 @@ public class CampaignDataView extends VerticalLayout {
 //			dropdownBulkOperations.setVisible(true);
 		});
 
-		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
 		leaveBulkEdit.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -627,6 +628,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		grid.setColumnReorderingAllowed(true);
 
+
 //		GridColumn<Item> selectAllColumn = grid.addComponentColumn(item -> {
 //		    CheckBox checkBox = new CheckBox();
 //		    checkBox.addValueChangeListener(event -> {
@@ -646,6 +648,7 @@ public class CampaignDataView extends VerticalLayout {
 //				checkbox.setValue(true);
 			return checkbox;
 		});
+
 
 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Campaign");// .setFooter(String.format("Row
@@ -856,7 +859,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);
-		String newText = "Rows : " + numberOfRows;
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");

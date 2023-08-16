@@ -92,8 +92,8 @@ public class ClusterView extends VerticalLayout {
 	Paragraph countRowItems;
 
 	UserProvider userProvider = new UserProvider();
-	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	MenuBar dropdownBulkOperations = new MenuBar();
 	SubMenu subMenu;
 	ConfirmDialog archiveDearchiveConfirmation;
@@ -103,11 +103,11 @@ public class ClusterView extends VerticalLayout {
 	int itemCount;
 	
 	TextField searchField = new TextField();
-	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
-	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
-	ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>("District");
-	Button resetFilters = new Button("Reset Filters");
-	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	Button resetFilters = new Button(I18nProperties.getCaption(Captions.resetFilters));
+	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>(I18nProperties.getCaption(Captions.relevanceStatus));
 
 
 	@SuppressWarnings("deprecation")
@@ -196,10 +196,10 @@ public class ClusterView extends VerticalLayout {
 			criteria = new CommunityCriteriaNew();
 		}
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 			leaveBulkEdit = new Button();
 			dropdownBulkOperations = new MenuBar();
-			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem(I18nProperties.getCaption(Captions.bulkActions));
 			subMenu = bulkActionsItem.getSubMenu();
 			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
 
@@ -210,7 +210,7 @@ public class ClusterView extends VerticalLayout {
 				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
 
 		itemCount = dataProvider.getItems().size();
-		countRowItems = new Paragraph("Rows : " + itemCount);
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + itemCount);
 
 		countRowItems.setId("rowCount");
 
@@ -232,19 +232,19 @@ public class ClusterView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
 
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				layout.setVisible(false);
 				relevancelayout.setVisible(false);
 
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
@@ -254,8 +254,8 @@ public class ClusterView extends VerticalLayout {
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-		Button resetFilters = new Button("Reset Filters");
-		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
+		Button resetFilters = new Button(I18nProperties.getCaption(Captions.resetFilters));
+		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>(I18nProperties.getCaption(Captions.relevanceStatus));
 
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
@@ -360,7 +360,7 @@ public class ClusterView extends VerticalLayout {
 
 			} else {
 				subMenu.removeAll();
-				subMenu.addItem("Select Either Active or Archived Relevance to carry out a bulk action");
+				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
 			}
 			criteria.relevanceStatus((EntityRelevanceStatus)e.getValue());
 			refreshGridData();
@@ -374,7 +374,7 @@ public class ClusterView extends VerticalLayout {
 //		resetFilters.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		resetFilters.setVisible(false);
 
-		Button addNew = new Button("Add New Cluster");
+		Button addNew = new Button(I18nProperties.getCaption(Captions.addNewCluster));
 		addNew.getElement().getStyle().set("white-space", "normal");
 		addNew.getStyle().set("color", "white");
 		addNew.getStyle().set("background", "#0D6938");
@@ -422,7 +422,7 @@ public class ClusterView extends VerticalLayout {
 
 		});
 
-		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
 		leaveBulkEdit.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -472,7 +472,7 @@ public class ClusterView extends VerticalLayout {
 	private void handleArchiveDearchiveAction() {
 
 		archiveDearchiveAllSelectedItems(grid.getSelectedItems());
-		Notification.show("Delete action selected!");
+		Notification.show(I18nProperties.getString(Strings.deleteActionSelected));
 	}
 
 	public void archiveDearchiveAllSelectedItems(Collection<CommunityDto> selectedRows) {
@@ -485,9 +485,9 @@ public class ClusterView extends VerticalLayout {
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.setConfirmText("Ok");
 
-			archiveDearchiveConfirmation.setHeader("Error Archiving");
+			archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.errorArchiving));
 			archiveDearchiveConfirmation
-					.setText("You have not selected any data to be Archived, please make a selection.");
+					.setText(I18nProperties.getString(Strings.youHaveNotSeleceted));
 
 			archiveDearchiveConfirmation.open();
 		} else {
@@ -504,8 +504,8 @@ public class ClusterView extends VerticalLayout {
 				boolean archive = communityDto.isArchived();
 
 				if (!archive) {
-					archiveDearchiveConfirmation.setHeader("Archive Selected Clusters");
-					archiveDearchiveConfirmation.setText("Are you sure you want to Archive the selected Clusters?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveSelectedCluster));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areSureYouWantArchiveCluster));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().archive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -516,10 +516,10 @@ public class ClusterView extends VerticalLayout {
 //						}
 						refreshGridData();
 					});
-					Notification.show("Archiving Selected Rows ");
+					Notification.show(I18nProperties.getString(Strings.archivingSelected));
 				} else {
-					archiveDearchiveConfirmation.setHeader("De-Archive Selected Clusters");
-					archiveDearchiveConfirmation.setText("Are you sure you want to De-Archive the selected Clusters?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveSelectedClusters));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelected));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().dearchive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -531,7 +531,7 @@ public class ClusterView extends VerticalLayout {
 						refreshGridData();
 					});
 
-					Notification.show("De- Archiving Selected Rows ");
+					Notification.show(I18nProperties.getString(Strings.dearchiveSelectedRows));
 				}
 			}
 
@@ -540,7 +540,7 @@ public class ClusterView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		String newText = "Rows : " + numberOfRows;
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -553,7 +553,7 @@ public class ClusterView extends VerticalLayout {
 		
 		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
-		String newText = "Rows : " + itemCount;
+		String newText = I18nProperties.getCaption(Captions.rows) + itemCount;
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 
@@ -567,7 +567,7 @@ public class ClusterView extends VerticalLayout {
 //		
 		TextField clusterNumber = new TextField(I18nProperties.getCaption(Captions.clusterNumber));
 
-		TextField cCodeField = new TextField("CCode");
+		TextField cCodeField = new TextField(I18nProperties.getCaption(Captions.Community_externalID));
 		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
@@ -593,8 +593,8 @@ public class ClusterView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		Button archiveButton = new Button();
 
@@ -629,8 +629,8 @@ public class ClusterView extends VerticalLayout {
 					boolean isArchived = communityDto.isArchived();
 					if (uuidsz != null) {
 						if (isArchived == true) {
-							archiveDearchiveConfirmation.setHeader("De-Archive Cluster");
-							archiveDearchiveConfirmation.setText("Are you sure you want to De-archive this Cluster? ");
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveCluster) );
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchive));
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().dearchive(uuidsz);
@@ -638,8 +638,8 @@ public class ClusterView extends VerticalLayout {
 								refreshGridData();
 							});
 						} else {
-							archiveDearchiveConfirmation.setHeader("Archive Cluster");
-							archiveDearchiveConfirmation.setText("Are you sure you want to Archive this Cluster? ");
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveCluster) );
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areSureYouWantToArchive));
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().archive(uuidsz);
@@ -678,7 +678,7 @@ public class ClusterView extends VerticalLayout {
 
 					FacadeProvider.getCommunityFacade().save(dce, true);
 
-					Notification.show("Saved: " + name + " " + code);
+					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					dialog.close();
 					refreshGridData();
 				} else {
@@ -696,9 +696,10 @@ public class ClusterView extends VerticalLayout {
 					try {
 						FacadeProvider.getCommunityFacade().save(dcex, true);
 
-						Notification.show("Saved: " + name + " " + code);
-						dialog.close();
-						refreshGridData();
+					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
+					dialog.close();
+					refreshGridData();
+
 						}catch (Exception e) {
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -719,19 +720,20 @@ public class ClusterView extends VerticalLayout {
 							notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
 					    }
+
 				}
 			} else {
-				Notification.show("Not Valid Value: " + name + " " + code);
+				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
 			}
 
 		});
 
 //		dialog.setHeaderTitle("Edit " + communityDto.getName());
 		if (communityDto == null) {
-			dialog.setHeaderTitle("Add New Cluster");
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.addNewCluster) );
 			dialog.getFooter().add(discardButton, saveButton);
 		} else {
-			dialog.setHeaderTitle("Edit " + communityDto.getName());
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.edit) + communityDto.getName());
 			dialog.getFooter().add(archiveButton, discardButton, saveButton);
 
 		}

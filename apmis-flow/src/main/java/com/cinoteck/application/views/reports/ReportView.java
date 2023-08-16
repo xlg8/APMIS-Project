@@ -3,6 +3,7 @@ package com.cinoteck.application.views.reports;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.dashboard.CampaignSummaryGridView;
 import com.vaadin.flow.component.Component;
@@ -17,6 +18,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.FormAccess;
 
 @PageTitle("Reports")
@@ -33,17 +38,26 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 
 
 	private Tabs createTabs() {
-		tabComponentMap.put(new Tab("Aggregate Report"),new AggregateReportView());
-		tabComponentMap.put(new Tab("Data Completeness"), new CompletionAnalysisView());
-		tabComponentMap.put(new Tab("Mobile Users"), new UserAnalysisView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.aggregateReport)),new AggregateReportView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)), new CompletionAnalysisView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.mobileUsers)), new UserAnalysisView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 
 	}
 	
-	
+	UserProvider userProvider = new UserProvider();
 	
 	public ReportView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 //		setSizeFull();
 		 HorizontalLayout reportTabsheetLayout = new HorizontalLayout();
 		 reportTabsheetLayout.setClassName("campDatFill");

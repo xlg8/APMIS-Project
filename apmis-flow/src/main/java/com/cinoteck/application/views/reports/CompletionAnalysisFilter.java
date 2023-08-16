@@ -59,14 +59,14 @@ public class CompletionAnalysisFilter extends VerticalLayout {
 		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		
 		
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e->{
 			if(filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			}else {
 				filterLayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 		

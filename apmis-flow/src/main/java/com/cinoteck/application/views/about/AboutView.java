@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.utils.SessionTimeout;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
@@ -20,6 +21,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -32,13 +34,26 @@ public class AboutView extends VerticalLayout {
 
 	Grid<JsonDictionaryReportModelDto> grid = new Grid<>(JsonDictionaryReportModelDto.class, false);
 
-	List<JsonDictionaryReportModelDto> analysis = FacadeProvider.getCampaignFormDataFacade()
-			.getByJsonFormDefinitonToCSV();
-	GridListDataView<JsonDictionaryReportModelDto> dataView;
+	UserProvider userProvider = new UserProvider();
+	
+	List<JsonDictionaryReportModelDto> analysis = FacadeProvider.getCampaignFormDataFacade().getByJsonFormDefinitonToCSV();
+	GridListDataView<JsonDictionaryReportModelDto> dataView ;
+	
+ 
 
-	public AboutView() {
-		SessionTimeout sessionTimeout = new SessionTimeout();
-		Div aboutView = new Div();
+    public AboutView() {	
+    	if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+    	FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
+    	Div aboutView = new Div();
+    	SessionTimeout sessionTimeout = new SessionTimeout();
+
 		aboutView.getStyle().set("height", "100%");
 		aboutView.getStyle().set("padding-left", "90px");
 		aboutView.getStyle().set("padding-right", "90px");
@@ -67,7 +82,9 @@ public class AboutView extends VerticalLayout {
 		
 
 		aboutView.add(apmisImageContainer, aboutText);
-		add(aboutView, sessionTimeout);
+		add(aboutView, 
+       
+       );
 		configureActionButtonVisibility();
 
 		
@@ -89,7 +106,8 @@ public class AboutView extends VerticalLayout {
 		Button displayActionButtons = new Button("Show Action Buttons");
 		displayActionButtons.setIcon(new Icon(VaadinIcon.SLIDERS));
 
-		Button getUserGuide = new Button(I18nProperties.getCaption(Captions.apmisaboutguides));
+		Button getUserGuide =  new Button(I18nProperties.getCaption(Captions.aboutuserguides));
+
 		getUserGuide.setIcon(new Icon(VaadinIcon.NURSE));
 
 		Button getTechnicalGuide = new Button(I18nProperties.getCaption(Captions.abouttechguides));

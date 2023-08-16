@@ -78,20 +78,20 @@ public class DistrictView extends VerticalLayout {
 
 	Grid<DistrictIndexDto> grid = new Grid<>(DistrictIndexDto.class, false);
 
-	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 
-	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 
 	TextField searchField = new TextField();
 
-	Button resetFilters = new Button("Reset Filters");
-	Anchor anchor = new Anchor("", "Export");
-	ComboBox<String> riskFilter = new ComboBox<>("Risk");
-	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>("Relevance Status");
+	Button resetFilters = new Button(I18nProperties.getCaption(Captions.resetFilters));
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	ComboBox<String> riskFilter = new ComboBox<>(I18nProperties.getCaption(Captions.risk));
+	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>(I18nProperties.getCaption(Captions.relevanceStatus));
 	Paragraph countRowItems;
 	UserProvider currentUser = new UserProvider();
-	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	MenuBar dropdownBulkOperations = new MenuBar();
 	SubMenu subMenu;
 	ConfirmDialog archiveDearchiveConfirmation;
@@ -120,18 +120,18 @@ public class DistrictView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(DistrictIndexDto::getAreaname).setHeader("Region").setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> "Region");
-		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader("Rcode").setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> "Rcode");
-		grid.addColumn(DistrictIndexDto::getRegion).setHeader("Province").setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> "Province");
-		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader("PCode").setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> "PCode");
-		grid.addColumn(DistrictIndexDto::getName).setHeader("District").setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> "District");
-		grid.addColumn(DistrictIndexDto::getExternalId).setHeader("DCode").setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> "DCode");
+		grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(DistrictIndexDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+		grid.addColumn(DistrictIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+		grid.addColumn(DistrictIndexDto::getRegionexternalId).setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+		grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+		grid.addColumn(DistrictIndexDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 
 		grid.setVisible(true);
 
@@ -160,7 +160,7 @@ public class DistrictView extends VerticalLayout {
 
 		GridExporter<DistrictIndexDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
-		exporter.setTitle("Users");
+		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName(
 				"APMIS_District" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
@@ -181,12 +181,12 @@ public class DistrictView extends VerticalLayout {
 			criteria = new DistrictCriteria();
 		}
 		if (currentUser.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 			leaveBulkEdit = new Button();
 			dropdownBulkOperations = new MenuBar();
-			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem(I18nProperties.getCaption(Captions.bulkActions));
 			subMenu = bulkActionsItem.getSubMenu();
-			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
+			subMenu.addItem(I18nProperties.getCaption(Captions.actionArchive), e -> handleArchiveDearchiveAction());
 
 		}
 
@@ -195,7 +195,7 @@ public class DistrictView extends VerticalLayout {
 				.fromStream(FacadeProvider.getDistrictFacade().getIndexList(criteria, null, null, null).stream());
 
 		itemCount = dataProvider.getItems().size();
-		countRowItems = new Paragraph("Rows : " + itemCount);
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + itemCount);
 
 		countRowItems.setId("rowCount");
 
@@ -216,18 +216,18 @@ public class DistrictView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				layout.setVisible(false);
 				relevancelayout.setVisible(false);
 
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
@@ -243,7 +243,7 @@ public class DistrictView extends VerticalLayout {
 
 		layout.add(searchField);
 
-		regionFilter.setPlaceholder("All Regions");
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
@@ -257,7 +257,7 @@ public class DistrictView extends VerticalLayout {
 
 		layout.add(regionFilter);
 
-		provinceFilter.setPlaceholder("All Provinces");
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 		provinceFilter.setClearButtonVisible(true);
 
 		if (currentUser.getUser().getRegion() != null) {
@@ -335,14 +335,14 @@ public class DistrictView extends VerticalLayout {
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
-				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
+				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
 				subMenu.removeAll();
-				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
+				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive), event -> handleArchiveDearchiveAction());
 
 			} else {
 				subMenu.removeAll();
-				subMenu.addItem("Select Either Active or Archived Relevance to carry out a bulk action");
+				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
 			}
 			criteria.relevanceStatus(e.getValue());
 //			filteredDataProvider.setFilter(criteria.relevanceStatus((EntityRelevanceStatus) e.getValue()));
@@ -385,7 +385,7 @@ public class DistrictView extends VerticalLayout {
 		});
 		layout.add(resetFilters);
 
-		Button addNew = new Button("Add New District");
+		Button addNew = new Button(I18nProperties.getCaption(Captions.addNewDistrict) ); 
 		addNew.getElement().getStyle().set("white-space", "normal");
 		addNew.getStyle().set("color", "white");
 		addNew.getStyle().set("background", "#0D6938");
@@ -432,7 +432,7 @@ public class DistrictView extends VerticalLayout {
 
 		});
 
-		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode) );
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
 		leaveBulkEdit.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -456,7 +456,7 @@ public class DistrictView extends VerticalLayout {
 	private void handleArchiveDearchiveAction() {
 
 		archiveDearchiveAllSelectedItems(grid.getSelectedItems());
-		Notification.show("Delete action selected!");
+		Notification.show(I18nProperties.getString(Strings.deleteActionSelected));
 	}
 
 	public void archiveDearchiveAllSelectedItems(Collection<DistrictIndexDto> selectedRows) {
@@ -470,9 +470,9 @@ public class DistrictView extends VerticalLayout {
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.setConfirmText("Ok");
 
-			archiveDearchiveConfirmation.setHeader("Error Archiving");
+			archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.errorArchiving) );
 			archiveDearchiveConfirmation
-					.setText("You have not selected any data to be Archived, please make a selection.");
+					.setText(I18nProperties.getString(Strings.youHaveNotSeleceted));
 
 			archiveDearchiveConfirmation.open();
 		} else {
@@ -493,8 +493,8 @@ public class DistrictView extends VerticalLayout {
 
 				System.out.println(archive + " archived or not " + regionUUid + "selected region  uuid");
 				if (!archive) {
-					archiveDearchiveConfirmation.setHeader("Archive Selected Districts");
-					archiveDearchiveConfirmation.setText("Are you sure you want to Archive the selected Districts?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveSelectedDistricts));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveDistrict));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().archive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -507,8 +507,8 @@ public class DistrictView extends VerticalLayout {
 					});
 //					Notification.show("Archiving Selected Rows ");
 				} else {
-					archiveDearchiveConfirmation.setHeader("De-Archive Selected Districts");
-					archiveDearchiveConfirmation.setText("Are you sure you want to De-Archive the selected Districts?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveSelectedDistricts));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedDistricts));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().dearchive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -534,12 +534,12 @@ public class DistrictView extends VerticalLayout {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 
-		TextField nameField = new TextField("Name");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 
-		TextField dCodeField = new TextField("DCode");
-		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>("Province");
+		TextField dCodeField = new TextField(I18nProperties.getCaption(Captions.District_externalID));
+		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
-		ComboBox<String> risk = new ComboBox<>("Risk");
+		ComboBox<String> risk = new ComboBox<>(I18nProperties.getCaption(Captions.risk));
 		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
 
 		if (districtIndexDto != null) {
@@ -556,8 +556,8 @@ public class DistrictView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.district), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		Button archiveButton = new Button();
 
@@ -593,8 +593,8 @@ public class DistrictView extends VerticalLayout {
 					if (uuidsz != null) {
 						if (isArchived == true) {
 
-							archiveDearchiveConfirmation.setHeader("De-Archive District");
-							archiveDearchiveConfirmation.setText("Are you sure you want to De-archive this District? ");
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveDistrict) );
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureWantToDearchiveDistrict) );
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getDistrictFacade().dearchive(uuidsz);
@@ -604,8 +604,8 @@ public class DistrictView extends VerticalLayout {
 //							Notification.show("Dearchiving Area");
 
 						} else {
-							archiveDearchiveConfirmation.setHeader("Archive District");
-							archiveDearchiveConfirmation.setText("Are you sure you want to Archive this District? ");
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveDistrict));
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureWantARchiveDistrict) );
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getDistrictFacade().archive(uuidsz);
@@ -640,7 +640,7 @@ public class DistrictView extends VerticalLayout {
 						dce.setRisk(risk.getValue());
 					}
 					FacadeProvider.getDistrictFacade().save(dce, true);
-					Notification.show("Saved: " + name + " " + code);
+					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					dialog.close();
 					refreshGridData();
 				} else {
@@ -651,13 +651,14 @@ public class DistrictView extends VerticalLayout {
 					dcex.setExternalId(rcodeValue);
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setRisk(risk.getValue());
+
 					
 					
 					try {
 						FacadeProvider.getDistrictFacade().save(dcex, true);
-						Notification.show("Saved: " + name + " " + code);
-						dialog.close();
-						refreshGridData();
+					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
+					dialog.close();
+					refreshGridData();
 						}catch (Exception e) {
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -678,19 +679,20 @@ public class DistrictView extends VerticalLayout {
 							notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
 					    }
+
 				}
 			} else {
-				Notification.show("Not Valid Value: " + name + " " + code);
+				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
 			}
 
 		});
 
 //		dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
 		if (districtIndexDto == null) {
-			dialog.setHeaderTitle("Add New District");
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.addNewDistrict));
 			dialog.getFooter().add(discardButton, saveButton);
 		} else {
-			dialog.setHeaderTitle("Edit " + districtIndexDto.getName());
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.edit) + districtIndexDto.getName());
 			dialog.getFooter().add(archiveButton, discardButton, saveButton);
 
 		}
@@ -707,7 +709,7 @@ public class DistrictView extends VerticalLayout {
 
 	private void updateRowCount() {
 		int numberOfRows = filteredDataProvider.size(new Query<>());
-		String newText = "Rows : " + numberOfRows;
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
 
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -719,7 +721,7 @@ public class DistrictView extends VerticalLayout {
 
 		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
-		String newText = "Rows : " + itemCount;
+		String newText = I18nProperties.getCaption(Captions.rows) + itemCount;
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 
