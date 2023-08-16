@@ -530,7 +530,7 @@ public class DistrictView extends VerticalLayout {
 		dialog.setCloseOnOutsideClick(false);
 
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-		Button discardButton = new Button(I18nProperties.getCaption(Captions.district), e -> dialog.close());
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		Button archiveButton = new Button();
 

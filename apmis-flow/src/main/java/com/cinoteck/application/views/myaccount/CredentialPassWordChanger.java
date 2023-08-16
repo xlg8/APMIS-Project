@@ -34,8 +34,8 @@ public class CredentialPassWordChanger extends Div {
 		this.userName = usedto;
 
 		_dialog = new ConfirmDialog();
-		_dialog.setHeader(I18nProperties.getCaption(Captions.Login_password)+"?");
-		_dialog.setText("Do you really want to change your password?");
+		_dialog.setHeader(I18nProperties.getCaption(Captions.Login_password));
+		_dialog.setText(I18nProperties.getString(Strings.doYouReallyWantToChangeYourPassword));
 		_dialog.setCloseOnEsc(false);
 		_dialog.setCancelable(true);
 		// _dialog.addCancelListener(event -> e -> dialog.close());
@@ -64,7 +64,7 @@ public class CredentialPassWordChanger extends Div {
 
 		UserProvider userProvider = new UserProvider();
 		UserDto userxs = userProvider.getUser();
-		Label c2Label = new Label("Editing: " + userxs.getUserName());
+		Label c2Label = new Label(I18nProperties.getCaption(Captions.editing) + userxs.getUserName());
 		// c2Label.addStyleNames(CssStyles.H2, CssStyles.VSPACE_NONE,
 		// CssStyles.VSPACE_TOP_NONE, CssStyles.LABEL_PRIMARY);
 
@@ -72,7 +72,7 @@ public class CredentialPassWordChanger extends Div {
 
 		layout.add(new Label());
 
-		PasswordField oldPassField = new PasswordField(I18nProperties.getString("Old Password"));
+		PasswordField oldPassField = new PasswordField(I18nProperties.getString(I18nProperties.getCaption(Captions.oldPassword)));
 		oldPassField.setSizeFull();
 		layout.add(oldPassField);
 
@@ -81,13 +81,13 @@ public class CredentialPassWordChanger extends Div {
 		passField1.setPattern("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$");
 		layout.add(passField1);
 
-		PasswordField passField2 = new PasswordField("Confirm New Password");
+		PasswordField passField2 = new PasswordField(I18nProperties.getString(Strings.confirmPassword));
 
 //		layout.add(new Label("*Must be at least 8 characters"));
 //		layout.add(new Label("*Must contain 1 Uppercase and 1 special character "));
 
-		Label instructionLabel = new Label("* Must be at least 8 characters\r\n <br>"
-				+ "* Must contain 1 Uppercase and 1 special character\r\n" + "");
+		Label instructionLabel = new Label( I18nProperties.getString(Strings.mustBeAt8Char) +" \r\n <br>"
+				+ I18nProperties.getString(Strings.mustContain1UppercaseChar) + " \r\n" + "");
 		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
 		instructionLabel.getElement().getStyle().set("font-size", "12px");
 
@@ -112,10 +112,10 @@ public class CredentialPassWordChanger extends Div {
 
 						UI.getCurrent().getPage().reload();
 
-						Notification.show("Password changed Successfully");
+						Notification.show( I18nProperties.getString(Strings.passwordChangedSuccessfully));
 
 				}else {
-						Notification.show("Password does not match");
+						Notification.show(I18nProperties.getString(Strings.passwordDoesNotMatch));
 					}
 				}
 		

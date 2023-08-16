@@ -362,6 +362,7 @@ public class UserView extends VerticalLayout {
 			bulkModeButton.setVisible(false);
 			leaveBulkModeButton.setVisible(true);
 			menuBar.setVisible(true);
+			createUserButton.setEnabled(false);
 		});
 
 		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
@@ -377,6 +378,7 @@ public class UserView extends VerticalLayout {
 			bulkModeButton.setVisible(true);
 			leaveBulkModeButton.setVisible(false);
 			menuBar.setVisible(false);
+			createUserButton.setEnabled(true);
 		});
 
 		menuBar.setVisible(false);
