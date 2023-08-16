@@ -111,7 +111,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		CriteriaQuery<CampaignIndexDto> cq = cb.createQuery(CampaignIndexDto.class);
 		Root<Campaign> campaign = cq.from(Campaign.class);
 
-		cq.multiselect(campaign.get(Campaign.UUID), campaign.get(Campaign.NAME), campaign.get(Campaign.CLOSEOPEN), campaign.get(Campaign.ROUND), campaign.get(Campaign.CAMPAIGN_YEAR), campaign.get(Campaign.START_DATE), campaign.get(Campaign.END_DATE));
+		cq.multiselect(campaign.get(Campaign.UUID), campaign.get(Campaign.NAME), campaign.get(Campaign.CLOSEOPEN), campaign.get(Campaign.ROUND), campaign.get(Campaign.CAMPAIGN_YEAR), campaign.get(Campaign.START_DATE), campaign.get(Campaign.END_DATE), campaign.get(Campaign.ARCHIVED) );
 
 		Predicate filter = campaignService.createUserFilter(cb, cq, campaign);
 
@@ -139,6 +139,9 @@ public class CampaignFacadeEjb implements CampaignFacade {
 				case CampaignIndexDto.CAMPAIGN_STATUS:
 					expression = campaign.get(Campaign.CLOSEOPEN);
 					break;
+				case CampaignIndexDto.ARCHIVE:
+					expression = campaign.get(Campaign.ARCHIVED);
+					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
@@ -146,7 +149,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			}
 			cq.orderBy(order);
 		} else {
-			cq.orderBy(cb.desc(campaign.get(Campaign.CHANGE_DATE)));
+			cq.orderBy(cb.desc(campaign.get(Campaign.START_DATE)));
 		}
 
 		return QueryHelper.getResultList(em, cq, first, max);

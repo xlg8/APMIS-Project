@@ -15,8 +15,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -28,14 +28,14 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializableSupplier;
-import com.vaadin.flow.i18n.I18NProvider;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignPhase;
@@ -47,8 +47,9 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserRole;
 
-@PageTitle("APMIS-Campaign Dashboard")
+@PageTitle("Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")
@@ -58,13 +59,8 @@ import de.symeda.sormas.api.user.UserDto;
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
-//@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
-//@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
-public class DashboardView extends VerticalLayout implements RouterLayout {
+public class DashboardView extends VerticalLayout implements RouterLayout , BeforeEnterObserver {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1851726752523985165L;
 
 	protected CampaignDashboardDataProvider dataProvider;
@@ -110,7 +106,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
-		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
+//		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
 
 		UserProvider usr = new UserProvider();
 
@@ -165,7 +161,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		}
 
 		// Filter initializers
-		region.setLabel(I18nProperties.getCaption(Captions.region));
+		region.setLabel(I18nProperties.getCaption(Captions.area));
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		region.setClearButtonVisible(true);
@@ -178,7 +174,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		region.getStyle().set("padding-top", "0px");
 		region.setClassName("col-sm-6, col-xs-6");
 
-		province.setLabel("Province");
+		province.setLabel(I18nProperties.getCaption(Captions.region));
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		province.setItems(provinces);
@@ -510,6 +506,23 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			break;
 		}
 
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		 try {
+			 System.out.println("trying ti use camp data ");
+			if (!UserProvider.getCurrent().hasUserRole(UserRole.ADMIN)) {
+			        event.rerouteTo(CampaignDataView.class); // Redirect to a different view
+			    }
+		} catch (Exception e) {
+			
+			 System.out.println("ubnable tooooooooooo trying ti use camp data ");
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

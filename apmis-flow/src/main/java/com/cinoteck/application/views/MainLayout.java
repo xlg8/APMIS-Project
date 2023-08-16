@@ -37,6 +37,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 //import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -54,16 +55,17 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-
+import de.symeda.sormas.api.user.UserRole;
+import de.symeda.sormas.api.user.UserType;
 
 /**
  * The main view is a top-level placeholder for other views. //password
-*/
+ */
 
 @NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @NpmPackage(value = "@vaadin-component-factory/vcf-nav", version = "1.0.6")
-@JavaScript(value = "https://code.jquery.com/jquery-3.6.4.min.js" )
+@JavaScript(value = "https://code.jquery.com/jquery-3.6.4.min.js")
 @StyleSheet("https://cdn.jsdelivr.net/npm/@vaadin/vaadin-lumo-styles@24.0.0/")
 
 @StyleSheet("https://demo.dashboardpack.com/architectui-html-free/main.css")
@@ -74,30 +76,31 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 
 @CssImport(value = "/styles/lato-font.css", themeFor = "vaadin-text-field")
 
-public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders{
+public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders {
 
 	private H1 viewTitle;
-	
+
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 	boolean isToggleOpen = false;
+	Image imgApmis = new Image();
 
-	public MainLayout() {	
+	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
 
-			I18nProperties.setUserLanguage(Language.EN);			
+			I18nProperties.setUserLanguage(Language.EN);
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
-		
+
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
 		userProvider.getUser().getUsertype();
-	//	UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 	}
 
 	private void addHeaderContent() {
@@ -106,7 +109,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		toggle.getStyle().set("color", "white");
 
 		toggle.getStyle().set("z-index", "10000000");
-		
 
 		viewTitle = new H1();
 		viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
@@ -117,104 +119,172 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		titleLayout.setWidth("86%");
 		titleLayout.getStyle().set("position", "relative");
 		titleLayout.getStyle().set("left", "-4%");
-		
+
 		toggle.addClickListener(event -> {
-		    if (event.getSource() instanceof DrawerToggle) {
-		    	DrawerToggle toggleButton = (DrawerToggle) event.getSource();
-		    	
-		    	isToggleOpen = !isToggleOpen;
-		        
-		        if (isToggleOpen) {
-		        	titleLayout.setWidth("100%"); 
-		        } else {
-		        	titleLayout.setWidth("86%");
-		           }
-		    }
+			if (event.getSource() instanceof DrawerToggle) {
+				DrawerToggle toggleButton = (DrawerToggle) event.getSource();
+
+				isToggleOpen = !isToggleOpen;
+
+				if (isToggleOpen) {
+					titleLayout.setWidth("100%");
+				} else {
+					titleLayout.setWidth("86%");
+				}
+			}
 		});
-		
+
 		IdleNotification idleNotification = new IdleNotification();
-		idleNotification
-		        .setMessage("Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT
-		                + " seconds.");
+		idleNotification.setMessage(
+				"Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT + " seconds.");
 		idleNotification.addExtendSessionButton("Extend session");
 		idleNotification.addRedirectButton("Logout now", "logout");
 		idleNotification.addCloseButton();
 		idleNotification.setExtendSessionOnOutsideClick(true);
 		idleNotification.setRedirectAtTimeoutUrl("logout");
 
-		UI.getCurrent().add(idleNotification);
-		
-	//	System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
+//		UI.getCurrent().add(idleNotification);
+
+		// System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
 
 		addToNavbar(true, toggle, titleLayout);
 	}
 
 	private void addDrawerContent() {
-		Image imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
+		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+			imgApmis = new Image("images/APMIS_Neoc_Banner.jpg", "APMIS-LOGO");
+		} else {
+			imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
+
+		}
 		imgApmis.setMaxWidth("100%");
 		Scroller scroller = new Scroller(createNavigation());
 
 		Header header = new Header(imgApmis);
 
-		
 		addToDrawer(header, scroller);
-		
-		
+
 //		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
 //                new Locale("fa","IR", "فارسی"));
 //		
 //		languageSwitcher.setClassName("vieLangiuageSwitcher");
 //		
 //		addToDrawer(languageSwitcher);
-		
+
 		addToDrawer(createFooter());
-		
-		
-	//	addToDrawer(header, scroller, createFooter());
+
+		// addToDrawer(header, scroller, createFooter());
 	}
-   
+
 	private AppNav createNavigation() {
 		// AppNav is not yet an official component.
-		// For documentation, visit https://github.com/vaadin/vcf-nav#readme  
+		// For documentation, visit https://github.com/vaadin/vcf-nav#readme
 		AppNav nav = new AppNav();
-		
+
 		Button myButton = new Button();
-		
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class, VaadinIcon.USERS, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuReports), ReportView.class,VaadinIcon.CHART_LINE, "navitem"));
+
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,
+					VaadinIcon.GRID_BIG_O, "navitem"));
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER
+				|| userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
+
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,
+					VaadinIcon.CLIPBOARD, "navitem"));
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class,
+					VaadinIcon.CLIPBOARD_TEXT, "navitem"));
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
+					ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+//			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)
+//					|| permitted(UserRole.ADMIN_SUPERVISOR) || permitted(UserRole.COMMUNITY_INFORMANT))) {
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
+					VaadinIcon.USERS, "navitem"));
+//			}
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuReports), ReportView.class,
+					VaadinIcon.CHART_LINE, "navitem"));
+		}
+
 		nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
-		//nav.addItem(new AppNavItem("Pivot", PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
+		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
+		// VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class, VaadinIcon.CHAT, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O, "navitem"));
-		
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class, VaadinIcon.SIGN_OUT_ALT, "navitem"));
-		
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class,
+				VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
+				"navitem"));
+
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
+				VaadinIcon.SIGN_OUT_ALT, "navitem"));
+
 		if (nav != null) {
-		    nav.addClassName("active");
+			nav.addClassName("active");
 		}
-		
+
 		return nav;
-		
-		
+
 	}
-	
-	 private Button createPopup() {
-		 Button confirmButton;
-		 Button cancelButton;
+
+	private boolean permitted(UserRole userrole) {
+		boolean check = false;
+		if (userProvider.getUser().getUserRoles() != null) {
+			for (UserRole vv : userProvider.getUser().getUserRoles()) {
+				userrole = vv;
+				check = true;
+			}
+			return check;
+		} else {
+			return check;
+		}
+	}
+
+	private boolean permitted(UserType userType) {
+		boolean check = false;
+
+		if (userProvider.getUser().getUsertype() != null) {
+			check = true;
+			userType = userProvider.getUser().getUsertype();
+			return check;
+		} else {
+			return check;
+		}
+	}
+
+	private Button createPopup() {
+		Button confirmButton;
+		Button cancelButton;
 
 		Dialog dialog = new Dialog();
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
-		
+
 		VerticalLayout dialogHolderLayout = new VerticalLayout();
-		
-		   
+
 		Div apmisImageContainer = new Div();
 		apmisImageContainer.getStyle().set("width", "100%");
 		apmisImageContainer.getStyle().set("display", "flex");
@@ -226,17 +296,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		apmisImageContainer.add(img);
 
 		Div aboutText = new Div();
-		
+
 		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
 		Paragraph confirmationText = new Paragraph("Are you sure you want to logout?");
-		
-		
+
 		text.getStyle().set("color", "black");
 		text.getStyle().set("font-size", "24px");
 		confirmationText.getStyle().set("color", "green");
 		confirmationText.getStyle().set("font-size", "18px");
-		
-		
+
 		aboutText.getStyle().set("display", "flex");
 		aboutText.getStyle().set("flex-direction", "column");
 		aboutText.getStyle().set("align-items", "center");
@@ -246,7 +314,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		logoutButtons.getStyle().set("display", "flex");
 		logoutButtons.getStyle().set("justify-content", "space-evenly");
 		logoutButtons.getStyle().set("width", "100%");
-	   
+
 		confirmButton = new Button("Confirm", event -> {
 //			confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
 		});
@@ -263,16 +331,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
 		dialog.add(dialogHolderLayout);
 		return cancelButton;
-		
 
 //		add(dialog);
 //		return dialog;
-	}	
-	 
-	void rtlswitcher() {		
+	}
+
+	void rtlswitcher() {
 		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		I18nProperties.getUserLanguage();
-		
+
 		if (userProvider.getUser().getLanguage().toString() != null) {
 
 			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
@@ -286,61 +353,53 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
 			} else {
-				
+
 				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);
 			}
 
 		}
 	}
-	
+
 	private Tabs getTabs() {
-	    Tabs tabs = new Tabs();
-	    tabs.add(createTab(VaadinIcon.COG_O, "Dashboard",DashboardView.class));
-	    tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", CampaignDataView.class));
-	    tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", CampaignsView.class));
-	    tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigurationsView.class));
-	    tabs.add(createTab(VaadinIcon.USERS, "Users", UserView.class));
-	    tabs.add(createTab(VaadinIcon.CHART, "Report", ReportView.class));
-	    tabs.add(createTab(VaadinIcon.USER, "User Profile", MyAccountView.class));
-	    tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", AboutView.class));
-	    tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", SupportView.class));
-	    tabs.setOrientation(Tabs.Orientation.VERTICAL);
-	    tabs.addClassName("tabs");
-	    return tabs;
+		Tabs tabs = new Tabs();
+		tabs.add(createTab(VaadinIcon.COG_O, "Dashboard", DashboardView.class));
+		tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", CampaignDataView.class));
+		tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", CampaignsView.class));
+		tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigurationsView.class));
+		tabs.add(createTab(VaadinIcon.USERS, "Users", UserView.class));
+		tabs.add(createTab(VaadinIcon.CHART, "Report", ReportView.class));
+		tabs.add(createTab(VaadinIcon.USER, "User Profile", MyAccountView.class));
+		tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", AboutView.class));
+		tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", SupportView.class));
+		tabs.setOrientation(Tabs.Orientation.VERTICAL);
+		tabs.addClassName("tabs");
+		return tabs;
 	}
 
-	
-	//TODO: Move the styles into CSS classes for a cleaner code 
-		private Tab createTab(VaadinIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
-		    Icon icon = viewIcon.create();
-		    icon.getStyle().set("box-sizing", "border-box")
-		        .set("margin-inline-end", "var(--lumo-space-m)")
-		        .set("padding", "var(--lumo-space-xs)");
+	// TODO: Move the styles into CSS classes for a cleaner code
+	private Tab createTab(VaadinIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
+		Icon icon = viewIcon.create();
+		icon.getStyle().set("box-sizing", "border-box").set("margin-inline-end", "var(--lumo-space-m)").set("padding",
+				"var(--lumo-space-xs)");
 
-		    RouterLink link = new RouterLink();
-		    link.setRoute(viewClass);
-		    
+		RouterLink link = new RouterLink();
+		link.setRoute(viewClass);
 
-		    // Create a VerticalLayout to stack the icon and the Span vertically
-		    VerticalLayout verticalLayout = new VerticalLayout(icon, new Span(viewName));
-		    verticalLayout.setSpacing(false);
-		    verticalLayout.setPadding(false);
+		// Create a VerticalLayout to stack the icon and the Span vertically
+		VerticalLayout verticalLayout = new VerticalLayout(icon, new Span(viewName));
+		verticalLayout.setSpacing(false);
+		verticalLayout.setPadding(false);
 
-		    // Center the elements vertically and horizontally within the VerticalLayout
-		    verticalLayout.getStyle().set("display", "flex")
-		        .set("flex-direction", "column")
-		        .set("align-items", "center")
-		        .set("justify-content", "center")
-		        .set("color", "white")
-		        .set("font-weight", "normal")
-		        .set("margin", "8px 0px");
+		// Center the elements vertically and horizontally within the VerticalLayout
+		verticalLayout.getStyle().set("display", "flex").set("flex-direction", "column").set("align-items", "center")
+				.set("justify-content", "center").set("color", "white").set("font-weight", "normal")
+				.set("margin", "8px 0px");
 
-		    link.add(verticalLayout);
+		link.add(verticalLayout);
 
-		    return new Tab(link);
-		}
-		
-		
+		return new Tab(link);
+	}
+
 	private Footer createFooter() {
 		Footer layout = new Footer();
 
@@ -364,21 +423,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		settings.addFavIcon("icon", "icons/icon.png", "192x192");
 	}
 
-
-
 	@Override
 	public @NotNull ViewModelProviders getViewModelProviders() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
-
 	@Override
 	public UserProvider getUserProvider() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 }

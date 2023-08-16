@@ -10,7 +10,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 
-@PageTitle("APMIS-Pivot")
+@PageTitle("Pivot")
 @Route(value = "pivot", layout = MainLayout.class)
 public class PivotView extends VerticalLayout {
 	

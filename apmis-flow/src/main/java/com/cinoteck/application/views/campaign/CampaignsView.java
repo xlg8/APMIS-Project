@@ -1,5 +1,14 @@
 package com.cinoteck.application.views.campaign;
 
+
+import java.util.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -30,6 +39,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -43,9 +53,10 @@ import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
-@PageTitle("APMIS - All Campaigns")
+@PageTitle("All Campaigns")
 @Route(value = "campaign", layout = MainLayout.class)
 public class CampaignsView extends VerticalLayout {
 
@@ -71,6 +82,9 @@ public class CampaignsView extends VerticalLayout {
 	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
+	
+	private final UserProvider userProvider = new UserProvider();
+
 
 	public CampaignsView() {
 
@@ -90,45 +104,37 @@ public class CampaignsView extends VerticalLayout {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 
 
-//		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//		
-////		LocalDateTimeRenderer<CampaignIndexDto> dateRenderer = new LocalDateTimeRenderer<>(CampaignIndexDto.START_DATE, dateFormatter.format);
-//		TextRenderer<CampaignIndexDto> dateRenderer = new TextRenderer<>(item -> item.getStartDate().getDate().format(dateFormatter));
-		
-//		 DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//		    TextRenderer<CampaignIndexDto> dateRenderer = new TextRenderer<>(item -> {
-//		        Date startDate = (Date) item.getStartDate(); // Assuming getStartDate() returns a java.util.Date
-//		        LocalDate localDate = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//		        return localDate.format(dateFormatter);
-//		    });
-		    
-		    ComponentRenderer<Span, CampaignIndexDto> startDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-				String value = String.valueOf(reportModelDto.getStartDate()).replace("00:00:00.0", "");
-				Span label = new Span(value);
-				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-				return label;
-			});
-		    
-		    ComponentRenderer<Span, CampaignIndexDto> endDateRenderer = new ComponentRenderer<>(reportModelDto -> {
-				String value = String.valueOf(reportModelDto.getEndDate()).replace("00:00:00.0", "");
-				Span label = new Span(value);
-				label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-				return label;
-			});
-
-
 		this.criteria = new CampaignCriteria();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
+		
+			
+		TextRenderer<CampaignIndexDto> startDateRenderer = new TextRenderer<>(
+			    dto -> {
+			        Date timestamp = dto.getStartDate();
+			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			        return dateFormat.format(timestamp);
+			    }
+			);
+		
+		TextRenderer<CampaignIndexDto> endDateRenderer = new TextRenderer<>(
+			    dto -> {
+			        Date timestamp = dto.getEndDate();
+			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			        return dateFormat.format(timestamp);
+			    }
+			);
 		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.actionStatusChangeDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.START_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.END_DATE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.campaignStatus)).setSortable(true).setResizable(true);
+		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
+		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader("Relevance Status").setSortable(true).setResizable(true);
+		
 
-
+		
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
@@ -137,7 +143,10 @@ public class CampaignsView extends VerticalLayout {
 				.fromStream(FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null).stream());
 
 		dataView = grid.setItems(dataProvider);
+		
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+		}
 		add(grid);
 	}
 
@@ -236,7 +245,13 @@ public class CampaignsView extends VerticalLayout {
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
-		filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
+		
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
+			filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
+		}else {
+			filterToggleLayout.add(filterDisplayToggle, filterLayout);
+		}
+		
 		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);
 

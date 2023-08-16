@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -251,6 +252,10 @@ public class CampaignForm extends VerticalLayout {
 //		LocalDate localDate = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 //		startDate.setValue(localDate);
 //		binderx.forField(startDate).bind(CampaignDto.START_DATE).toString();
+//		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired)).bind(CampaignDto.NAME);
+//		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired)).bind(CampaignDto.ROUND);
+
+
 
 		binderx.forField(startDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getStartDate,
 				CampaignDto::setStartDate);
@@ -259,9 +264,13 @@ public class CampaignForm extends VerticalLayout {
 				CampaignDto::setEndDate);
 
 		if (formData != null) {
+			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d. M. yyyy");
+
 			LocalDate timestamp = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate localDatex = formData.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			startDate.setValue(timestamp);
+			String formString = timestamp.format(dateTimeFormatter);
+			LocalDate localDate = LocalDate.parse(formString ,dateTimeFormatter);
+			startDate.setValue(localDate);
 			endDate.setValue(localDatex);
 		}
 
@@ -347,9 +356,13 @@ public class CampaignForm extends VerticalLayout {
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignDashboard), tab2Intra);
 		parentTab2.add(layoutIntra);
 		// parentTab2.getStyle().set("color", "green");
-		tabsheetParent.add("Intra-Campaign Phase", parentTab2);
+//		tabsheetParent.add("Intra-Campaign Phase", parentTab2);
 
+
+		tabsheetParent.add(I18nProperties.getCaption(Captions.intraCampaignPhase), parentTab2);
+		
 		VerticalLayout parentTab3 = new VerticalLayout();
+
 		final HorizontalLayout layoutPost = new HorizontalLayout();
 		layoutPost.setWidthFull();
 

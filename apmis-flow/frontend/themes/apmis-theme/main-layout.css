@@ -536,7 +536,7 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
 }
 
 .exportJsonGLoss2{
-    padding: 3px 15px;
+    padding: 5px 15px;
     font-weight: 600;
     border-radius: 5px;
     height: 2.3em;
@@ -660,5 +660,13 @@ vaadin-dialog-overlay.formI{
     bottom: 0px;
     left: 0px;
     outline: 0px solid transparent;
+}
+    
+vaadin-checkbox.custom-checkbox-class{
+	border: 1px solid green;
+}
+
+vaadin-checkbox.custom-checkbox-class label{
+	margin-bottom: 0px !important;
 }
 
