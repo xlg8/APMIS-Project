@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.security.RolesAllowed;
+
 import org.apache.commons.text.WordUtils;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
@@ -28,6 +31,8 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -46,8 +51,10 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserRole;
+import de.symeda.sormas.api.user.UserType;
 
-@PageTitle("APMIS-Campaign Dashboard")
+@PageTitle("Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")
@@ -57,13 +64,8 @@ import de.symeda.sormas.api.user.UserDto;
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
-//@StyleSheet("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
-//@JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
-public class DashboardView extends VerticalLayout implements RouterLayout {
+public class DashboardView extends VerticalLayout implements RouterLayout , BeforeEnterObserver {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1851726752523985165L;
 
 	protected CampaignDashboardDataProvider dataProvider;
@@ -113,7 +115,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 
 		dataProvider = new CampaignDashboardDataProvider();
-		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
+//		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
 
 		UserProvider usr = new UserProvider();
 
@@ -485,6 +487,23 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			break;
 		}
 
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		 try {
+			 System.out.println("trying ti use camp data ");
+			if (!UserProvider.getCurrent().hasUserRole(UserRole.ADMIN)) {
+			        event.rerouteTo(CampaignDataView.class); // Redirect to a different view
+			    }
+		} catch (Exception e) {
+			
+			 System.out.println("ubnable tooooooooooo trying ti use camp data ");
+
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
