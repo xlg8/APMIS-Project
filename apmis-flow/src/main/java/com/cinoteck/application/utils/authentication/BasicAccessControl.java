@@ -20,11 +20,13 @@ import com.cinoteck.application.views.admin.LoginHelper.LogoutEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletService;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRole;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Default mock implementation of {@link AccessControl}. This implementation
@@ -153,7 +155,7 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 //    }
 
     @Override
-    public void signOut() {
+    public void signOut(String intendedRoute) {
 //        VaadinSession.getCurrent().getSession().invalidate();
 //        UI.getCurrent().navigate("");
     	
@@ -171,10 +173,23 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		if (intendedRoute != null) {
+			LoginView dc = new LoginView();
+			dc.setUrlLink(intendedRoute);
+		}
+		
+		
 
 		VaadinSession.getCurrent().getSession().invalidate();
 		CurrentUser.set("");
-		System.out.println(CurrentUser.get().isEmpty()+ " :______________XXXSingOUT_____________________NOT SUCCESSFUL: remember to reload");
+//		System.out.println(CurrentUser.get().isEmpty()+ " :______________XXXSingOUT_____________________NOT SUCCESSFUL: remember to reload");
+//		
+//		
+//		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
+//        httpSession.setAttribute("intendedRoute", intendedRoute);
+//        
+//        
 		UI.getCurrent().getPage().executeJs("window.location.reload();");
 
 		

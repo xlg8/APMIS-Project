@@ -28,6 +28,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.i18n.I18NProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
@@ -74,6 +75,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 	CampaignSummaryGridView campaignSummaryGridView = new CampaignSummaryGridView();
 
 	// private Map<TabSheet, Component> tabComponentMap = new LinkedHashMap<>();
+
+	ComboBox<String> campaignYear = new ComboBox<>();
 	ComboBox<CampaignReferenceDto> campaign = new ComboBox<>();
 	ComboBox<CampaignPhase> campaignPhase = new ComboBox<>();
 	ComboBox<AreaReferenceDto> region = new ComboBox<>();
@@ -88,6 +91,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
+	List<String> campaingYears = new ArrayList<>();
+
+	boolean isCampaignChanged;
 
 	private boolean isSubAvaialable = false;
 	private CampaignJurisdictionLevel campaignJurisdictionLevel;
@@ -108,12 +114,17 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 		UserProvider usr = new UserProvider();
 
+		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
+		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		for (CampaignReferenceDto cmfdto : campaigns) {
+			campaingYears.add(cmfdto.getCampaignYear() + "");
+		}
+		campaignYear.setItems(campaingYears);
+		campaignYear.getStyle().set("padding-top", "0px");
+		campaignYear.setClassName("col-sm-6, col-xs-6");
 
 		campaign.setLabel("Campaigns");
-
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
-
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
 
@@ -136,6 +147,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			CampaignReferenceDto sx = FacadeProvider.getCampaignFacade().getReferenceByUuid(sessionCheckCampaign);
 			dataProvider.setCampaign(sx);
 			campaign.setValue(sx);
+			campaignYear.setValue(sx.getCampaignYear());
 			campaignPhase.setValue(CampaignPhase.valueOf(sessionCheckPhase.replace("-campaign", "").toUpperCase()));
 			dataProvider.setFormType(sessionCheckPhase);
 
@@ -144,6 +156,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 			if (lastStartedCampaign != null) {
 				campaign.setValue(lastStartedCampaign);
+				campaignYear.setValue(lastStartedCampaign.getCampaignYear());
 				campaignPhase.setValue(CampaignPhase.INTRA);
 			}
 
@@ -189,8 +202,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		// TODO should check user assignment first and set respectively
 		groupby.setValue(campaignJurisdictionLevel.AREA);
 
-		HorizontalLayout selectFilterLayout = new HorizontalLayout(campaign, campaignPhase, region, province, district,
-				/* cluster, */ groupby);
+		HorizontalLayout selectFilterLayout = new HorizontalLayout(campaignYear, campaign, campaignPhase, region,
+				province, district, /* cluster, */ groupby);
 		selectFilterLayout.setClassName("row pl-3");
 		VerticalLayout selectFilterLayoutparent = new VerticalLayout(selectFilterLayout);
 		selectFilterLayoutparent.getStyle().set("padding", "0px");
@@ -204,6 +217,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 
 		// filter listeners
 		campaign.addValueChangeListener(e -> {
+			isCampaignChanged = true;
 			UUID uuid = UUID.randomUUID();
 			VaadinSession.getCurrent().getSession().setAttribute("campaignPhase",
 					campaignPhase.getValue().toString().toLowerCase());
@@ -215,6 +229,26 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			remove(mainContentContainerx);
 			mainContentContainerx = drawDashboardAndTabs(uuid.toString());
 			add(mainContentContainerx);
+
+			campaignYear.setValue(e.getValue().getCampaignYear());
+		});
+
+		campaignYear.addValueChangeListener(e -> {
+			if (!isCampaignChanged) {
+				List<CampaignReferenceDto> campaigns_ = new ArrayList<>();
+				;
+
+				campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+				campaign.clear();
+				for (CampaignReferenceDto cmfdto : campaigns) {
+					if (cmfdto.getCampaignYear().equals(e.getValue())) {
+						campaigns_.add(cmfdto);
+					}
+				}
+				campaign.setItems(campaigns_);
+				campaign.setValue(campaigns_.get(0));
+			}
+			isCampaignChanged = false;
 		});
 
 		campaignPhase.addValueChangeListener(e -> {

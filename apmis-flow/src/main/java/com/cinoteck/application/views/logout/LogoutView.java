@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.utils.JsonDatabase;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -16,6 +17,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
@@ -28,10 +31,12 @@ import de.symeda.sormas.api.i18n.Strings;
 @PageTitle("Logout")
 @Route(value = "logout")//, layout = MainLayout.class)
 
-public class LogoutView extends VerticalLayout {
+public class LogoutView extends VerticalLayout implements BeforeEnterObserver {
 	private Button confirmButton;
 	private Button cancelButton;
-
+	private String intendedRoute;
+//	private JsonDatabase setLAstLogged;
+	
 	public LogoutView() {
 		Dialog dialog = new Dialog();
 		dialog.setCloseOnEsc(false);
@@ -76,8 +81,9 @@ public class LogoutView extends VerticalLayout {
                 .createAccessControl();
 		//TODO make this check the sesssion and invalidate it... it terms of Spring.. let use another method
 		confirmButton = new Button(I18nProperties.getCaption(Captions.actionConfirm), event -> {
-			accessControl.signOut();
 			UI.getCurrent().getSession().close();
+			accessControl.signOut(intendedRoute);
+			
 //			UI ui = getUI().get();
 //			ui.getSession().close();
 			
@@ -88,7 +94,7 @@ public class LogoutView extends VerticalLayout {
 		confirmButton.getStyle().set("width", "35%");
 		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
 			dialog.close();
-			cancelButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
+			cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
 		});
 		cancelButton.getStyle().set("width", "35%");
 		cancelButton.getStyle().set("background", "white");
@@ -103,6 +109,35 @@ public class LogoutView extends VerticalLayout {
 
 		dialog.open();
 		add(dialog);
+
+	}
+	
+	
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		// Store the intended route in the UI instance before navigating to the login
+		// page
+		
+		
+		
+		
+		
+
+		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
+			if (pageTitle.contains("flow/")) {
+				intendedRoute = pageTitle.split("flow/")[1];
+				System.out
+						.println("____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
+								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+				
+			//	JsonDatabase sdf = new JsonDatabase(pageTitle.split("flow/")[1]);
+		
+		
+			}
+//			Notification.show(String.format("Page title: '%s'", pageTitle));
+		});
+
+//		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
 
 	}
 }

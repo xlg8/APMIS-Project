@@ -243,7 +243,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Object[]> getPopulationDataForExport() {
+	public List<Object[]> getPopulationDataForExport(String campaignUuid) {
 //TODO addd campaign to the selection
 		//@formatter:off
 		return em.createNativeQuery("SELECT "+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
@@ -259,6 +259,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 					+ PopulationData.DISTRICT + "_id = " + District.TABLE_NAME + "." + District.ID
 				+ " LEFT JOIN " + Community.TABLE_NAME + " ON "
 					+ PopulationData.COMMUNITY + "_id = " + Community.TABLE_NAME + "." + Community.ID
+					+"where "+ Campaign.TABLE_NAME + "." + Campaign.UUID +" = '"+campaignUuid+"' " 
 				+ " ORDER BY campaignname, regionname, districtname, communityname asc NULLS FIRST").getResultList();
 		//@formatter:on
 	}

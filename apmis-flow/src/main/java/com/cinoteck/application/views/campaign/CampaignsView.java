@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -83,7 +84,8 @@ public class CampaignsView extends VerticalLayout {
 	private boolean matchesTerm() {
 		return false;
 	}
-
+	
+	
 	private void campaignsGrid() {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 
@@ -260,8 +262,10 @@ public class CampaignsView extends VerticalLayout {
 
 		dialog.setSizeFull();
 		dialog.open();
-		dialog.setDraggable(true);
-		dialog.setResizable(true);
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("formI");
 	}
 
 	private void openFormLayout(CampaignDto formData) {
@@ -278,8 +282,10 @@ public class CampaignsView extends VerticalLayout {
 		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit));
 		dialog.setSizeFull();
 		dialog.open();
-		dialog.setDraggable(true);
-		dialog.setResizable(true);
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("formI");
 	}
 
 	private void setFiltersVisible(boolean state) {

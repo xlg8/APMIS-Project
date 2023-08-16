@@ -34,7 +34,7 @@ public interface PopulationDataFacade {
 
 	List<PopulationDataDto> getPopulationData(PopulationDataCriteria criteria);
 
-	List<Object[]> getPopulationDataForExport();
+	List<Object[]> getPopulationDataForExport(String campaignUuid);
 	
 	
 	void savePopulationList(Set<PopulationDataDto> savePopulationList);

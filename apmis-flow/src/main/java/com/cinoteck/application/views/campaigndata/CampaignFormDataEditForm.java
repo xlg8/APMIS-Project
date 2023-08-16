@@ -75,7 +75,11 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			}
 			//showConfirmationDialog();
 		});
-		
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("formI");
+		//dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
 	

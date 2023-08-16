@@ -180,7 +180,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		Button myButton = new Button();
 		
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.View_dashboard_campaigns), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,  VaadinIcon.GRID_BIG_O, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,  VaadinIcon.CLIPBOARD , "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class, VaadinIcon.CLIPBOARD_TEXT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration), ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));

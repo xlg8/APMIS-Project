@@ -75,6 +75,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
+import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -120,10 +121,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 	
 	private boolean openedOnce = false;
 
-	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(CampaignFormDataDto.AREA);
-	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(CampaignFormDataDto.REGION);
-	ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(CampaignFormDataDto.DISTRICT);
-	ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(CampaignFormDataDto.COMMUNITY);
+	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+	ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+	ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(I18nProperties.getCaption(Captions.community));
 	
 	FormLayout vertical = new FormLayout();
 
@@ -167,14 +168,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 		vertical_.setColspan(formNam, 3);
 		vertical_.add(formNam);
 
-		ComboBox<Object> cbCampaign = new ComboBox<>(CampaignFormDataDto.CAMPAIGN);
+		ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
 		cbCampaign.setRequired(true);
 		cbCampaign.setEnabled(false);
 
-		formDate.setLabel(CampaignFormDataDto.FORM_DATE);
+		formDate.setLabel(I18nProperties.getCaption(Captions.CampaignFormData_formDate));
 		LocalDate today = LocalDate.now();
 		formDate.setValue(today);
 		formDate.setRequired(true);
@@ -235,6 +236,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 				cbCommunity.clear();
 				cbCommunity.setEnabled(true);
 				cbCommunity.setItems(communities);
+				cbCommunity.setItemLabelGenerator(itm -> {
+					CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+					return dcfv.getNumber() + " | " + dcfv.getCaption();
+				});
 			} else {
 				cbCommunity.clear();
 				cbCommunity.setEnabled(false);
@@ -336,6 +341,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 			cbCommunity.clear();
 			cbCommunity.setEnabled(true);
 			cbCommunity.setItems(districts);
+			cbCommunity.setItemLabelGenerator(itm -> {
+				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+				return dcfv.getNumber() + " | " + dcfv.getCaption();
+			});
 		}
 
 		
@@ -865,14 +874,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 		Boolean isExpressionValue = false;
 		switch (type) {
 		case YES_NO:
-			System.out.println(field.getId() + "@@@@@@@   YES_NO  @@@@@@@@@@@2 " + value);
+			System.out.println(field.getId() + "@@@@@@@   YES_NO  @@@@@@@@@@@2 :" + value+":");
 			if (value != null) {
-				value = value.toString().equalsIgnoreCase("YES") ? true
-						: value.toString().equalsIgnoreCase("NO") ? false : value;
+				Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
+						: value.toString().equalsIgnoreCase("NO") ? false : null;
+			//	System.out.println(Boolean.parseBoolean(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ :"+value+":");
+			//	boolean booleanValue = Boolean.parseBoolean((String) value);
 
-				boolean booleanValue = Boolean.parseBoolean((String) value);
-
-				((ToggleButton) field).setValue(booleanValue);// Sets.newHashSet(value));
+				((ToggleButton) field).setValue(dvalue);// Sets.newHashSet(value));
 			}
 			// System.out.println(Sets.newHashSet(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
 			// "+value);

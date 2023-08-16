@@ -654,3 +654,11 @@ a:hover {
 }
 }
 
+vaadin-dialog-overlay.formI{
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    outline: 0px solid transparent;
+}
+

@@ -6,6 +6,7 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.dom.Element;
 import java.util.Optional;
 
@@ -39,6 +40,7 @@ public class AppNav extends Component implements HasSize, HasStyle {
 
     /**
      * Adds menu item(s) to the menu.
+     * @param anchor 
      *
      * @param appNavItems
      *            the menu item(s) to add

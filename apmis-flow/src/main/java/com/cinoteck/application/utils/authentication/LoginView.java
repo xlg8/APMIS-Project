@@ -13,6 +13,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -26,6 +27,10 @@ import java.util.concurrent.TimeUnit;
 //@CssImport("./styles/shared-styles.css")
 public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private String intendedRoute;
+	
+	public String urlLink;
+	
+	
 	/**
 	 * 
 	 */
@@ -71,6 +76,16 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	}
 
 	private void login(LoginForm.LoginEvent event) {
+		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
+		
+		if(httpSession.getAttribute("intendedRoute") != null) {
+		intendedRoute = (String) httpSession.getAttribute("intendedRoute");
+		System.out.println("____httpSession.getAttributhttpSession.getAttribut________: "+intendedRoute);
+		}else {
+			System.out.println("_httpSession.getAttribut___________: "+intendedRoute);
+		}
+		
+		
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
 //			IdleNotification idleNotification = new IdleNotification();
@@ -88,11 +103,11 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //			 UI.getCurrent().add(idleNotification);
 			
 			VaadinSession.getCurrent().getSession().setMaxInactiveInterval ( 
-					( int ) TimeUnit.MINUTES.toSeconds( 1 ) 
+					( int ) TimeUnit.MINUTES.toSeconds( 30 ) 
 					);
 			
 			
-			System.out.println("__________________________intended root = _________________________________________: "
+			System.out.println(httpSession.getAttribute("intendedRoute") +"_____________________________intended root = _________________________________________: "
 					+ intendedRoute);
 			if (intendedRoute != null) {
 				if (intendedRoute.equals("logout")) {
@@ -142,4 +157,14 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
 
 	}
+
+	public String getUrlLink() {
+		return urlLink;
+	}
+
+	public void setUrlLink(String urlLink) {
+		this.urlLink = urlLink;
+	}
+	
+	
 }
