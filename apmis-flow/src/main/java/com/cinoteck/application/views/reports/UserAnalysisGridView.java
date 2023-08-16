@@ -23,6 +23,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
+import com.vaadin.ui.OptionGroup;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
@@ -57,6 +58,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 	private CommunityCriteriaNew criteria;
 	private UserProvider currentUser = new UserProvider();
+	
 
 //    Paragraph countRowItems;
 	public UserAnalysisGridView(CommunityCriteriaNew criteria, FormAccess formAccess) {

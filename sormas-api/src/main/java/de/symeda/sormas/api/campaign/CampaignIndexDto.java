@@ -16,6 +16,8 @@ public class CampaignIndexDto implements Serializable {
 	public static final String START_DATE = "startDate";
 	public static final String END_DATE = "endDate";
 	public static final String CAMPAIGN_STATUS = "campaignStatus";
+	public static final String ARCHIVE = "archived";
+
 
 	private String uuid;
 	private String name;
@@ -24,8 +26,21 @@ public class CampaignIndexDto implements Serializable {
 	private Date startDate;
 	private Date endDate;
 	private String campaignStatus;
+	private String archived;
 
-	public CampaignIndexDto(String uuid, String name, boolean campaignStatus, String cluster,  String campaignYear, Date startDate, Date endDate) {
+	
+
+//	public CampaignIndexDto(String uuid, String name, boolean campaignStatus, String cluster,  String campaignYear, Date startDate, Date endDate) {
+//		this.uuid = uuid;
+//		this.name = name;
+//		//this.round = round;
+//		this.campaignYear = campaignYear;
+//		this.startDate = startDate;
+//		this.endDate = endDate;
+//		this.campaignStatus = campaignStatus == true ? "Open" : "Closed" ;
+//	}
+	
+	public CampaignIndexDto(String uuid, String name, boolean campaignStatus, String cluster,  String campaignYear, Date startDate, Date endDate, boolean archived) {
 		this.uuid = uuid;
 		this.name = name;
 		//this.round = round;
@@ -33,6 +48,8 @@ public class CampaignIndexDto implements Serializable {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.campaignStatus = campaignStatus == true ? "Open" : "Closed" ;
+		this.archived = archived == true ? "Archived" : "Active" ;
+
 	}
 
 	public String getCampaignStatus() {
@@ -41,6 +58,14 @@ public class CampaignIndexDto implements Serializable {
 
 	public void setCampaignStatus(String campaignStatus) {
 		this.campaignStatus = campaignStatus;
+	}
+	
+	public String getArchived() {
+		return archived;
+	}
+
+	public void setArchived(String archived) {
+		this.archived = archived;
 	}
 
 	public String getUuid() {

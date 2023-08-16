@@ -31,7 +31,7 @@ import com.vaadin.flow.router.Route;
 
 
 
-@PageTitle("APMIS-Support")
+@PageTitle("Support")
 @Route(value = "support", layout = MainLayout.class)
 public class SupportView extends VerticalLayout {
     TextField firstName = new TextField("First name");
@@ -90,7 +90,7 @@ public class SupportView extends VerticalLayout {
 	        versionNum.getStyle().set("font-weight", "500");
 	        versionNum.getStyle().set("color", "#0D6938");
 
-			aboutView.add(aboutText, html,  versionNum);
+			aboutView.add(aboutText, html);
 			 
 	        add(aboutView);
 	}

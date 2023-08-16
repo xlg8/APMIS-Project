@@ -192,9 +192,11 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		
-		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = 
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences();
-		campaignFormCombo.setItems(campaignFormReferences_);
+//		campaignFormCombo.setClearButtonVisible(true);
+		
+		List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUID = 
+				FacadeProvider.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
+		campaignFormCombo.setItems(campaignFormReferences_byCampUUID);
 		campaignFormCombo.addValueChangeListener(event -> {
 				if (event.getValue() != null) {
 					formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
@@ -205,6 +207,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 					importanceSwitcher.setReadOnly(false);
 					importanceSwitcher.clear();
 			}else {
+//				criteria.setCampaignFormMeta(event.getValue());
 				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(true);
 
@@ -333,6 +336,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			if (e.getValue() != null) {
 				criteria.setCampaign(e.getValue());
 				reloadData();
+				List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUIDx = 
+						FacadeProvider.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(e.getValue().getUuid());
+				
+				campaignFormCombo.clear();
+				campaignFormCombo.setItems(campaignFormReferences_byCampUUIDx);
+				
 			}
 		});
 

@@ -13,13 +13,13 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
-
 
 public class CampaignFormGridComponent extends VerticalLayout {
 	/**
@@ -32,6 +32,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	CampaignDto capaingDto;
 	private CampaignFormMetaReferenceDto formBeenEdited;
 	private String campaignPhase;
+	List<CampaignFormMetaReferenceDto> allElements;
 
 	public CampaignFormGridComponent(List<CampaignFormMetaReferenceDto> savedCampaignFormMetas,
 			List<CampaignFormMetaReferenceDto> allCampaignFormMetas, CampaignDto capaingDto, String campaignPhase) {
@@ -39,10 +40,11 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		this.allCampaignFormMetas = allCampaignFormMetas;
 		this.capaingDto = capaingDto;
 		this.campaignPhase = campaignPhase;
-		
 
-		grid.addColumn(CampaignFormMetaReferenceDto::getCaption).setHeader(I18nProperties.getCaption(Captions.formname));
-		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired).setHeader(I18nProperties.getCaption(Captions.expiry));
+		grid.addColumn(CampaignFormMetaReferenceDto::getCaption)
+				.setHeader(I18nProperties.getCaption(Captions.formname));
+		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
+				.setHeader(I18nProperties.getCaption(Captions.expiry));
 		grid.setItems(savedCampaignFormMetas);
 		addClassName("list-view");
 		setSizeFull();
@@ -61,163 +63,185 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	}
 
 	private VerticalLayout editorForm() {
-		
+
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
-		
+
 		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
 		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
 		plusButton.setTooltipText(I18nProperties.getCaption(Captions.addNewForm));
-		
-		
-		 Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
-		 deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
-		 deleteButton.getStyle().set("background-color", "red!important");
-		 deleteButton.setTooltipText(I18nProperties.getCaption(Captions.removeThisForm));
-	        
-	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
-	                new Icon(VaadinIcon.CHECK));
-	        
-	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
-	                new Icon(VaadinIcon.REFRESH));
-		
+
+		Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
+		deleteButton.getStyle().set("background-color", "red!important");
+		deleteButton.setTooltipText(I18nProperties.getCaption(Captions.removeThisForm));
+
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave), new Icon(VaadinIcon.CHECK));
+
+		Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel), new Icon(VaadinIcon.REFRESH));
+
 		ComboBox<CampaignFormMetaReferenceDto> forms = new ComboBox<CampaignFormMetaReferenceDto>();
 		forms.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		forms.setItems(allCampaignFormMetas);
 		// if its a clicked action set the value from the item....TODO
 
-		
 		IntegerField daysExpire = new IntegerField();
 		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
-		if(capaingDto != null) {
+		if (capaingDto != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
 		}
-		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) +datd);
+		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) + datd);
 		daysExpire.setMin(1);
 		daysExpire.setMax(60);
 		daysExpire.setStepButtonsVisible(true);
 		// if its a clicked action set the value from the item....TODO
-		
-		
-		 HorizontalLayout buttonLay = new HorizontalLayout(plusButton, deleteButton);
-		 
-		// buttonLay.setEnabled(false);
-		 
-		 HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cacleButton);
-		 buttonAfterLay.getStyle().set("flex-wrap", "wrap");
-		 buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
-		 buttonLay.setSpacing(true);
-		
-		 grid.addSelectionListener(ee -> {
-			
-			    int size = ee.getAllSelectedItems().size();
-			    if(size > 0) {
-			    	 CampaignFormMetaReferenceDto selectedCamp = ee.getFirstSelectedItem().get();
-					 formBeenEdited = selectedCamp;
-			    boolean isSingleSelection = size == 1;
-			    buttonLay.setEnabled(isSingleSelection);
-			    buttonAfterLay.setEnabled(isSingleSelection);
-			    
-			    formx.setVisible(true);
-				buttonAfterLay.setVisible(true);
-				
-			    //delete.setEnabled(size != 0);
-			    forms.setValue(selectedCamp);
-			    saveButton.setText(I18nProperties.getCaption(Captions.update));
-			    daysExpire.setValue(selectedCamp.getDaysExpired());
-			    } else {
-			    	formBeenEdited = new CampaignFormMetaReferenceDto();
-			    }
-			});
-		 
-		 deleteButton.addClickListener(dex->{
-			 if(formBeenEdited == null) {
-				 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
-			 } else {
 
-			 capaingDto.getCampaignFormMetas().remove(formBeenEdited);
-			// FacadeProvider.getCampaignFacade().saveCampaign(capdto); 
-			 Notification.show(formBeenEdited+ I18nProperties.getString(Strings.wasRemovedFromCampaign));
-			 grid.setItems(capaingDto.getCampaignFormMetas());
-			 }
-			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-		 });
-		 
-		 plusButton.addClickListener(ce->{
-			 CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
-			 
-			 formx.setVisible(true);
-			 buttonAfterLay.setVisible(true);
-			 
-			 try {
-				 forms.setValue(newcampform);
-			 }finally {
-				 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
-				 daysExpire.setValue(5);
-			 }
-			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 grid.setHeight("auto !important");
-			 
-		 });
-		 
-		 cacleButton.addClickListener(ees -> {
-			 CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
-			 
-			 formx.setVisible(false);
-			 buttonAfterLay.setVisible(false);
-			 
-			 forms.setValue(newcampform);
-			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
-			 daysExpire.setValue(0);
-			 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 grid.setHeight("");
-		 });
-		 
-		 
-		 saveButton.addClickListener(e->{ 
-			 
-			 if(((Button) e.getSource()).getText().equals("Save")) {
-				 CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-				
-				 capaingDto.getCampaignFormMetas().add(newCampForm);
-				 
+		HorizontalLayout buttonLay = new HorizontalLayout(plusButton, deleteButton);
+
+		// buttonLay.setEnabled(false);
+
+		HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cacleButton);
+		buttonAfterLay.getStyle().set("flex-wrap", "wrap");
+		buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
+		buttonLay.setSpacing(true);
+
+		grid.addSelectionListener(ee -> {
+
+			int size = ee.getAllSelectedItems().size();
+			if (size > 0) {
+				CampaignFormMetaReferenceDto selectedCamp = ee.getFirstSelectedItem().get();
+				formBeenEdited = selectedCamp;
+				boolean isSingleSelection = size == 1;
+				buttonLay.setEnabled(isSingleSelection);
+				buttonAfterLay.setEnabled(isSingleSelection);
+
+				formx.setVisible(true);
+				buttonAfterLay.setVisible(true);
+
+				// delete.setEnabled(size != 0);
+				forms.setValue(selectedCamp);
+				saveButton.setText(I18nProperties.getCaption(Captions.update));
+				daysExpire.setValue(selectedCamp.getDaysExpired());
+			} else {
+				formBeenEdited = new CampaignFormMetaReferenceDto();
+			}
+		});
+
+		deleteButton.addClickListener(dex -> {
+			if (formBeenEdited == null) {
+				Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
+			} else {
+
+				capaingDto.getCampaignFormMetas().remove(formBeenEdited);
 				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
-				 
-				 Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
-				 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-			 } else {
-				 //formBeenEdited
-				 if(formBeenEdited != null) {
-				 CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-				 CampaignDto capdto = capaingDto;
-				 capaingDto.getCampaignFormMetas().remove(formBeenEdited);
-				 capaingDto.getCampaignFormMetas().add(newCampForm);
-				 //FacadeProvider.getCampaignFacade().saveCampaign(capdto);
-				 grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-				 
-				 Notification.show(I18nProperties.getString(Strings.campaignUpdated));
-				 } else {
-					 Notification.show(I18nProperties.getString(Strings.pleaseSelectaFormBeforeUpdate));
-				 }
-			 }
-			 grid.setHeight("");
-		 });
-		 
-		 
+				Notification.show(formBeenEdited + I18nProperties.getString(Strings.wasRemovedFromCampaign));
+				grid.setItems(capaingDto.getCampaignFormMetas());
+			}
+			grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+		});
+
+		plusButton.addClickListener(ce -> {
+			CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
+
+			formx.setVisible(true);
+			buttonAfterLay.setVisible(true);
+
+			try {
+				forms.setValue(newcampform);
+			} finally {
+				saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+				daysExpire.setValue(5);
+			}
+			grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+			grid.setHeight("auto !important");
+
+		});
+
+		cacleButton.addClickListener(ees -> {
+			CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
+
+			formx.setVisible(false);
+			buttonAfterLay.setVisible(false);
+
+			forms.setValue(newcampform);
+			saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+			daysExpire.setValue(0);
+			grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+			grid.setHeight("");
+		});
+
+		saveButton.addClickListener(e -> {
+
+			if (((Button) e.getSource()).getText().equals("Save")) {
+				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
+
+				newCampForm.setCaption(forms.getValue().toString());
+				newCampForm.setDaysExpired(daysExpire.getValue());
+				if (capaingDto == null) {
+					Notification.show("Campaign Dto is nulllll here ");
+					capaingDto = new CampaignDto();
+					
+					Notification.show(capaingDto + "NEw Campaign Dto is nulllll here ");
+					
+					
+					Notification.show("xxxxxxxxxxxxxxxx form valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee***********************");
+
+					Notification.show(newCampForm + "yyyyyyyyyyyyyyyyyyyform valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
+					Notification.show(capaingDto + "zzzzzzzzzzzzzzzdtoooooooo valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" +campaignPhase);
+
+					capaingDto.getCampaignFormMetas().add(newCampForm);
+					
+					forms.setItems(allCampaignFormMetas);
+
+					Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
+					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+				
+
+				} else {
+					capaingDto.getCampaignFormMetas().add(newCampForm);
+
+					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+					allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
+
+					forms.setItems(allCampaignFormMetas);
+
+					Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
+					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+				}
+
+			} else {
+				// formBeenEdited
+				if (formBeenEdited != null) {
+					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
+					CampaignDto capdto = capaingDto;
+					capaingDto.getCampaignFormMetas().remove(formBeenEdited);
+					capaingDto.getCampaignFormMetas().add(newCampForm);
+					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+
+					Notification.show(I18nProperties.getString(Strings.campaignUpdated));
+				} else {
+					Notification.show(I18nProperties.getString(Strings.pleaseSelectaFormBeforeUpdate));
+				}
+			}
+			grid.setHeight("");
+		});
+
 		formx.add(forms, daysExpire);
 		formx.setColspan(forms, 1);
 		formx.setColspan(daysExpire, 1);
 		formx.setVisible(false);
 		buttonAfterLay.setVisible(false);
-		
+
 		vert.add(buttonLay, formx, buttonAfterLay);
-		
+
 		return vert;
 	}
-	
+
 	public CampaignDto getModifiedDto() {
-		
+
 		return capaingDto;
 	}
 
