@@ -83,16 +83,21 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(CampaignStatisticsDto.CAMPAIGN).setHeader("Campaign").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Campaign");
-		grid.addColumn(CampaignStatisticsDto.FORM).setHeader("Form Name").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Form Name");
-		grid.addColumn(CampaignStatisticsDto.AREA).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Region");
-		grid.addColumn(CampaignStatisticsDto.REGION).setHeader("Province").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Province")
-				.setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "District")
-				.setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.COMMUNITY).setHeader("Cluster").setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Cluster")
-				.setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.FORM_COUNT).setHeader("Form Count").setSortable(true).setResizable(true).setTooltipGenerator(e -> "Form Count");
+		grid.addColumn(CampaignStatisticsDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));
+		grid.addColumn(CampaignStatisticsDto.FORM).setHeader(I18nProperties.getCaption(Captions.formname)).setSortable(true).setResizable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formname));
+		grid.addColumn(CampaignStatisticsDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(CampaignStatisticsDto.REGION).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.DISTRICT).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true).setResizable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.FORM_COUNT).setHeader(I18nProperties.getCaption(Captions.formCount)).setSortable(true).setResizable(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
 
 		grid.setVisible(true);
 
@@ -105,12 +110,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 	}
 
 	public void addFilter() {
-	 UserProvider user = new UserProvider();
+		UserProvider user = new UserProvider();
 //		UserDto user = UserProvider.getCurrent().getUser();
-		 AreaReferenceDto userArea = user.getUser().getArea();
-		 RegionReferenceDto userRegion = user.getUser().getRegion();
-		 DistrictReferenceDto userDistrict = user.getUser().getDistrict();
-		 CommunityReferenceDto userCommunity = null;
+		AreaReferenceDto userArea = user.getUser().getArea();
+		RegionReferenceDto userRegion = user.getUser().getRegion();
+		DistrictReferenceDto userDistrict = user.getUser().getDistrict();
+		CommunityReferenceDto userCommunity = null;
 		if (userArea != null) {
 			regionCombo.setEnabled(false);
 			provinceCombo.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(userArea.getUuid()));
@@ -119,12 +124,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 				districtCombo.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(userRegion.getUuid()));
 				if (userDistrict != null) {
 					districtCombo.setEnabled(false);
-	//				communityFilter.addItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(userDistrict.getUuid()));
-	//				if (userCommunity != null) {
-	//					communityFilter.setEnabled(false);
-	//				}
+					// communityFilter.addItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(userDistrict.getUuid()));
+					// if (userCommunity != null) {
+					// communityFilter.setEnabled(false);
+					// }
+				}
 			}
-		}
 		}
 
 		criteria.setRegion(user.getUser().getRegion());// .setArea(user.getArea());
@@ -133,12 +138,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		criteria.district(user.getDistrict()); // .setDistrict(user.getDistrict());
 ////		
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(false);
 		actionButtonlayout.setAlignItems(Alignment.END);
-		
+
 		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.add(campaignYear, campaignz, groupBy, campaignFormCombo, regionCombo, provinceCombo,
 				districtCombo, importanceSwitcher, resetHandler);
@@ -146,20 +151,20 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		displayFilters.addClickListener(e -> {
 			if (!actionButtonlayout.isVisible()) {
 				actionButtonlayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				actionButtonlayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
-		campaignYear.setLabel("Campaign Year");
+		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaignYear.getStyle().set("padding-top", "0px !important");
 
-		campaignz.setLabel("Campaign");
+		campaignz.setLabel(I18nProperties.getCaption(Captions.Campaign));
 		campaignz.getStyle().set("padding-top", "0px !important");
 
-		groupBy.setLabel("Group By");
+		groupBy.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
 		groupBy.getStyle().set("padding-top", "0px !important");
 
 		// Initialize Item lists
@@ -188,37 +193,34 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 //		criteria.campaign(lastStarted);
 
-		campaignFormCombo.setLabel("Form");
+		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
-		
-//		campaignFormCombo.setClearButtonVisible(true);
-		
-		List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUID = 
-				FacadeProvider.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
-		campaignFormCombo.setItems(campaignFormReferences_byCampUUID);
-		campaignFormCombo.addValueChangeListener(event -> {
-				if (event.getValue() != null) {
-					formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
-					.getCampaignFormMetaByUuid(event.getValue().getUuid());
-					criteria.setCampaignFormMeta(event.getValue());
 
-					reloadData();
-					importanceSwitcher.setReadOnly(false);
-					importanceSwitcher.clear();
-			}else {
-//				criteria.setCampaignFormMeta(event.getValue());
+
+		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+				.getAllCampaignFormMetasAsReferences();
+		campaignFormCombo.setItems(campaignFormReferences_);
+		campaignFormCombo.addValueChangeListener(event -> {
+			if (event.getValue() != null) {
+				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetaByUuid(event.getValue().getUuid());
+				criteria.setCampaignFormMeta(event.getValue());
+
+				reloadData();
+				importanceSwitcher.setReadOnly(false);
+				importanceSwitcher.clear();
+			} else {
+
 				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(true);
 
 			}
 		});
-		
-		
 
-		regionCombo.setLabel("Region");
+		regionCombo.setLabel(I18nProperties.getCaption(Captions.area));
 		regionCombo.getStyle().set("padding-top", "0px !important");
-		regionCombo.setPlaceholder("Regions");
+		regionCombo.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
 		regionCombo.addValueChangeListener(e -> {
@@ -227,37 +229,36 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			provinceCombo.setItems(provinces);
 			provinceCombo.setEnabled(true);
-			
+
 		});
 
-		provinceCombo.setLabel("Province");
+		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
-		provinceCombo.setPlaceholder("Provinces");
+		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinceCombo.setEnabled(false);
 		provinceCombo.getStyle().set("padding-top", "0px");
 		provinceCombo.setClassName("col-sm-6, col-xs-6");
-		
+
 		provinceCombo.addValueChangeListener(e -> {
 			criteria.setRegion(e.getValue());
 			reloadData();
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			districtCombo.setItems(districts);
 			districtCombo.setEnabled(true);
-			
+
 		});
 
-		districtCombo.setLabel("District");
+		districtCombo.setLabel(I18nProperties.getCaption(Captions.district));
 		districtCombo.getStyle().set("padding-top", "0px !important");
-		districtCombo.setPlaceholder("Districts");
+		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtCombo.setEnabled(false);
 		districtCombo.getStyle().set("padding-top", "0px");
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 		districtCombo.addValueChangeListener(e -> {
 			criteria.setDistrict(e.getValue());
-			
+
 			reloadData();
 		});
-
 
 		groupBy.setItems(
 
@@ -266,17 +267,16 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		);
 
-		
-		importanceSwitcher.setLabel("Importance");
+		importanceSwitcher.setLabel(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.getStyle().set("padding-top", "0px !important");
 		importanceSwitcher.setClassName("col-sm-6, col-xs-6");
-		
-		importanceSwitcher.setPlaceholder("Importance");
+
+		importanceSwitcher.setPlaceholder(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
 //		importanceSwitcher.setClearButtonVisible(true);
 		importanceSwitcher.setReadOnly(true);
-		importanceSwitcher.setTooltipText("Select Form first");
-		
+		importanceSwitcher.setTooltipText(I18nProperties.getCaption(Captions.selectFormFirst));
+
 		importanceSwitcher.addValueChangeListener(e -> {
 
 			if (formMetaReference != null) {
@@ -307,7 +307,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 						if (caption != null) {
 							addCustomColumn(element.getId(), caption);
 						}
-					}else if (element.isImportant()) {
+					} else if (element.isImportant()) {
 						String caption = null;
 						if (caption == null) {
 							caption = element.getCaption();
@@ -321,9 +321,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		});
 
-		
-		
-		
 		campaignYear.addValueChangeListener(e -> {
 			campaignz.clear();
 			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream()
@@ -351,11 +348,11 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			CampaignJurisdictionLevel groupingValue = CampaignJurisdictionLevel.AREA;
 			if (e.getValue() != null) {
 				String selectorValue = e.getValue().toString();
-				if (selectorValue.equals("Region")) {
+				if (selectorValue.equals(I18nProperties.getCaption(Captions.area))) {
 					groupingValue = CampaignJurisdictionLevel.AREA;
-				} else if (selectorValue.equals("Province")) {
+				} else if (selectorValue.equals(I18nProperties.getCaption(Captions.region))) {
 					groupingValue = CampaignJurisdictionLevel.REGION;
-				} else if (selectorValue.equals("District")) {
+				} else if (selectorValue.equals(I18nProperties.getCaption(Captions.district))) {
 					groupingValue = CampaignJurisdictionLevel.DISTRICT;
 				} else {
 					// TODO add throwable here to make sure user does not inject insto the system
@@ -367,7 +364,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			reloadData();
 		});
 
-		resetHandler.setText("Reset Filters");
+		resetHandler.setText(I18nProperties.getCaption(Captions.resetFilters));
 
 		resetHandler.addClickListener(e -> {
 
@@ -392,6 +389,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		add(filterBlock);
 	}
+
 	private Consumer<CampaignFormMetaReferenceDto> createFormMetaChangedCallback() {
 		return formMetaReference -> {
 			grid.removeAllColumns();
@@ -442,20 +440,18 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			setColumnsVisibility(criteria.getGroupingLevel());
 		};
 	}
-	
+
 	public void addCustomColumn(String property, String caption) {
-		Column<CampaignStatisticsDto> newColumn =
-			grid.addColumn(e -> e.getStatisticsData().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null));
+		Column<CampaignStatisticsDto> newColumn = grid.addColumn(
+				e -> e.getStatisticsData().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null));
 		newColumn.setSortable(false);
 		newColumn.setHeader(caption);// .setCaption(caption);
 		newColumn.setId(property);
 		newColumn.setResizable(true);
 		newColumn.setTooltipGenerator(e -> newColumn.getHeaderText());
-		
+
 	}
-	
-	
-	
+
 //	public void addCustomColumnx(String property, String caption) {
 //	    Column<CampaignStatisticsDto> newColumn = grid.addColumn(dto -> dto.getStatisticsData()
 //	            .stream()

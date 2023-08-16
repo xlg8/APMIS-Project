@@ -79,8 +79,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private AreaCriteria criteria = new AreaCriteria();
 
 	private GridListDataView<AreaDto> dataView;
-	final static TextField regionField = new TextField("Region");
-	final static TextField rcodeField = new TextField("RCode");
+	final static TextField regionField = new TextField(I18nProperties.getCaption(Captions.area));
+	final static TextField rcodeField = new TextField(I18nProperties.getCaption(Captions.Area_externalId));
 	Binder<AreaDto> binder = new BeanValidationBinder<>(AreaDto.class);
 	Grid<AreaDto> grid = new Grid<>(AreaDto.class, false);;
 	private Button saveButton;
@@ -88,7 +88,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private Button createNewArea;
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>();
-	Anchor anchor = new Anchor("", "Export");
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 
 	HorizontalLayout layout = new HorizontalLayout();
 	HorizontalLayout relevancelayout = new HorizontalLayout();
@@ -97,8 +97,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	TextField searchField;
 	Button clear;
 	UserProvider userProvider = new UserProvider();
-	Button enterBulkEdit = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkEdit = new Button("Leave Bulk Edit");
+	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	Paragraph countRowItems;
 	Button exportRegion = new Button("Export");
 	List<AreaDto> data;
@@ -132,10 +132,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(AreaDto::getName).setHeader("Region").setSortable(true).setResizable(true).setAutoWidth(true)
-				.setTooltipGenerator(e -> "Region");
-		grid.addColumn(AreaDto::getExternalId).setHeader("Rcode").setResizable(true).setSortable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> "Rcode");
+
+		grid.addColumn(AreaDto::getName).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(AreaDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+
 
 		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
@@ -164,7 +165,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
-		exporter.setTitle("Users");
+		exporter.setTitle(I18nProperties.getCaption(Captions.User));
 		exporter.setFileName(
 				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
@@ -188,7 +189,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
-		String newText = "Rows : " + itemCount;
+		String newText = I18nProperties.getCaption(Captions.rows) + itemCount;
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 	}
@@ -228,73 +229,62 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //        result.setValue(output.toString());
 	}
 
-//	private class AreaEditForm extends FormLayout {
-//
-//		public AreaEditForm(AreaDto areaDto) {
-//			Dialog formLayout = new Dialog();
-//
-//			H2 header = new H2("Edit " + areaDto.getName().toString());
-//			this.setColspan(header, 2);
-//			add(header);
-//			Stream.of(regionField, rcodeField).forEach(e -> {
-//				e.setReadOnly(false);
-//				add(e);
-//
-//			});
-//			saveButton = new Button("Save");
-//			archiveDearchive = new Button("Archive");
-//
-//			saveButton.addClickListener(event -> saveArea(areaDto));
-//
-//			add(archiveDearchive, saveButton);
-//		}
-//	}
+	private class AreaEditForm extends FormLayout {
 
-//	private class AreaCreateForm extends FormLayout {
-//
-//		public AreaCreateForm(AreaDto areaDto) {
-//			Dialog formLayout = new Dialog();
-//
-//			H2 header = new H2("Create New Region");
-//			this.setColspan(header, 2);
-//			add(header);
-//			Stream.of(regionField, rcodeField).forEach(e -> {
-//				e.setReadOnly(false);
-//				add(e);
-//
-//			});
-//			saveButton = new Button("Save");
-//
-//			saveButton.addClickListener(event -> saveArea(areaDto));
-//
-//			add(saveButton);
-//		}
-//	}
+		public AreaEditForm(AreaDto areaDto) {
+			Dialog formLayout = new Dialog();
 
-//	private void saveArea(AreaDto areaDto) {
-//		if (binder.isValid()) {
-//			try {
-//				AreaDto areavDto = binder.getBean();
-//				String regionValue = regionField.getValue();
-//				long rcodeValue = Long.parseLong(rcodeField.getValue());
-//				AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
-//
-//				dtoToSave.setName(regionValue);
-//				dtoToSave.setExternalId(rcodeValue);
-//
-//				FacadeProvider.getAreaFacade().save(dtoToSave, true);
-//
-//		}catch (TransactionRolledbackLocalException e){
-//			
-//			Notification notification = createNotification("Error: Duplicate key value violation");
-//            notification.open();
-//			
-//		}finally {
-//			grid.getDataProvider().refreshItem(areaDto);
-//
-//		}
-//		}
-//	}
+			H2 header = new H2(I18nProperties.getCaption(Captions.edit) + areaDto.getName().toString());
+			this.setColspan(header, 2);
+			add(header);
+			Stream.of(regionField, rcodeField).forEach(e -> {
+				e.setReadOnly(false);
+				add(e);
+
+			});
+			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+			archiveDearchive = new Button(I18nProperties.getCaption(Captions.actionArchive));
+
+			saveButton.addClickListener(event -> saveArea(areaDto));
+
+			add(archiveDearchive, saveButton);
+		}
+	}
+
+	private class AreaCreateForm extends FormLayout {
+
+		public AreaCreateForm(AreaDto areaDto) {
+			Dialog formLayout = new Dialog();
+
+			H2 header = new H2(I18nProperties.getCaption(Captions.createNewRegion));
+			this.setColspan(header, 2);
+			add(header);
+			Stream.of(regionField, rcodeField).forEach(e -> {
+				e.setReadOnly(false);
+				add(e);
+
+			});
+			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+
+			saveButton.addClickListener(event -> saveArea(areaDto));
+
+			add(saveButton);
+		}
+	}
+
+	private void saveArea(AreaDto areaDto) {
+		if (binder.isValid()) {
+			AreaDto areavDto = binder.getBean();
+			String regionValue = regionField.getValue();
+			long rcodeValue = Long.parseLong(rcodeField.getValue());
+			AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
+
+			dtoToSave.setName(regionValue);
+			dtoToSave.setExternalId(rcodeValue);
+
+			FacadeProvider.getAreaFacade().save(dtoToSave, true);
+		}
+	}
 	
 	private Notification createNotification(String message) {
 	    Notification notification = new Notification(message, 3000); // Show for 3 seconds
@@ -311,9 +301,12 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private void addRegionFilter() {
 //		criteria = new AreaCriteria();
 
-		enterBulkEdit = new Button("Enter Bulk Edit Mode");
-		leaveBulkEdit = new Button();
-		dropdownBulkOperations = new MenuBar();
+
+		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+			leaveBulkEdit = new Button();
+			dropdownBulkOperations = new MenuBar();
+		}
 
 		setMargin(true);
 		layout.setPadding(false);
@@ -331,17 +324,17 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				layout.setVisible(false);
 				relevancelayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
@@ -355,7 +348,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		searchField = new TextField();
 
-		searchField.setPlaceholder("Search");
+		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.setWidth("15%");
@@ -378,7 +371,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		}));
 
-		clear = new Button("Clear Search");
+		clear = new Button(I18nProperties.getCaption(Captions.clearSearch));
 		clear.getStyle().set("color", "white");
 		clear.getStyle().set("background", "#0D6938");
 		clear.addClickListener(e -> {
@@ -387,7 +380,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 
-		Button addNew = new Button("Add New Region");
+		Button addNew = new Button(I18nProperties.getCaption(Captions.addNewRegion));
 		addNew.getElement().getStyle().set("white-space", "normal");
 		addNew.getStyle().set("color", "white");
 		addNew.getStyle().set("background", "#0D6938");
@@ -395,7 +388,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			createOrEditArea(areaDto);
 		});
 
-		Button importArea = new Button("Import");
+		Button importArea = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importArea.getStyle().set("color", "white");
 		importArea.getStyle().set("background", "#0D6938");
 		importArea.addClickListener(event -> {
@@ -403,17 +396,17 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		});
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-			enterBulkEdit = new Button("Enter Bulk Edit Mode");
+			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 			leaveBulkEdit = new Button();
 			dropdownBulkOperations = new MenuBar();
-			MenuItem bulkActionsItem = dropdownBulkOperations.addItem("Bulk Actions");
+			MenuItem bulkActionsItem = dropdownBulkOperations.addItem(I18nProperties.getCaption(Captions.bulkActions));
 			subMenu = bulkActionsItem.getSubMenu();
-			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
+			subMenu.addItem(I18nProperties.getCaption(Captions.archive), e -> handleArchiveDearchiveAction());
 
 		}
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
-		relevanceStatusFilter.setLabel("Relevance");
+		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.relevanceStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
@@ -421,14 +414,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			refreshGridData();
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
-				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
-			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
+
+				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
+			}else if(relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)){
+
 				subMenu.removeAll();
-				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
+				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive), event -> handleArchiveDearchiveAction());
 
 			} else {
 				subMenu.removeAll();
-				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk  action ");
+				Notification.show(I18nProperties.getString(Strings.pleaseSelectEitherArchivedUnitToCarryOutBulkAction));
 			}
 
 		});
@@ -477,7 +472,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		itemCount = dataProvider.getItems().size();
 
-		countRowItems = new Paragraph("Rows : " + itemCount);
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + itemCount);
 		countRowItems.setId("rowCount");
 
 		relevancelayout.add(countRowItems);
@@ -501,7 +496,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		});
 
-		leaveBulkEdit.setText("Leave Bulk Edit Mode");
+		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
 		leaveBulkEdit.setVisible(false);
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -523,8 +518,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private void handleArchiveDearchiveAction() {
 
-		archiveDearchiveAllSelectedItems(grid.getSelectedItems());
-		Notification.show("Delete action selected!");
+		archiveDearchiveAllSelectedItems(grid.getSelectedItems() );
+		Notification.show(I18nProperties.getString(Strings.deleteActionSelected));
+
 	}
 
 	public void archiveDearchiveAllSelectedItems(Collection<AreaDto> selectedRows) {
@@ -536,11 +532,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.setRejectable(true);
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
-			archiveDearchiveConfirmation.setConfirmText("Ok");
+			archiveDearchiveConfirmation.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
 
-			archiveDearchiveConfirmation.setHeader("Error Archiving");
-			archiveDearchiveConfirmation
-					.setText("You have not selected any data to be Archived, please make a selection.");
+			archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.errorArchiving));
+			archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.youHaveNotSeleceted));
 
 			archiveDearchiveConfirmation.open();
 //			Notification.show(I18nProperties.getString(Strings.messageNodataSelected));
@@ -548,8 +543,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		} else {
 			archiveDearchiveConfirmation.setCancelable(true);
 			archiveDearchiveConfirmation.setRejectable(true);
-			archiveDearchiveConfirmation.setRejectText("No");
-			archiveDearchiveConfirmation.setConfirmText("Yes");
+			archiveDearchiveConfirmation.setRejectText(I18nProperties.getCaption(Captions.actionNo));
+			archiveDearchiveConfirmation.setConfirmText(I18nProperties.getCaption(Captions.actionYes));
 			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.open();
@@ -557,8 +552,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			for (AreaDto selectedRow : (Collection<AreaDto>) selectedRows) {
 				boolean archive = selectedRow.isArchived();
 				if (!archive) {
-					archiveDearchiveConfirmation.setHeader("Archive Selected Regions");
-					archiveDearchiveConfirmation.setText("Are you sure you want to Archive the selected Regions?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveSelectedRegions));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveSelecetdRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -572,8 +567,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 //					Notification.show("Archiving Selected Rows ");
 				} else {
-					archiveDearchiveConfirmation.setHeader("De-Archive Selected Regions");
-					archiveDearchiveConfirmation.setText("Are you sure you want to De-Archive the selected Regions?");
+					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchivedSelectedRegions));
+					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -595,8 +590,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 
-		TextField nameField = new TextField("Name");
-		TextField rCodeField = new TextField("RCode");
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
+		TextField rCodeField = new TextField(I18nProperties.getCaption(Captions.Area_externalId));
 
 		if (areaDto != null) {
 			nameField.setValue(areaDto.getName());
@@ -619,8 +614,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //				FacadeProvider.getAreaFacade().dearchive(uuids);
 //			}
 //		});
-		Button saveButton = new Button("Save");
-		Button discardButton = new Button("Discard", e -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		Button archiveButton = new Button();
 		if (areaDto != null) {
 			boolean isArchivedx = areaDto.isArchived();
@@ -647,8 +642,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					if (uuidsz != null) {
 
 						if (isArchived == true) {
-							archiveDearchiveConfirmation.setHeader("De-Archive Region");
-							archiveDearchiveConfirmation.setText("Are you sure you want to De-archive this Region? ");
+
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveRegion));
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantDearchiveRegion));
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().dearchive(uuidsz);
@@ -657,8 +653,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							});
 
 						} else {
-							archiveDearchiveConfirmation.setHeader("Archive Region");
-							archiveDearchiveConfirmation.setText("Are you sure you want to Archive this Region? ");
+
+							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveRegion));
+							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveRegion));
+							
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().archive(uuidsz);
@@ -693,7 +691,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						long rcodeValue = Long.parseLong(code);
 						dce.setExternalId(rcodeValue);
 						FacadeProvider.getAreaFacade().save(dce, true);
-						Notification.show("Saved: " + name + " " + code);
+						Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 						dialog.close();
 						refreshGridData();
 					} else {
@@ -705,7 +703,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						
 						try {
 						FacadeProvider.getAreaFacade().save(dcex, true);
-						Notification.show("Saved New Region: " + name + " " + code);
+						Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
 						dialog.close();
 						refreshGridData();
 						}catch (Exception e) {
@@ -733,7 +731,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 				}
 			} else {
-				Notification.show("Not Valid Value: " + name + " " + code);
+				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
 			}
 
 		});
@@ -741,10 +739,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		fmr.add(nameField, rCodeField);
 
 		if (areaDto == null) {
-			dialog.setHeaderTitle("Add New Region");
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.addNewRegion));
 			dialog.getFooter().add(discardButton, saveButton);
 		} else {
-			dialog.setHeaderTitle("Edit " + areaDto.getName());
+			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.edit) + areaDto.getName());
 			dialog.getFooter().add(archiveButton, discardButton, saveButton);
 
 		}

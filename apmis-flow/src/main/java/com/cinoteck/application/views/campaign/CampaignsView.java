@@ -85,9 +85,16 @@ public class CampaignsView extends VerticalLayout {
 	
 	private final UserProvider userProvider = new UserProvider();
 
-
 	public CampaignsView() {
+		if (I18nProperties.getUserLanguage() == null) {
 
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		setSpacing(false);
 		setHeightFull();
 		createFilterBar();

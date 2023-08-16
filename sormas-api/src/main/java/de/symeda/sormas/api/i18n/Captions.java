@@ -10,15 +10,15 @@ public interface Captions {
 	 * constants of this class is accepted: Close as false positive.
 	 */
 
+	//New added by Yahaya, end by the next big space 
 	String about = "about";
-	
 	String clusterNumber = "clusterNumber";
 	String formPhase = "formPhase";
 	String formAccess = "formAccess";
 	String aboutGuides = "GUIDES";
 	String aboutvideos = "Videos";
-	String apmisaboutguides = "User Guides";
-	String abouttechguides = "Technical Guides";
+	String aboutuserguides = "userGuides";
+	String abouttechguides = "technicalGuides";
 	String apmishziguides = "HZI Guides";
 	String campaignYear = "campaignYear";
 	String showFilters = "showFilters";
@@ -64,6 +64,63 @@ public interface Captions {
 	String changePassword="changePassword";
 	String mobileUserGuide="mobileUserGuide";
 	String exportFormGlossary="exportFormGlossary";
+	String relevanceStatus="relevanceStatus";
+	String addNewCluster="addNewCluster";
+	String errorArchiving="errorArchiving";
+	String notValidValue="notValidValue";
+	String dearchiveCluster="dearchiveCluster";
+	String archiveCluster="archiveCluster";
+	String archiveSelectedCluster="archiveSelectedCluster";
+	String dearchiveSelectedClusters="dearchiveSelectedClusters";
+	String risk="risk";
+	String addNewDistrict="addNewDistrict";
+	String archiveSelectedDistricts="archiveSelectedDistricts";
+	String dearchiveSelectedDistricts="dearchiveSelectedDistricts";
+	String dearchiveDistrict="dearchiveDistrict";
+	String archiveDistrict="archiveDistrict";
+	String addNewProvince="addNewProvince";
+	String dearchiveProvince="dearchiveProvince";
+	String archiveProvince="archiveProvince";
+	String createNewRegion="createNewRegion";
+	String clearSearch="clearSearch";
+	String addNewRegion="addNewRegion";
+	String archiveSelectedRegions="archiveSelectedRegions";
+	String dearchivedSelectedRegions="dearchivedSelectedRegions";
+	String dearchiveRegion="dearchiveRegion";
+	String archiveRegion="archiveRegion";
+	String formCount="formCount";
+	String selectFormFirst="selectFormFirst";
+	String icmHouseholdMonitoring="icmHouseholdMonitoring";
+	String icmRevisits="icmRevisits";
+	String icmSupervisorMonitoring="icmSupervisorMonitoring";
+	String icmTeamMonitoring="icmTeamMonitoring";
+	String aggregateReport="aggregateReport";
+	String dataCompleteness="dataCompleteness";
+	String mobileUsers="mobileUsers";
+	String errorStatus="errorStatus";
+	String message="message";
+	String notaValidEmail="notaValidEmail";
+	String allUsers="allUsers";
+	String firstNameRequired="firstNameRequired";
+	String lastNameRequired="lastNameRequired";
+	String emailRequired="emailRequired";
+	String enterValidPhoneNumber="enterValidPhoneNumber";
+	String enterStreetHere="enterStreetHere";
+	String enterHouseNumberHere="enterHouseNumberHere";
+	String enterAdditionalInformationHere="enterAdditionalInformationHere";
+	String enterPostalCodeHere="enterPostalCodeHere";
+	String enterCityHere="enterCityHere";
+	String pleaseFillOutFirstLastname="pleaseFillOutFirstLastname";
+	String userRoleRequired="userRoleRequired";
+	String pleaseFillFormAccess="pleaseFillFormAccess";
+	String salesReport="salesReport";
+	String fieldInformation="fieldInformation";
+	
+	
+	
+	
+	
+	
 	
 	
 	

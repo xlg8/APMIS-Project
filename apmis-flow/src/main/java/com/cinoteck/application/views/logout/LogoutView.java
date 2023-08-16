@@ -2,9 +2,8 @@ package com.cinoteck.application.views.logout;
 
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-
+import com.cinoteck.application.UserProvider;
 import java.util.concurrent.TimeUnit;
-
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.MainLayout;
@@ -24,6 +23,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinSession;
 
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -34,10 +35,21 @@ import de.symeda.sormas.api.i18n.Strings;
 public class LogoutView extends VerticalLayout implements BeforeEnterObserver {
 	private Button confirmButton;
 	private Button cancelButton;
+
 	private String intendedRoute;
-//	private JsonDatabase setLAstLogged;
-	
+
+	UserProvider userProvider = new UserProvider();
+
 	public LogoutView() {
+		if (I18nProperties.getUserLanguage() == null) {
+
+			I18nProperties.setUserLanguage(Language.EN);			
+		} else {
+
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		Dialog dialog = new Dialog();
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);

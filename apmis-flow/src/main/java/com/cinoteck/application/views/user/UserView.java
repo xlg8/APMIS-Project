@@ -149,6 +149,7 @@ public class UserView extends VerticalLayout {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		filterDataProvider = usersDataProvider.withConfigurableFilter();
 
 //		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
@@ -169,7 +170,7 @@ public class UserView extends VerticalLayout {
 		criteria = new UserCriteria();
 
 		int numberOfRows = filterDataProvider.size(new Query<>());
-		countRowItems = new Paragraph("Rows : " + numberOfRows);
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + numberOfRows);
 		countRowItems.setId("rowCount");
 
 		layout.setMargin(true);
@@ -255,15 +256,15 @@ public class UserView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		displayFilters = new Button("Show Filters", new Icon(VaadinIcon.SLIDERS));
+		displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "10px");
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
-				displayFilters.setText("Hide Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
 			} else {
 				filterLayout.setVisible(false);
-				displayFilters.setText("Show Filters");
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
 
@@ -646,8 +647,10 @@ public class UserView extends VerticalLayout {
 
 
 	private void updateRowCount() {
+    
 		int numberOfRows = filterDataProvider.size(new Query<>());
-		String newText = "Rows : " + numberOfRows;
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
+      
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 	}

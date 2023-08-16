@@ -95,7 +95,7 @@ public class UserForm extends FormLayout {
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
-	TextField additionalInformation = new TextField("Additional Information");
+	TextField additionalInformation = new TextField(I18nProperties.getCaption(Captions.Location_additionalInformation) );
 	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
 	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
 	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
@@ -118,13 +118,15 @@ public class UserForm extends FormLayout {
 	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
 	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
 
-	Anchor createPassword = new Anchor("", "CreateNew Password");
+	Anchor createPassword = new Anchor("", I18nProperties.getCaption(Captions.userResetPassword));
+
 
 	Map<String, Component> map = new HashMap<>();
 
 	RegexpValidator patternValidator = new RegexpValidator("^[A-Za-z]+$", "Only letters are allowed");
 
-	EmailValidator emailVal = new EmailValidator("Not a Valid Email");
+	EmailValidator emailVal = new EmailValidator(I18nProperties.getCaption(Captions.notaValidEmail));
+
 	String initialLastNameValue = "";
 	UserDto usr = new UserDto();
 	static UserProvider currentUser = new UserProvider();
@@ -134,13 +136,14 @@ public class UserForm extends FormLayout {
 
 	boolean editmode = false;
 
+
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user) {
 
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT_O);
-		Span prefixText = new Span("All Users");
+		Span prefixText = new Span(I18nProperties.getCaption(Captions.allUsers));
 		prefixText.setClassName("backButtonText");
 		HorizontalLayout layout = new HorizontalLayout(vaadinIcon, prefixText);
 		vaadinIcon.setClassName("backButton");
@@ -170,16 +173,17 @@ public class UserForm extends FormLayout {
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
-		binder.forField(firstName).asRequired("First Name is Required").bind(UserDto::getFirstName,
+		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData)).bind(UserDto::getFirstName,
 				UserDto::setFirstName);
 
-		binder.forField(lastName).asRequired("Last Name is Required").bind(UserDto::getLastName, UserDto::setLastName);
+		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired)).bind(UserDto::getLastName, UserDto::setLastName);
 
-		suggestUserName(editmode);
-		binder.forField(userEmail).bind(UserDto::getUserEmail, UserDto::setUserEmail);
+		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired)).bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
-		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
+		binder.forField(phone).withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
+				.bind(UserDto::getPhone, UserDto::setPhone);
+
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -325,14 +329,18 @@ public class UserForm extends FormLayout {
 			}
 		});
 
-		street.setPlaceholder("Enter street here");
-		houseNumber.setPlaceholder("Enter House Number here");
-		additionalInformation.setPlaceholder("Enter Additional Information here");
-		postalCode.setPlaceholder("Enter postal Code here");
-		city.setPlaceholder("Enter City here");
+//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
+		houseNumber.setPlaceholder(I18nProperties.getCaption(Captions.enterHouseNumberHere));
+		additionalInformation.setPlaceholder(I18nProperties.getCaption(Captions.enterAdditionalInformationHere));
+		postalCode.setPlaceholder(I18nProperties.getCaption(Captions.enterPostalCodeHere));
+		city.setPlaceholder(I18nProperties.getCaption(Captions.enterCityHere));
+
 		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
+
+		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname)).bind(UserDto::getUserName, UserDto::setUserName);
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
@@ -341,8 +349,26 @@ public class UserForm extends FormLayout {
 		System.out.println(roles + "tttttttttttttttttttttt");
 		userRoles.setItems(roles);
 
+
 		formAccessesList = UserUiHelper.getAssignableForms();
+
 		
+		// TODO: Change implemenation to only add assignable roles sormas style.
+		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired)).bind(UserDto::getUserRoles,
+				UserDto::setUserRoles);
+		this.setColspan(userRoles, 1);
+		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
+
+		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
+		formAccess.setItems(UserUiHelper.getAssignableForms());
+		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess)).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+
+		this.setColspan(activeCheck, 2);
+		activeCheck.setLabel(I18nProperties.getCaption(Captions.User_active));
+		activeCheck.setValue(active);
+		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
+
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccess.setItems(formAccessesList);
@@ -366,6 +392,7 @@ public class UserForm extends FormLayout {
 
 			UserProvider currentUser = new UserProvider();
 
+
 			System.out.println((boolean) e.getValue());
 			if ((boolean) e.getValue() == true) {
 				userTypes.setValue(UserType.COMMON_USER);
@@ -388,6 +415,9 @@ public class UserForm extends FormLayout {
 
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
+
+    binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired) ).bind(UserDto::getLanguage, UserDto::setLanguage);
+
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,

@@ -10,6 +10,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -27,13 +29,13 @@ public class ClusterEditForm extends HorizontalLayout{
 		dialog.add();
 		dialog.setSizeFull();
 		
-		Button deleteButton = new Button("Cancel", (e) -> dialog.close());
+		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionCancel), (e) -> dialog.close());
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 		        ButtonVariant.LUMO_TERTIARY);
 		deleteButton.getStyle().set("margin-right", "auto");
 		dialog.getFooter().add(deleteButton);
 
-		Button saveButton = new Button("Save Data");//, (e) -> dialog.close());
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));//, (e) -> dialog.close());
 		saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		dialog.getFooter().add(saveButton);
 		
@@ -54,21 +56,21 @@ public class ClusterEditForm extends HorizontalLayout{
 		
 		FormLayout formLayout = new FormLayout();
 		
-	TextField name = new TextField("Name");
+	TextField name = new TextField(I18nProperties.getCaption(Captions.name));
 	name.setRequired(true);
 	
 	
-	TextField clusterNumber = new TextField("Cluster Number");
+	TextField clusterNumber = new TextField(I18nProperties.getCaption(Captions.clusterNumber));
 	
 	
-	TextField cCode = new TextField("CCode");
+	TextField cCode = new TextField(I18nProperties.getCaption(Captions.Community_externalID));
 	cCode.setRequired(true);
 	
 	
-	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>("Region");
+	ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	regionFilter.setRequired(true);
 	
-	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>("Province");
+	ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 	provinceFilter.setRequired(true);
 	
 	

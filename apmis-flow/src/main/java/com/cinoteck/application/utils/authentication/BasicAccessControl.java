@@ -174,10 +174,6 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 			e.printStackTrace();
 		}
 		
-		if (intendedRoute != null) {
-			LoginView dc = new LoginView();
-			dc.setUrlLink(intendedRoute);
-		}
 		
 		
 

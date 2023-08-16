@@ -52,6 +52,7 @@ import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -94,6 +95,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
+
+		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);

@@ -17,6 +17,8 @@ import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDataDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.diagram.DiagramType;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
 
 public class BarChartCardComponent extends Div {
 
@@ -47,7 +49,7 @@ setSizeFull();
 		headerIcon.addClassNames("header-icon", "lnr-apartment", "icon-gradient", "bg-love-kiss");
 
 		// Create the sales report label
-		Label salesReportLabel = new Label("Sales Report");
+		Label salesReportLabel = new Label(I18nProperties.getCaption(Captions.salesReport));
 
 		// Add the header icon and sales report label to the card header title div
 		cardHeaderTitleDiv.add(headerIcon, salesReportLabel);
