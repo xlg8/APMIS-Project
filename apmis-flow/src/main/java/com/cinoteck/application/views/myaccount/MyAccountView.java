@@ -4,6 +4,7 @@ import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -326,12 +327,15 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				if (userLanguage.equals("Pashto")) {
 
 					languageSwitcher.switchLanguage(new Locale("ps"));
+					UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				} else if (userLanguage.equals("Dari")) {
 
 					languageSwitcher.switchLanguage(new Locale("fa"));
+					UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				} else {
 					
 					languageSwitcher.switchLanguage(Locale.ENGLISH);
+					UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 				}
 
 			} else {

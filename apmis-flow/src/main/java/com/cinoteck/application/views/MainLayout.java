@@ -25,6 +25,7 @@ import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.user.UserView;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -352,12 +353,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			if (userLanguage.equals("Pashto")) {
 
 				languageSwitcher.mainSwitchLanguage(new Locale("ps"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else if (userLanguage.equals("Dari")) {
 
 				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else {
-
+				
 				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);
+				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 			}
 
 		}

@@ -130,7 +130,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
 
-		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
 
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		
@@ -138,7 +138,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
 
-		campaignPhase.setLabel("Campaign Phase");
+		campaignPhase.setLabel(I18nProperties.getCaption(Captions.Campaign_phase));
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
 		campaignPhase.setItems(CampaignPhase.values());
 		campaignPhase.getStyle().set("padding-top", "0px");
