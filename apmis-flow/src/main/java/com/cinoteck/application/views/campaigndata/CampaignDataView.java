@@ -562,22 +562,22 @@ public class CampaignDataView extends VerticalLayout {
 			confirmationDialog.setCancelable(false);
 			confirmationDialog.setRejectable(false);
 			confirmationDialog.addCancelListener(e -> confirmationDialog.close());
-			confirmationDialog.setConfirmText("Ok");
+			confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
 
-			confirmationDialog.setText("You have not selected any data to be deleted. ");
+			confirmationDialog.setText("You have not selected any data to be deleted.");
 			confirmationDialog.setHeader("Error Deleting Campaign Data");
 			confirmationDialog.open();
 
 		} else {
 			confirmationDialog.setCancelable(true);
 			confirmationDialog.setRejectable(true);
-			confirmationDialog.setRejectText("No");
-			confirmationDialog.setConfirmText("Yes");
+			confirmationDialog.setRejectText(I18nProperties.getCaption(Captions.actionNo));
+			confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionYes));
 			confirmationDialog.addCancelListener(e -> confirmationDialog.close());
 			confirmationDialog.addRejectListener(e -> confirmationDialog.close());
 			confirmationDialog.open();
 			confirmationDialog.setHeader("Delete Campaign Data");
-			confirmationDialog.setText("Are you sure you want to Delete the selected Campaign Data?");
+			confirmationDialog.setText("Are you sure you want to Delete selected Campaign Data?");
 			confirmationDialog.addConfirmListener(e -> {
 				List<String> uuids = selectedRows.stream().map(CampaignFormDataIndexDto::getUuid)
 						.collect(Collectors.toList());
@@ -625,8 +625,8 @@ public class CampaignDataView extends VerticalLayout {
 		});
 
 
-		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
-				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "Campaign");// .setFooter(String.format("Row
+		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
+				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));// .setFooter(String.format("Row
 																												// Count:
 																												// %s",
 																												// (int)
@@ -637,7 +637,7 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getArea());
 		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
-				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> "RCode");
+				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
