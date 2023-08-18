@@ -81,6 +81,10 @@ public interface Strings {
 	String passwordChangedSuccessfully="passwordChangedSuccessfully";
 	String passwordDoesNotMatch="passwordDoesNotMatch";
 	String doYouReallyWantToChangeYourPassword="doYouReallyWantToChangeYourPassword";
+	String newUserPassword="newUserPassword";
+	String pleaseCopyPassword="pleaseCopyPassword";
+	
+	
 	
 	
 	

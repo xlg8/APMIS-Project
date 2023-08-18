@@ -138,7 +138,7 @@ public class CampaignsView extends VerticalLayout {
 		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
 		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader("Relevance Status").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader(I18nProperties.getCaption(Captions.relevanceStatus)).setSortable(true).setResizable(true);
 		
 
 		
