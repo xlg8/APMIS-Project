@@ -122,6 +122,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+//		campaigns = campaigns.stream().distinct().collect(Collectors.toList());
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear() + "");
 		}
