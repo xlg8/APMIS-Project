@@ -117,8 +117,8 @@ public interface Captions {
 	String fieldInformation="fieldInformation";
 	String oldPassword="oldPassword";
 	String editing="editing";
-	
-	
+	String apmisVersionNumber="apmisVersionNumber";
+	String releaseDate="releaseDate";
 	
 	
 	
