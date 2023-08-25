@@ -263,8 +263,9 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 		Button openPasswordPopupButton = new Button(I18nProperties.getCaption(Captions.changePassword));
 
 
-		openPasswordPopupButton.addClickListener(event -> {
+		openPasswordPopupButton.addClickListener(event -> { 
 			CredentialPassWordChanger sev = new CredentialPassWordChanger(currentUser);
+			sev.continuePasswrd();
 		});
 		add();
 
@@ -320,22 +321,18 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				I18nProperties.setUserLanguage(languagee.getValue());
 				I18nProperties.getUserLanguage();
 				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
-
-				System.out.println(userProvider.getUser().getLanguage().toString());
+			
 				String userLanguage = userProvider.getUser().getLanguage().toString();
 
 				if (userLanguage.equals("Pashto")) {
 
 					languageSwitcher.switchLanguage(new Locale("ps"));
-					UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				} else if (userLanguage.equals("Dari")) {
 
 					languageSwitcher.switchLanguage(new Locale("fa"));
-					UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				} else {
 					
-					languageSwitcher.switchLanguage(Locale.ENGLISH);
-					UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
+					languageSwitcher.switchLanguage(Locale.ENGLISH);			
 				}
 
 			} else {
