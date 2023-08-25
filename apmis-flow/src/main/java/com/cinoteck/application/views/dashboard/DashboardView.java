@@ -8,6 +8,7 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.text.WordUtils;
 import com.vaadin.flow.component.button.Button;
@@ -121,8 +122,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		UserProvider usr = new UserProvider();
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
-//		campaigns = campaigns.stream().distinct().collect(Collectors.toList());
+		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();	
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear() + "");
 		}

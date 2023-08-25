@@ -9,8 +9,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -55,20 +53,15 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		dialog.setCloseOnOutsideClick(false);
 
 		
-		Button deleteButton =new Button(I18nProperties.getCaption(Captions.actionDelete));
-		Button cancelButton =new Button(I18nProperties.getCaption(Captions.actionCancel), (e) -> dialog.close());
-		
-		deleteButton.setIcon(new Icon(VaadinIcon.ALARM));
-		deleteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		cancelButton.setIcon(new Icon(VaadinIcon.REFRESH));
+		Button deleteButton =new Button(I18nProperties.getCaption(Captions.actionCancel), (e) -> dialog.close());
+		deleteButton.setIcon(new Icon(VaadinIcon.REFRESH));
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+		        ButtonVariant.LUMO_CONTRAST);
 //		new Button("Cancle", (e) -> dialog.close());
 //		deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 //		        ButtonVariant.LUMO_TERTIARY);
 		deleteButton.getStyle().set("margin-right", "auto");
-		deleteButton.getStyle().set("color", "red");
-		
 		dialog.getFooter().add(deleteButton);
-		dialog.getFooter().add(cancelButton);
 
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));//, (e) -> dialog.close());
 		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
@@ -76,19 +69,6 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 //		        ButtonVariant.LUMO_SUCCESS);
 		dialog.getFooter().add(saveButton);
 		
-		deleteButton.addClickListener(e->{
-			
-			try {
-			FacadeProvider.getCampaignFormDataFacade()
-			.deleteCampaignFormData(uuidForm);
-			dialog.close();
-			grid.getDataProvider().refreshAll();
-			System.out.println("deleted "+uuidForm);
-			} catch(Exception ex) {
-				
-				Notification.show("Unable to delete Form at the moment, Try Again", 10, Position.MIDDLE);
-			}
-		});
 		
 		saveButton.addClickListener(e -> {
 			if(campaignFormBuilder.saveFormValues()) {
