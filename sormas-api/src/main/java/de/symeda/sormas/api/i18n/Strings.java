@@ -83,7 +83,7 @@ public interface Strings {
 	String doYouReallyWantToChangeYourPassword="doYouReallyWantToChangeYourPassword";
 	String newUserPassword="newUserPassword";
 	String pleaseCopyPassword="pleaseCopyPassword";
-	
+	String changePasswordForUser="changePasswordForUser";
 	
 	
 	
