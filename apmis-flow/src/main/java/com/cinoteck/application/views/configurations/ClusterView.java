@@ -567,7 +567,7 @@ public class ClusterView extends VerticalLayout {
 	public boolean createOrEditCluster(CommunityDto communityDto) {
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
-		TextField nameField = new TextField();
+		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 //		
 		TextField clusterNumber = new TextField(I18nProperties.getCaption(Captions.clusterNumber));
 
@@ -704,36 +704,30 @@ public class ClusterView extends VerticalLayout {
 						String checkerName = districtIndexDto.getName();
 
 						if (checkerName.trim().equals(districtOfCluster.getValue().toString().trim())) {
-							System.out.println("shout you catch me egbon = pcode here == "
-									+ districtIndexDto.getExternalId() + " my name is " + districtIndexDto.getName()
-									+ " From textfield name is " + provinceOfDistrict.getValue().toString().trim());
-//                            dcex.setDistrictexternalId(districtIndexDto.getExternalId());
+							System.out.println("shout you catch me egbon: pcode here == "
+									+ districtIndexDto.getExternalId() + " my name is " + districtIndexDto.getName());
 							DistrictReferenceDto nuller = new DistrictReferenceDto(districtIndexDto.getUuid(),
 									districtIndexDto.getName(), districtIndexDto.getExternalId());
-							dcex.setDistrict(nuller);
-							System.out.println(dcex.getDistrict().getExternalId());					}
+							dcex.setDistrict(nuller);							
+						}
 					}
 
 					if (dcex.getDistrict().getExternalId() != null) {
-						System.out.println(dcex.getDistrict().getExternalId());
+
 						Long cCodeConstruction = dcex.getDistrict().getExternalId();
 						if (clusterNum.length() == 1) {
 
-							System.out.println("Joins ccode with format for single digit");
 							clusterNum = "00" + clusterNum.toString();
 						} else if (clusterNum.length() == 2) {
 
-							System.out.println("Joins ccode with format for two digit");
 							clusterNum = "0" + clusterNum.toString();
 						}
 
-						System.out.println("Construction and format joined in matrimony");
 						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
 
 						if (ccodeValue.equals(cCodeConstruction)) {
 							try {
-								FacadeProvider.getCommunityFacade().save(dcex, true);
-								System.out.println("saved " + cCodeConstruction);
+								FacadeProvider.getCommunityFacade().save(dcex, true);						
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 								dialog.close();
 								refreshGridData();
@@ -757,10 +751,9 @@ public class ClusterView extends VerticalLayout {
 
 								notification.add(layout);
 								notification.open();
-//					        Notification.show("An error occurred while saving: " + e.getMessage());
 							}
 						} else {
-							
+
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
