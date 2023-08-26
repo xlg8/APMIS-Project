@@ -261,6 +261,7 @@ public class UserForm extends FormLayout {
 //				community.setItems(communities);
 
 				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
+
 				//commented out not sure what 
 				//UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();

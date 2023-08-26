@@ -8,6 +8,7 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.text.WordUtils;
 import com.vaadin.flow.component.button.Button;
@@ -121,7 +122,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		UserProvider usr = new UserProvider();
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();	
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear() + "");
 		}
@@ -130,7 +131,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
 
-		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
 
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		
@@ -138,7 +139,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
 
-		campaignPhase.setLabel("Campaign Phase");
+		campaignPhase.setLabel(I18nProperties.getCaption(Captions.Campaign_phase));
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
 		campaignPhase.setItems(CampaignPhase.values());
 		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);

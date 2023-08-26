@@ -176,7 +176,7 @@ public class UserView extends VerticalLayout {
 		layout.setPadding(false);
 		layout.setWidthFull();
 
-		createUserButton = new Button("New User");
+		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "0.1rem");
 		if (userProvider.hasUserRight(UserRight.USER_CREATE)) {
@@ -203,7 +203,7 @@ public class UserView extends VerticalLayout {
 //		layout.add(anchor);
 		layout.addClassNames("row pl-4");
 
-		leaveBulkModeButton.setText("Enter Bulk Edit Mode");
+		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		bulkModeButton.addClassName("bulkActionButton");
 //		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -216,7 +216,7 @@ public class UserView extends VerticalLayout {
 			menuBar.setVisible(true);
 		});
 
-		leaveBulkModeButton.setText("Leave Bulk Edit Mode");
+		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkModeButton.addClassName("leaveBulkActionButton");
 //		leaveBulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		leaveBulkModeButton.setVisible(false);
@@ -234,10 +234,10 @@ public class UserView extends VerticalLayout {
 		});
 
 		menuBar.setVisible(false);
-		MenuItem item = menuBar.addItem(Captions.bulkActions);
+		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
 		SubMenu subMenu = item.getSubMenu();
-		subMenu.addItem(new Checkbox(Captions.actionEnable));
-		subMenu.addItem(new Checkbox(Captions.actionDisable));
+		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionEnable)));
+		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionDisable)));
 		menuBar.getStyle().set("margin-top", "5px");
 		layout.add(menuBar);
 
@@ -286,7 +286,7 @@ public class UserView extends VerticalLayout {
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
-		activeFilter.setPlaceholder("Active");
+		activeFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.getStyle().set("margin-left", "12px");
 		activeFilter.getStyle().set("margin-top", "12px");
 		activeFilter.setItems("Active", "Inactive");
@@ -308,7 +308,7 @@ public class UserView extends VerticalLayout {
 		userRolesFilter = new ComboBox<UserRole>();
 		userRolesFilter.setId(UserDto.USER_ROLES);
 		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-		userRolesFilter.setPlaceholder("User Roles");
+		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
 		userRolesFilter.getStyle().set("margin-left", "0.1rem");
 		userRolesFilter.getStyle().set("padding-top", "0px!important");
 		userRolesFilter.setClearButtonVisible(true);
@@ -330,7 +330,7 @@ public class UserView extends VerticalLayout {
 		areaFilter.setId(CaseDataDto.AREA);
 		// areaFilter.setWidth(200, Unit.PIXELS);
 		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
-		areaFilter.setPlaceholder("Region");
+		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		areaFilter.getStyle().set("margin-left", "0.1rem");
 		areaFilter.getStyle().set("padding-top", "0px!important");
 		areaFilter.setItems(regions);
@@ -380,7 +380,7 @@ public class UserView extends VerticalLayout {
 		regionFilter.setWidth(200, Unit.PIXELS);
 		regionFilter.setLabel(
 				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
-		regionFilter.setPlaceholder("Province");
+		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		regionFilter.getStyle().set("margin-left", "0.1rem");
 		regionFilter.getStyle().set("padding-top", "0px!important");
 		regionFilter.setClearButtonVisible(true);
@@ -427,7 +427,7 @@ public class UserView extends VerticalLayout {
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		// districtFilter.setWidth(200, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
-		districtFilter.setPlaceholder("District");
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtFilter.getStyle().set("margin-left", "0.1rem");
 		districtFilter.getStyle().set("padding-top", "0px!important");
 		districtFilter.setClearButtonVisible(true);
@@ -744,12 +744,10 @@ public class UserView extends VerticalLayout {
 			newUserPop.setClassName("passwordsDialog");
 			VerticalLayout infoLayout = new VerticalLayout();
 
-			newUserPop.setHeaderTitle("New User Password");
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
-																									// content
-
-			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
-			newUserPop.setHeaderTitle("New User Password");
+			newUserPop.setHeaderTitle(I18nProperties.getString(Strings.newUserPassword));
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
+																									
+			Paragraph infoText = new Paragraph(I18nProperties.getString(Strings.pleaseCopyPassword));
 			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
 
@@ -762,6 +760,7 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
+
 
 	}
 
@@ -793,6 +792,7 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
+
 	}
 
 	public void enableUser(Collection<UserDto> selectedRows) {
@@ -808,7 +808,6 @@ public class UserView extends VerticalLayout {
 
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().enableUsers(uuids);
-			System.out.println("Activated");
 
 			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersEnabled) + "  "
 					+ I18nProperties.getString(Strings.messageUsersEnabled));
@@ -828,10 +827,8 @@ public class UserView extends VerticalLayout {
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 		} else {
-
 			List<String> uuids = selectedRows.stream().map(UserDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getUserFacade().disableUsers(uuids);
-			System.out.println("Deactivated");
 
 			Notification notification = Notification.show(I18nProperties.getString(Strings.headingUsersDisabled) + "  "
 					+ I18nProperties.getString(Strings.messageUsersDisabled));

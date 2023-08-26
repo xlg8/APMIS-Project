@@ -368,6 +368,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			} else if (userLanguage.equals("Dari")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else {
+
 				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 			}
 
