@@ -1,22 +1,20 @@
 package com.cinoteck.application.views;
 
-import java.util.Locale;
-
 import javax.validation.constraints.NotNull;
 
-import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.utils.authentication.AccessControl;
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.DashboardView;
-import com.cinoteck.application.views.logout.LogoutView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
@@ -25,6 +23,7 @@ import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.user.UserView;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -49,13 +48,13 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
@@ -84,12 +83,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 	boolean isToggleOpen = false;
+	
 	Image imgApmis = new Image();
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);
+			
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
@@ -127,13 +128,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			if (event.getSource() instanceof DrawerToggle) {
 				DrawerToggle toggleButton = (DrawerToggle) event.getSource();
 
-				isToggleOpen = !isToggleOpen;
-
 				if (isToggleOpen) {
 					titleLayout.setWidth("100%");
 				} else {
 					titleLayout.setWidth("86%");
 				}
+
+				isToggleOpen = !isToggleOpen;
 			}
 		});
 
@@ -164,15 +165,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Scroller scroller = new Scroller(createNavigation());
 
 		Header header = new Header(imgApmis);
-
+		
 		addToDrawer(header, scroller);
 
 //		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
 //                new Locale("fa","IR", "فارسی"));
 //		
 //		languageSwitcher.setClassName("vieLangiuageSwitcher");
-//		
-//		addToDrawer(languageSwitcher);
+		
+		
+		
 
 		addToDrawer(createFooter());
 
@@ -185,7 +187,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		AppNav nav = new AppNav();
 
 		Button myButton = new Button();
-
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -242,8 +243,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
-				VaadinIcon.SIGN_OUT_ALT, "navitem"));
 
 		if (nav != null) {
 			nav.addClassName("active");
@@ -339,25 +338,17 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		return dialog;
 	}
 
-	void rtlswitcher() {
+	private void rtlswitcher() {
 		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		I18nProperties.getUserLanguage();
-
 		if (userProvider.getUser().getLanguage().toString() != null) {
-
-			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
-
 			String userLanguage = userProvider.getUser().getLanguage().toString();
-
 			if (userLanguage.equals("Pashto")) {
-
-				languageSwitcher.mainSwitchLanguage(new Locale("ps"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT); 
 			} else if (userLanguage.equals("Dari")) {
-
-				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else {
-
-				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);
+				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 			}
 
 		}
@@ -417,7 +408,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	private String getCurrentPageTitle() {
 		PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-		return title == null ? "" : title.value();
+		System.out.println("|" + title.value().split("APMIS-")[1] + "|");
+		String seg = "";
+		
+		if (title != null && title.value().contains("APMIS-")) {
+			seg = title.value().split("APMIS-")[1];
+		}
+
+		return seg;
 	}
 
 //	@Override

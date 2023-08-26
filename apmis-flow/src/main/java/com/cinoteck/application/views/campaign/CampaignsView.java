@@ -56,7 +56,7 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
-@PageTitle("All Campaigns")
+@PageTitle("APMIS-All Campaigns")
 @Route(value = "campaign", layout = MainLayout.class)
 public class CampaignsView extends VerticalLayout {
 

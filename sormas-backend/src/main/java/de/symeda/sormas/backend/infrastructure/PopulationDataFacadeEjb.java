@@ -84,22 +84,19 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
-		
-		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true)
-			.sexIsNull(true)
-			.districtIsNull(true)
-			.communityIsNull(true)
-			.region(new RegionReferenceDto(regionUuid, null, null));
+
+		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true).sexIsNull(true)
+				.districtIsNull(true).communityIsNull(true).region(new RegionReferenceDto(regionUuid, null, null));
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
-		
+
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
 
 		cq.where(filter, campaignFilter);
-		
+
 		cq.where(filter);
 		cq.select(root.get(PopulationData.POPULATION));
 
-		return QueryHelper.getSingleResult(em, cq); 
+		return QueryHelper.getSingleResult(em, cq);
 	}
 
 	@Override
@@ -115,12 +112,9 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
-		
-		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true)
-			.sexIsNull(true)
-			.districtIsNull(true)
-			.communityIsNull(true)
-			.region(new RegionReferenceDto(regionUuid, null, null));
+
+		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true).sexIsNull(true)
+				.districtIsNull(true).communityIsNull(true).region(new RegionReferenceDto(regionUuid, null, null));
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
 
@@ -128,7 +122,8 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 		try {
 			PopulationData populationData = em.createQuery(cq).getSingleResult();
-			return InfrastructureHelper.getProjectedPopulation(populationData.getPopulation(), populationData.getCollectionDate(), growthRate);
+			return InfrastructureHelper.getProjectedPopulation(populationData.getPopulation(),
+					populationData.getCollectionDate(), growthRate);
 		} catch (NoResultException | NonUniqueResultException e) {
 			return null;
 		}
@@ -141,11 +136,9 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
-		
-		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true)
-			.sexIsNull(true)
-			.communityIsNull(true)
-			.district(new DistrictReferenceDto(districtUuid, null, null));
+
+		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true).sexIsNull(true)
+				.communityIsNull(true).district(new DistrictReferenceDto(districtUuid, null, null));
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
 
@@ -154,7 +147,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 		return QueryHelper.getSingleResult(em, cq);
 	}
-	
+
 	@Override
 	public Integer getDistrictPopulationByType(String districtUuid, String campaignUuid, AgeGroup ageGroup) {
 
@@ -165,7 +158,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
 		Join<PopulationData, District> districtJoin = root.join(PopulationData.DISTRICT);
-		
+
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), campaignUuid));
 		Predicate districtFilter = cb.and(cb.equal(districtJoin.get(District.UUID), districtUuid));
 		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
@@ -173,11 +166,11 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		cq.where(campaignFilter, districtFilter, ageFilter);
 		cq.select(root.get(PopulationData.POPULATION));
 
-		System.out.println("------------!!!!!!!!!!!!!!!!!!!!!!: "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("------------!!!!!!!!!!!!!!!!!!!!!!: " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getSingleResult(em, cq);
 	}
-	
+
 	@Override
 	public Integer getProjectedDistrictPopulation(String districtUuid, PopulationDataCriteria critariax) {
 
@@ -191,25 +184,26 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
-		PopulationDataCriteria criteria =
-			new PopulationDataCriteria().ageGroupIsNull(true).sexIsNull(true).district(new DistrictReferenceDto(districtUuid, null, null));
+		PopulationDataCriteria criteria = new PopulationDataCriteria().ageGroupIsNull(true).sexIsNull(true)
+				.district(new DistrictReferenceDto(districtUuid, null, null));
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
-		
-		
+
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
 
 		cq.where(filter, campaignFilter);
 
 		try {
 			PopulationData populationData = em.createQuery(cq).getSingleResult();
-			return InfrastructureHelper.getProjectedPopulation(populationData.getPopulation(), populationData.getCollectionDate(), growthRate);
+			return InfrastructureHelper.getProjectedPopulation(populationData.getPopulation(),
+					populationData.getCollectionDate(), growthRate);
 		} catch (NoResultException | NonUniqueResultException e) {
 			return null;
 		}
 	}
 
 	@Override
-	public void savePopulationData(@Valid List<PopulationDataDto> populationDataList) throws ValidationRuntimeException {
+	public void savePopulationData(@Valid List<PopulationDataDto> populationDataList)
+			throws ValidationRuntimeException {
 
 		for (PopulationDataDto populationData : populationDataList) {
 			validate(populationData);
@@ -224,21 +218,26 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
-	//	System.out.println("DEBUGGER ----- "+ criteria.getCampaign()!= null);
-		
+		// System.out.println("DEBUGGER ----- "+ criteria.getCampaign()!= null);
+
 		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
-		if(criteria.getCampaign() != null) {
-			Predicate filter_ = CriteriaBuilderHelper.and(cb, filter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()));
+		if (criteria.getCampaign() != null) {
+			Predicate filter_ = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID),
+							criteria.getCampaign().getUuid()));
 			Predicate filterx = CriteriaBuilderHelper.and(cb, filter_, cb.equal(root.get("selected"), true));
-			
+
 			cq.where(filterx);
-		}else {
+		} else {
 			cq.where(filter);
 		}
-		
-	//	System.out.println("DEBUGGER 5678ijhyuio _______TOtalpopulation__________xxxxx__________________ "+SQLExtractor.from(em.createQuery(cq)));
 
-		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData)).collect(Collectors.toList());
+		// System.out.println("DEBUGGER 5678ijhyuio
+		// _______TOtalpopulation__________xxxxx__________________
+		// "+SQLExtractor.from(em.createQuery(cq)));
+
+		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
+				.collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -246,7 +245,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 	public List<Object[]> getPopulationDataForExport(String campaignUuid) {
 //TODO addd campaign to the selection
 		//@formatter:off
-		return em.createNativeQuery("SELECT "+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
+		String qry = "SELECT "+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
 				+ District.TABLE_NAME + "." + District.NAME + " AS districtname, "
 				+ Community.TABLE_NAME + "." + Community.NAME + " AS communityname," + Campaign.TABLE_NAME + "." + Campaign.UUID + " AS campaignname, " + PopulationData.AGE_GROUP + ", "
 				+ PopulationData.SEX + ", " + PopulationData.POPULATION
@@ -259,19 +258,18 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 					+ PopulationData.DISTRICT + "_id = " + District.TABLE_NAME + "." + District.ID
 				+ " LEFT JOIN " + Community.TABLE_NAME + " ON "
 					+ PopulationData.COMMUNITY + "_id = " + Community.TABLE_NAME + "." + Community.ID
-					+"where "+ Campaign.TABLE_NAME + "." + Campaign.UUID +" = '"+campaignUuid+"' " 
-				+ " ORDER BY campaignname, regionname, districtname, communityname asc NULLS FIRST").getResultList();
+					+" where "+ Campaign.TABLE_NAME + "." + Campaign.UUID +" = '"+campaignUuid+"' " 
+				+ " ORDER BY campaignname, regionname, districtname, communityname asc NULLS FIRST";
+		System.out.println("__________________: "+qry);
 		//@formatter:on
+		return em.createNativeQuery(qry).getResultList();
+
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Long> getMissingPopulationDataForStatistics(
-		StatisticsCaseCriteria criteria,
-		boolean groupByRegion,
-		boolean groupByDistrict,
-		boolean groupBySex,
-		boolean groupByAgeGroup) {
+	public List<Long> getMissingPopulationDataForStatistics(StatisticsCaseCriteria criteria, boolean groupByRegion,
+			boolean groupByDistrict, boolean groupBySex, boolean groupByAgeGroup) {
 
 		StringBuilder regionsIn = new StringBuilder();
 		StringBuilder districtsIn = new StringBuilder();
@@ -354,7 +352,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 		cq.where(areaFilter, ageFilter, campaignFilter);
 		cq.select(root.get(PopulationData.POPULATION));
-	
+
 		TypedQuery query = em.createQuery(cq);
 		try {
 			Integer totalPopulation = 0;
@@ -368,9 +366,10 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			return null;
 		}
 	}
-	
+
 	public Integer getAreaPopulationByUuid(String areaUuid, AgeGroup ageGroup, CampaignDiagramCriteria criteria) {
-	//	System.out.println("DEBUGGER 5678ijhyuio ___xxxxxccccc  "+criteria.getCampaign().getUuid());
+		// System.out.println("DEBUGGER 5678ijhyuio ___xxxxxccccc
+		// "+criteria.getCampaign().getUuid());
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
@@ -382,10 +381,12 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
 		Predicate filter_ = CriteriaBuilderHelper.and(cb, campaignFilter, cb.equal(root.get("selected"), true));
-			
+
 		cq.where(areaFilter, ageFilter, filter_);
 		cq.select(root.get(PopulationData.POPULATION));
-	//	System.out.println("DEBUGGER 5678ijhyuio ___xxxxxcccccc____TOtalpopulation____________________________ "+SQLExtractor.from(em.createQuery(cq)));
+		// System.out.println("DEBUGGER 5678ijhyuio
+		// ___xxxxxcccccc____TOtalpopulation____________________________
+		// "+SQLExtractor.from(em.createQuery(cq)));
 
 		TypedQuery query = em.createQuery(cq);
 		try {
@@ -400,32 +401,30 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			return null;
 		}
 	}
-	
-	
+
 	public Integer getAreaPopulationParent(String notneeded, AgeGroup ageGroup, CampaignDiagramCriteria criteria) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
 		Root<PopulationData> root = cq.from(PopulationData.class);
-		
+
 		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
-		System.out.println("DEBUGGERcccccccccooooo: -----============ "+criteria.getCampaign());
-		if(criteria.getCampaign() != null) {
-			
-			System.out.println("DEBUGGERcccccccccbbbb: -----============ "+criteria.getCampaign().getUuid());
-			//campaignService
-			Predicate filterx = CriteriaBuilderHelper.and(cb, ageFilter, cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), criteria.getCampaign().getUuid()), cb.equal(root.get("selected"), true));
-			
+		System.out.println("DEBUGGERcccccccccooooo: -----============ " + criteria.getCampaign());
+		if (criteria.getCampaign() != null) {
+
+			System.out.println("DEBUGGERcccccccccbbbb: -----============ " + criteria.getCampaign().getUuid());
+			// campaignService
+			Predicate filterx = CriteriaBuilderHelper.and(cb, ageFilter,
+					cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID),
+							criteria.getCampaign().getUuid()),
+					cb.equal(root.get("selected"), true));
+
 			cq.where(filterx);
 		} else {
 			cq.where(ageFilter);
 		}
-		
-		
-		
-		
-		
+
 		cq.select(root.get(PopulationData.POPULATION));
-		System.out.println("DEBUGGER 56 TOtalpopulation______: "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER 56 TOtalpopulation______: " + SQLExtractor.from(em.createQuery(cq)));
 
 		TypedQuery query = em.createQuery(cq);
 		try {
@@ -450,7 +449,8 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 	public PopulationData fromDto(@NotNull PopulationDataDto source, boolean checkChangeDate) {
 
-		PopulationData target = DtoHelper.fillOrBuildEntity(source, service.getByUuid(source.getUuid()), PopulationData::new, checkChangeDate);
+		PopulationData target = DtoHelper.fillOrBuildEntity(source, service.getByUuid(source.getUuid()),
+				PopulationData::new, checkChangeDate);
 
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
@@ -483,9 +483,6 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 		return target;
 	}
-	
-	
-	
 
 	@LocalBean
 	@Stateless
@@ -493,40 +490,37 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 	}
 
-
-
-
 	@Override
 	public void savePopulationList(Set<PopulationDataDto> savePopulationList) {
-		if(savePopulationList.size() > 0) {
-				String buildsql = "";
-				String buildsql_ = "";
-				for(PopulationDataDto dfc : savePopulationList) {
-				//	System.out.println("=============== ");
-					buildsql = buildsql + districtService.getByUuid(dfc.getDistrict().getUuid()).getId()  +", ";
-					buildsql_ = campaignService.getByUuid(dfc.getCampaign().getUuid()).getId() +"";
-					//dfc.getCampaign().getUuid()
-				}
-				buildsql = buildsql + "#";
-				
-				{
-					
-				String sqlstatemtnt = "update populationdata set selected = 'false' where campaign_id = "+buildsql_+";";
+		if (savePopulationList.size() > 0) {
+			String buildsql = "";
+			String buildsql_ = "";
+			for (PopulationDataDto dfc : savePopulationList) {
+				// System.out.println("=============== ");
+				buildsql = buildsql + districtService.getByUuid(dfc.getDistrict().getUuid()).getId() + ", ";
+				buildsql_ = campaignService.getByUuid(dfc.getCampaign().getUuid()).getId() + "";
+				// dfc.getCampaign().getUuid()
+			}
+			buildsql = buildsql + "#";
+
+			{
+
+				String sqlstatemtnt = "update populationdata set selected = 'false' where campaign_id = " + buildsql_
+						+ ";";
 				System.out.println(sqlstatemtnt);
 				em.createNativeQuery(sqlstatemtnt).executeUpdate();
-				}
-				
-				{
-					String sqlstatemtnt_ = "update populationdata set selected = 'true' where campaign_id = "+buildsql_+""
-							+ " and district_id in ("+buildsql.replace(", #", "") +");";
-					
-					System.out.println(sqlstatemtnt_);
-					em.createNativeQuery(sqlstatemtnt_).executeUpdate();
-				}
-				
-				
-				// TODO Auto-generated method stub
+			}
+
+			{
+				String sqlstatemtnt_ = "update populationdata set selected = 'true' where campaign_id = " + buildsql_
+						+ "" + " and district_id in (" + buildsql.replace(", #", "") + ");";
+
+				System.out.println(sqlstatemtnt_);
+				em.createNativeQuery(sqlstatemtnt_).executeUpdate();
+			}
+
+			// TODO Auto-generated method stub
 		}
-				
+
 	}
 }

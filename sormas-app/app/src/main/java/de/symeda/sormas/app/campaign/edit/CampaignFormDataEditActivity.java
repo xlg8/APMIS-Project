@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
+import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.utils.ValidationException;
 import de.symeda.sormas.app.BaseActivity;
@@ -99,6 +100,7 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
             }
         });
         campaignFormDataToSave.setFormValues(filledFormValues);
+        campaignFormDataToSave.setSoruce(PlatformEnum.MOBILE);
 
         saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 

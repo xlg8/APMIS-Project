@@ -70,7 +70,7 @@ import javax.ejb.TransactionRolledbackLocalException;
 
 //import org.vaadin.olli.FileDownloadWrapper;
 
-@PageTitle("Regions")
+@PageTitle("APMIS-Regions")
 @Route(value = "regions", layout = ConfigurationsView.class)
 public class RegionView extends VerticalLayout implements RouterLayout {
 

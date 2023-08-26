@@ -670,3 +670,7 @@ vaadin-checkbox.custom-checkbox-class label{
 	margin-bottom: 0px !important;
 }
 
+vaadin-checkbox.custom-checkbox-class:checked {
+   background-color: aquamarine;
+}
+

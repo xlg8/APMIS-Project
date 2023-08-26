@@ -8,9 +8,12 @@ import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
@@ -61,7 +64,7 @@ setSizeFull();
 		Div cardBodyDiv = new Div();
 		cardBodyDiv.addClassNames("card-body"); // padding: 0.25rem
 		cardBodyDiv.getStyle().set("padding", "0.25rem!important");
-
+		
 		// Create the tab content div
 		Div tabContentDiv = new Div();
 		tabContentDiv.addClassNames("tab-content");
@@ -87,7 +90,23 @@ setSizeFull();
 		Div chartManholder = new Div();
 		chartManholder.setId(randomxx);
 
-		// Add the canvas element to the widget chart wrapper div
+		
+//		 RadioButtonGroup<String> chartOptions = new RadioButtonGroup<>();
+//	        chartOptions.setLabel("Select a chart type");
+//	        chartOptions.setItems("Column", "Bar", "Pie", "Line");
+//	        chartOptions.setValue("Column");
+//
+//	        // Add a value change listener to update the selected chart label
+//	        chartOptions.addValueChangeListener(event -> {
+//	        	UI.getCurrent().getPage().executeJs("chartfunc('"+event.getValue()+"');");
+//	        });
+//	        
+//	        
+//		// Add the canvas element to the widget chart wrapper div
+//		Span isd = new Span("sssssss");
+//		isd.getStyle().set("padding-left", "0.7rem");
+//		isd.getStyle().set("postion", "absolute");
+//		widgetChartWrapperDiv.add(isd);
 		widgetChartWrapperDiv.add(chartManholder);
 
 		// Add the widget chart wrapper div to the widget chat wrapper outer div

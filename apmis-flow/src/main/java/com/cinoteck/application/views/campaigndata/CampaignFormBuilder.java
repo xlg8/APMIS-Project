@@ -70,6 +70,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
+import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.api.campaign.data.translation.TranslationElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementStyle;
@@ -1423,35 +1424,35 @@ public class CampaignFormBuilder extends VerticalLayout {
 						.getCampaignFormDataByUuid(uuidForm);
 
 				// maybe we want to check the name of the updating user here
-				// dataDto.setCreatingUser(userProvider.getUserReference());
+				dataDto.setCreatingUser(userProvider.getUserReference());
+				//dataDto.setSource(PlatformEnum.WEB);
 				dataDto.setFormValues(entries);
 
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
+				
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 				return true;
+				
 			} else {
+				
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
 				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
 						cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
-
-				// construct the newForm data and send
-				LocalDate todday = LocalDate.now();
 
 				Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 				dataDto.setFormDate(dateData);
 				dataDto.setCreatingUser(userProvider.getUserReference());
 				dataDto.setFormValues(entries);
+				dataDto.setSource("WEB");
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
+				
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 				return true;
 			}
-		} else {
-			// add notuification here for error in form
-			// Notification.show("jhgfdsdfghjkjhgfdfghj");
-
 		}
+		
 		return false;
 	}
 

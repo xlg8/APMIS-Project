@@ -63,7 +63,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Campaign Data")
+@PageTitle("APMIS-Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
 public class CampaignDataView extends VerticalLayout {
 
@@ -676,6 +676,14 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formPhase));
+		
+		grid.addColumn(CampaignFormDataIndexDto.SOURCE).setHeader("Source")//I18nProperties.getCaption(Captions.formPhase))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> "Source:"  +e.getSource());
+		
+		grid.addColumn(CampaignFormDataIndexDto.CREATED_BY).setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser))
+		.setSortable(true).setResizable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign_creatingUser)  +e.getSource());
 
 		grid.setVisible(true);
 		grid.setWidthFull();

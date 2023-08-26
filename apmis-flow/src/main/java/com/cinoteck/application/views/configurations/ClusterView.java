@@ -74,7 +74,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Clusters")
+@PageTitle("APMIS-Clusters")
 @Route(value = "clusters", layout = ConfigurationsView.class)
 public class ClusterView extends VerticalLayout {
 

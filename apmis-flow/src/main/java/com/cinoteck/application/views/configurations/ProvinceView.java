@@ -68,7 +68,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 
-@PageTitle("Province")
+@PageTitle("APMIS-Province")
 @Route(value = "province", layout = ConfigurationsView.class)
 public class ProvinceView extends VerticalLayout implements RouterLayout {
 

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -26,6 +27,8 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 
@@ -50,9 +53,9 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.allElements = allElements;
 		this.campaignDto = campaignDto;
 		this.campaignPhase = campaignPhase;
+		
 
-
-		grid.addColumn(CampaignDashboardElement::getDiagramId).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true).setResizable(true);
+		grid.addColumn(this::getDiagramCaption).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true).setResizable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
@@ -64,6 +67,16 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
+	}
+	private String getDiagramCaption(CampaignDashboardElement item) {
+
+		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
+				.getCampaignDiagramDefinitionFacade().getAll().stream()
+				.filter(e -> e.getFormType().equalsIgnoreCase(campaignPhase)).collect(Collectors.toList());
+	    final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream()
+	            .collect(Collectors.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
+	    
+	    return getItemCaption(item, diagramIdCaptionMap);
 	}
 
 	private Component getContent() {
