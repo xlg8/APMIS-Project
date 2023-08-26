@@ -20,7 +20,7 @@ import de.symeda.sormas.api.i18n.Strings;
 //import de.symeda.sormas.ui.components.DetailSubComponentWrapper;
 
 @Route(value = "campaign/dataform")
-@PageTitle("Campaign Form Data")
+@PageTitle("APMIS-Campaign Form Data")
 //@JsModule("./jquerymini.js")
 public class CampaignFormDataView extends VerticalLayout {
 //    private CommitDiscardWrapperComponent<CampaignFormDataEditForm> editComponent;

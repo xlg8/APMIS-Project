@@ -63,7 +63,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Districts")
+@PageTitle("APMIS-Districts")
 @Route(value = "districts", layout = ConfigurationsView.class)
 public class DistrictView extends VerticalLayout {
 

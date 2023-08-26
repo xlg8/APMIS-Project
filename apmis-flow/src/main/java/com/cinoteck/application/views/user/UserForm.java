@@ -14,6 +14,7 @@ import java.util.Set;
 import com.cinoteck.application.UserProvider;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.exception.ZeroException;
 
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
@@ -32,6 +33,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -41,10 +43,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.CountryHelper;
@@ -140,7 +139,6 @@ public class UserForm extends FormLayout {
 
 	boolean editmode = false;
 
-
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user) {
 
@@ -164,6 +162,7 @@ public class UserForm extends FormLayout {
 		configureFields(user);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void configureFields(UserDto user) {
 		System.out.println(user + " userrrr value in configure field ");
 
@@ -261,18 +260,22 @@ public class UserForm extends FormLayout {
 //				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
 //				community.setItems(communities);
 
-				clusterNo.setLabel("Cluster Numbers");
-				UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
+				//commented out not sure what 
+				//UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
-				currentUser.setCommunity(data);
-				FacadeProvider.getUserFacade().saveUser(currentUser);
+				//currentUser.setCommunity(data);
+				//FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
 
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
-						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
+						if(item.getNumber() == null)
+							Notification.show("Cluster Number cannot be empty, please contact support", Notification.Type.ERROR_MESSAGE); //I18nProperties.getString(Strings.clustNot)  )
+						
+						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
 					Collections.sort(items, CommunityReferenceDto.clusternumber);
 
@@ -282,58 +285,11 @@ public class UserForm extends FormLayout {
 						checkbox.getElement().getClassList().add("custom-checkbox-class");
 
 					});
-//		             FieldHelper
-//		                    .updateItems(community, districtDto != null ? items : null);    
+//		            
 				}
 			}
 		});
-//		checkboxGroup.setValue(UserDto.getCommunitynos());
 
-//		checkboxGroup.setItems(communitiesx);
-//		clusterNo.getChildren().forEach(checkBox -> checkBox.getElement().setProperty("class", "clusterCheckChildren"));
-//.setProperty("id", "clusterCheckChildren");
-
-		clusterNo.getChildren().forEach(checkbox -> {
-//	            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
-			checkbox.getElement().getClassList().add("custom-checkbox-class");
-
-			Boolean isChecked = checkbox.getElement().getAttribute("checked") != null;
-			String label = ((Checkbox) checkbox).getLabel();
-
-			if (isChecked) {
-				System.out.println("Checkbox '" + label + "' is checked.");
-			} else {
-				System.out.println("Checkbox '" + label + "' is not checked.");
-			}
-		});
-
-		clusterNo.setId("checkboxesid");
-		clusterNo.addValueChangeListener(event -> {
-
-			boolean isChecked = ((Checkbox) event).getValue();
-			String label = ((Checkbox) event).getLabel();
-
-			if (isChecked) {
-				System.out.println("Check '" + label + "' is checked.");
-			} else {
-				System.out.println("Check '" + label + "' is not checked.");
-			}
-			// Do something with the selected options (if multiple selection is allowed)
-			HashSet<CommunityReferenceDto> communityDto = (HashSet<CommunityReferenceDto>) event.getValue();
-			System.out.println(event.getValue() + "rnobrobnrbnornborborobn or");
-			if (event.getValue() != null) {
-
-				boolean isCheckedx = ((Checkbox) event).getValue();
-				String labelx = ((Checkbox) event).getLabel();
-
-				if (isCheckedx) {
-					System.out.println("Checkboxesssss '" + labelx + "' is checked.");
-				} else {
-					System.out.println("Checkboxesssss '" + labelx + "' is not checked.");
-				}
-//			Set<CommunityReferenceDto> data = Collections.sort(items, CommunityReferenceDto.clusternumber);
-			}
-		});
 
 //		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
@@ -360,6 +316,7 @@ public class UserForm extends FormLayout {
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+
 		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
 				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
 		this.setColspan(userRoles, 1);
@@ -422,8 +379,6 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-
-		
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
@@ -639,6 +594,18 @@ public class UserForm extends FormLayout {
 			region.setVisible(false);
 		}
 
+	}
+	
+	public static void updateItems(CheckboxGroup select, Set<?> items) {
+		Set<?> value = select.getSelectedItems();
+		boolean readOnly = select.isReadOnly();
+		select.setReadOnly(false);
+		select.removeAll();
+		if (items != null) {
+			select.setItems(items);
+		}
+		select.setValue(value);
+		select.setReadOnly(readOnly);
 	}
 
 	public static Set<UserRole> getAssignableRoles(Set<UserRole> assignedUserRoles) {

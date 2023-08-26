@@ -81,7 +81,7 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 
-@PageTitle("User Management")
+@PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
 

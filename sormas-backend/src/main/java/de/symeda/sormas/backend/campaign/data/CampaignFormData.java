@@ -36,6 +36,7 @@ import de.symeda.auditlog.api.Audited;
 import de.symeda.auditlog.api.AuditedIgnore;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
+import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
@@ -63,7 +64,8 @@ public class CampaignFormData extends AbstractDomainObject {
 	public static final String ARCHIVED = "archived";
 	public static final String LAT ="lat";
 	public static final String LON = "lon";
-	//public static final String FORMTYPE = "formType";
+	public static final String SOURCE = "source";
+	public static final String CREATED_BY = "creatingUser";
 
 	private static final long serialVersionUID = -8021065433714419288L;
 
@@ -77,6 +79,7 @@ public class CampaignFormData extends AbstractDomainObject {
 	public Community community;
 	private User creatingUser;
 	private boolean archived;
+	private String source;
 	public Double lat;
 	public Double lon;
 	//private CampaignFormMeta formType;
@@ -185,6 +188,14 @@ public class CampaignFormData extends AbstractDomainObject {
 	public void setFormType(CampaignFormMeta formType) {
 		this.formType = formType;
 	}*/
+	@Column
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
 
 	public CampaignFormDataReferenceDto toReference() {
 		return new CampaignFormDataReferenceDto(getUuid());

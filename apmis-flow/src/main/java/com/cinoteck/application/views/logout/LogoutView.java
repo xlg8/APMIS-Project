@@ -29,7 +29,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
-@PageTitle("Logout")
+@PageTitle("APMIS-Logout")
 @Route(value = "logout")//, layout = MainLayout.class)
 
 public class LogoutView extends VerticalLayout implements BeforeEnterObserver {
@@ -127,29 +127,14 @@ public class LogoutView extends VerticalLayout implements BeforeEnterObserver {
 	
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		// Store the intended route in the UI instance before navigating to the login
-		// page
-		
-		
-		
-		
-		
-
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
 			if (pageTitle.contains("flow/")) {
 				intendedRoute = pageTitle.split("flow/")[1];
 				System.out
 						.println("____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
 								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
-				
-			//	JsonDatabase sdf = new JsonDatabase(pageTitle.split("flow/")[1]);
-		
 		
 			}
-//			Notification.show(String.format("Page title: '%s'", pageTitle));
 		});
-
-//		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
-
 	}
 }

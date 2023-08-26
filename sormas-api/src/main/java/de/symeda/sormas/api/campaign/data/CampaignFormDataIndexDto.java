@@ -19,6 +19,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
+
 public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 
 	public static final String I18N_PREFIX = "CampaignFormData";
@@ -42,6 +45,9 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String ANALYSIS_FIELD_B = "analysis_b";
 	public static final String ANALYSIS_FIELD_C = "analysis_c";
 	public static final String ANALYSIS_FIELD_D = "analysis_d";
+	public static final String SOURCE = "source";
+	public static final String CREATED_BY = "creatingUser";
+	
 
 	private static final long serialVersionUID = -6672198324526771162L;
 
@@ -65,6 +71,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Long analysis_b;
 	private Long analysis_c;
 	private Long analysis_d;
+	private String source;
+	private String creatingUser;
 	
 	public CampaignFormDataIndexDto(
 		String uuid,
@@ -81,7 +89,9 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		Integer clusternumber,
 		Long ccode,
 		Date formDate,
-		String formType) {
+		String formType,
+		String source,
+		String creatingUser) {
 		this.uuid = uuid;
 		this.campaign = campaign;
 		this.form = form;
@@ -97,6 +107,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.ccode = ccode;
 		this.formDate = formDate;
 		this.formType = formType;
+		this.source = source;
+		this.creatingUser = creatingUser;
 	}
 	
 	public CampaignFormDataIndexDto(
@@ -311,5 +323,22 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.analysis_d = analysis_d;
 	}
 
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public String getCreatingUser() {
+		return creatingUser;
+	}
+
+	public void setCreatingUser(String creatingUser) {
+		this.creatingUser = creatingUser;
+	}
+
+	
 	
 }

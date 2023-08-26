@@ -148,7 +148,7 @@ public class AppNavItem extends Component {
         setLabel(label);
         setIcon(iconClass.create());
         setId(style);
-        setButton(button);
+        setButton(button);      
     }
 
 

@@ -28,7 +28,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("About")
+@PageTitle("APMIS-About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 
