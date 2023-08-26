@@ -103,6 +103,9 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
+		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
+		campaign.setValue(lastStarted);
+		 criteria.campaign(lastStarted);
 		campaign.addValueChangeListener(e-> {
 			 CampaignReferenceDto selectedCAmpaign = e.getValue();
 			   if (selectedCAmpaign != null) {
@@ -233,15 +236,17 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+//		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
+
 		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a).setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b).setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c).setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d).setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
 
 

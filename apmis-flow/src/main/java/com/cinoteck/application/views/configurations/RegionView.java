@@ -120,7 +120,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	}
 
 	private void regionGrid(AreaCriteria criteria) {
-//		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE); Archive
+
 
 		this.criteria = criteria;
 		setSpacing(false);
@@ -180,7 +180,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		anchor.getElement().insertChild(0, icon.getElement());
 
-//		exportArea();
 	}
 
 	private void refreshGridData() {
@@ -194,113 +193,12 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		countRowItems.setId("rowCount");
 	}
 
-//	private ComponentRenderer<AreaEditForm, AreaDto> createAreaEditFormRenderer() {
-//		return new ComponentRenderer<>(AreaEditForm::new);
-//	}
 
-	public void exportArea() {
 
-		// Fetch all data from the grid in the current sorted order
-		Stream<AreaDto> persons = null;
-//        Set<AreaDto> selection = grid.asMultiSelect().getValue();
-//        if (selection != null && selection.size() > 0) {
-//            persons = selection.stream();
-//        } else {
-		persons = dataView.getItems();
-//        }
 
-		StringWriter output = new StringWriter();
-		StatefulBeanToCsv<AreaDto> writer = new StatefulBeanToCsvBuilder<AreaDto>(output).build();
-		try {
-			writer.write(persons);
-		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			output.write("An error occured during writing: " + e.getMessage());
-		}
-
-		StreamResource resource = new StreamResource("my.csv",
-				() -> new ByteArrayInputStream(output.toString().getBytes()));
-
-//		link = new Anchor(resource, "Exportt");
-//		layout.add(link);
-//            Button downloadButton = new Button("Download text area contents as a CSV file using a button");
-//            FileDownloader downloadButtonWrapper = new FileDownloader(resource);
-//            downloadButtonWrapper.extend(downloadButton);
-
-//        result.setValue(output.toString());
-	}
-
-	private class AreaEditForm extends FormLayout {
-
-		public AreaEditForm(AreaDto areaDto) {
-			Dialog formLayout = new Dialog();
-
-			H2 header = new H2(I18nProperties.getCaption(Captions.edit) + areaDto.getName().toString());
-			this.setColspan(header, 2);
-			add(header);
-			Stream.of(regionField, rcodeField).forEach(e -> {
-				e.setReadOnly(false);
-				add(e);
-
-			});
-			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-			archiveDearchive = new Button(I18nProperties.getCaption(Captions.actionArchive));
-
-			saveButton.addClickListener(event -> saveArea(areaDto));
-
-			add(archiveDearchive, saveButton);
-		}
-	}
-
-	private class AreaCreateForm extends FormLayout {
-
-		public AreaCreateForm(AreaDto areaDto) {
-			Dialog formLayout = new Dialog();
-
-			H2 header = new H2(I18nProperties.getCaption(Captions.createNewRegion));
-			this.setColspan(header, 2);
-			add(header);
-			Stream.of(regionField, rcodeField).forEach(e -> {
-				e.setReadOnly(false);
-				add(e);
-
-			});
-			saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-
-			saveButton.addClickListener(event -> saveArea(areaDto));
-
-			add(saveButton);
-		}
-	}
-
-	private void saveArea(AreaDto areaDto) {
-		if (binder.isValid()) {
-			AreaDto areavDto = binder.getBean();
-			String regionValue = regionField.getValue();
-			long rcodeValue = Long.parseLong(rcodeField.getValue());
-			AreaDto dtoToSave = FacadeProvider.getAreaFacade().getByUuid(areaDto.getUuid());
-
-			dtoToSave.setName(regionValue);
-			dtoToSave.setExternalId(rcodeValue);
-
-			FacadeProvider.getAreaFacade().save(dtoToSave, true);
-		}
-	}
 	
-	private Notification createNotification(String message) {
-	    Notification notification = new Notification(message, 3000); // Show for 3 seconds
-	    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-	    return notification;
-	}
-
-	public void setArea(AreaDto areaDto) {
-		regionField.setValue(areaDto.getName());
-		rcodeField.setValue(String.valueOf(areaDto.getExternalId()));
-		binder.setBean(areaDto);
-	}
 
 	private void addRegionFilter() {
-//		criteria = new AreaCriteria();
-
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
@@ -441,28 +339,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		exportRegion.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportRegion.addClickListener(e -> {
-			GridExporter<AreaDto> exporter = GridExporter.createFor(grid);
-			exporter.setAutoAttachExportButtons(false);
-			exporter.setTitle("Users");
-			exporter.setFileName(
-					"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
-
-			anchor.setHref(exporter.getCsvStreamResource());
-			anchor.getElement().setAttribute("download", true);
-
-			anchor.setClassName("exportJsonGLoss");
-			anchor.setId("exportArea");
-			Icon icon = VaadinIcon.UPLOAD_ALT.create();
-			icon.getStyle().set("margin-right", "8px");
-			icon.getStyle().set("font-size", "10px");
-
-			anchor.setVisible(false);
-			anchor.getElement().insertChild(0, icon.getElement());
-
 			anchor.getElement().callJsFunction("click");
 		});
+		
+		anchor.getStyle().set("display", "none");
+		
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(anchor);
+			layout.add(exportRegion, anchor);
 		}
 //		int numberOfRows = (int) FacadeProvider.getAreaFacade().count(criteria);
 
@@ -556,30 +439,19 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveSelecetdRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+
 						refreshGridData();
 					});
 
-//					Notification.show("Archiving Selected Rows ");
+
 				} else {
 					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchivedSelectedRegions));
 					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+
 						refreshGridData();
 					});
-//					Notification.show("De- Archiving Selected Rows ");
 				}
 			}
 

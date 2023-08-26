@@ -211,6 +211,7 @@ public interface Captions {
 	String actionResetEnumCache = "actionResetEnumCache";
 	String actionResetFilters = "actionResetFilters";
 	String actionSave = "actionSave";
+	String actionSaveAndAddNew = "actionSaveAndAddNew";
 	String actionSaveChanges = "actionSaveChanges";
 	String actionSearch = "actionSearch";
 	String actionSelectAll = "actionSelectAll";

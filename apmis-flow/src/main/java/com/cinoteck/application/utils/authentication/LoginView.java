@@ -67,14 +67,17 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
-		loginInformation.add(imgApmis);
-		loginInformation.add(loginForm);
-
+		
+		
+		
+		VerticalLayout loginFormCarrier = new VerticalLayout();
+		loginFormCarrier.add(imgApmis ,loginForm);
+		loginFormCarrier.setClassName("login-form-carrier");
 //		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
 //		langSwitch.setId("loginLanguageSwitcher");
 //		langSwitch.getStyle().set("color", "white !important");
 //		loginInformation.add(langSwitch);
-
+		loginInformation.add(loginFormCarrier);
 		add(loginInformation);
 	}
 

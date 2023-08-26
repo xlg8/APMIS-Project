@@ -488,6 +488,7 @@ vcf-nav-item[active]::part(item) {
 
 .apmis-login-logo {
 	height: 20vh;
+	margin-top: 50px;
 }
 
 #vaadinLoginUsername label, #vaadinLoginPassword label {
@@ -670,6 +671,21 @@ vaadin-checkbox.custom-checkbox-class label{
 	margin-bottom: 0px !important;
 }
 
+.login-form-carrier{
+	width: 350px !important;
+    display: flex;
+    align-items: center;
+    background: #e8f0fe;
+}
+
+.my-custom-label-style{
+	-webkit-text-fill-color : red !important;
+}
+
+vaadin-button#lougoutButton:hover {
+	   opacity: 1 !important;
+	  background: rgb(109, 93, 79) !important;
+  box-shadow: none !important;
 vaadin-checkbox.custom-checkbox-class:checked {
    background-color: aquamarine;
 }

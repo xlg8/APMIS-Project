@@ -135,9 +135,8 @@ public class UserView extends VerticalLayout {
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Paragraph countRowItems;
 	boolean isEditingMode;
-	
-	boolean isEditingModeActive;
 
+	boolean isEditingModeActive;
 
 	public UserView() {
 
@@ -181,7 +180,7 @@ public class UserView extends VerticalLayout {
 		createUserButton.addClassName("createUserButton");
 		createUserButton.getStyle().set("margin-left", "0.1rem");
 		if (userProvider.hasUserRight(UserRight.USER_CREATE)) {
-		layout.add(createUserButton);
+			layout.add(createUserButton);
 		}
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
@@ -189,15 +188,16 @@ public class UserView extends VerticalLayout {
 			editUser(false);
 			isEditingModeActive = true;
 		});
-		
+
 		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
-		exportUsers.addClickListener(e->{
-			anchor.getElement().setAttribute("download", true);
+		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
-			
-	    });
+
+		});
+
+		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(anchor);
+			layout.add(exportUsers, anchor);
 		}
 
 //		layout.add(anchor);
@@ -208,7 +208,6 @@ public class UserView extends VerticalLayout {
 //		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		bulkModeButton.setIcon(bulkModeButtonnIcon);
-		
 
 		bulkModeButton.addClickListener(e -> {
 			grid.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -224,8 +223,8 @@ public class UserView extends VerticalLayout {
 		Icon leaveBulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
 		leaveBulkModeButton.setIcon(leaveBulkModeButtonnIcon);
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
-		layout.add(bulkModeButton);
-		layout.add(leaveBulkModeButton);
+			layout.add(bulkModeButton);
+			layout.add(leaveBulkModeButton);
 		}
 		leaveBulkModeButton.addClickListener(e -> {
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
@@ -580,12 +579,15 @@ public class UserView extends VerticalLayout {
 		grid.setDataProvider(filterDataProvider);
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
-		grid.addSelectionListener(event -> {
-			editUser(event.getFirstSelectedItem(), true);
-		});
+			grid.addSelectionListener(event -> {
+				editUser(event.getFirstSelectedItem(), true);
+			});
 		}
-		
-		
+
+//		grid.asSingleSelect(e->{
+//			editUser(e.getFirstSelectedItem(), true);
+//		});
+
 		return;
 
 	}
@@ -596,11 +598,14 @@ public class UserView extends VerticalLayout {
 		form = new UserForm(regions, provinces, districts, user);
 		form.setSizeFull();
 		form.addUserFieldValueChangeEventListener(this::suggestUserName);
+//	    form.addResetPasswordListener(event -> resetUserPassword(event, user)); // Use the resetUserPassword method
 
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e ->{ closeEditor(); UI.getCurrent().getPage().reload();});
-		
+		form.addCloseListener(e -> {
+			closeEditor();
+			UI.getCurrent().getPage().reload();
+		});
 
 	}
 
@@ -625,6 +630,7 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
+			
 
 		}
 	}
@@ -639,18 +645,17 @@ public class UserView extends VerticalLayout {
 		form.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
-		
+
 		isEditingModeActive = true;
-		
+
 		System.out.println(isEditingModeActive + "isEditingModeActive");
 	}
 
-
 	private void updateRowCount() {
-    
+
 		int numberOfRows = filterDataProvider.size(new Query<>());
 		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
-      
+
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
 	}
@@ -671,6 +676,7 @@ public class UserView extends VerticalLayout {
 		bulkModeButton.setVisible(state);
 		exportUsers.setVisible(state);
 		searchField.setVisible(state);
+		anchor.setVisible(state);
 		activeFilter.setVisible(state);
 		userRolesFilter.setVisible(state);
 		areaFilter.setVisible(state);
@@ -704,9 +710,9 @@ public class UserView extends VerticalLayout {
 	}
 
 	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
-		
+
 		UserForm formLayout = (UserForm) event.getSource();
-		
+
 		System.out.println(isEditingModeActive + "___________isEditingModeActive");
 		formLayout.suggestUserName(isEditingModeActive);
 		if (isEditingModeActive) {
@@ -718,10 +724,11 @@ public class UserView extends VerticalLayout {
 							formLayout.lastName.getValue()));
 				}
 			});
-			}
-
+		}
 
 	}
+	
+	
 
 	private void deleteContact(UserForm.DeleteEvent event) {
 
@@ -756,9 +763,36 @@ public class UserView extends VerticalLayout {
 			newUserPop.setOpened(true);
 		}
 
-//		else {
-//			showAccountCreatedSuccessful();
-//		}
+	}
+
+	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+
+			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+
+			newUserPop.setHeaderTitle("New User Password");
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("New User Password");
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
+			username.getStyle().set("color", "#0D6938");
+
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+
+			infoLayout.add(username, password);
+
+			newUserPop.add(infoLayout);
+
+			newUserPop.setOpened(true);
+		}
 	}
 
 	public void enableUser(Collection<UserDto> selectedRows) {
