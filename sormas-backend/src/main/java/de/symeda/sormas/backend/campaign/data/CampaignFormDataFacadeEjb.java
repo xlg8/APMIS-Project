@@ -48,6 +48,7 @@ import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
@@ -76,6 +77,8 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -140,6 +143,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 	@EJB
 	private UserService userService;
+	
+	@EJB
+	private UserFacadeEjb.UserFacadeEjbLocal userServiceEBJ;
 
 	@EJB
 	private PopulationDataFacadeEjb.PopulationDataFacadeEjbLocal populationDataFacadeEjb;
@@ -176,6 +182,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
 		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
 		target.setCreatingUser(userService.getByReferenceDto(source.getCreatingUser()));
+		target.setSource(source.getSource());
 		return target;
 	}
 
@@ -197,19 +204,39 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
 		target.setCommunity(CommunityFacadeEjb.toReferenceDto(source.getCommunity()));
 		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
+		target.setSource(source.getSource());
 		return target;
 	}
 
 	@Override
-	public CampaignFormDataDto saveCampaignFormData(@Valid CampaignFormDataDto campaignFormDataDto)
+	public CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto campaignFormDataDto)
 			throws ValidationRuntimeException {
-
+		UserReferenceDto currtUsr = userServiceEBJ.getCurrentUserAsReference();
+		campaignFormDataDto.setSource("MOBILE");
+		campaignFormDataDto.setCreatingUser(currtUsr);
 		CampaignFormData campaignFormData = fromDto(campaignFormDataDto, true);
 		CampaignFormDataEntry.removeNullValueEntries(campaignFormData.getFormValues());
 
 		validate(campaignFormDataDto);
 
 		campaignFormDataService.ensurePersisted(campaignFormData);
+		return toDto(campaignFormData);
+	}
+	
+	
+	@Override
+	public CampaignFormDataDto saveCampaignFormData(@Valid CampaignFormDataDto campaignFormDataDto)
+			throws ValidationRuntimeException {
+		UserReferenceDto currtUsr = userServiceEBJ.getCurrentUserAsReference();
+		campaignFormDataDto.setCreatingUser(currtUsr);
+		
+		CampaignFormData campaignFormData = fromDto(campaignFormDataDto, true);
+		CampaignFormDataEntry.removeNullValueEntries(campaignFormData.getFormValues());
+
+		validate(campaignFormDataDto);
+
+		campaignFormDataService.ensurePersisted(campaignFormData);
+		
 		return toDto(campaignFormData);
 	}
 
@@ -316,6 +343,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
 		
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
@@ -326,7 +354,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 						districtJoin.get(District.NAME), districtJoin.get(District.EXTERNAL_ID),
 						communityJoin.get(Community.NAME), communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
 						root.get(CampaignFormData.FORM_DATE),
-						campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE));
+						campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+						root.get(CampaignFormData.SOURCE),
+						userJoin.get(User.USER_NAME));
 
 		
 		Predicate filter = CriteriaBuilderHelper.and(cb,
@@ -392,8 +422,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			cq.orderBy(order);
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
-    }
-//System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
+    } //System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}

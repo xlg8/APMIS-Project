@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * UI content when the user is not logged in yet.
  */
 @Route("")
-@PageTitle("Login | APMIS")
+@PageTitle("APMIS-Login")
 //@CssImport("./styles/shared-styles.css")
 public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private String intendedRoute;
@@ -67,28 +67,30 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
-		loginInformation.add(imgApmis);
-		loginInformation.add(loginForm);
-
+		
+		
+		
+		VerticalLayout loginFormCarrier = new VerticalLayout();
+		loginFormCarrier.add(imgApmis ,loginForm);
+		loginFormCarrier.setClassName("login-form-carrier");
 //		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
 //		langSwitch.setId("loginLanguageSwitcher");
 //		langSwitch.getStyle().set("color", "white !important");
 //		loginInformation.add(langSwitch);
-
+		loginInformation.add(loginFormCarrier);
 		add(loginInformation);
 	}
 
 	private void login(LoginForm.LoginEvent event) {
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
-		
-		if(httpSession.getAttribute("intendedRoute") != null) {
-		intendedRoute = (String) httpSession.getAttribute("intendedRoute");
-		System.out.println("____httpSession.getAttributhttpSession.getAttribut________: "+intendedRoute);
-		}else {
-			System.out.println("_httpSession.getAttribut___________: "+intendedRoute);
+
+		if (httpSession.getAttribute("intendedRoute") != null) {
+			intendedRoute = (String) httpSession.getAttribute("intendedRoute");
+			System.out.println("____httpSession.getAttributhttpSession.getAttribut________: " + intendedRoute);
+		} else {
+			System.out.println("_httpSession.getAttribut___________: " + intendedRoute);
 		}
-		
-		
+
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
 //			IdleNotification idleNotification = new IdleNotification();
@@ -104,13 +106,11 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //			idleNotification.setExtendSessionOnOutsideClick(false);
 //
 //			 UI.getCurrent().add(idleNotification);
-			
-			VaadinSession.getCurrent().getSession().setMaxInactiveInterval ( 
-					( int ) TimeUnit.MINUTES.toSeconds( 30 ) 
-					);
+
+			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(30));
 
 			if (intendedRoute != null) {
-				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
 					getUI().get().navigate("/campaigndata");
 				}
 				if (intendedRoute.equals("logout")) {
@@ -118,17 +118,17 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
-			}else {
+			} else {
 //				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
 //					getUI().get().navigate("/campaigndata");
 //				}
 //				
-				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER){
+				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
 					getUI().get().navigate("/campaigndata");
-				}else {
+				} else {
 					getUI().get().navigate("/dashboard");
 				}
-			
+
 			}
 //			UI.getCurrent().getPage().reload();
 

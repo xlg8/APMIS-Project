@@ -8901,7 +8901,36 @@ update
 
 INSERT INTO schema_version (version_number, comment) VALUES (445, 'Optimizing Mobile User Analysis');
 
-    
+
+
+
+--https://github.com/AFG-Polio-Data/APMIS-Project/issues/473
+ALTER TABLE public.campaignformdata ADD "source" varchar(11) NULL;
+ALTER TABLE public.campaignformdata ALTER COLUMN sys_period DROP NOT NULL;
+DROP TRIGGER versioning_trigger ON public.campaignformdata;
+ALTER TABLE public.campaignformdata ADD lastupdated timestamp NULL;
+
+
+CREATE  FUNCTION update_updated_on_user_task()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.lastupdated = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_campaigndata_lastupdatecolumn
+before insert
+    or
+update
+    on
+    campaignformdata
+    FOR EACH ROW
+EXECUTE PROCEDURE update_updated_on_user_task();
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (446, 'adding platform/source of data');
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
 

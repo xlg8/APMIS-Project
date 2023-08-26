@@ -14,6 +14,7 @@ import java.util.Set;
 import com.cinoteck.application.UserProvider;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.exception.ZeroException;
 
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
@@ -26,11 +27,13 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -40,6 +43,7 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
+
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.CountryHelper;
@@ -62,7 +66,7 @@ import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
 public class UserForm extends FormLayout {
-
+	Dialog neee;
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -95,7 +99,7 @@ public class UserForm extends FormLayout {
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
-	TextField additionalInformation = new TextField(I18nProperties.getCaption(Captions.Location_additionalInformation) );
+	TextField additionalInformation = new TextField(I18nProperties.getCaption(Captions.Location_additionalInformation));
 	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
 	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
 	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
@@ -120,7 +124,6 @@ public class UserForm extends FormLayout {
 
 	Anchor createPassword = new Anchor("", I18nProperties.getCaption(Captions.userResetPassword));
 
-
 	Map<String, Component> map = new HashMap<>();
 
 	RegexpValidator patternValidator = new RegexpValidator("^[A-Za-z]+$", "Only letters are allowed");
@@ -135,7 +138,6 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
-
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user) {
@@ -160,6 +162,7 @@ public class UserForm extends FormLayout {
 		configureFields(user);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void configureFields(UserDto user) {
 		System.out.println(user + " userrrr value in configure field ");
 
@@ -173,17 +176,19 @@ public class UserForm extends FormLayout {
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
-		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData)).bind(UserDto::getFirstName,
-				UserDto::setFirstName);
+		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData))
+				.bind(UserDto::getFirstName, UserDto::setFirstName);
 
-		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired)).bind(UserDto::getLastName, UserDto::setLastName);
+		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
+				.bind(UserDto::getLastName, UserDto::setLastName);
 
-		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired)).bind(UserDto::getUserEmail, UserDto::setUserEmail);
+		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired))
+				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
-		binder.forField(phone).withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
+		binder.forField(phone)
+				.withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
 				.bind(UserDto::getPhone, UserDto::setPhone);
-
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -201,9 +206,9 @@ public class UserForm extends FormLayout {
 
 		binder.forField(commusr).bind(UserDto::isCommomUser, UserDto::setCommomUser);
 
-		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
-		this.setColspan(userRoles, 1);
+//		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
+//				UserDto::setUserRoles);
+//		this.setColspan(userRoles, 1);
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
@@ -217,7 +222,7 @@ public class UserForm extends FormLayout {
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 
-//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
 
@@ -256,17 +261,22 @@ public class UserForm extends FormLayout {
 //				community.setItems(communities);
 
 				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
-				UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+
+				//commented out not sure what 
+				//UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
-				currentUser.setCommunity(data);
-				FacadeProvider.getUserFacade().saveUser(currentUser);
+				//currentUser.setCommunity(data);
+				//FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
 
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
-						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
+						if(item.getNumber() == null)
+							Notification.show("Cluster Number cannot be empty, please contact support", Notification.Type.ERROR_MESSAGE); //I18nProperties.getString(Strings.clustNot)  )
+						
+						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
 					Collections.sort(items, CommunityReferenceDto.clusternumber);
 
@@ -276,58 +286,11 @@ public class UserForm extends FormLayout {
 						checkbox.getElement().getClassList().add("custom-checkbox-class");
 
 					});
-//		             FieldHelper
-//		                    .updateItems(community, districtDto != null ? items : null);    
+//		            
 				}
 			}
 		});
-//		checkboxGroup.setValue(UserDto.getCommunitynos());
 
-//		checkboxGroup.setItems(communitiesx);
-//		clusterNo.getChildren().forEach(checkBox -> checkBox.getElement().setProperty("class", "clusterCheckChildren"));
-//.setProperty("id", "clusterCheckChildren");
-
-		clusterNo.getChildren().forEach(checkbox -> {
-//	            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
-			checkbox.getElement().getClassList().add("custom-checkbox-class");
-			
-			Boolean isChecked = checkbox.getElement().getAttribute("checked") != null;
-			String label = ((Checkbox) checkbox).getLabel();
-
-			if (isChecked) {
-				System.out.println("Checkbox '" + label + "' is checked.");
-			} else {
-				System.out.println("Checkbox '" + label + "' is not checked.");
-			}
-		});
-
-		clusterNo.setId("checkboxesid");
-		clusterNo.addValueChangeListener(event -> {
-
-			boolean isChecked = ((Checkbox) event).getValue();
-			String label = ((Checkbox) event).getLabel();
-
-			if (isChecked) {
-				System.out.println("Check '" + label + "' is checked.");
-			} else {
-				System.out.println("Check '" + label + "' is not checked.");
-			}
-			// Do something with the selected options (if multiple selection is allowed)
-			HashSet<CommunityReferenceDto> communityDto = (HashSet<CommunityReferenceDto>) event.getValue();
-			System.out.println(event.getValue() + "rnobrobnrbnornborborobn or");
-			if (event.getValue() != null) {
-
-				boolean isCheckedx = ((Checkbox) event).getValue();
-				String labelx = ((Checkbox) event).getLabel();
-
-				if (isCheckedx) {
-					System.out.println("Checkboxesssss '" + labelx + "' is checked.");
-				} else {
-					System.out.println("Checkboxesssss '" + labelx + "' is not checked.");
-				}
-//			Set<CommunityReferenceDto> data = Collections.sort(items, CommunityReferenceDto.clusternumber);
-			}
-		});
 
 //		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
@@ -340,7 +303,8 @@ public class UserForm extends FormLayout {
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
-		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname)).bind(UserDto::getUserName, UserDto::setUserName);
+		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+				.bind(UserDto::getUserName, UserDto::setUserName);
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
@@ -349,26 +313,25 @@ public class UserForm extends FormLayout {
 		System.out.println(roles + "tttttttttttttttttttttt");
 		userRoles.setItems(roles);
 
-
 		formAccessesList = UserUiHelper.getAssignableForms();
 
-		
 		// TODO: Change implemenation to only add assignable roles sormas style.
-		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired)).bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
+//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+
+		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
 		this.setColspan(userRoles, 1);
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess)).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess))
+				.bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel(I18nProperties.getCaption(Captions.User_active));
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
-
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccess.setItems(formAccessesList);
@@ -391,7 +354,6 @@ public class UserForm extends FormLayout {
 		commusr.addValueChangeListener(e -> {
 
 			UserProvider currentUser = new UserProvider();
-
 
 			System.out.println((boolean) e.getValue());
 			if ((boolean) e.getValue() == true) {
@@ -416,8 +378,8 @@ public class UserForm extends FormLayout {
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 
-    binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired) ).bind(UserDto::getLanguage, UserDto::setLanguage);
-
+		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
+				.bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
@@ -427,6 +389,40 @@ public class UserForm extends FormLayout {
 		createButtonsLayout();
 	}
 
+//	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+//		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+//
+//		if (StringUtils.isBlank(userEmail)
+//				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+//			Dialog ttt = new Dialog();
+//			ttt.add("UserName : " + userName);
+//			ttt.add("Password : " + newPassword);
+//			ttt.open();
+//
+////			showPasswordResetInternalSuccessPopup(newPassword, userName);
+//		} else {
+////			showPasswordResetExternalSuccessPopup();
+//		}
+//	}
+
+	public void showPasswordResetInternalSuccessPopup(String newPassword, String userName) {
+		neee = new Dialog();
+		Label vvv = new Label(I18nProperties.getString(Strings.messageCopyPassword));
+
+		VerticalLayout layout = new VerticalLayout();
+		layout.addComponent(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
+		Label passwordLabel = new Label("Password:  " + newPassword);
+		Label userNameLabel = new Label("Username:  " + userName);
+
+		layout.addComponent(userNameLabel);
+		layout.addComponent(passwordLabel);
+		Dialog popupWindow = new Dialog();
+		popupWindow.setHeaderTitle(I18nProperties.getString(Strings.headingNewPassword));
+		layout.setMargin(true);
+	}
+
+
+
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
@@ -435,14 +431,6 @@ public class UserForm extends FormLayout {
 			System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 
 			lastName.addValueChangeListener(e -> {
-				System.out.println(editMode + "mode ganxxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-//			
-				System.out.println(firstName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-				System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-//
-				System.out.println(userName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 
 				if (userName.isEmpty()) {
 					userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
@@ -494,6 +482,13 @@ public class UserForm extends FormLayout {
 //
 //		});
 	}
+	
+	private void resetpassword() {
+		fireEvent(new ResetPasswordEvent(this, binder.getBean()));
+
+	}
+
+
 
 	public void setUser(UserDto user) {
 		binder.setBean(user);
@@ -535,6 +530,16 @@ public class UserForm extends FormLayout {
 		CloseEvent(UserForm source) {
 			super(source, new UserDto());
 		}
+	}
+
+	public static class ResetPasswordEvent extends UserFormEvent {
+		ResetPasswordEvent(UserForm source , UserDto user) {
+			super(source, new UserDto());
+		}
+	}
+
+	public Registration addResetPasswordListener(ComponentEventListener<ResetPasswordEvent> listener) {
+		return addListener(ResetPasswordEvent.class, listener);
 	}
 
 	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
@@ -590,6 +595,18 @@ public class UserForm extends FormLayout {
 			region.setVisible(false);
 		}
 
+	}
+	
+	public static void updateItems(CheckboxGroup select, Set<?> items) {
+		Set<?> value = select.getSelectedItems();
+		boolean readOnly = select.isReadOnly();
+		select.setReadOnly(false);
+		select.removeAll();
+		if (items != null) {
+			select.setItems(items);
+		}
+		select.setValue(value);
+		select.setReadOnly(readOnly);
 	}
 
 	public static Set<UserRole> getAssignableRoles(Set<UserRole> assignedUserRoles) {

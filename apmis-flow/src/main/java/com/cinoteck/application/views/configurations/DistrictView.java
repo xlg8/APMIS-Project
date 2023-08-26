@@ -63,7 +63,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Districts")
+@PageTitle("APMIS-Districts")
 @Route(value = "districts", layout = ConfigurationsView.class)
 public class DistrictView extends VerticalLayout {
 
@@ -404,8 +404,9 @@ public class DistrictView extends VerticalLayout {
 			anchor.getElement().callJsFunction("click");
 			
 	    });
+		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(anchor);
+		layout.add(exportDistrict, anchor);
 		}
 		layout.setWidth("88%");
 

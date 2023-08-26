@@ -15,27 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *******************************************************************************/
-package de.symeda.sormas.ui.importer;
+package com.cinoteck.application.views.utils.importutils;
 
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.ProgressBar;
+
+
+import com.vaadin.event.MouseEvents.ClickListener;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.ui.utils.ButtonHelper;
-import de.symeda.sormas.ui.utils.CssStyles;
 
 @SuppressWarnings("serial")
 public class ImportProgressLayout extends VerticalLayout {
@@ -52,9 +51,9 @@ public class ImportProgressLayout extends VerticalLayout {
 	private Label infoLabel;
 
 	private ProgressBar progressCircle;
-	private Image errorIcon;
-	private Image successIcon;
-	private Image warningIcon;
+	private Icon errorIcon;
+	private Icon successIcon;
+	private Icon warningIcon;
 	private Component currentInfoComponent;
 
 	private ClickListener cancelListener;
@@ -77,7 +76,7 @@ public class ImportProgressLayout extends VerticalLayout {
 		this.totalCount = totalCount;
 		this.currentUI = currentUI;
 
-		setWidth(100, Unit.PERCENTAGE);
+		setWidthFull();
 		setMargin(true);
 
 		// Info text and icon/progress circle
@@ -86,70 +85,75 @@ public class ImportProgressLayout extends VerticalLayout {
 		infoLayout.setSpacing(true);
 		initializeInfoComponents();
 		currentInfoComponent = progressCircle;
-		infoLayout.addComponent(currentInfoComponent);
+		infoLayout.add(currentInfoComponent);
 		infoLabel = new Label(String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount));
-		infoLabel.setContentMode(ContentMode.HTML);
-		infoLayout.addComponent(infoLabel);
-		infoLayout.setExpandRatio(infoLabel, 1);
+//		infoLabel.setContentMode(ContentMode.HTML);
+		infoLayout.add(infoLabel);
+//		infoLayout.setExpandRatio(infoLabel, 1);
 
-		addComponent(infoLayout);
+		add(infoLayout);
 
 		// Progress bar
-		progressBar = new ProgressBar(0.0f);
-		CssStyles.style(progressBar, CssStyles.VSPACE_TOP_3);
-		addComponent(progressBar);
+		progressBar = new ProgressBar(0.0f, 100.0f);
+//		CssStyles.style(progressBar, CssStyles.VSPACE_TOP_3);
+		add(progressBar);
 		progressBar.setWidth(100, Unit.PERCENTAGE);
 
 		// Progress info
 		HorizontalLayout progressInfoLayout = new HorizontalLayout();
-		CssStyles.style(progressInfoLayout, CssStyles.VSPACE_TOP_5);
+//		CssStyles.style(progressInfoLayout, CssStyles.VSPACE_TOP_5);
 		progressInfoLayout.setSpacing(true);
 		processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), 0, totalCount));
-		progressInfoLayout.addComponent(processedImportsLabel);
+		progressInfoLayout.add(processedImportsLabel);
 		successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports), 0));
-		CssStyles.style(successfulImportsLabel, CssStyles.LABEL_POSITIVE);
-		progressInfoLayout.addComponent(successfulImportsLabel);
+//		CssStyles.style(successfulImportsLabel, CssStyles.LABEL_POSITIVE);
+		progressInfoLayout.add(successfulImportsLabel);
 		importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), 0));
-		CssStyles.style(importErrorsLabel, CssStyles.LABEL_CRITICAL);
-		progressInfoLayout.addComponent(importErrorsLabel);
+//		CssStyles.style(importErrorsLabel, CssStyles.LABEL_CRITICAL);
+		progressInfoLayout.add(importErrorsLabel);
 		importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), 0));
-		CssStyles.style(importDuplicatesLabel, CssStyles.LABEL_WARNING);
+//		CssStyles.style(importDuplicatesLabel, CssStyles.LABEL_WARNING);
 		if (duplicatesPossible) {
-			progressInfoLayout.addComponent(importDuplicatesLabel);
+			progressInfoLayout.add(importDuplicatesLabel);
 		}
 		importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), 0));
-		CssStyles.style(importSkipsLabel, CssStyles.LABEL_MINOR);
+//		CssStyles.style(importSkipsLabel, CssStyles.LABEL_MINOR);
 		if (skipPossible) {
-			progressInfoLayout.addComponent(importSkipsLabel);
+			progressInfoLayout.add(importSkipsLabel);
 		}
-		addComponent(progressInfoLayout);
-		setComponentAlignment(progressInfoLayout, Alignment.TOP_RIGHT);
+		add(progressInfoLayout);
+//		setComponentAlignment(progressInfoLayout, Alignment.TOP_RIGHT);
+		
+		progressInfoLayout.setAlignItems(Alignment.END);
 
 		// Cancel button
 		cancelListener = e -> cancelCallback.run();
 
-		closeCancelButton = ButtonHelper.createButton(Captions.actionCancel, cancelListener, CssStyles.VSPACE_TOP_2);
-
-		addComponent(closeCancelButton);
-		setComponentAlignment(closeCancelButton, Alignment.MIDDLE_RIGHT);
+		closeCancelButton = new Button(Captions.actionCancel);
+		
+		closeCancelButton.addClickListener(e->{
+		cancelCallback.run();
+		});
+		
+		add(closeCancelButton);
+//		setComponentAlignment(closeCancelButton, Alignment.MIDDLE_RIGHT);
+		
 	}
-
-	
 
 	private void initializeInfoComponents() {
 		progressCircle = new ProgressBar();
 		progressCircle.setIndeterminate(true);
-		CssStyles.style(progressCircle, "v-progressbar-indeterminate-large");
+//		CssStyles.style(progressCircle, "v-progressbar-indeterminate-large");
 
-		errorIcon = new Image(null, new ThemeResource("img/error-icon.png"));
-		errorIcon.setHeight(35, Unit.PIXELS);
-		errorIcon.setWidth(35, Unit.PIXELS);
-		successIcon = new Image(null, new ThemeResource("img/success-icon.png"));
-		successIcon.setHeight(35, Unit.PIXELS);
-		successIcon.setWidth(35, Unit.PIXELS);
-		warningIcon = new Image(null, new ThemeResource("img/warning-icon.png"));
-		warningIcon.setHeight(35, Unit.PIXELS);
-		warningIcon.setWidth(35, Unit.PIXELS);
+		errorIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
+		errorIcon.getStyle().set("color", "red");
+//		errorIcon.setWidth(35, Unit.PIXELS);
+		successIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		successIcon.getStyle().set("color", "green");
+//		successIcon.setWidth(35, Unit.PIXELS);
+		warningIcon = new Icon(VaadinIcon.WARNING);
+		warningIcon.getStyle().set("color", "yellow");
+//		warningIcon.setWidth(35, Unit.PIXELS);
 	}
 
 	public void updateProgress(ImportLineResult result) {
@@ -157,48 +161,61 @@ public class ImportProgressLayout extends VerticalLayout {
 			processedImportsCount++;
 			if (result == ImportLineResult.SUCCESS) {
 				successfulImportsCount++;
-				successfulImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importImports), successfulImportsCount));
+				successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
+//				successfulImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importImports), successfulImportsCount));
 			} else if (result == ImportLineResult.ERROR) {
 				importErrorsCount++;
-				importErrorsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
+				
+				importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
+				
+				
+//				importErrorsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 			} else if (result == ImportLineResult.SKIPPED) {
 				importSkipsCount++;
-				importSkipsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+				
+				importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+
+//				importSkipsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
 			} else if (result == ImportLineResult.DUPLICATE) {
 				importDuplicatesCount++;
-				importDuplicatesLabel.setValue(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+				
+				importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+
+//				importDuplicatesLabel.setValue(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
 			}
-			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+			processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+
+			
+//			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
 			progressBar.setValue((float) processedImportsCount / (float) totalCount);
 		});
 	}
-	
-	
 
 	public void makeClosable(Runnable closeCallback) {
-		closeCancelButton.setCaption(I18nProperties.getCaption(Captions.actionClose));
-		closeCancelButton.removeClickListener(cancelListener);
+		
+		closeCancelButton.setText(I18nProperties.getCaption(Captions.actionClose));
+//		closeCancelButton.get .removeListener(cancelListener);
 		closeCancelButton.addClickListener(e -> closeCallback.run());
 	}
 
 	public void setInfoLabelText(String text) {
-		infoLabel.setValue(text);
+		infoLabel.setText(text);
 	}
 
 	public void displayErrorIcon() {
-		infoLayout.removeComponent(currentInfoComponent);
+		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = errorIcon;
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
 
 	public void displaySuccessIcon() {
-		infoLayout.removeComponent(currentInfoComponent);
+		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = successIcon;
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
 
 	public void displayWarningIcon() {
-		infoLayout.removeComponent(currentInfoComponent);
+		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = warningIcon;
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}

@@ -74,7 +74,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Clusters")
+@PageTitle("APMIS-Clusters")
 @Route(value = "clusters", layout = ConfigurationsView.class)
 public class ClusterView extends VerticalLayout {
 
@@ -391,13 +391,14 @@ public class ClusterView extends VerticalLayout {
 		}
 		Button exportCluster = new Button("Export");
 		exportCluster.setIcon(new Icon(VaadinIcon.UPLOAD));
-		exportCluster.addClickListener(e -> {
-			anchor.getElement().setAttribute("download", true);
-			anchor.getElement().callJsFunction("click");
 
-		});
+		exportCluster.addClickListener(e->{
+			anchor.getElement().callJsFunction("click");
+			
+	    });
+		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(anchor);
+		layout.add(exportCluster, anchor);
 		}
 //		layout.addComponentAsFirst(anchor);
 		layout.setWidth("75%");

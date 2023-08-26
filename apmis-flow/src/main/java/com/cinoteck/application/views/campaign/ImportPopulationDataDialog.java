@@ -1,20 +1,23 @@
 package com.cinoteck.application.views.campaign;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.cinoteck.application.views.utils.DownloadUtil;
-import com.vaadin.flow.component.ClientCallable;
+import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.utils.importutils.DataImporter;
+import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.dnd.internal.DndUtil;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
@@ -22,20 +25,23 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
+import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.StreamResource;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
+import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
-import de.symeda.sormas.api.utils.DataHelper;
+import de.symeda.sormas.api.user.UserDto;
 
 public class ImportPopulationDataDialog extends Dialog {
 
-	ComboBox campaignFilter = new ComboBox<>();
+	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
@@ -43,7 +49,10 @@ public class ImportPopulationDataDialog extends Dialog {
 	private boolean callbackRunning = false;
 	private Timer timer;
 	private int pollCounter = 0;
-
+	private File file_;
+	protected Anchor downloadErrorReportButton;
+	
+	
 	public ImportPopulationDataDialog(InfrastructureType infrastructureType, CampaignDto camapigndto) {
 		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportPopulationData));
 //		this.getStyle().set("color" , "#0D6938");
@@ -122,14 +131,49 @@ public class ImportPopulationDataDialog extends Dialog {
 		H3 step3 = new H3();
 		step3.add("Step 3: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
+		Label sd = new Label("Upload");
+		
+//		MemoryBuffer memoryBuffer = new MemoryBuffer();
+		FileUploader buffer = new FileUploader();  
+        Upload upload = new Upload(buffer);
+        
+        startDataImport.setEnabled(false);
+        upload.setAcceptedFileTypes("text/csv");
+        
+        upload.addSucceededListener(event -> {
+        	
+        	file_ = new File(buffer.getFilename());
+			 startDataImport.setEnabled(true);
+        	
+        });
+		
+        UserProvider usr = new UserProvider();
+		UserDto srDto = usr.getUser();
+		
 		startDataImport.addClickListener(ed -> {
 
+			
+			try {
+
+				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+				
+				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
+				importer.startImport(this::extendDownloadErrorReportButton, UI.getCurrent(), true);
+			} catch (IOException | CsvValidationException e) {
+				Notification.show(
+					I18nProperties.getString(Strings.headingImportFailed) +" : "+
+					I18nProperties.getString(Strings.messageImportFailed));
+			}
+			
+			
 		});
 
 		H3 step4 = new H3();
 		step4.add("Step 4: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
-		donloadErrorReport.addClickListener(null);
+		donloadErrorReport.addClickListener(e -> {
+		downloadErrorReportButton.getElement().callJsFunction("click");
+		});
 
 		Button startButton = new Button("Start Interval__ Callback");
 		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -143,7 +187,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		stopButton.addClickListener(e -> stopIntervalCallback());
 
 		dialog.add(seperatorr, startButton, stopButton, lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, startDataImport, step4,
+				step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
 				lblDnldErrorReport, donloadErrorReport);
 
 		Button doneButton = new Button("Done", e -> {
@@ -201,4 +245,16 @@ public class ImportPopulationDataDialog extends Dialog {
 		Page page = ui.getPage();
 		page.reload();
 	}
+	
+
+	protected void resetDownloadErrorReportButton() {
+		donloadErrorReport.setEnabled(false);
+	}
+
+	protected void extendDownloadErrorReportButton(StreamResource streamResource) {
+		downloadErrorReportButton = new Anchor(streamResource, I18nProperties.getCaption(Captions.downloadErrorReport));
+		donloadErrorReport.setEnabled(true);
+	}
+	
+	
 }

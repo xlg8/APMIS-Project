@@ -1,22 +1,20 @@
 package com.cinoteck.application.views;
 
-import java.util.Locale;
-
 import javax.validation.constraints.NotNull;
 
-import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.utils.authentication.AccessControl;
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.DashboardView;
-import com.cinoteck.application.views.logout.LogoutView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
@@ -39,6 +37,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
+
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 //import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -47,16 +47,20 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Router;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.flow.theme.lumo.LumoUtility.TextAlignment;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
@@ -78,19 +82,28 @@ import de.symeda.sormas.api.user.UserType;
 
 @CssImport(value = "/styles/lato-font.css", themeFor = "vaadin-text-field")
 
-public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders {
+public class MainLayout extends AppLayout implements HasUserProvider, HasViewModelProviders, BeforeEnterObserver {
 
 	private H1 viewTitle;
 
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 	boolean isToggleOpen = false;
+	
 	Image imgApmis = new Image();
+	AppNav nav = new AppNav();
+	String intendedRoute;
+	final AccessControl accessControl = AccessControlFactory.getInstance().createAccessControl();
+	private Button confirmButton;
+	private Button cancelButton;
+	Dialog dialog = new Dialog();
+	Div aboutText = new Div();
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);
+			
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
@@ -128,13 +141,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			if (event.getSource() instanceof DrawerToggle) {
 				DrawerToggle toggleButton = (DrawerToggle) event.getSource();
 
-				isToggleOpen = !isToggleOpen;
-
 				if (isToggleOpen) {
 					titleLayout.setWidth("100%");
 				} else {
 					titleLayout.setWidth("86%");
 				}
+
+				isToggleOpen = !isToggleOpen;
 			}
 		});
 
@@ -165,15 +178,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Scroller scroller = new Scroller(createNavigation());
 
 		Header header = new Header(imgApmis);
-
+		
 		addToDrawer(header, scroller);
 
 //		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
 //                new Locale("fa","IR", "فارسی"));
 //		
 //		languageSwitcher.setClassName("vieLangiuageSwitcher");
-//		
-//		addToDrawer(languageSwitcher);
+		
+		
+		
 
 		addToDrawer(createFooter());
 
@@ -183,10 +197,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private AppNav createNavigation() {
 		// AppNav is not yet an official component.
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme
-		AppNav nav = new AppNav();
 
 		Button myButton = new Button();
-
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -243,9 +255,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
-				VaadinIcon.SIGN_OUT_ALT, "navitem"));
 
+//		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
+//				VaadinIcon.SIGN_OUT_ALT, "navitem"));
+
+//		 Router router = new Router();
+//
+//	        router.getRegistry().add(new RouteEntry("/dashboard", DashboardView.class));
+//	       
+=======
 		if (nav != null) {
 			nav.addClassName("active");
 		}
@@ -340,25 +358,18 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		return dialog;
 	}
 
-	void rtlswitcher() {
+	private void rtlswitcher() {
 		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		I18nProperties.getUserLanguage();
-
 		if (userProvider.getUser().getLanguage().toString() != null) {
-
-			LanguageSwitcher languageSwitcher = new LanguageSwitcher();
-
 			String userLanguage = userProvider.getUser().getLanguage().toString();
-
 			if (userLanguage.equals("Pashto")) {
-
-				languageSwitcher.mainSwitchLanguage(new Locale("ps"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT); 
 			} else if (userLanguage.equals("Dari")) {
-
-				languageSwitcher.mainSwitchLanguage(new Locale("fa"));
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else {
-				
-				languageSwitcher.mainSwitchLanguage(Locale.ENGLISH);				
+
+				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 			}
 
 		}
@@ -406,6 +417,94 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	private Footer createFooter() {
 		Footer layout = new Footer();
+		Button logoutButton = new Button(I18nProperties.getCaption(Captions.actionLogout) + " | "
+				+ userProvider.getUser().getFirstName() + " " + userProvider.getUser().getLastName());
+		Icon logoutIcon = new Icon(VaadinIcon.SIGN_OUT_ALT);
+		logoutIcon.getStyle().set("font-size", "18px");
+		logoutButton.setIcon(logoutIcon);
+		logoutButton.setId("lougoutButton");
+		logoutButton.getStyle().set("font-size", "14px");
+		logoutButton.getStyle().set("font-weight", "400");
+		logoutButton.getStyle().set("width", "110%");
+		logoutButton.getStyle().set("opacity", "none");
+		logoutButton.getStyle().set("box-shadow", "none");
+		logoutButton.getStyle().set("margin-left", "-14px");
+		logoutButton.getStyle().set("margin-top", "0px");
+		logoutButton.getStyle().set("height", "45px");
+
+		logoutButton.getStyle().set("padding-left", "0px");
+
+		VerticalLayout dialogHolderLayout = new VerticalLayout();
+
+		Div apmisImageContainer = new Div();
+		apmisImageContainer.getStyle().set("width", "100%");
+		apmisImageContainer.getStyle().set("display", "flex");
+		apmisImageContainer.getStyle().set("justify-content", "center");
+
+		Image img = new Image("images/logout.png", "APMIS-LOGO");
+		img.getStyle().set("max-height", "-webkit-fill-available");
+		apmisImageContainer.remove(img);
+		apmisImageContainer.add(img);
+
+		Paragraph text = new Paragraph(I18nProperties.getString(Strings.areSureYouWantToLogout));
+		text.getStyle().set("color", "black");
+		text.getStyle().set("font-size", "24px");
+		aboutText.getStyle().set("display", "flex");
+		aboutText.getStyle().set("flex-direction", "column");
+		aboutText.getStyle().set("align-items", "center");
+		aboutText.remove(text);
+
+		aboutText.add(text);
+
+		Div logoutButtons = new Div();
+		logoutButtons.getStyle().set("display", "flex");
+		logoutButtons.getStyle().set("justify-content", "space-evenly");
+		logoutButtons.getStyle().set("width", "100%");
+
+		final AccessControl accessControl = AccessControlFactory.getInstance().createAccessControl();
+		dialog = new Dialog();
+		// TODO make this check the sesssion and invalidate it... it terms of Spring..
+		// let use another method
+		confirmButton = new Button(I18nProperties.getCaption(Captions.actionAccept), event -> {
+			UI.getCurrent().getSession().close();
+			accessControl.signOut(intendedRoute);
+
+		});
+		confirmButton.getStyle().set("width", "35%");
+
+		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
+			dialog.close();
+//			dialog.remove(dialogHolderLayout);
+			cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
+		});
+		cancelButton.getStyle().set("width", "35%");
+		cancelButton.getStyle().set("background", "white");
+		cancelButton.getStyle().set("color", "green");
+		logoutButtons.add(confirmButton, cancelButton);
+		dialogHolderLayout.remove(apmisImageContainer, aboutText, logoutButtons);
+		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
+		
+		dialog.add(dialogHolderLayout);
+
+		
+		logoutButton.addClickListener(event -> {
+			if (I18nProperties.getUserLanguage() == null) {
+
+				I18nProperties.setUserLanguage(Language.EN);
+			} else {
+
+				I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+				I18nProperties.getUserLanguage();
+			}
+			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
+			dialog.add(dialogHolderLayout);
+
+			dialog.setCloseOnEsc(false);
+			dialog.setCloseOnOutsideClick(false);
+			dialog.open();
+		});
+		
+		layout.add(logoutButton);
 
 		return layout;
 	}
@@ -418,7 +517,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	private String getCurrentPageTitle() {
 		PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-		return title == null ? "" : title.value();
+
+		System.out.println("|" + title.value().split("APMIS-")[1] + "|");
+		String seg = "";
+		
+		if (title != null && title.value().contains("APMIS-")) {
+			seg = title.value().split("APMIS-")[1];
+		}
+
+		return seg;
 	}
 
 //	@Override
@@ -437,6 +544,28 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	public UserProvider getUserProvider() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		// Store the intended route in the UI instance before navigating to the login
+		// page
+
+		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
+			if (pageTitle.contains("flow/")) {
+				intendedRoute = pageTitle.split("flow/")[1];
+				System.out.println(
+						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
+								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+
+				// JsonDatabase sdf = new JsonDatabase(pageTitle.split("flow/")[1]);
+
+			}
+//			Notification.show(String.format("Page title: '%s'", pageTitle));
+		});
+
+//		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
+
 	}
 
 }

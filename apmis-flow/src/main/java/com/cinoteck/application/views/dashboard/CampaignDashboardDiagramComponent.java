@@ -1,6 +1,5 @@
 package com.cinoteck.application.views.dashboard;
 
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
@@ -39,7 +38,7 @@ import de.symeda.sormas.api.campaign.diagram.DiagramType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-	
+
 import com.cinoteck.application.UserProvider;
 
 public class CampaignDashboardDiagramComponent extends Div {
@@ -69,7 +68,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 	private Map mapSeries = new HashMap();
 
 	private BarChartCardComponent chartComponent;
-	//private NumberCardComponent cardComponent;
+	// private NumberCardComponent cardComponent;
 	private ProgressBarCardComponent percentageCardComponent;
 	private String randomx = "";
 
@@ -91,24 +90,22 @@ public class CampaignDashboardDiagramComponent extends Div {
 		}
 
 		showAsColumnChart = DiagramType.COLUMN == diagramDefinition.getDiagramType();
-		
-		
+
 		setId(randomx);
-		removeClassNames("col-lg-12","col-lg-11","col-lg-10","col-lg-9","col-lg-8","col-lg-7","col-lg-6","col-lg-5","col-lg-4","col-lg-3","col-lg-2","col-lg-1");
+		removeClassNames("col-lg-12", "col-lg-11", "col-lg-10", "col-lg-9", "col-lg-8", "col-lg-7", "col-lg-6",
+				"col-lg-5", "col-lg-4", "col-lg-3", "col-lg-2", "col-lg-1");
 
 		getStyle().set("padding-right", "1px!important");
 		getStyle().set("padding-left", "10px!important");
-		
+
 		addClassName("col-md-12");
-		addClassName("col-lg-"+cardWidth);
-		
-		
-		
+		addClassName("col-lg-" + cardWidth);
+
 		final String chartrandom = generateShortUUID();
 		randomx = chartrandom;
-		
-		//Notification.show(randomx);
-		
+
+		// Notification.show(randomx);
+
 		final Map<Object, String> axisInfo = new HashMap<>();
 		for (CampaignDiagramDataDto diagramData : diagramDataList) {
 			final Object groupingKey = diagramData.getGroupingKey();
@@ -137,8 +134,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 
 		// TODO would be cleaner to extend the HighChart class to provide customizable
 		// toggle options
-		
-		
+
 //		String funct =  "this.changeDiagramPercentage_" + diagramDefinition.getDiagramId()+" function(){"
 //				+ "alert($1);"
 ////				+ "$server.buildDiagramChart($0,$1);"
@@ -153,14 +149,13 @@ public class CampaignDashboardDiagramComponent extends Div {
 //				+ "}"
 //				+ "");//, getDiagramCaption(), campaignJurisdictionLevelGroupBy.toString(), !isShowPercentages());
 //		
-	//	getElement().executeJs(""+diagramDefinition.getDiagramId()+"('"+diagramDefinition.getDiagramId()+"')");
+		// getElement().executeJs(""+diagramDefinition.getDiagramId()+"('"+diagramDefinition.getDiagramId()+"')");
 
 //		getElement().executeJs("changeDiagramPercentage_" + diagramDefinition.getDiagramId()+"()",
 //				(JavaScriptFunction) jsonArray -> {
 //					setShowPercentages(!isShowPercentages());
 //					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
 //				});
-		
 
 //		JavaScript.getCurrent().addFunction("changeDiagramLabels_" + diagramDefinition.getDiagramId(),
 //				(JavaScriptFunction) jsonArray -> {
@@ -187,11 +182,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 //				+ "}");
 //		
 //		
-		
-		
-		
-		
-		
+
 //		 String javascriptCode = "<script>\n" +
 //	                "  function myFunction() {\n" +
 //	                "    console.log('Hello from JavaScript!');\n" +
@@ -200,14 +191,13 @@ public class CampaignDashboardDiagramComponent extends Div {
 //
 //	        Html html = new Html(javascriptCode);
 //	        add(html);
-	        
+
 //	        String script = "function changeDiagramPercentage_"+ diagramDefinition.getDiagramId()+"() {" +
 //	                "    console.log('Dynamic Function Invoked');" +
 //	                "}";
 //	        
 //	        String functionName = "changeDiagramPercentage_" + diagramDefinition.getDiagramId();
-	        				
-	      
+
 //		getElement().executeJs(" var el = document.getElementsByClassName('highcharts-data-table');"
 //
 //				+ "  window.onclick = function(event) {\n"
@@ -219,11 +209,10 @@ public class CampaignDashboardDiagramComponent extends Div {
 //
 //				+ "}");
 
-
 		buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
-		
+
 	}
-	
+
 	@ClientCallable
 	public void buildDiagramChart(String title, CampaignJurisdictionLevel campaignJurisdictionLevelGroupBy) {
 		final StringBuilder hcjs = new StringBuilder();
@@ -253,14 +242,44 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ " enabled: true,");
 		//@formatter:on
 
-			hcjs.append(" menuItemDefinitions: { switchChart: {\n" + "                onclick: function() {\n"
+			hcjs.append(" menuItemDefinitions: { switchChart1: {\n" 
+					+ "                onclick: function() {\n"
 					+ " 			counterx = (counterx + 1) % stuffx.length;\n"
-					+ "                    var chartType = this.options.chart.type;\n" + "\n"
-
-					+ "                    this.update({\n" + "                        chart: {\n"
-					+ "                            type: stuffx[counterx]\n" + "                        }\n"
-					+ "                    })\n" + "                },\n" + "                text: 'Switch Charts'\n"
-					+ "            }\n");
+					+ "                    var chartType = this.options.chart.type;\n" 
+					+ "                    this.update({\n" 
+					+ "                        chart: {\n"
+					+ "                            type: 'bar'\n" 
+					+ "                        }\n"
+					+ "                    })\n" 
+					+ "                },\n"
+					+ "                text: 'Show as Bar'\n"
+					+ "            },"
+					+ "\n"
+					+ "switchChart2: {\n" 
+							+ "                onclick: function() {\n"
+							+ " 			counterx = (counterx + 1) % stuffx.length;\n"
+							+ "                    var chartType = this.options.chart.type;\n" 
+							+ "                    this.update({\n" 
+							+ "                        chart: {\n"
+							+ "                            type: 'column'\n" 
+							+ "                        }\n"
+							+ "                    })\n" 
+							+ "                },\n"
+							+ "                text: 'Show as Column'\n"
+							+ "            },\n"
+							+ "\n"
+							+ "switchChart3: {\n" 
+									+ "                onclick: function() {\n"
+									+ " 			counterx = (counterx + 1) % stuffx.length;\n"
+									+ "                    var chartType = this.options.chart.type;\n" 
+									+ "                    this.update({\n" 
+									+ "                        chart: {\n"
+									+ "                            type: 'line'\n" 
+									+ "                        }\n"
+									+ "                    })\n" 
+									+ "                },\n"
+									+ "                text: 'Show as Line'\n"
+									+ "            }\n");
 
 //			hcjs.append(",  toggleLabels: { onclick: function() { changeDiagramLabels_"
 //					+ diagramDefinition.getDiagramId() + "(); }, text: '"
@@ -282,7 +301,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 			hcjs.append(" }, ");
 
 			hcjs.append(" buttons:{ contextButton:{ theme:{ fill: 'transparent' }, ").append(
-					"menuItems: ['switchChart','viewFullscreen', 'printChart', 'separator', 'downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS', 'viewData'");
+					"menuItems: ['switchChart1','switchChart2','switchChart3','viewFullscreen', 'printChart', 'separator', 'downloadPNG', 'downloadJPEG', 'downloadPDF', 'downloadSVG', 'separator', 'downloadCSV', 'downloadXLS', 'viewData'");
 
 			//hcjs.append(", 'separator', 'toggleLabels'");
 			if (totalValuesMap != null) {
@@ -312,7 +331,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 			hcjs.append("});");
 
 			//TODO This should have all the JAVASCRIPT String for the entire card.
-			System.out.println(hcjs.toString());
+		//	System.out.println(hcjs.toString());
 			
 			
 			//addClassName("col-md-12");
@@ -322,11 +341,12 @@ public class CampaignDashboardDiagramComponent extends Div {
 			chartComponent = new BarChartCardComponent(hcjs.toString(), randomx, DiagramType.COLUMN);
 			this.add(chartComponent);
 		}
-	}	
-	
+	}
+
 	@ClientCallable
 	public void greetxc(String name) {
-	//System.out.println("--------------------------------------------------------------------Hi, " + name);
+		// System.out.println("--------------------------------------------------------------------Hi,
+		// " + name);
 	}
 
 	private void appendAxisInformation(StringBuilder hcjs, Map<String, Long> stackMap,
@@ -340,7 +360,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 			}
 		}
 		if (pieChart) {
-			hcjs.append(" exporting: {\n" + "        showTable: false," + "togglePercentages: false\n"
+			hcjs.append(" exporting: {\n" 
+		+ "        showTable: false," 
+					+ "togglePercentages: false\n"
 					+ "    }, \nxAxis: {");
 		} else {
 			hcjs.append("xAxis: {");
@@ -628,7 +650,6 @@ public class CampaignDashboardDiagramComponent extends Div {
 					// System.out.println(totalValuesMap.size()+ " ______________
 					// "+seriesData.size());
 
-					
 					if ((showPercentages && totalValuesMap != null) && cardChart) {
 
 //						for (Object axisKeddy : totalValuesMap.keySet()) {
@@ -640,11 +661,11 @@ public class CampaignDashboardDiagramComponent extends Div {
 //						System.out.println(seriesData.get(axisKey).getFieldCaption());
 //						System.out.println(seriesData.get(axisKey).getFormId());
 						Double valxx = 0.0d;
-							for (Map.Entry<CampaignDashboardTotalsReference, Double> entry : totalValuesMap.entrySet()) {
-								valxx = entry.getValue();
-								//System.out.println(entry.getValue()+"   ____________   	"+valxx);
-						    }
-						
+						for (Map.Entry<CampaignDashboardTotalsReference, Double> entry : totalValuesMap.entrySet()) {
+							valxx = entry.getValue();
+							// System.out.println(entry.getValue()+" ____________ "+valxx);
+						}
+
 						Double totalValue = valxx;
 //								totalValuesMap
 //								.get(new CampaignDashboardTotalsReference(seriesData.get(axisKey).getGroupingKey(),
@@ -653,7 +674,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 //						System.out.println(seriesData.get(axisKey).getValueSum().toString() + " ======== "
 //								+ series.getStack() + " _____check point 2__++_______" + totalValue);
 						if (totalValue == null) {
-						//	System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
+							// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 							if (!ignoreTotalsError) {
 								Notification.show(String.format(
 										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
@@ -673,7 +694,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 							//@formatter:on
 
 						} else {
-							//percentage
+							// percentage
 							hcjs.append("0");
 							//@formatter:on
 						}
@@ -687,8 +708,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 //								+ totalValuesWithoutStacks + " 0000 " + series.getStack());
 //						System.out.println(seriesData.get(axisKey).getFieldCaption());
 //						System.out.println(seriesData.get(axisKey).getFormId());
-						
-						
+
 						Double totalValue = totalValuesMap
 								.get(new CampaignDashboardTotalsReference(seriesData.get(axisKey).getGroupingKey(),
 										totalValuesWithoutStacks ? null : series.getStack()));
@@ -696,7 +716,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 //						System.out.println(seriesData.get(axisKey).getValueSum().toString() + " ======== "
 //								+ series.getStack() + " _____check point 2__++_______" + totalValue);
 						if (totalValue == null) {
-							//System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
+							// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 							if (!ignoreTotalsError) {
 								Notification.show(String.format(
 										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
@@ -727,19 +747,21 @@ public class CampaignDashboardDiagramComponent extends Div {
 						final double scaledValuex = BigDecimal.valueOf(amount)
 								.setScale(amount < 2 ? 1 : 0, RoundingMode.HALF_UP).doubleValue();
 
-					//	System.out.println("+__________CARD TOTAL = +: " + scaledValuex);
+						// System.out.println("+__________CARD TOTAL = +: " + scaledValuex);
 
 						Double totalValue = 0.0;
 						if (totalValuesMap != null) {
-							
+
 							Double valxx = 0.0d;
-							for (Map.Entry<CampaignDashboardTotalsReference, Double> entry : totalValuesMap.entrySet()) {
+							for (Map.Entry<CampaignDashboardTotalsReference, Double> entry : totalValuesMap
+									.entrySet()) {
 								valxx = entry.getValue();
-							//	System.out.println(entry.getValue()+"   ____Card without total________   	"+valxx);
-						    }
-						
-						totalValue = valxx;
-						
+								// System.out.println(entry.getValue()+" ____Card without total________
+								// "+valxx);
+							}
+
+							totalValue = valxx;
+
 //							totalValue = totalValuesMap
 //									.get(new CampaignDashboardTotalsReference(seriesData.get(axisKey).getGroupingKey(),
 //											totalValuesWithoutStacks ? null : series.getStack()));
@@ -747,7 +769,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 //							System.out.println(seriesData.get(axisKey).getValueSum().toString() + " ======== "
 //									+ series.getStack() + " _____check point 2_________" + totalValue);
 							if (totalValue == null) {
-						//		System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
+								// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 								if (!ignoreTotalsError) {
 									Notification.show(String.format(
 											I18nProperties
@@ -774,7 +796,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 						//@formatter:on
 					}
 				} else {
-					//percentage
+					// percentage
 					//@formatter:off
 					hcjs.append("0");
 					//@formatter:on
@@ -789,19 +811,16 @@ public class CampaignDashboardDiagramComponent extends Div {
 		//@formatter:on
 		}
 
-
 //		addClassName("col-md-12");
 //		removeClassName("col-lg-6");
 //		addClassName("col-lg-3");
-		
-		System.out.println("facts: hcjs:"+hcjs+" --series.getStack(): "+series.getStack()+" --series.getColor(): "+series.getColor()+" --perce: "+perce);
 
-			percentageCardComponent = new ProgressBarCardComponent(randomx, hcjs.toString(), series.getStack(), series.getColor(), !(perce.isEmpty() || perce.isBlank()));
-			this.add(percentageCardComponent);
-			
-		
-		
-		
+		System.out.println("facts: hcjs:" + hcjs + " --series.getStack(): " + series.getStack()
+				+ " --series.getColor(): " + series.getColor() + " --perce: " + perce);
+
+		percentageCardComponent = new ProgressBarCardComponent(randomx, hcjs.toString(), series.getStack(),
+				series.getColor(), !(perce.isEmpty() || perce.isBlank()));
+		this.add(percentageCardComponent);
 
 		mapSeries.clear();
 	}
@@ -832,7 +851,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				hcjs.append(" pie: {\n" + "            allowPointSelect: true,\n" + "            cursor: 'pointer',\n"
 						+ "            dataLabels: {\n" + "                enabled: true,\n"
 						+ "                format: '<b>{point.name}</b>: {point.percentage:.1f} %'\n"
-						+ "            },  showInLegend: "+showDataLabels+"\n" + "        }");
+						+ "            },  showInLegend: " + showDataLabels + "\n" + "        }");
 			} else if (pieChart && secondaryChartType.equalsIgnoreCase(DiagramType.DOUGHNUT.toString())) {
 
 				hcjs.append(", pie: {\n" + "            dataLabels: {\n" + "                enabled: true,\n"
@@ -909,8 +928,8 @@ public class CampaignDashboardDiagramComponent extends Div {
 	}
 
 	private CampaignDiagramTranslations getCampaignDiagramTranslations() {
-		Language userLanguage = Language.EN;//UserProvider.getCurrent().getUser().getLanguage();
-		
+		Language userLanguage = Language.EN;// UserProvider.getCurrent().getUser().getLanguage();
+
 		CampaignDiagramTranslations translations = null;
 		if (userLanguage != null && diagramDefinition.getCampaignDiagramTranslations() != null) {
 			translations = diagramDefinition.getCampaignDiagramTranslations().stream()
@@ -919,17 +938,15 @@ public class CampaignDashboardDiagramComponent extends Div {
 		}
 		return translations;
 	}
-	
-    public static String generateShortUUID() {
-    	 UUID uuid = UUID.randomUUID();
-         byte[] bytes = ByteBuffer.allocate(16)
-                 .putLong(uuid.getMostSignificantBits())
-                 .putLong(uuid.getLeastSignificantBits())
-                 .array();
-         String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 
-         // Replace non-alphabetic characters with alphabets only
-         encoded = encoded.replaceAll("[^A-Za-z]", "");
-        return encoded;
-    }
+	public static String generateShortUUID() {
+		UUID uuid = UUID.randomUUID();
+		byte[] bytes = ByteBuffer.allocate(16).putLong(uuid.getMostSignificantBits())
+				.putLong(uuid.getLeastSignificantBits()).array();
+		String encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+
+		// Replace non-alphabetic characters with alphabets only
+		encoded = encoded.replaceAll("[^A-Za-z]", "");
+		return encoded;
+	}
 }

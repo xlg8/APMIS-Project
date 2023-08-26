@@ -199,7 +199,9 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 
 		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-				.getAllCampaignFormMetasAsReferences();
+				.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
+		
+		
 		campaignFormCombo.setItems(campaignFormReferences_);
 		campaignFormCombo.addValueChangeListener(event -> {
 			if (event.getValue() != null) {

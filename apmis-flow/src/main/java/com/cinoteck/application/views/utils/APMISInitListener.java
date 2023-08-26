@@ -16,7 +16,7 @@ import com.vaadin.flow.server.VaadinServiceInitListener;
  * com.vaadin.flow.server.VaadinServiceInitListener in META-INF/services.
  */
 public class APMISInitListener implements VaadinServiceInitListener {
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8385570446755288676L;
@@ -28,11 +28,22 @@ public class APMISInitListener implements VaadinServiceInitListener {
 
         initEvent.getSource().addUIInitListener(uiInitEvent -> {
             uiInitEvent.getUI().addBeforeEnterListener(enterEvent -> {
-            	System.out.println(accessControl.isUserSignedIn()+"+++++++++++++++++++++++++++________________"+enterEvent.getNavigationTarget());
-                if (!accessControl.isUserSignedIn() && !LoginView.class
-                        .equals(enterEvent.getNavigationTarget()))
+            	
+            	
+          System.out.println(accessControl.isUserSignedIn()+"+++++++++++++++++++++++++++________________"+enterEvent.getNavigationTarget());
+            	
+            	
+           if (!accessControl.isUserSignedIn() && !LoginView.class.equals(enterEvent.getNavigationTarget())) {
                     enterEvent.rerouteTo(LoginView.class);
+            } else if (accessControl.isUserSignedIn() && LoginView.class.equals(enterEvent.getNavigationTarget())) {
+            	
+            	
+            	
+            	
+            	
+            	
+            }
             });
-        });
-    }
+            });
+	}
 }
