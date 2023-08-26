@@ -141,6 +141,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaignPhase.setLabel("Campaign Phase");
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
 		campaignPhase.setItems(CampaignPhase.values());
+		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
+
 		campaignPhase.getStyle().set("padding-top", "0px");
 		campaignPhase.setClassName("col-sm-6, col-xs-6");
 
@@ -356,6 +358,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		setSizeFull();
 	}
 
+
 	private Div drawDashboardAndTabs(String UIs) {
 		Div mainContentContainer = new Div();
 		mainContentContainer.setId(UIs);
@@ -520,6 +523,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 			break;
 		}
 
+	}
+	
+	private String getLabelForEnum(CampaignPhase campaignPhase) {
+		switch (campaignPhase) {
+		case PRE:
+			return "Pre-Campaign";
+
+		case POST:
+			return "Post-Campaign";
+
+		case INTRA:
+			return "Intra-Campaign";
+
+		default:
+			return campaignPhase.toString();
+		}
 	}
 
 	@Override

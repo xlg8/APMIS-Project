@@ -35,11 +35,13 @@ import com.vaadin.flow.component.html.H1;
 
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -201,6 +203,73 @@ public class CampaignForm extends VerticalLayout {
 //	
 //	}
 
+	private boolean validateDates() {
+		LocalDate startDateValue = startDate.getValue();
+		LocalDate endDateValue = endDate.getValue();
+
+		if (startDateValue == null || endDateValue == null) {
+
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//			notification.setPosition(Position.MIDDLE_CENTER);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
+
+			Paragraph text = new Paragraph(
+					"Please Check the Input Data : Enter a valid Start Date and End Date to continue.");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
+//			saveChanges.setTooltipText("Please Check the Input Data for Errors");
+			saveChanges.setEnabled(false);
+//
+			return false;
+		}
+
+		if (startDateValue.isAfter(endDateValue)) {
+			startDate.setInvalid(true);
+			endDate.setInvalid(true);
+
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//			notification.setPosition(Position.MIDDLE_CENTER);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
+
+			Paragraph text = new Paragraph(
+					"Please Check the Input Data : End Date has to be after or on the same day as Start Date.");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
+			saveChanges.setEnabled(false);
+//			saveChanges.setTooltipText("Please Check the Input Data for Errors");
+
+			return false; // Start date is after end date
+		}
+
+		// Clear invalid state if dates are valid
+		startDate.setInvalid(false);
+		endDate.setInvalid(false);
+
+		saveChanges.setEnabled(true);
+
+		return true; // Dates are valid
+	}
+
 	private void configureFields(CampaignDto formData) {
 
 		this.campaignDto = formData;
@@ -255,8 +324,6 @@ public class CampaignForm extends VerticalLayout {
 //		binderx.forField(campaignName).asRequired(I18nProperties.getString(Strings.campaignNameRequired)).bind(CampaignDto.NAME);
 //		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired)).bind(CampaignDto.ROUND);
 
-
-
 		binderx.forField(startDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getStartDate,
 				CampaignDto::setStartDate);
 
@@ -269,10 +336,17 @@ public class CampaignForm extends VerticalLayout {
 			LocalDate timestamp = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			LocalDate localDatex = formData.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			String formString = timestamp.format(dateTimeFormatter);
-			LocalDate localDate = LocalDate.parse(formString ,dateTimeFormatter);
+			LocalDate localDate = LocalDate.parse(formString, dateTimeFormatter);
 			startDate.setValue(localDate);
 			endDate.setValue(localDatex);
 		}
+		startDate.addValueChangeListener(e -> {
+			validateDates();
+		});
+
+		endDate.addValueChangeListener(e -> {
+			validateDates();
+		});
 
 //		binderx.forField(endDate).bind(CampaignDto.END_DATE);
 		binderx.forField(description).asRequired(I18nProperties.getString(Strings.campaignDescriptionRequired)).bind(
@@ -321,7 +395,7 @@ public class CampaignForm extends VerticalLayout {
 		tabsheetParent.add(I18nProperties.getCaption(Captions.preCampaignPhase), parentTab1);
 
 		VerticalLayout parentTab2 = new VerticalLayout();
-		
+
 		VerticalLayout parentTab3 = new VerticalLayout();
 
 		final HorizontalLayout layoutIntra = new HorizontalLayout();
@@ -360,7 +434,7 @@ public class CampaignForm extends VerticalLayout {
 		// parentTab2.getStyle().set("color", "green");
 
 		tabsheetParent.add(I18nProperties.getCaption(Captions.intraCampaignPhase), parentTab2);
-	
+
 		final HorizontalLayout layoutPost = new HorizontalLayout();
 		layoutPost.setWidthFull();
 

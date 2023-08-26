@@ -32,6 +32,9 @@ import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.campaign.CampaignForm;
+import com.cinoteck.application.views.campaign.CampaignForm.CampaignFormEvent;
+import com.cinoteck.application.views.campaign.CampaignForm.DeleteEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
@@ -41,6 +44,8 @@ import com.google.common.collect.Sets;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -64,6 +69,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.shared.Registration;
+
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -174,43 +181,64 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
 		cbCampaign.setRequired(true);
-		cbCampaign.setEnabled(false);
+		cbCampaign.setReadOnly(true);
+		cbCampaign.setId("my-disabled-textfield");
+		cbCampaign.getStyle().set("-webkit-text-fill-color", "green !important");
 
 		formDate.setLabel(I18nProperties.getCaption(Captions.CampaignFormData_formDate));
 		LocalDate today = LocalDate.now();
 		formDate.setValue(today);
 		formDate.setRequired(true);
+		formDate.setId("my-disabled-textfield");
+		formDate.getStyle().set("-webkit-text-fill-color", "green !important");
 
 		//
-
-		cbRegion.setEnabled(false);
-		cbRegion.setRequired(true);
-		cbDistrict.setEnabled(false);
-		cbDistrict.setRequired(true);
-		cbCommunity.setEnabled(false);
-		cbCommunity.setRequired(true);
-
+		
 		cbArea.setRequired(true);
 		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		cbArea.setId("my-disabled-textfield");
+		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
+
+		cbRegion.setReadOnly(true);;
+		cbRegion.setRequired(true);
+		cbRegion.setId("my-disabled-textfield");
+		cbRegion.getStyle().set("-webkit-text-fill-color", "green !important");
+		
+		cbDistrict.setReadOnly(true);
+		cbDistrict.setRequired(true);
+		cbDistrict.setId("my-disabled-textfield");
+		cbDistrict.getStyle().set("-webkit-text-fill-color", "green !important");
+		
+		cbCommunity.setReadOnly(true);
+		cbCommunity.setRequired(true);
+		cbCommunity.setId("my-disabled-textfield");
+		cbCommunity.getStyle().set("-webkit-text-fill-color", "green !important");
+		Label cbLabel = new Label(cbCommunity.getLabel());
+		cbLabel.addClassName("my-custom-label-style");
+		
+		
+		
+		
+		
 
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 				cbRegion.clear();
-				cbRegion.setEnabled(true);
+				cbRegion.setReadOnly(false);;
 				cbRegion.setItems(provinces);
 				cbDistrict.clear();
-				cbDistrict.setEnabled(false);
+				cbDistrict.setReadOnly(true);;
 				cbCommunity.clear();
-				cbCommunity.setEnabled(false);
+				cbCommunity.setReadOnly(true);;
 			} else {
 				cbRegion.clear();
-				cbRegion.setEnabled(false);
+				cbRegion.setReadOnly(true);;
 				cbDistrict.clear();
-				cbDistrict.setEnabled(false);
+				cbDistrict.setReadOnly(true);;
 				cbCommunity.clear();
-				cbCommunity.setEnabled(false);
+				cbCommunity.setReadOnly(true);;
 			}
 
 		});
@@ -218,15 +246,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				cbDistrict.setEnabled(true);
+				cbDistrict.setReadOnly(false);;
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
-				cbCommunity.setEnabled(false);
+				cbCommunity.setReadOnly(true);;
 			} else {
 				cbDistrict.clear();
-				cbDistrict.setEnabled(false);
+				cbDistrict.setReadOnly(true);;
 				cbCommunity.clear();
-				cbCommunity.setEnabled(false);
+				cbCommunity.setReadOnly(true);;
 			}
 
 		});
@@ -235,7 +263,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			if (e.getValue() != null) {
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 				cbCommunity.clear();
-				cbCommunity.setEnabled(true);
+				cbCommunity.setReadOnly(false);;
 				cbCommunity.setItems(communities);
 				cbCommunity.setItemLabelGenerator(itm -> {
 					CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -243,7 +271,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				});
 			} else {
 				cbCommunity.clear();
-				cbCommunity.setEnabled(false);
+				cbCommunity.setReadOnly(true);;
 			}
 		});
 
@@ -313,34 +341,34 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// check logged in user ristriction level
 		if (currentUser.getUser().getArea() != null) {
 			cbArea.setValue(currentUser.getUser().getArea());
-			cbArea.setEnabled(false);
+			cbArea.setReadOnly(true);;
 
 			List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
 					.getAllActiveByArea(currentUser.getUser().getArea().getUuid());
 			cbRegion.clear();
-			cbRegion.setEnabled(true);
+			cbRegion.setReadOnly(false);;
 			cbRegion.setItems(provinces);
 		}
 
 		if (currentUser.getUser().getRegion() != null) {
 			cbRegion.setValue(currentUser.getUser().getRegion());
-			cbRegion.setEnabled(false);
+			cbRegion.setReadOnly(true);;
 
 			List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
 					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid());
 			cbDistrict.clear();
-			cbDistrict.setEnabled(true);
+			cbDistrict.setReadOnly(false);;
 			cbDistrict.setItems(districts);
 		}
 
 		if (currentUser.getUser().getDistrict() != null) {
 			cbDistrict.setValue(currentUser.getUser().getDistrict());
-			cbDistrict.setEnabled(false);
+			cbDistrict.setReadOnly(true);;
 
 			List<CommunityReferenceDto> districts = FacadeProvider.getCommunityFacade()
 					.getAllActiveByDistrict(currentUser.getUser().getDistrict().getUuid());
 			cbCommunity.clear();
-			cbCommunity.setEnabled(true);
+			cbCommunity.setReadOnly(false);;
 			cbCommunity.setItems(districts);
 			cbCommunity.setItemLabelGenerator(itm -> {
 				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -388,11 +416,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 			buildForm(false);
 			vertical.setVisible(true);
 
-			cbArea.setEnabled(false);
-			cbRegion.setEnabled(false);
-			cbDistrict.setEnabled(false);
-			cbCommunity.setEnabled(false);
-			formDate.setEnabled(false);
+			cbArea.setReadOnly(true);;
+			cbRegion.setReadOnly(true);;
+			cbDistrict.setReadOnly(true);;
+			cbCommunity.setReadOnly(true);;
+			formDate.setReadOnly(true);;
 
 		}
 
@@ -1613,5 +1641,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		// field.set .setDescription();
 	}
+	
+	
+	
 
 }

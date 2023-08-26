@@ -129,7 +129,6 @@ public class AboutView extends VerticalLayout {
 		Button exportJsonGloassary = new Button(I18nProperties.getCaption(Captions.exportFormGlossary));
 		exportJsonGloassary.setIcon(new Icon(VaadinIcon.FILE_TABLE));
 		exportJsonGloassary.addClickListener(e -> {
-			excelLink.getElement().setAttribute("download", true);
 			excelLink.getElement().callJsFunction("click");
 
 		});
@@ -157,7 +156,8 @@ public class AboutView extends VerticalLayout {
 		buttonsLayout.getStyle().set("padding-left", "90px");
 		buttonsLayout.setWidth("100%");
 //		buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide, excelLink);
+		excelLink.getStyle().set("display", "none");
+		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide,exportJsonGloassary, excelLink);
 		
 		
 		VerticalLayout releaseDetailsLayout = new VerticalLayout();

@@ -404,8 +404,9 @@ public class DistrictView extends VerticalLayout {
 			anchor.getElement().callJsFunction("click");
 			
 	    });
+		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(anchor);
+		layout.add(exportDistrict, anchor);
 		}
 		layout.setWidth("88%");
 

@@ -26,6 +26,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
@@ -40,6 +41,10 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.CountryHelper;
@@ -62,7 +67,7 @@ import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
 public class UserForm extends FormLayout {
-
+	Dialog neee;
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -95,7 +100,7 @@ public class UserForm extends FormLayout {
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
-	TextField additionalInformation = new TextField(I18nProperties.getCaption(Captions.Location_additionalInformation) );
+	TextField additionalInformation = new TextField(I18nProperties.getCaption(Captions.Location_additionalInformation));
 	TextField postalCode = new TextField(I18nProperties.getCaption(Captions.Location_postalCode));
 	ComboBox<AreaType> areaType = new ComboBox<>(I18nProperties.getCaption(Captions.Location_areaType));
 	TextField city = new TextField(I18nProperties.getCaption(Captions.city));
@@ -119,7 +124,6 @@ public class UserForm extends FormLayout {
 	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
 
 	Anchor createPassword = new Anchor("", I18nProperties.getCaption(Captions.userResetPassword));
-
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -173,17 +177,19 @@ public class UserForm extends FormLayout {
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
-		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData)).bind(UserDto::getFirstName,
-				UserDto::setFirstName);
+		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData))
+				.bind(UserDto::getFirstName, UserDto::setFirstName);
 
-		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired)).bind(UserDto::getLastName, UserDto::setLastName);
+		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
+				.bind(UserDto::getLastName, UserDto::setLastName);
 
-		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired)).bind(UserDto::getUserEmail, UserDto::setUserEmail);
+		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired))
+				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
-		binder.forField(phone).withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
+		binder.forField(phone)
+				.withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
 				.bind(UserDto::getPhone, UserDto::setPhone);
-
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -201,9 +207,9 @@ public class UserForm extends FormLayout {
 
 		binder.forField(commusr).bind(UserDto::isCommomUser, UserDto::setCommomUser);
 
-		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
-		this.setColspan(userRoles, 1);
+//		binder.forField(userRoles).asRequired("User Role is Required").bind(UserDto::getUserRoles,
+//				UserDto::setUserRoles);
+//		this.setColspan(userRoles, 1);
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
@@ -217,7 +223,7 @@ public class UserForm extends FormLayout {
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
 
-//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
+		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
 
@@ -290,7 +296,7 @@ public class UserForm extends FormLayout {
 		clusterNo.getChildren().forEach(checkbox -> {
 //	            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
 			checkbox.getElement().getClassList().add("custom-checkbox-class");
-			
+
 			Boolean isChecked = checkbox.getElement().getAttribute("checked") != null;
 			String label = ((Checkbox) checkbox).getLabel();
 
@@ -340,7 +346,8 @@ public class UserForm extends FormLayout {
 		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
-		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname)).bind(UserDto::getUserName, UserDto::setUserName);
+		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+				.bind(UserDto::getUserName, UserDto::setUserName);
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
@@ -349,26 +356,24 @@ public class UserForm extends FormLayout {
 		System.out.println(roles + "tttttttttttttttttttttt");
 		userRoles.setItems(roles);
 
-
 		formAccessesList = UserUiHelper.getAssignableForms();
 
-		
 		// TODO: Change implemenation to only add assignable roles sormas style.
-		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired)).bind(UserDto::getUserRoles,
-				UserDto::setUserRoles);
+//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
 		this.setColspan(userRoles, 1);
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
-		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess)).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess))
+				.bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel(I18nProperties.getCaption(Captions.User_active));
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
-
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccess.setItems(formAccessesList);
@@ -391,7 +396,6 @@ public class UserForm extends FormLayout {
 		commusr.addValueChangeListener(e -> {
 
 			UserProvider currentUser = new UserProvider();
-
 
 			System.out.println((boolean) e.getValue());
 			if ((boolean) e.getValue() == true) {
@@ -416,8 +420,10 @@ public class UserForm extends FormLayout {
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 
-    binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired) ).bind(UserDto::getLanguage, UserDto::setLanguage);
+		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
+				.bind(UserDto::getLanguage, UserDto::setLanguage);
 
+		
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
@@ -427,6 +433,40 @@ public class UserForm extends FormLayout {
 		createButtonsLayout();
 	}
 
+//	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+//		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+//
+//		if (StringUtils.isBlank(userEmail)
+//				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+//			Dialog ttt = new Dialog();
+//			ttt.add("UserName : " + userName);
+//			ttt.add("Password : " + newPassword);
+//			ttt.open();
+//
+////			showPasswordResetInternalSuccessPopup(newPassword, userName);
+//		} else {
+////			showPasswordResetExternalSuccessPopup();
+//		}
+//	}
+
+	public void showPasswordResetInternalSuccessPopup(String newPassword, String userName) {
+		neee = new Dialog();
+		Label vvv = new Label(I18nProperties.getString(Strings.messageCopyPassword));
+
+		VerticalLayout layout = new VerticalLayout();
+		layout.addComponent(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
+		Label passwordLabel = new Label("Password:  " + newPassword);
+		Label userNameLabel = new Label("Username:  " + userName);
+
+		layout.addComponent(userNameLabel);
+		layout.addComponent(passwordLabel);
+		Dialog popupWindow = new Dialog();
+		popupWindow.setHeaderTitle(I18nProperties.getString(Strings.headingNewPassword));
+		layout.setMargin(true);
+	}
+
+
+
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
@@ -435,14 +475,6 @@ public class UserForm extends FormLayout {
 			System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 
 			lastName.addValueChangeListener(e -> {
-				System.out.println(editMode + "mode ganxxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-//			
-				System.out.println(firstName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-				System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-//
-				System.out.println(userName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
 
 				if (userName.isEmpty()) {
 					userName.setValue(UserHelper.getSuggestedUsername(firstName.getValue(), lastName.getValue()));
@@ -494,6 +526,13 @@ public class UserForm extends FormLayout {
 //
 //		});
 	}
+	
+	private void resetpassword() {
+		fireEvent(new ResetPasswordEvent(this, binder.getBean()));
+
+	}
+
+
 
 	public void setUser(UserDto user) {
 		binder.setBean(user);
@@ -535,6 +574,16 @@ public class UserForm extends FormLayout {
 		CloseEvent(UserForm source) {
 			super(source, new UserDto());
 		}
+	}
+
+	public static class ResetPasswordEvent extends UserFormEvent {
+		ResetPasswordEvent(UserForm source , UserDto user) {
+			super(source, new UserDto());
+		}
+	}
+
+	public Registration addResetPasswordListener(ComponentEventListener<ResetPasswordEvent> listener) {
+		return addListener(ResetPasswordEvent.class, listener);
 	}
 
 	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {

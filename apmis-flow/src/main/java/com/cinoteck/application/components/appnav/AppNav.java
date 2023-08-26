@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Anchor;
@@ -48,6 +49,16 @@ public class AppNav extends Component implements HasSize, HasStyle {
      */
     public AppNav addItem(AppNavItem... appNavItems) {
         for (AppNavItem appNavItem : appNavItems) {
+            getElement().appendChild(appNavItem.getElement());
+        }
+
+        return this;
+    }
+    
+    
+    
+    public AppNav addMethod(Button... appNavItems) {
+        for (Button appNavItem : appNavItems) {
             getElement().appendChild(appNavItem.getElement());
         }
 
