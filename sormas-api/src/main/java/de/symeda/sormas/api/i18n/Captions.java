@@ -115,7 +115,10 @@ public interface Captions {
 	String pleaseFillFormAccess="pleaseFillFormAccess";
 	String salesReport="salesReport";
 	String fieldInformation="fieldInformation";
-	
+	String oldPassword="oldPassword";
+	String editing="editing";
+	String apmisVersionNumber="apmisVersionNumber";
+	String releaseDate="releaseDate";
 	
 	
 	

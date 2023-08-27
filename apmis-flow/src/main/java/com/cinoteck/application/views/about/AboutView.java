@@ -28,7 +28,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 
-@PageTitle("About")
+@PageTitle("APMIS-About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
 
@@ -161,12 +161,12 @@ public class AboutView extends VerticalLayout {
 		
 		
 		VerticalLayout releaseDetailsLayout = new VerticalLayout();
-		Paragraph versionNum = new Paragraph("APMIS Version Number : APMIS 5.0.0");
+		Paragraph versionNum = new Paragraph(I18nProperties.getCaption(Captions.apmisVersionNumber));
 		versionNum.getStyle().set("font-size", "15px");
 		versionNum.getStyle().set("font-weight", "500");
 		versionNum.getStyle().set("color", "#0D6938");
 		
-		Paragraph releaseDate = new Paragraph("Release Date : 15/08/2023");
+		Paragraph releaseDate = new Paragraph(I18nProperties.getCaption(Captions.releaseDate));
 		releaseDate.getStyle().set("font-size", "15px");
 		releaseDate.getStyle().set("font-weight", "500");
 		releaseDate.getStyle().set("color", "#0D6938");

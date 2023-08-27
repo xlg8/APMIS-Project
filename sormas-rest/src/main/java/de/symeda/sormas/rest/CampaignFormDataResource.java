@@ -23,6 +23,7 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 	"REST_USER" })
 public class CampaignFormDataResource extends EntityDtoResource {
 
+
 	@GET
 	@Path("/all/{since}")
 	public List<CampaignFormDataDto> getAllCampaignFormData(@PathParam("since") long since) {
@@ -38,7 +39,7 @@ public class CampaignFormDataResource extends EntityDtoResource {
 	@POST
 	@Path("/push")
 	public List<PushResult> postCampaignFormData(@Valid List<CampaignFormDataDto> dtos) {
-		return savePushedDto(dtos, FacadeProvider.getCampaignFormDataFacade()::saveCampaignFormData);
+		return savePushedDto(dtos, FacadeProvider.getCampaignFormDataFacade()::saveCampaignFormDataMobile);
 	}
 
 	@GET

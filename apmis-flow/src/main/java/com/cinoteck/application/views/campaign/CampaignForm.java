@@ -79,7 +79,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 
-@PageTitle("Edit Campaign")
+@PageTitle("APMIS-Edit Campaign")
 @Route(value = "/data")
 public class CampaignForm extends VerticalLayout {
 	/**

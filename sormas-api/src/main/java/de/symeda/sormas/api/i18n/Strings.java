@@ -78,7 +78,12 @@ public interface Strings {
 	String areYouSureYouWantDearchiveRegion="areYouSureYouWantDearchiveRegion";
 	String areYouSureYouWantToArchiveRegion="areYouSureYouWantToArchiveRegion";
 	String supportPageHeaderText="supportPageHeaderText";
-	
+	String passwordChangedSuccessfully="passwordChangedSuccessfully";
+	String passwordDoesNotMatch="passwordDoesNotMatch";
+	String doYouReallyWantToChangeYourPassword="doYouReallyWantToChangeYourPassword";
+	String newUserPassword="newUserPassword";
+	String pleaseCopyPassword="pleaseCopyPassword";
+	String changePasswordForUser="changePasswordForUser";
 	
 	
 	

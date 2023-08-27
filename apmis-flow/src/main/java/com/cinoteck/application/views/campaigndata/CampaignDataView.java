@@ -65,7 +65,7 @@ import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Campaign Data")
+@PageTitle("APMIS-Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
 public class CampaignDataView extends VerticalLayout {
 
@@ -623,23 +623,24 @@ public class CampaignDataView extends VerticalLayout {
 			confirmationDialog.setCancelable(false);
 			confirmationDialog.setRejectable(false);
 			confirmationDialog.addCancelListener(e -> confirmationDialog.close());
-			confirmationDialog.setConfirmText("Ok");
+			confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
 
-			confirmationDialog.setText("You have not selected any data to be deleted. ");
+			confirmationDialog.setText("You have not selected any data to be deleted.");
 			confirmationDialog.setHeader("Error Deleting Campaign Data");
 			confirmationDialog.open();
 
 		} else {
 			confirmationDialog.setCancelable(true);
 			confirmationDialog.setRejectable(true);
-			confirmationDialog.setRejectText("No");
-			confirmationDialog.setConfirmText("Yes");
+			confirmationDialog.setRejectText(I18nProperties.getCaption(Captions.actionNo));
+			confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionYes));
 			confirmationDialog.addCancelListener(e -> confirmationDialog.close());
 			confirmationDialog.addRejectListener(e -> confirmationDialog.close());
 			confirmationDialog.open();
 			confirmationDialog.setHeader("Delete Campaign Data");
-			confirmationDialog
+//TODO: Language
 					.setText("Are you sure you want to Delete " + selectedRows.size() + " selected Campaign Data?");
+
 			confirmationDialog.addConfirmListener(e -> {
 				List<String> uuids = selectedRows.stream().map(CampaignFormDataIndexDto::getUuid)
 						.collect(Collectors.toList());
@@ -677,14 +678,38 @@ public class CampaignDataView extends VerticalLayout {
 
 		grid.setColumnReorderingAllowed(true);
 
+// <<<<<<< development
+
+// 		ComponentRenderer<Checkbox, CampaignFormDataIndexDto> activeRenderer = new ComponentRenderer<>(input -> {
+// //			boolean value = input.getForm();
+// 			Checkbox checkbox = new Checkbox();
+
+// //			if (value == true)
+// //				checkbox.setValue(true);
+// 			return checkbox;
+// 		});
+
+
+// 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
+// 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));// .setFooter(String.format("Row
+// 																												// Count:
+// 																												// %s",
+// 																												// (int)
+// 		// FacadeProvider.getCampaignFormDataFacade().count(criteria)));
+// =======
 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getCampaign());
+
 		grid.addColumn(CampaignFormDataIndexDto.FORM)
 				.setHeader(I18nProperties.getCaption(Captions.campaignCampaignForm)).setSortable(true)
 				.setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getForm());
 		grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getArea());
 		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+
+				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
+
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> e.getRcode().toString());
 		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
@@ -725,6 +750,14 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formPhase));
+		
+		grid.addColumn(CampaignFormDataIndexDto.SOURCE).setHeader("Source")//I18nProperties.getCaption(Captions.formPhase))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> "Source:"  +e.getSource());
+		
+		grid.addColumn(CampaignFormDataIndexDto.CREATED_BY).setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser))
+		.setSortable(true).setResizable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign_creatingUser)  +e.getSource());
 
 		grid.setVisible(true);
 		grid.setWidthFull();

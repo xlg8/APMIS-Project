@@ -28,18 +28,8 @@ public class LanguageSwitcher extends HorizontalLayout implements LocaleChangeOb
 
     static {
         Set<String> lang = new HashSet<>();
-        lang.add("ar"); // Arabic
-        lang.add("dv"); // Divehi
         lang.add("fa"); // Persian
-        lang.add("ha"); // Hausa
-        lang.add("he"); // Hebrew
-        lang.add("iw"); // Hebrew
-        lang.add("ji"); // Yiddish
         lang.add("ps"); // Pushto
-        lang.add("sd"); // Sindhi
-        lang.add("ug"); // Uighur
-        lang.add("ur"); // Urdu
-        lang.add("yi"); // Yiddish
 
         rtlSet = Collections.unmodifiableSet(lang);
     }
@@ -75,6 +65,7 @@ public class LanguageSwitcher extends HorizontalLayout implements LocaleChangeOb
 
     @Override
     public void localeChange(LocaleChangeEvent event) {
+    //	System.out.println("_________________localeChange(LocaleChangeEvent event_______________________"+event.getLocale().getLanguage());
         if (rtlSet.contains(event.getLocale().getLanguage())) {
             UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
         } else {

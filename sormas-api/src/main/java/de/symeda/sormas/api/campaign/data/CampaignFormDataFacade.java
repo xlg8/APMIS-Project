@@ -44,6 +44,8 @@ import de.symeda.sormas.api.utils.SortProperty;
 public interface CampaignFormDataFacade {
 
 	CampaignFormDataDto saveCampaignFormData(@Valid CampaignFormDataDto dto);
+	
+	CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto dto);
 
 	List<CampaignFormDataDto> getByUuids(List<String> uuids);
 

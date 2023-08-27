@@ -63,7 +63,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@PageTitle("Districts")
+@PageTitle("APMIS-Districts")
 @Route(value = "districts", layout = ConfigurationsView.class)
 public class DistrictView extends VerticalLayout {
 
@@ -558,7 +558,7 @@ public class DistrictView extends VerticalLayout {
 		dialog.setCloseOnOutsideClick(false);
 
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
-		Button discardButton = new Button(I18nProperties.getCaption(Captions.district), e -> dialog.close());
+		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		saveButton.getStyle().set("margin-right", "10px");
 		Button archiveButton = new Button();
 

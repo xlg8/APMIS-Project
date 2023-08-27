@@ -34,7 +34,7 @@ import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
-@PageTitle("Support")
+@PageTitle("APMIS-Support")
 @Route(value = "support", layout = MainLayout.class)
 public class SupportView extends VerticalLayout {
 	TextField firstName = new TextField("First name");

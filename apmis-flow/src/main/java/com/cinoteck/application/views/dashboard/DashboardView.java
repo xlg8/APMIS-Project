@@ -8,6 +8,7 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.text.WordUtils;
 import com.vaadin.flow.component.button.Button;
@@ -50,7 +51,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 
-@PageTitle("Campaign Dashboard")
+@PageTitle("APMIS-Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
 @JavaScript("https://code.highcharts.com/highcharts.js")
@@ -121,7 +122,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		UserProvider usr = new UserProvider();
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();	
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear() + "");
 		}
@@ -130,7 +131,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
 
-		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
+		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
 
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		
@@ -138,7 +139,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
 
-		campaignPhase.setLabel("Campaign Phase");
+		campaignPhase.setLabel(I18nProperties.getCaption(Captions.Campaign_phase));
 //		campaignPhases = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference()
 		campaignPhase.setItems(CampaignPhase.values());
 		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
@@ -544,13 +545,16 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		 try {
-			 System.out.println("trying ti use camp data ");
-			if (!UserProvider.getCurrent().hasUserRole(UserRole.ADMIN)) {
+			 UserProvider usrP = new UserProvider();
+			 System.out.println("trying ti use camp data "+usrP);
+			 
+			 System.out.println("trying ti use camp data "+usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
+			if (!usrP.getCurrent().hasUserRole(UserRole.ADMIN)) {
 			        event.rerouteTo(CampaignDataView.class); // Redirect to a different view
 			    }
 		} catch (Exception e) {
 			
-			 System.out.println("ubnable tooooooooooo trying ti use camp data ");
+			 System.err.println("ubnable tooooooooooo trying ti use camp data ");
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
