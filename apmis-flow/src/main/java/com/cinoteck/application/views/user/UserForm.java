@@ -139,6 +139,9 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
+	
+	Button resetUserPassword = new Button();
+	
 
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
@@ -422,13 +425,14 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-
+resetUserPassword = new Button();
+resetUserPassword.setText(I18nProperties.getCaption(Captions.userResetPassword));
 		
 
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
-				district, clusterNo, createPassword);
+				district, clusterNo, createPassword, resetUserPassword);
 
 		createButtonsLayout();
 	}

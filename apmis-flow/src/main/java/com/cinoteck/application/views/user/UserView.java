@@ -599,7 +599,7 @@ public class UserView extends VerticalLayout {
 		form.setSizeFull();
 		form.addUserFieldValueChangeEventListener(this::suggestUserName);
 //	    form.addResetPasswordListener(event -> resetUserPassword(event, user)); // Use the resetUserPassword method
-
+		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> {
@@ -630,7 +630,6 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-			
 
 		}
 	}
@@ -709,7 +708,7 @@ public class UserView extends VerticalLayout {
 		closeEditor();
 	}
 
-	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
+	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
 
 		UserForm formLayout = (UserForm) event.getSource();
 
@@ -727,8 +726,24 @@ public class UserView extends VerticalLayout {
 		}
 
 	}
-	
-	
+
+	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
+
+		UserForm formLayout = (UserForm) event.getSource();
+
+		System.out.println(isEditingModeActive + "___________isEditingModeActive");
+		formLayout.suggestUserName(isEditingModeActive);
+		if (isEditingModeActive) {
+			event.getSource().resetUserPassword.addClickListener(e -> {
+				System.out.println("i kicked ___________isEditingModeActive");
+				ConfirmDialog resetDialog = new ConfirmDialog();
+				resetDialog.setHeader("User Password Reset");
+				
+
+			});
+		}
+
+	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
 

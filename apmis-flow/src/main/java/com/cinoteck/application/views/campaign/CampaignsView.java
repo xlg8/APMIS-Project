@@ -319,7 +319,16 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
-		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+		
+
+		
+		if(event.getSource().round.getValue() == "Training") {
+
+			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
+			
+			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+
+		}
 	}
 
 	private void archiveDearchiveCampaign(CampaignForm.ArchiveEvent event) {
