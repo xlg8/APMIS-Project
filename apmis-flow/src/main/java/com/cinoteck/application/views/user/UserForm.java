@@ -27,15 +27,23 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -43,7 +51,6 @@ import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.CountryHelper;
@@ -94,8 +101,6 @@ public class UserForm extends FormLayout {
 	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-//	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(
-//			I18nProperties.getCaption(Captions.community));
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
@@ -122,7 +127,9 @@ public class UserForm extends FormLayout {
 	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
 	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
 
-	Anchor createPassword = new Anchor("", I18nProperties.getCaption(Captions.userResetPassword));
+	Button createPassword = new Button(I18nProperties.getCaption(Captions.userResetPassword));
+
+	ConfirmDialog _dialog = new ConfirmDialog();
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -160,6 +167,7 @@ public class UserForm extends FormLayout {
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields(user);
+		updatePasswordDialog();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -262,20 +270,38 @@ public class UserForm extends FormLayout {
 
 				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
 
-				//commented out not sure what 
-				//UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+				// commented out not sure what
+				// UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
-				//currentUser.setCommunity(data);
-				//FacadeProvider.getUserFacade().saveUser(currentUser);
+				// currentUser.setCommunity(data);
+				// FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
 
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
-						if(item.getNumber() == null)
-							Notification.show("Cluster Number cannot be empty, please contact support", Notification.Type.ERROR_MESSAGE); //I18nProperties.getString(Strings.clustNot)  )
-						
+						if (item.getNumber() == null) {
+
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph("Cluster Number cannot be empty, please contact support");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+						}
+
 						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
 					Collections.sort(items, CommunityReferenceDto.clusternumber);
@@ -290,7 +316,6 @@ public class UserForm extends FormLayout {
 				}
 			}
 		});
-
 
 //		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
@@ -384,44 +409,74 @@ public class UserForm extends FormLayout {
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
-				district, clusterNo, createPassword);
+				district, clusterNo);
 
 		createButtonsLayout();
 	}
 
-//	public void makeNewPassword(String userUuid, String userEmail, String userName) {
-//		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
-//
-//		if (StringUtils.isBlank(userEmail)
-//				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
-//			Dialog ttt = new Dialog();
-//			ttt.add("UserName : " + userName);
-//			ttt.add("Password : " + newPassword);
-//			ttt.open();
-//
-////			showPasswordResetInternalSuccessPopup(newPassword, userName);
-//		} else {
-////			showPasswordResetExternalSuccessPopup();
-//		}
-//	}
+	public void updatePasswordDialog() {
 
-	public void showPasswordResetInternalSuccessPopup(String newPassword, String userName) {
-		neee = new Dialog();
-		Label vvv = new Label(I18nProperties.getString(Strings.messageCopyPassword));
+		_dialog.setHeader("Update Password");
 
-		VerticalLayout layout = new VerticalLayout();
-		layout.addComponent(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
-		Label passwordLabel = new Label("Password:  " + newPassword);
-		Label userNameLabel = new Label("Username:  " + userName);
+		_dialog.setCloseOnEsc(false);
+		_dialog.setCancelable(true);
+		_dialog.addCancelListener(e -> _dialog.close());
 
-		layout.addComponent(userNameLabel);
-		layout.addComponent(passwordLabel);
-		Dialog popupWindow = new Dialog();
-		popupWindow.setHeaderTitle(I18nProperties.getString(Strings.headingNewPassword));
-		layout.setMargin(true);
+		_dialog.setRejectable(true);
+		_dialog.setRejectText("Cancel");
+		_dialog.addRejectListener(e -> _dialog.close());
+
+		_dialog.setConfirmText("Really Update Password");
+		_dialog.addConfirmListener(e -> makeNewPassword(binder.getBean().getUuid(), binder.getBean().getUserEmail(),
+				binder.getBean().getUserName()));
 	}
 
+	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
 
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+
+			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("Password Updated");
+
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
+			username.getStyle().set("color", "#0D6938");
+
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+
+			infoLayout.add(username, password);
+
+			newUserPop.add(infoLayout);
+
+			newUserPop.setOpened(true);
+
+		} else {
+			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("Password Updated");
+
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
+			username.getStyle().set("color", "#0D6938");
+
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+
+			infoLayout.add(username, password);
+
+			newUserPop.add(infoLayout);
+
+			newUserPop.setOpened(true);
+		}
+	}
 
 	public void suggestUserName(boolean editMode) {
 
@@ -441,7 +496,7 @@ public class UserForm extends FormLayout {
 	}
 
 	private void createButtonsLayout() {
-//		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		createPassword.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
@@ -450,45 +505,60 @@ public class UserForm extends FormLayout {
 			suggestUserName(true);
 		});
 
+		System.out.println("Editing mode ============= " + editmode);
+
 		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
-		horizontallayout.setJustifyContentMode(JustifyContentMode.END);
-		horizontallayout.setMargin(true);
+		createPassword.addClickListener(event -> {
+			_dialog.open();
+		});
+
+		HorizontalLayout horizontallayout = new HorizontalLayout();
+
+		HorizontalLayout passwordlayout = new HorizontalLayout(createPassword);
+		passwordlayout.getStyle().set("margin-right", "auto");
+
+		HorizontalLayout savecloselayout = new HorizontalLayout(save, close);
+		savecloselayout.setMargin(true);
+		horizontallayout.add(passwordlayout, savecloselayout);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
 	}
 
 	private void validateAndSave() {
-//		map.forEach((key, value) -> {
-//			Component formField = map.get(key);
-//			if (value instanceof TextField) {
-//
-//				TextField formFieldxx = (TextField) value;
-//				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
-////				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
-//				if (requiredValidation.isError()) {
-//
-//					// Handle required field validation error
-//					formFieldxx.setInvalid(true);
-//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
-//				} else {
-		fireEvent(new SaveEvent(this, binder.getBean()));
-//				}
-//			}
-//
-//		});
+		if (binder.validate().isOk()) {
+			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username id not unique");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			} else {
+				fireEvent(new SaveEvent(this, binder.getBean()));
+			}
+		}
 	}
-	
+
 	private void resetpassword() {
 		fireEvent(new ResetPasswordEvent(this, binder.getBean()));
 
 	}
-
-
 
 	public void setUser(UserDto user) {
 		binder.setBean(user);
@@ -533,7 +603,7 @@ public class UserForm extends FormLayout {
 	}
 
 	public static class ResetPasswordEvent extends UserFormEvent {
-		ResetPasswordEvent(UserForm source , UserDto user) {
+		ResetPasswordEvent(UserForm source, UserDto user) {
 			super(source, new UserDto());
 		}
 	}
@@ -596,7 +666,7 @@ public class UserForm extends FormLayout {
 		}
 
 	}
-	
+
 	public static void updateItems(CheckboxGroup select, Set<?> items) {
 		Set<?> value = select.getSelectedItems();
 		boolean readOnly = select.isReadOnly();

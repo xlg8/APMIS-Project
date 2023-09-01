@@ -127,6 +127,8 @@ public class UserView extends VerticalLayout {
 	Button exportUsers = new Button("Export");
 
 	Button displayFilters;
+	
+	ConfirmDialog confirmationPopup = new ConfirmDialog();
 
 	private static final String CSV_FILE_PATH = "./result.csv";
 	UserDto userDto;
@@ -231,14 +233,19 @@ public class UserView extends VerticalLayout {
 			bulkModeButton.setVisible(true);
 			leaveBulkModeButton.setVisible(false);
 			menuBar.setVisible(false);
+			grid.getDataProvider().refreshAll();
 		});
 
 		menuBar.setVisible(false);
 		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
 		SubMenu subMenu = item.getSubMenu();
-		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionEnable)));
-		subMenu.addItem(new Checkbox(I18nProperties.getCaption(Captions.actionDisable)));
+		Checkbox enable = new Checkbox(I18nProperties.getCaption(Captions.actionEnable));
+		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
+		subMenu.addItem(enable);
+		subMenu.addItem(disable);
 		menuBar.getStyle().set("margin-top", "5px");
+		enable.addClickListener(e -> enableUserPopup());
+		disable.addClickListener(e -> disableUserPopup());
 		layout.add(menuBar);
 
 		layout.setPadding(false);
@@ -775,8 +782,7 @@ public class UserView extends VerticalLayout {
 			VerticalLayout infoLayout = new VerticalLayout();
 
 			newUserPop.setHeaderTitle("New User Password");
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
-																									// content
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');");
 
 			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
 			newUserPop.setHeaderTitle("New User Password");
@@ -816,7 +822,7 @@ public class UserView extends VerticalLayout {
 			notification.open();
 		}
 	}
-
+	
 	public void disableUser(Collection<UserDto> selectedRows) {
 
 		if (selectedRows.size() == 0) {
@@ -837,5 +843,41 @@ public class UserView extends VerticalLayout {
 			notification.open();
 		}
 	}
+	
+	void enableUserPopup() {
+		
+		confirmationPopup.setHeader("Enable User");
+
+		confirmationPopup.setText("You are about to Enable " + grid.getSelectedItems().size() + " User");
+		confirmationPopup.setCloseOnEsc(false);
+		confirmationPopup.setCancelable(true);
+		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+
+		confirmationPopup.setRejectable(true);
+		confirmationPopup.setRejectText("Cancel");
+		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+
+		confirmationPopup.setConfirmText("Enable");
+		confirmationPopup.addConfirmListener(e -> enableUser(grid.getSelectedItems()));
+		confirmationPopup.open();
+	}
+	
+	void disableUserPopup() {
+		
+		confirmationPopup.setHeader("Disable User");
+
+		confirmationPopup.setText("You are about to Disable " + grid.getSelectedItems().size() + " User");
+		confirmationPopup.setCloseOnEsc(false);
+		confirmationPopup.setCancelable(true);
+		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+
+		confirmationPopup.setRejectable(true);
+		confirmationPopup.setRejectText("Cancel");
+		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+
+		confirmationPopup.setConfirmText("Disable");
+		confirmationPopup.addConfirmListener(e -> disableUser(grid.getSelectedItems()));
+		confirmationPopup.open();
+	}	
 
 }
