@@ -204,7 +204,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 	@Override
 	public CampaignDto saveCampaign(@Valid CampaignDto dto) {
-
+System.out.println(dto + "from the campaign facade when its trying to save ");
 		Campaign campaign = fromDto(dto, true);
 		campaignService.ensurePersisted(campaign);
 		return toDto(campaign);
@@ -214,6 +214,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	
 
 	public Campaign fromDto(@NotNull CampaignDto source, boolean checkChangeDate) {
+		
+		System.out.println(source + " source fromdtoooooooo");
 		validate(source);
 
 		Campaign target = DtoHelper.fillOrBuildEntity(source, campaignService.getByUuid(source.getUuid()), Campaign::new, checkChangeDate);
@@ -551,16 +553,16 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			});
 			
 		
-		}else{
+		}else {
 			campaignService.getAllActive().forEach(campaign -> {
-				final List<CampaignDashboardElement> dashboardElements = campaign.getDashboardElements().stream().filter(e -> e.getPhase() != null).collect(Collectors.toList());
+				final List<CampaignDashboardElement> dashboardElements = campaign.getDashboardElements().stream()
+						.filter(e -> e.getPhase() != null).collect(Collectors.toList());
 				if (dashboardElements != null) {
 					result.addAll(dashboardElements);
 				}
 			});
 		}
-		
-		
+
 		result.forEach(cde -> {
 			if (cde.getTabId() == null) {
 				cde.setTabId(StringUtils.EMPTY);
@@ -578,7 +580,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 				cde.setWidth(50);
 			}
 		});
-		return result.stream().sorted(Comparator.comparingInt(CampaignDashboardElement::getOrder)).collect(Collectors.toList());
+		return result.stream().sorted(Comparator.comparingInt(CampaignDashboardElement::getOrder))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -591,59 +594,63 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		// Workaround for probable bug in Eclipse Link/Postgre that throws a
 		// NoResultException when trying to
 		// query for a true Boolean result
-		cq.where(cb.and(cb.equal(from.get(Campaign.ARCHIVED), true), cb.equal(from.get(AbstractDomainObject.UUID), uuid)));
+		cq.where(cb.and(cb.equal(from.get(Campaign.ARCHIVED), true),
+				cb.equal(from.get(AbstractDomainObject.UUID), uuid)));
 		cq.select(cb.count(from));
 		long count = em.createQuery(cq).getSingleResult();
 		return count > 0;
 	}
-	
+
 	@Override
 	public boolean isClosedd(String uuid) {
-		String cdvv = "select openandclose from campaigns where uuid = '"+uuid+"' and openandclose = false";
-	
-		List count = em.createNativeQuery(cdvv).getResultList();  
-		//System.out.println(cdvv +"  ++++++++++++++++   "+count.size());
+		String cdvv = "select openandclose from campaigns where uuid = '" + uuid + "' and openandclose = false";
+
+		List count = em.createNativeQuery(cdvv).getResultList();
+		// System.out.println(cdvv +" ++++++++++++++++ "+count.size());
 		return count.size() > 0;
 	}
-	
+
 	@Override
 	public boolean isPublished(String uuid) {
-		String cdvv = "select published from campaigns where uuid = '"+uuid+"' and published = false";
-	
-		List count = em.createNativeQuery(cdvv).getResultList();  
-		//System.out.println(cdvv +"  ++++++++++++++++   "+count.size());
+		String cdvv = "select published from campaigns where uuid = '" + uuid + "' and published = false";
+
+		List count = em.createNativeQuery(cdvv).getResultList();
+		// System.out.println(cdvv +" ++++++++++++++++ "+count.size());
 		return count.size() > 0;
 	}
-	
 
 	@Override
 	public void deleteCampaign(String campaignUuid) {
 
 		User user = userService.getCurrentUser();
-		if (!userRoleConfigFacade.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
-			.contains(UserRight.CAMPAIGN_DELETE)) {
+		if (!userRoleConfigFacade
+				.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
+				.contains(UserRight.CAMPAIGN_DELETE)) {
 			throw new UnsupportedOperationException(
-				I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to delete "
-					+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
+					I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to delete "
+							+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
 
 		campaignService.delete(campaignService.getByUuid(campaignUuid));
 	}
+
 	@Override
-		public String cloneCampaign(String campaignUuid, String userCreating) {
+	public String cloneCampaign(String campaignUuid, String userCreating) {
 
 		User user = userService.getCurrentUser();
-		if (!userRoleConfigFacade.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
-			.contains(UserRight.CAMPAIGN_DELETE)) {
-			throw new UnsupportedOperationException(
-				I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to duplicate "
-					+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
+		if (!userRoleConfigFacade
+				.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
+				.contains(UserRight.CAMPAIGN_DELETE)) {
+			throw new UnsupportedOperationException(I18nProperties.getString(Strings.entityUser) + " " + user.getUuid()
+					+ " is not allowed to duplicate " + I18nProperties.getString(Strings.entityCampaigns).toLowerCase()
+					+ ".");
 		}
 		String newUuid = campaignService.cloneForm(campaignService.getByUuid(campaignUuid), user.getId());
-		
-		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid), null);
+
+		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid),
+				null);
 		final Campaign cmp = campaignService.getByUuid(newUuid);
-		for(PopulationData popListx : popList) {
+		for (PopulationData popListx : popList) {
 			PopulationData ppData = new PopulationData();
 			ppData.setAgeGroup(popListx.getAgeGroup());
 			ppData.setCampaign(cmp);
@@ -652,40 +659,34 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			ppData.setRegion(popListx.getRegion());
 			ppData.setCollectionDate(popListx.getCollectionDate());
 			ppData.setSelected(popListx.isSelected());
-			
-	       em.persist(ppData);
+
+			em.persist(ppData);
 
 		}
-		
+
 		return newUuid;
 	}
-	
-	
-	
-	
+
 	@Override
 	public void publishandUnPublishCampaign(String campaignUuid, boolean publishedandunpublishbutton) {
 
 		User user = userService.getCurrentUser();
-		if (!userRoleConfigFacade.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
-			.contains(UserRight.CAMPAIGN_PUBLISH)) {
-			throw new UnsupportedOperationException(
-				I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to publish a campaign data  "
+		if (!userRoleConfigFacade
+				.getEffectiveUserRights(user.getUserRoles().toArray(new UserRole[user.getUserRoles().size()]))
+				.contains(UserRight.CAMPAIGN_PUBLISH)) {
+			throw new UnsupportedOperationException(I18nProperties.getString(Strings.entityUser) + " " + user.getUuid()
+					+ " is not allowed to publish a campaign data  "
 					+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
 		campaignService.campaignPublish(campaignUuid, publishedandunpublishbutton);
-		
-		
-	
+
 	}
-	
-	
+
 	@Override
 	public void closeandOpenCampaign(String campaignUuid, boolean openandclosebutton) {
-		campaignService.closeAndOpenForm(campaignUuid, openandclosebutton);  
-		
+		campaignService.closeAndOpenForm(campaignUuid, openandclosebutton);
+
 	}
-	
 
 	@Override
 	public void archiveOrDearchiveCampaign(String campaignUuid, boolean archive) {
@@ -704,21 +705,17 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	public boolean exists(String uuid) {
 		return campaignService.exists(uuid);
 	}
-	
+
 	@Override
 	public List<CampaignDto> getAllActive() {
-		return campaignService.getAllActive()
-				.stream() 
-				.map(campaignFormMeta -> toDto(campaignFormMeta))
+		return campaignService.getAllActive().stream().map(campaignFormMeta -> toDto(campaignFormMeta))
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<CampaignDto> getAllAfter(Date date) {
-		return campaignService.getAllAfter(date, userService.getCurrentUser())
-			.stream()
-			.map(campaignFormMeta -> toDto(campaignFormMeta))
-			.collect(Collectors.toList());
+		return campaignService.getAllAfter(date, userService.getCurrentUser()).stream()
+				.map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -731,8 +728,6 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		if (userService.getCurrentUser() == null) {
 			return Collections.emptyList();
 		}
-		
-		
 
 		return campaignService.getAllActiveUuids();
 	}
@@ -741,15 +736,16 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		if (entity == null) {
 			return null;
 		}
-		CampaignReferenceDto dto = new CampaignReferenceDto(entity.getUuid(), entity.toString() );
+		CampaignReferenceDto dto = new CampaignReferenceDto(entity.getUuid(), entity.toString());
 		return dto;
 	}
-	
+
 	public static CampaignReferenceDto toReferenceDtoYear(Campaign entity) {
 		if (entity == null) {
 			return null;
 		}
-		CampaignReferenceDto dto = new CampaignReferenceDto(entity.getUuid(), entity.toString(), entity.getCampaignYear() );
+		CampaignReferenceDto dto = new CampaignReferenceDto(entity.getUuid(), entity.toString(),
+				entity.getCampaignYear());
 		return dto;
 	}
 
@@ -758,10 +754,5 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
 
-	
 
-
-	
-
-	
 }

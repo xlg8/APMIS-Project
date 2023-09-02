@@ -114,6 +114,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
+	
+	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
 
 	List<AreaReferenceDto> regions;
@@ -130,6 +132,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean invalidForm = false;
 
 	private boolean openedOnce = false;
+	
+	
+	ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(I18nProperties.getCaption(Captions.region));
@@ -141,10 +146,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 	DatePicker formDate = new DatePicker();
 	private boolean openData = false;
 	private String uuidForm;
+	private boolean checkDistrictEntry = false;
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
 			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
-			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm) {
+			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm, boolean isDistrictEntry) {
 
 		System.out.println("+++++++++++CampaignFormBuilder+++++: " + openData);
 
@@ -153,6 +159,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		this.formElements = formElements;
 		this.campaignReferenceDto = campaignReferenceDto;
 		this.campaignFormMeta = campaignFormMetaUUID;
+		this.campaignFormMetaDto = isDistrictEntry;
 		if (formValues != null) {
 			this.formValuesMap = new HashMap<>();
 			formValues.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
@@ -177,7 +184,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 		vertical_.setColspan(formNam, 3);
 		vertical_.add(formNam);
 
-		ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
@@ -194,52 +200,54 @@ public class CampaignFormBuilder extends VerticalLayout {
 		formDate.getStyle().set("-webkit-text-fill-color", "green !important");
 
 		//
-		
+
 		cbArea.setRequired(true);
 		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		cbArea.setId("my-disabled-textfield");
 		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
 
-		cbRegion.setReadOnly(true);;
+		cbRegion.setReadOnly(true);
+		;
 		cbRegion.setRequired(true);
 		cbRegion.setId("my-disabled-textfield");
 		cbRegion.getStyle().set("-webkit-text-fill-color", "green !important");
-		
+
 		cbDistrict.setReadOnly(true);
 		cbDistrict.setRequired(true);
 		cbDistrict.setId("my-disabled-textfield");
 		cbDistrict.getStyle().set("-webkit-text-fill-color", "green !important");
-		
+
 		cbCommunity.setReadOnly(true);
 		cbCommunity.setRequired(true);
 		cbCommunity.setId("my-disabled-textfield");
 		cbCommunity.getStyle().set("-webkit-text-fill-color", "green !important");
 		Label cbLabel = new Label(cbCommunity.getLabel());
 		cbLabel.addClassName("my-custom-label-style");
-		
-		
-		
-		
-		
 
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 				cbRegion.clear();
-				cbRegion.setReadOnly(false);;
+				cbRegion.setReadOnly(false);
+				;
 				cbRegion.setItems(provinces);
 				cbDistrict.clear();
-				cbDistrict.setReadOnly(true);;
+				cbDistrict.setReadOnly(true);
+				;
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);;
+				cbCommunity.setReadOnly(true);
+				;
 			} else {
 				cbRegion.clear();
-				cbRegion.setReadOnly(true);;
+				cbRegion.setReadOnly(true);
+				;
 				cbDistrict.clear();
-				cbDistrict.setReadOnly(true);;
+				cbDistrict.setReadOnly(true);
+				;
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);;
+				cbCommunity.setReadOnly(true);
+				;
 			}
 
 		});
@@ -247,24 +255,50 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				cbDistrict.setReadOnly(false);;
+				cbDistrict.setReadOnly(false);
+				;
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);;
+				cbCommunity.setReadOnly(true);
+				;
 			} else {
 				cbDistrict.clear();
-				cbDistrict.setReadOnly(true);;
+				cbDistrict.setReadOnly(true);
+				;
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);;
+				cbCommunity.setReadOnly(true);
+				;
 			}
 
 		});
 
+		System.out.println(checkDistrictEntry + "checkingggggggggggggggggggggggggggggg" + campaignFormMetaDto);
+		if(campaignFormMetaDto) {
+			cbDistrict.addValueChangeListener(e -> {
+				if (e.getValue() != null) {
+					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(false);
+					;
+					cbCommunity.setItems(communities);
+					cbCommunity.setValue(communities.get(0));
+					cbCommunity.setItemLabelGenerator(itm -> {
+						CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+						return dcfv.getNumber() + " | " + dcfv.getCaption();
+					});
+				} else {
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(true);
+					;
+				}
+			});
+		}else {
 		cbDistrict.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(false);;
+				cbCommunity.setReadOnly(false);
+				;
 				cbCommunity.setItems(communities);
 				cbCommunity.setItemLabelGenerator(itm -> {
 					CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -272,10 +306,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 				});
 			} else {
 				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);;
+				cbCommunity.setReadOnly(true);
+				;
 			}
 		});
-
+		}
 		cbCommunity.addValueChangeListener(e -> {
 
 			if (!openData) {
@@ -342,34 +377,40 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// check logged in user ristriction level
 		if (currentUser.getUser().getArea() != null) {
 			cbArea.setValue(currentUser.getUser().getArea());
-			cbArea.setReadOnly(true);;
+			cbArea.setReadOnly(true);
+			;
 
 			List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
 					.getAllActiveByArea(currentUser.getUser().getArea().getUuid());
 			cbRegion.clear();
-			cbRegion.setReadOnly(false);;
+			cbRegion.setReadOnly(false);
+			;
 			cbRegion.setItems(provinces);
 		}
 
 		if (currentUser.getUser().getRegion() != null) {
 			cbRegion.setValue(currentUser.getUser().getRegion());
-			cbRegion.setReadOnly(true);;
+			cbRegion.setReadOnly(true);
+			;
 
 			List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
 					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid());
 			cbDistrict.clear();
-			cbDistrict.setReadOnly(false);;
+			cbDistrict.setReadOnly(false);
+			;
 			cbDistrict.setItems(districts);
 		}
 
 		if (currentUser.getUser().getDistrict() != null) {
 			cbDistrict.setValue(currentUser.getUser().getDistrict());
-			cbDistrict.setReadOnly(true);;
+			cbDistrict.setReadOnly(true);
+			;
 
 			List<CommunityReferenceDto> districts = FacadeProvider.getCommunityFacade()
 					.getAllActiveByDistrict(currentUser.getUser().getDistrict().getUuid());
 			cbCommunity.clear();
-			cbCommunity.setReadOnly(false);;
+			cbCommunity.setReadOnly(false);
+			;
 			cbCommunity.setItems(districts);
 			cbCommunity.setItemLabelGenerator(itm -> {
 				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -417,11 +458,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 			buildForm(false);
 			vertical.setVisible(true);
 
-			cbArea.setReadOnly(true);;
-			cbRegion.setReadOnly(true);;
-			cbDistrict.setReadOnly(true);;
-			cbCommunity.setReadOnly(true);;
-			formDate.setReadOnly(true);;
+			cbArea.setReadOnly(true);
+			;
+			cbRegion.setReadOnly(true);
+			;
+			cbDistrict.setReadOnly(true);
+			;
+			cbCommunity.setReadOnly(true);
+			;
+			formDate.setReadOnly(true);
+			;
 
 		}
 
@@ -551,7 +597,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					toggle.setId(formElement.getId());
 					toggle.setSizeFull();
 					toggle.setRequiredIndicatorVisible(formElement.isImportant());
-					toggle.setLabelAsHtml(formElement.getCaption() );
+					toggle.setLabelAsHtml(formElement.getCaption());
 
 					toggle.addValueChangeListener(evt -> toggle
 							.setLabel(formElement.getCaption() + " : " + (evt.getValue() == true ? "YES " : "NO ")));
@@ -789,7 +835,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
 							.getOptionsListValues();
-				
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
 					System.out.println(data + "drp[oksnfonsofnosnfon orderrrrrr" + sortedKeys);
@@ -903,12 +948,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		Boolean isExpressionValue = false;
 		switch (type) {
 		case YES_NO:
-			System.out.println(field.getId() + "@@@@@@@   YES_NO  @@@@@@@@@@@2 :" + value+":");
+			System.out.println(field.getId() + "@@@@@@@   YES_NO  @@@@@@@@@@@2 :" + value + ":");
 			if (value != null) {
 				Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
 						: value.toString().equalsIgnoreCase("NO") ? false : null;
-			//	System.out.println(Boolean.parseBoolean(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ :"+value+":");
-			//	boolean booleanValue = Boolean.parseBoolean((String) value);
+				// System.out.println(Boolean.parseBoolean(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+				// :"+value+":");
+				// boolean booleanValue = Boolean.parseBoolean((String) value);
 
 				((ToggleButton) field).setValue(dvalue);// Sets.newHashSet(value));
 			}
@@ -1453,16 +1499,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				// maybe we want to check the name of the updating user here
 				dataDto.setCreatingUser(userProvider.getUserReference());
-				//dataDto.setSource(PlatformEnum.WEB);
+				// dataDto.setSource(PlatformEnum.WEB);
 				dataDto.setFormValues(entries);
 
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
-				
+
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 				return true;
-				
+
 			} else {
-				
+
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
 				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
@@ -1475,12 +1521,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 				dataDto.setFormValues(entries);
 				dataDto.setSource("WEB");
 				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
-				
+
 				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -1642,8 +1688,5 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		// field.set .setDescription();
 	}
-	
-	
-	
 
 }

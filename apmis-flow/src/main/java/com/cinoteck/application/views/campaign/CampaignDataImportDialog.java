@@ -46,7 +46,7 @@ public class CampaignDataImportDialog extends Dialog{
 	ComboBox valueSeperator = new ComboBox<>();
 	
 	public CampaignDataImportDialog(CampaignFormMetaReferenceDto campaignForm, CampaignReferenceDto campaignRefDto) {
-		this.setHeaderTitle(I18nProperties.getCaption(Captions.importCampaignFormData) +" | "+ campaignForm.getCaption());
+		this.setHeaderTitle(I18nProperties.getCaption(Captions.importCampaignFormData) +" | "+ campaignForm.getCaption() + " (" +campaignRefDto.getCaption() +")");
 		
 		
         System.out.println("-----poker---5676567---");

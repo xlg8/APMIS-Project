@@ -54,7 +54,15 @@ public class ImportPopulationDataDialog extends Dialog {
 	
 	
 	public ImportPopulationDataDialog(InfrastructureType infrastructureType, CampaignDto camapigndto) {
-		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportPopulationData));
+		String dto;
+		if (camapigndto != null) {
+			 dto = camapigndto.getName();
+		}else {
+			
+				 dto = "New Campaign";
+
+		}
+		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportPopulationData) + " | "+ dto );
 //		this.getStyle().set("color" , "#0D6938");
 
 		Hr seperatorr = new Hr();

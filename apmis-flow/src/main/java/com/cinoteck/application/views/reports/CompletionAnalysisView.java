@@ -1,11 +1,14 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -14,6 +17,7 @@ import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -33,6 +37,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
+import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -64,6 +69,11 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 	
 	DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 	FormAccess formAccess;
+	Button exportReport = new Button();
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	
+	
 	
     private void refreshGridData(FormAccess formAccess) {
     	int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
@@ -75,7 +85,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 										query.getSortOrders().stream()
 												.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 														sortOrder.getDirection() == SortDirection.ASCENDING))
-												.collect(Collectors.toList()), null)
+												.collect(Collectors.toList()), formAccess)
 								.stream(), 
 						query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
 						.getByCompletionAnalysisCount(criteria, query.getOffset(),
@@ -96,7 +106,7 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 		
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 		filterLayout.setAlignItems(Alignment.END);
 
 		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
@@ -199,9 +209,16 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 			}
 		});
 		
+		exportReport.setText(I18nProperties.getCaption(Captions.export));
+		exportReport.addClickListener(e -> {
+			anchor.getElement().callJsFunction("click");
+		});
+		anchor.getStyle().set("display", "none");
+
+		
 		
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton);
+		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton, exportReport, anchor);
 		
 		
 		
@@ -267,6 +284,25 @@ public class CompletionAnalysisView extends VerticalLayout implements RouterLayo
 						query -> numberOfRows
 								);
 		grid.setDataProvider(dataProvider);
+		
+		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+
+		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
+		exporter.setFileName(
+				"Completion Analysis Report" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+
+		anchor.getStyle().set("width", "100px");
+
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 		add(grid);
 		
 	}

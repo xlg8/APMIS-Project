@@ -60,5 +60,6 @@ public interface CampaignFacade { //CampaignFacadeEjb
 	
 	void validate(CampaignReferenceDto campaignReferenceDto, String formType);
 
+
 	
 }

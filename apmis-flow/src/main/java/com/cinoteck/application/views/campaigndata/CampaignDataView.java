@@ -37,10 +37,12 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.data.selection.MultiSelect;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -108,6 +110,9 @@ public class CampaignDataView extends VerticalLayout {
 	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	MenuBar dropdownBulkOperations = new MenuBar();
 	ConfirmDialog confirmationDialog;
+	Checkbox checkboxx = new Checkbox();
+	Button selectAllButton = new Button();
+	Button selectAllButtonpLACEHOLDER = new Button();
 
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
@@ -175,12 +180,12 @@ public class CampaignDataView extends VerticalLayout {
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters),
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setClassName("row pl-3");
-		actionButtonlayout.setVisible(false);
+		actionButtonlayout.setVisible(true);
 		actionButtonlayout.setAlignItems(Alignment.END);
 
 		Button exportButton = new Button("Export");
@@ -195,7 +200,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
-		level1Filters.setVisible(false);
+		level1Filters.setVisible(true);
 		level1Filters.setWidth("98%");
 		level1Filters.setAlignItems(Alignment.END);
 		level1Filters.setClassName("row pl-3");
@@ -245,7 +250,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
-		if (userProvider.getUser().getArea() != null) {
+		if (userProvider.getUser().getArea() != null) {// || (userProvider.getUser().getUsertype() == UserType.EOC_USER && userProvider.getUser().getArea() != null)) {
 			regionCombo.setValue(userProvider.getUser().getArea());
 			regionCombo.setEnabled(false);
 		}
@@ -257,7 +262,7 @@ public class CampaignDataView extends VerticalLayout {
 		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 		provinceCombo.setItems(provinces);
-		if (userProvider.getUser().getRegion() != null) {
+		if (userProvider.getUser().getRegion() != null) {// || (userProvider.getUser().getUsertype() == UserType.EOC_USER && userProvider.getUser().getRegion() != null)) {
 			provinceCombo.setValue(userProvider.getUser().getRegion());
 		}
 		provinceCombo.setEnabled(false);
@@ -272,7 +277,7 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
 		districtCombo.setItems(districts);
-		if (userProvider.getUser().getDistrict() != null) {
+		if (userProvider.getUser().getDistrict() != null ) {//|| (userProvider.getUser().getUsertype() == UserType.EOC_USER && userProvider.getUser().getDistrict() != null)) {
 			districtCombo.setValue(userProvider.getUser().getDistrict());
 		}
 		districtCombo.setEnabled(false);
@@ -282,9 +287,11 @@ public class CampaignDataView extends VerticalLayout {
 		clusterCombo.setLabel(I18nProperties.getCaption(Captions.community));
 		clusterCombo.getStyle().set("padding-top", "0px !important");
 
-//		if(userProvider.getUser().getCommunity() != null) {
-//			clusterCombo.setValue(userProvider.getUser().getCommunity());
-//		}
+	//	if( (userProvider.getUser().getUsertype() == UserType.EOC_USER && 
+				if(userProvider.getUser().getCommunity() != null) {
+			clusterCombo.setItems(userProvider.getUser().getCommunity());
+			clusterCombo.setEnabled(true);
+		}
 		clusterCombo.setPlaceholder(I18nProperties.getCaption(Captions.community));
 		clusterCombo.setClassName("col-sm-6, col-xs-6");
 		clusterCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
@@ -435,12 +442,18 @@ public class CampaignDataView extends VerticalLayout {
 			reload();
 			updateRowCount();
 		});
+		
+	
 
 		newForm.addValueChangeListener(e -> {
 			if (e.getValue() != null && campaignz != null) {
+				CampaignFormMetaDto formDatax = FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetaByUuid(e.getValue().getUuid());
+				
+				boolean fff = formDatax.isDistrictentry();
 
 				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(e.getValue(), campaignz.getValue(), false,
-						null, grid);
+						null, grid, fff);
 				// add(cam);
 
 				newForm.setValue(null);
@@ -510,8 +523,27 @@ public class CampaignDataView extends VerticalLayout {
 			SubMenu subMenu = bulkActionsItem.getSubMenu();
 			subMenu.addItem(I18nProperties.getCaption(Captions.actionDelete), e -> handleDeleteAction());
 
+			selectAllButton = new Button("");
+			selectAllButton.addClickListener(event -> {
+
+				if (grid.getSelectedItems().size() == grid.getDataProvider().size(new Query<>())) {
+					grid.deselectAll();
+					selectAllButtonpLACEHOLDER.setText("Select All");
+
+				} else {
+//			        grid.select(event);
+					selectAllButtonpLACEHOLDER.setText("Deselect All");
+
+					checkboxx.setValue(true);
+				}
+			});
+//			actionButtonlayout.add(selectAllButton);
+
+//			subMenu.addItem(selectAllButton);
+
 		}
-		dropdownBulkOperations.getStyle().set("margin-top", "5px");
+//		dropdownBulkOperations.getStyle().set("margin-top", "5px");
+		enterBulkEdit.getStyle().set("margin-top", "5px");
 
 		enterBulkEdit.addClassName("bulkActionButton");
 		Icon bulkModeButtonnIcon = new Icon(VaadinIcon.CLIPBOARD_CHECK);
@@ -519,36 +551,40 @@ public class CampaignDataView extends VerticalLayout {
 		actionButtonlayout.add(enterBulkEdit);
 
 		enterBulkEdit.addClickListener(e -> {
+
 			dropdownBulkOperations.setVisible(true);
+			selectAllButtonpLACEHOLDER.setVisible(true);
+
 			grid.setSelectionMode(Grid.SelectionMode.MULTI);
 
-			GridMultiSelectionModel<CampaignFormDataIndexDto> selectionModel = (GridMultiSelectionModel<CampaignFormDataIndexDto>) grid
-					.getSelectionModel();
-			selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.VISIBLE);
+//			GridMultiSelectionModel<CampaignFormDataIndexDto> selectionModel = (GridMultiSelectionModel<CampaignFormDataIndexDto>) grid
+//					.getSelectionModel();
+//			selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.VISIBLE);
 
-
-			grid.asMultiSelect().addValueChangeListener(ee -> {
-				if (ee.getValue().size() >= 1) {
-					System.out.println(ee.getValue() + "111111111tttttttttttttttttttttttttttttttttttttttt");
-
-					Set<CampaignFormDataIndexDto> selectedItems = ee.getValue();
-					for (CampaignFormDataIndexDto selectedItem : selectedItems) {
-						System.out.println(selectedItem + "2222222tttttttttttttttttttttttttttttttttttttttt");
-						reload();
-						grid.select(selectedItem);
-//						selectionModel.select(selectedItem);
-						grid.getDataProvider().refreshAll();
-
-//					    selectionModel.selectAll();
-
+			ComponentRenderer<Checkbox, CampaignFormDataIndexDto> checkboxRenderer = new ComponentRenderer<>(item -> {
+				checkboxx.setValue(grid.getSelectedItems().contains(item)); // Set the initial value
+				checkboxx.addValueChangeListener(event -> {
+					if (event.getValue()) {
+						grid.select(item);
+					} else {
+						grid.deselect(item);
 					}
-				}
+				});
+				return checkboxx;
 			});
+
+			grid.addColumn(checkboxRenderer).setHeader(selectAllButton).setSortable(false).setResizable(true)
+					.setAutoWidth(true).setVisible(false);
 
 			enterBulkEdit.setVisible(false);
 			leaveBulkEdit.setVisible(true);
-//			dropdownBulkOperations.setVisible(true);
 		});
+
+		selectAllButtonpLACEHOLDER.addClickListener(e -> {
+			selectAllButton.click();
+		});
+
+//		actionButtonlayout.add(selectAllButton);
 
 		leaveBulkEdit.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkEdit.addClassName("leaveBulkActionButton");
@@ -561,10 +597,16 @@ public class CampaignDataView extends VerticalLayout {
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			enterBulkEdit.setVisible(true);
 			leaveBulkEdit.setVisible(false);
+			selectAllButtonpLACEHOLDER.setVisible(false);
+
 			dropdownBulkOperations.setVisible(false);
 		});
 		dropdownBulkOperations.setVisible(false);
+//		selectAllButton.setVisible(false);
 		actionButtonlayout.add(dropdownBulkOperations);
+		selectAllButtonpLACEHOLDER.setText("Select All");
+		selectAllButtonpLACEHOLDER.setVisible(false);
+		actionButtonlayout.add(selectAllButtonpLACEHOLDER);
 
 		resetHandler.setText(I18nProperties.getCaption(Captions.resetFilters));
 		resetHandler.addClickListener(e -> {
@@ -583,6 +625,22 @@ public class CampaignDataView extends VerticalLayout {
 		add(filterBlock);
 	}
 
+	private void selectAllItems(ListDataProvider<CampaignFormDataIndexDto> dataProvider) {
+		MultiSelect<Grid<CampaignFormDataIndexDto>, CampaignFormDataIndexDto> multiSelect = grid.asMultiSelect();
+		dataProvider.getItems().forEach(multiSelect::select);
+	}
+
+	private <T> void selectAllItems(Grid<T> grid, DataProvider<T, ?> dataProvider) {
+		MultiSelect<Grid<T>, T> multiSelect = grid.asMultiSelect();
+		dataProvider.fetch(new Query<>()).forEach(multiSelect::select);
+
+		grid.addSelectionListener(event -> {
+			for (T item : event.getAllSelectedItems()) {
+				grid.select(item);
+			}
+		});
+	}
+
 	private void setBulkModeLoader() {
 		grid.setItems(
 				query -> FacadeProvider.getCampaignFormDataFacade()
@@ -593,7 +651,7 @@ public class CampaignDataView extends VerticalLayout {
 										.collect(Collectors.toList()))
 						.stream(),
 				query -> (int) FacadeProvider.getCampaignFormDataFacade().count(criteria));
-		
+
 	}
 
 	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(
@@ -639,6 +697,7 @@ public class CampaignDataView extends VerticalLayout {
 			confirmationDialog.open();
 			confirmationDialog.setHeader("Delete Campaign Data");
 //TODO: Language
+			confirmationDialog
 					.setText("Are you sure you want to Delete " + selectedRows.size() + " selected Campaign Data?");
 
 			confirmationDialog.addConfirmListener(e -> {
@@ -678,25 +737,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		grid.setColumnReorderingAllowed(true);
 
-// <<<<<<< development
+//
 
-// 		ComponentRenderer<Checkbox, CampaignFormDataIndexDto> activeRenderer = new ComponentRenderer<>(input -> {
-// //			boolean value = input.getForm();
-// 			Checkbox checkbox = new Checkbox();
-
-// //			if (value == true)
-// //				checkbox.setValue(true);
-// 			return checkbox;
-// 		});
-
-
-// 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
-// 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));// .setFooter(String.format("Row
-// 																												// Count:
-// 																												// %s",
-// 																												// (int)
-// 		// FacadeProvider.getCampaignFormDataFacade().count(criteria)));
-// =======
 		grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getCampaign());
 
@@ -707,11 +749,12 @@ public class CampaignDataView extends VerticalLayout {
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getArea());
 		grid.addColumn(CampaignFormDataIndexDto.RCODE).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 
-				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
-
 				.setSortable(true).setResizable(true).setAutoWidth(true)
-				.setTooltipGenerator(e -> e.getRcode().toString());
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+//		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
+//
+//				.setSortable(true).setResizable(true).setAutoWidth(true)
+//				.setTooltipGenerator(e -> e.getRcode().toString());
 		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
 				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getRegion());
 		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader(I18nProperties.getCaption(Captions.Region_externalID))
@@ -750,14 +793,15 @@ public class CampaignDataView extends VerticalLayout {
 		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formPhase));
-		
-		grid.addColumn(CampaignFormDataIndexDto.SOURCE).setHeader("Source")//I18nProperties.getCaption(Captions.formPhase))
+
+		grid.addColumn(CampaignFormDataIndexDto.SOURCE).setHeader("Source")// I18nProperties.getCaption(Captions.formPhase))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
-				.setTooltipGenerator(e -> "Source:"  +e.getSource());
-		
-		grid.addColumn(CampaignFormDataIndexDto.CREATED_BY).setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser))
-		.setSortable(true).setResizable(true).setAutoWidth(true)
-		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign_creatingUser)  +e.getSource());
+				.setTooltipGenerator(e -> "Source:" + e.getSource());
+
+		grid.addColumn(CampaignFormDataIndexDto.CREATED_BY)
+				.setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser)).setSortable(true)
+				.setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign_creatingUser) + e.getSource());
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -769,9 +813,12 @@ public class CampaignDataView extends VerticalLayout {
 			// editCampaignFormData(e.getValue());
 			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
 					.getCampaignFormDataByUuid(e.getValue().getUuid());
-
+			
+//			CampaignFormMetaDto formDatax = FacadeProvider.getCampaignFormMetaFacade()
+//			.getCampaignFormMetaByUuid(e.getValue().getUuid());
+//			boolean fff = formDatax.isDistrictentry();
 			CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-					campaignz.getValue(), true, formData.getUuid(), grid);
+					campaignz.getValue(), true, formData.getUuid(), grid, false);
 
 		});
 

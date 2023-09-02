@@ -208,21 +208,22 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		setMargin(true);
 		layout.setPadding(false);
-		layout.setVisible(false);
+		layout.setVisible(true);
 		layout.setAlignItems(Alignment.END);
 
 		relevancelayout.setPadding(false);
-		relevancelayout.setVisible(false);
+		relevancelayout.setVisible(true);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
 		relevancelayout.setWidth("10%");
+		
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
@@ -237,7 +238,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		});
 
 		layout.setPadding(false);
-		layout.setVisible(false);
+		layout.setVisible(true);
 		layout.setAlignItems(Alignment.END);
 		layout.setWidth("80%");
 
@@ -249,8 +250,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.setWidth("15%");
-
+		searchField.setWidth("10%");
+		searchField.setClearButtonVisible(true);
 		searchField.addClassName("filterBar");
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
@@ -306,6 +307,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.relevanceStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
+		relevanceStatusFilter.setClearButtonVisible(true);
+		relevanceStatusFilter.getStyle().set("width", "145px !important");
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
@@ -474,18 +477,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 
-//		Button archiveButton = new Button("Archive");
-//
-//
-//		archiveButton.addClickListener(archiveEvent -> {
-//			String uuids = "";
-//			if (areaDto != null) {
-//				uuids = areaDto.getUuid_();
-//				FacadeProvider.getAreaFacade().archive(uuids);
-//			} else if (areaDto != null && (isArchived == true)) {
-//				FacadeProvider.getAreaFacade().dearchive(uuids);
-//			}
-//		});
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 		Button discardButton = new Button(I18nProperties.getCaption(Captions.actionDiscard), e -> dialog.close());
 		Button archiveButton = new Button();
@@ -553,7 +544,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			if (areaDto != null) {
 				uuids = areaDto.getUuid_();
 			}
-			if (name != null && name != null) {
+			if (name != null && (!rCodeField.getValue().isBlank() || !rCodeField.getValue().isEmpty())) {
+				
+				System.out.println("rrrr" + rCodeField.getValue().isBlank() + "ggggggggggggggggggggggggggggggggggg" +  rCodeField.getValue().isEmpty());
 				if (uuids != null) {
 					AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
 					System.out.println(dce);
@@ -574,6 +567,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						dcex.setExternalId(rcodeValue);
 						
 						try {
+							
 						FacadeProvider.getAreaFacade().save(dcex, true);
 						Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
 						dialog.close();
@@ -602,8 +596,26 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					}
 
 				}
-			} else {
-				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
+			} else if(rCodeField.getValue().isBlank() || rCodeField.getValue().isEmpty()) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+				    notification.close();
+				});
+				
+				Paragraph text = new Paragraph("Rcode Cannot be left blank.");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}else {
+				Notification.show(I18nProperties.getCaption(Captions.notValidValue)  + code);
 			}
 
 		});
@@ -624,5 +636,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 		return true;
 	}
+	
+
 
 }

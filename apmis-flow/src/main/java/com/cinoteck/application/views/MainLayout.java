@@ -14,6 +14,7 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
+import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.pivot.PivotView;
@@ -89,7 +90,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private final UserProvider userProvider = new UserProvider();
 	private final ViewModelProviders viewModelProviders = new ViewModelProviders();
 	boolean isToggleOpen = false;
-	
+
 	Image imgApmis = new Image();
 	AppNav nav = new AppNav();
 	String intendedRoute;
@@ -103,7 +104,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);
-			
+
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
@@ -178,16 +179,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Scroller scroller = new Scroller(createNavigation());
 
 		Header header = new Header(imgApmis);
-		
+
 		addToDrawer(header, scroller);
 
 //		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
 //                new Locale("fa","IR", "فارسی"));
 //		
 //		languageSwitcher.setClassName("vieLangiuageSwitcher");
-		
-		
-		
 
 		addToDrawer(createFooter());
 
@@ -205,6 +203,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,
 					VaadinIcon.GRID_BIG_O, "navitem"));
 		}
+
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard), AnalyticsDashboardView.class,
+				VaadinIcon.GRID_BIG_O, "navitem"));
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER
@@ -255,7 +256,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 
-
 //		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
 //				VaadinIcon.SIGN_OUT_ALT, "navitem"));
 
@@ -263,7 +263,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //
 //	        router.getRegistry().add(new RouteEntry("/dashboard", DashboardView.class));
 //	       
-=======
+
 		if (nav != null) {
 			nav.addClassName("active");
 		}
@@ -364,7 +364,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getLanguage().toString() != null) {
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
-				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT); 
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else if (userLanguage.equals("Dari")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 			} else {
@@ -431,6 +431,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		logoutButton.getStyle().set("margin-left", "-14px");
 		logoutButton.getStyle().set("margin-top", "0px");
 		logoutButton.getStyle().set("height", "45px");
+		logoutButton.getStyle().set("border-radius", "0px !important");
+		logoutButton.getStyle().set("margin-bottom", "0px !important");
 
 		logoutButton.getStyle().set("padding-left", "0px");
 
@@ -483,10 +485,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		logoutButtons.add(confirmButton, cancelButton);
 		dialogHolderLayout.remove(apmisImageContainer, aboutText, logoutButtons);
 		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
-		
+
 		dialog.add(dialogHolderLayout);
 
-		
 		logoutButton.addClickListener(event -> {
 			if (I18nProperties.getUserLanguage() == null) {
 
@@ -503,7 +504,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			dialog.setCloseOnOutsideClick(false);
 			dialog.open();
 		});
-		
+
 		layout.add(logoutButton);
 
 		return layout;
@@ -520,7 +521,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		System.out.println("|" + title.value().split("APMIS-")[1] + "|");
 		String seg = "";
-		
+
 		if (title != null && title.value().contains("APMIS-")) {
 			seg = title.value().split("APMIS-")[1];
 		}

@@ -1,6 +1,5 @@
 package com.cinoteck.application.views.campaign;
 
-
 import java.util.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -82,13 +81,16 @@ public class CampaignsView extends VerticalLayout {
 	CampaignDto dto;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
-	
+
 	private final UserProvider userProvider = new UserProvider();
+
+	boolean isEditingModeActive;
+	boolean jsjdbv = true;
 
 	public CampaignsView() {
 		if (I18nProperties.getUserLanguage() == null) {
 
-			I18nProperties.setUserLanguage(Language.EN);			
+			I18nProperties.setUserLanguage(Language.EN);
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
@@ -99,49 +101,46 @@ public class CampaignsView extends VerticalLayout {
 		setHeightFull();
 		createFilterBar();
 		campaignsGrid();
-		
+
 	}
 
 	private boolean matchesTerm() {
 		return false;
 	}
-	
-	
+
 	private void campaignsGrid() {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-
 
 		this.criteria = new CampaignCriteria();
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		
-			
-		TextRenderer<CampaignIndexDto> startDateRenderer = new TextRenderer<>(
-			    dto -> {
-			        Date timestamp = dto.getStartDate();
-			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-			        return dateFormat.format(timestamp);
-			    }
-			);
-		
-		TextRenderer<CampaignIndexDto> endDateRenderer = new TextRenderer<>(
-			    dto -> {
-			        Date timestamp = dto.getEndDate();
-			        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-			        return dateFormat.format(timestamp);
-			    }
-			);
-		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.campaignStatus)).setSortable(true).setResizable(true);
-		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate)).setSortable(true).setResizable(true);
-		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear)).setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader(I18nProperties.getCaption(Captions.relevanceStatus)).setSortable(true).setResizable(true);
-		
 
-		
+		TextRenderer<CampaignIndexDto> startDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getStartDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			return dateFormat.format(timestamp);
+		});
+
+		TextRenderer<CampaignIndexDto> endDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getEndDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			return dateFormat.format(timestamp);
+		});
+		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true)
+				.setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.campaignStatus))
+				.setSortable(true).setResizable(true);
+		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
+				.setSortable(true).setResizable(true);
+		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear))
+				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+				.setSortable(true).setResizable(true);
+
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
@@ -150,9 +149,11 @@ public class CampaignsView extends VerticalLayout {
 				.fromStream(FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null).stream());
 
 		dataView = grid.setItems(dataProvider);
-		
+
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
-		grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+			grid.asSingleSelect().addValueChangeListener(event ->{ editCampaign(event.getValue());
+			jsjdbv = false;
+			});
 		}
 		add(grid);
 	}
@@ -177,17 +178,15 @@ public class CampaignsView extends VerticalLayout {
 	private void createFilterBar() {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
-		
-		
 
-		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.showFilters));
+		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.hideFilters));
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
 		filterDisplayToggle.getStyle().set("margin-top", "12px");
 		filterDisplayToggle.setIcon(new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.getStyle().set("margin-left", "12px");
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 
 		filterDisplayToggle.addClickListener(e -> {
 			if (!filterLayout.isVisible()) {
@@ -230,7 +229,8 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		validateFormsButton = new Button(I18nProperties.getCaption(Captions.campaignValidateForms), new Icon(VaadinIcon.CHECK_CIRCLE));
+		validateFormsButton = new Button(I18nProperties.getCaption(Captions.campaignValidateForms),
+				new Icon(VaadinIcon.CHECK_CIRCLE));
 		validateFormsButton.setClassName("col-sm-6, col-xs-6");
 		validateFormsButton.addClickListener(e -> {
 			try {
@@ -246,19 +246,27 @@ public class CampaignsView extends VerticalLayout {
 
 		});
 
-		createButton = new Button(I18nProperties.getCaption(Captions.campaignNewCampaign), new Icon(VaadinIcon.PLUS_CIRCLE));
+		createButton = new Button(I18nProperties.getCaption(Captions.campaignNewCampaign),
+				new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
+			
+			jsjdbv = true;
+			isEditingModeActive= true;
+			dto = new CampaignDto();
+			
+			CampaignForm formLayout = new CampaignForm(dto);
+			formLayout.editMode = true;
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
-		
+
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 			filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
-		}else {
+		} else {
 			filterToggleLayout.add(filterDisplayToggle, filterLayout);
 		}
-		
+
 		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);
 
@@ -274,14 +282,16 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void newCampaign(CampaignDto formData) {
+		
+		System.out.println(formData + "formn data in configure ");
 		CampaignForm formLayout = new CampaignForm(formData);
+		
 		formLayout.addSaveListener(this::saveCampaign);
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
-//		formLayout.addArchiveListener(this::archiveCampaign);
+		formLayout.addRoundChangeListener(this::roundChange);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
 		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
-
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -300,8 +310,9 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
 		formLayout.addDeleteListener(this::deleteCampaign);
 		formLayout.addDuplicateListener(this::duplicateCampaign);
+		formLayout.addRoundChangeListener(this::roundChange);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit));
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName());
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -319,16 +330,22 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
-		
+		CampaignForm forLayout =  event.getSource();
+	
+		System.out.println(event.getCampaign()+ "save event campaign " + forLayout);
+		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
 
-		
-		if(event.getSource().round.getValue() == "Training") {
+	}
 
+	
+
+	private void roundChange(CampaignForm.RoundChangeEvent event) {
+
+		if (event.getSource().round.getValue() == "Training") {
+			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
-			
-			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
-
 		}
+
 	}
 
 	private void archiveDearchiveCampaign(CampaignForm.ArchiveEvent event) {
@@ -419,8 +436,7 @@ public class CampaignsView extends VerticalLayout {
 		if (isOpened) {
 
 			dialog.setHeader("Open Campaign");
-			dialog.setText(
-					"Are you sure you want to Open this campaign? This will make this campaign status Open.");
+			dialog.setText("Are you sure you want to Open this campaign? This will make this campaign status Open.");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updateOpenCloseButtonText(false);
@@ -473,8 +489,7 @@ public class CampaignsView extends VerticalLayout {
 //		CampaignForm formLayout = (CampaignForm) event.getSource();
 //	    boolean isOpened = FacadeProvider.getCampaignFacade().isClosedd(event.getCampaign().getUuid());
 		dialog.setHeader("Duplicate Campaign");
-		dialog.setText(
-				"Are you sure you want to Clone this campaign? .");
+		dialog.setText("Are you sure you want to Clone this campaign? .");
 		dialog.addConfirmListener(e -> {
 			FacadeProvider.getCampaignFacade().cloneCampaign(event.getCampaign().getUuid(),
 					usr.getUser().getUserName());

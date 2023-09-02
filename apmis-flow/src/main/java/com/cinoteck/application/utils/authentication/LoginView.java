@@ -3,6 +3,7 @@ package com.cinoteck.application.utils.authentication;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
@@ -63,15 +64,13 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginInformation.setSizeFull();
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
 		loginInformation.setAlignItems(Alignment.CENTER);
-
+//Todo make the image include the text to avoid the problems of wrapping 
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
-		
-		
-		
+
 		VerticalLayout loginFormCarrier = new VerticalLayout();
-		loginFormCarrier.add(imgApmis ,loginForm);
+		loginFormCarrier.add(imgApmis, loginForm);
 		loginFormCarrier.setClassName("login-form-carrier");
 //		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
 //		langSwitch.setId("loginLanguageSwitcher");
