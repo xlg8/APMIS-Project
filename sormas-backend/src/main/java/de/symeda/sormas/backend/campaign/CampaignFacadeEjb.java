@@ -603,14 +603,8 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 					result.addAll(dashboardElements);
 				}
 			});
-<<<<<<< HEAD
 
 		} else {
-=======
-			
-		
-		}else {
->>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 			campaignService.getAllActive().forEach(campaign -> {
 				final List<CampaignDashboardElement> dashboardElements = campaign.getDashboardElements().stream()
 						.filter(e -> e.getPhase() != null).collect(Collectors.toList());
@@ -825,8 +819,4 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
 
-<<<<<<< HEAD
-=======
-
->>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 }

@@ -311,8 +311,6 @@ public class CampaignForm extends VerticalLayout {
 
 		if (formData != null) {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d. M. yyyy");
-			System.out.println(editMode + "editmode jvkjvfkjsvfjvsjfvlkj");
-			System.out.println(view.isEditingModeActive + "hvkhvkhsvkhfvshvfjkhvskhfvk" + view.jsjdbv);
 			if (formData.getStartDate() != null) {
 				LocalDate timestamp = formData.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 				LocalDate localDatex = formData.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
