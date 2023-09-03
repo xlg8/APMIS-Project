@@ -64,6 +64,10 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
 	
 	String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
+	
+	List<CampaignFormDataIndexDto> getByCompletionAnalysisAdmin(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
+	
+	String getByCompletionAnalysisCountAdmin(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
 
 	CampaignFormDataDto getExistingData(CampaignFormDataCriteria criteria);
 

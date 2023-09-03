@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.utils.SortProperty;
+import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
 @Remote
 public interface CampaignFacade { //CampaignFacadeEjb
@@ -60,5 +61,8 @@ public interface CampaignFacade { //CampaignFacadeEjb
 	
 	void validate(CampaignReferenceDto campaignReferenceDto, String formType);
 
+	CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto);
+
+	List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp);
 	
 }

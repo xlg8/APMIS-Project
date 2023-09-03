@@ -253,7 +253,7 @@ public class UserView extends VerticalLayout {
 		HorizontalLayout filterLayout = new HorizontalLayout();
 
 		filterLayout.setPadding(false);
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 		filterLayout.setMargin(false);
 		filterLayout.setAlignItems(Alignment.END);
 		filterLayout.setWidthFull();
@@ -606,7 +606,7 @@ public class UserView extends VerticalLayout {
 		form.setSizeFull();
 		form.addUserFieldValueChangeEventListener(this::suggestUserName);
 //	    form.addResetPasswordListener(event -> resetUserPassword(event, user)); // Use the resetUserPassword method
-
+		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
 		form.addCloseListener(e -> {
@@ -637,7 +637,6 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-			
 
 		}
 	}
@@ -714,13 +713,13 @@ public class UserView extends VerticalLayout {
 		}
 		grid.getDataProvider().refreshAll();
 		closeEditor();
+		UI.getCurrent().getPage().reload();
 	}
 
-	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
+	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
 
 		UserForm formLayout = (UserForm) event.getSource();
 
-		System.out.println(isEditingModeActive + "___________isEditingModeActive");
 		formLayout.suggestUserName(isEditingModeActive);
 		if (isEditingModeActive) {
 			event.getSource().lastName.addValueChangeListener(e -> {
@@ -734,8 +733,18 @@ public class UserView extends VerticalLayout {
 		}
 
 	}
+
+	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
+
+		UserForm formLayout = (UserForm) event.getSource();
+
+		System.out.println(isEditingModeActive + "___________isEditingModeActive");
+		formLayout.suggestUserName(isEditingModeActive);
+		if (isEditingModeActive) {
 	
-	
+		}
+
+	}
 
 	private void deleteContact(UserForm.DeleteEvent event) {
 

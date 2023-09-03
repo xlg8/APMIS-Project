@@ -1,8 +1,10 @@
 package com.cinoteck.application.views.campaign;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
@@ -31,7 +33,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
-
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 
 import com.vaadin.flow.component.textfield.IntegerField;
 
@@ -46,6 +48,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 	CampaignDto campaignDto;
 	private CampaignDashboardElement formBeenEdited;
 	private String campaignPhase;
+	CampaignDashboardElement newCampForm;
+	List<CampaignDashboardElement> formSet = new ArrayList<>();
 
 	public CampaignDashboardGridElementComponent(List<CampaignDashboardElement> savedElements,
 			List<CampaignDashboardElement> allElements, CampaignDto campaignDto, String campaignPhase) {
@@ -53,14 +57,25 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.allElements = allElements;
 		this.campaignDto = campaignDto;
 		this.campaignPhase = campaignPhase;
-		
 
-		grid.addColumn(this::getDiagramCaption).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true).setResizable(true);
-		grid.addColumn(CampaignDashboardElement::getTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true).setResizable(true);
-		grid.addColumn(CampaignDashboardElement::getSubTabId).setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true).setResizable(true);
-		grid.addColumn(CampaignDashboardElement::getWidth).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
-		grid.addColumn(CampaignDashboardElement::getHeight).setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
-		grid.addColumn(CampaignDashboardElement::getOrder).setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
+		if (campaignDto == null) {
+			campaignDto = new CampaignDto();
+		}
+
+		grid.addColumn(this::getDiagramCaption).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true)
+				.setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getTabId)
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true)
+				.setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getSubTabId)
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true)
+				.setResizable(true);
+		grid.addColumn(CampaignDashboardElement::getWidth)
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
+		grid.addColumn(CampaignDashboardElement::getHeight)
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
+		grid.addColumn(CampaignDashboardElement::getOrder)
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 
 		grid.setItems(savedElements);
 
@@ -68,15 +83,16 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		setSizeFull();
 		add(getContent());
 	}
+
 	private String getDiagramCaption(CampaignDashboardElement item) {
 
 		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
 				.getCampaignDiagramDefinitionFacade().getAll().stream()
 				.filter(e -> e.getFormType().equalsIgnoreCase(campaignPhase)).collect(Collectors.toList());
-	    final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream()
-	            .collect(Collectors.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
-	    
-	    return getItemCaption(item, diagramIdCaptionMap);
+		final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream().collect(Collectors
+				.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
+
+		return getItemCaption(item, diagramIdCaptionMap);
 	}
 
 	private Component getContent() {
@@ -101,19 +117,15 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
 
 		plusButton.setTooltipText(I18nProperties.getString(Strings.addNewForm));
-		
-		
-		 Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
-		 deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
-		 deleteButton.getStyle().set("background-color", "red!important");
-		 deleteButton.setTooltipText(I18nProperties.getString(Strings.removeThisForm));
-	        
-	        Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave),
-	                new Icon(VaadinIcon.CHECK));
-	        
-	        Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
-	                new Icon(VaadinIcon.REFRESH));
-		
+
+		Button deleteButton = new Button(new Icon(VaadinIcon.DEL_A));
+		deleteButton.addThemeVariants(ButtonVariant.LUMO_ICON);
+		deleteButton.getStyle().set("background-color", "red!important");
+		deleteButton.setTooltipText(I18nProperties.getString(Strings.removeThisForm));
+
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave), new Icon(VaadinIcon.CHECK));
+
+		Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel), new Icon(VaadinIcon.REFRESH));
 
 		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
 				.getCampaignDiagramDefinitionFacade().getAll().stream()
@@ -129,15 +141,28 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		// if its a clicked action set the value from the item....TODO
 
 		List<String> tempListTabId = new ArrayList<String>();
-		if (campaignDto != null) {
+		if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
 			for (CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
 				tempListTabId.add(elex.getTabId());
+		} else if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
+			tempListTabId.add(charts.getValue().getTabId());
+		} else {
+			if (charts.getValue() != null) {
+				tempListTabId.add(charts.getValue().getTabId());
+
+			}
+
 		}
 
 		List<String> tempListSubTabId = new ArrayList<String>();
-		if (campaignDto != null) {
+		if (campaignDto != null  && campaignDto.getCampaignDashboardElements() != null) {
 			for (CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
 				tempListSubTabId.add(elex.getSubTabId());
+		} else if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
+			tempListSubTabId.add(charts.getValue().getSubTabId());
+		} 
+		else {
+
 		}
 
 		ComboBox<String> tabID = new ComboBox<String>();
@@ -211,119 +236,130 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				tabHeight.setValue(selectedCamp.getHeight());
 				tabOrder.setValue(selectedCamp.getOrder());
 
-				
-			    saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
-			    } else {
-			    	formBeenEdited = new CampaignDashboardElement();
-			    }
-			});
-		 
-		 deleteButton.addClickListener(dex->{
-			 if(formBeenEdited == null) {
-				 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
-			 } else {
+				saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+			} else {
+				formBeenEdited = new CampaignDashboardElement();
+			}
+		});
 
-			 campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
-			// FacadeProvider.getCampaignFacade().saveCampaign(capdto); 
-			 Notification.show(formBeenEdited+ I18nProperties.getString(Strings.wasRemovedFromCampaign));
-			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 }
-			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-		 });
-		 
-		 plusButton.addClickListener(ce->{
-			 CampaignDashboardElement newcampform = new CampaignDashboardElement();
-			 
-			 formx.setVisible(true);
-			 buttonAfterLay.setVisible(true);
-			 
-			 try {
-				 charts.setValue(newcampform);
-			 }finally {
-				
-					tabID.setValue("");
-					subTabID.setValue("");
-					tabWidth.setValue(0);
-					tabHeight.setValue(0);
-					tabOrder.setValue(0);
-			 }
-			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 grid.setHeight("auto !important");
-		 });
-		 
-		 cacleButton.addClickListener(ees -> {
-			 CampaignDashboardElement newcampform = new CampaignDashboardElement();
-			 
-			 formx.setVisible(false);
-			 buttonAfterLay.setVisible(false);
-			 
-			 try {
-				 charts.setValue(newcampform);
-			 }finally {
-				
-					tabID.setValue("");
-					subTabID.setValue("");
-					tabWidth.setValue(0);
-					tabHeight.setValue(0);
-					tabOrder.setValue(0);
-			 }
-			 saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
-			 
-			 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 grid.setHeight("");
-		 });
-		 
-		 
-		 saveButton.addClickListener(e->{
-			 
-			 if(((Button) e.getSource()).getText().equals("Save")) {
-				 //TODO we need validator on the items before we accept them to database because we are not using binder...
-				 CampaignDashboardElement newCampForm = charts.getValue();
-				 newCampForm.setTabId(tabID.getValue());
-				 newCampForm.setSubTabId(subTabID.getValue());
-				 newCampForm.setWidth(tabWidth.getValue());
-				 newCampForm.setHeight(tabHeight.getValue());
-				 newCampForm.setOrder(tabOrder.getValue());
-				 
-				 campaignDto.getCampaignDashboardElements().add(newCampForm);
-				 
+		deleteButton.addClickListener(dex -> {
+			if (formBeenEdited == null) {
+				Notification.show(I18nProperties.getString(Strings.pleaseSelectFormFirst));
+			} else {
+
+				campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
 				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
-				 
-				 allElements.removeAll(campaignDto.getCampaignDashboardElements());
-				 charts.setItems(allElements);
-				 
-				 
-				 Notification.show(I18nProperties.getString(Strings.newDashboardChartSuccess));
-				 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-			 } else {
-				 //formBeenEdited
-				 if(formBeenEdited != null) {
-					 CampaignDashboardElement newCampForm = charts.getValue();
-					 newCampForm.setTabId(tabID.getValue());
-					 newCampForm.setSubTabId(subTabID.getValue());
-					 newCampForm.setWidth(tabWidth.getValue());
-					 newCampForm.setHeight(tabHeight.getValue());
-					 newCampForm.setOrder(tabOrder.getValue());
-					 
-					 
-				 campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
-				 campaignDto.getCampaignDashboardElements().add(newCampForm);
-				 //FacadeProvider.getCampaignFacade().saveCampaign(capdto);
-				 grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
-				 
-				 allElements.removeAll(campaignDto.getCampaignDashboardElements());
-				 charts.setItems(allElements);
-				 
-				 Notification.show(I18nProperties.getString(Strings.headingCampaignDashboard));
-				 } else {
-					 Notification.show(I18nProperties.getString(Strings.pleaseSelectFormUpdate));
-				 }
-			 }
-			 grid.setHeight("");
-		 });
-		 HorizontalLayout newLayout = new HorizontalLayout( tabWidth, tabHeight, tabOrder);
-		 
-		formx.add(charts, tabID, subTabID,newLayout);
+				Notification.show(formBeenEdited + I18nProperties.getString(Strings.wasRemovedFromCampaign));
+				grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			}
+			grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+		});
+
+		plusButton.addClickListener(ce -> {
+			CampaignDashboardElement newcampform = new CampaignDashboardElement();
+
+			formx.setVisible(true);
+			buttonAfterLay.setVisible(true);
+
+			try {
+				charts.setValue(newcampform);
+			} finally {
+//				 tabID.setItems(newcampform.getTabId());
+//					subTabID.setItems(newcampform.getSubTabId());
+
+				tabID.setValue("");
+				subTabID.setValue("");
+				tabWidth.setValue(0);
+				tabHeight.setValue(0);
+				tabOrder.setValue(0);
+			}
+			if (campaignDto == null) {
+
+			} else {
+				grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			}
+			grid.setHeight("auto !important");
+		});
+
+		cacleButton.addClickListener(ees -> {
+			CampaignDashboardElement newcampform = new CampaignDashboardElement();
+
+			formx.setVisible(false);
+			buttonAfterLay.setVisible(false);
+
+			try {
+				charts.setValue(newcampform);
+			} finally {
+
+				tabID.setValue("");
+				subTabID.setValue("");
+				tabWidth.setValue(0);
+				tabHeight.setValue(0);
+				tabOrder.setValue(0);
+			}
+			saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+
+			grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			grid.setHeight("");
+		});
+
+		saveButton.addClickListener(e -> {
+
+			if (((Button) e.getSource()).getText().equals("Save")) {
+				// TODO we need validator on the items before we accept them to database because
+				// we are not using binder...
+				newCampForm = charts.getValue();
+				newCampForm.setTabId(tabID.getValue());
+				newCampForm.setSubTabId(subTabID.getValue());
+				newCampForm.setWidth(tabWidth.getValue());
+				newCampForm.setHeight(tabHeight.getValue());
+				newCampForm.setOrder(tabOrder.getValue());
+
+				if (campaignDto == null) {
+					campaignDto = new CampaignDto();
+					System.out.println(campaignDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
+					formSet.add(newCampForm);
+					campaignDto.setCampaignDashboardElements(formSet);
+					System.out.println(campaignDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
+
+				}
+				campaignDto.getCampaignDashboardElements().add(newCampForm);
+
+				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+
+				allElements.removeAll(campaignDto.getCampaignDashboardElements());
+				charts.setItems(allElements);
+
+				Notification.show(I18nProperties.getString(Strings.newDashboardChartSuccess));
+				grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+			} else {
+				// formBeenEdited
+				if (formBeenEdited != null) {
+					CampaignDashboardElement newCampForm = charts.getValue();
+					newCampForm.setTabId(tabID.getValue());
+					newCampForm.setSubTabId(subTabID.getValue());
+					newCampForm.setWidth(tabWidth.getValue());
+					newCampForm.setHeight(tabHeight.getValue());
+					newCampForm.setOrder(tabOrder.getValue());
+
+					campaignDto.getCampaignDashboardElements().remove(formBeenEdited);
+					campaignDto.getCampaignDashboardElements().add(newCampForm);
+					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+					grid.setItems(campaignDto.getCampaignDashboardElements(campaignPhase));
+
+					allElements.removeAll(campaignDto.getCampaignDashboardElements());
+					charts.setItems(allElements);
+
+					Notification.show(I18nProperties.getString(Strings.headingCampaignDashboard));
+				} else {
+					Notification.show(I18nProperties.getString(Strings.pleaseSelectFormUpdate));
+				}
+			}
+			grid.setHeight("");
+		});
+		HorizontalLayout newLayout = new HorizontalLayout(tabWidth, tabHeight, tabOrder);
+
+		formx.add(charts, tabID, subTabID, newLayout);
 
 		formx.setColspan(charts, 2);
 		formx.setColspan(tabID, 2);
@@ -357,4 +393,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 		return campaignDto;
 	}
+	
+	 public List<CampaignDashboardElement> getSavedElements() {
+	        return savedElements;
+	    }
 }

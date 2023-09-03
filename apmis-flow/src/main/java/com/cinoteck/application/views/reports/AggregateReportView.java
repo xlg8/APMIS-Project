@@ -1,17 +1,21 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaigndata.CampaignFormElementImportance;
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -27,6 +31,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.data.translation.TranslationElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
@@ -58,6 +63,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 	ComboBox<CampaignFormElementImportance> importanceSwitcher = new ComboBox<>();
 
 	Button resetHandler = new Button();
+	
+	Button exportReport = new Button();
 
 	private Grid<CampaignStatisticsDto> grid = new Grid<>(CampaignStatisticsDto.class, false);
 	ListDataProvider<CampaignStatisticsDto> dataProvider;
@@ -70,6 +77,11 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 	private Consumer<CampaignFormMetaReferenceDto> formMetaChangedCallback;
 
+	
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	
+	
 	public AggregateReportView() {
 		criteria = new CampaignStatisticsCriteria();
 		criteria.setGroupingLevel(CampaignJurisdictionLevel.AREA);
@@ -104,7 +116,25 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		dataProvider = DataProvider.fromStream(getGridData().stream());
 
 		grid.setDataProvider(dataProvider);
+		
+		GridExporter<CampaignStatisticsDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
 
+		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
+		exporter.setFileName(
+				"Aggregate Report" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+
+		anchor.getStyle().set("width", "100px");
+
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 		add(grid);
 
 	}
@@ -141,12 +171,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
-		actionButtonlayout.setVisible(false);
+		actionButtonlayout.setVisible(true);
 		actionButtonlayout.setAlignItems(Alignment.END);
 
 		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.add(campaignYear, campaignz, groupBy, campaignFormCombo, regionCombo, provinceCombo,
-				districtCombo, importanceSwitcher, resetHandler);
+				districtCombo, importanceSwitcher, resetHandler,exportReport, anchor);
 
 		displayFilters.addClickListener(e -> {
 			if (!actionButtonlayout.isVisible()) {
@@ -160,12 +190,17 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaignYear.getStyle().set("padding-top", "0px !important");
+		campaignYear.getStyle().set("width", "145px !important");
 
 		campaignz.setLabel(I18nProperties.getCaption(Captions.Campaign));
 		campaignz.getStyle().set("padding-top", "0px !important");
+		campaignz.getStyle().set("width", "145px !important");
 
+		
 		groupBy.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
 		groupBy.getStyle().set("padding-top", "0px !important");
+		groupBy.getStyle().set("width", "145px !important");
+
 
 		// Initialize Item lists
 		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
@@ -196,6 +231,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
+		campaignFormCombo.getStyle().set("width", "145px !important");
+
 
 
 		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
@@ -222,9 +259,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		regionCombo.setLabel(I18nProperties.getCaption(Captions.area));
 		regionCombo.getStyle().set("padding-top", "0px !important");
+		regionCombo.getStyle().set("width", "145px !important");
+
 		regionCombo.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
+		regionCombo.setEnabled(true);
 		regionCombo.addValueChangeListener(e -> {
 			criteria.setArea(e.getValue());
 			reloadData();
@@ -236,6 +276,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
+		provinceCombo.getStyle().set("width", "145px !important");
+
 		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinceCombo.setEnabled(false);
 		provinceCombo.getStyle().set("padding-top", "0px");
@@ -252,6 +294,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		districtCombo.setLabel(I18nProperties.getCaption(Captions.district));
 		districtCombo.getStyle().set("padding-top", "0px !important");
+		districtCombo.getStyle().set("width", "145px !important");
+
 		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtCombo.setEnabled(false);
 		districtCombo.getStyle().set("padding-top", "0px");
@@ -272,6 +316,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		importanceSwitcher.setLabel(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.getStyle().set("padding-top", "0px !important");
 		importanceSwitcher.setClassName("col-sm-6, col-xs-6");
+		importanceSwitcher.getStyle().set("width", "145px !important");
 
 		importanceSwitcher.setPlaceholder(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
@@ -377,6 +422,13 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		    criteria.setFormType(campaignPhase.getValue().toString());
 		});
 
+		exportReport.setText(I18nProperties.getCaption(Captions.export));
+		exportReport.addClickListener(e -> {
+			anchor.getElement().callJsFunction("click");
+		});
+		anchor.getStyle().set("display", "none");
+
+		
 		VerticalLayout filterBlock = new VerticalLayout();
 		filterBlock.setSpacing(true);
 		filterBlock.setMargin(true);
@@ -385,7 +437,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
 
-		layout.add(displayFilters, actionButtonlayout);
+		layout.add(displayFilters , actionButtonlayout);
 
 		filterBlock.add(layout);
 

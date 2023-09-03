@@ -128,7 +128,7 @@ public class ExpressionProcessor {
 					} else {
 						
 						Boolean isErrored = value.toString().endsWith(".0");
-						System.out.println(e.getCaption() +" : "+value+" = naija bet: Success vs Mathew " + isErrored);
+//						System.out.println(e.getCaption() +" : "+value+" = ==========///\\\\\\\======= " + isErrored);
 						
 						campaignFormBuilder
 						.setFieldValue(campaignFormBuilder.getFields().get(e.getId()), 

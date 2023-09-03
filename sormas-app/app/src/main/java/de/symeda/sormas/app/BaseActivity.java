@@ -29,6 +29,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -52,13 +54,17 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationException;
+import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
+import de.symeda.sormas.app.backend.region.Community;
 import de.symeda.sormas.app.backend.synclog.SyncLogDao;
 import de.symeda.sormas.app.backend.user.User;
+import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.component.controls.ControlPropertyField;
 import de.symeda.sormas.app.component.dialog.InfoDialog;
 import de.symeda.sormas.app.component.menu.PageMenuControl;
@@ -78,6 +84,7 @@ import de.symeda.sormas.app.settings.SettingsFragment;
 import de.symeda.sormas.app.util.Bundler;
 import de.symeda.sormas.app.util.Callback;
 import de.symeda.sormas.app.util.ExitActivity;
+import de.symeda.sormas.app.util.InfrastructureDaoHelper;
 import de.symeda.sormas.app.util.LocationService;
 import de.symeda.sormas.app.util.NavigationHelper;
 
@@ -112,6 +119,9 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	private TextView contactNotificationCounter;
 	private TextView eventNotificationCounter;
 	private TextView sampleNotificationCounter;
+
+	private CampaignFormData record;
+	private List<Item> initialCommunities;
 
 	private ProgressDialog progressDialog = null;
 
@@ -394,8 +404,22 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 				return;
 			}
 
+
+//			Button dropdownButton = (Button) findViewById(R.id.dropdownButton);
 			TextView userName = (TextView) headerView.findViewById(R.id.userFullName);
 			TextView userRole = (TextView) headerView.findViewById(R.id.userRole);
+			TextView userUserName = (TextView) headerView.findViewById(R.id.userUserName);
+			TextView userRegion = (TextView) headerView.findViewById(R.id.userRegion);
+			TextView userProvince = (TextView) headerView.findViewById(R.id.userProvince);
+			TextView userDistrict = (TextView) headerView.findViewById(R.id.userDistrict);
+			TextView userClusters = (TextView) headerView.findViewById(R.id.userClusters);
+
+//			userUserName.setVisibility(View.GONE);
+//			userRegion.setVisibility(View.GONE);
+//			userProvince.setVisibility(View.GONE);
+//			userDistrict.setVisibility(View.GONE);
+//			userClusters.setVisibility(View.GONE);
+
 
 			if (userName == null)
 				return;
@@ -403,17 +427,71 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			if (userRole == null)
 				return;
 
+			if (userUserName == null)
+				return;
+
+			if (userRegion == null)
+				return;
+
+			if (userProvince == null)
+				return;
+
+			if (userDistrict == null)
+				return;
+
+			if (userClusters == null)
+				return;
+
+//			if (dropdownButton == null)
+//				return;
+
 			User user = ConfigProvider.getUser();
+
+
 
 			if (user == null) {
 				return;
 			} else {
 				userName.setText(R.string.value_no_username);
 				userRole.setText(R.string.value_role_unassigned);
+				userUserName.setText("UserName Unassigned");
+				userUserName.setText("User Region Unassigned");
+				userUserName.setText("User Province Unassigned");
+				userUserName.setText("User District Unassigned");
+				userUserName.setText("User Cluster Unassigned");
+
 			}
 
 			userName.setText(user.getLastName() + " " + user.getFirstName());
 			userRole.setText(user.getUserRolesString());
+			userUserName.setText("Username : " +user.getUserName());
+			userRegion.setText("Region : " +user.getRegion().getArea());
+			userProvince.setText("Province : " +user.getRegion());
+			userDistrict.setText("District : " +user.getDistrict());
+
+
+			initialCommunities = InfrastructureDaoHelper.loadCommunities(user.getDistrict());
+
+			System.out.println( "iniytia" + initialCommunities + "iniytia");
+//			Integer com = new Integer(user.getCommunity().getClusterNumber());
+//			List<Community> ttt = FacadeProvider.getCommunityFacade().get
+
+			userClusters.setText("Clusters : " + initialCommunities);
+
+
+//			dropdownButton.setOnClickListener (e->{
+//				if (userProvince.getVisibility() == View.VISIBLE) {
+//					userProvince.setVisibility(View.GONE) ;
+//					// Set visibility for other TextView elements
+//				} else {
+//
+//					userProvince.setVisibility(View.VISIBLE) ;
+//					// Set visibility for other TextView elements
+//				}
+//			});
+
+
+
 
 			Menu menuNav = navView.getMenu();
 
@@ -512,6 +590,8 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 //        eventNotificationCounter.setText("12");
 //        sampleNotificationCounter.setText("50");
 	}
+
+
 
 	public List<PageMenuItem> getPageMenuData() {
 		return null;

@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
@@ -192,32 +193,27 @@ public class CampaignStatisticsService {
 	private String buildWhereExpression(CampaignStatisticsCriteria criteria) {
 		StringBuilder whereBuilder = new StringBuilder();
 		if (criteria.getCampaign() != null) {
-			whereBuilder.append(Campaign.TABLE_NAME).append(".").append(Campaign.UUID).append(" = '")
-					.append(criteria.getCampaign().getUuid()).append("'");
+			whereBuilder.append("(").append(Campaign.TABLE_NAME).append(".").append(Campaign.UUID).append(" = '")
+					.append(criteria.getCampaign().getUuid()).append("')");
 		}
 
-//		if (whereBuilder.length() > 0) {
-//			whereBuilder.append(" AND ");
-//		}
+
 
 		final User usr = userService.getCurrentUser();
 		usr.getUsertype();
 		System.out.println(usr.getUsertype() + "getttttttttt current user ");
-//		whereBuilder.append(Campaign.TABLE_NAME)
-//		.append(".")
-//		.append(Campaign.PUBLISHED)
-//		.append(" = true");
-//		
+		
 		if (usr.getUsertype().equals(UserType.EOC_USER)) {
 			if (whereBuilder.length() > 0) {
 				whereBuilder.append(" AND ");
 			}
-			whereBuilder.append(" (").append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
+			
+			whereBuilder.append(" ((").append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
 					.append(" = 'post-campaign'").append(" AND ").append(Campaign.TABLE_NAME).append(".")
 					.append(Campaign.PUBLISHED).append(" = true").append(") OR (")
 
 					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
-					.append(" != 'post-campaign'").append(")");
+					.append(" != 'post-campaign'").append("))");
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {
@@ -406,7 +402,49 @@ public class CampaignStatisticsService {
 	}
 
 	public boolean checkChangedDb(String coreDataTable, String analyticsDataTable) {
-		System.out.println("checking new data .....................................");
+		//check if table is locked, currently been populated by other users
+		if (checkChangedDbIfLocked(coreDataTable, analyticsDataTable)) {
+			System.out.println("checking new data .....................................");
+			CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+			CriteriaQuery<Boolean> criteriaQuery = criteriaBuilder.createQuery(Boolean.class);
+			Root<TrackTableUpdates> root = criteriaQuery.from(TrackTableUpdates.class);
+
+			Subquery<Timestamp> subquery1 = criteriaQuery.subquery(Timestamp.class);
+			Root<TrackTableUpdates> subqueryRoot1 = subquery1.from(TrackTableUpdates.class);
+			subquery1.select(subqueryRoot1.get(TrackTableUpdates.LASTUPDATED))
+					.where(criteriaBuilder.equal(subqueryRoot1.get(TrackTableUpdates.TABLE_NAME), coreDataTable));
+
+			Subquery<Timestamp> subquery2 = criteriaQuery.subquery(Timestamp.class);
+			Root<TrackTableUpdates> subqueryRoot2 = subquery2.from(TrackTableUpdates.class);
+			subquery2.select(subqueryRoot2.get(TrackTableUpdates.LASTUPDATED))
+					.where(criteriaBuilder.equal(subqueryRoot2.get(TrackTableUpdates.TABLE_NAME), analyticsDataTable));
+
+			Expression<Boolean> condition = criteriaBuilder.lessThan(subquery1, subquery2);
+
+			// Your existing condition for other checks
+			Predicate conditions = criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME), coreDataTable);
+
+			criteriaQuery.multiselect(criteriaBuilder.selectCase().when(condition, false).otherwise(true))
+					.where(conditions);// criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME),
+										// coreDataTable));
+
+			System.out
+					.println("DEBUGGER r567ujhgtyfgyujnjkiolkmss  " + SQLExtractor.from(em.createQuery(criteriaQuery)));
+
+			TypedQuery<Boolean> query = em.createQuery(criteriaQuery);
+
+			boolean comparisonResult = query.getSingleResult();
+
+			System.out.println("___________________" + comparisonResult);
+
+			return comparisonResult;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean checkChangedDbIfLocked(String coreDataTable, String analyticsDataTable) {
+
 		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 		CriteriaQuery<Boolean> criteriaQuery = criteriaBuilder.createQuery(Boolean.class);
 		Root<TrackTableUpdates> root = criteriaQuery.from(TrackTableUpdates.class);
@@ -421,21 +459,25 @@ public class CampaignStatisticsService {
 		subquery2.select(subqueryRoot2.get(TrackTableUpdates.LASTUPDATED))
 				.where(criteriaBuilder.equal(subqueryRoot2.get(TrackTableUpdates.TABLE_NAME), analyticsDataTable));
 
-		Expression<Boolean> condition = criteriaBuilder.lessThan(subquery1, subquery2);
+		Expression<Boolean> condition = criteriaBuilder.isTrue(root.get(TrackTableUpdates.isLOCKED));
+
+		// Your existing condition for other checks
+		Predicate conditions = criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME), coreDataTable);
 
 		criteriaQuery.multiselect(criteriaBuilder.selectCase().when(condition, true).otherwise(false))
-				.where(criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME), coreDataTable));
+				.where(conditions);// criteriaBuilder.equal(root.get(TrackTableUpdates.TABLE_NAME),
+									// coreDataTable));
 
-		System.out.println("DEBUGGER r567ujhgtyfgyujnjkiolkm  " + SQLExtractor.from(em.createQuery(criteriaQuery)));
+		System.out.println(
+				"DEBUGGER r567ujhgtyfgyujnjkiolkmisLocked  " + SQLExtractor.from(em.createQuery(criteriaQuery)));
 
 		TypedQuery<Boolean> query = em.createQuery(criteriaQuery);
 
 		boolean comparisonResult = query.getSingleResult();
 
-		System.out.println("___________________" + comparisonResult);
+		System.out.println("____Locked_____" + comparisonResult);
 
-		return !comparisonResult;
+		return comparisonResult;
 
 	}
-
 }

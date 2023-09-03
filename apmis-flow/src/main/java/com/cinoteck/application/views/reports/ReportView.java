@@ -41,6 +41,7 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.aggregateReport)),new AggregateReportView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)), new CompletionAnalysisView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.mobileUsers)), new UserAnalysisView());
+		tabComponentMap.put(new Tab("Admin Data Completion"), new AdminCompletionAnalysisView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 

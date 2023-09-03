@@ -18,6 +18,7 @@ package de.symeda.sormas.api.campaign.data;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
@@ -45,6 +46,12 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String ANALYSIS_FIELD_B = "analysis_b";
 	public static final String ANALYSIS_FIELD_C = "analysis_c";
 	public static final String ANALYSIS_FIELD_D = "analysis_d";
+	
+	public static final String ANALYSIS_FIELD_A_ = "analysis_a_";
+	public static final String ANALYSIS_FIELD_B_ = "analysis_b_";
+	public static final String ANALYSIS_FIELD_C_ = "analysis_c_";
+	public static final String ANALYSIS_FIELD_D_ = "analysis_d_";
+	
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
 	
@@ -71,6 +78,12 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Long analysis_b;
 	private Long analysis_c;
 	private Long analysis_d;
+	
+	private Integer analysis_a_;
+	private Integer analysis_b_;
+	private Integer analysis_c_;
+	private Integer analysis_d_;
+	
 	private String source;
 	private String creatingUser;
 	
@@ -135,6 +148,32 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 			this.analysis_b = analysis_b;
 			this.analysis_c = analysis_c;
 			this.analysis_d = analysis_d;
+		}
+	
+	public CampaignFormDataIndexDto(
+			String area,
+			String region,
+			String district,
+			String community,
+			Integer clusternumer,
+			//Long clusternumber_,
+			Long ccode,
+			Integer analysis_a_,
+			Integer analysis_b_,
+			Integer analysis_c_,
+			Integer analysis_d_
+			) {
+			this.area = area;
+			this.region = region;
+			this.district = district;
+			this.community = community;
+			this.clusternumber = clusternumer;
+			//this.clusternumber_ = clusternumber_;
+			this.ccode = ccode;
+			this.analysis_a_ = analysis_a_;
+			this.analysis_b_ = analysis_b_;
+			this.analysis_c_ = analysis_c_;
+			this.analysis_d_ = analysis_d_;
 		}
 	
 	public CampaignFormDataIndexDto(
@@ -338,7 +377,40 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setCreatingUser(String creatingUser) {
 		this.creatingUser = creatingUser;
 	}
-
 	
+	
+
+	public Integer getAnalysis_a_() {
+		return analysis_a_;
+	}
+
+	public void setAnalysis_a_(Integer analysis_a_) {
+		this.analysis_a_ = analysis_a_;
+	}
+
+	public Integer getAnalysis_b_() {
+		return analysis_b_;
+	}
+
+	public void setAnalysis_b_(Integer analysis_b_) {
+		this.analysis_b_ = analysis_b_;
+	}
+
+	public Integer getAnalysis_c_() {
+		return analysis_c_;
+	}
+
+	public void setAnalysis_c_(Integer analysis_c_) {
+		this.analysis_c_ = analysis_c_;
+	}
+
+	public Integer getAnalysis_d_() {
+		return analysis_d_;
+	}
+
+	public void setAnalysis_d_(Integer analysis_d_) {
+		this.analysis_d_ = analysis_d_;
+	}
+
 	
 }

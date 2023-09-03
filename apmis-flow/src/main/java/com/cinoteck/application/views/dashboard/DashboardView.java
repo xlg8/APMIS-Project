@@ -6,7 +6,9 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -139,7 +141,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear().trim());
 		}
-		campaingYears = campaingYears.stream().distinct().collect(Collectors.toList());
+		
+		Set<String> setDeduplicated = new HashSet<>(campaingYears);
+		campaingYears.clear();
+		campaingYears.addAll(setDeduplicated);
+
 		campaignYear.setItems(campaingYears);
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
@@ -234,9 +240,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		VerticalLayout selectFilterLayoutparent = new VerticalLayout(selectFilterLayout);
 		selectFilterLayoutparent.getStyle().set("padding", "0px");
 		selectFilterLayoutparent.getStyle().set("margin-left", "12px");
-		selectFilterLayoutparent.setVisible(false);
+		selectFilterLayoutparent.setVisible(true);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters));
 		displayFilters.getStyle().set("margin-left", "12px");
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
