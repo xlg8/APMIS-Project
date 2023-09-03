@@ -219,12 +219,12 @@ public class ClusterView extends VerticalLayout {
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
-		layout.setVisible(false);
+		layout.setVisible(true);
 		layout.setAlignItems(Alignment.END);
 
 		HorizontalLayout relevancelayout = new HorizontalLayout();
 		relevancelayout.setPadding(false);
-		relevancelayout.setVisible(false);
+		relevancelayout.setVisible(true);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
 		relevancelayout.setClassName("row");
@@ -234,7 +234,7 @@ public class ClusterView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters),
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
@@ -267,10 +267,12 @@ public class ClusterView extends VerticalLayout {
 		searchIcon.getStyle().set("color", "#0D6938");
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.setWidth("15%");
+		searchField.setWidth("10%");
 		layout.add(searchField);
 
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
+		regionFilter.setClearButtonVisible(true);
+		regionFilter.getStyle().set("width", "145px !important");
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
@@ -284,6 +286,9 @@ public class ClusterView extends VerticalLayout {
 		layout.add(regionFilter);
 
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		provinceFilter.setClearButtonVisible(true);
+		provinceFilter.getStyle().set("width", "145px !important");
+
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		if (currentUser.getUser().getRegion() != null) {
 			provinceFilter.setValue(currentUser.getUser().getRegion());
@@ -297,6 +302,8 @@ public class ClusterView extends VerticalLayout {
 
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		districtFilter.getStyle().set("width", "145px !important");
+
 		if (currentUser.getUser().getDistrict() != null) {
 			districtFilter.setValue(currentUser.getUser().getDistrict());
 			criteria.district(currentUser.getUser().getDistrict());
@@ -306,6 +313,7 @@ public class ClusterView extends VerticalLayout {
 		layout.add(districtFilter);
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
+		relevanceStatusFilter.getStyle().set("width", "145px !important");
 
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
@@ -483,8 +491,7 @@ public class ClusterView extends VerticalLayout {
 		archiveDearchiveConfirmation = new ConfirmDialog();
 		if (selectedRows.size() == 0) {
 
-			archiveDearchiveConfirmation.setCancelable(true);
-			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
+			
 			archiveDearchiveConfirmation.setRejectable(true);
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.setConfirmText("Ok");
@@ -494,11 +501,10 @@ public class ClusterView extends VerticalLayout {
 
 			archiveDearchiveConfirmation.open();
 		} else {
-			archiveDearchiveConfirmation.setCancelable(true);
+			
 			archiveDearchiveConfirmation.setRejectable(true);
 			archiveDearchiveConfirmation.setRejectText("No");
 			archiveDearchiveConfirmation.setConfirmText("Yes");
-			archiveDearchiveConfirmation.addCancelListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.open();
 

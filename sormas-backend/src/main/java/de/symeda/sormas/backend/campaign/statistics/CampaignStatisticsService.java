@@ -192,32 +192,27 @@ public class CampaignStatisticsService {
 	private String buildWhereExpression(CampaignStatisticsCriteria criteria) {
 		StringBuilder whereBuilder = new StringBuilder();
 		if (criteria.getCampaign() != null) {
-			whereBuilder.append(Campaign.TABLE_NAME).append(".").append(Campaign.UUID).append(" = '")
-					.append(criteria.getCampaign().getUuid()).append("'");
+			whereBuilder.append("(").append(Campaign.TABLE_NAME).append(".").append(Campaign.UUID).append(" = '")
+					.append(criteria.getCampaign().getUuid()).append("')");
 		}
 
-//		if (whereBuilder.length() > 0) {
-//			whereBuilder.append(" AND ");
-//		}
+
 
 		final User usr = userService.getCurrentUser();
 		usr.getUsertype();
 		System.out.println(usr.getUsertype() + "getttttttttt current user ");
-//		whereBuilder.append(Campaign.TABLE_NAME)
-//		.append(".")
-//		.append(Campaign.PUBLISHED)
-//		.append(" = true");
-//		
+		
 		if (usr.getUsertype().equals(UserType.EOC_USER)) {
 			if (whereBuilder.length() > 0) {
 				whereBuilder.append(" AND ");
 			}
-			whereBuilder.append(" (").append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
+			
+			whereBuilder.append(" ((").append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
 					.append(" = 'post-campaign'").append(" AND ").append(Campaign.TABLE_NAME).append(".")
 					.append(Campaign.PUBLISHED).append(" = true").append(") OR (")
 
 					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
-					.append(" != 'post-campaign'").append(")");
+					.append(" != 'post-campaign'").append("))");
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {

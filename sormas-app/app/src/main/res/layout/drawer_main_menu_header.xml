@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ SORMAS® - Surveillance Outbreak Response Management & Analysis System
   ~ Copyright © 2016-2018 Helmholtz-Zentrum für Infektionsforschung GmbH (HZI)
   ~
@@ -18,41 +17,94 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="140dp"
+    android:layout_height="280dp"
     android:background="@drawable/background_drawer_header"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/profile_picture_placeholder"
-        android:clickable="true"/>
-    <LinearLayout
-        android:orientation="vertical"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="@drawable/background_drawer_header"
+        android:orientation="horizontal"
+        >
+
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_vertical"
+            android:clickable="true"
+            android:src="@drawable/profile_picture_placeholder" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="16dp"
+            android:clickable="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/userFullName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/drawerHeaderText"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/userRole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="false"
+                android:textColor="@color/drawerHeaderText"
+                android:textSize="12sp" />
+
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/userUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="16dp"
-        android:clickable="true"
-        >
-        <TextView
-            android:id="@+id/userFullName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/drawerHeaderText"
-            android:textSize="18sp"
-            android:layout_marginTop="5dp" />
-        <TextView
-            android:id="@+id/userRole"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/drawerHeaderText"
-            android:textSize="12sp"
-            android:singleLine="false"
-            />
+        android:singleLine="false"
+        android:textColor="@color/drawerHeaderText"
+        android:textSize="12sp" />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/userRegion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textColor="@color/drawerHeaderText"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/userProvince"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textColor="@color/drawerHeaderText"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/userDistrict"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textColor="@color/drawerHeaderText"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/userClusters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:singleLine="false"
+        android:textColor="@color/drawerHeaderText"
+        android:textSize="12sp" />
 </LinearLayout>

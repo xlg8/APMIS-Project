@@ -1,15 +1,19 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -28,6 +32,7 @@ import com.vaadin.ui.OptionGroup;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -60,7 +65,10 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 	private CommunityCriteriaNew criteria;
 	private UserProvider currentUser = new UserProvider();
-	
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	Button exportReport = new Button();
+
 
 //    Paragraph countRowItems;
 	public UserAnalysisGridView(CommunityCriteriaNew criteria, FormAccess formAccess) {
@@ -85,12 +93,13 @@ public class UserAnalysisGridView extends VerticalLayout {
 //        setMargin(true);
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 		filterLayout.setAlignItems(Alignment.END);
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		regionFilter.setClearButtonVisible(true);
 
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
@@ -109,6 +118,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		provinceFilter.setClearButtonVisible(true);
+
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
 			if (selectedRegion != null) {
@@ -125,6 +136,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
+		districtFilter.setClearButtonVisible(true);
+
 		districtFilter.addValueChangeListener(e -> {
 			DistrictReferenceDto selectedDistrict = e.getValue();
 			if (selectedDistrict != null) {
@@ -145,7 +158,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		errorStatusFilter.setAllowCustomValue(false);
 
 		errorStatusFilter.setItemLabelGenerator(this::getLabelForEnum);
-
+		errorStatusFilter.setClearButtonVisible(true);
 		errorStatusFilter.addValueChangeListener(e -> {
 			ErrorStatusEnum selectedErrorStatus = e.getValue();
 //        	String stringg = "ErrorStatusEnum."+selectedErrorStatus;
@@ -167,10 +180,10 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 //            errorStatusFilter.clear();
 //            criteria.area(null);
-			criteria.area(null);
-
-			criteria.region(null);
-			criteria.district(null);
+//			criteria.area(null);
+//
+//			criteria.region(null);
+//			criteria.district(null);
 			regionFilter.clear();
 			provinceFilter.clear();
 			districtFilter.clear();
@@ -179,13 +192,19 @@ public class UserAnalysisGridView extends VerticalLayout {
 			refreshGridData(formAccess);
 //            updateText(formAccess);
 		});
+		
+		exportReport.setText(I18nProperties.getCaption(Captions.export));
+		exportReport.addClickListener(e -> {
+			anchor.getElement().callJsFunction("click");
+		});
+		anchor.getStyle().set("display", "none");
 
 		Div countAndButtons = new Div();
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters),
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
-			filterLayout.setVisible(!filterLayout.isVisible());
+			filterLayout.setVisible(filterLayout.isVisible());
 			displayFilters.setText(filterLayout.isVisible() ? "Hide Filters" : "Show Filters");
 		});
 
@@ -196,7 +215,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		layout.add(displayFilters, filterLayout);
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(regionFilter, provinceFilter, districtFilter, errorStatusFilter, resetButton);
+		filterLayout.add(regionFilter, provinceFilter, districtFilter, errorStatusFilter,exportReport, anchor);
 		countAndButtons.add(layout);
 		add(countAndButtons);
 	}
@@ -222,8 +241,8 @@ public class UserAnalysisGridView extends VerticalLayout {
 	}
 
 	private void userAnalysisGrid(CommunityCriteriaNew criteria, FormAccess formAccess) {
-		int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(null, null, null,
-				null, formAccess);
+//		int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(null, null, null,
+//				null, formAccess);
 //    	countRowItems =  new Paragraph(numberOfRows + "");
 //    	add(countRowItems);
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -270,19 +289,38 @@ public class UserAnalysisGridView extends VerticalLayout {
 												.collect(Collectors.toList()),
 										formAccess)
 								.stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).stream(),
-						query -> numberOfRows
-//                        FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(
-//                        		criteria, query.getOffset(), query.getLimit(),
-//                                query.getSortOrders().stream()
-//                                        .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-//                                                sortOrder.getDirection() == SortDirection.ASCENDING))
-//                                        .collect(Collectors.toList()),
-//                                formAccess)
+						query -> 
+                        FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(
+                        		criteria , query.getOffset(), null,
+                                query.getSortOrders().stream()
+                                        .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+                                                sortOrder.getDirection() == SortDirection.ASCENDING))
+                                        .collect(Collectors.toList()),
+                                formAccess)
 				);
 
 		grid.setDataProvider(dataProvider);
 		grid.setPageSize(250);
 		grid.setVisible(true);
+		
+		GridExporter<CommunityUserReportModelDto> exporter = GridExporter.createFor(grid);
+		exporter.setAutoAttachExportButtons(false);
+
+		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
+		exporter.setFileName(
+				"Mobile User Report" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+
+		anchor.getStyle().set("width", "100px");
+
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 
 		add(grid);
 	}
