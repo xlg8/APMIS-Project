@@ -393,4 +393,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 		return campaignDto;
 	}
+	
+	 public List<CampaignDashboardElement> getSavedElements() {
+	        return savedElements;
+	    }
 }

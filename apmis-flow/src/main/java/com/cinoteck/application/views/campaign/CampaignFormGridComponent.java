@@ -52,6 +52,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
+		getSavedElements();
 	}
 
 	private Component getContent() {
@@ -203,6 +204,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 				Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
 				grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+//				getSavedElements();
 
 			} else {
 				// formBeenEdited
@@ -213,6 +215,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					capaingDto.getCampaignFormMetas().add(newCampForm);
 					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+					getSavedElements();
 
 					Notification.show(I18nProperties.getString(Strings.campaignUpdated));
 				} else {
@@ -232,11 +235,17 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		return vert;
 	}
+	
+	 public List<CampaignFormMetaReferenceDto> getSavedElements() {
+	        return savedCampaignFormMetas;
+	    }
 
-	public CampaignDto getModifiedDto() {
+	
 
-		return capaingDto;
-	}
+//	public CampaignDto getModifiedDto() {
+//
+//		return capaingDto;
+//	}
 
 //	@Override
 //	protected ComponentEventListener<ClickEvent<Button>> newRowEvent() {

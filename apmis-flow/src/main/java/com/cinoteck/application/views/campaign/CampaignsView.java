@@ -11,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
@@ -52,6 +56,7 @@ import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -253,7 +258,7 @@ public class CampaignsView extends VerticalLayout {
 			
 			jsjdbv = true;
 			isEditingModeActive= true;
-			dto = new CampaignDto();
+		
 			
 			CampaignForm formLayout = new CampaignForm(dto);
 			formLayout.editMode = true;
@@ -285,7 +290,8 @@ public class CampaignsView extends VerticalLayout {
 		
 		System.out.println(formData + "formn data in configure ");
 		CampaignForm formLayout = new CampaignForm(formData);
-		
+		formLayout.setCampaign(formData);
+
 		formLayout.addSaveListener(this::saveCampaign);
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
@@ -331,10 +337,34 @@ public class CampaignsView extends VerticalLayout {
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
 		CampaignForm forLayout =  event.getSource();
-	
-		System.out.println(event.getCampaign()+ "save event campaign " + forLayout);
-		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+		if(dto == null) {
+//			dto = new CampaignDto();
+//			
+//			// Assuming you have a LocalDate named localDate
+//			LocalDate localDate = forLayout.startDate.getValue();
+//			Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//
+//			dto.setUuid(forLayout.creatingUuid.getValue());
+//			dto.setCampaignYear(forLayout.campaaignYear.getValue());
+//			dto.setName(forLayout.campaignName.getValue());
+//			dto.setStartDate(date);
+			
+			
+			System.out.println(event.getCampaign()+ "save new     event campaign " + forLayout);
 
+			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+
+
+//			FacadeProvider.getCampaignFacade().saveCampaign(dto);
+		
+		}else {
+
+			System.out.println(event.getCampaign()+ "save event campaign " + forLayout);
+			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+
+		}
+		
+	
 	}
 
 	

@@ -78,6 +78,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
 @PageTitle("APMIS-Edit Campaign")
@@ -100,7 +101,6 @@ public class CampaignForm extends VerticalLayout {
 
 	Button discardChanges;
 	Button saveChanges;
-
 
 	Binder<CampaignIndexDto> binder = new BeanValidationBinder<>(CampaignIndexDto.class);
 	Binder<CampaignDto> binderx = new BeanValidationBinder<>(CampaignDto.class);
@@ -143,6 +143,27 @@ public class CampaignForm extends VerticalLayout {
 	boolean isOpenClose;
 	boolean editMode;
 
+	
+	Set<CampaignFormMetaReferenceDto> selectedFormData = new HashSet<>();
+	
+	CampaignFormGridComponent comp = new CampaignFormGridComponent(
+			this.campaignDto == null ? Collections.emptyList()
+					: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
+			FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
+			campaignDto, PRE_CAMPAIGN);
+
+	CampaignFormGridComponent compp = new CampaignFormGridComponent(
+			this.campaignDto == null ? Collections.EMPTY_LIST
+					: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
+			FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
+			campaignDto, INTRA_CAMPAIGN);
+
+	CampaignFormGridComponent comppp = new CampaignFormGridComponent(
+			this.campaignDto == null ? Collections.EMPTY_LIST
+					: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
+			FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
+			campaignDto, POST_CAMPAIGN);
+
 	public CampaignForm(CampaignDto formData) {
 
 		this.statusChangeLayout = new VerticalLayout();
@@ -161,10 +182,6 @@ public class CampaignForm extends VerticalLayout {
 
 	public LocalDate convertToLocalDateViaMilisecond(Date dateToConvert) {
 		return Instant.ofEpochMilli(dateToConvert.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
-	}
-
-	private LocalDate dateToLocalDate(Date date) {
-		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
 	private boolean validateDates() {
@@ -191,7 +208,7 @@ public class CampaignForm extends VerticalLayout {
 
 			notification.add(layout);
 			notification.open();
-			
+
 //			saveChanges.setTooltipText("Please Check the Input Data for Errors");
 			saveChanges.setEnabled(false);
 //
@@ -298,20 +315,31 @@ public class CampaignForm extends VerticalLayout {
 				startDate.setValue(localDate);
 				endDate.setValue(localDatex);
 			}
-			
+
 		}
 		startDate.addValueChangeListener(e -> {
-			if(endDate.getValue() != null) {
-				validateDates();
+			LocalDate selectedDate = e.getValue();
+			int selectedYear = selectedDate.getYear();
+			String selectedYearAsString = Integer.toString(selectedYear);
 
+			if (endDate.getValue() != null) {
+				validateDates();
+				campaaignYear.setValue(selectedYearAsString);
+				System.out.println(selectedYearAsString + "Selected Yearaaaaaaaaaaa: " + selectedYear);
+
+			} else if (formData == null || formData != null) {
+				campaaignYear.setValue(selectedYearAsString);
+
+				System.out.println(selectedYearAsString + "Selected Year: " + selectedYear);
 			}
 		});
 
 		endDate.addValueChangeListener(e -> {
-			if(startDate.getValue() != null) {
+			if (startDate.getValue() != null) {
 				validateDates();
 
-			}		});
+			}
+		});
 
 		binderx.forField(description).asRequired(I18nProperties.getString(Strings.campaignDescriptionRequired)).bind(
 				CampaignDto::getDescription,
@@ -331,42 +359,20 @@ public class CampaignForm extends VerticalLayout {
 		layout.add(tabsheet);
 
 		VerticalLayout tab1 = new VerticalLayout();
+
 		
-		List<CampaignFormMetaReferenceDto> preCampaignFormElements;
-
-		if (campaignDto != null && campaignDto.getCampaignFormMetas() == null) {
-			preCampaignFormElements = Collections.emptyList();
-		} else {
-			preCampaignFormElements = new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN));
-
-		}
-
-		CampaignFormGridComponent comp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.emptyList()
-						: preCampaignFormElements,
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
-				campaignDto, PRE_CAMPAIGN);
 		tab1.add(comp);
 
 		// this might blow our in new campaign saying null
-		this.campaignDto = comp.getModifiedDto();
-
+//		this.campaignDto = comp.getModifiedDto();
+		
 		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignForms), tab1);
 
 		VerticalLayout tab2 = new VerticalLayout();
-		
-		List<CampaignDashboardElement> preCampaignDashboardElements;
-
-		if (campaignDto != null && campaignDto.getCampaignDashboardElements() == null) {
-			preCampaignDashboardElements = Collections.emptyList();
-		} else {
-			preCampaignDashboardElements = new ArrayList<>(campaignDto.getCampaignDashboardElements(PRE_CAMPAIGN));
-
-		}
 
 		CampaignDashboardGridElementComponent comp1 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						: preCampaignDashboardElements,
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(PRE_CAMPAIGN)),
 				getListDashboardFromType(PRE_CAMPAIGN), campaignDto, PRE_CAMPAIGN);
 		tab2.add(comp1);
 		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignDashboard), tab2);
@@ -388,43 +394,20 @@ public class CampaignForm extends VerticalLayout {
 
 		H1 text = new H1(I18nProperties.getString(Strings.contentGoeshere));
 		
-		List<CampaignFormMetaReferenceDto> intraCampaignFormElements;
-
-		if (campaignDto != null && campaignDto.getCampaignFormMetas() == null) {
-			intraCampaignFormElements = Collections.emptyList();
-		} else {
-			intraCampaignFormElements = new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN));
-
-		}
-		CampaignFormGridComponent compp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-						: intraCampaignFormElements,
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
-				campaignDto, INTRA_CAMPAIGN);
 		tab1Intra.add(compp);
-		this.campaignDto = compp.getModifiedDto();
+//		this.campaignDto = compp.getModifiedDto();
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignForms), tab1Intra);
 		tabsheetIntra.setWidthFull();
 
 		System.out.println(this.campaignDto + "campdto null check");
 
 		VerticalLayout tab2Intra = new VerticalLayout();
-		
 
-		List<CampaignDashboardElement> intraCampaignDashboardElements;
-
-		if (campaignDto != null && campaignDto.getCampaignDashboardElements() == null) {
-			intraCampaignDashboardElements = Collections.emptyList();
-		} else {
-			intraCampaignDashboardElements = new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN));
-
-		}
-
-		final List<CampaignDashboardElement> intracampaignDashboardElements = FacadeProvider.getCampaignFacade()
-				.getCampaignDashboardElements(null, INTRA_CAMPAIGN);
+//		final List<CampaignDashboardElement> intracampaignDashboardElements = FacadeProvider.getCampaignFacade()
+//				.getCampaignDashboardElements(null, INTRA_CAMPAIGN);
 		CampaignDashboardGridElementComponent compp2 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						: intraCampaignDashboardElements,
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),
 				getListDashboardFromType(INTRA_CAMPAIGN), campaignDto, INTRA_CAMPAIGN);
 		tab2Intra.add(compp2);
 
@@ -441,49 +424,19 @@ public class CampaignForm extends VerticalLayout {
 		layoutPost.add(tabsheetPost);
 
 		VerticalLayout tab1Post = new VerticalLayout();
-		
-		List<CampaignFormMetaReferenceDto> postCampaignFormElements;
 
-		if (campaignDto != null && campaignDto.getCampaignFormMetas() == null) {
-			postCampaignFormElements = Collections.emptyList();
-		} else {
-			postCampaignFormElements = new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN));
-
-		}
-
-		CampaignFormGridComponent comppp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-						:postCampaignFormElements,
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
-				campaignDto, POST_CAMPAIGN);
 		tab1Post.add(comppp);
-		this.campaignDto = comppp.getModifiedDto();
+//		this.campaignDto = comppp.getModifiedDto();
 		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignForms), tab1Post);
 
 		VerticalLayout tab2Post = new VerticalLayout();
-//		List<CampaignDashboardElement> postCampaignDashboardElements;
-//
-//		if (campaignDto != null && campaignDto.getCampaignDashboardElements(POST_CAMPAIGN) != null) {
-//		    postCampaignDashboardElements = new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN));
-//		} else {
-//		    postCampaignDashboardElements = Collections.emptyList();
-//		}
 
-		List<CampaignDashboardElement> postCampaignDashboardElements;
-
-		if (campaignDto != null && campaignDto.getCampaignDashboardElements() == null) {
-			postCampaignDashboardElements = Collections.emptyList();
-		} else {
-			postCampaignDashboardElements = new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN));
-
-		}
-
-		
-		final List<CampaignDashboardElement> postcampaignDashboardElements = FacadeProvider.getCampaignFacade()
-				.getCampaignDashboardElements(null, POST_CAMPAIGN);
+//		final List<CampaignDashboardElement> postcampaignDashboardElements = FacadeProvider.getCampaignFacade()
+//				.getCampaignDashboardElements(null, POST_CAMPAIGN);
 		CampaignDashboardGridElementComponent comppp2 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
-						:postCampaignDashboardElements,getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
+						: new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),
+				getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 		tab2Post.add(comppp2);
 
 		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignDashboard), tab2Post);
@@ -826,15 +779,13 @@ public class CampaignForm extends VerticalLayout {
 			validateAndSave(editMode);
 		});
 
-	
-
 		HorizontalLayout leftFloat = new HorizontalLayout();
 		HorizontalLayout rightFloat = new HorizontalLayout();
 		leftFloat.setJustifyContentMode(JustifyContentMode.START);
 
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
 		if (campaignDto != null) {
-			leftFloat.add( archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
+			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
 					deleteCampaign);
 		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
@@ -850,7 +801,9 @@ public class CampaignForm extends VerticalLayout {
 		actionButtonsLayout.setWidthFull();
 
 		FormLayout formL = new FormLayout();
-		formL.add(campaignName, round, startDate, endDate, description);
+		HorizontalLayout header = new HorizontalLayout();
+		header.add(creatingUser, creatingUuid, campaaignYear);
+		formL.add(header, campaignName, round, startDate, endDate, description);
 		formL.setColspan(description, 2);
 		formL.setColspan(hort, 2);
 		formL.setColspan(leftFloat, 1);
@@ -958,11 +911,11 @@ public class CampaignForm extends VerticalLayout {
 		}
 
 		public CampaignDto getCampaign() {
-			if(campaign == null) {
+			if (campaign == null) {
 				campaign = new CampaignDto();
 //				campaign.setUuid(uuid.toString().toUpperCase());
 				return campaign;
-			}else {
+			} else {
 				return campaign;
 
 			}
@@ -971,17 +924,40 @@ public class CampaignForm extends VerticalLayout {
 
 	public void validateAndSave(boolean editMode) {
 		this.editMode = editMode;
-		if (editMode) {
-			CampaignDto dto = new CampaignDto();
-			dto.setUuid(DataHelper.createUuid());
-//				dto.setCreatingUser(UserProvider.getCurrent().get);
-			dto = binderx.getBean();
+		if (formDatac == null) {
 
-			fireEvent(new SaveEvent(this, dto));
+			UserReferenceDto user = new UserReferenceDto();
+			UserProvider usr = new UserProvider();
+			user.setUuid(usr.getUuid());
+			formDatac = new CampaignDto();
+			formDatac.setUuid(creatingUuid.getValue());
+			formDatac.setCreatingUser(user);
+			LocalDate localDate = startDate.getValue();
+			Date startdate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			LocalDate endxDate = endDate.getValue();
+			Date endxDatex = Date.from(endxDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			formDatac.setCampaignYear(campaaignYear.getValue().toString());
 
-			UI.getCurrent().getPage().reload();
+			formDatac.setName(campaignName.getValue());
+			formDatac.setRound(round.getValue().toString());
+			formDatac.setStartDate(startdate);
+			formDatac.setEndDate(endxDatex);
+			formDatac.setDescription(description.getValue());
 
-			Notification.show(I18nProperties.getString(Strings.headingUploadSuccess) + "!");
+			
+			// trying to get bthe formsa and dashboard element save in the new campaignform 
+			List<CampaignFormMetaReferenceDto> preCampaignSavedElements = comp.getSavedElements();
+
+			List<CampaignFormMetaReferenceDto> intraCampaignSavedElements = compp.getSavedElements();
+
+			Set<CampaignFormMetaReferenceDto> postCampaignSavedElements = comppp.grid.getSelectedItems();
+//			CampaignFormGridComponent xxx = new CampaignFormGridComponent(savedElements,allElements, campaignDto, PRE_CAMPAIGN);
+			
+			System.out.println(postCampaignSavedElements + "vvvvvvvvvvvvvvvvv "+ preCampaignSavedElements +  "gggggggggggggg" +intraCampaignSavedElements);
+
+			fireEvent(new SaveEvent(this, formDatac));
+
+			System.out.println("eskelebetiolebetetttttttthvkfvskv");
 
 		} else {
 			if (binder.validate().isOk()) {
@@ -997,7 +973,6 @@ public class CampaignForm extends VerticalLayout {
 			}
 		}
 	}
-
 
 
 	private void archive() {
@@ -1045,8 +1020,6 @@ public class CampaignForm extends VerticalLayout {
 	private void roundChange() {
 
 		fireEvent(new RoundChangeEvent(this, binderx.getBean()));
-//		updatePublishButtonText(isArchived);
-//		UI.getCurrent().getPage().reload();
 
 	}
 
