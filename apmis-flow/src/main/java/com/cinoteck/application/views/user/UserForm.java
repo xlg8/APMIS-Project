@@ -5,11 +5,13 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.cinoteck.application.UserProvider;
 
@@ -42,11 +44,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
-
 
 import de.symeda.sormas.api.AuthProvider;
 import de.symeda.sormas.api.CountryHelper;
@@ -141,6 +144,8 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
+
+//	Button resetUserPassword = new Button();
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user) {
@@ -265,20 +270,21 @@ public class UserForm extends FormLayout {
 
 				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
 
-				//commented out not sure what 
-				//UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
+				// commented out not sure what
+				// UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
-				//currentUser.setCommunity(data);
-				//FacadeProvider.getUserFacade().saveUser(currentUser);
+				// currentUser.setCommunity(data);
+				// FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
 
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
+
 						if(item.getNumber() == null)
 							Notification.show("Cluster Number cannot be empty, please contact support"); //I18nProperties.getString(Strings.clustNot)  )
-						
+
 						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
 					Collections.sort(items, CommunityReferenceDto.clusternumber);
@@ -293,7 +299,6 @@ public class UserForm extends FormLayout {
 				}
 			}
 		});
-
 
 //		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
 		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
@@ -313,18 +318,32 @@ public class UserForm extends FormLayout {
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
-		System.out.println(roles + "tttttttttttttttttttttt");
-		userRoles.setItems(roles);
+		
+		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+		roles.remove(UserRole.BAG_USER);
+		
+		
+		//Sorting the user roles usng comprtor
+		Collections.sort(rolesz, new UserRoleCustomComparator());
+
+		// then i'm converting back to a set for facade to handle save properly.
+		Set<UserRole> sortedUserRoles = new TreeSet<>(rolesz);
+		userRoles.setItems(sortedUserRoles);
 
 		formAccessesList = UserUiHelper.getAssignableForms();
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 
-		binder.forField(userRoles).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+		binder.forField(userRoles).withValidator(new UserRolesValidator()).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
 				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
+
 		this.setColspan(userRoles, 1);
-		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
+		userRoles.addValueChangeListener(e -> {
+			updateFieldsByUserRole(e.getValue());
+			validateUserRoles();
+		});
+		
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
@@ -361,19 +380,21 @@ public class UserForm extends FormLayout {
 			System.out.println((boolean) e.getValue());
 			if ((boolean) e.getValue() == true) {
 				userTypes.setValue(UserType.COMMON_USER);
-				roles.remove(UserRole.ADMIN);
-				roles.remove(UserRole.COMMUNITY_INFORMANT);
-				roles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
-				roles.remove(UserRole.ADMIN_SUPERVISOR);
-				roles.remove(UserRole.BAG_USER);
-				roles.remove(UserRole.REST_USER);
-				roles.add(UserRole.REST_USER);
+				sortedUserRoles.remove(UserRole.ADMIN);
+				sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
+				sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.BAG_USER);
+				sortedUserRoles.remove(UserRole.REST_USER);
+//				roles.add(UserRole.REST_USER);
 
-				userRoles.setItems(roles);
+				userRoles.setItems(sortedUserRoles);
+//				userRoles.setItems(roles);
 			} else {
 				roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 				roles.remove(UserRole.BAG_USER);
-				userRoles.setItems(roles);
+//				userRoles.setItems(roles);
+				userRoles.setItems(sortedUserRoles);
 			}
 
 		});
@@ -383,7 +404,7 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-
+	
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
@@ -407,24 +428,6 @@ public class UserForm extends FormLayout {
 ////			showPasswordResetExternalSuccessPopup();
 //		}
 //	}
-
-	public void showPasswordResetInternalSuccessPopup(String newPassword, String userName) {
-		neee = new Dialog();
-		Label vvv = new Label(I18nProperties.getString(Strings.messageCopyPassword));
-
-		VerticalLayout layout = new VerticalLayout();
-		layout.add(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
-		Label passwordLabel = new Label("Password:  " + newPassword);
-		Label userNameLabel = new Label("Username:  " + userName);
-
-		layout.add(userNameLabel);
-		layout.add(passwordLabel);
-		Dialog popupWindow = new Dialog();
-		popupWindow.setHeaderTitle(I18nProperties.getString(Strings.headingNewPassword));
-		layout.setMargin(true);
-	}
-
-
 
 	public void suggestUserName(boolean editMode) {
 
@@ -485,13 +488,114 @@ public class UserForm extends FormLayout {
 //
 //		});
 	}
+
+//	private void validateUserRoles() {
+//		map.forEach((key, value) -> {
+//			Component formField = map.get(key);
+//			if (value instanceof MultiSelectComboBox<?>) {
+//
+//				MultiSelectComboBox formFieldxx = (MultiSelectComboBox) value;
+//				ValidationResult requiredValidation = userRoles.apply(formFieldxx.getValue(), null);
+//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
+//				if (requiredValidation.isError()) {
+//
+//					// Handle required field validation error
+//					formFieldxx.setInvalid(true);
+//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
+//				} else {
+//		fireEvent(new SaveEvent(this, binder.getBean()));
+//				}
+//			}
+//
+//		});
+//	}
 	
+	class UserRoleCustomComparator implements Comparator<UserRole> {
+	    private final String[] customOrder = {
+	        "Admin",
+	        "National Data Manager",
+	        "National Officer",
+	        "National Observer / Partner",
+	        "Regional Observer",
+	        "Regional Data Manager",
+	        "Regional Officer",
+	        "Provincial Observer",
+	        "Provincial Data Clerk",
+	        "Provincial Officer",
+	        "District Officer",
+	        "District Observer"
+	    };
+
+	    @Override
+	    public int compare(UserRole role1, UserRole role2) {
+	        // Get the indexes of the roles in the custom order
+	        int index1 = indexOfRole(role1);
+	        int index2 = indexOfRole(role2);
+
+	        // Compare based on their indexes in the custom order
+	        return Integer.compare(index1, index2);
+	    }
+
+	    private int indexOfRole(UserRole role) {
+	        for (int i = 0; i < customOrder.length; i++) {
+	            if (customOrder[i].equals(role.name())) {
+	                return i;
+	            }
+	        }
+	        return customOrder.length; // Role not found, place it at the end
+	    }
+	}
+	
+	class IndexedUserRole implements Comparable<IndexedUserRole> {
+	    private UserRole role;
+	    private int index;
+
+	    public IndexedUserRole(UserRole role, int index) {
+	        this.role = role;
+	        this.index = index;
+	    }
+
+	    public UserRole getRole() {
+	        return role;
+	    }
+
+	    public int getIndex() {
+	        return index;
+	    }
+
+	    @Override
+	    public int compareTo(IndexedUserRole other) {
+	        // Compare based on the assigned indexes
+	        return Integer.compare(this.index, other.index);
+	    }
+	}
+
+
+	private void validateUserRoles() {
+		map.forEach((key, value) -> {
+			Component formField = value;
+
+			if (formField instanceof MultiSelectComboBox) {
+				MultiSelectComboBox<UserRole> formFieldxx = (MultiSelectComboBox<UserRole>) formField;
+				UserRolesValidator userRolesValidator = new UserRolesValidator();
+				ValidationResult validation = userRolesValidator.apply(formFieldxx.getValue(),
+						new ValueContext(formFieldxx));
+
+				if (validation.isError()) {
+					formFieldxx.setInvalid(true);
+					formFieldxx.setErrorMessage(validation.getErrorMessage());
+					formFieldxx.setTooltipText(validation.getErrorMessage());
+				} else {
+			
+				}
+			}
+		});
+	}
+
 	private void resetpassword() {
 		fireEvent(new ResetPasswordEvent(this, binder.getBean()));
 
 	}
-
-
 
 	public void setUser(UserDto user) {
 		binder.setBean(user);
@@ -536,7 +640,7 @@ public class UserForm extends FormLayout {
 	}
 
 	public static class ResetPasswordEvent extends UserFormEvent {
-		ResetPasswordEvent(UserForm source , UserDto user) {
+		ResetPasswordEvent(UserForm source, UserDto user) {
 			super(source, new UserDto());
 		}
 	}
@@ -599,7 +703,7 @@ public class UserForm extends FormLayout {
 		}
 
 	}
-	
+
 	public static void updateItems(CheckboxGroup select, Set<?> items) {
 		Set<?> value = select.getSelectedItems();
 		boolean readOnly = select.isReadOnly();

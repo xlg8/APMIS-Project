@@ -11,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.cinoteck.application.LanguageSwitcher;
 import com.cinoteck.application.UserProvider;
@@ -54,6 +58,7 @@ import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -85,6 +90,8 @@ public class CampaignsView extends VerticalLayout {
 			campaignDescription;
 
 	private final UserProvider userProvider = new UserProvider();
+
+	boolean isEditingModeActive;
 
 	public CampaignsView() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -150,7 +157,9 @@ public class CampaignsView extends VerticalLayout {
 		dataView = grid.setItems(dataProvider);
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
+
 			grid.asSingleSelect().addValueChangeListener(event -> editCampaign(event.getValue()));
+
 		}
 		add(grid);
 	}
@@ -176,14 +185,14 @@ public class CampaignsView extends VerticalLayout {
 		HorizontalLayout filterToggleLayout = new HorizontalLayout();
 		filterToggleLayout.setAlignItems(Alignment.END);
 
-		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.showFilters));
+		filterDisplayToggle = new Button(I18nProperties.getCaption(Captions.hideFilters));
 		filterDisplayToggle.getStyle().set("margin-left", "12px");
 		filterDisplayToggle.getStyle().set("margin-top", "12px");
 		filterDisplayToggle.setIcon(new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.getStyle().set("margin-left", "12px");
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 
 		filterDisplayToggle.addClickListener(e -> {
 			if (!filterLayout.isVisible()) {
@@ -247,6 +256,12 @@ public class CampaignsView extends VerticalLayout {
 				new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
+			
+			isEditingModeActive= true;
+		
+			
+			CampaignForm formLayout = new CampaignForm(dto);
+			formLayout.editMode = true;
 			newCampaign(dto);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
@@ -272,14 +287,17 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void newCampaign(CampaignDto formData) {
+		
+		System.out.println(formData + "formn data in configure ");
 		CampaignForm formLayout = new CampaignForm(formData);
+		formLayout.setCampaign(formData);
+
 		formLayout.addSaveListener(this::saveCampaign);
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
-//		formLayout.addArchiveListener(this::archiveCampaign);
+		formLayout.addRoundChangeListener(this::roundChange);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
 		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
-
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -299,8 +317,9 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
 		formLayout.addDeleteListener(this::deleteCampaign);
 		formLayout.addDuplicateListener(this::duplicateCampaign);
+		formLayout.addRoundChangeListener(this::roundChange);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit));
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName());
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -318,7 +337,46 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
-		FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+		CampaignForm forLayout =  event.getSource();
+		if(dto == null) {
+//			dto = new CampaignDto();
+//			
+//			// Assuming you have a LocalDate named localDate
+//			LocalDate localDate = forLayout.startDate.getValue();
+//			Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//
+//			dto.setUuid(forLayout.creatingUuid.getValue());
+//			dto.setCampaignYear(forLayout.campaaignYear.getValue());
+//			dto.setName(forLayout.campaignName.getValue());
+//			dto.setStartDate(date);
+			
+			
+			System.out.println(event.getCampaign()+ "save new     event campaign " + forLayout);
+
+			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+
+
+//			FacadeProvider.getCampaignFacade().saveCampaign(dto);
+		
+		}else {
+
+			System.out.println(event.getCampaign()+ "save event campaign " + forLayout);
+			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
+
+		}
+		
+	
+	}
+
+	
+
+	private void roundChange(CampaignForm.RoundChangeEvent event) {
+
+		if (event.getSource().round.getValue() == "Training") {
+			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
+		}
+
 	}
 
 	private void archiveDearchiveCampaign(CampaignForm.ArchiveEvent event) {

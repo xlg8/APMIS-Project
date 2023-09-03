@@ -115,6 +115,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
+	
+	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
 
 	List<AreaReferenceDto> regions;
@@ -131,6 +133,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean invalidForm = false;
 
 	private boolean openedOnce = false;
+	
+	
+	ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(I18nProperties.getCaption(Captions.region));
@@ -142,10 +147,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 	DatePicker formDate = new DatePicker();
 	private boolean openData = false;
 	private String uuidForm;
+	private boolean checkDistrictEntry = false;
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
 			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
-			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm) {
+			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm, boolean isDistrictEntry) {
 
 		System.out.println("+++++++++++CampaignFormBuilder+++++: " + openData);
 
@@ -154,6 +160,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		this.formElements = formElements;
 		this.campaignReferenceDto = campaignReferenceDto;
 		this.campaignFormMeta = campaignFormMetaUUID;
+		this.campaignFormMetaDto = isDistrictEntry;
 		if (formValues != null) {
 			this.formValuesMap = new HashMap<>();
 			formValues.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
@@ -178,7 +185,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 		vertical_.setColspan(formNam, 3);
 		vertical_.add(formNam);
 
-		ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
@@ -267,6 +273,27 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		});
 
+		System.out.println(checkDistrictEntry + "checkingggggggggggggggggggggggggggggg" + campaignFormMetaDto);
+		if(campaignFormMetaDto) {
+			cbDistrict.addValueChangeListener(e -> {
+				if (e.getValue() != null) {
+					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(false);
+					;
+					cbCommunity.setItems(communities);
+					cbCommunity.setValue(communities.get(0));
+					cbCommunity.setItemLabelGenerator(itm -> {
+						CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+						return dcfv.getNumber() + " | " + dcfv.getCaption();
+					});
+				} else {
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(true);
+					;
+				}
+			});
+		} else {
 		cbDistrict.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
@@ -281,10 +308,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			} else {
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				
 			}
 		});
-
+		}
 		cbCommunity.addValueChangeListener(e -> {
 
 			if (!openData) {
@@ -926,7 +952,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		Boolean isExpressionValue = false;
 		switch (type) {
 		case YES_NO:
-//			System.out.println(field.getId() + "@@@@@@@   YES_NO  @@@@@@@@@@@2 :" + value+":");
+
 			if (value != null) {
 				Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
 						: value.toString().equalsIgnoreCase("NO") ? false : null;

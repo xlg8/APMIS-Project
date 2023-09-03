@@ -40,10 +40,11 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
+	
 
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto,
 			CampaignReferenceDto campaignReferenceDto, boolean openData, String uuidForm,
-			Grid<CampaignFormDataIndexDto> grid) {
+			Grid<CampaignFormDataIndexDto> grid, boolean campaignFormMetaDtox) {
 
 		setSizeFull();
 
@@ -52,16 +53,32 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
 		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
 				campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-				campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm);
+				campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
 
+		System.out.print(campaignFormMetaDto.isDistrictentry() + "district daa entry uuuuuuuuuuuuuuuuuu");
+		
+		
+		if (campaignFormMetaDto.isDistrictentry()) {
+
+			campaignFormBuilder.cbCommunity.setVisible(false);
+//			campaignFormBuilder.checkDistrictEntry = true;
+
+		}else {
+			campaignFormBuilder.cbCommunity.setVisible(true);
+//			campaignFormBuilder.checkDistrictEntry = true;
+		}
+		
+		
 		dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		dialog.setCloseOnOutsideClick(false);
+		dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		
 		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
-		Icon deleteIcon =  new Icon(VaadinIcon.EXCLAMATION_CIRCLE); 
+		Icon deleteIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
 		deleteIcon.getStyle().set("color", "red !important");
 		deleteButton.setIcon(deleteIcon);
 		deleteButton.getStyle().set("margin-right", "auto");
@@ -70,7 +87,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		deleteButton.addClickListener(e -> {
 
 			try {
-				ConfirmDialog archiveDearchiveConfirmation = new ConfirmDialog(); 
+				ConfirmDialog archiveDearchiveConfirmation = new ConfirmDialog();
 //				archiveDearchiveConfirmation.setCancelable(true);
 //				archiveDearchiveConfirmation.addCancelListener(ee -> archiveDearchiveConfirmation.close());
 				archiveDearchiveConfirmation.setRejectable(true);
@@ -86,8 +103,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 					dialog.close();
 					grid.getDataProvider().refreshAll();
 				});
-			
-				
+
 				System.out.println("deleted " + uuidForm);
 			} catch (Exception ex) {
 
@@ -132,7 +148,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				CampaignFormBuilder campaignFormBuilderx;
 				campaignFormBuilderx = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
 						campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm);
+						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
 				dialog.add(campaignFormBuilderx);
 				dialog.setSizeFull();
 				dialog.setCloseOnOutsideClick(false);

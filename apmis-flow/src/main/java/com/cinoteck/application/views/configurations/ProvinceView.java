@@ -203,12 +203,12 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setPadding(false);
-		layout.setVisible(false);
+		layout.setVisible(true);
 		layout.setAlignItems(Alignment.END);
 
 		HorizontalLayout relevancelayout = new HorizontalLayout();
 		relevancelayout.setPadding(false);
-		relevancelayout.setVisible(false);
+		relevancelayout.setVisible(true);
 		relevancelayout.setAlignItems(Alignment.END);
 		relevancelayout.setJustifyContentMode(JustifyContentMode.END);
 		relevancelayout.setWidth("10%");
@@ -218,7 +218,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
@@ -234,7 +234,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		});
 
 		TextField searchField = new TextField();
-		searchField.setWidth("15%");
+		searchField.setWidth("10%");
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
@@ -250,6 +250,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		regionFilter.getStyle().set("width", "145px !important");
+
+		regionFilter.setClearButtonVisible(true);
+
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 //			dataView.addFilter(f -> f.getArea().getCaption().equalsIgnoreCase(regionFilter.getValue().getCaption()));
@@ -267,6 +271,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.relevanceStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
+		relevanceStatusFilter.getStyle().set("width", "145px !important");
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
@@ -465,7 +470,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		FormLayout fmr = new FormLayout();
 		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
 		TextField pCodeField = new TextField(I18nProperties.getCaption(Captions.Region_externalID));
-		ComboBox<AreaReferenceDto> areaField = new ComboBox(I18nProperties.getCaption(Captions.region));
+		ComboBox<AreaReferenceDto> areaField = new ComboBox(I18nProperties.getCaption(Captions.area));
 		areaField.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 
 		if (regionDto != null) {
@@ -493,8 +498,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			archiveButton.setText(isArchivedx ? "De-Archive" : "Archive");
 			archiveButton.addClickListener(archiveEvent -> {
 				archiveDearchiveConfirmation = new ConfirmDialog();
-				archiveDearchiveConfirmation.setCancelable(true);
-				archiveDearchiveConfirmation.addCancelListener(e -> dialog.close());
+		
 				archiveDearchiveConfirmation.setRejectable(true);
 				archiveDearchiveConfirmation.setRejectText("No");
 				archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());

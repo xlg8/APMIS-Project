@@ -126,8 +126,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();	
 		for (CampaignReferenceDto cmfdto : campaigns) {
-			campaingYears.add(cmfdto.getCampaignYear() + "");
+			campaingYears.add(cmfdto.getCampaignYear().trim());
+			
 		}
+
 		
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
 		campaingYears.clear();
@@ -229,9 +231,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		VerticalLayout selectFilterLayoutparent = new VerticalLayout(selectFilterLayout);
 		selectFilterLayoutparent.getStyle().set("padding", "0px");
 		selectFilterLayoutparent.getStyle().set("margin-left", "12px");
-		selectFilterLayoutparent.setVisible(false);
+		selectFilterLayoutparent.setVisible(true);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters));
 		displayFilters.getStyle().set("margin-left", "12px");
 		displayFilters.getStyle().set("margin-top", "12px");
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));

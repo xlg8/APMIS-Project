@@ -1569,6 +1569,7 @@ public interface Captions {
 	String mainMenuConfiguration = "mainMenuConfiguration";
 	String mainMenuContacts = "mainMenuContacts";
 	String mainMenuDashboard = "mainMenuDashboard";
+	String mainMenuAnalyticsDashboard = "mainMenuAnalyticsDashboard";
 	String mainMenuEntries = "mainMenuEntries";
 	String mainMenuEvents = "mainMenuEvents";
 	String mainMenuImmunizations = "mainMenuImmunizations";

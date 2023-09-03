@@ -215,7 +215,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 	@Override
 	public CampaignDto saveCampaign(@Valid CampaignDto dto) {
-
+System.out.println(dto + "from the campaign facade when its trying to save ");
 		Campaign campaign = fromDto(dto, true);
 		campaignService.ensurePersisted(campaign);
 		return toDto(campaign);
@@ -281,6 +281,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	}
 
 	public Campaign fromDto(@NotNull CampaignDto source, boolean checkChangeDate) {
+		
+		System.out.println(source + " source fromdtoooooooo");
 		validate(source);
 
 		Campaign target = DtoHelper.fillOrBuildEntity(source, campaignService.getByUuid(source.getUuid()),
@@ -601,8 +603,14 @@ public class CampaignFacadeEjb implements CampaignFacade {
 					result.addAll(dashboardElements);
 				}
 			});
+<<<<<<< HEAD
 
 		} else {
+=======
+			
+		
+		}else {
+>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 			campaignService.getAllActive().forEach(campaign -> {
 				final List<CampaignDashboardElement> dashboardElements = campaign.getDashboardElements().stream()
 						.filter(e -> e.getPhase() != null).collect(Collectors.toList());
@@ -817,4 +825,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 }

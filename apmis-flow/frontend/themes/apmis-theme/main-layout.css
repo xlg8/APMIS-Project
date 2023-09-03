@@ -692,3 +692,8 @@ vaadin-checkbox.custom-checkbox-class:checked {
    background-color: aquamarine;
 }
 
+.selected-row{
+	   background-color: green !important;
+	
+}
+

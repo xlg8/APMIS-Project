@@ -61,9 +61,12 @@ public interface CampaignFacade { //CampaignFacadeEjb
 	
 	void validate(CampaignReferenceDto campaignReferenceDto, String formType);
 
+<<<<<<< HEAD
 	CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto);
 
 	List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp);
+=======
+>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 
 	
 }

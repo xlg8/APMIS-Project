@@ -1,6 +1,9 @@
 package com.cinoteck.application.views.campaign;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -49,6 +52,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
+		getSavedElements();
 	}
 
 	private Component getContent() {
@@ -88,8 +92,10 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		IntegerField daysExpire = new IntegerField();
 		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
-		if (capaingDto != null) {
+		if (capaingDto != null && capaingDto.getStartDate() != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
+		}else if(capaingDto != null && capaingDto.getStartDate() == null) {
+			
 		}
 		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) + datd);
 		daysExpire.setMin(1);
@@ -175,41 +181,30 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-
+				Set<CampaignFormMetaReferenceDto> formSet = new HashSet<>();
+				
+				
 				newCampForm.setCaption(forms.getValue().toString());
 				newCampForm.setDaysExpired(daysExpire.getValue());
+			
 				if (capaingDto == null) {
-					Notification.show("Campaign Dto is nulllll here ");
 					capaingDto = new CampaignDto();
-					
-					Notification.show(capaingDto + "NEw Campaign Dto is nulllll here ");
-					
-					
-					Notification.show("xxxxxxxxxxxxxxxx form valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee***********************");
+					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
+					formSet.add(newCampForm);
+					capaingDto.setCampaignFormMetas(formSet);
+					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
 
-					Notification.show(newCampForm + "yyyyyyyyyyyyyyyyyyyform valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
-					Notification.show(capaingDto + "zzzzzzzzzzzzzzzdtoooooooo valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" +campaignPhase);
-
-					capaingDto.getCampaignFormMetas().add(newCampForm);
-					
-					forms.setItems(allCampaignFormMetas);
-
-					Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
-					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
-				
-
-				} else {
-					capaingDto.getCampaignFormMetas().add(newCampForm);
-
-					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
-					allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
-
-					forms.setItems(allCampaignFormMetas);
-
-					Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
-					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 				}
+				capaingDto.getCampaignFormMetas().add(newCampForm);
+
+				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
+				allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
+
+				forms.setItems(allCampaignFormMetas);
+
+				Notification.show(I18nProperties.getString(Strings.newFormAddedSucces));
+				grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+//				getSavedElements();
 
 			} else {
 				// formBeenEdited
@@ -220,6 +215,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					capaingDto.getCampaignFormMetas().add(newCampForm);
 					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
+					getSavedElements();
 
 					Notification.show(I18nProperties.getString(Strings.campaignUpdated));
 				} else {
@@ -239,11 +235,17 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		return vert;
 	}
+	
+	 public List<CampaignFormMetaReferenceDto> getSavedElements() {
+	        return savedCampaignFormMetas;
+	    }
 
-	public CampaignDto getModifiedDto() {
+	
 
-		return capaingDto;
-	}
+//	public CampaignDto getModifiedDto() {
+//
+//		return capaingDto;
+//	}
 
 //	@Override
 //	protected ComponentEventListener<ClickEvent<Button>> newRowEvent() {
