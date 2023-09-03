@@ -26,8 +26,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
@@ -61,6 +63,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
+import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
@@ -96,10 +99,13 @@ public class CampaignForm extends VerticalLayout {
 	Button duplicateCampaign;
 	Button deleteCampaign;
 	Button publishUnpublishCampaign;
-
+ 
 	Button discardChanges;
 	Button saveChanges;
+	
+	Button logButton;
 
+	
 	Binder<CampaignIndexDto> binder = new BeanValidationBinder<>(CampaignIndexDto.class);
 	Binder<CampaignDto> binderx = new BeanValidationBinder<>(CampaignDto.class);
 
@@ -760,6 +766,14 @@ public class CampaignForm extends VerticalLayout {
 		deleteCampaign.addClickListener(e -> {
 			deleteCampaign();
 		});
+		
+		logButton = new Button();
+		logButton.setText("Log");
+		logButton.addClickListener(e -> {
+			Notification.show("clicked");
+			logEventMethod();
+		});
+		
 
 		publishUnpublishCampaign = new Button();
 
@@ -809,11 +823,11 @@ public class CampaignForm extends VerticalLayout {
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
 		if (campaignDto != null) {
 			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
-					deleteCampaign);
+					deleteCampaign, logButton);
 		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
-			leftFloat.add(publishUnpublishCampaign, openCloseCampaign);
+			leftFloat.add(publishUnpublishCampaign, openCloseCampaign, logButton);
 		}
 		leftFloat.setWidth("50%");
 
@@ -866,7 +880,7 @@ public class CampaignForm extends VerticalLayout {
 		}
 
 	}
-
+	
 	public void updateOpenCloseButtonText(boolean isOpenClose) {
 		this.isOpenClose = isOpenClose;
 		if (isOpenClose) {
@@ -960,11 +974,11 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	private void publishUnpublish() {
-
 		fireEvent(new PublishUnpublishEvent(this, binderx.getBean()));
-//		updatePublishButtonText(isArchived);
-//		UI.getCurrent().getPage().reload();
-
+	}
+	
+	private void logEventMethod() {
+		fireEvent(new LogCampaignEvent(this, binderx.getBean()));
 	}
 
 	private void deleteCampaign() {
@@ -1012,6 +1026,12 @@ public class CampaignForm extends VerticalLayout {
 			super(source, campaign);
 		}
 	}
+	
+	public static class LogCampaignEvent extends CampaignFormEvent {
+		LogCampaignEvent(CampaignForm source, CampaignDto campaign) {
+			super(source, campaign);
+		}
+	}
 
 	public static class OpenCloseEvent extends CampaignFormEvent {
 		OpenCloseEvent(CampaignForm source, CampaignDto campaign) {
@@ -1054,6 +1074,10 @@ public class CampaignForm extends VerticalLayout {
 	public Registration addPublishListener(ComponentEventListener<PublishUnpublishEvent> listener) {
 		return addListener(PublishUnpublishEvent.class, listener);
 	}
+	
+	public Registration addLogListener(ComponentEventListener<LogCampaignEvent> listener) {
+		return addListener(LogCampaignEvent.class, listener);
+	}
 
 	public Registration addOpenCloseListener(ComponentEventListener<OpenCloseEvent> listener) {
 		return addListener(OpenCloseEvent.class, listener);
@@ -1085,5 +1109,7 @@ public class CampaignForm extends VerticalLayout {
 		return elements;
 
 	}
+
+
 
 }

@@ -30,12 +30,15 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -274,7 +277,7 @@ public class UserForm extends FormLayout {
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
 						if(item.getNumber() == null)
-							Notification.show("Cluster Number cannot be empty, please contact support", Notification.Type.ERROR_MESSAGE); //I18nProperties.getString(Strings.clustNot)  )
+							Notification.show("Cluster Number cannot be empty, please contact support"); //I18nProperties.getString(Strings.clustNot)  )
 						
 						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
@@ -410,12 +413,12 @@ public class UserForm extends FormLayout {
 		Label vvv = new Label(I18nProperties.getString(Strings.messageCopyPassword));
 
 		VerticalLayout layout = new VerticalLayout();
-		layout.addComponent(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
+		layout.add(new Label(I18nProperties.getString(Strings.messageCopyPassword)));
 		Label passwordLabel = new Label("Password:  " + newPassword);
 		Label userNameLabel = new Label("Username:  " + userName);
 
-		layout.addComponent(userNameLabel);
-		layout.addComponent(passwordLabel);
+		layout.add(userNameLabel);
+		layout.add(passwordLabel);
 		Dialog popupWindow = new Dialog();
 		popupWindow.setHeaderTitle(I18nProperties.getString(Strings.headingNewPassword));
 		layout.setMargin(true);

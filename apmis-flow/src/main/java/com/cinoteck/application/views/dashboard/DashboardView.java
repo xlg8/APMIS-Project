@@ -6,7 +6,9 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -126,6 +128,12 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear() + "");
 		}
+		
+		Set<String> setDeduplicated = new HashSet<>(campaingYears);
+		campaingYears.clear();
+		campaingYears.addAll(setDeduplicated);
+		
+		
 		campaignYear.setItems(campaingYears);
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");

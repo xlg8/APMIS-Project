@@ -686,6 +686,8 @@ vaadin-button#lougoutButton:hover {
 	   opacity: 1 !important;
 	  background: rgb(109, 93, 79) !important;
   box-shadow: none !important;
+}
+
 vaadin-checkbox.custom-checkbox-class:checked {
    background-color: aquamarine;
 }

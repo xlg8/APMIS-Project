@@ -263,7 +263,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //
 //	        router.getRegistry().add(new RouteEntry("/dashboard", DashboardView.class));
 //	       
-=======
+
 		if (nav != null) {
 			nav.addClassName("active");
 		}

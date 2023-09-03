@@ -368,81 +368,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	
 	@Override
 	public Integer getAllActiveCommunitytoRerenceCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
-	//System.out.println(max+"----"+criteria.getErrorStatusEnum()+".........getAllActiveCommunitytoRerenceCount--- "+criteria.getArea().getUuid());
-//		frmsAccess = formacc;
-//		
-//		boolean filterIsNull = criteria == null ;
-//		
-//		String joiner = "";
-//		
-//		if(!filterIsNull) {
-//		final AreaReferenceDto area = criteria.getArea();
-//		final RegionReferenceDto region = criteria.getRegion();
-//		final DistrictReferenceDto district = criteria.getDistrict();
-//		//final CampaignReferenceDto campaign = criteria.getCampaign();
-//		
-//		//@formatter:off
-//		
-//		
-//		final String areaFilter = area != null ? " area3_x.uuid = '"+area.getUuid()+"'" : "";
-//		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
-//		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
-//		//final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
-//		joiner = "and " +areaFilter + regionFilter + districtFilter;// +campaignFilter;
-//		
-//		System.out.println(" ===================== "+joiner);
-//		}
-//		
-////		boolean isneeded = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
-////		
-////		System.out.println(" =========isneededisneededisneeded========== "+isneeded);
-//		
-//		
-//		
-//		
-//		String communityAnalysis = "select string_agg (DISTINCT  area3_x.\"name\"\\:\\:text, ',') as rex, string_agg (DISTINCT region4_x.\"name\"\\:\\:text, ',') as redf, string_agg (DISTINCT  district5_x.\"name\"\\:\\:text, ',') as adfve, string_agg (DISTINCT cc.\"name\"\\:\\:text, ',') as sfves, cc.id, cc.clusternumber, cc.externalid, array_to_string(array_agg (us.username), ', ') as users_attached, array_to_string(array_agg (distinct uf.formaccess), ',') as formAccess\n"
-//				+ "from community cc\n"
-//				+ "left outer join users_community uc on cc.id = uc.community_id\n"
-//				+ "left outer join users us on uc.users_id = us.id\n"
-//				+ "left outer join users_formaccess uf on uc.users_id = uf.user_id\n"
-//				+ "left outer join District district5_x on cc.district_id = district5_x.id\n"
-//				+ "left outer join Region region4_x on district5_x.region_id = region4_x.id\n"
-//				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
-//				+ "where cc.id in (select distinct(xx.community_id) from users_community xx) and cc.archived = false\n"
-//				+ "and uf.formaccess = '"+formacc+"'\n"
-//				+ ""+joiner+"\n"
-//				+ "group by cc.id \n"
-//				+ "limit "+max+" offset "+first+";";
-//				
-//		//System.out.println(" ===================== "+communityAnalysis);
-//		
-//		Query seriesDataQuery = em.createNativeQuery(communityAnalysis);
-//		
-//		List<CommunityUserReportModelDto> resultData = new ArrayList<>();
-//		
-//		
-//		@SuppressWarnings("unchecked")
-//		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-//		
-//	//System.out.println("starting....");
-//		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CommunityUserReportModelDto((String) result[0].toString(), (String) result[1].toString(),
-//						(String) result[2].toString(), (String) result[3].toString(),
-//					//	((BigInteger) result[4]).longValue(), 
-//						 (Integer) result[5], 
-//							((BigInteger) result[6]).longValue(),
-//							(String) result[7].toString(),
-//							convertArraytoSetFormAccess(result[8])
-//				)).collect(Collectors.toList()));
-//		
-//		
-//		//	return resultData.stream().filter(ee -> ee.getFormAccess().contains(formacc)).collect(Collectors.toList());
-//			
-//			
-//			
-//		return resultData.size();
+
 		frmsAccess = formacc;
+		
 		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
 
 		if (isAnalyticsOld) {
@@ -452,8 +380,6 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			em.createNativeQuery(updateAnalysisSql).executeUpdate();
 
 		}
-		
-		
 
 		boolean filterIsNull = criteria == null;
 

@@ -15,9 +15,12 @@ public class TrackTableUpdates implements Serializable {
 	
 	public static final String TABLE_NAME = "table_name";
 	public static final String LASTUPDATED = "last_updated";
+	public static final String isLOCKED = "islocked";
+	
 	
 	private String table_name;
     private LocalDateTime last_updated;
+    private boolean islocked;
     
     @Id
     @Column
@@ -35,6 +38,19 @@ public class TrackTableUpdates implements Serializable {
 	public void setLast_updated(LocalDateTime last_updated) {
 		this.last_updated = last_updated;
 	}
+	
+	@Column
+	public boolean isIslocked() {
+		return islocked;
+	}
+	public void setIslocked(boolean islocked) {
+		this.islocked = islocked;
+	}
+	
+	
+	
+	
+	
 
 
 

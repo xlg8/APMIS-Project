@@ -639,7 +639,7 @@ public class CampaignDataView extends VerticalLayout {
 			confirmationDialog.open();
 			confirmationDialog.setHeader("Delete Campaign Data");
 //TODO: Language
-					.setText("Are you sure you want to Delete " + selectedRows.size() + " selected Campaign Data?");
+			confirmationDialog.setText("Are you sure you want to Delete " + selectedRows.size() + " selected Campaign Data?");
 
 			confirmationDialog.addConfirmListener(e -> {
 				List<String> uuids = selectedRows.stream().map(CampaignFormDataIndexDto::getUuid)
@@ -712,8 +712,8 @@ public class CampaignDataView extends VerticalLayout {
 
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> e.getRcode().toString());
-		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
-				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getRegion());
+//		grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
+//				.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getRegion());
 		grid.addColumn(CampaignFormDataIndexDto.PCODE).setHeader(I18nProperties.getCaption(Captions.Region_externalID))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
