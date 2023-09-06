@@ -102,9 +102,11 @@ public class CampaignFormDataImporter extends DataImporter {
 		}
 		CampaignFormDataDto campaignFormData = CampaignFormDataDto.build();
 		campaignFormData.setCreatingUser(userFacade.getCurrentUserAsReference());
+		campaignFormData.setSource("IMPORT");
 
 		try {
 			insertImportRowIntoData(campaignFormData, values, entityProperties);
+			
 			campaignFormData.setCampaign(campaignReferenceDto);
 
 			CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()

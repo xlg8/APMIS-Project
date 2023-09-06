@@ -2,6 +2,7 @@ package com.cinoteck.application.views.utils.importutils;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,7 +23,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,13 +37,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cinoteck.application.views.utils.DownloadUtil;
+import com.cinoteck.application.views.campaign.ImportPopulationDataDialog;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -56,18 +59,11 @@ import de.symeda.sormas.api.importexport.ImportExportUtils;
 import de.symeda.sormas.api.importexport.ImportLineResultDto;
 import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
-import de.symeda.sormas.api.person.PersonDto;
-import de.symeda.sormas.api.person.SimilarPersonDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.infrastructure.continent.ContinentReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentReferenceDto;
-import de.symeda.sormas.api.person.PersonDto;
-import de.symeda.sormas.api.person.SimilarPersonDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.CSVCommentLineValidator;
@@ -91,6 +87,7 @@ import de.symeda.sormas.api.utils.DateHelper;
 public abstract class DataImporter {
 
 	protected static final String ERROR_COLUMN_NAME = I18nProperties.getCaption(Captions.importErrorDescription);
+	protected static final String PASSCODE_COLUMN_NAME = "Password";
 
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -109,7 +106,10 @@ public abstract class DataImporter {
 	 * occurred during the import.
 	 */
 	protected String errorReportFilePath;
-	protected String errorReportFileName = "sormas_import_error_report.csv";
+	protected String credentialsReportFilePath;
+
+	protected String errorReportFileName = "apmis_import_error_report.csv";
+	protected String credentialsReportFileName = "apmis_user_credential_report.csv";
 	/**
 	 * Called whenever one line of the import file has been processed. Used e.g. to
 	 * update the progress bar.
@@ -123,6 +123,7 @@ public abstract class DataImporter {
 	 * Whether or not the current import has resulted in at least one error.
 	 */
 	private boolean hasImportError;
+	private boolean hasSuccessImportLine;
 	/**
 	 * CSV separator used in the file
 	 */
@@ -130,8 +131,11 @@ public abstract class DataImporter {
 
 	protected UserDto currentUser;
 	private CSVWriter errorReportCsvWriter;
+	private CSVWriter credentialsReportCsvWriter;
 
 	private final EnumCaptionCache enumCaptionCache;
+
+	ImportPopulationDataDialog importPopulationDataDialog;
 
 	public DataImporter(File inputFile, boolean hasEntityClassRow, UserDto currentUser, ValueSeparator csvSeparator)
 			throws IOException {
@@ -148,6 +152,12 @@ public abstract class DataImporter {
 		Path errorReportFilePath = exportDirectory.resolve(
 				ImportExportUtils.TEMP_FILE_PREFIX + "_error_report_" + DataHelper.getShortUuid(currentUser.getUuid())
 						+ "_" + DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		Path credentialsReportFilePath = exportDirectory.resolve(ImportExportUtils.TEMP_FILE_PREFIX
+				+ "_user_credentials_report_" + DataHelper.getShortUuid(currentUser.getUuid()) + "_"
+				+ DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		this.credentialsReportFilePath = credentialsReportFilePath.toString();
 		this.errorReportFilePath = errorReportFilePath.toString();
 
 		this.csvSeparator = ValueSeparator.getSeparator(csvSeparator);
@@ -155,9 +165,14 @@ public abstract class DataImporter {
 
 	/**
 	 * Opens a progress layout and runs the import logic in a separate thread.
+	 * 
+	 * @return
 	 */
-	public void startImport(Consumer<StreamResource> errorReportConsumer, UI currentUI, boolean duplicatesPossible)
-			throws IOException, CsvValidationException {
+	public void startImport(Consumer<StreamResource> errorReportConsumer,
+			Consumer<StreamResource> userCredentialReportConsumer, boolean isUserCreation, UI currentUI,
+			boolean duplicatesPossible) throws IOException, CsvValidationException {
+
+		Anchor achrdum_ = new Anchor();
 
 		ImportProgressLayout progressLayout = this.getImportProgressLayout(currentUI, duplicatesPossible);
 
@@ -167,6 +182,7 @@ public abstract class DataImporter {
 		window.setHeaderTitle(I18nProperties.getString(Strings.headingDataImport));
 		window.setWidth(800, Unit.PIXELS);
 		window.add(progressLayout);
+		window.setCloseOnEsc(false);
 		window.setCloseOnOutsideClick(false);
 		currentUI.add(window);
 		window.open();
@@ -174,9 +190,10 @@ public abstract class DataImporter {
 		Thread importThread = new Thread(() -> {
 			try {
 				currentUI.access(() -> {
-				currentUI.setPollInterval(300);
+					// how often should the front end be updated
+					currentUI.setPollInterval(50);
 				});
-				
+
 				I18nProperties.setUserLanguage(currentUser.getLanguage());
 				FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getLanguage());
 
@@ -184,30 +201,47 @@ public abstract class DataImporter {
 
 				// Display a window presenting the import result
 				currentUI.access(() -> {
-					
-					window.setCloseOnOutsideClick(true);
+					window.setCloseOnEsc(true);
 					progressLayout.makeClosable(window::close);
 
 					if (importResult == ImportResultStatus.COMPLETED) {
 						progressLayout.displaySuccessIcon();
-						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportSuccessful));
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportSuccessful),
+								VaadinIcon.CHECK, "badge success");
 					} else if (importResult == ImportResultStatus.COMPLETED_WITH_ERRORS) {
 						progressLayout.displayWarningIcon();
-						progressLayout
-								.setInfoLabelText(I18nProperties.getString(Strings.messageImportPartiallySuccessful));
+						progressLayout.setInfoLabelText(
+								I18nProperties.getString(Strings.messageImportPartiallySuccessful), VaadinIcon.WARNING,
+								"badge primary");
+
 					} else if (importResult == ImportResultStatus.CANCELED) {
 						progressLayout.displaySuccessIcon();
-						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceled));
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceled),
+								VaadinIcon.CLOSE_CIRCLE_O, "badge primary");
 					} else {
 						progressLayout.displayWarningIcon();
-						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceledErrors));
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceledErrors),
+								VaadinIcon.WARNING, "badge error");
 					}
 
-					window.addDialogCloseActionListener(e -> {
+					window.addOpenedChangeListener(e -> {
+						System.out.println(
+								"trying to addOpenedChangeListener the dialog and listening to that.................");
 						if (importResult == ImportResultStatus.COMPLETED_WITH_ERRORS
 								|| importResult == ImportResultStatus.CANCELED_WITH_ERRORS) {
 							StreamResource streamResource = createErrorReportStreamResource();
 							errorReportConsumer.accept(streamResource);
+
+							// For Credentials
+
+						}
+
+						if ((importResult == ImportResultStatus.COMPLETED_WITH_ERRORS && isUserCreation)
+								|| (importResult == ImportResultStatus.COMPLETED && isUserCreation)
+								|| (importResult == ImportResultStatus.CANCELED && isUserCreation)) {
+							System.out.println("trying to aUser Credation detected!!! .................");
+							StreamResource credentials = createCredentialsReportStreamResource();
+							userCredentialReportConsumer.accept(credentials);
 						}
 					});
 
@@ -215,27 +249,32 @@ public abstract class DataImporter {
 				});
 			} catch (InvalidColumnException e) {
 				currentUI.access(() -> {
-					window.setCloseOnOutsideClick(true);
+					window.setCloseOnEsc(true);
 					progressLayout.makeClosable(window::close);
 					progressLayout.displayErrorIcon();
+
 					progressLayout.setInfoLabelText(String
-							.format(I18nProperties.getString(Strings.messageImportInvalidColumn), e.getColumnName()));
+							.format(I18nProperties.getString(Strings.messageImportInvalidColumn), e.getColumnName()),
+							VaadinIcon.HAND, "badge contrast");
+
 					currentUI.setPollInterval(-1);
 				});
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 
 				currentUI.access(() -> {
-					window.setCloseOnOutsideClick(true);
+					window.setCloseOnEsc(true);
 					progressLayout.makeClosable(window::close);
 					progressLayout.displayErrorIcon();
-					progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportFailedFull));
+					progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportFailedFull),
+							VaadinIcon.EXCLAMATION_CIRCLE_O, "red");
 					currentUI.setPollInterval(-1);
 				});
 			}
 		});
 
 		importThread.start();
+//		return achrdum_;
 	}
 
 	/**
@@ -258,6 +297,7 @@ public abstract class DataImporter {
 
 		try (CSVReader csvReader = getCSVReader(inputFile)) {
 			errorReportCsvWriter = CSVUtils.createCSVWriter(createErrorReportWriter(), this.csvSeparator);
+			credentialsReportCsvWriter = CSVUtils.createCSVWriter(createCredentialReportWriter(), this.csvSeparator);
 
 			// Build dictionary of entity headers
 			String[] entityClasses;
@@ -284,7 +324,15 @@ public abstract class DataImporter {
 			for (int i = 0; i < entityProperties.length; i++) {
 				columnNames[i + 1] = entityProperties[i];
 			}
+
+			// Write first line to the error report writer
+			String[] columnNamesCred = new String[entityProperties.length + 1];
+			columnNamesCred[0] = PASSCODE_COLUMN_NAME;
+			for (int i = 0; i < entityProperties.length; i++) {
+				columnNamesCred[i + 1] = entityProperties[i];
+			}
 			errorReportCsvWriter.writeNext(columnNames);
+			credentialsReportCsvWriter.writeNext(columnNamesCred);
 
 			// Read and import all lines from the import file
 			String[] nextLine = readNextValidLine(csvReader);
@@ -293,7 +341,10 @@ public abstract class DataImporter {
 				ImportLineResult lineResult = importDataFromCsvLine(nextLine, entityClasses, entityProperties,
 						entityPropertyPaths, lineCounter == 0);
 				logger.debug("runImport - line {}", lineCounter);
+
+				System.out.println(lineCounter + ": ____importedLineCallback___" + lineResult);
 				if (importedLineCallback != null) {
+					System.out.println("____importedLineCallback__lineResult_" + lineResult);
 					importedLineCallback.accept(lineResult);
 				}
 				if (cancelAfterCurrent) {
@@ -325,6 +376,9 @@ public abstract class DataImporter {
 			if (errorReportCsvWriter != null) {
 				errorReportCsvWriter.close();
 			}
+			if (credentialsReportCsvWriter != null) {
+				credentialsReportCsvWriter.close();
+			}
 		}
 	}
 
@@ -341,11 +395,48 @@ public abstract class DataImporter {
 		return new FileWriter(errorReportFile.getPath());
 	}
 
+	protected Writer createCredentialReportWriter() throws IOException {
+		File credReportFile = new File(credentialsReportFilePath);
+		if (credReportFile.exists()) {
+			credReportFile.delete();
+		}
+
+		return new FileWriter(credReportFile.getPath());
+	}
+
 	protected StreamResource createErrorReportStreamResource() {
-		return null;
-//		DownloadUtil.createFileStreamResource(errorReportFilePath, getErrorReportFileName(), "text/csv",
-//				I18nProperties.getString(Strings.headingErrorReportNotAvailable),
-//				I18nProperties.getString(Strings.messageErrorReportNotAvailable));
+		return createFileStreamResource(errorReportFilePath, getErrorReportFileName(), "text/csv",
+				I18nProperties.getString(Strings.headingErrorReportNotAvailable),
+				I18nProperties.getString(Strings.messageErrorReportNotAvailable));
+	}
+
+	protected StreamResource createCredentialsReportStreamResource() {
+		return createFileStreamResource(credentialsReportFilePath, getCredentialsReportFileName(), "text/csv",
+				// TODO: write proper error Report
+				I18nProperties.getString(Strings.headingErrorReportNotAvailable),
+				I18nProperties.getString(Strings.messageErrorReportNotAvailable));
+	}
+
+	public static StreamResource createFileStreamResource(String filePath, String fileName, String mimeType,
+			String errorTitle, String errorText) {
+
+		StreamResource streamResource = new StreamResource(fileName, () -> {
+			try {
+				return new BufferedInputStream(Files.newInputStream(new File(filePath).toPath()));
+			} catch (IOException e) {
+				// TODO This currently requires the user to click the "Export" button again or
+				// reload the page as the UI
+				// is not automatically updated; this should be changed once Vaadin push is
+				// enabled (see #516)
+				// Notification.show(errorText);//, Type.ERROR_MESSAGE,
+				// false).show(Page.getCurrent());
+				System.err.println("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOORRRR");
+				return null;
+			}
+		});
+		streamResource.setContentType(mimeType);
+		streamResource.setCacheTime(0);
+		return streamResource;
 	}
 
 	/**
@@ -605,12 +696,46 @@ public abstract class DataImporter {
 
 		return dataHasImportError;
 	}
-
-	/**
-	 * Presents a popup window to the user that allows them to deal with detected
-	 * potentially duplicate persons. By passing the desired result to the
-	 * resultConsumer, the importer decided how to proceed with the import process.
-	 */
+//
+//	/**
+//	 * Presents a popup window to the user that allows them to deal with detected potentially duplicate persons.
+//	 * By passing the desired result to the resultConsumer, the importer decided how to proceed with the import process.
+//	 */
+//	protected <T extends PersonImportSimilarityResult> void handlePersonSimilarity(
+//		PersonDto newPerson,
+//		Consumer<T> resultConsumer,
+//		BiFunction<SimilarPersonDto, ImportSimilarityResultOption, T> createSimilarityResult,
+//		String infoText,
+//		UI currentUI) {
+//		currentUI.accessSynchronously(() -> {
+//			PersonSelectionField personSelect = new PersonSelectionField(newPerson, I18nProperties.getString(infoText));
+//			personSelect.setWidth(1024, Unit.PIXELS);
+//
+//			if (personSelect.hasMatches()) {
+//				final CommitDiscardWrapperComponent<PersonSelectionField> component = new CommitDiscardWrapperComponent<>(personSelect);
+//				component.addCommitListener(() -> {
+//					SimilarPersonDto person = personSelect.getValue();
+//					if (person == null) {
+//						resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
+//					} else {
+//						resultConsumer.accept(createSimilarityResult.apply(person, ImportSimilarityResultOption.PICK));
+//					}
+//				});
+//
+//				component.addDiscardListener(() -> resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.SKIP)));
+//
+//				personSelect.setSelectionChangeCallback((commitAllowed) -> {
+//					component.getCommitButton().setEnabled(commitAllowed);
+//				});
+//
+//				VaadinUiUtil.showModalPopupWindow(component, I18nProperties.getString(Strings.headingPickOrCreatePerson));
+//
+//				personSelect.selectBestMatch();
+//			} else {
+//				resultConsumer.accept(createSimilarityResult.apply(null, ImportSimilarityResultOption.CREATE));
+//			}
+//		});
+//	}
 
 	protected FacilityType getTypeOfFacility(String propertyName, Object currentElement)
 			throws IntrospectionException, InvocationTargetException, IllegalAccessException {
@@ -629,7 +754,18 @@ public abstract class DataImporter {
 		List<String> errorLineAsList = new ArrayList<>();
 		errorLineAsList.add(message);
 		errorLineAsList.addAll(Arrays.asList(errorLine));
+		System.out.println("Writing Error... " + message);
 		errorReportCsvWriter.writeNext(errorLineAsList.toArray(new String[errorLineAsList.size()]));
+	}
+
+	protected void writeUserCredentialLog(String[] credentialLine, String passCode) throws IOException {
+		hasSuccessImportLine = true;
+		List<String> dataLineAsList = new ArrayList<>();
+		dataLineAsList.add(passCode);
+		dataLineAsList.addAll(Arrays.asList(credentialLine));
+		// TODO MUST DELETE THIS LINE
+		System.out.println("Writing Password: MUST DELETE THIS LINE... " + passCode);
+		credentialsReportCsvWriter.writeNext(dataLineAsList.toArray(new String[dataLineAsList.size()]));
 	}
 
 	protected String buildEntityProperty(String[] entityPropertyPath) {
@@ -663,6 +799,10 @@ public abstract class DataImporter {
 
 	protected String getErrorReportFileName() {
 		return errorReportFileName;
+	}
+
+	protected String getCredentialsReportFileName() {
+		return credentialsReportFileName;
 	}
 
 	protected <T> ImportLineResultDto<T> validateConstraints(T object) {
