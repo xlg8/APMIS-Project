@@ -32,6 +32,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
+import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
 import de.symeda.sormas.app.backend.campaign.Campaign;
