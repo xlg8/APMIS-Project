@@ -29,6 +29,9 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 
@@ -51,6 +54,23 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 	CampaignDashboardElement newCampForm;
 	List<CampaignDashboardElement> formSet = new ArrayList<>();
 
+	FormLayout formx = new FormLayout();
+	ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
+	List<String> tempListTabId = new ArrayList<String>();
+	List<String> tempListSubTabId = new ArrayList<String>();
+	ComboBox<String> tabID = new ComboBox<String>();
+	ComboBox<String> subTabID = new ComboBox<String>();
+	IntegerField tabWidth = new IntegerField();
+	IntegerField tabHeight = new IntegerField();
+	IntegerField tabOrder = new IntegerField();
+	VerticalLayout vert = new VerticalLayout();
+	Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave), new Icon(VaadinIcon.CHECK));
+
+	Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel), new Icon(VaadinIcon.REFRESH));
+
+	Binder<CampaignDashboardElement> dashboardElementBinder = new BeanValidationBinder<>(
+			CampaignDashboardElement.class);
+
 	public CampaignDashboardGridElementComponent(List<CampaignDashboardElement> savedElements,
 			List<CampaignDashboardElement> allElements, CampaignDto campaignDto, String campaignPhase) {
 		this.savedElements = savedElements;
@@ -64,6 +84,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 		grid.addColumn(this::getDiagramCaption).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true)
 				.setResizable(true);
+;
 		grid.addColumn(CampaignDashboardElement::getTabId)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true)
 				.setResizable(true);
@@ -78,6 +99,21 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 
 		grid.setItems(savedElements);
+
+//		dashboardElementBinder.forField(tabID).bind(CampaignDashboardElement::getTabId,
+//				CampaignDashboardElement::setTabId);
+//
+//		dashboardElementBinder.forField(subTabID).bind(CampaignDashboardElement::getSubTabId,
+//				CampaignDashboardElement::setSubTabId);
+//
+//		dashboardElementBinder.forField(tabWidth).bind(CampaignDashboardElement::getWidth,
+//				CampaignDashboardElement::setWidth);
+//
+//		dashboardElementBinder.forField(tabHeight).bind(CampaignDashboardElement::getHeight,
+//				CampaignDashboardElement::setHeight);
+//
+//		dashboardElementBinder.forField(tabOrder).bind(CampaignDashboardElement::getOrder,
+//				CampaignDashboardElement::setOrder);
 
 		addClassName("list-view");
 		setSizeFull();
@@ -109,9 +145,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 	}
 
 	private VerticalLayout editorForm() {
+
 //		setId("formControls2");
-		FormLayout formx = new FormLayout();
-		VerticalLayout vert = new VerticalLayout();
 
 		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
 		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
@@ -123,10 +158,6 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		deleteButton.getStyle().set("background-color", "red!important");
 		deleteButton.setTooltipText(I18nProperties.getString(Strings.removeThisForm));
 
-		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave), new Icon(VaadinIcon.CHECK));
-
-		Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel), new Icon(VaadinIcon.REFRESH));
-
 		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
 				.getCampaignDiagramDefinitionFacade().getAll().stream()
 				.filter(e -> e.getFormType().equalsIgnoreCase(campaignPhase)).collect(Collectors.toList());
@@ -134,13 +165,11 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream().collect(Collectors
 				.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
 
-		ComboBox<CampaignDashboardElement> charts = new ComboBox<CampaignDashboardElement>();
 		charts.setLabel(I18nProperties.getCaption(Captions.chart));
 		charts.setItems(allElements);
 		charts.setItemLabelGenerator(item -> getItemCaption(item, diagramIdCaptionMap));
 		// if its a clicked action set the value from the item....TODO
 
-		List<String> tempListTabId = new ArrayList<String>();
 		if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
 			for (CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
 				tempListTabId.add(elex.getTabId());
@@ -154,18 +183,15 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 		}
 
-		List<String> tempListSubTabId = new ArrayList<String>();
-		if (campaignDto != null  && campaignDto.getCampaignDashboardElements() != null) {
+		if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
 			for (CampaignDashboardElement elex : campaignDto.getCampaignDashboardElements(campaignPhase))
 				tempListSubTabId.add(elex.getSubTabId());
 		} else if (campaignDto != null && campaignDto.getCampaignDashboardElements() != null) {
 			tempListSubTabId.add(charts.getValue().getSubTabId());
-		} 
-		else {
+		} else {
 
 		}
 
-		ComboBox<String> tabID = new ComboBox<String>();
 		tabID.setLabel(I18nProperties.getCaption(Captions.campaignDashboardTabName));
 		tabID.setItems(tempListTabId);
 		tabID.setAllowCustomValue(true);
@@ -176,7 +202,6 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 			tabID.setValue(customValue);
 		});
 
-		ComboBox<String> subTabID = new ComboBox<String>();
 		subTabID.setLabel(I18nProperties.getCaption(Captions.campaignDashboardSubTabName));
 		subTabID.setItems(tempListSubTabId);
 		subTabID.setAllowCustomValue(true);
@@ -187,21 +212,18 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 			subTabID.setValue(customValue);
 		});
 
-		IntegerField tabWidth = new IntegerField();
 		tabWidth.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
 		tabWidth.setMin(10);
 		tabWidth.setMax(100);
 		tabWidth.setStep(5);
 		tabWidth.setStepButtonsVisible(true);
 
-		IntegerField tabHeight = new IntegerField();
 		tabHeight.setLabel(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		tabHeight.setMin(10);
 		tabHeight.setMax(100);
 		tabHeight.setStep(5);
 		tabHeight.setStepButtonsVisible(true);
 
-		IntegerField tabOrder = new IntegerField();
 		tabOrder.setLabel(I18nProperties.getCaption(Captions.campaignDashboardOrder));
 		tabOrder.setMin(0);
 		tabOrder.setMax(100);
@@ -215,6 +237,9 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		buttonAfterLay.getStyle().set("flex-wrap", "wrap");
 		buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
 		buttonLay.setSpacing(true);
+
+//		dashboardElementBinder.forField(charts)
+//	    .bind(CampaignDashboardElement::getDiagramId, CampaignDashboardElement::setDiagramId);
 
 		grid.addSelectionListener(ee -> {
 
@@ -393,8 +418,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 		return campaignDto;
 	}
-	
-	 public List<CampaignDashboardElement> getSavedElements() {
-	        return savedElements;
+
+	 public List<CampaignDashboardElement> getGridData() {
+	        return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 	    }
 }
