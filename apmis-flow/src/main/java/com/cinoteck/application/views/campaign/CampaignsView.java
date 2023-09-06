@@ -319,7 +319,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName());
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() +"("+ formData.getCampaignStatus()+")");
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -339,16 +339,7 @@ public class CampaignsView extends VerticalLayout {
 	private void saveCampaign(CampaignForm.SaveEvent event) {
 		CampaignForm forLayout =  event.getSource();
 		if(dto == null) {
-//			dto = new CampaignDto();
-//			
-//			// Assuming you have a LocalDate named localDate
-//			LocalDate localDate = forLayout.startDate.getValue();
-//			Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//
-//			dto.setUuid(forLayout.creatingUuid.getValue());
-//			dto.setCampaignYear(forLayout.campaaignYear.getValue());
-//			dto.setName(forLayout.campaignName.getValue());
-//			dto.setStartDate(date);
+
 			
 			
 			System.out.println(event.getCampaign()+ "save new     event campaign " + forLayout);
