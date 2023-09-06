@@ -319,7 +319,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() +"("+ formData.getCampaignStatus()+")");
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() );
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);

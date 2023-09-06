@@ -255,7 +255,7 @@ public class UserView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "10px");
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
