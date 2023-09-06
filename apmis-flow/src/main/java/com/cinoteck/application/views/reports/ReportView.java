@@ -39,9 +39,9 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 
 	private Tabs createTabs() {
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.aggregateReport)),new AggregateReportView());
-		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)), new CompletionAnalysisView());
+		tabComponentMap.put(new Tab("Data Completness Reports"), new CompletionAnalysisTabsheet());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.mobileUsers)), new UserAnalysisView());
-		tabComponentMap.put(new Tab("Admin Data Completion"), new AdminCompletionAnalysisView());
+//		tabComponentMap.put(new Tab("Admin Data Completion"), new AdminCompletionAnalysisView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 
@@ -50,6 +50,7 @@ public class ReportView extends VerticalLayout implements RouterLayout{
 	UserProvider userProvider = new UserProvider();
 	
 	public ReportView() {
+		setSpacing(false);
 		if (I18nProperties.getUserLanguage() == null) {
 
 			I18nProperties.setUserLanguage(Language.EN);			
