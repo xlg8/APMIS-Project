@@ -1,12 +1,17 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -29,8 +34,8 @@ import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
 
 
-@Route(layout = ReportView.class)
-public class AdminCompletionAnalysisView extends VerticalLayout implements RouterLayout{
+@Route(layout = CompletionAnalysisTabsheet.class)
+public class AdminCompletionAnalysisView extends VerticalLayout {
 
 	/**
 	 * 
@@ -47,16 +52,21 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
-	CampaignFormDataCriteria criteria;
+	CampaignFormDataCriteria criteria = new CampaignFormDataCriteria();
 	final Grid<CampaignFormDataIndexDto> grid_ = new Grid<>(CampaignFormDataIndexDto.class, false);
-	
+	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
+
 	DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 	FormAccess formAccess;
 	
+	Button exportReport = new Button();
+	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	
     private void refreshGridData(FormAccess formAccess) {
     	System.out.println("______________AMIN_____________");
-    	int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
-    	dataProvider = DataProvider
+//    	int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
+		dataProvider = DataProvider
 				.fromFilteringCallbacks(
 						query -> FacadeProvider.getCampaignFormDataFacade()
 								.getByCompletionAnalysisAdmin(criteria, query.getOffset(),
@@ -66,13 +76,15 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 														sortOrder.getDirection() == SortDirection.ASCENDING))
 												.collect(Collectors.toList()), null)
 								.stream(), 
-						query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysisCountAdmin(criteria, query.getOffset(),
-						query.getLimit(),
-						query.getSortOrders().stream()
-								.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-										sortOrder.getDirection() == SortDirection.ASCENDING))
-								.collect(Collectors.toList()), null)));
+						query ->Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(
+								criteria, query.getOffset(), query.getLimit(),
+								query.getSortOrders().stream()
+										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+												sortOrder.getDirection() == SortDirection.ASCENDING))
+										.collect(Collectors.toList()),
+								null)));
+//						numberOfRows
+//								);
 
         grid_.setDataProvider(dataProvider);
     }
@@ -85,7 +97,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 		
 		HorizontalLayout filterLayout = new HorizontalLayout();
 		filterLayout.setPadding(false);
-		filterLayout.setVisible(false);
+		filterLayout.setVisible(true);
 		filterLayout.setAlignItems(Alignment.END);
 		filterLayout.setId("adminAnalysisID");
 		
@@ -94,7 +106,6 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
 		campaign.setItems(campaigns);
-		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 		campaign.setValue(lastStarted);
 		 criteria.campaign(lastStarted);
 		campaign.addValueChangeListener(e-> {
@@ -190,9 +201,14 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 			}
 		});
 		
+		exportReport.setText(I18nProperties.getCaption(Captions.export));
+		exportReport.addClickListener(e -> {
+			anchor.getElement().callJsFunction("click");
+		});
+		anchor.getStyle().set("display", "none");
 		
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton);
+		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton, exportReport, anchor);
 		
 		
 		
@@ -207,6 +223,8 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 		
 	}
 	
+	
+	
 	public void reload() {
 		grid_.getDataProvider().refreshAll();
 		criteria.campaign(campaign.getValue());
@@ -218,6 +236,8 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 //		criteria.district(districtCombo.getValue());
 //		criteria.community(clusterCombo.getValue());
 	}
+	
+
 	
 	@SuppressWarnings("deprecation")
 	private void completionAnalysisGrid(CampaignFormDataCriteria criteria, FormAccess formAccess) {
@@ -244,6 +264,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 		grid_.setVisible(true);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade()
 //				.getByCompletionAnalysisCount(null, null, null, null,formAccess );
+		criteria.campaign(lastStarted);
 		int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
 		dataProvider = DataProvider
 				.fromFilteringCallbacks(
@@ -258,6 +279,25 @@ public class AdminCompletionAnalysisView extends VerticalLayout implements Route
 						query -> numberOfRows
 								);
 		grid_.setDataProvider(dataProvider);
+		
+		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid_);
+		exporter.setAutoAttachExportButtons(false);
+
+		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
+		exporter.setFileName("Admin Completion Analysis Report"
+				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+
+		anchor.setHref(exporter.getCsvStreamResource());
+		anchor.getElement().setAttribute("download", true);
+		anchor.setClassName("exportJsonGLoss");
+		anchor.setId("campDatAnchor");
+
+		anchor.getStyle().set("width", "100px");
+
+		icon.getStyle().set("margin-right", "8px");
+		icon.getStyle().set("font-size", "10px");
+
+		anchor.getElement().insertChild(0, icon.getElement());
 		add(grid_);
 		
 	}

@@ -99,7 +99,6 @@ public class UserAnalysisGridView extends VerticalLayout {
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-		regionFilter.setClearButtonVisible(true);
 
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
@@ -241,8 +240,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 	}
 
 	private void userAnalysisGrid(CommunityCriteriaNew criteria, FormAccess formAccess) {
-//		int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(null, null, null,
-//				null, formAccess);
+
 //    	countRowItems =  new Paragraph(numberOfRows + "");
 //    	add(countRowItems);
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -278,6 +276,9 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.addColumn(CommunityUserReportModelDto::getMessage).setHeader(I18nProperties.getCaption(Captions.message))
 				.setSortProperty("message").setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.message));
+		
+		int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(null, null, null,
+		null, formAccess);
 
 		DataProvider<CommunityUserReportModelDto, CommunityCriteriaNew> dataProvider = DataProvider
 				.fromFilteringCallbacks(
@@ -289,14 +290,14 @@ public class UserAnalysisGridView extends VerticalLayout {
 												.collect(Collectors.toList()),
 										formAccess)
 								.stream().filter(e -> e.getFormAccess() != null).collect(Collectors.toList()).stream(),
-						query -> 
-                        FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(
-                        		criteria , query.getOffset(), null,
-                                query.getSortOrders().stream()
-                                        .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-                                                sortOrder.getDirection() == SortDirection.ASCENDING))
-                                        .collect(Collectors.toList()),
-                                formAccess)
+						query -> numberOfRows
+//                        FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(
+//                        		criteria , query.getOffset(), query.getLimit(),
+//                                query.getSortOrders().stream()
+//                                        .map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//                                                sortOrder.getDirection() == SortDirection.ASCENDING))
+//                                        .collect(Collectors.toList()),
+//                                formAccess)
 				);
 
 		grid.setDataProvider(dataProvider);

@@ -48,6 +48,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.vladmihalcea.hibernate.type.util.SQLExtractor;
+
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
@@ -2616,7 +2618,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	//	//System.out.println("ending...." +resultData.size());
 	
 	
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	System.out.println("resultData - "+ SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	
 	}
@@ -2641,6 +2643,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 			//@formatter:off
 			
+			
 			final String campaignFilter = campaign != null ? "campaigns.uuid = '"+campaign.getUuid()+"'" : "";
 
 			final String areaFilter = area != null ? " AND  areas.uuid = '"+area.getUuid()+"'" : "";
@@ -2654,7 +2657,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final String joinBuilder = "select count(*)\n"
 				+ "from camapaigndata_admin\n"
 				+ ""+joiner+";";
-		
+		System.out.println(joinBuilder+" ===========cont query ========== ");
+
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
