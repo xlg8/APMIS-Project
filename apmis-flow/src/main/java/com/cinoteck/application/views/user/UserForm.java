@@ -180,8 +180,7 @@ public class UserForm extends FormLayout {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void configureFields(UserDto user) {
-		System.out.println(user + " userrrr value in configure field ");
+	public void configureFields(UserDto user) {		
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -193,7 +192,7 @@ public class UserForm extends FormLayout {
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
-		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData))
+		binder.forField(firstName).asRequired(I18nProperties.getCaption(Captions.firstNameRequired))
 				.bind(UserDto::getFirstName, UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
@@ -203,9 +202,7 @@ public class UserForm extends FormLayout {
 				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
-		binder.forField(phone)
-				.withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
-				.bind(UserDto::getPhone, UserDto::setPhone);
+		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -505,9 +502,7 @@ public class UserForm extends FormLayout {
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
-		if (editMode) {
-
-			System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+		if (editMode) {		
 
 			lastName.addValueChangeListener(e -> {
 
@@ -525,7 +520,6 @@ public class UserForm extends FormLayout {
 		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
 
-//		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
@@ -544,7 +538,7 @@ public class UserForm extends FormLayout {
 		this.setColspan(horizontallayout, 2);
 	}
 
-	public void validateAndSave(UserDto editedUser) {
+	public void validateAndSaveEdit(UserDto editedUser) {
 		if (binder.validate().isOk()) {
 
 			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
@@ -574,14 +568,11 @@ public class UserForm extends FormLayout {
 					notification.add(layout);
 					notification.open();
 				}
-//				else {
-//					fireEvent(new SaveEvent(this, binder.getBean()));
-//				}
 			}
 		}
 	}
 
-	public void validateAndSaveDup() {
+	public void validateAndSaveNew() {
 
 		if (binder.validate().isOk()) {
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {

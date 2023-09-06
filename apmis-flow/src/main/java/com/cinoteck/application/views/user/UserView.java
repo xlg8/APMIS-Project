@@ -188,7 +188,7 @@ public class UserView extends VerticalLayout {
 			isEditingModeActive = true;
 		});
 
-		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
+		exportUsers.setIcon(new Icon(VaadinIcon.CLOUD_DOWNLOAD_O));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
@@ -588,17 +588,12 @@ public class UserView extends VerticalLayout {
 			});
 		}
 
-//		grid.asSingleSelect(e->{
-//			editUser(e.getFirstSelectedItem(), true);
-//		});
-
 		return;
 
 	}
 
 	private void configureForm(UserDto user) {
-
-		System.out.println(user + "userddddddddddddto in formconfigure");
+		
 		form = new UserForm(regions, provinces, districts, user, false);
 		form.setSizeFull();
 //		form.addUserFieldValueChangeEventListener(this::suggestUserName);
@@ -606,9 +601,9 @@ public class UserView extends VerticalLayout {
 		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e -> {
-			closeEditor();
+		form.addCloseListener(e -> {			
 			UI.getCurrent().getPage().reload();
+			closeEditor();
 		});
 
 	}
@@ -635,9 +630,9 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-			form.save.addClickListener(event -> form.validateAndSave(userr.get()));
+			form.save.addClickListener(event -> form.validateAndSaveEdit(userr.get()));
 		}
-
+		
 		isEditingModeActive = true;
 		System.out.println(isEditingModeActive + " isEditingModeActive");
 	}
@@ -653,12 +648,11 @@ public class UserView extends VerticalLayout {
 		form.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
-		form.save.addClickListener(event -> form.validateAndSaveDup());
+		form.save.addClickListener(event -> form.validateAndSaveNew());
 		if (!isEdMode) {
 
-			form.firstName.addValueChangeListener(e -> suggestUserNameDup());
-			form.lastName.addValueChangeListener(e -> suggestUserNameDup());
-			System.out.println("I dey see ur hand work brusssssssssssssssssssss");
+			form.firstName.addValueChangeListener(e -> suggestUserNameWorking());
+			form.lastName.addValueChangeListener(e -> suggestUserNameWorking());			
 		}
 
 		isEditingModeActive = false;
@@ -721,8 +715,7 @@ public class UserView extends VerticalLayout {
 
 		}
 		grid.getDataProvider().refreshAll();
-		closeEditor();
-//		UI.getCurrent().getPage().reload();
+		closeEditor();;
 	}
 
 	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
@@ -755,7 +748,7 @@ public class UserView extends VerticalLayout {
 
 	}
 
-	private void suggestUserNameDup() {
+	private void suggestUserNameWorking() {
 
 		if (!form.firstName.isEmpty() && !form.lastName.isEmpty() && form.userName.isEmpty()) {
 			form.userName
