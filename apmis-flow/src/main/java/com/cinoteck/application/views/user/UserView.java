@@ -85,9 +85,6 @@ import de.symeda.sormas.api.user.UserType;
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
 
-//	public static final String ACTIVE_FILTER = I18nProperties.getString(Strings.active);
-//	public static final String INACTIVE_FILTER = I18nProperties.getString(Strings.inactive);
-
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
@@ -127,7 +124,7 @@ public class UserView extends VerticalLayout {
 	Button exportUsers = new Button("Export");
 
 	Button displayFilters;
-	
+
 	ConfirmDialog confirmationPopup = new ConfirmDialog();
 
 	private static final String CSV_FILE_PATH = "./result.csv";
@@ -602,9 +599,9 @@ public class UserView extends VerticalLayout {
 	private void configureForm(UserDto user) {
 
 		System.out.println(user + "userddddddddddddto in formconfigure");
-		form = new UserForm(regions, provinces, districts, user);
+		form = new UserForm(regions, provinces, districts, user, false);
 		form.setSizeFull();
-		form.addUserFieldValueChangeEventListener(this::suggestUserName);
+//		form.addUserFieldValueChangeEventListener(this::suggestUserName);
 //	    form.addResetPasswordListener(event -> resetUserPassword(event, user)); // Use the resetUserPassword method
 		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
@@ -627,6 +624,7 @@ public class UserView extends VerticalLayout {
 	}
 
 	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
+		
 		UserDto user;
 		isEditingMode = isEdMode;
 		if (userr.isPresent()) {
@@ -637,22 +635,33 @@ public class UserView extends VerticalLayout {
 			grid.setVisible(false);
 			setFiltersVisible(false);
 			addClassName("editing");
-
+			form.save.addClickListener(event -> form.validateAndSave(userr.get()));
 		}
+
+		isEditingModeActive = true;
+		System.out.println(isEditingModeActive + " isEditingModeActive");
 	}
 
 	public void editUser(boolean isEdMode) {
-		isEditingMode = isEdMode;
 
+		form.createPassword.setVisible(false);
+		isEditingMode = isEdMode;
 		UserDto user = new UserDto();
 		form.setUser(user);
-		form.addUserFieldValueChangeEventListener(this::suggestUserName);
+//		form.addUserFieldValueChangeEventListener(this::suggestUserName);
 		form.setVisible(true);
 		form.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
+		form.save.addClickListener(event -> form.validateAndSaveDup());
+		if (!isEdMode) {
 
-		isEditingModeActive = true;
+			form.firstName.addValueChangeListener(e -> suggestUserNameDup());
+			form.lastName.addValueChangeListener(e -> suggestUserNameDup());
+			System.out.println("I dey see ur hand work brusssssssssssssssssssss");
+		}
+
+		isEditingModeActive = false;
 
 		System.out.println(isEditingModeActive + "isEditingModeActive");
 	}
@@ -713,7 +722,7 @@ public class UserView extends VerticalLayout {
 		}
 		grid.getDataProvider().refreshAll();
 		closeEditor();
-		UI.getCurrent().getPage().reload();
+//		UI.getCurrent().getPage().reload();
 	}
 
 	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
@@ -741,7 +750,16 @@ public class UserView extends VerticalLayout {
 		System.out.println(isEditingModeActive + "___________isEditingModeActive");
 		formLayout.suggestUserName(isEditingModeActive);
 		if (isEditingModeActive) {
-	
+
+		}
+
+	}
+
+	private void suggestUserNameDup() {
+
+		if (!form.firstName.isEmpty() && !form.lastName.isEmpty() && form.userName.isEmpty()) {
+			form.userName
+					.setValue(UserHelper.getSuggestedUsername(form.firstName.getValue(), form.lastName.getValue()));
 		}
 
 	}
@@ -761,8 +779,9 @@ public class UserView extends VerticalLayout {
 			VerticalLayout infoLayout = new VerticalLayout();
 
 			newUserPop.setHeaderTitle(I18nProperties.getString(Strings.newUserPassword));
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
-																									
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
+
 			Paragraph infoText = new Paragraph(I18nProperties.getString(Strings.pleaseCopyPassword));
 			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
@@ -776,7 +795,6 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
-
 
 	}
 
@@ -831,7 +849,7 @@ public class UserView extends VerticalLayout {
 			notification.open();
 		}
 	}
-	
+
 	public void disableUser(Collection<UserDto> selectedRows) {
 
 		if (selectedRows.size() == 0) {
@@ -852,9 +870,9 @@ public class UserView extends VerticalLayout {
 			notification.open();
 		}
 	}
-	
+
 	void enableUserPopup() {
-		
+
 		confirmationPopup.setHeader("Enable User");
 
 		confirmationPopup.setText("You are about to Enable " + grid.getSelectedItems().size() + " User");
@@ -870,9 +888,9 @@ public class UserView extends VerticalLayout {
 		confirmationPopup.addConfirmListener(e -> enableUser(grid.getSelectedItems()));
 		confirmationPopup.open();
 	}
-	
+
 	void disableUserPopup() {
-		
+
 		confirmationPopup.setHeader("Disable User");
 
 		confirmationPopup.setText("You are about to Disable " + grid.getSelectedItems().size() + " User");
@@ -887,6 +905,6 @@ public class UserView extends VerticalLayout {
 		confirmationPopup.setConfirmText("Disable");
 		confirmationPopup.addConfirmListener(e -> disableUser(grid.getSelectedItems()));
 		confirmationPopup.open();
-	}	
+	}
 
 }

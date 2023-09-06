@@ -150,12 +150,14 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
+	UserDto user;
 
 //	Button resetUserPassword = new Button();
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts, UserDto user) {
+			List<DistrictReferenceDto> districts, UserDto user, boolean editmode) {
 
+		this.user = user;
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT_O);
@@ -342,12 +344,11 @@ public class UserForm extends FormLayout {
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
-		
+
 		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
 		roles.remove(UserRole.BAG_USER);
-		
-		
-		//Sorting the user roles usng comprtor
+
+		// Sorting the user roles usng comprtor
 		Collections.sort(rolesz, new UserRoleCustomComparator());
 
 		// then i'm converting back to a set for facade to handle save properly.
@@ -359,7 +360,8 @@ public class UserForm extends FormLayout {
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 
-		binder.forField(userRoles).withValidator(new UserRolesValidator()).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+		binder.forField(userRoles).withValidator(new UserRolesValidator())
+				.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
 				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
 
 		this.setColspan(userRoles, 1);
@@ -367,7 +369,6 @@ public class UserForm extends FormLayout {
 			updateFieldsByUserRole(e.getValue());
 			validateUserRoles();
 		});
-		
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
@@ -428,7 +429,7 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-	
+
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
@@ -524,13 +525,7 @@ public class UserForm extends FormLayout {
 		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
 
-		lastName.addValueChangeListener(e -> {
-			suggestUserName(true);
-		});
-
-		System.out.println("Editing mode ============= " + editmode);
-
-		save.addClickListener(event -> validateAndSave());
+//		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
@@ -541,17 +536,53 @@ public class UserForm extends FormLayout {
 
 		HorizontalLayout horizontallayout = new HorizontalLayout();
 
-		HorizontalLayout passwordlayout = new HorizontalLayout(createPassword);
-		passwordlayout.getStyle().set("margin-right", "auto");
+		createPassword.getStyle().set("margin-right", "auto");
+		save.getStyle().set("margin-left", "auto");
 
-		HorizontalLayout savecloselayout = new HorizontalLayout(save, close);
-		savecloselayout.setMargin(true);
-		horizontallayout.add(passwordlayout, savecloselayout);
+		horizontallayout.add(createPassword, save, close);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
 	}
 
-	private void validateAndSave() {
+	public void validateAndSave(UserDto editedUser) {
+		if (binder.validate().isOk()) {
+
+			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
+					&& !editedUser.getUserName().isEmpty()) {
+
+				fireEvent(new SaveEvent(this, binder.getBean()));
+			} else {
+
+				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("Error : Username not unique");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
+				}
+//				else {
+//					fireEvent(new SaveEvent(this, binder.getBean()));
+//				}
+			}
+		}
+	}
+
+	public void validateAndSaveDup() {
+
 		if (binder.validate().isOk()) {
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
@@ -565,7 +596,7 @@ public class UserForm extends FormLayout {
 					notification.close();
 				});
 
-				Paragraph text = new Paragraph("Error : Username id not unique");
+				Paragraph text = new Paragraph("Error : Username not unique");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 				layout.setAlignItems(Alignment.CENTER);
@@ -577,7 +608,6 @@ public class UserForm extends FormLayout {
 			}
 		}
 	}
-
 
 //	private void validateUserRoles() {
 //		map.forEach((key, value) -> {
@@ -599,67 +629,56 @@ public class UserForm extends FormLayout {
 //
 //		});
 //	}
-	
+
 	class UserRoleCustomComparator implements Comparator<UserRole> {
-	    private final String[] customOrder = {
-	        "Admin",
-	        "National Data Manager",
-	        "National Officer",
-	        "National Observer / Partner",
-	        "Regional Observer",
-	        "Regional Data Manager",
-	        "Regional Officer",
-	        "Provincial Observer",
-	        "Provincial Data Clerk",
-	        "Provincial Officer",
-	        "District Officer",
-	        "District Observer"
-	    };
+		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
+				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",
+				"Provincial Observer", "Provincial Data Clerk", "Provincial Officer", "District Officer",
+				"District Observer" };
 
-	    @Override
-	    public int compare(UserRole role1, UserRole role2) {
-	        // Get the indexes of the roles in the custom order
-	        int index1 = indexOfRole(role1);
-	        int index2 = indexOfRole(role2);
+		@Override
+		public int compare(UserRole role1, UserRole role2) {
+			// Get the indexes of the roles in the custom order
+			int index1 = indexOfRole(role1);
+			int index2 = indexOfRole(role2);
 
-	        // Compare based on their indexes in the custom order
-	        return Integer.compare(index1, index2);
-	    }
+			// Compare based on their indexes in the custom order
+			return Integer.compare(index1, index2);
+		}
 
-	    private int indexOfRole(UserRole role) {
-	        for (int i = 0; i < customOrder.length; i++) {
-	            if (customOrder[i].equals(role.name())) {
-	                return i;
-	            }
-	        }
-	        return customOrder.length; // Role not found, place it at the end
-	    }
+		private int indexOfRole(UserRole role) {
+			for (int i = 0; i < customOrder.length; i++) {
+				if (customOrder[i].equals(role.name())) {
+					return i;
+				}
+			}
+			return customOrder.length; // Role not found, place it at the end
+		}
 	}
-	
+
 	class IndexedUserRole implements Comparable<IndexedUserRole> {
-	    private UserRole role;
-	    private int index;
+		private UserRole role;
+		private int index;
 
-	    public IndexedUserRole(UserRole role, int index) {
-	        this.role = role;
-	        this.index = index;
-	    }
+		public IndexedUserRole(UserRole role, int index) {
+			this.role = role;
+			this.index = index;
+		}
 
-	    public UserRole getRole() {
-	        return role;
-	    }
+		public UserRole getRole() {
+			return role;
+		}
 
-	    public int getIndex() {
-	        return index;
-	    }
+		public int getIndex() {
+			return index;
+		}
 
-	    @Override
-	    public int compareTo(IndexedUserRole other) {
-	        // Compare based on the assigned indexes
-	        return Integer.compare(this.index, other.index);
-	    }
+		@Override
+		public int compareTo(IndexedUserRole other) {
+			// Compare based on the assigned indexes
+			return Integer.compare(this.index, other.index);
+		}
 	}
-
 
 	private void validateUserRoles() {
 		map.forEach((key, value) -> {
@@ -676,7 +695,7 @@ public class UserForm extends FormLayout {
 					formFieldxx.setErrorMessage(validation.getErrorMessage());
 					formFieldxx.setTooltipText(validation.getErrorMessage());
 				} else {
-			
+
 				}
 			}
 		});
