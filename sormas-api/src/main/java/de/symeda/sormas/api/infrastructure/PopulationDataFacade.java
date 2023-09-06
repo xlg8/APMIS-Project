@@ -48,4 +48,6 @@ public interface PopulationDataFacade {
 		boolean groupByDistrict,
 		boolean groupBySex,
 		boolean groupByAgeGroup);
+
+	List<PopulationDataDto> getPopulationDataImportChecker(PopulationDataCriteria criteria);
 }

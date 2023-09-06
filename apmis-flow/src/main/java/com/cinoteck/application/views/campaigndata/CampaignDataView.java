@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignDataImportDialog;
+import com.cinoteck.application.views.campaign.ImportPopulationDataDialog;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
@@ -59,6 +60,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -188,12 +190,12 @@ public class CampaignDataView extends VerticalLayout {
 		actionButtonlayout.setVisible(true);
 		actionButtonlayout.setAlignItems(Alignment.END);
 
-		Button exportButton = new Button("Export");
+		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportButton.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 		});
-
+		
 		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importFormData, exportButton, anchor);
 //		anchor.setVisible(false);
 		anchor.getStyle().set("display", "none");
@@ -461,10 +463,11 @@ public class CampaignDataView extends VerticalLayout {
 		});
 
 		importFormData.addValueChangeListener(e -> {
+			
 			if (importFormData.getValue() != null) {
-				CampaignDataImportDialog dialog = new CampaignDataImportDialog(importFormData.getValue(),
-						campaignz.getValue());
-				dialog.open();
+				//CampaignReferenceDto camapigndto, CampaignFormMetaDto campaignFormMetaDto
+				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(), importFormData.getValue());
+				dialogx.open();
 			}
 		});
 

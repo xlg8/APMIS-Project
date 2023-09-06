@@ -232,9 +232,33 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			cq.where(filter);
 		}
 
-		// System.out.println("DEBUGGER 5678ijhyuio
-		// _______TOtalpopulation__________xxxxx__________________
-		// "+SQLExtractor.from(em.createQuery(cq)));
+		 System.out.println("DEBUGGER 5678ijhyuio"+SQLExtractor.from(em.createQuery(cq)));
+
+		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
+				.collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<PopulationDataDto> getPopulationDataImportChecker(PopulationDataCriteria criteria) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
+		Root<PopulationData> root = cq.from(PopulationData.class);
+		// System.out.println("DEBUGGER ----- "+ criteria.getCampaign()!= null);
+
+		Predicate filter = service.buildCriteriaFilter(criteria, cb, root);
+		if (criteria.getCampaign() != null) {
+			Predicate filter_ = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID),
+							criteria.getCampaign().getUuid()));
+			//Predicate filterx = CriteriaBuilderHelper.and(cb, filter_, cb.equal(root.get("selected"), null));
+
+			cq.where(filter_);
+		} else {
+			cq.where(filter);
+		}
+
+		 System.out.println("DEBUGGER 5678ijhyuio"+SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
 				.collect(Collectors.toList());

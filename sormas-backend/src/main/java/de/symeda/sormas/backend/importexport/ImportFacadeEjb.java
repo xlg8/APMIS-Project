@@ -130,6 +130,7 @@ import de.symeda.sormas.api.person.Sex;
 import de.symeda.sormas.api.sample.PathogenTestDto;
 import de.symeda.sormas.api.sample.SampleDto;
 import de.symeda.sormas.api.symptoms.SymptomsDto;
+import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.CSVCommentLineValidator;
 import de.symeda.sormas.api.utils.CSVUtils;
@@ -218,6 +219,7 @@ public class ImportFacadeEjb implements ImportFacade {
 	private static final String FACILITY_IMPORT_TEMPLATE_FILE_NAME = "import_facility_template.csv";
 	private static final String CONTACT_IMPORT_TEMPLATE_FILE_NAME = "import_contact_template.csv";
 	private static final String CAMPAIGN_FORM_IMPORT_TEMPLATE_FILE_NAME = "import_campaign_form_data_template.csv";
+	private static final String USER_FORM_IMPORT_TEMPLATE_FILE_NAME = "import_user_form_data_template.csv";
 	private static final String TRAVEL_ENTRY_IMPORT_TEMPLATE_FILE_NAME = "import_travel_entry_template.csv";
 
 	private static final String ALL_COUNTRIES_IMPORT_FILE_NAME = "sormas_import_all_countries.csv";
@@ -427,6 +429,37 @@ System.out.println("YESSSS");
 
 		writeTemplate(Paths.get(getPopulationDataImportTemplateFilePath()), importColumns, false);
 	}
+	
+	@Override
+	public void generateUserImportTemplateFile() throws IOException {
+
+		createExportDirectoryIfNecessary();
+
+		char separator = configFacade.getCsvSeparator();
+
+		List<ImportColumn> importColumns = new ArrayList<>();
+
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.AREA, AreaReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.REGION, RegionReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.DISTRICT, DistrictReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.COMMUNITY, String[].class, separator));
+		
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_NAME, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.FIRST_NAME, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.LAST_NAME, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_POSITION, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_ORGANISATION, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_EMAIL, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.PHONE, String.class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.FORM_ACCESS, String[].class, separator));
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.COMMON_USER, Boolean.class, separator));
+		//importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_ROLES, String[].class, separator));
+
+		importColumns.add(ImportColumn.from(UserDto.class, UserDto.LANGUAGE, String.class, separator));
+		
+
+		writeTemplate(Paths.get(getUserImportTemplateFilePath()), importColumns, false);
+	}
 
 	private void createExportDirectoryIfNecessary() throws IOException {
 
@@ -523,6 +556,11 @@ System.out.println("YESSSS");
 	@Override
 	public String getCampaignFormImportTemplateFilePath() {
 		return getImportTemplateFilePath(CAMPAIGN_FORM_IMPORT_TEMPLATE_FILE_NAME);
+	}
+	
+	@Override
+	public String getUserImportTemplateFilePath() {
+		return getImportTemplateFilePath(USER_FORM_IMPORT_TEMPLATE_FILE_NAME);
 	}
 
 	@Override

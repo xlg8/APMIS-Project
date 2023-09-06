@@ -796,6 +796,13 @@ public class StartupShutdownService {
 		} catch (IOException e) {
 			logger.error("Could not create population data import template .csv file.");
 		}
+		
+		try {
+			importFacade.generateUserImportTemplateFile();
+		} catch (IOException e) {
+			logger.error("Could not create user data import template .csv file.");
+		}
+
 
 		try {
 			importFacade.generateAreaImportTemplateFile();

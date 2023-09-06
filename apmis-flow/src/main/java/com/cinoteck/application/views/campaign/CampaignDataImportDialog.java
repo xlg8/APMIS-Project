@@ -61,16 +61,12 @@ public class CampaignDataImportDialog extends Dialog{
 	VerticalLayout dialog = new VerticalLayout();
 	dialog.getStyle().set("gap", "0.5rem!important");
 	
-	H3 step2 = new H3();
-	step2.add(I18nProperties.getString(Strings.step1));
+	H3 step1 = new H3();
+	step1.add(I18nProperties.getString(Strings.step1));
 	Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.step1Description));
 	
 	System.out.println(">>>>>>>000000");
 	downloadImportTemplate.addClickListener(e -> {
-		
-System.out.println(">>>>>>>1111");
-		
-		
 		ImportFacade importFacade = FacadeProvider.getImportFacade();
 		try {
 			importFacade.generateCampaignFormImportTemplateFile(campaignForm.getUuid());
@@ -96,7 +92,7 @@ System.out.println(">>>>>>>1111");
 		        downloadAnchor.getElement().setAttribute("download", true);
 		        downloadAnchor.getStyle().set("display", "none");
 
-		        step2.add(downloadAnchor);
+		        step1.add(downloadAnchor);
 
 		        // Simulate a click event on the hidden anchor to trigger the download
 		        downloadAnchor.getElement().callJsFunction("click");
@@ -116,21 +112,21 @@ System.out.println(">>>>>>>1111");
 			
 	});
 	
-	H3 step3 = new H3();
-	step3.add(I18nProperties.getString(Strings.step2));
+	H3 step2 = new H3();
+	step2.add(I18nProperties.getString(Strings.step2));
 	Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.stepDesciption));
 	startDataImport.addClickListener(null);
 	
 	
-	H3 step4 = new H3();
-	step4.add(I18nProperties.getString(Strings.step3));
+	H3 step3 = new H3();
+	step3.add(I18nProperties.getString(Strings.step3));
 	Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.step3Description));
 	donloadErrorReport.addClickListener(null);
 	
 	
 	
-		dialog.add(seperatorr, step2, lblImportTemplateInfo, 
-				downloadImportTemplate, step3, lblImportCsvFile, startDataImport, step4, lblDnldErrorReport,donloadErrorReport);
+		dialog.add(seperatorr, step1, lblImportTemplateInfo, 
+				downloadImportTemplate, step2, lblImportCsvFile, startDataImport, step3, lblDnldErrorReport,donloadErrorReport);
 		
 		this.addDialogCloseActionListener(
 		            event -> {
