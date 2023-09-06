@@ -9039,6 +9039,6 @@ EXECUTE PROCEDURE update_updated_on_user_task();
 
 
 
-INSERT INTO schema_version (version_number, comment) VALUES (44, 'adding platform/source of data and improving the log audit');
+INSERT INTO schema_version (version_number, comment) VALUES (447, 'adding platform/source of data and improving the log audit');
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

@@ -156,7 +156,7 @@ public class UserView extends VerticalLayout {
 //			leaveBulkModeButton = new Button();
 //			menuBar = new MenuBar();
 //		}
-
+		setSpacing(false);
 		setHeightFull();
 		addFilters();
 		configureGrid();
@@ -734,7 +734,7 @@ public class UserView extends VerticalLayout {
 		System.out.println(isEditingModeActive + "___________isEditingModeActive");
 		formLayout.suggestUserName(isEditingModeActive);
 		if (isEditingModeActive) {
-	
+
 		}
 
 	}
@@ -754,8 +754,9 @@ public class UserView extends VerticalLayout {
 			VerticalLayout infoLayout = new VerticalLayout();
 
 			newUserPop.setHeaderTitle(I18nProperties.getString(Strings.newUserPassword));
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
-																									
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
+
 			Paragraph infoText = new Paragraph(I18nProperties.getString(Strings.pleaseCopyPassword));
 			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
@@ -769,7 +770,6 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
-
 
 	}
 
