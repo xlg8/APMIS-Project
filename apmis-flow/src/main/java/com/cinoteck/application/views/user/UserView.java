@@ -198,7 +198,7 @@ public class UserView extends VerticalLayout {
 
 		});
 		
-		importUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
+		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importUsers.addClickListener(e -> {
 			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
 

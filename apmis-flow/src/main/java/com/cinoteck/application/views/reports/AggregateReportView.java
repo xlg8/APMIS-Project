@@ -169,7 +169,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		criteria.district(user.getDistrict()); // .setDistrict(user.getDistrict());
 ////		
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(true);

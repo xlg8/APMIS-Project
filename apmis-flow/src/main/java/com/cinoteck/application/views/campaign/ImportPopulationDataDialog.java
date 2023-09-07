@@ -25,6 +25,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
@@ -93,6 +95,8 @@ public class ImportPopulationDataDialog extends Dialog {
 		H3 step2 = new H3();
 		step2.add("Step 2: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
+		Icon downloadButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
+		downloadImportTemplate.setIcon(downloadButtonnIcon);
 		downloadImportTemplate.addClickListener(e -> {
 
 			try {
@@ -162,6 +166,9 @@ public class ImportPopulationDataDialog extends Dialog {
         UserProvider usr = new UserProvider();
 		UserDto srDto = usr.getUser();
 		
+		
+		Icon startImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
+		startDataImport.setIcon(startImportButtonnIcon);
 		startDataImport.addClickListener(ed -> {
 
 			
@@ -185,6 +192,9 @@ public class ImportPopulationDataDialog extends Dialog {
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 		downloadErrorReportButton = new Anchor("beforechange");
 		//downloadErrorReportButton.setVisible(false);
+		
+		Icon downloadErrorReporttButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
+		donloadErrorReport.setIcon(downloadErrorReporttButtonnIcon);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.addClickListener(e -> {
 			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
@@ -218,6 +228,8 @@ public class ImportPopulationDataDialog extends Dialog {
 			campaignForm.treeGrid.getDataProvider().refreshAll();
 			// refreshPage();
 		});
+		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		doneButton.setIcon(doneButtonIcon);
 		getFooter().add(doneButton);
 
 		add(dialog);

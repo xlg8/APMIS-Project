@@ -204,7 +204,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
 			filterLayout.setVisible(filterLayout.isVisible());
-			displayFilters.setText(filterLayout.isVisible() ? "Hide Filters" : "Show Filters");
+			displayFilters.setText(filterLayout.isVisible() ? "Show Filters" : "Hide Filters");
 		});
 
 		HorizontalLayout layout = new HorizontalLayout();

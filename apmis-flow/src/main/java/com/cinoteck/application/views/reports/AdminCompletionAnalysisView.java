@@ -190,7 +190,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 		});
 		
 		
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e->{
 			if(filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);

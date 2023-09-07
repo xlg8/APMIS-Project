@@ -176,7 +176,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 		});
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters),
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
