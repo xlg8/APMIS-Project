@@ -17,6 +17,8 @@ import com.vaadin.ui.Notification.Type;
 
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
@@ -45,23 +47,30 @@ public class InfrastructureImporter extends DataImporter {
 
 	private final InfrastructureType type;
 	protected final boolean allowOverwrite;
+	private final CampaignReferenceDto campaignReferenceDto;
 
 	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type,
 			ValueSeparator csvSeparator) throws IOException {
-		this(inputFile, currentUser, type, false, csvSeparator);
+		this(inputFile, currentUser, type, false, csvSeparator, null);
+	}
+	
+	public InfrastructureImporter(File inputFile, UserDto currentUser, CampaignDto campaignDto, InfrastructureType type,
+			ValueSeparator csvSeparator) throws IOException {
+		this(inputFile, currentUser, type, false, csvSeparator, campaignDto);
 	}
 
 	public InfrastructureImporter(File inputFile, UserDto currentUser, InfrastructureType type, boolean allowOverwrite,
-			ValueSeparator csvSeparator) throws IOException {
+			ValueSeparator csvSeparator, CampaignDto campaignDto) throws IOException {
 		super(inputFile, false, currentUser, csvSeparator);
 		this.type = type;
 		this.allowOverwrite = allowOverwrite;
+		this.campaignReferenceDto = FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid());
 	}
 
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
 			String[][] entityPropertyPaths, boolean firstLine)
-			throws IOException, InvalidColumnException, TransactionRolledbackLocalException {
+			throws IOException, InvalidColumnException, InterruptedException, TransactionRolledbackLocalException {
 //		IOException, InvalidColumnException, InterruptedException, TransactionRolledbackLocalException
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {

@@ -144,6 +144,10 @@ public class ImportColumn {
 			return StringUtils.join(enumNames, separator);
 		} else if (Number.class.isAssignableFrom(fieldType)) {
 			return I18nProperties.getString(Strings.number);
+		} else if (String[].class.isAssignableFrom(fieldType)) {
+			return "[] (seperated by comma";
+		} else if (Boolean.class.isAssignableFrom(fieldType)) {
+			return "true or false";
 		} else {
 			return "";
 		}

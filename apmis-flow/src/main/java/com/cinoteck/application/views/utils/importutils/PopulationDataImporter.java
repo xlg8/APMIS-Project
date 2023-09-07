@@ -76,9 +76,13 @@ public class PopulationDataImporter extends DataImporter {
 		DistrictReferenceDto district = null;
 		CommunityReferenceDto community = null;
 		CampaignReferenceDto campaigns_ = null;
+		
+		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
 
 		// Retrieve the region and district from the database or throw an error if more or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
+			
+			System.out.println(entityProperties[i]+" :++++++++++++++++++===============: "+i);
 			if (PopulationDataDto.REGION.equalsIgnoreCase(entityProperties[i])) {
 				List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade().getByExternalId(Long.parseLong(values[i]), false);
 				if (regions.size() != 1) {
@@ -144,7 +148,18 @@ public class PopulationDataImporter extends DataImporter {
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					campaigns_ = null;
 				} else {
+					
+					
 					if( values[i].toString().length() > 28 &&  values[i].toString().contains("-")) {
+						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
+						System.out.println("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
+								
+						//check if data matched campaign
+						if(!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
+							writeImportError(values, campaigns_ +" Campaign mismatched");
+//							writeImportError(values, new ImportErrorException(values[i], "Capaign not matched");
+							return ImportLineResult.ERROR;
+						}
 						
 						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
 						
@@ -213,8 +228,19 @@ public class PopulationDataImporter extends DataImporter {
 			criteria.district(finalDistrict);
 		}
 		
-		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade().getPopulationData(criteria);
+		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade().getPopulationDataImportChecker(criteria);
 		List<PopulationDataDto> modifiedPopulationDataList = new ArrayList<PopulationDataDto>();
+		
+		
+		System.out.println("+++++++++:+ " + criteria.getAgeGroup());
+		System.out.println("+++++++++:+ " + criteria.getRegion());
+		System.out.println("+++++++++:+ " + criteria.getDistrict());
+		System.out.println("+++++++++:+ " + criteria.getCampaign());
+		System.out.println("+++++++++:+ " + criteria.getSex());
+		System.out.println("+++++++++:+ " + criteria.getDistrict());
+		System.out.println("+++++++++:+ " + existingPopulationDataList.size());
+		
+		
 
 		boolean populationDataHasImportError =
 			insertRowIntoData(values, entityClasses, entityPropertyPaths, false, new Function<ImportCellData, Exception>() {
@@ -250,18 +276,29 @@ public class PopulationDataImporter extends DataImporter {
 //								}
 //							}
 						} else {
-							System.out.println("+++++++++++++");
+							
 							// Add the data from the currently processed cell to a new population data object
 							PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
+							newPopulationData.setCampaign(finalCampaign);
 							insertCellValueIntoData(newPopulationData, cellData.getValue(), cellData.getEntityPropertyPath());
-
+							System.out.println(newPopulationData.getAgeGroup() +"   :+++++++++++++: "+existingPopulationDataList.size());
+							
 							Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList.stream()
-								.filter(
-									populationData -> populationData.getAgeGroup() == newPopulationData.getAgeGroup()
-										&& populationData.getSex() == newPopulationData.getSex() 
-										&& populationData.getCampaign() == newPopulationData.getCampaign()
+								.filter( 
+										populationData -> populationData.getAgeGroup().equals(newPopulationData.getAgeGroup())
+										&& populationData.getCampaign().equals(newPopulationData.getCampaign())
 										)
 								.findFirst();
+//							boolean isExisted = false;
+//							for(PopulationDataDto dc : existingPopulationDataList ) {
+//								if(newPopulationData.getCampaign().equals(dc.getCampaign()) && newPopulationData.getAgeGroup().equals(dc.getAgeGroup())) {
+//									isExisted = true;
+//									break;
+//								}
+//							}
+//							
+//							System.out.println(isExisted+" :++++++++++++++++++: "+existingPopulationData.isPresent());
+							//TODO check if should overwrite
 							// Check whether this population data set already exists in the database; if yes, override it
 							if (existingPopulationData.isPresent()) {
 								System.out.println("++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");

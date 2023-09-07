@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
+import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -121,8 +122,10 @@ public class UserView extends VerticalLayout {
 	Button bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 	Button leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	TextField searchField = new TextField();
-	Button exportUsers = new Button("Export");
+	Button exportUsers = new Button(I18nProperties.getCaption(Captions.export));
+	Button importUsers = new Button(I18nProperties.getCaption(Captions.actionImport));
 
+	
 	Button displayFilters;
 
 	ConfirmDialog confirmationPopup = new ConfirmDialog();
@@ -193,11 +196,29 @@ public class UserView extends VerticalLayout {
 			anchor.getElement().callJsFunction("click");
 
 		});
+		
+		importUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
+		importUsers.addClickListener(e -> {
+			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
 
+				ImportUsersDataDialog dialogx = new ImportUsersDataDialog();
+				dialogx.open();
+			}
+			
+			//anchor.getElement().callJsFunction("click");
+
+		});
+		
+		
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(exportUsers, anchor);
+			layout.add(exportUsers, anchor, importUsers);
 		}
+		
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
+			layout.add(importUsers);
+		}
+		
 
 //		layout.add(anchor);
 		layout.addClassNames("row pl-4");
@@ -681,6 +702,7 @@ public class UserView extends VerticalLayout {
 		displayFilters.setVisible(state);
 		createUserButton.setVisible(state);
 		exportUsersButton.setVisible(state);
+		importUsers.setVisible(state);
 		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
 		exportUsers.setVisible(state);

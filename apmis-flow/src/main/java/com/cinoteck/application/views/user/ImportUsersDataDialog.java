@@ -1,4 +1,4 @@
-package com.cinoteck.application.views.campaign;
+package com.cinoteck.application.views.user;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
@@ -34,6 +35,8 @@ import com.vaadin.flow.server.StreamResource;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -41,32 +44,30 @@ import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.utils.DataHelper;
 
-public class ImportPopulationDataDialog extends Dialog {
+public class ImportUsersDataDialog extends Dialog {
 
-	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
+	public Button donloadUserLodReport = new Button("Download CridentialsButton");
 	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
+	
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
 	
-	@Autowired
-	CampaignForm campaignForm;
+	Span anchorSpanCredential = new Span();
+	public Anchor downloadCredntialsReportButton;
 	
-	public ImportPopulationDataDialog(InfrastructureType infrastructureType, CampaignDto camapigndto) {
-		String dto;
-		if (camapigndto != null) {
-			 dto = camapigndto.getName();
-		}else {
-			 dto = "New Campaign";
-		}
-		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportPopulationData) + " | "+ dto );
+	public ImportUsersDataDialog() {
+		
+		this.setHeaderTitle("User Import Module");
 //		this.getStyle().set("color" , "#0D6938");
 
 		Hr seperatorr = new Hr();
@@ -82,16 +83,8 @@ public class ImportPopulationDataDialog extends Dialog {
 			}
 		});
 
-		campaignFilter.setId(CampaignDto.NAME);
-		campaignFilter.setRequired(true);
-		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(camapigndto.getUuid()));
-		campaignFilter.setEnabled(false);
-
-		Label lblCollectionDateInfo = new Label(I18nProperties.getString(Strings.infoPopulationCollectionDate));
-
 		H3 step2 = new H3();
-		step2.add("Step 2: Download the Import Template");
+		step2.add("Step 1: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 		downloadImportTemplate.addClickListener(e -> {
 
@@ -99,12 +92,14 @@ public class ImportPopulationDataDialog extends Dialog {
 
 				String templateFilePath;
 				String templateFileName;
-				String fileNameAddition;
 				ImportFacade importFacade = FacadeProvider.getImportFacade();
 
-				templateFilePath = importFacade.getPopulationDataImportTemplateFilePath();
-				templateFileName = importFacade.getPopulationDataImportTemplateFileName();
-				fileNameAddition = camapigndto.getName().replace(" ", "_") + "_population_data_import_";
+				importFacade.generateUserImportTemplateFile();
+
+				templateFileName = "userImportLogicFile.csv";
+				
+				
+				templateFilePath = importFacade.getUserImportTemplateFilePath();
 
 				String content = FacadeProvider.getImportFacade().getImportTemplateContent(templateFilePath);
 
@@ -141,7 +136,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		);
 
 		H3 step3 = new H3();
-		step3.add("Step 3: Import CSV File");
+		step3.add("Step 2: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
 		Label sd = new Label("Upload");
 		
@@ -160,17 +155,17 @@ public class ImportPopulationDataDialog extends Dialog {
         });
 		
         UserProvider usr = new UserProvider();
-		UserDto srDto = usr.getUser();
+		UserDto userDto = usr.getUser();
 		
 		startDataImport.addClickListener(ed -> {
 
 			
 			try {
 
-				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
 				
-				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				DataImporter importer = new UsersDataImporter(file_, false, userDto, ValueSeparator.COMMA);
+				importer.startImport(this::extendDownloadErrorReportButton, this::extendDownloadCredentialsReportButton, true, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
@@ -181,9 +176,31 @@ public class ImportPopulationDataDialog extends Dialog {
 		});
 
 		H3 step4 = new H3();
-		step4.add("Step 4: Download Error Report");
-		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
+		step4.add("Step 3: Download Credential Report");
+		Label lblDnldErrorReportd_ = new Label("Download Credentials");
+		
 		downloadErrorReportButton = new Anchor("beforechange");
+		downloadCredntialsReportButton = new Anchor("beforechange");
+		//downloadErrorReportButton.setVisible(false);
+			
+		donloadUserLodReport.setVisible(false);
+		donloadUserLodReport.addClickListener(e -> {
+			Notification.show("Button clicke to download error "+downloadCredntialsReportButton.getHref());
+			
+			downloadCredntialsReportButton.getElement().callJsFunction("click");
+		});
+		
+		
+		
+		
+		
+		
+		
+		H3 step5 = new H3();
+		step5.add("Step 4: Download Error Report");
+		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
+//		downloadErrorReportButton = new Anchor("beforechange");
+//		downloadCredntialsReportButton = new Anchor("beforechange");
 		//downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.addClickListener(e -> {
@@ -192,7 +209,15 @@ public class ImportPopulationDataDialog extends Dialog {
 		downloadErrorReportButton.getElement().callJsFunction("click");
 		});
 		
+		
+		
 		anchorSpan.add(downloadErrorReportButton);
+		anchorSpanCredential.add(downloadCredntialsReportButton);
+		
+		
+		
+		
+		
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
 //		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -207,16 +232,17 @@ public class ImportPopulationDataDialog extends Dialog {
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(seperatorr, //startButton, stopButton,
-				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
-				lblDnldErrorReport, donloadErrorReport, anchorSpan);
-
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4, lblDnldErrorReportd_, donloadUserLodReport, anchorSpanCredential,
+				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+		
+		//hacky: hide the anchor
+		anchorSpan.getStyle().set("display", "none");
+		anchorSpanCredential.getStyle().set("display", "none");
+		
 		Button doneButton = new Button("Done", e -> {
 			close();
 			stopIntervalCallback();
-			campaignForm.treeGrid.getDataProvider().refreshAll();
-			// refreshPage();
+			
 		});
 		getFooter().add(doneButton);
 
@@ -287,6 +313,19 @@ public class ImportPopulationDataDialog extends Dialog {
 		downloadErrorReportButton.setClassName("vaadin-button");
 		
 		anchorSpan.add(downloadErrorReportButton);
+		
+	}
+
+	public void extendDownloadCredentialsReportButton(StreamResource streamResource) {
+		System.out.println("_________________________________________________ yahoooooooooo credentials ready");
+		anchorSpanCredential.remove(downloadCredntialsReportButton);
+		donloadUserLodReport.setVisible(true);
+
+		downloadCredntialsReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadCredntialsReportButton.setHref(streamResource);
+		downloadCredntialsReportButton.setClassName("vaadin-button");
+		
+		anchorSpanCredential.add(downloadCredntialsReportButton);
 		
 	}
 	

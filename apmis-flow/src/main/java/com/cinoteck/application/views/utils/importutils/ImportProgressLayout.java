@@ -21,16 +21,21 @@ package com.cinoteck.application.views.utils.importutils;
 
 import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.server.StreamResource;
 
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -41,14 +46,14 @@ public class ImportProgressLayout extends VerticalLayout {
 
 	// Components
 	private ProgressBar progressBar;
-	private Label processedImportsLabel;
-	private Label successfulImportsLabel;
-	private Label importErrorsLabel;
-	private Label importSkipsLabel;
-	private Label importDuplicatesLabel;
+	private Span processedImportsLabel = new Span();
+	private Span successfulImportsLabel = new Span();
+	private Span importErrorsLabel = new Span();
+	private Span importSkipsLabel = new Span();
+	private Span importDuplicatesLabel = new Span();
 	private Button closeCancelButton;
 	private HorizontalLayout infoLayout;
-	private Label infoLabel;
+	private Span infoLabel;
 
 	private ProgressBar progressCircle;
 	private Icon errorIcon;
@@ -86,7 +91,11 @@ public class ImportProgressLayout extends VerticalLayout {
 		initializeInfoComponents();
 		currentInfoComponent = progressCircle;
 		infoLayout.add(currentInfoComponent);
-		infoLabel = new Label(String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount));
+		
+        
+		infoLabel = new Span(String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount));
+		
+		Notification.show(System.currentTimeMillis()+"");
 //		infoLabel.setContentMode(ContentMode.HTML);
 		infoLayout.add(infoLabel);
 //		infoLayout.setExpandRatio(infoLabel, 1);
@@ -103,20 +112,29 @@ public class ImportProgressLayout extends VerticalLayout {
 		HorizontalLayout progressInfoLayout = new HorizontalLayout();
 //		CssStyles.style(progressInfoLayout, CssStyles.VSPACE_TOP_5);
 		progressInfoLayout.setSpacing(true);
-		processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), 0, totalCount));
+		
+		Label _processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), 0, totalCount));
+		processedImportsLabel.add(_processedImportsLabel);
 		progressInfoLayout.add(processedImportsLabel);
-		successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports), 0));
-//		CssStyles.style(successfulImportsLabel, CssStyles.LABEL_POSITIVE);
+		
+		Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports), 0));
+		successfulImportsLabel.add(_successfulImportsLabel);
+		successfulImportsLabel.getStyle().set("color", "green");
 		progressInfoLayout.add(successfulImportsLabel);
-		importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), 0));
-//		CssStyles.style(importErrorsLabel, CssStyles.LABEL_CRITICAL);
+		
+		Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), 0));
+		importErrorsLabel.add(_importErrorsLabel);
 		progressInfoLayout.add(importErrorsLabel);
-		importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), 0));
-//		CssStyles.style(importDuplicatesLabel, CssStyles.LABEL_WARNING);
+		
+		Label _importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), 0));
+		importDuplicatesLabel.add(_importDuplicatesLabel);
 		if (duplicatesPossible) {
 			progressInfoLayout.add(importDuplicatesLabel);
 		}
-		importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), 0));
+		
+		importSkipsLabel = new Span();
+		Label _importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), 0));
+		importSkipsLabel.add(_importSkipsLabel);
 //		CssStyles.style(importSkipsLabel, CssStyles.LABEL_MINOR);
 		if (skipPossible) {
 			progressInfoLayout.add(importSkipsLabel);
@@ -145,49 +163,65 @@ public class ImportProgressLayout extends VerticalLayout {
 		progressCircle.setIndeterminate(true);
 //		CssStyles.style(progressCircle, "v-progressbar-indeterminate-large");
 
-		errorIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
-		errorIcon.getStyle().set("color", "red");
+		errorIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE_O);
+		errorIcon.getStyle().set("color", "red!important");
 //		errorIcon.setWidth(35, Unit.PIXELS);
 		successIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
-		successIcon.getStyle().set("color", "green");
+		successIcon.getStyle().set("color", "green!important");
 //		successIcon.setWidth(35, Unit.PIXELS);
 		warningIcon = new Icon(VaadinIcon.WARNING);
-		warningIcon.getStyle().set("color", "yellow");
+		warningIcon.getStyle().set("color", "yellow!important");
 //		warningIcon.setWidth(35, Unit.PIXELS);
 	}
 
 	public void updateProgress(ImportLineResult result) {
 		currentUI.access(() -> {
+			
 			processedImportsCount++;
+			System.out.println("updateProgress(ImportLineResult result): "+processedImportsCount);
+			
 			if (result == ImportLineResult.SUCCESS) {
+				Notification.show(ImportLineResult.SUCCESS.name());
 				successfulImportsCount++;
-				successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
+				successfulImportsLabel.removeAll();
+				Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
+				successfulImportsLabel.add(_successfulImportsLabel);
 //				successfulImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importImports), successfulImportsCount));
 			} else if (result == ImportLineResult.ERROR) {
+				
 				importErrorsCount++;
-				
-				importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
-				
+				Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
+				importErrorsLabel.removeAll();
+				Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
+				_importErrorsLabel.getStyle().set("color", "error");
+				importErrorsLabel.add(_importErrorsLabel);
 				
 //				importErrorsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 			} else if (result == ImportLineResult.SKIPPED) {
 				importSkipsCount++;
-				
-				importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+				importSkipsLabel.removeAll();
+				Label _importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+				importSkipsLabel.add(_importSkipsLabel);
 
 //				importSkipsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
 			} else if (result == ImportLineResult.DUPLICATE) {
 				importDuplicatesCount++;
-				
-				importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+				importDuplicatesLabel.removeAll();
+				Label _importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+				importDuplicatesLabel.add(_importDuplicatesLabel);
 
 //				importDuplicatesLabel.setValue(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
 			}
-			processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+			processedImportsLabel.removeAll();
+			Label _processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+			processedImportsLabel.add(_processedImportsLabel);
 
-			
+			Notification.show("currentUI.access(() -> {.....");
 //			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
-			progressBar.setValue((float) processedImportsCount / (float) totalCount);
+			float resultx = (float) processedImportsCount / totalCount;
+			float percentage = resultx * 100;
+			System.out.println("sssssssssssssssssssssss "+percentage);
+			progressBar.setValue(percentage);
 		});
 	}
 
@@ -198,13 +232,22 @@ public class ImportProgressLayout extends VerticalLayout {
 		closeCancelButton.addClickListener(e -> closeCallback.run());
 	}
 
-	public void setInfoLabelText(String text) {
-		infoLabel.setText(text);
+	public void setInfoLabelText(String text, VaadinIcon ic, String infoType) {
+		
+		infoLabel.removeAll();
+		
+		Span infoLabel_ = new Span(new Html("<div>"+text+"</div>"));
+		
+		infoLabel.add(infoLabel_);
+		
+		infoLabel.getStyle().set("color", infoType);
+//		infoLabel.getElement().getThemeList().add(infoType);
 	}
 
 	public void displayErrorIcon() {
 		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = errorIcon;
+		Notification.show(System.currentTimeMillis()+"SettingerrorIcon");
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
 
@@ -219,4 +262,10 @@ public class ImportProgressLayout extends VerticalLayout {
 		currentInfoComponent = warningIcon;
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
+	
+	private Icon createIcon(VaadinIcon vaadinIcon) {
+	        Icon icon = vaadinIcon.create();
+	        icon.getStyle().set("padding", "var(--lumo-space-xs");
+	        return icon;
+	    }
 }

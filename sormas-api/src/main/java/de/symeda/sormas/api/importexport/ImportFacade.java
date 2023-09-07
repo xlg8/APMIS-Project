@@ -47,6 +47,8 @@ public interface ImportFacade {
 	void generatePointOfEntryImportTemplateFile() throws IOException;
 
 	void generatePopulationDataImportTemplateFile() throws IOException;
+	
+	void generateUserImportTemplateFile() throws IOException;
 
 	void generateAreaImportTemplateFile() throws IOException;
 
@@ -79,6 +81,8 @@ public interface ImportFacade {
 	String getEventParticipantImportTemplateFilePath();
 
 	String getCampaignFormImportTemplateFilePath();
+	
+	String getUserImportTemplateFilePath();
 
 	String getPointOfEntryImportTemplateFileName();
 
