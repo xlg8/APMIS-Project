@@ -25,6 +25,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
@@ -59,15 +61,17 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	private File file_;
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
-	
-	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto, CampaignFormMetaReferenceDto campaignForm) {
+
+	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
+			CampaignFormMetaReferenceDto campaignForm) {
 		String dto;
 		if (campaignReferenceDto != null) {
-			 dto = campaignReferenceDto.getCaption();
-		}else {
-			 dto = "New Campaign";
+			dto = campaignReferenceDto.getCaption();
+		} else {
+			dto = "New Campaign";
 		}
-		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportCampaign) + " | "+ dto +" ("+campaignForm.getCaption()+")");
+		this.setHeaderTitle(I18nProperties.getString(Strings.headingImportCampaign) + " | " + dto + " ("
+				+ campaignForm.getCaption() + ")");
 //		this.getStyle().set("color" , "#0D6938");
 
 		Hr seperatorr = new Hr();
@@ -88,18 +92,17 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignReferenceDto.getUuid()));
 		campaignFilter.setEnabled(false);
-		
-		
-		
-		campaignFormMetaFilter.setText(campaignForm.getCaption());		
-		
-		
+
+		campaignFormMetaFilter.setText(campaignForm.getCaption());
 
 		Label lblCollectionDateInfo = new Label(I18nProperties.getCaption(Captions.actionImport));
 
 		H3 step2 = new H3();
 		step2.add("Step 2: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
+
+		Icon downloadImportTemplateButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
+		downloadImportTemplate.setIcon(downloadImportTemplateButtonnIcon);
 		downloadImportTemplate.addClickListener(e -> {
 
 			try {
@@ -111,10 +114,9 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 				importFacade.generateCampaignFormImportTemplateFile(campaignForm.getUuid());
 
-				templateFileName = DataHelper.sanitizeFileName(campaignReferenceDto.getCaption().replaceAll(" ", "_")) + "_"
-					+ DataHelper.sanitizeFileName(campaignForm.getCaption().replaceAll(" ", "_")) + ".csv";
-				
-				
+				templateFileName = DataHelper.sanitizeFileName(campaignReferenceDto.getCaption().replaceAll(" ", "_"))
+						+ "_" + DataHelper.sanitizeFileName(campaignForm.getCaption().replaceAll(" ", "_")) + ".csv";
+
 				templateFilePath = importFacade.getCampaignFormImportTemplateFilePath();
 				fileNameAddition = campaignForm.getCaption().replace(" ", "_") + "_campaignform_data_import_";
 
@@ -156,54 +158,58 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		step3.add("Step 3: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
 		Label sd = new Label("Upload");
-		
+
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		FileUploader buffer = new FileUploader();  
-        Upload upload = new Upload(buffer);
-        
-        startDataImport.setVisible(false);
-        upload.setAcceptedFileTypes("text/csv");
-        
-        upload.addSucceededListener(event -> {
-        	
-        	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(true);
-        	
-        });
-		
-        UserProvider usr = new UserProvider();
+		FileUploader buffer = new FileUploader();
+		Upload upload = new Upload(buffer);
+
+		Icon startImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
+		startDataImport.setIcon(startImportButtonnIcon);
+		startDataImport.setVisible(false);
+		upload.setAcceptedFileTypes("text/csv");
+
+		upload.addSucceededListener(event -> {
+
+			file_ = new File(buffer.getFilename());
+			startDataImport.setVisible(true);
+
+		});
+
+		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
-		
+
 		startDataImport.addClickListener(ed -> {
 
-			
 			try {
 
-				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
-				
-				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(), campaignReferenceDto, ValueSeparator.COMMA);
+				// CampaignDto campaignDto =
+				// FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+
+				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),
+						campaignReferenceDto, ValueSeparator.COMMA);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
-				Notification.show(
-					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-					I18nProperties.getString(Strings.messageImportFailed));
+				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+						+ I18nProperties.getString(Strings.messageImportFailed));
 			}
-			
-			
+
 		});
 
 		H3 step4 = new H3();
 		step4.add("Step 4: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 		downloadErrorReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
+		// downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
-		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
-			
-		downloadErrorReportButton.getElement().callJsFunction("click");
-		});
 		
+		Icon downloadErrorReportButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
+		donloadErrorReport.setIcon(downloadErrorReportButtonnIcon);
+		donloadErrorReport.addClickListener(e -> {
+			Notification.show("Button clicke to download error " + downloadErrorReportButton.getHref());
+
+			downloadErrorReportButton.getElement().callJsFunction("click");
+		});
+
 		anchorSpan.add(downloadErrorReportButton);
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
@@ -212,23 +218,25 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 //		startButton.addClickListener(e -> {
 //			startIntervalCallback();
 //		});
-		
+
 		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(seperatorr, //startButton, stopButton,
-				lblCollectionDateInfo, campaignFilter, campaignFormMetaFilter, lblCollectionDateInfo,
-				step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
+		dialog.add(seperatorr, // startButton, stopButton,
+				lblCollectionDateInfo, campaignFilter, campaignFormMetaFilter, lblCollectionDateInfo, step2,
+				lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();
 			stopIntervalCallback();
-			
+
 		});
+		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		doneButton.setIcon(doneButtonIcon);
 		getFooter().add(doneButton);
 
 		add(dialog);
@@ -266,9 +274,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		}
 	}
-	
-	
-	
 
 	private void stopPullers() {
 		UI.getCurrent().setPollInterval(-1);
@@ -282,7 +287,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		Page page = ui.getPage();
 		page.reload();
 	}
-	
 
 	protected void resetDownloadErrorReportButton() {
 		downloadErrorReportButton.removeAll();
@@ -293,13 +297,14 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
+																	// I18nProperties.getCaption(Captions.downloadErrorReport));
+																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-		
+
 	}
-	
-	
+
 }

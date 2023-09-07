@@ -1,6 +1,8 @@
 package com.cinoteck.application.views.reports;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.vaadin.flow.component.Component;
@@ -23,7 +25,8 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 	 */
 	private static final long serialVersionUID = 8119024598018785898L;
 	private Map<Tab, Component> userAnalysisComponentMap = new LinkedHashMap<>();
-	
+	   List<Tab> tabList = new ArrayList<>(userAnalysisComponentMap.keySet());
+
 	
 	
 	
@@ -37,8 +40,11 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 			userAnalysisComponentMap.put(new Tab(lopper.toString()), new UserAnalysisGridView(criteria, lopper));
 		}
 		
-		
-		return new Tabs(userAnalysisComponentMap.keySet().toArray(new Tab[] {}));
+		tabList = new ArrayList<>(userAnalysisComponentMap.keySet());
+	    Tabs tabs = new Tabs(tabList.toArray(new Tab[] {}));
+
+	    return tabs;
+//		return new Tabs(userAnalysisComponentMap.keySet().toArray(new Tab[] {}));
 
 	}
 	
@@ -49,11 +55,12 @@ public class UserAnalysisView extends VerticalLayout implements RouterLayout {
 		 reportTabsheetLayout.setClassName("campDatFill");
 		 
 		 Tabs tabs = createUserAnalysisTabs();
-			tabs.getStyle().set("background", "#434343");
-	        tabs.getStyle().set("width", "100%");
+		 tabs.getStyle().set("background", "rgba(255, 255, 255, 0)");	        tabs.getStyle().set("width", "100%");
 	        Div contentContainer = new Div();
 	        contentContainer.setSizeFull();
-	        
+	        for (Tab tab : tabList) {
+				tab.getElement().getStyle().set("color", "green");// ThemeList().add("custom-tab-caption");
+			}
 	        tabs.addSelectedChangeListener(e -> {
 	            contentContainer.removeAll();
 	            contentContainer.add(userAnalysisComponentMap.get(e.getSelectedTab()));

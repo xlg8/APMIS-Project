@@ -3,6 +3,7 @@ package com.cinoteck.application.views.campaign;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -23,6 +24,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.provider.Query;
 
 public class CampaignFormGridComponent extends VerticalLayout {
 	/**
@@ -52,7 +54,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
-		getSavedElements();
+		
 	}
 
 	private Component getContent() {
@@ -237,274 +239,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	}
 	
 	 public List<CampaignFormMetaReferenceDto> getSavedElements() {
-	        return savedCampaignFormMetas;
+	         return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 	    }
-
-	
-
-//	public CampaignDto getModifiedDto() {
-//
-//		return capaingDto;
-//	}
-
-//	@Override
-//	protected ComponentEventListener<ClickEvent<Button>> newRowEvent() {
-//
-//		return event -> {
-//			// CampaignFormMetaReferenceDto campaignFormMetaReferenceDto = new
-//			// CampaignFormMetaReferenceDto();
-//
-//			final ArrayList<CampaignFormMetaReferenceDto> gridItems = getItems();
-//			// gridItems.add(campaignFormMetaReferenceDto);
-//			gridItems.add(new CampaignFormMetaReferenceDto(null, " --Please select--", null, 0));
-//
-//			grid.setItems(gridItems);
-//
-//			grid.getEditor().cancel();
-//
-//			grid.getEditor().editItem(gridItems.get(gridItems.size() - 1));
-//
-//		};
-//	}
-//
-//	// public void listenerCampaignFilter(SelectedChangeEvent event) {
-////    	final ArrayList<CampaignFormMetaReferenceDto> gridItems = getItems();
-////    	final ArrayList<CampaignFormMetaReferenceDto> gridFilteredItems = new ArrayList<>(gridItems);
-////
-////        if (event.getSelectedTab().getLabel().equals("Pre-Campaign Phase")) {
-////            gridFilteredItems.removeIf(n -> n.getFormType().contains("Pre-Campaign"));
-////        } else if (event.getSelectedTab().getLabel().equals("Intra-Campaign Phase")) {
-////            gridFilteredItems.removeIf(n -> n.getFormType().contains("Intra-Campaign"));
-////        } else if (event.getSelectedTab().getLabel().equals("Post-Campaign Phase")) {
-////            gridFilteredItems.removeIf(n -> n.getFormType().contains("Post-Campaign"));
-////        }
-////
-////        grid.setItems(gridFilteredItems);
-////        grid.getDataProvider().refreshAll();
-////    }
-//
-//	public void ListnerCampaignFilter(TabSheet.SelectedTabChangeEvent event) {
-//		final ArrayList<CampaignFormMetaReferenceDto> gridItemss = getItems();
-//
-//		final ArrayList<CampaignFormMetaReferenceDto> gridItems;
-//
-//		// System.out.println(event.getTabSheet().getSelectedTab().getCaption() + " |
-//		// ___________---______O___");
-//
-//		if (event.getTabSheet().getSelectedTab().getCaption().equals("Pre-Campaign Phase")) {
-//			gridItems = gridItemss;
-//			gridItems.removeIf(n -> (n.getFormType().contains("Pre-Campaign")));
-//
-//			grid.setItems(gridItems);
-//
-//		} else if (event.getTabSheet().getSelectedTab().getCaption() == "Intra-Campaign Phase") {
-//			gridItems = gridItemss;
-//			gridItems.removeIf(n -> (n.getFormType().contains("Intra-Campaign")));
-//			grid.setItems(gridItems);
-//
-//		} else if (event.getTabSheet().getSelectedTab().getCaption() == "Post-Campaign Phase") {
-//			gridItems = gridItemss;
-//			gridItems.removeIf(n -> (n.getFormType().contains("Post-Campaign")));
-//			grid.setItems(gridItems);
-//
-//		}
-//
-//		grid.getDataProvider().refreshAll();
-//
-//	}
-//
-////    @Override
-////    protected Binder<CampaignFormMetaReferenceDto> addColumnsBinder(List<CampaignFormMetaReferenceDto> allElements) {
-////        final Binder<CampaignFormMetaReferenceDto> binder = new Binder<>();
-////
-////        ComboBox<CampaignFormMetaReferenceDto> formCombo = new ComboBox<>(Strings.entityCampaignDataForm, allElements);
-////
-////        TextField dateExpiring = new TextField("Date");
-////        dateExpiring.setEnabled(false);
-////
-////
-////        Binder.Binding<CampaignFormMetaReferenceDto, String> dateBind = binder.forField(dateExpiring)
-////        		 .withValidator(
-////                         campaignFormMetaReferenceDto -> campaignFormMetaReferenceDto != null
-////                                 && campaignFormMetaReferenceDto != null,
-////                         I18nProperties.getValidationError(Validations.campaignDashboardDataFormValueNull))
-////				.bind(campaignFormMetaReferenceDto -> new CampaignFormMetaReferenceDto(
-////						
-////						campaignFormMetaReferenceDto.getUuid(),campaignFormMetaReferenceDto.getDaysExpired()).toString(),
-////						(bindedCampaignFormMeta, selectedCampaignFormMeta) -> {
-////							bindedCampaignFormMeta.setUuid(selectedCampaignFormMeta);
-////							bindedCampaignFormMeta.setDateExpired(selectedCampaignFormMeta);
-//////							grid.getDataProvider().refreshAll();
-////						});
-////	
-////		
-////		
-////
-////        Binder.Binding<CampaignFormMetaReferenceDto, CampaignFormMetaReferenceDto> formBind = binder.forField(formCombo)
-////                .withValidator(
-////                        campaignFormMetaReferenceDto -> campaignFormMetaReferenceDto != null
-////                                && campaignFormMetaReferenceDto.getUuid() != null,
-////                        I18nProperties.getValidationError(Validations.campaignDashboardDataFormValueNull))
-////                .withValidator(campaignFormMetaReferenceDto -> {
-////                    ArrayList<CampaignFormMetaReferenceDto> items = getItems();
-////                    return !items.contains(campaignFormMetaReferenceDto);
-////                }, I18nProperties.getValidationError(Validations.campaignDashboardDataFormValueDuplicate))
-////                .bind(campaignFormMetaReferenceDto -> new CampaignFormMetaReferenceDto(
-////                                campaignFormMetaReferenceDto.getUuid(), campaignFormMetaReferenceDto.getCaption(),
-////                                campaignFormMetaReferenceDto.getFormType()),
-////                        (bindedCampaignFormMeta, selectedCampaignFormMeta) -> {
-////                            bindedCampaignFormMeta.setUuid(selectedCampaignFormMeta.getUuid());
-////                            bindedCampaignFormMeta.setCaption(selectedCampaignFormMeta.getCaption());
-////                            bindedCampaignFormMeta.setFormType(selectedCampaignFormMeta.getFormType());
-////                            // workaround: grid doesn't refresh itself for an unknown reason
-//////                            grid.getDataProvider().refreshAll();
-////                        });
-////
-////        Grid.Column<CampaignFormMetaReferenceDto> formColumn = grid.addColumn(ReferenceDto::getCaption)
-////                .setHeader(I18nProperties.getString(Strings.entityCampaignDataForm))
-////                .setEditorComponent(column -> {
-////                    formCombo.setRequired(false); // Allow empty selection
-////                    formCombo.setItems(allElements);
-////                    formCombo.addValueChangeListener(event -> {
-////                    	if(event.getValue() != null) {
-////	                        String newItem = event.getValue().toString();
-////	                        if (newItem != null && !allElements.contains(newItem)) {
-////	//                            allElements.add(newItem);
-////	                            formCombo.setItems(allElements);
-////	                        }
-////                    	}
-////                    });                    
-////                    formCombo.getElement().addEventListener("keydown", event -> formCombo.setOpened(true));
-////                    formCombo.getElement().addEventListener("click", event -> formCombo.setOpened(true));
-////                    return formCombo;
-////                });
-////
-////        Grid.Column<CampaignFormMetaReferenceDto> deadlineColumn = grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
-////                .setHeader("Form Deadline (Days)")
-////                .setEditorComponent(column -> {
-////                    dateExpiring.setRequired(false); // Allow empty selection
-////                    return dateExpiring;
-////                });
-////
-//////        Editor<CampaignFormMetaReferenceDto> editor = grid.getEditor();
-//////        editor.setBinder(binder);
-//////        editor.setBuffered(true);
-////////        editor.setSaveCaption("Save");
-//////
-//////        editor.addSaveListener(event -> {
-//////            // Save logic
-//////        });
-//////
-//////        editor.addCancelListener(event -> {
-//////            // Cancel logic
-//////        });
-//////
-//////        editor.editItem(new CampaignFormMetaReferenceDto(null, "--Please Select --", null,  0));
-////        
-////        return binder;
-////    }
-//
-//	@Override
-//	protected Binder<CampaignFormMetaReferenceDto> addColumnsBinder(List<CampaignFormMetaReferenceDto> allElements) {
-//
-//		// todo check if we can remove elements that are null
-//		final Binder<CampaignFormMetaReferenceDto> binder = new Binder<>();
-//
-//		// This is a bit hacky: The grid is used here to "select" the whole item instead
-//		// of editing properties
-//		// This is done by replacing uuid and caption of the item
-//
-//		ComboBox<CampaignFormMetaReferenceDto> formCombo = new ComboBox<>(Strings.entityCampaignDataForm, allElements);
-//
-//		TextField dateExpiring = new TextField("Date");
-//
-//		dateExpiring.setEnabled(false);
-//
-//		Binder.Binding<CampaignFormMetaReferenceDto, String> dateBind = binder.forField(dateExpiring)
-//				.bind(campaignFormMetaReferenceDto -> new CampaignFormMetaReferenceDto(
-//
-//						campaignFormMetaReferenceDto.getUuid(), campaignFormMetaReferenceDto.getDaysExpired())
-//								.toString(),
-//
-//						(bindedCampaignFormMeta, selectedCampaignFormMeta) -> {
-//							bindedCampaignFormMeta.setUuid(selectedCampaignFormMeta);
-//							bindedCampaignFormMeta.setDateExpired(selectedCampaignFormMeta);
-//							grid.getDataProvider().refreshAll();
-//						});
-//
-//		Binder.Binding<CampaignFormMetaReferenceDto, CampaignFormMetaReferenceDto> formBind = binder.forField(formCombo)
-//				.withValidator(
-//						campaignFormMetaReferenceDto -> campaignFormMetaReferenceDto != null
-//								&& campaignFormMetaReferenceDto.getUuid() != null,
-//						I18nProperties.getValidationError(Validations.campaignDashboardDataFormValueNull))
-//
-//				.withValidator(campaignFormMetaReferenceDto -> {
-//					ArrayList<CampaignFormMetaReferenceDto> items = getItems();
-//					return !items.contains(campaignFormMetaReferenceDto);
-//				}, I18nProperties.getValidationError(Validations.campaignDashboardDataFormValueDuplicate))
-//
-//				.bind(campaignFormMetaReferenceDto -> new CampaignFormMetaReferenceDto(
-//						campaignFormMetaReferenceDto.getUuid(), campaignFormMetaReferenceDto.getCaption(),
-//						campaignFormMetaReferenceDto.getFormType()),
-//						(bindedCampaignFormMeta, selectedCampaignFormMeta) -> {
-//							bindedCampaignFormMeta.setUuid(selectedCampaignFormMeta.getUuid());
-//							bindedCampaignFormMeta.setCaption(selectedCampaignFormMeta.getCaption());
-//							bindedCampaignFormMeta.setFormType(selectedCampaignFormMeta.getFormType());
-//							// workarround: grid doesn't refresh itself for unknown reason
-//							grid.getDataProvider().refreshAll();
-//						});
-//
-//		Grid.Column<CampaignFormMetaReferenceDto> formColumn;
-//		formColumn = grid.addColumn(ReferenceDto::getCaption);
-//		// .setCaption(I18nProperties.getString(Strings.entityCampaignDataForm));
-//
-//		Grid.Column<CampaignFormMetaReferenceDto> deadlineColumn;
-//		deadlineColumn = grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired);
-//		// .setCaption("Form Deadline (Days)");
-//		// formColumn =
-//		// grid.addColumn(ReferenceDto::getFormType).setCaption(I18nProperties.getString(Strings.entityCampaignDataFormPhase));
-//
-//		formColumn.setId("formtb");
-//
-////		formColumn.setEditorBinding(null);
-////		
-////		
-////		deadlineColumn.setEditorBinding(dateBind);
-//
-//		/*
-//		 * Grid.Column<CampaignFormMetaReferenceDto, String> formColumnx =
-//		 * grid.addColumn(ReferenceDto::getUuid)
-//		 * .setCaption(I18nProperties.getString(Strings.entityCampaignDataForm));
-//		 * formColumnx.setId("formtbv"); formColumnx.setEditorBinding(formBind);
-//		 */
-//
-//		return binder;
-//	}
-//
-//	@Override
-//	protected Button createButton(ComponentEventListener<ClickEvent<Button>> newRowEvent) {
-//		Button additionalRow = new Button("Add New Row");
-//		additionalRow.addClickListener(newRowEvent);
-//		return additionalRow;
-//	}
-//
-//	protected CampaignFormMetaReferenceDto createNewItem() {
-//		CampaignFormMetaReferenceDto xx = new CampaignFormMetaReferenceDto();
-//
-//		return xx;
-//	}
-//
-//	@Override
-//	public void reorderGrid() {
-//		// Implement the reorderGrid method as needed
-//	}
-//
-//	public String getAdditionalRowCaption() {
-//		return Captions.campaignAdditionalForm;
-//	}
-//
-//	@Override
-//	protected String getHeaderString() {
-//		return Strings.headingCampaignData;
-//	}
+	 
 }
