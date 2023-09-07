@@ -96,6 +96,7 @@ public interface Captions {
 	String icmTeamMonitoring="icmTeamMonitoring";
 	String aggregateReport="aggregateReport";
 	String dataCompleteness="dataCompleteness";
+	String adminDataCompleteness="adminDataCompleteness";
 	String mobileUsers="mobileUsers";
 	String errorStatus="errorStatus";
 	String message="message";

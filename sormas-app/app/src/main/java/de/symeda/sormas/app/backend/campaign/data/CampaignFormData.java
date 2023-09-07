@@ -32,7 +32,7 @@ import javax.persistence.Entity;
 import javax.persistence.Transient;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
-//import de.symeda.sormas.api.campaign.data.PlatformEnum;
+import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
 import de.symeda.sormas.app.backend.campaign.Campaign;
@@ -95,8 +95,8 @@ public class CampaignFormData extends PseudonymizableAdo {
     @Column(name = "formCategory")
     private String formCategory;
 
-//    @Column(name = "source")
-//    private PlatformEnum soruce;
+    @Column(name = "source")
+    private PlatformEnum soruce;
 
     /**
      * JsonRawValue annotation is used to handle this differently when merging data
@@ -210,13 +210,13 @@ public class CampaignFormData extends PseudonymizableAdo {
         this.archived = archived;
     }
 
-//    public PlatformEnum getSoruce() {
-//        return soruce;
-//    }
+    public PlatformEnum getSoruce() {
+        return soruce;
+    }
 
-//    public void setSoruce(PlatformEnum soruce) {
-//        this.soruce = soruce;
-//    }
+    public void setSoruce(PlatformEnum soruce) {
+        this.soruce = soruce;
+    }
 //    public String getFormCategory() {
 //        if (campaignFormMeta != null) {
 //            return campaignFormMeta.getFormCategory();

@@ -23,6 +23,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -36,6 +37,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -63,7 +65,7 @@ import de.symeda.sormas.api.user.UserRole;
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
-public class DashboardView extends VerticalLayout implements RouterLayout , BeforeEnterObserver {
+public class DashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1851726752523985165L;
 
@@ -85,7 +87,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 	ComboBox<CommunityReferenceDto> cluster = new ComboBox<>();
 	Select<CampaignJurisdictionLevel> groupby = new Select<>();
 
-	List<CampaignReferenceDto> campaigns;
+	List<CampaignReferenceDto> campaigns, campaignss;
 	List<CampaignReferenceDto> campaignPhases;
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
@@ -94,7 +96,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 	List<String> campaingYears = new ArrayList<>();
 
 	boolean isCampaignChanged;
-
+	
 	private boolean isSubAvaialable = false;
 	private CampaignJurisdictionLevel campaignJurisdictionLevel;
 
@@ -103,6 +105,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 	private Div mainContentContainerx;
 
 	UserProvider userProvider = new UserProvider();
+	
+	String firstSubtabId = null;
 
 	public DashboardView() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -117,6 +121,14 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		setSpacing(false);
 		// UI.getCurrent().getPage().reload();
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+		
+		if(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack") != null) {
+			
+			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack")
+					+ "  Pluto is active");
+			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack")
+					+ " Elon is active");
+			}
 
 		dataProvider = new CampaignDashboardDataProvider();
 //		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
@@ -124,27 +136,24 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		UserProvider usr = new UserProvider();
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();	
+		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear().trim());
-			
 		}
-
 		
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
 		campaingYears.clear();
 		campaingYears.addAll(setDeduplicated);
-		
-		
+
 		campaignYear.setItems(campaingYears);
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
-
 		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
 
 		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
-		
+
 		campaign.setItems(campaigns);
 		campaign.getStyle().set("padding-top", "0px");
 		campaign.setClassName("col-sm-6, col-xs-6");
@@ -369,7 +378,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		setSizeFull();
 	}
 
-
 	private Div drawDashboardAndTabs(String UIs) {
 		Div mainContentContainer = new Div();
 		mainContentContainer.setId(UIs);
@@ -396,7 +404,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		int defctr = 0;
 
 		String firstMntabId = null;
-		String firstSubtabId = null;
+//		String firstSubtabId = null;
 
 		// creating bucket tabs to hold tabs and subtabs
 		for (String tabIdc : mainTabs) {
@@ -418,7 +426,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 				for (String sbTabId : subTabx) {
 					defctr++;
 
-//							String sbtabId = WordUtils.capitalizeFully(tabIdc);
+					String sbtabId = WordUtils.capitalizeFully(tabIdc);
 					Tab stabx = new Tab(sbTabId);
 					stabx.setId("submain_" + sbTabId);
 					stabx.getStyle().set("font-weight", "500");
@@ -435,7 +443,12 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 			}
 		}
 
+	
 		mtabs.addSelectedChangeListener(e -> {
+
+			VaadinService.getCurrentRequest().getWrappedSession().setAttribute("mtabtrack", mtabs.getSelectedIndex());
+
+			System.out.println("entered main tab");
 			int listnrCtr = 0;
 
 			final List<String> subTabx = new ArrayList<>(
@@ -448,7 +461,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 			for (String sbTabId : subTabx) {
 				listnrCtr++;
 				if (listnrCtr == 1) {
-					firstSbTabId = sbTabId;
+					
+					firstSbTabId = sbTabId;							
+					System.out.println(firstSbTabId + " first subtab IDDDDDDDDDDDDDDDDDDDDDD");
 				}
 				// String sbtabId = WordUtils.capitalizeFully(tabIdc);
 				Tab stabx = new Tab(sbTabId);
@@ -457,6 +472,14 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 				stabx.getStyle().set("color", "#0D6938");
 				sTabs.add(stabx);
 
+			}
+			if (VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack") != null) {
+				firstSbTabId = (String) VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack");
+				firstSbTabId =  firstSbTabId.replaceAll("submain_", "");
+				firstSubtabId = firstSbTabId;
+				System.out.println(firstSbTabId + " first subtab IIDDDDDDDDDDDDDDDDDDDDDD");
+//				sTabs.setSelectedTab(
+//						(String) VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack").toString());
 			}
 //								//Notification.show(e.getSelectedTab().getId().get().toString().replaceAll("main_", ""));
 //								//Notification.show(firstSbTabId);
@@ -472,11 +495,17 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		});
 
 		sTabs.addSelectedChangeListener(e -> {
-			String listnrCtr = listerCheck;
-			if (e.getSelectedTab() != null) {
-				// System.out.print(isSubAvaialable);
-				String listnrCtrx = e.getSelectedTab().getId().get().replaceAll("submain_", "");
+			System.out.println("Subtab enteredddddddddddddddddddddddd");
 
+			String listnrCtr = listerCheck;
+			
+			if (e.getSelectedTab() != null) {
+				System.out.print(e.getSelectedTab().getId().get() + " hhhkkkkk " + e.getSelectedTab());
+				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("stabtrack", e.getSelectedTab().getId().get());
+				 
+				System.out.print(e.getSelectedTab().getId().get().toString() + " e.getSelectedTab().getId().get().toString() ");
+				String listnrCtrx = e.getSelectedTab().getId().get().replaceAll("submain_", "");
+				System.out.print(listnrCtrx + " listnrCtrx");
 				// Notification.show(listnrCtr +" _____________________________ "+listnrCtrx);
 
 				contentContainer.removeAll();
@@ -492,14 +521,23 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 			contentContainer.add(campaignSummaryGridView.CampaignSummaryGridViewInit(firstMntabId, dataProvider,
 					campaignPhase.getValue(), firstSubtabId));
 		}
+		
 		contentContainer.getStyle().set("margin-top", "0.4rem");
-
 		contentContainer.setId("tabsSheet");
 		contentContainer.setSizeFull();
 
+		try {
+			if (VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack") != null) {
+
+				mtabs.setSelectedIndex(
+						(int) VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack"));
+			}	
+		} finally {
+			
+		}
+		
 		mainContentContainer.add(mtabs, sTabs, contentContainer);
 		return mainContentContainer;
-
 	}
 
 	public class LazyComponent extends Div {
@@ -535,7 +573,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 		}
 
 	}
-	
+
 	private String getLabelForEnum(CampaignPhase campaignPhase) {
 		switch (campaignPhase) {
 		case PRE:
@@ -554,22 +592,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout , Befo
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		 try {
-			 UserProvider usrP = new UserProvider();
-			 System.out.println("trying ti use camp data "+usrP);
-			 
-			 System.out.println("trying ti use camp data "+usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
+		try {
+			UserProvider usrP = new UserProvider();
+			System.out.println("trying ti use camp data " + usrP);
+
+			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
 			if (!usrP.getCurrent().hasUserRole(UserRole.ADMIN)) {
-			        event.rerouteTo(CampaignDataView.class); // Redirect to a different view
-			    }
+				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
+			}
 		} catch (Exception e) {
-			
-			 System.err.println("ubnable tooooooooooo trying ti use camp data ");
+
+			System.err.println("ubnable tooooooooooo trying ti use camp data ");
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }
