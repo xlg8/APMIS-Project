@@ -747,9 +747,7 @@ public class ClusterView extends VerticalLayout {
 					for (DistrictIndexDto districtIndexDto : pcode) {
 						String checkerName = districtIndexDto.getName();
 
-						if (checkerName.trim().equals(districtOfCluster.getValue().toString().trim())) {
-							System.out.println("shout you catch me egbon: pcode here == "
-									+ districtIndexDto.getExternalId() + " my name is " + districtIndexDto.getName());
+						if (checkerName.trim().equals(districtOfCluster.getValue().toString().trim())) {							
 							DistrictReferenceDto nuller = new DistrictReferenceDto(districtIndexDto.getUuid(),
 									districtIndexDto.getName(), districtIndexDto.getExternalId());
 							dcex.setDistrict(nuller);
@@ -787,9 +785,12 @@ public class ClusterView extends VerticalLayout {
 									notification.close();
 								});
 
-								Paragraph text = new Paragraph(
-										"An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+//								Paragraph text = new Paragraph(
+//										"An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
 
+								Paragraph text = new Paragraph(
+										"Cluster number taken, choose another");
+								
 								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 								layout.setAlignItems(Alignment.CENTER);
 
