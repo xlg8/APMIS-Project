@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
@@ -545,22 +546,42 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 //		if(max > 100000) {
 //			max = 100;
 //			}
+		
+		
+		
+		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
 		Root<Community> community = cq.from(Community.class);
 		Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
 		Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
-
+		
+		
+		
+		
 		Predicate filter = null;
 		if (criteria != null) {
 			filter = service.buildCriteriaFilter(criteria, cb, community);
-		}
+			System.out.println("CHECK 1TOP -------------------------------------------------------");
 
-		Predicate filterx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), false), cb.isNotNull(community.get(District.ARCHIVED)));
+			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
+
+		}
 		
+		Predicate filterx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), false), cb.isNotNull(community.get(District.ARCHIVED)));
+		Predicate filterxx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), true), cb.isNotNull(community.get(District.ARCHIVED)));
+
 		if (filter != null) {
-			cq.where(filter, filterx);
+			if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+				cq.where(filter, filterxx);
+
+			}else {
+				cq.where(filter, filterx);
+
+			}
+
 		}else {
+	
 			cq.where(filterx);
 		}	
 
@@ -597,6 +618,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		cq.select(community);
 
+System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max, this::toDto);
 	}

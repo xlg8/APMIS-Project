@@ -83,6 +83,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 	
 	
 	public AggregateReportView() {
+		setSpacing(false);
 		criteria = new CampaignStatisticsCriteria();
 		criteria.setGroupingLevel(CampaignJurisdictionLevel.AREA);
 		addFilter();
@@ -168,7 +169,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		criteria.district(user.getDistrict()); // .setDistrict(user.getDistrict());
 ////		
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(true);
@@ -260,7 +261,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		regionCombo.setLabel(I18nProperties.getCaption(Captions.area));
 		regionCombo.getStyle().set("padding-top", "0px !important");
 		regionCombo.getStyle().set("width", "145px !important");
-
+		regionCombo.setClearButtonVisible(true);
 		regionCombo.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		regionCombo.setItems(regions);
@@ -277,6 +278,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
 		provinceCombo.getStyle().set("width", "145px !important");
+		provinceCombo.setClearButtonVisible(true);
 
 		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
 		provinceCombo.setEnabled(false);
@@ -295,6 +297,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		districtCombo.setLabel(I18nProperties.getCaption(Captions.district));
 		districtCombo.getStyle().set("padding-top", "0px !important");
 		districtCombo.getStyle().set("width", "145px !important");
+		districtCombo.setClearButtonVisible(true);
 
 		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtCombo.setEnabled(false);

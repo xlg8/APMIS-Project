@@ -89,8 +89,10 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 		Predicate filter = createBasicFilter(cb, from);
 
 		if (serverCountry != null) {
-			Path<Object> countryUuid = from.join(District.REGION, JoinType.LEFT).join(Region.COUNTRY, JoinType.LEFT).get(Country.UUID);
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.or(cb.isNull(countryUuid), cb.equal(countryUuid, serverCountry.getUuid())));
+			Path<Object> countryUuid = from.join(District.REGION, JoinType.LEFT).join(Region.COUNTRY, JoinType.LEFT)
+					.get(Country.UUID);
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.or(cb.isNull(countryUuid), cb.equal(countryUuid, serverCountry.getUuid())));
 		}
 
 		cq.where(filter);
@@ -128,15 +130,15 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 
 		return em.createQuery(cq).getResultList();
 	}
-	
-	
-	public List<District> getByExternalId(Long ext_id, Region reg_ext_id, boolean includeArchivedEntities, int notUsed) {
+
+	public List<District> getByExternalId(Long ext_id, Region reg_ext_id, boolean includeArchivedEntities,
+			int notUsed) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<District> cq = cb.createQuery(getElementClass());  
+		CriteriaQuery<District> cq = cb.createQuery(getElementClass());
 		Root<District> from = cq.from(getElementClass());
 		Predicate filter = cb.equal(from.get("externalId"), ext_id);
-		
-		//suspending region here temporarily
+
+		// suspending region here temporarily
 		if (reg_ext_id != null) {
 			filter = cb.and(filter, cb.equal(from.get(District.REGION), reg_ext_id));
 		}
@@ -162,37 +164,38 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 	public Predicate buildCriteriaFilter(DistrictCriteria criteria, CriteriaBuilder cb, Root<District> from) {
 		Join<District, Region> region = from.join(District.REGION, JoinType.LEFT);
 		Join<Region, Area> area = region.join(Region.AREA, JoinType.LEFT);
-		
+
 		Predicate filter = null;
 
 		CountryReferenceDto country = criteria.getCountry();
 		if (country != null) {
 			CountryReferenceDto serverCountry = countryFacade.getServerCountry();
 
-			Path<Object> countryUuid = from.join(District.REGION, JoinType.LEFT).join(Region.COUNTRY, JoinType.LEFT).get(Country.UUID);
+			Path<Object> countryUuid = from.join(District.REGION, JoinType.LEFT).join(Region.COUNTRY, JoinType.LEFT)
+					.get(Country.UUID);
 			Predicate countryFilter = cb.equal(countryUuid, country.getUuid());
 
 			if (country.equals(serverCountry)) {
-				filter = CriteriaBuilderHelper.and(cb, filter, CriteriaBuilderHelper.or(cb, countryFilter, countryUuid.isNull()));
+				filter = CriteriaBuilderHelper.and(cb, filter,
+						CriteriaBuilderHelper.or(cb, countryFilter, countryUuid.isNull()));
 			} else {
 				filter = CriteriaBuilderHelper.and(cb, filter, countryFilter);
 			}
 		}
-		
+
 		if (criteria.getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(area.get(Area.UUID), criteria.getArea().getUuid()));
 		}
 
 		if (criteria.getRegion() != null) {
-			filter = CriteriaBuilderHelper
-				.and(cb, filter, cb.equal(from.join(District.REGION, JoinType.LEFT).get(Region.UUID), criteria.getRegion().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, cb
+					.equal(from.join(District.REGION, JoinType.LEFT).get(Region.UUID), criteria.getRegion().getUuid()));
 		}
-		
+
 		if (criteria.getRisk() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(District.RISK), criteria.getRisk()));
-			}
-		
-		
+		}
+
 		if (criteria.getNameEpidLike() != null) {
 			String[] textFilters = criteria.getNameEpidLike().split("\\s+");
 			for (String textFilter : textFilters) {
@@ -200,24 +203,26 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 					continue;
 				}
 
-				Predicate likeFilters = cb.or(
-					CriteriaBuilderHelper.unaccentedIlike(cb, from.get(District.NAME), textFilter)//,
-					//CriteriaBuilderHelper.ilike(cb, from.get(District.EPID_CODE), textFilter)
-					);
+				Predicate likeFilters = cb
+						.or(CriteriaBuilderHelper.unaccentedIlike(cb, from.get(District.NAME), textFilter)// ,
+						// CriteriaBuilderHelper.ilike(cb, from.get(District.EPID_CODE), textFilter)
+						);
 				filter = CriteriaBuilderHelper.and(cb, filter, likeFilters);
 			}
 		}
-		
+
 		if (criteria.getRelevanceStatus() != null) {
+
+			System.out.println(criteria.getRelevanceStatus() + "relevamce status from service ");
 			if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ACTIVE) {
-				filter = CriteriaBuilderHelper
-					.and(cb, filter, cb.or(cb.equal(from.get(District.ARCHIVED), false), cb.isNull(from.get(District.ARCHIVED))));
+				filter = CriteriaBuilderHelper.and(cb, filter,
+						cb.or(cb.equal(from.get(District.ARCHIVED), false), cb.isNull(from.get(District.ARCHIVED))));
 			} else if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
 				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(District.ARCHIVED), true));
 			}
 		}
-		
-		if(this.getCurrentUser().getArea() != null) {
+
+		if (this.getCurrentUser().getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(area.get(Area.UUID), this.getCurrentUser().getArea().getUuid()));
 		}

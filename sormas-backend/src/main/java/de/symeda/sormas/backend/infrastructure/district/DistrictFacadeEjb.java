@@ -46,6 +46,8 @@ import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.common.Page;
@@ -79,6 +81,8 @@ import de.symeda.sormas.backend.util.QueryHelper;
 
 @Stateless(name = "DistrictFacade")
 public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, DistrictService> implements DistrictFacade {
+
+	private ErrorStatusEnum errorStatusEnum;
 
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
@@ -174,13 +178,26 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		Predicate filter = null;
 		if (criteria != null) {
+			
+			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
+
 			filter = service.buildCriteriaFilter(criteria, cb, district);
+		}else {
+			System.out.println(criteria.getRelevanceStatus() + "relevamce status in Ejbbbbbbbb ");
 		}
 		
 		Predicate filterx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
-		
+		Predicate filterxx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), true), cb.isNotNull(district.get(District.ARCHIVED)));
+
 		if (filter != null) {
-			cq.where(filter, filterx);
+			if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+				cq.where(filter, filterxx);
+
+			}else {
+				cq.where(filter, filterx);
+
+			}
+//			cq.where(filter, filterx);
 		}else {
 			cq.where(filterx);
 		}
@@ -216,7 +233,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		cq.select(district);
 		
-	//	System.out.println("+++++++++++++++ resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("+++++++++++++++ resultData - "+ SQLExtractor.from(em.createQuery(cq)));
 		
 		
 		return QueryHelper.getResultList(em, cq, first, max, this::toIndexDto);

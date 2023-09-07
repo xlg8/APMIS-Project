@@ -80,7 +80,7 @@ public class ClusterView extends VerticalLayout {
 
 	private static final long serialVersionUID = 5091856954264511639L;
 //	private GridListDataView<CommunityDto> dataView;
-	private CommunityCriteriaNew criteria;
+	private CommunityCriteriaNew criteria = new CommunityCriteriaNew();
 
 	ClusterDataProvider clusterDataProvider = new ClusterDataProvider();
 	CommunityDto communityDto;
@@ -98,7 +98,6 @@ public class ClusterView extends VerticalLayout {
 	SubMenu subMenu;
 	ConfirmDialog archiveDearchiveConfirmation;
 	String uuidsz = "";
-	GridListDataView<CommunityDto> dataView;
 	ListDataProvider<CommunityDto> dataProvider;
 	int itemCount;
 
@@ -112,17 +111,17 @@ public class ClusterView extends VerticalLayout {
 
 	@SuppressWarnings("deprecation")
 	public ClusterView() {
-		this.criteria = new CommunityCriteriaNew();
 		setSpacing(false);
 		setHeightFull();
 		setSizeFull();
 		addFilters();
-		clusterGrid(criteria);
+		clusterGrid();
 
 	}
 
-	private void clusterGrid(CommunityCriteriaNew criteria) {
-		this.criteria = criteria;
+	private void clusterGrid() {
+
+		System.out.println(criteria + "tttttttttttttttttttttttttttttttttttttttttttttttt");
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -152,15 +151,33 @@ public class ClusterView extends VerticalLayout {
 
 		grid.setVisible(true);
 
-		if (criteria == null) {
-			criteria = new CommunityCriteriaNew();
-			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-		}
+//		if (criteria == null) {
+//			criteria = new CommunityCriteriaNew();
+//			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+//		}
+		criteria.relevanceStatus(EntityRelevanceStatus.ALL);
+        refreshGridData();
 
 		dataProvider = DataProvider
 				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
 
-		dataView = grid.setItems(dataProvider);
+//		 dataProvider = DataProvider.fromFilteringCallbacks(
+//				query -> FacadeProvider.getCommunityFacade()
+//					.getIndexList(
+//							criteria,
+//						query.getOffset(),
+//						query.getLimit(),
+//						query.getSortOrders()
+//							.stream()
+//							.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
+//							.collect(Collectors.toList()))
+//					.stream(),
+//				query -> {
+//					return (int) FacadeProvider.getCommunityFacade().count(query.getFilter().orElse(null));
+//				});
+//		grid.setDataProvider(dataProvider);
+		grid.setItems(dataProvider);
+//		dataView = grid.setItems(dataProvider);
 
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EDIT)) {
 
@@ -195,9 +212,9 @@ public class ClusterView extends VerticalLayout {
 	// TODO: Hide the filter bar on smaller screens
 	public Component addFilters() {
 
-		if (criteria == null) {
-			criteria = new CommunityCriteriaNew();
-		}
+//		if (criteria == null) {
+//			criteria = new CommunityCriteriaNew();
+//		}
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 			leaveBulkEdit = new Button();
@@ -208,13 +225,13 @@ public class ClusterView extends VerticalLayout {
 
 		}
 
-		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+		criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
 		dataProvider = DataProvider
 				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
 
 		itemCount = dataProvider.getItems().size();
 		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + itemCount);
-
+//
 		countRowItems.setId("rowCount");
 
 		HorizontalLayout layout = new HorizontalLayout();
@@ -337,49 +354,69 @@ public class ClusterView extends VerticalLayout {
 		});
 
 		regionFilter.addValueChangeListener(e -> {
-			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-			AreaReferenceDto area = e.getValue();
-			criteria.area(area);
-			refreshGridData();
-
-			resetFilters.setVisible(true);
+			if (e.getValue() != null) {
+				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				AreaReferenceDto area = e.getValue();
+				criteria.area(area);
+				refreshGridData();
+				System.out.println(regionFilter.getValue() + "region filtervalue ");
+				resetFilters.setVisible(true);
+			} else {
+				criteria.area(null);
+				refreshGridData();
+			}
 
 		});
 
 		provinceFilter.addValueChangeListener(e -> {
+			if (provinceFilter.getValue() != null) {
 			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
 //			filteredDataProvider.setFilter(criteria);
 			RegionReferenceDto province = e.getValue();
 			criteria.region(province);
 			refreshGridData();
+		}else {
+				criteria.region(null);
+				refreshGridData();
+			}
 
 		});
 		districtFilter.addValueChangeListener(e -> {
-
+			if (districtFilter.getValue() != null) {
 //			filteredDataProvider.setFilter(criteria);
 			DistrictReferenceDto district = e.getValue();
 			criteria.district(district);
 			refreshGridData();
+			
+		}else {
+				criteria.district(null);
+				refreshGridData();
+			}
 		});
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
-				subMenu.removeAll();
-				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
-			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
-				subMenu.removeAll();
-				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
+			
+			EntityRelevanceStatus selectedStatus = e.getValue();
+            criteria.relevanceStatus(selectedStatus);
+            refreshGridData();
+//			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
+//				subMenu.removeAll();
+//				subMenu.addItem("Archive", event -> handleArchiveDearchiveAction());
+//				criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
+//				refreshGridData();
+//			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
+//				subMenu.removeAll();
+//				subMenu.addItem("De-Archive", event -> handleArchiveDearchiveAction());
+//				criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
+//				refreshGridData();
+//
+//			} else {
+//				subMenu.removeAll();
+//				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
+//				criteria.relevanceStatus(EntityRelevanceStatus.ALL);
+//				refreshGridData();
+//			}
 
-			} else {
-				subMenu.removeAll();
-				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
-			}
-			criteria.relevanceStatus((EntityRelevanceStatus) e.getValue());
-			refreshGridData();
-			if (relevanceStatusFilter.getValue() == null) {
-				criteria.relevanceStatus(null);
-				refreshGridData();
-			}
 		});
 
 		resetFilters.addClassName("resetButton");
@@ -400,13 +437,13 @@ public class ClusterView extends VerticalLayout {
 		Button exportCluster = new Button("Export");
 		exportCluster.setIcon(new Icon(VaadinIcon.UPLOAD));
 
-		exportCluster.addClickListener(e->{
+		exportCluster.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
-			
-	    });
+
+		});
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-		layout.add(exportCluster, anchor);
+			layout.add(exportCluster, anchor);
 		}
 //		layout.addComponentAsFirst(anchor);
 		layout.setWidth("75%");
@@ -491,7 +528,6 @@ public class ClusterView extends VerticalLayout {
 		archiveDearchiveConfirmation = new ConfirmDialog();
 		if (selectedRows.size() == 0) {
 
-			
 			archiveDearchiveConfirmation.setRejectable(true);
 			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
 			archiveDearchiveConfirmation.setConfirmText("Ok");
@@ -501,7 +537,7 @@ public class ClusterView extends VerticalLayout {
 
 			archiveDearchiveConfirmation.open();
 		} else {
-			
+
 			archiveDearchiveConfirmation.setRejectable(true);
 			archiveDearchiveConfirmation.setRejectText("No");
 			archiveDearchiveConfirmation.setConfirmText("Yes");
@@ -559,11 +595,12 @@ public class ClusterView extends VerticalLayout {
 	}
 
 	private void refreshGridData() {
-		ListDataProvider<CommunityDto> dataProvider = DataProvider
+		 dataProvider = DataProvider
 				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
-
-		dataView = grid.setItems(dataProvider);
+		grid.setItems(dataProvider);
+//		dataView = grid.setItems(dataProvider);
 		itemCount = dataProvider.getItems().size();
+
 		String newText = I18nProperties.getCaption(Captions.rows) + itemCount;
 		countRowItems.setText(newText);
 		countRowItems.setId("rowCount");
@@ -715,7 +752,7 @@ public class ClusterView extends VerticalLayout {
 									+ districtIndexDto.getExternalId() + " my name is " + districtIndexDto.getName());
 							DistrictReferenceDto nuller = new DistrictReferenceDto(districtIndexDto.getUuid(),
 									districtIndexDto.getName(), districtIndexDto.getExternalId());
-							dcex.setDistrict(nuller);							
+							dcex.setDistrict(nuller);
 						}
 					}
 
@@ -734,7 +771,7 @@ public class ClusterView extends VerticalLayout {
 
 						if (ccodeValue.equals(cCodeConstruction)) {
 							try {
-								FacadeProvider.getCommunityFacade().save(dcex, true);						
+								FacadeProvider.getCommunityFacade().save(dcex, true);
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 								dialog.close();
 								refreshGridData();

@@ -159,7 +159,7 @@ public class UserView extends VerticalLayout {
 //			leaveBulkModeButton = new Button();
 //			menuBar = new MenuBar();
 //		}
-
+		setSpacing(false);
 		setHeightFull();
 		addFilters();
 		configureGrid();
@@ -198,7 +198,7 @@ public class UserView extends VerticalLayout {
 
 		});
 		
-		importUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
+		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importUsers.addClickListener(e -> {
 			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
 
@@ -276,7 +276,7 @@ public class UserView extends VerticalLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
+		displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "10px");
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
@@ -756,7 +756,7 @@ public class UserView extends VerticalLayout {
 		System.out.println(isEditingModeActive + "___________isEditingModeActive");
 		formLayout.suggestUserName(isEditingModeActive);
 		if (isEditingModeActive) {
-	
+
 		}
 
 	}
@@ -776,8 +776,9 @@ public class UserView extends VerticalLayout {
 			VerticalLayout infoLayout = new VerticalLayout();
 
 			newUserPop.setHeaderTitle(I18nProperties.getString(Strings.newUserPassword));
-			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog content
-																									
+			newUserPop.getElement().executeJs("this.$.overlay.setAttribute('theme', 'center');"); // Center the dialog
+																									// content
+
 			Paragraph infoText = new Paragraph(I18nProperties.getString(Strings.pleaseCopyPassword));
 			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
 			username.getStyle().set("color", "#0D6938");
@@ -791,7 +792,6 @@ public class UserView extends VerticalLayout {
 
 			newUserPop.setOpened(true);
 		}
-
 
 	}
 

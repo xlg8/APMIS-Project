@@ -26,6 +26,8 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
@@ -86,6 +88,9 @@ public class ImportUsersDataDialog extends Dialog {
 		H3 step2 = new H3();
 		step2.add("Step 1: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
+		
+		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
+		downloadImportTemplate.setIcon(downloadImportTemplateButtonIcon);
 		downloadImportTemplate.addClickListener(e -> {
 
 			try {
@@ -144,9 +149,11 @@ public class ImportUsersDataDialog extends Dialog {
 		FileUploader buffer = new FileUploader();  
         Upload upload = new Upload(buffer);
         
+        
+    	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
+    	startDataImport.setIcon(startImportButtonIcon);
         startDataImport.setVisible(false);
         upload.setAcceptedFileTypes("text/csv");
-        
         upload.addSucceededListener(event -> {
         	
         	file_ = new File(buffer.getFilename());
@@ -179,10 +186,14 @@ public class ImportUsersDataDialog extends Dialog {
 		step4.add("Step 3: Download Credential Report");
 		Label lblDnldErrorReportd_ = new Label("Download Credentials");
 		
+		
+		
 		downloadErrorReportButton = new Anchor("beforechange");
 		downloadCredntialsReportButton = new Anchor("beforechange");
 		//downloadErrorReportButton.setVisible(false);
 			
+		Icon downloadErrorButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
+		donloadUserLodReport.setIcon(downloadErrorButtonIcon);
 		donloadUserLodReport.setVisible(false);
 		donloadUserLodReport.addClickListener(e -> {
 			Notification.show("Button clicke to download error "+downloadCredntialsReportButton.getHref());
@@ -203,6 +214,7 @@ public class ImportUsersDataDialog extends Dialog {
 //		downloadCredntialsReportButton = new Anchor("beforechange");
 		//downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
+		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
 			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
 			
@@ -244,6 +256,9 @@ public class ImportUsersDataDialog extends Dialog {
 			stopIntervalCallback();
 			
 		});
+		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+
+		doneButton.setIcon(doneButtonIcon);
 		getFooter().add(doneButton);
 
 		add(dialog);

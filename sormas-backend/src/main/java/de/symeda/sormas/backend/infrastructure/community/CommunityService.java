@@ -78,7 +78,7 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 
 		return em.createQuery(cq).getResultList();
 	}
-	
+
 	public List<Community> getByAll() {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -126,10 +126,10 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 		Predicate filter = null;
 
 		CountryReferenceDto country = criteria.getCountry();
-		
+
 		if (country != null) {
 			System.out.println("countrycountrycountryzzzzzzzzzzzz");
-			
+
 			CountryReferenceDto serverCountry = countryFacade.getServerCountry();
 
 			Path<Object> countryUuid = from.join(Community.DISTRICT, JoinType.LEFT).join(District.REGION, JoinType.LEFT)
@@ -137,7 +137,7 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			Predicate countryFilter = cb.equal(countryUuid, country.getUuid());
 
 			if (country.equals(serverCountry)) {
-				
+
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						CriteriaBuilderHelper.or(cb, countryFilter, countryUuid.isNull()));
 			} else {
@@ -145,17 +145,14 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			}
 		}
 
-		
-		AreaReferenceDto aread = criteria.getArea();  //== null
+		AreaReferenceDto aread = criteria.getArea(); // == null
 
 //		System.out.println(aread.getUuid() + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz "+criteria.getArea()); //== null
 
-		if (criteria.getArea() != null) { //why passing?
-			System.out.println("zzzzzzzzzzzzzzzzzzzz"+aread.getUuid());
+		if (criteria.getArea() != null) { // why passing?
+			System.out.println("zzzzzzzzzzzzzzzzzzzz" + aread.getUuid());
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(area.get(Area.UUID), aread.getUuid()));
 		}
-		
-		
 
 		if (criteria.getRegion() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
@@ -177,15 +174,23 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 			}
 		}
 		if (criteria.getRelevanceStatus() != null) {
+//			boolean relavenceStatus = true;
 			if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ACTIVE) {
 				filter = CriteriaBuilderHelper.and(cb, filter,
-						cb.or(cb.equal(from.get(Community.ARCHIVED), false), cb.isNull(from.get(Community.ARCHIVED))));
+						cb.or(cb.equal(from.get(Community.ARCHIVED), false),
+								cb.isNull(from.get(Community.ARCHIVED))));
 			} else if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
-				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(Community.ARCHIVED), true));
+			
+			
+				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(Community.ARCHIVED ),  true));
+			}else {
+				filter = CriteriaBuilderHelper.and(cb, filter);
+
 			}
+
 		}
-		
-		if(this.getCurrentUser().getArea() != null) {
+
+		if (this.getCurrentUser().getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(area.get(Area.UUID), this.getCurrentUser().getArea().getUuid()));
 		}
@@ -207,7 +212,7 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 	}
 
 	public Set<Community> getByReferenceDto(Set<CommunityReferenceDto> community) {
-		Set<Community> communities = new HashSet<Community>(); 
+		Set<Community> communities = new HashSet<Community>();
 		for (CommunityReferenceDto com : community) {
 			if (com != null && com.getUuid() != null) {
 				Community result = getByUuid(com.getUuid());
@@ -216,11 +221,10 @@ public class CommunityService extends AbstractInfrastructureAdoService<Community
 							+ com.getUuid());
 				}
 				communities.add(result);
-			} 
+			}
 		}
-		
+
 		return communities;
 	}
-	
-	
+
 }

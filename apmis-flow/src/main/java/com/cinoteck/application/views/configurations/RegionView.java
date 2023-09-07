@@ -87,6 +87,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	private Button archiveDearchive;
 
 	private Button createNewArea;
+	private Button importArea;
+
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>();
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 
@@ -290,7 +292,11 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		Button importArea = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importArea.getStyle().set("color", "white");
 		importArea.getStyle().set("background", "#0D6938");
+		importArea.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importArea.addClickListener(event -> {
+			
+//			ImportAreaDataDialog dialog = new ImportAreaDataDialog();
+//			dialog.open();
 
 		});
 
