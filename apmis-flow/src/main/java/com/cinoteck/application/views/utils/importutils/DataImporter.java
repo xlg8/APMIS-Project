@@ -429,6 +429,7 @@ public abstract class DataImporter {
 				// is not automatically updated; this should be changed once Vaadin push is
 				// enabled (see #516)
 				// Notification.show(errorText);//, Type.ERROR_MESSAGE,
+				
 				// false).show(Page.getCurrent());
 				System.err.println("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOORRRR");
 				return null;
