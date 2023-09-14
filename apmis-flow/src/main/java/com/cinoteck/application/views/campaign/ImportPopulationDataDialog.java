@@ -197,7 +197,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		donloadErrorReport.setIcon(downloadErrorReporttButtonnIcon);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
+		//	Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
 			
 		downloadErrorReportButton.getElement().callJsFunction("click");
 		});
@@ -239,7 +239,7 @@ public class ImportPopulationDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
+	//	Notification.show("dialog detected... User wont logout");
 	}
 
 	private void startIntervalCallback() {

@@ -87,16 +87,16 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 ;
 		grid.addColumn(CampaignDashboardElement::getTabId)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true)
-				.setResizable(true);
+				.setResizable(true).setSortable(true);
 		grid.addColumn(CampaignDashboardElement::getSubTabId)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true)
-				.setResizable(true);
+				.setResizable(true).setSortable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
 		grid.addColumn(CampaignDashboardElement::getHeight)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		grid.addColumn(CampaignDashboardElement::getOrder)
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder));
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder)).setSortable(true);
 
 		grid.setItems(savedElements);
 

@@ -196,7 +196,7 @@ public class ImportUsersDataDialog extends Dialog {
 		donloadUserLodReport.setIcon(downloadErrorButtonIcon);
 		donloadUserLodReport.setVisible(false);
 		donloadUserLodReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadCredntialsReportButton.getHref());
+		//	Notification.show("Button clicke to download error "+downloadCredntialsReportButton.getHref());
 			
 			downloadCredntialsReportButton.getElement().callJsFunction("click");
 		});
@@ -216,7 +216,7 @@ public class ImportUsersDataDialog extends Dialog {
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
+		//	Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
 			
 		downloadErrorReportButton.getElement().callJsFunction("click");
 		});
@@ -268,7 +268,7 @@ public class ImportUsersDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
+	//	Notification.show("dialog detected... User wont logout");
 	}
 
 	private void startIntervalCallback() {

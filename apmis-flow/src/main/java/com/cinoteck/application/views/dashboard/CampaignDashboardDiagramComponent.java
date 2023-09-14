@@ -567,9 +567,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 									totalValuesWithoutStacks ? null : series.getStack()));
 					if (totalValue == null) {
 						if (!isCommunityGrouping && !ignoreTotalsError) {
-							Notification.show(String.format(
-									I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
-									getDiagramCaption()));
+//							Notification.show(String.format(
+//									I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
+//									getDiagramCaption()));
 							ignoreTotalsError = true; // only show once
 						}
 					} else if (totalValue > 0) {
@@ -676,9 +676,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 						if (totalValue == null) {
 							// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 							if (!ignoreTotalsError) {
-								Notification.show(String.format(
-										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
-										getDiagramCaption()));
+//								Notification.show(String.format(
+//										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
+//										getDiagramCaption()));
 								ignoreTotalsError = true; // only show once
 							}
 						} else if (totalValue > 0) {
@@ -718,9 +718,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 						if (totalValue == null) {
 							// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 							if (!ignoreTotalsError) {
-								Notification.show(String.format(
-										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
-										getDiagramCaption()));
+//								Notification.show(String.format(
+//										I18nProperties.getString(Strings.errorCampaignDiagramTotalsCalculationError),
+//										getDiagramCaption()));
 								ignoreTotalsError = true; // only show once
 							}
 						} else if (totalValue > 0) {
@@ -771,10 +771,10 @@ public class CampaignDashboardDiagramComponent extends Div {
 							if (totalValue == null) {
 								// System.out.println("totalValueyyyyyyyyyyyyyyyyyyyyyy" + totalValue);
 								if (!ignoreTotalsError) {
-									Notification.show(String.format(
-											I18nProperties
-													.getString(Strings.errorCampaignDiagramTotalsCalculationError),
-											getDiagramCaption()));
+//									Notification.show(String.format(
+//											I18nProperties
+//													.getString(Strings.errorCampaignDiagramTotalsCalculationError),
+//											getDiagramCaption()));
 									ignoreTotalsError = true; // only show once
 								}
 							} else if (totalValue > 0) {

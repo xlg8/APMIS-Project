@@ -95,7 +95,7 @@ public class ImportProgressLayout extends VerticalLayout {
         
 		infoLabel = new Span(String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount));
 		
-		Notification.show(System.currentTimeMillis()+"");
+//		Notification.show(System.currentTimeMillis()+"");
 //		infoLabel.setContentMode(ContentMode.HTML);
 		infoLayout.add(infoLabel);
 //		infoLayout.setExpandRatio(infoLabel, 1);
@@ -181,7 +181,7 @@ public class ImportProgressLayout extends VerticalLayout {
 			System.out.println("updateProgress(ImportLineResult result): "+processedImportsCount);
 			
 			if (result == ImportLineResult.SUCCESS) {
-				Notification.show(ImportLineResult.SUCCESS.name());
+			//	Notification.show(ImportLineResult.SUCCESS.name());
 				successfulImportsCount++;
 				successfulImportsLabel.removeAll();
 				Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
@@ -190,7 +190,7 @@ public class ImportProgressLayout extends VerticalLayout {
 			} else if (result == ImportLineResult.ERROR) {
 				
 				importErrorsCount++;
-				Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
+				//Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
 				importErrorsLabel.removeAll();
 				Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 				_importErrorsLabel.getStyle().set("color", "error");
@@ -216,7 +216,7 @@ public class ImportProgressLayout extends VerticalLayout {
 			Label _processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
 			processedImportsLabel.add(_processedImportsLabel);
 
-			Notification.show("currentUI.access(() -> {.....");
+			//Notification.show("currentUI.access(() -> {.....");
 //			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
 			float resultx = (float) processedImportsCount / totalCount;
 			float percentage = resultx * 100;
@@ -247,7 +247,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	public void displayErrorIcon() {
 		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = errorIcon;
-		Notification.show(System.currentTimeMillis()+"SettingerrorIcon");
+	//	Notification.show(System.currentTimeMillis()+"SettingerrorIcon");
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
 

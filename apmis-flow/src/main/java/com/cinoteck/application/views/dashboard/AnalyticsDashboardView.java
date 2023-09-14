@@ -69,61 +69,30 @@ public class AnalyticsDashboardView extends VerticalLayout implements RouterLayo
 
 	protected CampaignDashboardDataProvider dataProvider;
 
-	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
-	Binder<CampaignDto> campaignBinder = new BeanValidationBinder<>(CampaignDto.class);
-
-	CampaignSummaryGridView campaignSummaryGridView = new CampaignSummaryGridView();
-
-	// private Map<TabSheet, Component> tabComponentMap = new LinkedHashMap<>();
-
-	ComboBox<String> campaignYear = new ComboBox<>();
-	ComboBox<CampaignReferenceDto> campaign = new ComboBox<>();
-	ComboBox<CampaignPhase> campaignPhase = new ComboBox<>();
-	ComboBox<AreaReferenceDto> region = new ComboBox<>();
-	ComboBox<RegionReferenceDto> province = new ComboBox<>();
-	ComboBox<DistrictReferenceDto> district = new ComboBox<>();
-	ComboBox<CommunityReferenceDto> cluster = new ComboBox<>();
-	Select<CampaignJurisdictionLevel> groupby = new Select<>();
-
-	List<CampaignReferenceDto> campaigns;
-	List<CampaignReferenceDto> campaignPhases;
-	List<AreaReferenceDto> regions;
-	List<RegionReferenceDto> provinces;
-	List<DistrictReferenceDto> districts;
-	List<CommunityReferenceDto> communities;
-	List<String> campaingYears = new ArrayList<>();
-
-	boolean isCampaignChanged;
-
-	private boolean isSubAvaialable = false;
-	private CampaignJurisdictionLevel campaignJurisdictionLevel;
-
-	private String listerCheck = "";
-
-	private Div mainContentContainerx;
-
-	UserProvider userProvider = new UserProvider();
-
 	public AnalyticsDashboardView() {
-		Button openAnalytics = new Button("Open Analytics");
-		openAnalytics.addClickListener(e->{
-			UI.getCurrent().getPage().open("https://staging.afghanistan-apmis.com/main");
-		});
-		openAnalytics.getStyle().set("margin-left", "20px");
-		
-		 Html html = new Html("<iframe href='https://staging.afghanistan-apmis.com/main' style='width:100%; height:100%;'></iframe>");
+//		Button openAnalytics = new Button("Open Analytics");
+//		openAnalytics.addClickListener(e->{
+//			UI.getCurrent().getPage().open("http://139.144.54.245:3840/");
+//		});
+//		openAnalytics.getStyle().set("margin-left", "20px");
+//		
+		 Html html = new Html("<iframe src='http://139.144.54.245:3840/' style='width:100%; height:100%;'></iframe>");
 
-		Button openAnalyticsx = new Button("Open Analytics In Frame");
-		openAnalyticsx.addClickListener(e->{
-			add(html);		});
-		
-		
-		openAnalyticsx.getStyle().set("margin-left", "20px");
-		HorizontalLayout hksfhvskf = new HorizontalLayout();
-		hksfhvskf.add( openAnalyticsx);
-		
-		
-		add(hksfhvskf);
+//		Button openAnalyticsx = new Button("Open Analytics In Frame");
+//		openAnalyticsx.addClickListener(e->{
+//			add(html);		
+//			});
+//		
+//		
+//		openAnalyticsx.getStyle().set("margin-left", "20px");
+//		HorizontalLayout hksfhvskf = new HorizontalLayout();
+//		hksfhvskf.add( openAnalyticsx);
+//		
+//		
+//		add(hksfhvskf);
+//		
+//		
+		add(html);
 		setSizeFull();
 	}
 
