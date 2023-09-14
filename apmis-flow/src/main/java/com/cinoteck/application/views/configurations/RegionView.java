@@ -116,6 +116,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	public RegionView() {
 		setSpacing(false);
 		setHeightFull();
+		setSizeFull();
 		addRegionFilter();
 		regionGrid(criteria);
 
@@ -295,9 +296,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		importArea.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importArea.addClickListener(event -> {
 			
-//			ImportAreaDataDialog dialog = new ImportAreaDataDialog();
-//			dialog.open();
-
+			ImportAreaDataDialog dialog = new ImportAreaDataDialog();
+			dialog.open();
+ 
 		});
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
@@ -344,6 +345,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		layout.add(clear);
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
 			layout.add(addNew);
+			layout.add(importArea);
 		}
 
 		exportRegion.setIcon(new Icon(VaadinIcon.UPLOAD));
@@ -550,7 +552,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			if (areaDto != null) {
 				uuids = areaDto.getUuid_();
 			}
-			if (name != null && (!rCodeField.getValue().isBlank() || !rCodeField.getValue().isEmpty())) {
+			if ((name != null && name!= "") && (!rCodeField.getValue().isBlank() || !rCodeField.getValue().isEmpty())) {
 				
 				System.out.println("rrrr" + rCodeField.getValue().isBlank() + "ggggggggggggggggggggggggggggggggggg" +  rCodeField.getValue().isEmpty());
 				if (uuids != null) {
@@ -602,7 +604,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					}
 
 				}
-			} else if(rCodeField.getValue().isBlank() || rCodeField.getValue().isEmpty()) {
+			} else if((rCodeField.getValue().isBlank() || rCodeField.getValue().isEmpty()) ) {
 				Notification notification = new Notification();
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.setPosition(Position.MIDDLE);
@@ -614,6 +616,24 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 				});
 				
 				Paragraph text = new Paragraph("Rcode Cannot be left blank.");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}else if( (nameField.getValue().isBlank() || nameField.getValue().isEmpty())  ) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+				    notification.close();
+				});
+				
+				Paragraph text = new Paragraph("Region Name Cannot be left blank.");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 				layout.setAlignItems(Alignment.CENTER);

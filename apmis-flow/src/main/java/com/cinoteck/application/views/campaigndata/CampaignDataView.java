@@ -317,7 +317,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.POST);
+			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.PRE);
 			campaignPhase.setValue(CampaignPhase.INTRA);
 		} else {
 			campaignPhase.setItems(CampaignPhase.values());

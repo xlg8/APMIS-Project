@@ -331,9 +331,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			anchor.getElement().callJsFunction("click");
 
 		});
+		
+		Button importProvince = new Button("Import");
+		importProvince.setIcon(new Icon(VaadinIcon.DOWNLOAD));
+		importProvince.addClickListener(e -> {
+			ImportProvinceDataDialog dialog = new ImportProvinceDataDialog();
+			dialog.open();
+
+		});
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(exportProvince, anchor);
+			layout.add(importProvince , exportProvince, anchor);
 		}
 		layout.setWidth("80%");
 		layout.addClassName("pl-3");
@@ -549,7 +557,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			if (regionDto != null) {
 				uuids = regionDto.getUuid();
 			}
-			if (name != null && code != null) {
+			if ((name != null && name != "") &&  (!pCodeField.getValue().isBlank() || !pCodeField.getValue().isEmpty())) {
 				RegionDto dce = FacadeProvider.getRegionFacade().getByUuid(uuids);
 				if (dce != null) {
 					dce.setName(name);
@@ -595,7 +603,61 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					    }
 
 				}
-			} else {
+			} else if((nameField.getValue().isBlank() || nameField.getValue().isEmpty()) ) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+				    notification.close();
+				});
+				
+				Paragraph text = new Paragraph("Province Name Cannot be left blank.");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}else if((pCodeField.getValue().isBlank() || pCodeField.getValue().isEmpty()) ) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+				    notification.close();
+				});
+				
+				Paragraph text = new Paragraph("Province Code Cannot be left blank.");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}else if(areaField.getValue() == null   ) {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+				    notification.close();
+				});
+				
+				Paragraph text = new Paragraph("Please Select A Valid Region.");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}else {
 				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
 			}
 

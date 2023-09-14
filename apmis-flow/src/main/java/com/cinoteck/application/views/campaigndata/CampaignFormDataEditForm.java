@@ -2,6 +2,7 @@ package com.cinoteck.application.views.campaigndata;
 
 import java.util.List;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -28,6 +29,8 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserRight;
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.FacadeProvider;
 
 public class CampaignFormDataEditForm extends HorizontalLayout {
@@ -40,6 +43,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
+
+	private final UserProvider usr  = new UserProvider();
 	
 
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto,
@@ -111,7 +116,10 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			}
 		});
 		if (openData) {
-			dialog.getFooter().add(deleteButton);
+			if (usr.hasUserRight(UserRight.CAMPAIGN_DELETE)) {
+				dialog.getFooter().add(deleteButton);
+
+			}
 		}
 
 		Button saveAndContinueButton = new Button(I18nProperties.getCaption(Captions.actionSaveAndAddNew));// , (e) ->
@@ -167,59 +175,5 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		// dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
-
-//	private void validateAndSave() {
-//		if (binder.isValid()) {
-//			fireEvent(new SaveEvent(this, binder.getBean()));
-//		}
-//	}
-//
-//	public void setCampaignFormData(CampaignFormDataDto user) {
-//		binder.setBean(user);
-//	}
-//
-//	public static abstract class CampaignFormDataEditFormEvent extends ComponentEvent<CampaignFormDataEditForm> {
-//		private CampaignFormDataDto campaignedit;
-//
-//		protected CampaignFormDataEditFormEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
-//			super(source, false);
-//			this.campaignedit = campaignedit;
-//		}
-//
-//		public CampaignFormDataDto getCampaignedit() {
-//			return campaignedit;
-//		}
-//	}
-//
-//	public static class SaveEvent extends CampaignFormDataEditFormEvent {
-//		SaveEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
-//			super(source, campaignedit);
-//		}
-//	}
-//
-//	public static class DeleteEvent extends CampaignFormDataEditFormEvent {
-//		DeleteEvent(CampaignFormDataEditForm source, CampaignFormDataDto campaignedit) {
-//			super(source, campaignedit);
-//		}
-//
-//	}
-//
-//	public static class CloseEvent extends CampaignFormDataEditFormEvent {
-//		CloseEvent(CampaignFormDataEditForm source) {
-//			super(source, null);
-//		}
-//	}
-//
-//	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
-//		return addListener(DeleteEvent.class, listener);
-//	}
-//
-//	public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
-//		return addListener(SaveEvent.class, listener);
-//	}
-//
-//	public Registration addCloseListener(ComponentEventListener<CloseEvent> listener) {
-//		return addListener(CloseEvent.class, listener);
-//	}
 
 }

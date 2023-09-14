@@ -2644,11 +2644,11 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			//@formatter:off
 			
 			
-			final String campaignFilter = campaign != null ? "campaigns.uuid = '"+campaign.getUuid()+"'" : "";
+			final String campaignFilter = campaign != null ? "camapaigndata_admin.campaigns_uuid = '"+campaign.getUuid()+"'" : "";
 
-			final String areaFilter = area != null ? " AND  areas.uuid = '"+area.getUuid()+"'" : "";
-			final String regionFilter = region != null ? " AND region.uuid = '"+region.getUuid()+"'" : "";
-			final String districtFilter = district != null ? " AND district.uuid = '"+district.getUuid()+"'" : "";
+			final String areaFilter = area != null ? " AND  camapaigndata_admin.areas_uuid = '"+area.getUuid()+"'" : "";
+			final String regionFilter = region != null ? " AND camapaigndata_admin.region_uuid = '"+region.getUuid()+"'" : "";
+			final String districtFilter = district != null ? " AND camapaigndata_admin.district_uuid = '"+district.getUuid()+"'" : "";
 			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
 			
 			System.out.println(campaignFilter+" ===================== "+joiner);

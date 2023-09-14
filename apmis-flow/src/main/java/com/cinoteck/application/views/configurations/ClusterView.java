@@ -441,9 +441,18 @@ public class ClusterView extends VerticalLayout {
 			anchor.getElement().callJsFunction("click");
 
 		});
+		
+		Button importCluster = new Button("Import");
+		importCluster.setIcon(new Icon(VaadinIcon.DOWNLOAD));
+
+		importCluster.addClickListener(e -> {
+			ImportClusterDataDialog dialog = new ImportClusterDataDialog();
+			dialog.open();
+
+		});
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(exportCluster, anchor);
+			layout.add(importCluster, exportCluster, anchor);
 		}
 //		layout.addComponentAsFirst(anchor);
 		layout.setWidth("75%");
