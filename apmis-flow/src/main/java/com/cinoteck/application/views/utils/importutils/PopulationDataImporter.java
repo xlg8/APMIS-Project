@@ -152,7 +152,7 @@ public class PopulationDataImporter extends DataImporter {
 					
 					if( values[i].toString().length() > 28 &&  values[i].toString().contains("-")) {
 						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-						System.out.println("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
+					//	System.out.println("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
 								
 						//check if data matched campaign
 						if(!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {

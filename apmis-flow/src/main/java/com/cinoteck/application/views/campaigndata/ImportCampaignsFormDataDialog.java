@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -49,18 +51,19 @@ import de.symeda.sormas.api.utils.DataHelper;
 
 public class ImportCampaignsFormDataDialog extends Dialog {
 
-	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
+//	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Label campaignFormMetaFilter = new Label();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
-	ComboBox valueSeperator = new ComboBox<>();
+//	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
 	private Timer timer;
-	private int pollCounter = 0;
+//	private int pollCounter = 0;
 	private File file_;
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
 			CampaignFormMetaReferenceDto campaignForm) {
@@ -79,26 +82,19 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-		UI.getCurrent().addPollListener(event -> {
-			if (callbackRunning) {
-				UI.getCurrent().access(this::pokeFlow);
-			} else {
-				stopPullers();
-			}
-		});
 
-		campaignFilter.setId(CampaignDto.NAME);
-		campaignFilter.setRequired(true);
-		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignReferenceDto.getUuid()));
-		campaignFilter.setEnabled(false);
+//		campaignFilter.setId(CampaignDto.NAME);
+//		campaignFilter.setRequired(true);
+//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
+//		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignReferenceDto.getUuid()));
+//		campaignFilter.setEnabled(false);
 
 		campaignFormMetaFilter.setText(campaignForm.getCaption());
 
 		Label lblCollectionDateInfo = new Label(I18nProperties.getCaption(Captions.actionImport));
 
-		H3 step2 = new H3();
-		step2.add("Step 2: Download the Import Template");
+		H3 step1 = new H3();
+		step1.add("Step 1: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 
 		Icon downloadImportTemplateButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
@@ -136,7 +132,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 				downloadAnchor.getElement().setAttribute("download", true);
 				downloadAnchor.getStyle().set("display", "none");
 
-				step2.add(downloadAnchor);
+				step1.add(downloadAnchor);
 
 				// Simulate a click event on the hidden anchor to trigger the download
 				downloadAnchor.getElement().callJsFunction("click");
@@ -154,8 +150,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		);
 
-		H3 step3 = new H3();
-		step3.add("Step 3: Import CSV File");
+		H3 step2 = new H3();
+		step2.add("Step 2: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
 		Label sd = new Label("Upload");
 
@@ -195,8 +191,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		});
 
-		H3 step4 = new H3();
-		step4.add("Step 4: Download Error Report");
+		H3 step3 = new H3();
+		step3.add("Step 3: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 		downloadErrorReportButton = new Anchor("beforechange");
 		// downloadErrorReportButton.setVisible(false);
@@ -211,23 +207,24 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		});
 
 		anchorSpan.add(downloadErrorReportButton);
-//		anchorSpan.setVisible(false);
-//		Button startButton = new Button("Start Interval__ Callback");
-//		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		startButton.setId("pokers");
-//		startButton.addClickListener(e -> {
-//			startIntervalCallback();
-//		});
+
 
 		startIntervalCallback();
+		
 
-//		Button stopButton = new Button("Stop Interval Callback");
-//		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		stopButton.addClickListener(e -> stopIntervalCallback());
+//		UI.getCurrent().addPollListener(event -> {
+//			if (callbackRunning) {
+//				System.out.println("starting pullers_________________");
+//				UI.getCurrent().access(this::pokeFlow);
+//			} else {
+//				System.out.println("stoping pullers_________________");
+//				stopPullers();
+//			}
+//		});
 
-		dialog.add(seperatorr, // startButton, stopButton,
-				lblCollectionDateInfo, campaignFilter, campaignFormMetaFilter, lblCollectionDateInfo, step2,
-				lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
+		dialog.add(seperatorr, 
+				step1,
+				lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload, startDataImport, step3,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
@@ -246,25 +243,27 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
+		logger.debug("runingImport...");
 	}
 
 	private void startIntervalCallback() {
-		UI.getCurrent().setPollInterval(5000);
+		//UI.getCurrent().setPollInterval(300);
 		if (!callbackRunning) {
 			timer = new Timer();
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					stopIntervalCallback();
+//					stopIntervalCallback();
+					pokeFlow();
 				}
-			}, 15000); // 10 minutes
+			}, 1000); // 10 minutes
 
 			callbackRunning = true;
 		}
 	}
 
 	private void stopIntervalCallback() {
+		System.out.println("stopIntervalCallback_________________");
 		if (callbackRunning) {
 			callbackRunning = false;
 			if (timer != null) {
@@ -275,9 +274,9 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		}
 	}
 
-	private void stopPullers() {
-		UI.getCurrent().setPollInterval(-1);
-	}
+//	private void stopPullers() {
+//		UI.getCurrent().setPollInterval(-1);
+//	}
 
 	private void refreshPage() {
 		// Get the current UI
