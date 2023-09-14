@@ -330,7 +330,10 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignFormCombo.setItems(campaignForms);
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
-		campaignFormCombo.setValue(campaignForms.get(0));
+		if(campaignForms.size() > 0) {
+			campaignFormCombo.setValue(campaignForms.get(0));
+
+		}
 
 		newForm.setItems(campaignForms);
 
