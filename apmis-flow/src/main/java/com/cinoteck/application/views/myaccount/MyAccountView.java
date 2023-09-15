@@ -7,6 +7,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -297,18 +298,20 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		Div actionss = new Div();
 
+		Icon vadIcc = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		vadIcc.getStyle().set("color", "green");
+
+		Button discard = new Button(I18nProperties.getCaption(Captions.actionDiscard));
+		
 		Icon vadIc = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
 		vadIc.setId("fghf");
 		vadIc.getStyle().set("color", "green !important");
-
-		Icon vadIcc = new Icon(VaadinIcon.CHECK_CIRCLE_O);
-		vadIc.getStyle().set("color", "white");
-
-		Button discard = new Button(I18nProperties.getCaption(Captions.actionDiscard), vadIc);
+		
 		discard.getStyle().set("margin-right", "20px");
-		discard.getStyle().set("color", "green");
+		discard.getStyle().set("color", "green !important");
 		discard.getStyle().set("background", "white");
 		discard.getStyle().set("border", "1px solid green");
+		discard.setIcon(vadIc);
 
 		Button savee = new Button(I18nProperties.getCaption(Captions.actionSave), vadIcc);
 		savee.addClickListener(e -> {

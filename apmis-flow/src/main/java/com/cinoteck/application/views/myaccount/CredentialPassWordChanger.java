@@ -42,14 +42,14 @@ public class CredentialPassWordChanger extends Div {
 
 		if (I18nProperties.getUserLanguage() == null) {
 
-			I18nProperties.setUserLanguage(Language.EN);			
+			I18nProperties.setUserLanguage(Language.EN);
 		} else {
 
 			I18nProperties.setUserLanguage(currentUser.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 		}
 		FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getUser().getLanguage());
-		
+
 		this.userName = usedto;
 
 		_dialog = new ConfirmDialog();
@@ -71,7 +71,7 @@ public class CredentialPassWordChanger extends Div {
 	}
 
 	protected void continuePasswrd() {
-		
+
 		accessControl = AccessControlFactory.getInstance().createAccessControl();
 		UserProvider userProvider = new UserProvider();
 		UserDto userxs = userProvider.getUser();
@@ -83,8 +83,8 @@ public class CredentialPassWordChanger extends Div {
 
 		FormLayout layout = new FormLayout();
 
-		PasswordField oldPassField = new PasswordField(I18nProperties.getCaption(Captions.oldPassword));
-		oldPassField.setSizeFull();
+//		PasswordField oldPassField = new PasswordField(I18nProperties.getCaption(Captions.oldPassword));
+//		oldPassField.setSizeFull();
 
 		PasswordField passField1 = new PasswordField(I18nProperties.getString(Strings.headingNewPassword));
 		passField1.setSizeFull();
@@ -95,13 +95,13 @@ public class CredentialPassWordChanger extends Div {
 //		layout.add(new Label("*Must be at least 8 characters"));
 //		layout.add(new Label("*Must contain 1 Uppercase and 1 special character "));
 
-		Label instructionLabel = new Label( I18nProperties.getString(Strings.mustBeAt8Char) +" \r\n <br>"
+		Label instructionLabel = new Label(I18nProperties.getString(Strings.mustBeAt8Char) + " \r\n <br>"
 				+ I18nProperties.getString(Strings.mustContain1UppercaseChar) + " \r\n" + "");
 		instructionLabel.getElement().setProperty("innerHTML", instructionLabel.getText());
 		instructionLabel.getElement().getStyle().set("font-size", "12px");
 
 		passField2.setSizeFull();
-		layout.add(oldPassField, passField1, passField2, instructionLabel);
+		layout.add(passField1, passField2, instructionLabel);
 
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
 //				changePassword.setStyleName(CssStyles.VAADIN_BUTTON);
@@ -109,40 +109,36 @@ public class CredentialPassWordChanger extends Div {
 //				changePassword.setStyleName(CssStyles.FLOAT_RIGHT);
 
 		saveButton.addClickListener(e -> {
-			String oldPass = oldPassField.getValue().trim();
+//			String oldPass = oldPassField.getValue().trim();
 			String newpass1 = passField1.getValue().trim();
 			String newpass2 = passField2.getValue().trim();
 
-			if ((oldPass != null && !oldPass.isEmpty()) && newpass1.equals(newpass2) && !newpass1.equals(oldPass)) {
-				if(accessControl.upDatePassWordCheck(userxs.getUserName(), oldPass)) {
-				
-						FacadeProvider.getUserFacade().changePassword(userxs.getUserName(), newpass1);
-						UI.getCurrent().getPage().reload();					
-						Notification.show(I18nProperties.getString(Strings.passwordChangedSuccessfully));
-		} else {
-			
-			Notification.show(I18nProperties.getString(Strings.passwordChangedSuccessfully));
-		}
-		} else {
-			Notification notification = new Notification();
-			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-			notification.setPosition(Position.MIDDLE);
-			Button closeButton = new Button(new Icon("lumo", "cross"));
-			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-			closeButton.getElement().setAttribute("aria-label", "Close");
-			closeButton.addClickListener(event -> {
-				notification.close();
-			});
+			if (newpass1.equals(newpass2)) {
+				if (accessControl.upDatePassWordCheck(userxs.getUserName(), newpass1)) {
 
-			Paragraph text = new Paragraph(
-					I18nProperties.getString(Strings.passwordDoesNotMatch) + " and New password must not be same with old.");
+					FacadeProvider.getUserFacade().changePassword(userxs.getUserName(), newpass1);
+					UI.getCurrent().getPage().reload();
+					Notification.show(I18nProperties.getString(Strings.passwordChangedSuccessfully));
+				}
+			} else {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
 
-			HorizontalLayout errorLayout = new HorizontalLayout(text, closeButton);
-			errorLayout.setAlignItems(Alignment.CENTER);
+				Paragraph text = new Paragraph(I18nProperties.getString(Strings.passwordDoesNotMatch));
 
-			notification.add(errorLayout);
-			notification.open();
-		}
+				HorizontalLayout errorLayout = new HorizontalLayout(text, closeButton);
+				errorLayout.setAlignItems(Alignment.CENTER);
+
+				notification.add(errorLayout);
+				notification.open();
+			}
 		});
 
 		dialog.add(layout);

@@ -3,11 +3,13 @@ package de.symeda.sormas.api.campaign.diagram;
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_DEFAULT;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Objects;
 
 import javax.validation.constraints.Size;
 
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 
 public class CampaignDashboardElement implements Serializable {
 
@@ -132,6 +134,24 @@ public class CampaignDashboardElement implements Serializable {
 	public int hashCode() {
 		return Objects.hash(diagramId, tabId, subTabId, order, width, height, phase);
 	}
+	
+	
+	//for sorting by order
+	public static Comparator<CampaignDashboardElement> sortOrderByAge = new Comparator<CampaignDashboardElement>() {
+
+		public int compare(CampaignDashboardElement comRef1, CampaignDashboardElement comRef2) {
+
+			int orderNo1 = comRef1.getOrder();
+			int orderNo2 = comRef2.getOrder();
+
+			// For ascending order
+			return orderNo1 - orderNo2;
+
+			// For descending order
+			// clusterno2-clusterno1;
+		}
+	}; 
+	
 	
 //	@Override
 //	public String toString() {

@@ -1,6 +1,8 @@
 package com.cinoteck.application.views.campaign;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +29,14 @@ import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.provider.SortOrder;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 
@@ -70,6 +75,10 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 
 	Binder<CampaignDashboardElement> dashboardElementBinder = new BeanValidationBinder<>(
 			CampaignDashboardElement.class);
+	
+	protected List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos_;
+	protected Map<String, String> diagramIdCaptionMap_;
+	
 
 	public CampaignDashboardGridElementComponent(List<CampaignDashboardElement> savedElements,
 			List<CampaignDashboardElement> allElements, CampaignDto campaignDto, String campaignPhase) {
@@ -78,57 +87,62 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		this.campaignDto = campaignDto;
 		this.campaignPhase = campaignPhase;
 
+		
+		
+		campaignDiagramDefinitionDtos_ = FacadeProvider
+				.getCampaignDiagramDefinitionFacade().getAll().stream()
+				.filter(e -> e.getFormType().equalsIgnoreCase(campaignPhase)).collect(Collectors.toList());
+		diagramIdCaptionMap_ = campaignDiagramDefinitionDtos_.stream().collect(Collectors
+				.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
+		
+		
 		if (campaignDto == null) {
 			campaignDto = new CampaignDto();
 		}
 
 		grid.addColumn(this::getDiagramCaption).setHeader(I18nProperties.getCaption(Captions.chart)).setAutoWidth(true)
 				.setResizable(true);
-;
+
 		grid.addColumn(CampaignDashboardElement::getTabId)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardTabName)).setAutoWidth(true)
-				.setResizable(true);
+				.setResizable(true).setSortable(true);
 		grid.addColumn(CampaignDashboardElement::getSubTabId)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardSubTabName)).setAutoWidth(true)
-				.setResizable(true);
+				.setResizable(true).setSortable(true);
 		grid.addColumn(CampaignDashboardElement::getWidth)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartWidth));
 		grid.addColumn(CampaignDashboardElement::getHeight)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		grid.addColumn(CampaignDashboardElement::getOrder)
-				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder)).setSortProperty("order");;
 
+				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder)).setSortable(true);
+		
+		
+		
+		
+//		for (CommunityReferenceDto item : items) {
+//			item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
+//		}
+		
+		
+		Collections.sort(savedElements, 
+				CampaignDashboardElement.sortOrderByAge); 
+		
 		grid.setItems(savedElements);
 
-//		dashboardElementBinder.forField(tabID).bind(CampaignDashboardElement::getTabId,
-//				CampaignDashboardElement::setTabId);
-//
-//		dashboardElementBinder.forField(subTabID).bind(CampaignDashboardElement::getSubTabId,
-//				CampaignDashboardElement::setSubTabId);
-//
-//		dashboardElementBinder.forField(tabWidth).bind(CampaignDashboardElement::getWidth,
-//				CampaignDashboardElement::setWidth);
-//
-//		dashboardElementBinder.forField(tabHeight).bind(CampaignDashboardElement::getHeight,
-//				CampaignDashboardElement::setHeight);
-//
-//		dashboardElementBinder.forField(tabOrder).bind(CampaignDashboardElement::getOrder,
-//				CampaignDashboardElement::setOrder);
+//		grid.sort(CampaignDashboardElement::getOrder, SortDirection.ASCENDING);
+		// setSortOrder(List<GridSortOrder<CampaignDashboardElement>>, boolean)
+//		grid.setSortOrder(new SortOrder<>(grid.getColumnByKey("order"), SortDirection.ASCENDING));
 
+		
+		
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
 	}
 
 	private String getDiagramCaption(CampaignDashboardElement item) {
-
-		final List<CampaignDiagramDefinitionDto> campaignDiagramDefinitionDtos = FacadeProvider
-				.getCampaignDiagramDefinitionFacade().getAll().stream()
-				.filter(e -> e.getFormType().equalsIgnoreCase(campaignPhase)).collect(Collectors.toList());
-		final Map<String, String> diagramIdCaptionMap = campaignDiagramDefinitionDtos.stream().collect(Collectors
-				.toMap(CampaignDiagramDefinitionDto::getDiagramId, CampaignDiagramDefinitionDto::getDiagramCaption));
-
-		return getItemCaption(item, diagramIdCaptionMap);
+		return getItemCaption(item, diagramIdCaptionMap_);
 	}
 
 	private Component getContent() {

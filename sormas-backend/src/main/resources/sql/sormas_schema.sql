@@ -9006,7 +9006,7 @@ WHERE
 GROUP BY 
     areas.name, 
     region.name, 
-    district.name, 
+    district.name,
     areas.uuid, 
     region.uuid, 
     district.uuid, 
@@ -9040,5 +9040,37 @@ EXECUTE PROCEDURE update_updated_on_user_task();
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (447, 'adding platform/source of data and improving the log audit');
+
+CREATE MATERIALIZED VIEW public.campaignformdata_jsonextract
+TABLESPACE pg_default
+as
+--INSERT INTO campaignformdata_jsondata (id, key, value)
+SELECT
+    j.id AS id,
+    j.obj->>'id' AS key,
+    j.obj->>'value' AS value
+FROM (
+    SELECT
+        id,
+        json_array_elements(formvalues) AS obj
+    FROM campaignformdata 
+) AS j
+with data; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (448, 'upgrading api');
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
