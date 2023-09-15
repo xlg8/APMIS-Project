@@ -296,6 +296,7 @@ public class UserView extends VerticalLayout {
 		searchField.setPlaceholder("Search Users");
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClearButtonVisible(true);
+		searchField.setWidth("145px");
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> {
 
@@ -310,6 +311,8 @@ public class UserView extends VerticalLayout {
 		filterLayout.add(searchField);
 		activeFilter = new ComboBox<String>();
 		activeFilter.setId(UserDto.ACTIVE);
+		activeFilter.setWidth("145px");
+
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.getStyle().set("margin-left", "12px");
@@ -331,6 +334,8 @@ public class UserView extends VerticalLayout {
 		filterLayout.add(activeFilter);
 
 		userRolesFilter = new ComboBox<UserRole>();
+		userRolesFilter.setWidth("145px");
+
 		userRolesFilter.setId(UserDto.USER_ROLES);
 		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
 		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
@@ -353,6 +358,8 @@ public class UserView extends VerticalLayout {
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
+		areaFilter.setWidth("145px");
+
 		// areaFilter.setWidth(200, Unit.PIXELS);
 		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
 		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
@@ -402,7 +409,7 @@ public class UserView extends VerticalLayout {
 
 		regionFilter = new ComboBox<RegionReferenceDto>();
 		regionFilter.setId(CaseDataDto.REGION);
-		regionFilter.setWidth(200, Unit.PIXELS);
+		regionFilter.setWidth(145, Unit.PIXELS);
 		regionFilter.setLabel(
 				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.region));
@@ -450,7 +457,7 @@ public class UserView extends VerticalLayout {
 
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
-		// districtFilter.setWidth(200, Unit.PIXELS);
+		 districtFilter.setWidth(145, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtFilter.getStyle().set("margin-left", "0.1rem");

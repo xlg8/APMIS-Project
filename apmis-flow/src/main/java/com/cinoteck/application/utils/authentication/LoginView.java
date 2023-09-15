@@ -66,7 +66,7 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginInformation.setAlignItems(Alignment.CENTER);
 //Todo make the image include the text to avoid the problems of wrapping 
 		loginInformation.setClassName("login-information");
-		Image imgApmis = new Image("images/apmislogo.png", "APMIS-LOGO");
+		Image imgApmis = new Image("images/apmisheaderbanner.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
 
 		VerticalLayout loginFormCarrier = new VerticalLayout();

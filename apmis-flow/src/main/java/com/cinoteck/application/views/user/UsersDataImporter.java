@@ -292,6 +292,7 @@ public class UsersDataImporter extends DataImporter {
 			newUserLine.setUserName(finalUsername);
 			//define logic to accept other userroles except for, mobile user
 			userRole.add(UserRole.REST_USER);
+			userRole.add(UserRole.COMMUNITY_OFFICER);
 			
 			newUserLine.setUserRoles(userRole);
 			newUserLine.setFormAccess(finalFormAccess);

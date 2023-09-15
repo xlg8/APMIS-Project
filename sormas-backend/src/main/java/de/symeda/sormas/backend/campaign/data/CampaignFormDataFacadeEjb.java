@@ -2507,6 +2507,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 			//@formatter:off
 			
+
 			final String campaignFilter = campaign != null ? "campaigns_uuid = '"+campaign.getUuid()+"'" : "";
 			final String areaFilter = area != null ? " AND  areas_uuid = '"+area.getUuid()+"'" : "";
 			final String regionFilter = region != null ? " AND region_uuid = '"+region.getUuid()+"'" : "";
