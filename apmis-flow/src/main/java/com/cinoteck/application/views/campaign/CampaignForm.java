@@ -1,5 +1,12 @@
 package com.cinoteck.application.views.campaign;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -17,6 +24,10 @@ import java.util.stream.Collectors;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
 import com.cinoteck.application.views.utils.DownloadUtil;
+import com.cinoteck.application.views.utils.importutils.DataImporter;
+//import com.cinoteck.application.views.utils.importutils.DefaultPopulationDataImporter;
+import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
@@ -72,6 +83,8 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.importexport.ImportFacade;
+import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -81,6 +94,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
@@ -106,6 +120,7 @@ public class CampaignForm extends VerticalLayout {
 	Button saveChanges;
 
 	Button logButton;
+//	Button generateDefaultPopulation;
 
 	Binder<CampaignIndexDto> binder = new BeanValidationBinder<>(CampaignIndexDto.class);
 	Binder<CampaignDto> binderx = new BeanValidationBinder<>(CampaignDto.class);
@@ -162,6 +177,9 @@ public class CampaignForm extends VerticalLayout {
 	CampaignDashboardGridElementComponent compp2;
 
 	CampaignDashboardGridElementComponent comppp2;
+	
+	private static final String DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME = "default_population_data.csv";
+
 
 	public CampaignForm(CampaignDto formData) {
 
@@ -743,6 +761,71 @@ public class CampaignForm extends VerticalLayout {
 			Notification.show("clicked");
 			logEventMethod();
 		});
+//		
+//		generateDefaultPopulation = new Button();
+//		generateDefaultPopulation.setText("Generate Campaign Population");
+//		generateDefaultPopulation.addClickListener(e -> {
+////			 UserProvider usrr = new UserProvider();
+//			
+//				UserDto srDto = usr.getUser();
+//				private File file_ = new File();
+//			try {
+//
+//				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignDto.getUuid());
+//				
+//				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
+//				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+//			} catch (IOException | CsvValidationException e) {
+//				Notification.show(
+//					I18nProperties.getString(Strings.headingImportFailed) +" : "+
+//					I18nProperties.getString(Strings.messageImportFailed));
+//			}
+//			
+//		});
+//		ImportFacade importFacade = FacadeProvider.getImportFacade();
+////		URI templateFilePath;
+////		templateFilePath = importFacade.getAllContinentsImportFilePath();
+//		
+//		generateDefaultPopulation = new Button();
+//		generateDefaultPopulation.setText("Generate Campaign Population");
+//		generateDefaultPopulation.addClickListener(e -> {
+//			System.out.println( "file pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+//		    // Assuming you have an InputStream for your embedded CSV file
+//		    InputStream inputStream = getClass().getResourceAsStream("/default_population_data.csv");
+//
+//		    if (inputStream != null) {
+//		    	
+//		        // Create a temporary File to pass to your importer
+//		        File tempFile;
+//		        try {
+//		            tempFile = File.createTempFile("tempCSV", ".csv");
+//		            tempFile.deleteOnExit();
+//
+//		            // Copy the content of the embedded CSV file to the temporary File
+//		            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+//		                byte[] buffer = new byte[1024];
+//		                int bytesRead;
+//		                while ((bytesRead = inputStream.read(buffer)) != -1) {
+//		                    outputStream.write(buffer, 0, bytesRead);
+//		                }
+//		            }
+//
+//		            UserDto srDto = usr.getUser();
+//		            CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignDto.getUuid());
+//
+//		            DataImporter importer = new DefaultPopulationDataImporter(tempFile, srDto, acmpDto, ValueSeparator.COMMA);
+//		            importer.startImport(null, null, false, UI.getCurrent(), true);
+//		        } catch (IOException | CsvValidationException e1) {
+//		            Notification.show(
+//		                I18nProperties.getString(Strings.headingImportFailed) + " : " +
+//		                I18nProperties.getString(Strings.messageImportFailed)
+//		            );
+//		        }
+//		    } else {
+//		        Notification.show("Embedded CSV file not found.");
+//		    }
+//		});
+
 
 		publishUnpublishCampaign = new Button();
 
@@ -826,6 +909,11 @@ public class CampaignForm extends VerticalLayout {
 		add(campaignBasics, formL, layoutParent, actionButtonsLayout); // ,
 
 	}
+//	protected URI getImportFilePath() {
+//		return FacadeProvider.getImportFacade().getDefaualtPopulationImportFilePath();
+//	}
+//	
+//	
 
 	public String DateGetYear(Date dates) {
 

@@ -117,6 +117,8 @@ public interface ImportFacade {
 	URI getAllSubcontinentsImportFilePath();
 
 	URI getAllContinentsImportFilePath();
+	
+	URI getDefaualtPopulationImportFilePath();
 
 	String getRegionImportTemplateFileName();
 
@@ -143,4 +145,6 @@ public interface ImportFacade {
 	String getContactImportTemplateFilePath();
 
 	String getImportTemplateContent(String templateFilePath) throws IOException;
+
+	
 }
