@@ -65,7 +65,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 	
     private void refreshGridData(FormAccess formAccess) {
     	System.out.println("______________AMIN_____________");
-//    	int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
+//   	int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
 		dataProvider = DataProvider
 				.fromFilteringCallbacks(
 						query -> FacadeProvider.getCampaignFormDataFacade()
@@ -83,7 +83,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 												sortOrder.getDirection() == SortDirection.ASCENDING))
 										.collect(Collectors.toList()),
 								null)));
-//						numberOfRows
+						
 //								);
 
         grid_.setDataProvider(dataProvider);

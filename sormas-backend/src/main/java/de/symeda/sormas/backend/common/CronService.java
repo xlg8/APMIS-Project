@@ -88,7 +88,7 @@ public class CronService {
 	}
 
 	//check and update Analysis Table for Campaign Dashboard CampaignFormDataFacadeEjbLocal
-	@Schedule(hour = "*", minute = "*/10", second = "0", persistent = false)
+	@Schedule(hour = "*", minute = "*/15", second = "0", persistent = false)
 	public void calculateCaseCompletion() {
 		long timeStart = DateHelper.startTime();
 		campaingDataFacade.checkLastAnalytics();
@@ -98,7 +98,7 @@ public class CronService {
 //        executor.execute(myRunnable);
 //        executor.shutdown();
 		//int casesUpdated = campaingDataFacade..updateCompleteness();
-		logger.debug("running analytics updates finished. {} cases, {} s", 0, DateHelper.durationSeconds(timeStart));
+		logger.debug("running analytics updates finished. {} proccessed, {} s", 0, DateHelper.durationSeconds(timeStart));
 	}
 
 //	@Schedule(hour = "*", minute = "*/2", second = "0", persistent = false)

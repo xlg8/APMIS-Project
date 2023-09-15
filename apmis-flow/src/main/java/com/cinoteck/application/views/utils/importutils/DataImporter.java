@@ -174,7 +174,7 @@ public abstract class DataImporter {
 
 		Anchor achrdum_ = new Anchor();
 
-		ImportProgressLayout progressLayout = this.getImportProgressLayout(currentUI, duplicatesPossible);
+		ImportProgressLayout progressLayout = getImportProgressLayout(currentUI, duplicatesPossible);
 
 		importedLineCallback = progressLayout::updateProgress;
 
@@ -191,7 +191,7 @@ public abstract class DataImporter {
 			try {
 				currentUI.access(() -> {
 					// how often should the front end be updated
-					currentUI.setPollInterval(50);
+					currentUI.setPollInterval(300);
 				});
 
 				I18nProperties.setUserLanguage(currentUser.getLanguage());
@@ -429,6 +429,7 @@ public abstract class DataImporter {
 				// is not automatically updated; this should be changed once Vaadin push is
 				// enabled (see #516)
 				// Notification.show(errorText);//, Type.ERROR_MESSAGE,
+				
 				// false).show(Page.getCurrent());
 				System.err.println("ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOORRRR");
 				return null;
