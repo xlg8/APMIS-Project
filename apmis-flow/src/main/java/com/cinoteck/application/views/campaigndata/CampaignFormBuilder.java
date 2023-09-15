@@ -557,6 +557,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 			Object value = formValuesMap.get(formElement.getId());
 
 			int occupiedColumns = getOccupiedColumns(type, styles);
+			
+			final HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions.getOptionsListValues();
 
 			if (type == CampaignFormElementType.DAYWISE) {
 				accrd_count++;
@@ -795,9 +797,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.RADIO) {
 					RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
 					radioGroup.setLabel(formElement.getCaption());
-					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
-							.getOptionsListValues();
+//					data = (HashMap<String, String>) campaignFormElementOptions
+//							.getOptionsListValues();
 					radioGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
+					
 					radioGroup.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					radioGroup.setId(formElement.getId());
 					radioGroup.setSizeFull();
@@ -816,8 +819,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					radioGroupVert.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 					radioGroupVert.setLabel(formElement.getCaption());
 
-					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
-							.getOptionsListValues();
+//					data = (HashMap<String, String>) campaignFormElementOptions
+//							.getOptionsListValues();
 					radioGroupVert.setItems(data.keySet().stream().collect(Collectors.toList()));
 					radioGroupVert.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 
@@ -837,17 +840,21 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
 
-					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
-							.getOptionsListValues();
+					
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-					System.out.println(data + "drp[oksnfonsofnosnfon orderrrrrr" + sortedKeys);
+					
 
 					select.setItems(sortedKeys);
 
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
+					select.setClearButtonVisible(true);
+					System.out.println(data.get(value) + "_____..................._____"+value);
+					
+					
 					setFieldValue(select, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
-
+					
+					
 					vertical.add(select);
 
 					if (dependingOnId != null && dependingOnValues != null) {
@@ -859,8 +866,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
 					checkboxGroup.setLabel(formElement.getCaption());
 
-					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
-							.getOptionsListValues();
+//					data = (HashMap<String, String>) campaignFormElementOptions
+//							.getOptionsListValues();
 					checkboxGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
 					checkboxGroup.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 
@@ -881,8 +888,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
 					checkboxGroup.setLabel(formElement.getCaption());
 
-					HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
-							.getOptionsListValues();
+//					data = (HashMap<String, String>) campaignFormElementOptions
+//							.getOptionsListValues();
 					checkboxGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
 					checkboxGroup.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 
@@ -967,7 +974,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			break;
 		case RANGE:
-			System.out.println("|" + value + "|================|" + defaultErrorMsgr + "|");
+//			System.out.println("|" + value + "|================|" + defaultErrorMsgr + "|");
 			boolean isExxpression = false;
 			if (defaultErrorMsgr != null) {
 				if (defaultErrorMsgr.toString().endsWith("..")) {
@@ -1121,6 +1128,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 			break;
 		case DROPDOWN:
 
+			final HashMap<String, String> data_ = (HashMap<String, String>) options;
+
 			if (value != null) {
 
 				if (value.equals(true)) {
@@ -1136,8 +1145,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 				((ComboBox) field).setValue(defaultvalue);
 			}
 			;
+			
 
-			if (value != null) {
+			if (value != null && (data_.get(value) != null)) {
 				// String dxz = options.get(value);
 				((ComboBox) field).setValue(value);
 			}

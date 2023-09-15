@@ -308,6 +308,8 @@ public class CampaignsView extends VerticalLayout {
 
 	private void openFormLayout(CampaignDto formData) {
 		Dialog dialog = new Dialog();
+		String isclosedOpen = FacadeProvider.getCampaignFacade().isClosedd(formData.getUuid()) ? " (Closed)" : "";
+		
 		CampaignForm formLayout = new CampaignForm(formData);
 		formLayout.setCampaign(formData);
 		formLayout.addSaveListener(this::saveCampaign);
@@ -319,7 +321,7 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() );
+		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen );
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -501,19 +503,21 @@ public class CampaignsView extends VerticalLayout {
 		if (isOpened) {
 
 			dialog.setHeader("Open Campaign");
-			dialog.setText("Are you sure you want to Open this campaign? This will make this campaign status Open.");
+			dialog.setText("Are you sure you want to Open this campaign? This will make this campaign status Open, and lost any unsaved changes");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updateOpenCloseButtonText(false);
+				UI.getCurrent().getPage().reload();
 			});
 
 		} else {
 			dialog.setHeader("Close Campaign");
 			dialog.setText(
-					"Are you sure you want to Close this campaign?  This will make this campaign status Closed.");
+					"Are you sure you want to Close this campaign?  This will make this campaign status Closed, and lost any unsaved changes");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), true);
 				formLayout.updateOpenCloseButtonText(true);
+				UI.getCurrent().getPage().reload();
 			});
 
 		}

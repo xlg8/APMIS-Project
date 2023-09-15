@@ -149,31 +149,30 @@ public class PopulationDataImporter extends DataImporter {
 					campaigns_ = null;
 				} else {
 					
-					
-					if( values[i].toString().length() > 28 &&  values[i].toString().contains("-")) {
-						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-					//	System.out.println("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
-								
-						//check if data matched campaign
-						if(!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
-							writeImportError(values, campaigns_ +" Campaign mismatched");
-//							writeImportError(values, new ImportErrorException(values[i], "Capaign not matched");
-							return ImportLineResult.ERROR;
-						}
 						
-						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-						
-						if (campaigns_ == null) {
+						if( values[i].toString().length() > 28 &&  values[i].toString().contains("-")) {
+							campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
+							
+							if (campaigns_ == null) {
+								writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+	//							System.out.println("~~~~~~~~~~~~~~~~~~~````"+new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}	
+							
+							//check if data matched campaign
+							if(!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
+								writeImportError(values, campaigns_ +" Campaign mismatched");
+	//							writeImportError(values, new ImportErrorException(values[i], "Capaign not matched");
+								return ImportLineResult.ERROR;
+							}
+							
+							
+							
+						} else {
 							writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							System.out.println("~~~~~~~~~~~~~~~~~~~````"+new ImportErrorException(values[i], entityProperties[i]).getMessage());
+	//						System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
 							return ImportLineResult.ERROR;
 						}
-						
-					} else {
-						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-						System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
-						return ImportLineResult.ERROR;
-					}
 					}
 				}
 			

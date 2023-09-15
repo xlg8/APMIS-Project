@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
-import com.cinoteck.application.views.utils.DownloadUtil;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
@@ -26,16 +25,13 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
-
-import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
@@ -43,7 +39,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -54,7 +49,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.shared.Position;
 //import com.vaadin.server.FileDownloader;
 //import com.vaadin.server.StreamResource;
 //import com.vaadin.ui.AbstractComponent;
@@ -63,7 +57,6 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
-import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
@@ -82,7 +75,6 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
-import de.symeda.sormas.api.utils.DataHelper;
 
 @PageTitle("APMIS-Edit Campaign")
 @Route(value = "/data")
@@ -115,7 +107,7 @@ public class CampaignForm extends VerticalLayout {
 	private CampaignDto campaignDto;
 	private CampaignIndexDto campaignDtox;
 
-	H5 campaignBasics = new H5(I18nProperties.getCaption(Captions.campaignBasics));
+	H4 campaignBasics = new H4(I18nProperties.getCaption(Captions.campaignBasics));
 
 	TextField campaignName = new TextField(I18nProperties.getCaption(Captions.Campaign_name));
 	ComboBox round = new ComboBox<>(I18nProperties.getCaption(Captions.round));
@@ -753,6 +745,11 @@ public class CampaignForm extends VerticalLayout {
 			updateArchiveButtonText(isArchived);
 			updatePublishButtonText(isPublished);
 			updateOpenCloseButtonText(isOpenClose);
+		} else {
+			openCloseCampaign.setEnabled(false);
+			archiveDearchive.setEnabled(false);
+			duplicateCampaign.setEnabled(false);
+			publishUnpublishCampaign.setEnabled(false);
 		}
 
 		publishUnpublishCampaign.addClickListener(e -> {
@@ -761,8 +758,10 @@ public class CampaignForm extends VerticalLayout {
 
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
+			archiveDearchive.setEnabled(!isOpenClose);
 		});
 
+		archiveDearchive.setEnabled(false);
 		archiveDearchive.addClickListener(e -> {
 			archive();
 

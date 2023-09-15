@@ -1,6 +1,7 @@
 package de.symeda.sormas.api.campaign;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -204,7 +205,8 @@ public class CampaignDto extends EntityDto {
 	
 	public Set<CampaignDashboardElement> getCampaignDashboardElements(String formType) {
 
-		return campaignDashboardElements.stream().filter(e -> e.getPhase().equals(formType)).collect(Collectors.toSet());
+		return campaignDashboardElements.stream()//.sorted(Comparator.comparing(CampaignDashboardElement::getOrder)).filter(e -> e.getPhase().equals(formType)).collect(Collectors.toSet());
+		.filter(e -> e.getPhase().equals(formType)).collect(Collectors.toSet());
 	}
 
 	public void setCampaignDashboardElements(List<CampaignDashboardElement> campaignDashboardElements) {
