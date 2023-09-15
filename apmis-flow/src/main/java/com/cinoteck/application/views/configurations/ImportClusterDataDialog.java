@@ -82,13 +82,13 @@ public class ImportClusterDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-		UI.getCurrent().addPollListener(event -> {
-			if (callbackRunning) {
-				UI.getCurrent().access(this::pokeFlow);
-			} else {
-				stopPullers();
-			}
-		});
+//		UI.getCurrent().addPollListener(event -> {
+//			if (callbackRunning) {
+//				UI.getCurrent().access(this::pokeFlow);
+//			} else {
+//				stopPullers();
+//			}
+//		});
 
 		H3 step2 = new H3();
 		step2.add("Step 1: Download the Import Template");
@@ -243,7 +243,7 @@ public class ImportClusterDataDialog extends Dialog {
 //			startIntervalCallback();
 //		});
 		
-		startIntervalCallback();
+//		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -257,7 +257,7 @@ public class ImportClusterDataDialog extends Dialog {
 		
 		Button doneButton = new Button("Done", e -> {
 			close();
-			stopIntervalCallback();
+//			stopIntervalCallback();
 			
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
@@ -271,35 +271,35 @@ public class ImportClusterDataDialog extends Dialog {
 
 	}
 
-	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
-	}
-
-	private void startIntervalCallback() {
-		UI.getCurrent().setPollInterval(5000);
-		if (!callbackRunning) {
-			timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					stopIntervalCallback();
-				}
-			}, 15000); // 10 minutes
-
-			callbackRunning = true;
-		}
-	}
-
-	private void stopIntervalCallback() {
-		if (callbackRunning) {
-			callbackRunning = false;
-			if (timer != null) {
-				timer.cancel();
-				timer.purge();
-			}
-
-		}
-	}
+//	private void pokeFlow() {
+//		Notification.show("dialog detected... User wont logout");
+//	}
+//
+//	private void startIntervalCallback() {
+//		UI.getCurrent().setPollInterval(5000);
+//		if (!callbackRunning) {
+//			timer = new Timer();
+//			timer.schedule(new TimerTask() {
+//				@Override
+//				public void run() {
+//					stopIntervalCallback();
+//				}
+//			}, 15000); // 10 minutes
+//
+//			callbackRunning = true;
+//		}
+//	}
+//
+//	private void stopIntervalCallback() {
+//		if (callbackRunning) {
+//			callbackRunning = false;
+//			if (timer != null) {
+//				timer.cancel();
+//				timer.purge();
+//			}
+//
+//		}
+//	}
 	
 	
 	

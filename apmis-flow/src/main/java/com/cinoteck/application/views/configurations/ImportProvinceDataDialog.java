@@ -81,16 +81,16 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-		UI.getCurrent().addPollListener(event -> {
-			if (callbackRunning) {
-				UI.getCurrent().access(this::pokeFlow);
-			} else {
-				stopPullers();
-			}
-		});
+//		UI.getCurrent().addPollListener(event -> {
+//			if (callbackRunning) {
+//				UI.getCurrent().access(this::pokeFlow);
+//			} else {
+//				stopPullers();
+//			}
+//		});
 
-		H3 step2 = new H3();
-		step2.add("Step 1: Download the Import Template");
+		H3 step1 = new H3();
+		step1.add("Step 1: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 
 		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
@@ -125,7 +125,7 @@ public class ImportProvinceDataDialog extends Dialog {
 				downloadAnchor.getElement().setAttribute("download", true);
 				downloadAnchor.getStyle().set("display", "none");
 
-				step2.add(downloadAnchor);
+				step1.add(downloadAnchor);
 
 				// Simulate a click event on the hidden anchor to trigger the download
 				downloadAnchor.getElement().callJsFunction("click");
@@ -218,13 +218,13 @@ public class ImportProvinceDataDialog extends Dialog {
 //			startIntervalCallback();
 //		});
 
-		startIntervalCallback();
+//		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload,
+		dialog.add(step1, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload,
 				startDataImport, step5,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
@@ -234,7 +234,7 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		Button doneButton = new Button("Done", e -> {
 			close();
-			stopIntervalCallback();
+//			stopIntervalCallback();
 
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
@@ -248,39 +248,39 @@ public class ImportProvinceDataDialog extends Dialog {
 
 	}
 
-	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
-	}
+//	private void pokeFlow() {
+////		Notification.show("dialog detected... User wont logout");
+//	}
 
-	private void startIntervalCallback() {
-		UI.getCurrent().setPollInterval(5000);
-		if (!callbackRunning) {
-			timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					stopIntervalCallback();
-				}
-			}, 15000); // 10 minutes
+//	private void startIntervalCallback() {
+//		UI.getCurrent().setPollInterval(5000);
+//		if (!callbackRunning) {
+//			timer = new Timer();
+//			timer.schedule(new TimerTask() {
+//				@Override
+//				public void run() {
+//					stopIntervalCallback();
+//				}
+//			}, 15000); // 10 minutes
+//
+//			callbackRunning = true;
+//		}
+//	}
+//
+//	private void stopIntervalCallback() {
+//		if (callbackRunning) {
+//			callbackRunning = false;
+//			if (timer != null) {
+//				timer.cancel();
+//				timer.purge();
+//			}
+//
+//		}
+//	}
 
-			callbackRunning = true;
-		}
-	}
-
-	private void stopIntervalCallback() {
-		if (callbackRunning) {
-			callbackRunning = false;
-			if (timer != null) {
-				timer.cancel();
-				timer.purge();
-			}
-
-		}
-	}
-
-	private void stopPullers() {
-		UI.getCurrent().setPollInterval(-1);
-	}
+//	private void stopPullers() {
+//		UI.getCurrent().setPollInterval(-1);
+//	}
 
 	private void refreshPage() {
 		// Get the current UI
