@@ -649,13 +649,12 @@ vaadin-button:hover {
    }
    
 
-@media (hover: hover) {
 a:hover {
     color: white!important;
 }
-}
 
-vaadin-dialog-overlay.formI{
+
+vaadin-dialog-overlay.form{
     top: 0px;
     right: 0px;
     bottom: 0px;

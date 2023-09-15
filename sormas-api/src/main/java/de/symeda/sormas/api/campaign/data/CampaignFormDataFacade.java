@@ -34,6 +34,7 @@ import de.symeda.sormas.api.campaign.diagram.CampaignDiagramSeries;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.report.CampaignDataExtractDto;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -117,5 +118,6 @@ public interface CampaignFormDataFacade {
 	String getByJsonFormDefinitonToCSVCount();
 
 	int prepareAllCompletionAnalysis();
-	
+
+	List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuid, String formuuid);
 }

@@ -75,7 +75,9 @@ import de.symeda.sormas.api.user.UserType;
 @JavaScript(value = "https://code.jquery.com/jquery-3.6.4.min.js")
 @StyleSheet("https://cdn.jsdelivr.net/npm/@vaadin/vaadin-lumo-styles@24.0.0/")
 
-@StyleSheet("https://demo.dashboardpack.com/architectui-html-free/main.css")
+@CssImport(value = "/styles/mainapmis.css")
+
+//@StyleSheet("https://demo.dashboardpack.com/architectui-html-free/main.css")
 @JavaScript("https://code.jquery.com/jquery-3.6.3.min.js")
 @JavaScript("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
 @StyleSheet("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css")
@@ -180,7 +182,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		Header header = new Header(imgApmis);
 
-		addToDrawer(header, scroller);
+		
+		Span versionadd = new Span();
+		versionadd.getElement().setProperty("innerHTML", "<p>APMIS Version: 4.0.0</p><p>Release date: 2|Sept|2023</p>");
+		versionadd.getStyle().set("background-color", "#0d6938");
+		versionadd.getStyle().set("color", "#16c400");
+		versionadd.getStyle().set("padding-left", "0.7rem");
+		
+		addToDrawer(header, scroller, versionadd);
 
 //		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
 //                new Locale("fa","IR", "فارسی"));
@@ -504,6 +513,10 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			dialog.setCloseOnOutsideClick(false);
 			dialog.open();
 		});
+		
+		
+		
+		
 
 		layout.add(logoutButton);
 

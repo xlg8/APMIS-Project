@@ -46,14 +46,14 @@ import de.symeda.sormas.api.user.UserDto;
 
 public class ImportPopulationDataDialog extends Dialog {
 
-	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
+//	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
-	ComboBox valueSeperator = new ComboBox<>();
-	private boolean callbackRunning = false;
-	private Timer timer;
-	private int pollCounter = 0;
+//	ComboBox valueSeperator = new ComboBox<>();
+//	private boolean callbackRunning = false;
+//	private Timer timer;
+//	private int pollCounter = 0;
 	private File file_;
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
@@ -76,24 +76,24 @@ public class ImportPopulationDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-		UI.getCurrent().addPollListener(event -> {
-			if (callbackRunning) {
-				UI.getCurrent().access(this::pokeFlow);
-			} else {
-				stopPullers();
-			}
-		});
+//		UI.getCurrent().addPollListener(event -> {
+//			if (callbackRunning) {
+//				UI.getCurrent().access(this::pokeFlow);
+//			} else {
+//				stopPullers();
+//			}
+//		});
+//
+//		campaignFilter.setId(CampaignDto.NAME);
+//		campaignFilter.setRequired(true);
+//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
+//		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(camapigndto.getUuid()));
+//		campaignFilter.setEnabled(false);
+////
+//		Label lblCollectionDateInfo = new Label(I18nProperties.getString(Strings.infoPopulationCollectionDate));
 
-		campaignFilter.setId(CampaignDto.NAME);
-		campaignFilter.setRequired(true);
-		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(camapigndto.getUuid()));
-		campaignFilter.setEnabled(false);
-
-		Label lblCollectionDateInfo = new Label(I18nProperties.getString(Strings.infoPopulationCollectionDate));
-
-		H3 step2 = new H3();
-		step2.add("Step 2: Download the Import Template");
+		H3 step1 = new H3();
+		step1.add("Step 1: Download the Import Template");
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 		Icon downloadButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
 		downloadImportTemplate.setIcon(downloadButtonnIcon);
@@ -126,7 +126,7 @@ public class ImportPopulationDataDialog extends Dialog {
 				downloadAnchor.getElement().setAttribute("download", true);
 				downloadAnchor.getStyle().set("display", "none");
 
-				step2.add(downloadAnchor);
+				step1.add(downloadAnchor);
 
 				// Simulate a click event on the hidden anchor to trigger the download
 				downloadAnchor.getElement().callJsFunction("click");
@@ -144,8 +144,8 @@ public class ImportPopulationDataDialog extends Dialog {
 
 		);
 
-		H3 step3 = new H3();
-		step3.add("Step 3: Import CSV File");
+		H3 step2 = new H3();
+		step2.add("Step 2: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
 		Label sd = new Label("Upload");
 		
@@ -174,7 +174,7 @@ public class ImportPopulationDataDialog extends Dialog {
 			
 			try {
 
-				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
 				
 				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
@@ -187,8 +187,8 @@ public class ImportPopulationDataDialog extends Dialog {
 			
 		});
 
-		H3 step4 = new H3();
-		step4.add("Step 4: Download Error Report");
+		H3 step3 = new H3();
+		step3.add("Step 3: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 		downloadErrorReportButton = new Anchor("beforechange");
 		//downloadErrorReportButton.setVisible(false);
@@ -197,8 +197,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		donloadErrorReport.setIcon(downloadErrorReporttButtonnIcon);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
-			
+		//	Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
 		downloadErrorReportButton.getElement().callJsFunction("click");
 		});
 		
@@ -211,20 +210,20 @@ public class ImportPopulationDataDialog extends Dialog {
 //			startIntervalCallback();
 //		});
 		
-		startIntervalCallback();
+	//	startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
 		dialog.add(seperatorr, //startButton, stopButton,
-				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, upload, startDataImport, step4,
+//				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
+				step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload, startDataImport, step3,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();
-			stopIntervalCallback();
+		//	stopIntervalCallback();
 			campaignForm.treeGrid.getDataProvider().refreshAll();
 			// refreshPage();
 		});
@@ -237,43 +236,43 @@ public class ImportPopulationDataDialog extends Dialog {
 		setCloseOnOutsideClick(false);
 
 	}
+//
+//	private void pokeFlow() {
+//	//	Notification.show("dialog detected... User wont logout");
+//	}
 
-	private void pokeFlow() {
-		Notification.show("dialog detected... User wont logout");
-	}
-
-	private void startIntervalCallback() {
-		UI.getCurrent().setPollInterval(5000);
-		if (!callbackRunning) {
-			timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					stopIntervalCallback();
-				}
-			}, 15000); // 10 minutes
-
-			callbackRunning = true;
-		}
-	}
-
-	private void stopIntervalCallback() {
-		if (callbackRunning) {
-			callbackRunning = false;
-			if (timer != null) {
-				timer.cancel();
-				timer.purge();
-			}
-
-		}
-	}
+//	private void startIntervalCallback() {
+//		UI.getCurrent().setPollInterval(5000);
+//		if (!callbackRunning) {
+//			timer = new Timer();
+//			timer.schedule(new TimerTask() {
+//				@Override
+//				public void run() {
+//					stopIntervalCallback();
+//				}
+//			}, 15000); // 10 minutes
+//
+//			callbackRunning = true;
+//		}
+//	}
+//
+//	private void stopIntervalCallback() {
+//		if (callbackRunning) {
+//			callbackRunning = false;
+//			if (timer != null) {
+//				timer.cancel();
+//				timer.purge();
+//			}
+//
+//		}
+//	}
 	
 	
-	
-
-	private void stopPullers() {
-		UI.getCurrent().setPollInterval(-1);
-	}
+//	
+//
+//	private void stopPullers() {
+//		UI.getCurrent().setPollInterval(-1);
+//	}
 
 	private void refreshPage() {
 		// Get the current UI

@@ -19,14 +19,11 @@ package com.cinoteck.application.views.utils.importutils;
 
 
 
-import com.vaadin.event.MouseEvents.ClickListener;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -35,8 +32,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import com.vaadin.flow.server.StreamResource;
-
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -45,7 +40,7 @@ import de.symeda.sormas.api.i18n.Strings;
 public class ImportProgressLayout extends VerticalLayout {
 
 	// Components
-	private ProgressBar progressBar;
+	private ProgressBar progressBarMain;
 	private Span processedImportsLabel = new Span();
 	private Span successfulImportsLabel = new Span();
 	private Span importErrorsLabel = new Span();
@@ -53,7 +48,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	private Span importDuplicatesLabel = new Span();
 	private Button closeCancelButton;
 	private HorizontalLayout infoLayout;
-	private Span infoLabel;
+	private Span infoLabel = new Span();
 
 	private ProgressBar progressCircle;
 	private Icon errorIcon;
@@ -61,7 +56,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	private Icon warningIcon;
 	private Component currentInfoComponent;
 
-	private ClickListener cancelListener;
+//	private ClickListener cancelListener;
 
 	// Counts
 	private int processedImportsCount;
@@ -92,10 +87,14 @@ public class ImportProgressLayout extends VerticalLayout {
 		currentInfoComponent = progressCircle;
 		infoLayout.add(currentInfoComponent);
 		
-        
-		infoLabel = new Span(String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount));
+		infoLabel.removeAll();
+		Span infoLabel_s = new Span(new Html("<div>"+String.format(I18nProperties.getString(Strings.infoImportProcess), totalCount)+"</div>"));
 		
-		Notification.show(System.currentTimeMillis()+"");
+		infoLabel.add(infoLabel_s);
+		
+		
+		
+//		Notification.show(System.currentTimeMillis()+"");
 //		infoLabel.setContentMode(ContentMode.HTML);
 		infoLayout.add(infoLabel);
 //		infoLayout.setExpandRatio(infoLabel, 1);
@@ -103,10 +102,10 @@ public class ImportProgressLayout extends VerticalLayout {
 		add(infoLayout);
 
 		// Progress bar
-		progressBar = new ProgressBar(0.0f, 100.0f);
+		progressBarMain = new ProgressBar(0.0f, 100.0f);
 //		CssStyles.style(progressBar, CssStyles.VSPACE_TOP_3);
-		add(progressBar);
-		progressBar.setWidth(100, Unit.PERCENTAGE);
+		add(progressBarMain);
+		progressBarMain.setWidth(100, Unit.PERCENTAGE);
 
 		// Progress info
 		HorizontalLayout progressInfoLayout = new HorizontalLayout();
@@ -145,9 +144,9 @@ public class ImportProgressLayout extends VerticalLayout {
 		progressInfoLayout.setAlignItems(Alignment.END);
 
 		// Cancel button
-		cancelListener = e -> cancelCallback.run();
+//		cancelListener = e -> cancelCallback.run();
 
-		closeCancelButton = new Button(Captions.actionCancel);
+		closeCancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel));
 		
 		closeCancelButton.addClickListener(e->{
 		cancelCallback.run();
@@ -160,7 +159,9 @@ public class ImportProgressLayout extends VerticalLayout {
 
 	private void initializeInfoComponents() {
 		progressCircle = new ProgressBar();
+		
 		progressCircle.setIndeterminate(true);
+		progressCircle.setWidth("15%");
 //		CssStyles.style(progressCircle, "v-progressbar-indeterminate-large");
 
 		errorIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE_O);
@@ -170,18 +171,20 @@ public class ImportProgressLayout extends VerticalLayout {
 		successIcon.getStyle().set("color", "green!important");
 //		successIcon.setWidth(35, Unit.PIXELS);
 		warningIcon = new Icon(VaadinIcon.WARNING);
-		warningIcon.getStyle().set("color", "yellow!important");
+		warningIcon.getStyle().set("color", "#abab3d!important");
 //		warningIcon.setWidth(35, Unit.PIXELS);
 	}
 
 	public void updateProgress(ImportLineResult result) {
+		System.out.println("__________________________________________cc____________"+result);
 		currentUI.access(() -> {
 			
 			processedImportsCount++;
 			System.out.println("updateProgress(ImportLineResult result): "+processedImportsCount);
 			
 			if (result == ImportLineResult.SUCCESS) {
-				Notification.show(ImportLineResult.SUCCESS.name());
+				System.out.println("________if (result == ImportLineResult.SUCCESS) {___________");
+				Notification.show("++++++++++++"+ImportLineResult.SUCCESS.name());
 				successfulImportsCount++;
 				successfulImportsLabel.removeAll();
 				Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
@@ -216,12 +219,12 @@ public class ImportProgressLayout extends VerticalLayout {
 			Label _processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
 			processedImportsLabel.add(_processedImportsLabel);
 
-			Notification.show("currentUI.access(() -> {.....");
+			//Notification.show("currentUI.access(() -> {.....");
 //			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
 			float resultx = (float) processedImportsCount / totalCount;
 			float percentage = resultx * 100;
 			System.out.println("sssssssssssssssssssssss "+percentage);
-			progressBar.setValue(percentage);
+			progressBarMain.setValue(percentage);
 		});
 	}
 
@@ -233,7 +236,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	}
 
 	public void setInfoLabelText(String text, VaadinIcon ic, String infoType) {
-		
+		System.out.println("ssssssssetInfoLabelTextsssssss "+text);
 		infoLabel.removeAll();
 		
 		Span infoLabel_ = new Span(new Html("<div>"+text+"</div>"));
@@ -247,7 +250,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	public void displayErrorIcon() {
 		infoLayout.remove(currentInfoComponent);
 		currentInfoComponent = errorIcon;
-		Notification.show(System.currentTimeMillis()+"SettingerrorIcon");
+	//	Notification.show(System.currentTimeMillis()+"SettingerrorIcon");
 		infoLayout.addComponentAsFirst(currentInfoComponent);
 	}
 

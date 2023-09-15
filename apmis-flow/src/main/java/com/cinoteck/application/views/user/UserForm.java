@@ -29,15 +29,21 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -100,8 +106,6 @@ public class UserForm extends FormLayout {
 	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 	ComboBox<DistrictReferenceDto> district = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-//	MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>(
-//			I18nProperties.getCaption(Captions.community));
 
 	TextField street = new TextField(I18nProperties.getCaption(Captions.Location_street));
 	TextField houseNumber = new TextField(I18nProperties.getCaption(Captions.Location_houseNumber));
@@ -128,7 +132,9 @@ public class UserForm extends FormLayout {
 	Button delete = new Button(I18nProperties.getCaption(Captions.actionDelete));
 	Button close = new Button(I18nProperties.getCaption(Captions.actionCancel));
 
-	Anchor createPassword = new Anchor("", I18nProperties.getCaption(Captions.userResetPassword));
+	Button createPassword = new Button(I18nProperties.getCaption(Captions.userResetPassword));
+
+	ConfirmDialog _dialog = new ConfirmDialog();
 
 	Map<String, Component> map = new HashMap<>();
 
@@ -144,12 +150,14 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
+	UserDto user;
 
 //	Button resetUserPassword = new Button();
 
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
-			List<DistrictReferenceDto> districts, UserDto user) {
+			List<DistrictReferenceDto> districts, UserDto user, boolean editmode) {
 
+		this.user = user;
 		addClassName("contact-form");
 		HorizontalLayout hor = new HorizontalLayout();
 		Icon vaadinIcon = new Icon(VaadinIcon.ARROW_CIRCLE_LEFT_O);
@@ -168,11 +176,11 @@ public class UserForm extends FormLayout {
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields(user);
+		updatePasswordDialog();
 	}
 
 	@SuppressWarnings("unchecked")
-	public void configureFields(UserDto user) {
-		System.out.println(user + " userrrr value in configure field ");
+	public void configureFields(UserDto user) {		
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -184,7 +192,7 @@ public class UserForm extends FormLayout {
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
-		binder.forField(firstName).asRequired(I18nProperties.getString(Strings.headingUserData))
+		binder.forField(firstName).asRequired(I18nProperties.getCaption(Captions.firstNameRequired))
 				.bind(UserDto::getFirstName, UserDto::setFirstName);
 
 		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
@@ -194,9 +202,7 @@ public class UserForm extends FormLayout {
 				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
 		map.put("email", userEmail);
 
-		binder.forField(phone)
-				.withValidator(e -> e.length() >= 13, I18nProperties.getCaption(Captions.enterValidPhoneNumber))
-				.bind(UserDto::getPhone, UserDto::setPhone);
+		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
 		binder.forField(userPosition).bind(UserDto::getUserPosition, UserDto::setUserPosition);
 
@@ -281,9 +287,26 @@ public class UserForm extends FormLayout {
 					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
 							.getAllActiveByDistrict(districtDto.getUuid());
 					for (CommunityReferenceDto item : items) {
+						if (item.getNumber() == null) {
 
-						if(item.getNumber() == null)
-							Notification.show("Cluster Number cannot be empty, please contact support"); //I18nProperties.getString(Strings.clustNot)  )
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph("Cluster Number cannot be empty, please contact support");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+						}
 
 						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
@@ -318,12 +341,11 @@ public class UserForm extends FormLayout {
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
-		
+
 		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
 		roles.remove(UserRole.BAG_USER);
-		
-		
-		//Sorting the user roles usng comprtor
+
+		// Sorting the user roles usng comprtor
 		Collections.sort(rolesz, new UserRoleCustomComparator());
 
 		// then i'm converting back to a set for facade to handle save properly.
@@ -335,7 +357,8 @@ public class UserForm extends FormLayout {
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 
-		binder.forField(userRoles).withValidator(new UserRolesValidator()).asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+		binder.forField(userRoles).withValidator(new UserRolesValidator())
+				.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
 				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
 
 		this.setColspan(userRoles, 1);
@@ -343,7 +366,6 @@ public class UserForm extends FormLayout {
 			updateFieldsByUserRole(e.getValue());
 			validateUserRoles();
 		});
-		
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
@@ -404,37 +426,83 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-	
+
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
-				district, clusterNo, createPassword);
+				district, clusterNo);
 
 		createButtonsLayout();
 	}
 
-//	public void makeNewPassword(String userUuid, String userEmail, String userName) {
-//		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
-//
-//		if (StringUtils.isBlank(userEmail)
-//				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
-//			Dialog ttt = new Dialog();
-//			ttt.add("UserName : " + userName);
-//			ttt.add("Password : " + newPassword);
-//			ttt.open();
-//
-////			showPasswordResetInternalSuccessPopup(newPassword, userName);
-//		} else {
-////			showPasswordResetExternalSuccessPopup();
-//		}
-//	}
+	public void updatePasswordDialog() {
+
+		_dialog.setHeader("Update Password");
+
+		_dialog.setCloseOnEsc(false);
+		_dialog.setCancelable(true);
+		_dialog.addCancelListener(e -> _dialog.close());
+
+		_dialog.setRejectable(true);
+		_dialog.setRejectText("Cancel");
+		_dialog.addRejectListener(e -> _dialog.close());
+
+		_dialog.setConfirmText("Really Update Password");
+		_dialog.addConfirmListener(e -> makeNewPassword(binder.getBean().getUuid(), binder.getBean().getUserEmail(),
+				binder.getBean().getUserName()));
+	}
+
+	public void makeNewPassword(String userUuid, String userEmail, String userName) {
+		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+
+		if (StringUtils.isBlank(userEmail)
+				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
+
+			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("Password Updated");
+
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
+			username.getStyle().set("color", "#0D6938");
+
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+
+			infoLayout.add(username, password);
+
+			newUserPop.add(infoLayout);
+
+			newUserPop.setOpened(true);
+
+		} else {
+			Dialog newUserPop = new Dialog();
+			newUserPop.setClassName("passwordsDialog");
+			VerticalLayout infoLayout = new VerticalLayout();
+
+			Paragraph infoText = new Paragraph("Please , copy this password, it is shown only once.");
+			newUserPop.setHeaderTitle("Password Updated");
+
+			H3 username = new H3(I18nProperties.getCaption(Captions.Login_username) + " : " + userName);
+			username.getStyle().set("color", "#0D6938");
+
+			H3 password = new H3(I18nProperties.getCaption(Captions.Login_password) + " : " + newPassword);
+			password.getStyle().set("color", "#0D6938");
+
+			infoLayout.add(username, password);
+
+			newUserPop.add(infoLayout);
+
+			newUserPop.setOpened(true);
+		}
+	}
 
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
-		if (editMode) {
-
-			System.out.println(lastName.getValue() + "xxxxxxxxxchecking edit mode eeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+		if (editMode) {		
 
 			lastName.addValueChangeListener(e -> {
 
@@ -447,46 +515,89 @@ public class UserForm extends FormLayout {
 	}
 
 	private void createButtonsLayout() {
-//		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		createPassword.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		close.addClickShortcut(Key.ESCAPE);
 
-		lastName.addValueChangeListener(e -> {
-			suggestUserName(true);
-		});
-
-		save.addClickListener(event -> validateAndSave());
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
 		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
 
-		HorizontalLayout horizontallayout = new HorizontalLayout(save, close);
-		horizontallayout.setJustifyContentMode(JustifyContentMode.END);
-		horizontallayout.setMargin(true);
+		createPassword.addClickListener(event -> {
+			_dialog.open();
+		});
+
+		HorizontalLayout horizontallayout = new HorizontalLayout();
+
+		createPassword.getStyle().set("margin-right", "auto");
+		save.getStyle().set("margin-left", "auto");
+
+		horizontallayout.add(createPassword, save, close);
 		add(horizontallayout);
 		this.setColspan(horizontallayout, 2);
 	}
 
-	private void validateAndSave() {
-//		map.forEach((key, value) -> {
-//			Component formField = map.get(key);
-//			if (value instanceof TextField) {
-//
-//				TextField formFieldxx = (TextField) value;
-//				ValidationResult requiredValidation = emailVal.apply(formFieldxx.getValue(), null);
-////				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
-//				if (requiredValidation.isError()) {
-//
-//					// Handle required field validation error
-//					formFieldxx.setInvalid(true);
-//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
-//				} else {
-		fireEvent(new SaveEvent(this, binder.getBean()));
-//				}
-//			}
-//
-//		});
+	public void validateAndSaveEdit(UserDto editedUser) {
+		if (binder.validate().isOk()) {
+
+			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
+					&& !editedUser.getUserName().isEmpty()) {
+
+				fireEvent(new SaveEvent(this, binder.getBean()));
+			} else {
+
+				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("Error : Username not unique");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
+				}
+			}
+		}
+	}
+
+	public void validateAndSaveNew() {
+
+		if (binder.validate().isOk()) {
+			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username not unique");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			} else {
+				fireEvent(new SaveEvent(this, binder.getBean()));
+			}
+		}
 	}
 
 //	private void validateUserRoles() {
@@ -509,67 +620,56 @@ public class UserForm extends FormLayout {
 //
 //		});
 //	}
-	
+
 	class UserRoleCustomComparator implements Comparator<UserRole> {
-	    private final String[] customOrder = {
-	        "Admin",
-	        "National Data Manager",
-	        "National Officer",
-	        "National Observer / Partner",
-	        "Regional Observer",
-	        "Regional Data Manager",
-	        "Regional Officer",
-	        "Provincial Observer",
-	        "Provincial Data Clerk",
-	        "Provincial Officer",
-	        "District Officer",
-	        "District Observer"
-	    };
+		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
+				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",
+				"Provincial Observer", "Provincial Data Clerk", "Provincial Officer", "District Officer",
+				"District Observer" };
 
-	    @Override
-	    public int compare(UserRole role1, UserRole role2) {
-	        // Get the indexes of the roles in the custom order
-	        int index1 = indexOfRole(role1);
-	        int index2 = indexOfRole(role2);
+		@Override
+		public int compare(UserRole role1, UserRole role2) {
+			// Get the indexes of the roles in the custom order
+			int index1 = indexOfRole(role1);
+			int index2 = indexOfRole(role2);
 
-	        // Compare based on their indexes in the custom order
-	        return Integer.compare(index1, index2);
-	    }
+			// Compare based on their indexes in the custom order
+			return Integer.compare(index1, index2);
+		}
 
-	    private int indexOfRole(UserRole role) {
-	        for (int i = 0; i < customOrder.length; i++) {
-	            if (customOrder[i].equals(role.name())) {
-	                return i;
-	            }
-	        }
-	        return customOrder.length; // Role not found, place it at the end
-	    }
+		private int indexOfRole(UserRole role) {
+			for (int i = 0; i < customOrder.length; i++) {
+				if (customOrder[i].equals(role.name())) {
+					return i;
+				}
+			}
+			return customOrder.length; // Role not found, place it at the end
+		}
 	}
-	
+
 	class IndexedUserRole implements Comparable<IndexedUserRole> {
-	    private UserRole role;
-	    private int index;
+		private UserRole role;
+		private int index;
 
-	    public IndexedUserRole(UserRole role, int index) {
-	        this.role = role;
-	        this.index = index;
-	    }
+		public IndexedUserRole(UserRole role, int index) {
+			this.role = role;
+			this.index = index;
+		}
 
-	    public UserRole getRole() {
-	        return role;
-	    }
+		public UserRole getRole() {
+			return role;
+		}
 
-	    public int getIndex() {
-	        return index;
-	    }
+		public int getIndex() {
+			return index;
+		}
 
-	    @Override
-	    public int compareTo(IndexedUserRole other) {
-	        // Compare based on the assigned indexes
-	        return Integer.compare(this.index, other.index);
-	    }
+		@Override
+		public int compareTo(IndexedUserRole other) {
+			// Compare based on the assigned indexes
+			return Integer.compare(this.index, other.index);
+		}
 	}
-
 
 	private void validateUserRoles() {
 		map.forEach((key, value) -> {
@@ -586,7 +686,7 @@ public class UserForm extends FormLayout {
 					formFieldxx.setErrorMessage(validation.getErrorMessage());
 					formFieldxx.setTooltipText(validation.getErrorMessage());
 				} else {
-			
+
 				}
 			}
 		});
