@@ -20,6 +20,7 @@ import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
+import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
 //import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
 import com.cinoteck.application.views.utils.IdleNotification;
@@ -254,6 +255,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class,
 				VaadinIcon.CHAT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
+				"navitem"));
+		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
 				"navitem"));
 
 //		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,

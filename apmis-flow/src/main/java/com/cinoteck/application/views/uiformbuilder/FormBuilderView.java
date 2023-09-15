@@ -10,6 +10,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -25,16 +26,16 @@ public class FormBuilderView extends FormLayout {
 	ComboBox<CampaignFormElementType> formType = new ComboBox<CampaignFormElementType>("Type");
 
 	ComboBox<String> formId = new ComboBox<>("Id");
-	ComboBox<String> caption = new ComboBox<>("Label");
+	TextField caption = new TextField("Label");
 	Checkbox important = new Checkbox("Important");
-	ComboBox<String> optionsKey = new ComboBox<>("Option Keys");
-	ComboBox<String> optionsValue = new ComboBox<>("Option Values");
+	TextField optionsKey = new TextField("Option Keys");
+	TextField optionsValue = new TextField("Option Values");
 	ComboBox<String> expression = new ComboBox<>("Expression");
 	ComboBox<String> dependingOn = new ComboBox<>("Depending On");
 	ComboBox<String> dependingOnValues = new ComboBox<>("Depending On Values");
 	ComboBox<String> styles = new ComboBox<>("Styles");
 	ComboBox<String> constraints = new ComboBox<>("Constraints");
-	ComboBox<String> errorMessage = new ComboBox<>("ErrorMessage");
+	TextField errorMessage = new TextField("ErrorMessage");
 
 	Button generateJson = new Button("Generate Json");
 
@@ -50,12 +51,16 @@ public class FormBuilderView extends FormLayout {
 		configure();
 		valueChange();
 		add(formType, formId, caption, important, optionsKey, optionsValue, expression, dependingOn, dependingOnValues,
-				styles, constraints, errorMessage, generateJson, jsonContainer);
+				styles, constraints, errorMessage, generateJson, jsonContainer);		
 	}
 
 	public void configure() {
 
+		dependingOnValues.setItems("Yes", "No");
 		formType.setItems(CampaignFormElementType.values());
+		constraints.setItems("Expression", "Range");
+		styles.setItems("inline", "row", "first", "col-1", "col-2", "col-3", 
+				"col-4", "col-5", "col-6", "col-7", "col-8", "col-9", "col-10", "col-11", "col-12");
 	}
 
 	public void valueChange() {

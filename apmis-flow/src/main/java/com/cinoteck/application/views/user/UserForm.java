@@ -443,6 +443,7 @@ public class UserForm extends FormLayout {
 		_dialog.setCancelable(true);
 		_dialog.addCancelListener(e -> _dialog.close());
 
+		_dialog.setText("You are about to create a New Password for an existing User");
 		_dialog.setRejectable(true);
 		_dialog.setRejectText("Cancel");
 		_dialog.addRejectListener(e -> _dialog.close());
@@ -542,8 +543,7 @@ public class UserForm extends FormLayout {
 		if (binder.validate().isOk()) {
 
 			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
-			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
-					&& !editedUser.getUserName().isEmpty()) {
+			if (binderUser.getUserName().toLowerCase().trim().equals(editedUser.getUserName().toLowerCase().trim())) {
 
 				fireEvent(new SaveEvent(this, binder.getBean()));
 			} else {

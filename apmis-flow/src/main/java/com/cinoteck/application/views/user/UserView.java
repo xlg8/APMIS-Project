@@ -191,13 +191,13 @@ public class UserView extends VerticalLayout {
 			isEditingModeActive = true;
 		});
 
-		exportUsers.setIcon(new Icon(VaadinIcon.CLOUD_DOWNLOAD_O));
+		exportUsers.setIcon(new Icon(VaadinIcon.CLOUD_UPLOAD));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
 		
-		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
+		importUsers.setIcon(new Icon(VaadinIcon.CLOUD_DOWNLOAD));
 		importUsers.addClickListener(e -> {
 			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
 
@@ -622,9 +622,9 @@ public class UserView extends VerticalLayout {
 		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e -> {			
+		form.addCloseListener(e -> {						
 			UI.getCurrent().getPage().reload();
-			closeEditor();
+			closeEditor();			
 		});
 
 	}
