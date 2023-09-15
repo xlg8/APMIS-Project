@@ -408,6 +408,13 @@ public class DistrictView extends VerticalLayout {
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
 			layout.add(addNew);
 		}
+		
+		Button importDistrict = new Button("Import");
+		importDistrict.setIcon(new Icon(VaadinIcon.DOWNLOAD));
+		importDistrict.addClickListener(e -> {
+			ImportDistrictDataDialog dialog = new ImportDistrictDataDialog();
+			dialog.open();
+		});
 
 		Button exportDistrict = new Button("Export");
 		exportDistrict.setIcon(new Icon(VaadinIcon.UPLOAD));
@@ -418,7 +425,7 @@ public class DistrictView extends VerticalLayout {
 		});
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(exportDistrict, anchor);
+			layout.add(importDistrict, exportDistrict, anchor);
 		}
 		layout.setWidth("88%");
 

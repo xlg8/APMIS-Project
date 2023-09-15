@@ -317,7 +317,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.POST);
+			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.PRE);
 			campaignPhase.setValue(CampaignPhase.INTRA);
 		} else {
 			campaignPhase.setItems(CampaignPhase.values());
@@ -330,7 +330,10 @@ public class CampaignDataView extends VerticalLayout {
 
 		campaignFormCombo.setItems(campaignForms);
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
-		campaignFormCombo.setValue(campaignForms.get(0));
+		if(campaignForms.size() > 0) {
+			campaignFormCombo.setValue(campaignForms.get(0));
+
+		}
 
 		newForm.setItems(campaignForms);
 
