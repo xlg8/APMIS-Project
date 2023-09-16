@@ -266,15 +266,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-				"navitem"));
-
-//		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.actionLogout), LogoutView.class,
-//				VaadinIcon.SIGN_OUT_ALT, "navitem"));
-
-//		 Router router = new Router();
-//
-//	        router.getRegistry().add(new RouteEntry("/dashboard", DashboardView.class));
-//	       
+				"navitem"));	       
 
 		if (nav != null) {
 			nav.addClassName("active");
