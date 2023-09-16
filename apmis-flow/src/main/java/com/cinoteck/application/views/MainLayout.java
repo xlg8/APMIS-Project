@@ -105,16 +105,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
-
 			I18nProperties.setUserLanguage(Language.EN);
-
+			FacadeProvider.getI18nFacade().setUserLanguage(Language.EN);
 		} else {
 
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
+			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		}
 
-		FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
+		
 
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
@@ -371,9 +371,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	}
 
 	private void rtlswitcher() {
-		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
-		I18nProperties.getUserLanguage();
-		if (userProvider.getUser().getLanguage().toString() != null) {
+		
+		if (userProvider.getUser().getLanguage() != null) {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+			I18nProperties.getUserLanguage();
+			
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
@@ -384,6 +386,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 			}
 
+		} else {
+			I18nProperties.setUserLanguage(Language.EN);
+			I18nProperties.getUserLanguage();
+			
+			userProvider.getUser().setLanguage(Language.EN);
+//			userProvider.getUser //.setLanguage(Language.EN);
+			UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 		}
 	}
 

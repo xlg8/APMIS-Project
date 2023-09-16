@@ -59,8 +59,11 @@ import de.symeda.sormas.api.importexport.ImportExportUtils;
 import de.symeda.sormas.api.importexport.ImportLineResultDto;
 import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -128,21 +131,24 @@ public abstract class DataImporter {
 	 * CSV separator used in the file
 	 */
 	private char csvSeparator;
-
+	protected AreaDto area;
+	protected RegionDto currentRegion;
+	protected DistrictDto currentDistrict;
+	protected CommunityDto currentCluster;
 	protected UserDto currentUser;
 	private CSVWriter errorReportCsvWriter;
 	private CSVWriter credentialsReportCsvWriter;
-
-	private final EnumCaptionCache enumCaptionCache;
 
 	ImportPopulationDataDialog importPopulationDataDialog;
 
 	public DataImporter(File inputFile, boolean hasEntityClassRow, UserDto currentUser, ValueSeparator csvSeparator)
 			throws IOException {
+		;
+
 		this.inputFile = inputFile;
 		this.hasEntityClassRow = hasEntityClassRow;
 		this.currentUser = currentUser;
-		this.enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+		final EnumCaptionCache enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
 
 		Path exportDirectory = getErrorReportFolderPath();
 		if (!exportDirectory.toFile().exists() || !exportDirectory.toFile().canWrite()) {
@@ -162,6 +168,129 @@ public abstract class DataImporter {
 
 		this.csvSeparator = ValueSeparator.getSeparator(csvSeparator);
 	}
+
+	public DataImporter(File inputFilex, boolean hasEntityClassRowx, UserDto userDto, AreaDto areax,
+			ValueSeparator csvSeparatorx) throws IOException {
+		this.inputFile = inputFilex;
+		this.hasEntityClassRow = hasEntityClassRowx;
+		this.area = areax;
+		this.currentUser = userDto;
+		final EnumCaptionCache enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+
+//		this.enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+
+		Path exportDirectory = getErrorReportFolderPath();
+		if (!exportDirectory.toFile().exists() || !exportDirectory.toFile().canWrite()) {
+			logger.error(exportDirectory + " doesn't exist or cannot be accessed");
+			throw new FileNotFoundException("Temp directory doesn't exist or cannot be accessed");
+		}
+		Path errorReportFilePath = exportDirectory.resolve(
+				ImportExportUtils.TEMP_FILE_PREFIX + "_error_report_" + DataHelper.getShortUuid(currentUser.getUuid())
+						+ "_" + DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		Path credentialsReportFilePath = exportDirectory.resolve(ImportExportUtils.TEMP_FILE_PREFIX
+				+ "_user_credentials_report_" + DataHelper.getShortUuid(currentUser.getUuid()) + "_"
+				+ DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		this.credentialsReportFilePath = credentialsReportFilePath.toString();
+		this.errorReportFilePath = errorReportFilePath.toString();
+
+		this.csvSeparator = ValueSeparator.getSeparator(csvSeparatorx);
+	}
+
+	public DataImporter(File inputFilex, boolean hasEntityClassRowx, RegionDto userDto, ValueSeparator csvSeparatorx)
+			throws IOException {
+		this.inputFile = inputFilex;
+		this.hasEntityClassRow = hasEntityClassRowx;
+//		this.area = areax;
+		this.currentRegion = userDto;
+//		this.enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+
+		Path exportDirectory = getErrorReportFolderPath();
+		if (!exportDirectory.toFile().exists() || !exportDirectory.toFile().canWrite()) {
+			logger.error(exportDirectory + " doesn't exist or cannot be accessed");
+			throw new FileNotFoundException("Temp directory doesn't exist or cannot be accessed");
+		}
+		Path errorReportFilePath = exportDirectory.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_error_report_"// +
+																												// DataHelper.getShortUuid(currentUser.getUuid())
+				+ "_" + DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		Path credentialsReportFilePath = exportDirectory
+				.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_user_credentials_report_" // +
+																							// DataHelper.getShortUuid(currentUser.getUuid())
+																							// + "_"
+						+ DateHelper.formatDateForExport(new Date()) + ".csv");
+
+		this.credentialsReportFilePath = credentialsReportFilePath.toString();
+		this.errorReportFilePath = errorReportFilePath.toString();
+
+		this.csvSeparator = ValueSeparator.getSeparator(csvSeparatorx);
+	}
+	
+	public DataImporter(File inputFilex, boolean hasEntityClassRowx, DistrictDto userDto, ValueSeparator csvSeparatorx)
+			throws IOException {
+		this.inputFile = inputFilex;
+		this.hasEntityClassRow = hasEntityClassRowx;
+//		this.area = areax;
+		this.currentDistrict = userDto;
+//		this.enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+
+		Path exportDirectory = getErrorReportFolderPath();
+		if (!exportDirectory.toFile().exists() || !exportDirectory.toFile().canWrite()) {
+			logger.error(exportDirectory + " doesn't exist or cannot be accessed");
+			throw new FileNotFoundException("Temp directory doesn't exist or cannot be accessed");
+		}
+		Path errorReportFilePath = exportDirectory.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_error_report_"// +
+																												// DataHelper.getShortUuid(currentUser.getUuid())
+				+ "_" + DateHelper.formatDateForExport(new Date()) + ".csv");
+		
+
+		Path credentialsReportFilePath = exportDirectory
+				.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_user_credentials_report_" // +
+																							// DataHelper.getShortUuid(currentUser.getUuid())
+																							// + "_"
+						+ DateHelper.formatDateForExport(new Date()) + ".csv");
+
+
+
+		this.credentialsReportFilePath = credentialsReportFilePath.toString();
+		this.errorReportFilePath = errorReportFilePath.toString();
+
+		this.csvSeparator = ValueSeparator.getSeparator(csvSeparatorx);
+	}
+	
+	public DataImporter(File inputFilex, boolean hasEntityClassRowx, CommunityDto userDto, ValueSeparator csvSeparatorx)
+			throws IOException {
+		this.inputFile = inputFilex;
+		this.hasEntityClassRow = hasEntityClassRowx;
+//		this.area = areax;
+		this.currentCluster = userDto;
+//		this.enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
+
+		Path exportDirectory = getErrorReportFolderPath();
+		if (!exportDirectory.toFile().exists() || !exportDirectory.toFile().canWrite()) {
+			logger.error(exportDirectory + " doesn't exist or cannot be accessed");
+			throw new FileNotFoundException("Temp directory doesn't exist or cannot be accessed");
+		}
+		Path errorReportFilePath = exportDirectory.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_error_report_"// +
+																												// DataHelper.getShortUuid(currentUser.getUuid())
+				+ "_" + DateHelper.formatDateForExport(new Date()) + ".csv");
+		
+
+		Path credentialsReportFilePath = exportDirectory
+				.resolve(ImportExportUtils.TEMP_FILE_PREFIX + "_user_credentials_report_" // +
+																							// DataHelper.getShortUuid(currentUser.getUuid())
+																							// + "_"
+						+ DateHelper.formatDateForExport(new Date()) + ".csv");
+
+
+
+		this.credentialsReportFilePath = credentialsReportFilePath.toString();
+		this.errorReportFilePath = errorReportFilePath.toString();
+
+		this.csvSeparator = ValueSeparator.getSeparator(csvSeparatorx);
+	}
+
 
 	/**
 	 * Opens a progress layout and runs the import logic in a separate thread.
@@ -193,10 +322,11 @@ public abstract class DataImporter {
 					// how often should the front end be updated
 					currentUI.setPollInterval(300);
 				});
-
-				I18nProperties.setUserLanguage(currentUser.getLanguage());
+				if(isUserCreation) {
+					I18nProperties.setUserLanguage(currentUser.getLanguage());
+			
 				FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getLanguage());
-
+				}
 				ImportResultStatus importResult = runImport();
 
 				// Display a window presenting the import result
@@ -496,6 +626,7 @@ public abstract class DataImporter {
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
 			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException {
 		Class<?> propertyType = pd.getPropertyType();
+		final EnumCaptionCache enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
 
 		if (propertyType.isEnum()) {
 			Enum enumValue = null;
