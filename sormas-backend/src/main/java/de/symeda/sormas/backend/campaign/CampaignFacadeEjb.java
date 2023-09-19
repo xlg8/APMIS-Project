@@ -230,12 +230,37 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		return toLogDto(campaignLog);
 	}
 
+//	@Override
+//	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
+//
+//		String qr = "select c.action_logged, c.last_updated, ca.name, ur.username from campaignlog c\n"
+//				+ "left outer join campaigns ca on c.campaign = ca.id\n"
+//				+ "left outer join users ur on c.creatinguser = ur.id \n"
+//				+ "where ca.uuid = '"+camp.getUuid()+"';";
+//
+//		Query seriesDataQuery = em.createNativeQuery(qr);
+//
+//		List<CampaignLogDto> resultData = new ArrayList<>();
+//
+//		@SuppressWarnings("unchecked")
+//		List<Object[]> resultList = seriesDataQuery.getResultList();
+//
+//		System.out.println("starting....");
+//
+//		resultData
+//				.addAll(resultList.stream()
+//						.map((result) -> new CampaignLogDto((String) result[0].toString(), (Date) result[1],
+//								(String) result[2].toString(), (String) result[3].toString()))
+//						.collect(Collectors.toList()));
+//
+//		return resultData;
+//	}
 	@Override
 	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
 
-		String qr = "select c.action_logged, c.last_updated, ca.name, ur.username from campaignlog c\n"
-				+ "left outer join campaigns ca on c.campaign = ca.id\n"
-				+ "left outer join users ur on c.creatinguser = ur.id \n"
+		String qr = "select c.action_logged, c.lastupdated, ca.name, ur.username from campaignlog c\n"
+				+ "left outer join campaigns ca on c.campaign_id = ca.id\n"
+				+ "left outer join users ur on c.creatinguser_id = ur.id \n"
 				+ "where ca.uuid = '"+camp.getUuid()+"';";
 
 		Query seriesDataQuery = em.createNativeQuery(qr);
