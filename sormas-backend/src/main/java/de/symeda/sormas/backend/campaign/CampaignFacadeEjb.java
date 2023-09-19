@@ -233,9 +233,9 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 	@Override
 	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
 
-		String qr = "select c.action_logged, c.lastupdated, ca.name, ur.username from campaignlog c\n"
-				+ "left outer join campaigns ca on c.campaign_id = ca.id\n"
-				+ "left outer join users ur on c.creatinguser_id = ur.id \n"
+		String qr = "select c.action_logged, c.last_updated, ca.name, ur.username from campaignlog c\n"
+				+ "left outer join campaigns ca on c.campaign = ca.id\n"
+				+ "left outer join users ur on c.creatinguser = ur.id \n"
 				+ "where ca.uuid = '"+camp.getUuid()+"';";
 
 		Query seriesDataQuery = em.createNativeQuery(qr);

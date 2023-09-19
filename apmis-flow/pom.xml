@@ -155,7 +155,8 @@
 			<artifactId>spring-context</artifactId>
 			<version>4.3.30.RELEASE</version>
 		</dependency>
-
+		
+	
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 
 			<dependency>
 				<groupId>org.vaadin.highcharts</groupId>

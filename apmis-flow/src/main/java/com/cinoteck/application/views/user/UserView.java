@@ -191,7 +191,7 @@ public class UserView extends VerticalLayout {
 			isEditingModeActive = true;
 		});
 
-		exportUsers.setIcon(new Icon(VaadinIcon.CLOUD_DOWNLOAD_O));
+		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 

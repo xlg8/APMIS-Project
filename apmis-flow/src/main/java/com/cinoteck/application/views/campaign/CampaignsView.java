@@ -77,6 +77,8 @@ public class CampaignsView extends VerticalLayout {
 //	private GridListDataView<CampaignDto> dataView;
 
 	private Grid<CampaignIndexDto> grid = new Grid<>(CampaignIndexDto.class, false);
+	Grid<CampaignLogDto> logGrid = new Grid<>(CampaignLogDto.class, false);
+
 	private GridListDataView<CampaignIndexDto> dataView;
 	List<CampaignIndexDto> campaigns;
 
@@ -453,37 +455,22 @@ public class CampaignsView extends VerticalLayout {
 //		dialog.setConfirmText("Close");
 //		dialog.addCancelListener(e -> dialog.close());
 		dialog.setWidthFull();
-		dialog.open();
+		
 
 		CampaignForm formLayout = (CampaignForm) event.getSource();
 
 		dialog.setHeaderTitle("Campaign Log");
 
-		Grid<CampaignLogDto> grid = new Grid<>(CampaignLogDto.class, false);
-		grid.setItems(FacadeProvider.getCampaignFacade().getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));
-//	        grid.setSelectionMode(Grid.SelectionMode.MULTI);
-		grid.addColumn(CampaignLogDto::getCreatingUser_string).setHeader("User").setAutoWidth(true);
-		grid.addColumn(CampaignLogDto::getAction).setHeader("Action").setAutoWidth(true);
-		grid.addColumn(CampaignLogDto::getActionDate).setHeader("Timestamp").setAutoWidth(true);
-		grid.setWidthFull();
+		logGrid.setItems(FacadeProvider.getCampaignFacade().getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));
+		logGrid.addColumn(CampaignLogDto::getCreatingUser_string).setHeader("User").setAutoWidth(true);
+		logGrid.addColumn(CampaignLogDto::getAction).setHeader("Action").setAutoWidth(true);
+		logGrid.addColumn(CampaignLogDto::getActionDate).setHeader("Timestamp").setAutoWidth(true);
+		logGrid.setWidthFull();
+		logGrid.setVisible(true);
+		logGrid.setHeight("50vh");
 
-//		grid.getStyle().set("width", "auto").set("max-width", "100%");
-
-		dialog.add(grid);
-//		dialog.addConfirmListener(e -> {
-//			FacadeProvider.getCampaignFacade().publishandUnPublishCampaign(event.getCampaign().getUuid(), false);
-//			formLayout.updatePublishButtonText(false);
-//		});
-
-		formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
-
-//		Dialog dialogxd = new Dialog();
-//
-//		dialogxd.add(createDialogContent(dialogxd));
-//
-//		dialogxd.addThemeVariants(DialogVariant.LUMO_NO_PADDING);
-//		CampaignForm formLayout = (CampaignForm) event.getSource();
-//		formLayout.getChildren().forEach(child -> child.getElement().executeJs("this.requestLayout()"));
+		dialog.add(logGrid);
+		dialog.open();
 
 	}
 

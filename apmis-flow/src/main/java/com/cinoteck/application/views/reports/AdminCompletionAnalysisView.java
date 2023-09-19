@@ -201,6 +201,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 			}
 		});
 		
+		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");

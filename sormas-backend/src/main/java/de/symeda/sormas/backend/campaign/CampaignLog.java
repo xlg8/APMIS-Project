@@ -16,7 +16,7 @@ import de.symeda.sormas.backend.user.User;
 @Entity(name = "campaignlog")
 public class CampaignLog extends CoreAdo {
 
-	public static final String TABLE_NAME = "CampaignLog";
+	public static final String TABLE_NAME = "campaignlog";
 
 	public static final String NAME = "campaign";
 	public static final String AUDIT_USER = "creatingUser";

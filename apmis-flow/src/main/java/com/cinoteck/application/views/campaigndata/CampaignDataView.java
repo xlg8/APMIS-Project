@@ -530,18 +530,30 @@ public class CampaignDataView extends VerticalLayout {
 			subMenu.addItem(I18nProperties.getCaption(Captions.actionDelete), e -> handleDeleteAction());
 
 			selectAllButton = new Button("");
+//			selectAllButton.addClickListener(event -> {
+//
+//				if (grid.getSelectedItems().size() == grid.getDataProvider().size(new Query<>())) {
+//					grid.deselectAll();
+//					selectAllButtonpLACEHOLDER.setText("Select All");
+//
+//				} else {
+////			        grid.select(event);
+//					selectAllButtonpLACEHOLDER.setText("Deselect All");
+//
+//					checkboxx.setValue(true);
+//				}
+//			});
 			selectAllButton.addClickListener(event -> {
+			    if (!grid.getSelectedItems().isEmpty()) {
+			        grid.deselectAll();
+			        selectAllButtonpLACEHOLDER.setText("Select All");
+			        checkboxx.setValue(false);
 
-				if (grid.getSelectedItems().size() == grid.getDataProvider().size(new Query<>())) {
-					grid.deselectAll();
-					selectAllButtonpLACEHOLDER.setText("Select All");
-
-				} else {
-//			        grid.select(event);
-					selectAllButtonpLACEHOLDER.setText("Deselect All");
-
-					checkboxx.setValue(true);
-				}
+			    } else {
+//			        grid.selectAll();
+			        selectAllButtonpLACEHOLDER.setText("Deselect All");
+			        checkboxx.setValue(true);
+			    }
 			});
 //			actionButtonlayout.add(selectAllButton);
 
