@@ -1,67 +1,25 @@
 package com.cinoteck.application.views.dashboard;
 
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.AREA;
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
-
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import org.apache.commons.text.WordUtils;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.JavaScript;
-import com.cinoteck.application.UserProvider;
+import org.vaadin.addons.taefi.component.ToggleButtonGroup;
+
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.campaigndata.CampaignDataView;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.server.VaadinSession;
 
-import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.campaign.CampaignDto;
-import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
-import de.symeda.sormas.api.campaign.CampaignPhase;
-import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.user.UserDto;
-import de.symeda.sormas.api.user.UserRole;
+import java.util.stream.Collectors;
 
 @PageTitle("APMIS-Analytics Dashboard")
 @Route(value = "analytics", layout = MainLayout.class)
-
-@JavaScript("https://code.highcharts.com/highcharts.js")
-@JavaScript("https://code.highcharts.com/modules/variable-pie.js")
-@JavaScript("https://code.highcharts.com/modules/exporting.js")
-@JavaScript("https://code.highcharts.com/modules/export-data.js")
-@JavaScript("https://code.highcharts.com/modules/accessibility.js")
-@JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
 public class AnalyticsDashboardView extends VerticalLayout implements RouterLayout , BeforeEnterObserver {
 
@@ -70,36 +28,47 @@ public class AnalyticsDashboardView extends VerticalLayout implements RouterLayo
 	protected CampaignDashboardDataProvider dataProvider;
 
 	public AnalyticsDashboardView() {
-//		Button openAnalytics = new Button("Open Analytics");
-//		openAnalytics.addClickListener(e->{
-//			UI.getCurrent().getPage().open("http://139.144.54.245:3840/");
-//		});
-//		openAnalytics.getStyle().set("margin-left", "20px");
-//		
-		 Html html = new Html("<iframe src='http://139.144.54.245:3840/' style='width:100%; height:100%;'></iframe>");
+//		 Html html = new Html("<iframe src='https://staging.afghanistan-apmis.com/analytics' style='width:100%; height:100%;'></iframe>");
+		 
+		 
+	        ToggleButtonGroup<String> group60 = new ToggleButtonGroup<>("Disabled group:",
+	                List.of("All", "Items", "Are", "Disabled", "Selected"));
+	        group60.setId("group60");
+	        group60.setValue("Selected");
+	        group60.setEnabled(false);
 
-//		Button openAnalyticsx = new Button("Open Analytics In Frame");
-//		openAnalyticsx.addClickListener(e->{
-//			add(html);		
-//			});
-//		
-//		
-//		openAnalyticsx.getStyle().set("margin-left", "20px");
-//		HorizontalLayout hksfhvskf = new HorizontalLayout();
-//		hksfhvskf.add( openAnalyticsx);
-//		
-//		
-//		add(hksfhvskf);
-//		
-//		
-		add(html);
+	        HashMap<String, String> map = new HashMap<>();
+	        
+	        // Adding elements to the Map
+	        // using standard put() method
+	        map.put("vishal", "aaaa");
+	        map.put("sachin", "bbbb");
+	        map.put("vaibhav", "cccc");
+	        
+	        
+	        ToggleButtonGroup<String> group70 = new ToggleButtonGroup<>("Choose desert: [unavailable items are disabled]");
+	        group70.setId("group70");
+	      
+	        group70.setItems(map.values().stream().collect(Collectors.toList()));
+//	        group70.setItemLabelGenerator(item -> String.format("%s (%d)", item.name, item.availableCount));
+	        group70.addValueChangeListener(event -> {
+	            if (event.getOldValue() != null) {
+	               Notification.show(event.getOldValue()+" -old");
+	            }
+	            if (event.getValue() != null) {
+	            	Notification.show(event.getValue() +" -new");
+	            }
+	           // group70.setValue(event.getValue());
+	        });
+	        
+	        
+	        
+		add(group70);
 		setSizeFull();
 	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		// TODO Auto-generated method stub
-		
 	}
 
 

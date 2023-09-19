@@ -76,13 +76,9 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 														sortOrder.getDirection() == SortDirection.ASCENDING))
 												.collect(Collectors.toList()), null)
 								.stream(), 
-						query ->Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(
-								criteria, query.getOffset(), query.getLimit(),
-								query.getSortOrders().stream()
-										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-												sortOrder.getDirection() == SortDirection.ASCENDING))
-										.collect(Collectors.toList()),
-								null)));
+								query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(
+										criteria, query.getOffset(), query.getLimit(),
+										null, null)));
 						
 //								);
 
@@ -249,23 +245,23 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 
 //		grid_.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
 
-		grid_.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getCommunity).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_a_).setHeader("Day 1");//I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_b_).setHeader("Day 2");//I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_c_).setHeader("Day 3");//I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_d_).setHeader("Day 4");//I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortProperty("region").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortProperty("province").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getCommunity).setHeader(I18nProperties.getCaption(Captions.community)).setSortProperty("cluster").setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_a_).setHeader("Day 1").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_b_).setHeader("Day 2").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_c_).setHeader("Day 3").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_d_).setHeader("Day 4").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
 
 
 		grid_.setVisible(true);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade()
 //				.getByCompletionAnalysisCount(null, null, null, null,formAccess );
 		criteria.campaign(lastStarted);
-		int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
+//		int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
 		dataProvider = DataProvider
 				.fromFilteringCallbacks(
 						query -> FacadeProvider.getCampaignFormDataFacade()
@@ -276,8 +272,9 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 														sortOrder.getDirection() == SortDirection.ASCENDING))
 												.collect(Collectors.toList()), null)
 								.stream(), 
-						query -> numberOfRows
-								);
+								query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(
+										criteria, query.getOffset(), query.getLimit(),
+										null, null)));
 		grid_.setDataProvider(dataProvider);
 		
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid_);
