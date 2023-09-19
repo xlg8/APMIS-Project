@@ -1,0 +1,46 @@
+
+.toggle-button-group {
+
+}
+
+.toggle-button-group-button-h {
+    border-style: solid;
+    border-color: var(--_lumo-button-primary-background-color, var(--lumo-primary-color));
+}
+
+.toggle-button-group-first-button-h {
+    border-radius: 5px 0 0 5px;
+    border-width: 1px 0 1px 1px;
+}
+
+.toggle-button-group-middle-button-h {
+    border-radius: 0;
+    border-width: 1px 0 1px 1px;
+}
+
+.toggle-button-group-last-button-h {
+    border-radius: 0 5px 5px 0;
+    border-width: 1px 1px 1px 1px;
+}
+
+.toggle-button-group-button-v {
+    border-style: solid;
+    border-color: var(--_lumo-button-primary-background-color, var(--lumo-primary-color));
+    width: 100%;
+    margin: 0 var(--lumo-space-xs);
+}
+
+.toggle-button-group-first-button-v {
+    border-radius: 5px 5px 0 0;
+    border-width: 1px 1px 1px 1px;
+}
+
+.toggle-button-group-middle-button-v {
+    border-radius: 0;
+    border-width: 0 1px 0 1px;
+}
+
+.toggle-button-group-last-button-v {
+    border-radius: 0 0 5px 5px;
+    border-width: 1px 1px 1px 1px;
+}

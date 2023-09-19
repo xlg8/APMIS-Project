@@ -30,6 +30,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.vaadin.addons.taefi.component.ToggleButtonGroup;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaign.CampaignForm;
@@ -71,6 +72,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.shared.Registration;
 
+import antlr.debug.Event;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -115,7 +117,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
-	
+
 	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
 
@@ -133,8 +135,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean invalidForm = false;
 
 	private boolean openedOnce = false;
-	
-	
+
 	ComboBox<Object> cbCampaign = new ComboBox<>(I18nProperties.getCaption(Captions.Campaign));
 
 	ComboBox<AreaReferenceDto> cbArea = new ComboBox<>(I18nProperties.getCaption(Captions.area));
@@ -151,7 +152,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
 			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
-			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm, boolean isDistrictEntry) {
+			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm,
+			boolean isDistrictEntry) {
 
 		System.out.println("+++++++++++CampaignFormBuilder+++++: " + openData);
 
@@ -184,7 +186,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 		formNam.getElement().setProperty("innerHTML", "<h3>" + formName + "</h3>");
 		vertical_.setColspan(formNam, 3);
 		vertical_.add(formNam);
-
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
@@ -274,7 +275,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		});
 
 		System.out.println(checkDistrictEntry + "checkingggggggggggggggggggggggggggggg" + campaignFormMetaDto);
-		if(campaignFormMetaDto) {
+		if (campaignFormMetaDto) {
 			cbDistrict.addValueChangeListener(e -> {
 				if (e.getValue() != null) {
 					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
@@ -294,22 +295,22 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 			});
 		} else {
-		cbDistrict.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
-				cbCommunity.clear();
-				cbCommunity.setReadOnly(false);
-				;
-				cbCommunity.setItems(communities);
-				cbCommunity.setItemLabelGenerator(itm -> {
-					CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
-					return dcfv.getNumber() + " | " + dcfv.getCaption();
-				});
-			} else {
-				cbCommunity.clear();
-				cbCommunity.setReadOnly(true);
-			}
-		});
+			cbDistrict.addValueChangeListener(e -> {
+				if (e.getValue() != null) {
+					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(false);
+					;
+					cbCommunity.setItems(communities);
+					cbCommunity.setItemLabelGenerator(itm -> {
+						CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+						return dcfv.getNumber() + " | " + dcfv.getCaption();
+					});
+				} else {
+					cbCommunity.clear();
+					cbCommunity.setReadOnly(true);
+				}
+			});
 		}
 		cbCommunity.addValueChangeListener(e -> {
 
@@ -557,8 +558,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			Object value = formValuesMap.get(formElement.getId());
 
 			int occupiedColumns = getOccupiedColumns(type, styles);
-			
-			final HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions.getOptionsListValues();
+
+			final HashMap<String, String> data = (HashMap<String, String>) campaignFormElementOptions
+					.getOptionsListValues();
 
 			if (type == CampaignFormElementType.DAYWISE) {
 				accrd_count++;
@@ -599,16 +601,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 				boolean fieldIsRequired = formElement.isImportant();
 
 				if (type == CampaignFormElementType.YES_NO) {
-					ToggleButton toggle = new ToggleButton();
-					toggle.setId(formElement.getId());
-					toggle.setSizeFull();
-					toggle.setRequiredIndicatorVisible(formElement.isImportant());
-					toggle.setLabelAsHtml(formElement.getCaption());
-
-					toggle.addValueChangeListener(evt -> toggle
-							.setLabel(formElement.getCaption() + " : " + (evt.getValue() == true ? "YES " : "NO ")));
-					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
-
+					
+					 HashMap<Boolean, String> map = new HashMap<>();
+				        map.put(true, "Yes");
+				        map.put(false, "No");
+				        
+				        
+				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(), List.of(true, false));
+				        toggle.setId(formElement.getId());
+				        
+				        toggle.setItemLabelGenerator(item -> map.get(item));
+				        
+				        setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
+				        
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
 
@@ -800,7 +805,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
 					radioGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
-					
+
 					radioGroup.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					radioGroup.setId(formElement.getId());
 					radioGroup.setSizeFull();
@@ -830,6 +835,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					setFieldValue(radioGroupVert, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(radioGroupVert);
+					fields.put(formElement.getId(), radioGroupVert);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
@@ -837,25 +843,34 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
+					
+					System.out.println(data.size() + "_____..................._____" + value);
+					
+					
 
 					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
 
-					
-
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-					
 
 					select.setItems(sortedKeys);
 
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
-					System.out.println(data.get(value) + "_____..................._____"+value);
+					
+					System.out.println(data.get(value) + "_K____...................____V_" + value);
 					
 					
+					select.addValueChangeListener(ee -> {
+						
+						System.out.println("ssssssssssssssssssss: "+ ee.getValue());
+					});
+					
+					
+
 					setFieldValue(select, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
-					
-					
+
 					vertical.add(select);
+					fields.put(formElement.getId(), select);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
@@ -961,16 +976,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 		case YES_NO:
 
 			if (value != null) {
-				Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
-						: value.toString().equalsIgnoreCase("NO") ? false : null;
-				// System.out.println(Boolean.parseBoolean(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-				// :"+value+":");
-				// boolean booleanValue = Boolean.parseBoolean((String) value);
+				if (value instanceof Boolean) {
+					((ToggleButtonGroup) field).setValue(value);
+				}
 
-				((ToggleButton) field).setValue(dvalue);// Sets.newHashSet(value));
+				if (value instanceof String) {
+					Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
+							: value.toString().equalsIgnoreCase("NO") ? false :  value.toString().equalsIgnoreCase("true") ? true
+									: value.toString().equalsIgnoreCase("false") ? false : null;					
+					((ToggleButtonGroup) field).setValue(dvalue);
+
+				}
+
 			}
-			// System.out.println(Sets.newHashSet(value)+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-			// "+value);
 
 			break;
 		case RANGE:
@@ -1145,7 +1163,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 				((ComboBox) field).setValue(defaultvalue);
 			}
 			;
-			
 
 			if (value != null && (data_.get(value) != null)) {
 				// String dxz = options.get(value);
@@ -1522,7 +1539,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 			if (openData) {
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-
+				
+				for(CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
+				}
 				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByUuid(uuidForm);
 
@@ -1540,6 +1560,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
+				for(CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
+				}
 				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
 						cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
 

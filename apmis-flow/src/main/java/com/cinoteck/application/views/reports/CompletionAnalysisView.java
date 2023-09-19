@@ -62,7 +62,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
 	private void refreshGridData(FormAccess formAccess) {
-		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
+//		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
 						.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(),
