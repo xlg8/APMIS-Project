@@ -706,6 +706,17 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 					I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to delete "
 							+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
+		
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (campaignUuid != null) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Deleted Campaign: " + log.getCampaign().getName());
+
+		} 
+
+		saveAuditLog(log);
 
 		campaignService.delete(campaignService.getByUuid(campaignUuid));
 	}
@@ -735,10 +746,19 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 			ppData.setRegion(popListx.getRegion());
 			ppData.setCollectionDate(popListx.getCollectionDate());
 			ppData.setSelected(popListx.isSelected());
-
 			em.persist(ppData);
 
 		}
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (campaignUuid != null) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Clone Campaign: " + log.getCampaign().getName());
+
+		} 
+
+		saveAuditLog(log);
 
 		return newUuid;
 	}
@@ -759,11 +779,11 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		// logging audit
 		if (publishedandunpublishbutton) {
 			log.setCampaign(getByUuid(campaignUuid));
-			log.setAction("Publishing Campaign: " + log.getCampaign().getName());
+			log.setAction("Publish Campaign: " + log.getCampaign().getName());
 
 		} else {
 			log.setCampaign(getByUuid(campaignUuid));
-			log.setAction("Unpublishing Campaign: " + log.getCampaign().getName());
+			log.setAction("Unpublish Campaign: " + log.getCampaign().getName());
 		}
 
 		saveAuditLog(log);
@@ -774,6 +794,7 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 
 	@Override
 	public void closeandOpenCampaign(String campaignUuid, boolean openandclosebutton) {
+		
 		campaignService.closeAndOpenForm(campaignUuid, openandclosebutton);
 
 	}
@@ -783,6 +804,20 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 
 		Campaign campaign = campaignService.getByUuid(campaignUuid);
 		campaign.setArchived(archive);
+		
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (archive) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Archive Campaign: " + log.getCampaign().getName());
+
+		} else {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("De-Archive Campaign: " + log.getCampaign().getName());
+		}
+
+		saveAuditLog(log);
 		campaignService.ensurePersisted(campaign);
 	}
 
