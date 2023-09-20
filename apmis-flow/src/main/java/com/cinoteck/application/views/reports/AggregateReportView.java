@@ -425,6 +425,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		    criteria.setFormType(campaignPhase.getValue().toString());
 		});
 
+		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");

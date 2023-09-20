@@ -134,6 +134,8 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		provinceFilter.setClearButtonVisible(true);
+
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
@@ -188,6 +190,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 			}
 		});
 
+		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");

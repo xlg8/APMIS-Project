@@ -54,11 +54,13 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -161,6 +163,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			grid.asSingleSelect().addValueChangeListener(event -> {
 				if (event.getValue() != null) {
 					createOrEditArea(event.getValue());
+					System.out.println(event.getValue().getUuid_() +"Area from grid is not nullll " +event.getValue().getUuid() );
 				}
 			});
 		}
@@ -547,40 +550,29 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 			String name = nameField.getValue();
 			String code = rCodeField.getValue();
-
 			String uuids = "";
+			
 			if (areaDto != null) {
-				uuids = areaDto.getUuid_();
+				uuids = areaDto.getUuid();
+				System.out.println(areaDto + "Area uuii is not nullll " +areaDto.getUuid() );
 			}
 			if ((name != null && name!= "") && (!rCodeField.getValue().isBlank() || !rCodeField.getValue().isEmpty())) {
-				
-				System.out.println("rrrr" + rCodeField.getValue().isBlank() + "ggggggggggggggggggggggggggggggggggg" +  rCodeField.getValue().isEmpty());
+				System.out.println("Area uuii is not nullll " +uuids );
 				if (uuids != null) {
+					
 					AreaDto dce = FacadeProvider.getAreaFacade().getByUuid(uuids);
-					System.out.println(dce);
+					
+					System.out.println("Area from area dto  is not nullll " +dce );
 					if (dce != null) {
 						dce.setName(name);
-
 						long rcodeValue = Long.parseLong(code);
 						dce.setExternalId(rcodeValue);
+						try {
 						FacadeProvider.getAreaFacade().save(dce, true);
 						Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 						dialog.close();
 						refreshGridData();
-					} else {
-						AreaDto dcex = new AreaDto();
-						System.out.println(dcex);
-						dcex.setName(name);
-						long rcodeValue = Long.parseLong(code);
-						dcex.setExternalId(rcodeValue);
-						
-						try {
-							
-						FacadeProvider.getAreaFacade().save(dcex, true);
-						Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
-						dialog.close();
-						refreshGridData();
-						}catch (Exception e) {
+						}catch(Exception e) {
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
@@ -600,6 +592,79 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
 					    }
+					} else {
+						AreaDto dcex = new AreaDto();
+						System.out.println(dcex);
+						dcex.setName(name);
+						long rcodeValue = Long.parseLong(code);
+						dcex.setExternalId(rcodeValue);
+						List<AreaReferenceDto> ccc  = FacadeProvider.getAreaFacade().getByExternalID(rcodeValue, false);
+						List<AreaReferenceDto> cccx  = FacadeProvider.getAreaFacade().getByName(name, false);
+						if(ccc.size() < 1 && cccx.size() < 1) {
+							try {
+								
+								FacadeProvider.getAreaFacade().save(dcex, true);
+								Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
+								dialog.close();
+								refreshGridData();
+								}catch (Exception e) {
+									Notification notification = new Notification();
+									notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+									notification.setPosition(Position.MIDDLE);
+									Button closeButton = new Button(new Icon("lumo", "cross"));
+									closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+									closeButton.getElement().setAttribute("aria-label", "Close");
+									closeButton.addClickListener(event -> {
+									    notification.close();
+									});
+									
+									Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+
+									HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+									layout.setAlignItems(Alignment.CENTER);
+
+									notification.add(layout);
+									notification.open();
+//							        Notification.show("An error occurred while saving: " + e.getMessage());
+							    }
+						}else if(ccc.size() >= 1){
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("Region Code already exists. Please select a unique Region Code to continue.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+						}else if(cccx.size() >= 1) {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+							    notification.close();
+							});
+							
+							Paragraph text = new Paragraph("Region Name already exists. Please select a unique Region Name to continue.");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+						}
+						
 
 					}
 

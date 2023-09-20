@@ -47,13 +47,14 @@ public class PopulationDataImporter extends DataImporter {
 
 	private final Date collectionDate;
 	private final CampaignReferenceDto campaignReferenceDto;
+	private final String dtoIdentifier;
 
 	public PopulationDataImporter(File inputFile, UserDto currentUser, CampaignDto campaignDto, ValueSeparator csvSeparator) throws IOException {
 		
 		super(inputFile, false, currentUser, csvSeparator);
 		this.collectionDate = new Date();
-		
 		this.campaignReferenceDto = FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid());
+		this.dtoIdentifier = campaignDto.getUuid();
 	}
 
 	@Override
@@ -146,7 +147,7 @@ public class PopulationDataImporter extends DataImporter {
 			//fixing importing campaign population based patch
 			if (PopulationDataDto.CAMPAIGN.equalsIgnoreCase(entityProperties[i])) { 
 				if (DataHelper.isNullOrEmpty(values[i])) {
-					campaigns_ = null;
+					campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(dtoIdentifier);
 				} else {
 					
 						

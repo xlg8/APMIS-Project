@@ -230,6 +230,31 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		return toLogDto(campaignLog);
 	}
 
+//	@Override
+//	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
+//
+//		String qr = "select c.action_logged, c.last_updated, ca.name, ur.username from campaignlog c\n"
+//				+ "left outer join campaigns ca on c.campaign = ca.id\n"
+//				+ "left outer join users ur on c.creatinguser = ur.id \n"
+//				+ "where ca.uuid = '"+camp.getUuid()+"';";
+//
+//		Query seriesDataQuery = em.createNativeQuery(qr);
+//
+//		List<CampaignLogDto> resultData = new ArrayList<>();
+//
+//		@SuppressWarnings("unchecked")
+//		List<Object[]> resultList = seriesDataQuery.getResultList();
+//
+//		System.out.println("starting....");
+//
+//		resultData
+//				.addAll(resultList.stream()
+//						.map((result) -> new CampaignLogDto((String) result[0].toString(), (Date) result[1],
+//								(String) result[2].toString(), (String) result[3].toString()))
+//						.collect(Collectors.toList()));
+//
+//		return resultData;
+//	}
 	@Override
 	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
 
@@ -681,6 +706,17 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 					I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to delete "
 							+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
+		
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (campaignUuid != null) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Deleted Campaign: " + log.getCampaign().getName());
+
+		} 
+
+		saveAuditLog(log);
 
 		campaignService.delete(campaignService.getByUuid(campaignUuid));
 	}
@@ -710,10 +746,19 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 			ppData.setRegion(popListx.getRegion());
 			ppData.setCollectionDate(popListx.getCollectionDate());
 			ppData.setSelected(popListx.isSelected());
-
 			em.persist(ppData);
 
 		}
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (campaignUuid != null) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Clone Campaign: " + log.getCampaign().getName());
+
+		} 
+
+		saveAuditLog(log);
 
 		return newUuid;
 	}
@@ -736,7 +781,7 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		if (publishedandunpublishbutton) {
 			
 			log.setCampaign(getByUuid(campaignUuid));
-			log.setAction("Publishing Campaign: " + log.getCampaign().getName());
+			log.setAction("Publish Campaign: " + log.getCampaign().getName());
 
 		} else {
 			
@@ -778,6 +823,20 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 
 		Campaign campaign = campaignService.getByUuid(campaignUuid);
 		campaign.setArchived(archive);
+		
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (archive) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Archive Campaign: " + log.getCampaign().getName());
+
+		} else {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("De-Archive Campaign: " + log.getCampaign().getName());
+		}
+
+		saveAuditLog(log);
 		campaignService.ensurePersisted(campaign);
 	}
 
