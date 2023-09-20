@@ -3,6 +3,7 @@ package com.cinoteck.application.utils.authentication;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
@@ -18,6 +19,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 import java.util.Locale;
@@ -68,14 +70,14 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginInformation.setClassName("login-information");
 		Image imgApmis = new Image("images/apmisheaderbanner.png", "APMIS-LOGO");
 		imgApmis.setClassName("apmis-login-logo");
+		Div imageDiv = new Div();
+		imageDiv.getStyle().set("display", "flex").set("justify-content", "center").set("width", "240px");
+		imageDiv.add(imgApmis);
 
 		VerticalLayout loginFormCarrier = new VerticalLayout();
-		loginFormCarrier.add(imgApmis, loginForm);
+		loginFormCarrier.add(imageDiv, loginForm);
 		loginFormCarrier.setClassName("login-form-carrier");
-//		LanguageSwitcher langSwitch  = new LanguageSwitcher(Locale.ENGLISH, new Locale("fa", "IR", "فارسی"));
-//		langSwitch.setId("loginLanguageSwitcher");
-//		langSwitch.getStyle().set("color", "white !important");
-//		loginInformation.add(langSwitch);
+		
 		loginInformation.add(loginFormCarrier);
 		add(loginInformation);
 	}
@@ -109,6 +111,7 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(30));
 
 			if (intendedRoute != null) {
+//				loginNavigationControl();
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
 					getUI().get().navigate("/campaigndata");
 				}
@@ -135,6 +138,18 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			event.getSource().setError(true);
 		}
 	}
+
+//	public void loginNavigationControl() {
+//		if (userProvider.getUser().getUserRoles().contains(UserRole.COMMUNITY_INFORMANT)
+//				&& userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
+//			if (intendedRoute.equals("dashboard") || intendedRoute.equals("analytics")
+//					|| intendedRoute.equals("configurations") || intendedRoute.equals("campaign")
+//					|| intendedRoute.equals("user") || intendedRoute.equals("reports")
+//					|| intendedRoute.equals("pivot")) {
+//				getUI().get().navigate("/campaigndata");
+//			}
+//		}
+//	}
 
 	private LoginI18n createLoginI18n() {
 		final LoginI18n i18n = LoginI18n.createDefault();
@@ -164,6 +179,20 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			}
 //			Notification.show(String.format("Page title: '%s'", pageTitle));
 		});
+//	       if (!accessControl.isUserAllowedToAccessView(event.getNavigationTarget())) {
+//	            // User does not have access, navigate to a view they have access to
+//	            // You can define your own logic to determine the target view
+//	            Class<?> targetView = accessControl.getTargetViewForUser(UI.getCurrent().getSession());
+//
+//	            if (targetView != null) {
+//	                event.forwardTo(targetView);
+//	            } else {
+//	                // If no target view is available, show an error message or navigate to a default view
+//	                Notification.show("You do not have access to this view.");
+//	                event.rerouteTo(DefaultView.class); // Adjust to your default view
+//	            }
+//	        }
+//	    }
 
 //		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
 

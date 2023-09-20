@@ -546,29 +546,18 @@ public class ClusterView extends VerticalLayout {
 
 			archiveDearchiveConfirmation.open();
 		} else {
-
-			archiveDearchiveConfirmation.setRejectable(true);
-			archiveDearchiveConfirmation.setRejectText("No");
-			archiveDearchiveConfirmation.setConfirmText("Yes");
-			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
-			archiveDearchiveConfirmation.open();
-
+			boolean archive ;
 			for (CommunityDto selectedRow : (Collection<CommunityDto>) selectedRows) {
-				;
-				boolean archive = communityDto.isArchived();
+				
+				archive = 	selectedRow.isArchived();
 
 				if (!archive) {
 					archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveSelectedCluster));
 					archiveDearchiveConfirmation
-							.setText(I18nProperties.getString(Strings.areSureYouWantArchiveCluster));
+							.setText(I18nProperties.getString("Are you sure you want to archive the " + selectedRows.size() + " selected Clusters?"));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().archive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+
 						refreshGridData();
 					});
 					Notification.show(I18nProperties.getString(Strings.archivingSelected));
@@ -576,21 +565,23 @@ public class ClusterView extends VerticalLayout {
 					archiveDearchiveConfirmation
 							.setHeader(I18nProperties.getCaption(Captions.dearchiveSelectedClusters));
 					archiveDearchiveConfirmation
-							.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelected));
+							.setText(I18nProperties.getString("Are you sure you want to de-archive the " + selectedRows.size() + " selected Clusters?"));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().dearchive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+
 						refreshGridData();
 					});
 
 					Notification.show(I18nProperties.getString(Strings.dearchiveSelectedRows));
 				}
 			}
+			
+			archiveDearchiveConfirmation.setRejectable(true);
+			archiveDearchiveConfirmation.setRejectText("No");
+			archiveDearchiveConfirmation.setConfirmText("Yes");
+			archiveDearchiveConfirmation.addRejectListener(e -> archiveDearchiveConfirmation.close());
+			archiveDearchiveConfirmation.open();
+
 
 		}
 	}

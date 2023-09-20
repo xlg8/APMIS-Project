@@ -1,6 +1,12 @@
 
-.toggle-button-group {
+.toggle-button-group  vaadin-horizontal-layout vaadin-button:focus{
+	background-color: green;
+	color:white;
+}
 
+.toggle-button-group  vaadin-horizontal-layout vaadin-button{
+background-color: white;
+	color: green;
 }
 
 .toggle-button-group-button-h {
@@ -44,3 +50,4 @@
     border-radius: 0 0 5px 5px;
     border-width: 1px 1px 1px 1px;
 }
+

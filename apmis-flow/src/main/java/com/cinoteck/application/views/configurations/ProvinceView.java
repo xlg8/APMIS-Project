@@ -592,7 +592,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 							    notification.close();
 							});
 							
-							Paragraph text = new Paragraph("An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
+							Paragraph text = new Paragraph("Province exist. Please create a unique province.");
 
 							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 							layout.setAlignItems(Alignment.CENTER);

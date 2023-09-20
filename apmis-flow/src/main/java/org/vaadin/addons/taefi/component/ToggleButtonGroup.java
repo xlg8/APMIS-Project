@@ -120,6 +120,8 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
 
     protected Button createButton(T item) {
         Button button = new Button(itemLabelGenerator.apply(item));
+       
+
         button.addClickListener(this::buttonsActionListener);
         button.setEnabled(getEnabled() && itemEnabledProvider.apply(item));
         if (itemIconGenerator != null) {
@@ -325,6 +327,7 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
     @Override
     public void setValue(T selected) {
         setValue(selected, false);
+        
     }
 
     public void setValue(T selected, boolean isFromClient) {
@@ -332,9 +335,11 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
             throw new IllegalStateException("Cannot set a value before possible options have initialized. " +
                     "Use one of the existing setItems(...) methods or the proper constructor to initialize the available items before calling setValue().");
         }
+        updateStyles(this.selected, selected);
         T oldValue = getValue();
         this.selected = selected;
         fireValueChangeEvent(oldValue, this.selected, isFromClient);
+       
     }
 
     protected void fireValueChangeEvent(T oldValue, T newValue, boolean fromClient) {
@@ -345,6 +350,34 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
         }
     }
 
+//    private void updateStyles(T oldValue, T newValue) {
+//        if (oldValue != null) {
+//            Serializable oldSelectedId = itemIdGenerator.apply(oldValue);
+//            Button oldSelected = idToButtonMap.get(oldSelectedId);
+//            String oldSelectedCustomClass = selectedItemClassNameGenerator.apply(oldValue);
+//            if (StringUtils.isNotBlank(oldSelectedCustomClass)) {
+//                oldSelected.removeClassName(oldSelectedCustomClass);
+//                oldSelected.getStyle().set("background-color", "green").set("color", "white");
+//
+//            } else {
+//                oldSelected.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+//            }
+//        }
+//
+//        Serializable newSelectedId = itemIdGenerator.apply(newValue);
+//        Optional.ofNullable(idToButtonMap.get(newSelectedId)).ifPresent(newSelected -> {
+//            String newSelectedCustomClass = selectedItemClassNameGenerator.apply(newValue);
+//            if (StringUtils.isNotBlank((newSelectedCustomClass))) {
+//                newSelected.addClassName(newSelectedCustomClass);
+//                newSelected.getStyle().set("background-color", "white").set("color", "green");
+//            } else {
+//                newSelected.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+////                newSelected.getStyle().set("color", "white");
+//               
+//            }
+//        });
+//    }
+    
     private void updateStyles(T oldValue, T newValue) {
         if (oldValue != null) {
             Serializable oldSelectedId = itemIdGenerator.apply(oldValue);
@@ -352,21 +385,27 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
             String oldSelectedCustomClass = selectedItemClassNameGenerator.apply(oldValue);
             if (StringUtils.isNotBlank(oldSelectedCustomClass)) {
                 oldSelected.removeClassName(oldSelectedCustomClass);
+                oldSelected.getStyle().set("background-color", "white").set("color", "green");
             } else {
+                // Restore the default Lumo theme variant for the deselected button
                 oldSelected.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                oldSelected.getStyle().set("background-color", "white").set("color", "green");
             }
         }
 
         Serializable newSelectedId = itemIdGenerator.apply(newValue);
         Optional.ofNullable(idToButtonMap.get(newSelectedId)).ifPresent(newSelected -> {
             String newSelectedCustomClass = selectedItemClassNameGenerator.apply(newValue);
-            if (StringUtils.isNotBlank((newSelectedCustomClass))) {
+            if (StringUtils.isNotBlank(newSelectedCustomClass)) {
                 newSelected.addClassName(newSelectedCustomClass);
+                newSelected.getStyle().set("background-color", "green").set("color", "white");
             } else {
                 newSelected.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+                newSelected.getStyle().set("background-color", "green").set("color", "white");
             }
         });
     }
+
 
     @Override
     protected T generateModelValue() {

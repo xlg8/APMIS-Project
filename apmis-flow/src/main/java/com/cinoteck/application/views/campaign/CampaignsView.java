@@ -77,6 +77,8 @@ public class CampaignsView extends VerticalLayout {
 //	private GridListDataView<CampaignDto> dataView;
 
 	private Grid<CampaignIndexDto> grid = new Grid<>(CampaignIndexDto.class, false);
+	Grid<CampaignLogDto> logGrid = new Grid<>(CampaignLogDto.class, false);
+
 	private GridListDataView<CampaignIndexDto> dataView;
 	List<CampaignIndexDto> campaigns;
 
