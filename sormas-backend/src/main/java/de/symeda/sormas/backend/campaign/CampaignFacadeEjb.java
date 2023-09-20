@@ -729,16 +729,20 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 					+ " is not allowed to publish a campaign data  "
 					+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
+		
 		CampaignLogDto log = new CampaignLogDto();
 
 		// logging audit
 		if (publishedandunpublishbutton) {
+			
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Publishing Campaign: " + log.getCampaign().getName());
 
 		} else {
+			
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Unpublishing Campaign: " + log.getCampaign().getName());
+			
 		}
 
 		saveAuditLog(log);
@@ -749,6 +753,22 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 
 	@Override
 	public void closeandOpenCampaign(String campaignUuid, boolean openandclosebutton) {
+		
+		CampaignLogDto log = new CampaignLogDto();
+
+		// logging audit
+		if (openandclosebutton) {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Closing Campaign: " + log.getCampaign().getName());
+
+		} else {
+			log.setCampaign(getByUuid(campaignUuid));
+			log.setAction("Opening Campaign: " + log.getCampaign().getName());
+		}
+
+		saveAuditLog(log);
+		
+		
 		campaignService.closeAndOpenForm(campaignUuid, openandclosebutton);
 
 	}

@@ -180,7 +180,7 @@ public class UserForm extends FormLayout {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void configureFields(UserDto user) {		
+	public void configureFields(UserDto user) {
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -198,9 +198,9 @@ public class UserForm extends FormLayout {
 		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
 				.bind(UserDto::getLastName, UserDto::setLastName);
 
-		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired))
+		binder.forField(userEmail)//.asRequired(I18nProperties.getCaption(Captions.emailRequired))
 				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
-		map.put("email", userEmail);
+	//	map.put("email", userEmail);
 
 		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
@@ -502,7 +502,7 @@ public class UserForm extends FormLayout {
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
-		if (editMode) {		
+		if (editMode) {
 
 			lastName.addValueChangeListener(e -> {
 
@@ -540,10 +540,52 @@ public class UserForm extends FormLayout {
 
 	public void validateAndSaveEdit(UserDto editedUser) {
 		if (binder.validate().isOk()) {
+			
+			boolean isErrored = false;
+			if (binder.getBean().getUserEmail() != null) {
+				
+				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+				
+				if (binderEmailValidation == null) {
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				} else {
+
+					if (binderEmailValidation.getUserName().trim().equals(editedUser.getUserName().trim())
+							&& !editedUser.getUserName().isEmpty()) {
+//email has not changed
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+						
+						isErrored = true;
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Email already in the system");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						
+						return;
+						
+					}
+				}
+			}
 
 			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+
 			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
-					&& !editedUser.getUserName().isEmpty()) {
+					&& !editedUser.getUserName().isEmpty() && !isErrored) {
 
 				fireEvent(new SaveEvent(this, binder.getBean()));
 			} else {
@@ -567,6 +609,8 @@ public class UserForm extends FormLayout {
 
 					notification.add(layout);
 					notification.open();
+					
+					return;
 				}
 			}
 		}
@@ -575,6 +619,49 @@ public class UserForm extends FormLayout {
 	public void validateAndSaveNew() {
 
 		if (binder.validate().isOk()) {
+			
+			if (binder.getBean().getUserEmail() != null) {
+				
+				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+				
+				if (binderEmailValidation == null) {
+					
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				} else {
+
+					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
+							&& !binder.getBean().getUserName().isEmpty()) {
+//email has not changed
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+
+						
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Email already in the system");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						return;
+						
+						
+					}
+				}
+			}
+			
+			
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
 				Notification notification = new Notification();
@@ -594,6 +681,7 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
+				return;
 			} else {
 				fireEvent(new SaveEvent(this, binder.getBean()));
 			}

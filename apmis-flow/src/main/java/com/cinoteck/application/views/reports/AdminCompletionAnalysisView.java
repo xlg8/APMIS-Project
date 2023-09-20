@@ -251,10 +251,10 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 		grid_.addColumn(CampaignFormDataIndexDto::getCcode).setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode").setSortable(true).setResizable(true);
 		grid_.addColumn(CampaignFormDataIndexDto::getClusternumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr").setSortable(true).setResizable(true);
 		grid_.addColumn(CampaignFormDataIndexDto::getCommunity).setHeader(I18nProperties.getCaption(Captions.community)).setSortProperty("cluster").setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_a_).setHeader("Day 1").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_b_).setHeader("Day 2").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_c_).setHeader("Day 3").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
-		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_d_).setHeader("Day 4").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_a_).setHeader("Day 1").setSortProperty("dayOne").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_b_).setHeader("Day 2").setSortProperty("dayTwo").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_c_).setHeader("Day 3").setSortProperty("dayThree").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true).setResizable(true);
+		grid_.addColumn(CampaignFormDataIndexDto::getAnalysis_d_).setHeader("Day 4").setSortProperty("dayFour").setSortable(true).setResizable(true);//I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
 
 
 		grid_.setVisible(true);

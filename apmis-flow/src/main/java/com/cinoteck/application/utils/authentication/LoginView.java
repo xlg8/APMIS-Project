@@ -106,7 +106,7 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //
 //			 UI.getCurrent().add(idleNotification);
 
-			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(30));
+			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(1));
 
 			if (intendedRoute != null) {
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {

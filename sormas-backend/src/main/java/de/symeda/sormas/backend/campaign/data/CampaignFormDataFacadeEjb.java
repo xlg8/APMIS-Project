@@ -527,10 +527,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
 				break;	
 				
-//				case "formAccess":
-//					orderby = orderby.isEmpty() ? " order by uf.formaccess " + (sortProperty.ascending ? "asc" : "desc") : orderby+", uf.formaccess " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-				
 				case "clusterNumberr":
 					orderby = orderby.isEmpty() ? " order by commut.clusternumber " + (sortProperty.ascending ? "asc" : "desc") : orderby+", commut.clusternumber " + (sortProperty.ascending ? "asc" : "desc");
 				break;
@@ -539,9 +535,27 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					orderby = orderby.isEmpty() ? " order by commut.externalid " + (sortProperty.ascending ? "asc" : "desc") : orderby+", commut.externalid " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
+				case "supervisor":
+					orderby = orderby.isEmpty() ? " order by analyticz.supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.supervisor " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "revisit":
+					orderby = orderby.isEmpty() ? " order by analyticz.revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.revisit " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "household":
+					orderby = orderby.isEmpty() ? " order by analyticz.household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.household " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "teammonitori":
+					orderby = orderby.isEmpty() ? " order by analyticz.teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.teammonitori " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
 //				case "message":
-//					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+//					orderby = orderby.isEmpty() ? " order by analyticz.household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.household " + (sortProperty.ascending ? "asc" : "desc");
 //				break;
+				
+				
 				
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -2471,7 +2485,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				"completionanalysisview_e");
 
 		if (isAnalyticsOld) {
-			System.out.println(" ==runing analysis again=======++++++++++++++++++++++++++++++++++ ");
+//			System.out.println(" ==runing analysis again=======++++++++++++++++++++++++++++++++++ ");
 			int noUse = prepareAllCompletionAnalysis();
 		}
 
@@ -2494,13 +2508,13 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		joiner = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
 		
-		System.out.println(campaignFilter+" =========ADMINNN============ "+joiner);
+//		System.out.println(campaignFilter+" =========ADMINNN============ "+joiner);
 		}
 		
 		
 
 		String orderby = "";
-		System.out.println(" ====orderbyorderb++ "+sortProperties.size());
+//		System.out.println(" ====orderbyorderb++ "+sortProperties.size());
 		
 		
 		
@@ -2532,19 +2546,19 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					orderby = orderby.isEmpty() ? " order by commut.externalid " + (sortProperty.ascending ? "asc" : "desc") : orderby+", commut.externalid " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
-//				case "message":
-//					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
+				case "dayOne":
+					orderby = orderby.isEmpty() ? " order by analyticz.day1 " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.day1 " + (sortProperty.ascending ? "asc" : "desc");
+				break;
 				
-//				case "message":
-//				orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
-//			break;
-//				case "message":
-//				orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
-//			break;
-//				case "message":
-//				orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
-//			break;
+				case "dayTwo":
+				orderby = orderby.isEmpty() ? " order by analyticz.day2 " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.day2 " + (sortProperty.ascending ? "asc" : "desc");
+			break;
+				case "dayThree":
+				orderby = orderby.isEmpty() ? " order by analyticz.day3 " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.day3 " + (sortProperty.ascending ? "asc" : "desc");
+			break;
+				case "dayFour":
+				orderby = orderby.isEmpty() ? " order by analyticz.day4 " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.day4 " + (sortProperty.ascending ? "asc" : "desc");
+			break;
 				
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -2553,7 +2567,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			}
 		}
 		
-		System.out.println(" ====orderbyorderbyderby====== "+orderby);
+//		System.out.println(" ====orderbyorderbyderby====== "+orderby);
 		
 		
 		
@@ -2565,7 +2579,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ orderby
 				+ " limit "+max+" offset "+first+";";
 		
-	System.out.println("=====seriesDataQueryADMINN======== "+joinBuilder);
+//	System.out.println("=====seriesDataQueryADMINN======== "+joinBuilder);
 		
 		
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
@@ -2576,7 +2590,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
 		
-	System.out.println("starting....");
 		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new CampaignFormDataIndexDto((String) result[0].toString(), (String) result[1].toString(),
@@ -2602,7 +2615,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			List<SortProperty> sortProperties, FormAccess frm) {
 
 		
-		System.out.println(" ==============getByCompletionAnalysisCountAdmin======= ");
+//		System.out.println(" ==============getByCompletionAnalysisCountAdmin======= ");
 		boolean filterIsNull = false;
 			if(criteria != null) {
 				filterIsNull = criteria.getCampaign() == null;
@@ -2622,7 +2635,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final String districtFilter = district != null ? " AND district_uuid = '"+district.getUuid()+"'" : "";
 			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
 			
-			System.out.println(campaignFilter+" ===================== "+joiner);
+//			System.out.println(campaignFilter+" ===================== "+joiner);
 		}
 		
 		final String joinBuilder = "select count(*)\n"

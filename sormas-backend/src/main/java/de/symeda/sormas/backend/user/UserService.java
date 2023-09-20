@@ -123,6 +123,28 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 		User entity = q.getResultList().stream().findFirst().orElse(null);
 		return entity;
 	}
+	
+	public User getByEmail(String email) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		ParameterExpression<String> userNameParam = cb.parameter(String.class, User.USER_EMAIL);
+		CriteriaQuery<User> cq = cb.createQuery(getElementClass());
+		Root<User> from = cq.from(getElementClass());
+
+		Expression<String> userNameExpression = from.get(User.USER_EMAIL);
+		String userNameParamValue = email;
+		if (AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
+			userNameExpression = cb.lower(userNameExpression);
+			userNameParamValue = email.toLowerCase();
+		}
+
+		cq.where(cb.equal(userNameExpression, userNameParam));
+
+		TypedQuery<User> q = em.createQuery(cq).setParameter(userNameParam, userNameParamValue);
+
+		User entity = q.getResultList().stream().findFirst().orElse(null);
+		return entity;
+	}
 
 	public List<User> getAllByAreaAndUserRoles(Area area, UserRole... userRoles) {
 		return getAllByAreasAndUserRoles(Collections.singletonList(area), Arrays.asList(userRoles), null);
