@@ -114,6 +114,7 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		grid.addColumn(CampaignDashboardElement::getHeight)
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardChartHeight));
 		grid.addColumn(CampaignDashboardElement::getOrder)
+
 				.setHeader(I18nProperties.getCaption(Captions.campaignDashboardOrder)).setSortable(true);
 		
 		

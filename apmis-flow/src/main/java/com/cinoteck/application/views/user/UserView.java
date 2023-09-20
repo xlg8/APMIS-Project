@@ -191,13 +191,13 @@ public class UserView extends VerticalLayout {
 			isEditingModeActive = true;
 		});
 
-		exportUsers.setIcon(new Icon(VaadinIcon.CLOUD_UPLOAD));
+		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
 		
-		importUsers.setIcon(new Icon(VaadinIcon.CLOUD_DOWNLOAD));
+		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importUsers.addClickListener(e -> {
 			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
 

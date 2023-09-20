@@ -62,7 +62,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
 	private void refreshGridData(FormAccess formAccess) {
-		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
+//		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
 						.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(),
@@ -134,6 +134,8 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		provinceFilter.setClearButtonVisible(true);
+
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
@@ -188,6 +190,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 			}
 		});
 
+		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
@@ -230,28 +233,28 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 //		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortProperty("region")
 				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortProperty("province")
 				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district")
 				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getCcode)
-				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
-				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber").setSortable(true).setResizable(true);
 
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
-				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
-				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
 		String numberOfRows = FacadeProvider.getCampaignFormDataFacade()

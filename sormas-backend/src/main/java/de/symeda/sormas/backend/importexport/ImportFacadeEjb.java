@@ -222,6 +222,8 @@ public class ImportFacadeEjb implements ImportFacade {
 	private static final String USER_FORM_IMPORT_TEMPLATE_FILE_NAME = "import_user_form_data_template.csv";
 	private static final String TRAVEL_ENTRY_IMPORT_TEMPLATE_FILE_NAME = "import_travel_entry_template.csv";
 
+	
+	private static final String DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME = "default_population_data.csv";
 	private static final String ALL_COUNTRIES_IMPORT_FILE_NAME = "sormas_import_all_countries.csv";
 	private static final String ALL_SUBCONTINENTS_IMPORT_FILE_NAME = "sormas_import_all_subcontinents.csv";
 	private static final String ALL_CONTINENTS_IMPORT_FILE_NAME = "sormas_import_all_continents.csv";
@@ -712,6 +714,18 @@ System.out.println("YESSSS");
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	public URI getDefaualtPopulationImportFilePath() {
+		try {
+			return this.getClass().getClassLoader().getResource(DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME).toURI();
+		} catch (URISyntaxException e) {
+			logger.warn("Cannot get population import file path: ", e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	
 
 	@Override
 	public URI getAllSubcontinentsImportFilePath() {

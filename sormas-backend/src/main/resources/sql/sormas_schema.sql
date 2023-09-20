@@ -9022,10 +9022,15 @@ GROUP BY
 CREATE UNIQUE INDEX camapaigndata_admin_fieldid_idx ON public.camapaigndata_admin USING btree (formuuid, campaigns_uuid, community_uuid);
 
 CREATE TABLE public.campaignlog (
-	campaign int4 NOT NULL,
-	creatinguser int4 NOT NULL,
+	campaign_id int8 NOT NULL,
+	creatinguser_id int8 NOT NULL,
 	action_logged varchar NOT NULL,
-	last_updated timestamp NULL
+	lastupdated timestamp NULL,
+	changedate timestamp NULL,
+	creationdate timestamp NULL,
+	uuid varchar(36) NULL,
+	deleted bool NULL,
+	id int8 NULL
 );
 
 CREATE TRIGGER update_log_lastupdate
@@ -9057,20 +9062,7 @@ FROM (
 ) AS j
 with data; 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 INSERT INTO schema_version (version_number, comment) VALUES (448, 'upgrading api');
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

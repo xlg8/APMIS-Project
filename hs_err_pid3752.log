@@ -1,0 +1,193 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 2147483648 bytes for Failed to commit area from 0x0000000700000000 to 0x0000000780000000 of length 2147483648.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (./open/src/hotspot/os/windows/os_windows.cpp:3287), pid=3752, tid=8876
+#
+# JRE version:  (11.0.15.1+2) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (11.0.15.1+2-LTS-10, mixed mode, sharing, tiered, compressed oops, g1 gc, windows-amd64)
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -Xms2048m -Xmx4096m -Dclassworlds.conf=C:\apache-maven-3.8.6\bin\m2.conf -Dmaven.home=C:\apache-maven-3.8.6 -Dlibrary.jansi.path=C:\apache-maven-3.8.6\lib\jansi-native -Dmaven.multiModuleProjectDirectory=C:\Users\A\git\collaboration trial\APMIS-Project org.codehaus.plexus.classworlds.launcher.Launcher -Pproduction
+
+Host: Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz, 8 cores, 15G,  Windows 10 , 64 bit Build 19041 (10.0.19041.3031)
+Time: Fri Sep 15 03:08:16 2023 W. Central Africa Standard Time elapsed time: 0.022754 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000194d6cd7800):  JavaThread "Unknown thread" [_thread_in_vm, id=8876, stack(0x00000022c6600000,0x00000022c6700000)]
+
+Stack: [0x00000022c6600000,0x00000022c6700000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x629d8a]
+V  [jvm.dll+0x7638ff]
+V  [jvm.dll+0x764fa9]
+V  [jvm.dll+0x765633]
+V  [jvm.dll+0x23d9c8]
+V  [jvm.dll+0x6270aa]
+V  [jvm.dll+0x61be35]
+V  [jvm.dll+0x2f27dc]
+V  [jvm.dll+0x2f2662]
+V  [jvm.dll+0x2f7386]
+V  [jvm.dll+0x339d8f]
+V  [jvm.dll+0x3397c0]
+V  [jvm.dll+0x2cfdf8]
+V  [jvm.dll+0x2d0f66]
+V  [jvm.dll+0x73df07]
+V  [jvm.dll+0x73f79f]
+V  [jvm.dll+0x346ab9]
+V  [jvm.dll+0x723810]
+V  [jvm.dll+0x3b56cf]
+V  [jvm.dll+0x3b77e1]
+C  [jli.dll+0x5207]
+C  [ucrtbase.dll+0x21bb2]
+C  [KERNEL32.DLL+0x17614]
+C  [ntdll.dll+0x526f1]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x00000194d52c0550, length=0, elements={
+}
+
+Java Threads: ( => current thread )
+
+Other Threads:
+  0x00000194d6ced000 GCTaskThread "GC Thread#0" [stack: 0x00000022c6700000,0x00000022c6800000] [id=20964]
+  0x00000194d6d4b800 ConcurrentGCThread "G1 Main Marker" [stack: 0x00000022c6800000,0x00000022c6900000] [id=2468]
+  0x00000194d6d4e000 ConcurrentGCThread "G1 Conc#0" [stack: 0x00000022c6900000,0x00000022c6a00000] [id=21184]
+
+[error occurred during error reporting (printing all threads), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007ffc056cf087]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00000194d6cd4430] Heap_lock - owner thread: 0x00000194d6cd7800
+
+Heap address: 0x0000000700000000, size: 4096 MB, Compressed Oops mode: Non-zero based: 0x0000000700000000
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 0
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+0x00007ff638b70000 - 0x00007ff638b7f000 	C:\Program Files\Java\jdk-11.0.15.1\bin\java.exe
+0x00007ffc48a70000 - 0x00007ffc48c68000 	C:\Windows\SYSTEM32\ntdll.dll
+0x00007ffc46b30000 - 0x00007ffc46bef000 	C:\Windows\System32\KERNEL32.DLL
+0x00007ffc46660000 - 0x00007ffc46956000 	C:\Windows\System32\KERNELBASE.dll
+0x00007ffc461d0000 - 0x00007ffc462d0000 	C:\Windows\System32\ucrtbase.dll
+0x00007ffc05fb0000 - 0x00007ffc05fc8000 	C:\Program Files\Java\jdk-11.0.15.1\bin\jli.dll
+0x00007ffc1c790000 - 0x00007ffc1c7a5000 	C:\Program Files\Java\jdk-11.0.15.1\bin\VCRUNTIME140.dll
+0x00007ffc48920000 - 0x00007ffc489cf000 	C:\Windows\System32\ADVAPI32.dll
+0x00007ffc475b0000 - 0x00007ffc4764e000 	C:\Windows\System32\msvcrt.dll
+0x00007ffc47650000 - 0x00007ffc476ec000 	C:\Windows\System32\sechost.dll
+0x00007ffc46ca0000 - 0x00007ffc46dc6000 	C:\Windows\System32\RPCRT4.dll
+0x00007ffc48780000 - 0x00007ffc4891d000 	C:\Windows\System32\USER32.dll
+0x00007ffc46960000 - 0x00007ffc46982000 	C:\Windows\System32\win32u.dll
+0x00007ffc48020000 - 0x00007ffc4804c000 	C:\Windows\System32\GDI32.dll
+0x00007ffc46340000 - 0x00007ffc46455000 	C:\Windows\System32\gdi32full.dll
+0x00007ffc368c0000 - 0x00007ffc36b5a000 	C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.19041.1110_none_60b5254171f9507e\COMCTL32.dll
+0x00007ffc465c0000 - 0x00007ffc4665d000 	C:\Windows\System32\msvcp_win.dll
+0x00007ffc3f0e0000 - 0x00007ffc3f0ea000 	C:\Windows\SYSTEM32\VERSION.dll
+0x00007ffc48750000 - 0x00007ffc48780000 	C:\Windows\System32\IMM32.DLL
+0x00007ffc05f10000 - 0x00007ffc05fab000 	C:\Program Files\Java\jdk-11.0.15.1\bin\msvcp140.dll
+0x00007ffc053f0000 - 0x00007ffc05f06000 	C:\Program Files\Java\jdk-11.0.15.1\bin\server\jvm.dll
+0x00007ffc476f0000 - 0x00007ffc476f8000 	C:\Windows\System32\PSAPI.DLL
+0x00007ffc34b30000 - 0x00007ffc34b39000 	C:\Windows\SYSTEM32\WSOCK32.dll
+0x00007ffc36d70000 - 0x00007ffc36d97000 	C:\Windows\SYSTEM32\WINMM.dll
+0x00007ffc47d30000 - 0x00007ffc47d9b000 	C:\Windows\System32\WS2_32.dll
+0x00007ffc44990000 - 0x00007ffc449a2000 	C:\Windows\SYSTEM32\kernel.appcore.dll
+0x00007ffc26ad0000 - 0x00007ffc26ae0000 	C:\Program Files\Java\jdk-11.0.15.1\bin\verify.dll
+0x00007ffc43e10000 - 0x00007ffc43ff4000 	C:\Windows\SYSTEM32\DBGHELP.DLL
+0x00007ffc36410000 - 0x00007ffc36444000 	C:\Windows\SYSTEM32\dbgcore.DLL
+0x00007ffc46990000 - 0x00007ffc46a12000 	C:\Windows\System32\bcryptPrimitives.dll
+0x00007ffc053c0000 - 0x00007ffc053e8000 	C:\Program Files\Java\jdk-11.0.15.1\bin\java.dll
+0x00007ffc0e1b0000 - 0x00007ffc0e1ba000 	C:\Program Files\Java\jdk-11.0.15.1\bin\jimage.dll
+0x00007ffc053a0000 - 0x00007ffc053b6000 	C:\Program Files\Java\jdk-11.0.15.1\bin\zip.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Program Files\Java\jdk-11.0.15.1\bin;C:\Windows\SYSTEM32;C:\Windows\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.19041.1110_none_60b5254171f9507e;C:\Program Files\Java\jdk-11.0.15.1\bin\server
+
+VM Arguments:
+jvm_args: -Xms2048m -Xmx4096m -Dclassworlds.conf=C:\apache-maven-3.8.6\bin\m2.conf -Dmaven.home=C:\apache-maven-3.8.6 -Dlibrary.jansi.path=C:\apache-maven-3.8.6\lib\jansi-native -Dmaven.multiModuleProjectDirectory=C:\Users\A\git\collaboration trial\APMIS-Project 
+java_command: org.codehaus.plexus.classworlds.launcher.Launcher -Pproduction
+java_class_path (initial): C:\apache-maven-3.8.6\boot\plexus-classworlds-2.6.0.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 4                                         {product} {ergonomic}
+     uint ConcGCThreads                            = 2                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 8                                         {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 1048576                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 2147483648                                {product} {command line}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 4294967296                                {product} {command line}
+   size_t MinHeapDeltaBytes                        = 1048576                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 5836300                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122910970                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122910970                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+     bool UseCompressedClassPointers               = true                                 {lp64_product} {ergonomic}
+     bool UseCompressedOops                        = true                                 {lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags
+ #1: stderr all=off uptime,level,tags
+
+Environment Variables:
+JAVA_HOME=C:\Program Files\Java\jdk-11.0.15.1
+PATH=C:\Program Files\Git;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Java\jdk-11.0.15.1\;C:\Program Files\Git\cmd;C:\Program Files\PostgreSQL\10\bin;C:\Program Files\dotnet\;C:\hapi-fhir-jpaserver-starter-master;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\opt\payara5\bin;C:\Program Files\MySQL\MySQL Shell 8.0\bin\;C:\Users\A\AppData\Local\Microsoft\WindowsApps;C:\Users\A\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\Java\jdk-11.0.15.1\bin;C:\apache-maven-3.8.6\bin;C:\Users\A\.dotnet\tools;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2022.2.3\bin;;C:\Program Files\nodejs\;C:\Users\A\AppData\Local\GitHubDesktop\bin;C:\Users\A\AppData\Roaming\npm;C:\opt\payara5\bin;
+USERNAME=A
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 142 Stepping 10, GenuineIntel
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 10 , 64 bit Build 19041 (10.0.19041.3031)
+
+CPU:total 8 (initial active 8) (4 cores per cpu, 2 threads per core) family 6 model 142 stepping 10 microcode 0xf0, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, rtm, 3dnowpref, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2, adx, fma
+
+Memory: 4k page, system-wide physical 16262M (1716M free)
+TotalPageFile size 22311M (AvailPageFile size 890M)
+current process WorkingSet (physical memory assigned to process): 10M, peak: 10M
+current process commit charge ("private bytes"): 60M, peak: 2108M
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (11.0.15.1+2-LTS-10) for windows-amd64 JRE (11.0.15.1+2-LTS-10), built on Apr 25 2022 21:51:57 by "mach5one" with MS VC++ 15.9 (VS2017)
+
+END.

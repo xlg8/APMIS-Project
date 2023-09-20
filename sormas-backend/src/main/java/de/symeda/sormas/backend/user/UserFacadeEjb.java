@@ -445,6 +445,11 @@ public class UserFacadeEjb implements UserFacade {
 	public UserDto getByUserName(String userName) {
 		return toDto(userService.getByUserName(userName));
 	}
+	
+	@Override
+	public UserDto getByEmail(String email) {
+		return toDto(userService.getByEmail(email));
+	}
 
 	@Override
 	public UserDto saveUser(@Valid UserDto dto) {

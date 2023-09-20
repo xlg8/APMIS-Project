@@ -198,9 +198,9 @@ public class UserForm extends FormLayout {
 		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
 				.bind(UserDto::getLastName, UserDto::setLastName);
 
-		binder.forField(userEmail).asRequired(I18nProperties.getCaption(Captions.emailRequired))
+		binder.forField(userEmail)//.asRequired(I18nProperties.getCaption(Captions.emailRequired))
 				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
-		map.put("email", userEmail);
+	//	map.put("email", userEmail);
 
 		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
@@ -443,7 +443,6 @@ public class UserForm extends FormLayout {
 		_dialog.setCancelable(true);
 		_dialog.addCancelListener(e -> _dialog.close());
 
-		_dialog.setText("You are about to create a New Password for an existing User");
 		_dialog.setRejectable(true);
 		_dialog.setRejectText("Cancel");
 		_dialog.addRejectListener(e -> _dialog.close());
@@ -541,16 +540,24 @@ public class UserForm extends FormLayout {
 
 	public void validateAndSaveEdit(UserDto editedUser) {
 		if (binder.validate().isOk()) {
-
-			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
-			if (binderUser.getUserName().toLowerCase().trim().equals(editedUser.getUserName().toLowerCase().trim())) {
-
-				if (binderUser.getUserEmail().toLowerCase().trim()
-						.equals(editedUser.getUserEmail().toLowerCase().trim())) {
+			
+			boolean isErrored = false;
+			if (binder.getBean().getUserEmail() != null) {
+				
+				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+				
+				if (binderEmailValidation == null) {
 					fireEvent(new SaveEvent(this, binder.getBean()));
+
 				} else {
 
-					if (binderUser.getUserEmail() != null) {
+					if (binderEmailValidation.getUserName().trim().equals(editedUser.getUserName().trim())
+							&& !editedUser.getUserName().isEmpty()) {
+//email has not changed
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+						
+						isErrored = true;
 						Notification notification = new Notification();
 						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 						notification.setPosition(Position.MIDDLE);
@@ -561,15 +568,26 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email not unique");
+						Paragraph text = new Paragraph("Error : Email already in the system");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
 
 						notification.add(layout);
 						notification.open();
+						
+						return;
+						
 					}
 				}
+			}
+
+			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+
+			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
+					&& !editedUser.getUserName().isEmpty() && !isErrored) {
+
+				fireEvent(new SaveEvent(this, binder.getBean()));
 			} else {
 
 				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
@@ -591,6 +609,8 @@ public class UserForm extends FormLayout {
 
 					notification.add(layout);
 					notification.open();
+					
+					return;
 				}
 			}
 		}
@@ -599,6 +619,49 @@ public class UserForm extends FormLayout {
 	public void validateAndSaveNew() {
 
 		if (binder.validate().isOk()) {
+			
+			if (binder.getBean().getUserEmail() != null) {
+				
+				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+				
+				if (binderEmailValidation == null) {
+					
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				} else {
+
+					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
+							&& !binder.getBean().getUserName().isEmpty()) {
+//email has not changed
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+
+						
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Email already in the system");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						return;
+						
+						
+					}
+				}
+			}
+			
+			
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
 				Notification notification = new Notification();
@@ -618,15 +681,33 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
+				return;
 			} else {
-
-				UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
-				if (binderUser.getUserEmail() != null) {
-					fireEvent(new SaveEvent(this, binder.getBean()));
-				}
+				fireEvent(new SaveEvent(this, binder.getBean()));
 			}
 		}
 	}
+
+//	private void validateUserRoles() {
+//		map.forEach((key, value) -> {
+//			Component formField = map.get(key);
+//			if (value instanceof MultiSelectComboBox<?>) {
+//
+//				MultiSelectComboBox formFieldxx = (MultiSelectComboBox) value;
+//				ValidationResult requiredValidation = userRoles.apply(formFieldxx.getValue(), null);
+//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
+//				if (requiredValidation.isError()) {
+//
+//					// Handle required field validation error
+//					formFieldxx.setInvalid(true);
+//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
+//				} else {
+//		fireEvent(new SaveEvent(this, binder.getBean()));
+//				}
+//			}
+//
+//		});
+//	}
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
 		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",

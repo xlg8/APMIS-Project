@@ -47,6 +47,8 @@ public interface UserFacade {
 	List<UserDto> getAllAfter(Date date); 
 
 	UserDto getByUserName(String userName);
+	
+	UserDto getByEmail(String email);
 
 	List<UserReferenceDto> getUsersByAreaAndRoles(AreaReferenceDto areaRef, UserRole... assignableRoles);
 

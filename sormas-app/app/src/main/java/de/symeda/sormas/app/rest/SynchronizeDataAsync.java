@@ -146,18 +146,31 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 				System.out.println("----------------------- CompleteAndRepull");
 				syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteAndRepullTrace");
 				syncModeTrace.start();
-
 				pullInfrastructure(); // do before missing, because we may have a completely empty database
+
+				if (ConfigProvider.getLastDeletedSyncDate() == null
+						|| DateHelper.getFullDaysBetween(ConfigProvider.getLastDeletedSyncDate(), new Date()) >= 1) {
+
+					pullAndRemoveDeletedUuidsSince(ConfigProvider.getLastDeletedSyncDate());
+				}
+				// pull and remove archived entities when the last time this has been done is more than 24 hours ago
+				if (ConfigProvider.getLastArchivedSyncDate() == null
+						|| DateHelper.getFullDaysBetween(ConfigProvider.getLastArchivedSyncDate(), new Date()) >= 1) {
+
+					pullAndRemoveArchivedUuidsSince(ConfigProvider.getLastArchivedSyncDate());
+				}
+				synchronizeChangedData();
+
 				pullMissingAndDeleteInvalidInfrastructure();
 				repullData();
 				pushNewPullMissingAndDeleteInvalidData();
-				synchronizeChangedData();
+
 				ConfigProvider.setRepullNeeded(false);
 
 				syncModeTrace.stop();
 				break;
 
-				case Complete:
+			case Complete:
 					System.out.println("----------------------- complete");
 					syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteTrace");
 					syncModeTrace.start();

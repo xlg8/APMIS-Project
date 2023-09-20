@@ -487,7 +487,7 @@ vcf-nav-item[active]::part(item) {
 }
 
 .apmis-login-logo {
-	height: 20vh;
+	width: -webkit-fill-available;
 	margin-top: 50px;
 }
 

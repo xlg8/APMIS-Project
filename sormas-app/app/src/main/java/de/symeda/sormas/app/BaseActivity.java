@@ -706,6 +706,8 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			final SwipeRefreshLayout swipeRefreshLayout,
 			final Callback resultCallback,
 			final Callback beforeSyncCallback) {
+
+		System.out.println(">>>>>>>trackkk synchronizeData(>>>>>>> "+syncMode);
 		if (!checkActiveUser())
 			return;
 

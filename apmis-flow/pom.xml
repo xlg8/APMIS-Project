@@ -155,7 +155,8 @@
 			<artifactId>spring-context</artifactId>
 			<version>4.3.30.RELEASE</version>
 		</dependency>
-
+		
+	
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 
 			<dependency>
 				<groupId>org.vaadin.highcharts</groupId>
@@ -225,6 +226,12 @@
 			<artifactId>togglebutton</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+
+		<!--dependency>
+			<groupId>org.vaadin.addons.taefi</groupId>
+			<artifactId>toggle-button-group</artifactId>
+			<version>1.0.2</version>
+		</dependency>-->
 
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>

@@ -425,6 +425,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		    criteria.setFormType(campaignPhase.getValue().toString());
 		});
 
+		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
@@ -447,56 +448,56 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		add(filterBlock);
 	}
 
-	private Consumer<CampaignFormMetaReferenceDto> createFormMetaChangedCallback() {
-		return formMetaReference -> {
-			grid.removeAllColumns();
-			grid.addColumns();
-			if (formMetaReference != null) {
-				CampaignFormMetaDto formMeta = FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetaByUuid(formMetaReference.getUuid());
-				Language userLanguage = UserProvider.getCurrent().getUser().getLanguage();
-				CampaignFormTranslations translations = null;
-				if (userLanguage != null) {
-					translations = formMeta.getCampaignFormTranslations().stream()
-							.filter(t -> t.getLanguageCode().equals(userLanguage.getLocale().toString())).findFirst()
-							.orElse(null);
-				}
-//				final boolean onlyImportantFormElements = importanceFilterSwitcher.isImportantSelected();
-				final List<CampaignFormElement> campaignFormElements = formMeta.getCampaignFormElements();
-				for (CampaignFormElement element : campaignFormElements) {
-					if (element.isImportant()) {// || !onlyImportantFormElements) {
-						String type = element.getType();
-						if (type != null) {
-							CampaignFormElementType campaignFormElementType = CampaignFormElementType.fromString(type);
-							if (campaignFormElementType == CampaignFormElementType.NUMBER
-									|| campaignFormElementType == CampaignFormElementType.DECIMAL
-									|| campaignFormElementType == CampaignFormElementType.RANGE
-									|| campaignFormElementType == CampaignFormElementType.RADIOBASIC
-									|| campaignFormElementType == CampaignFormElementType.CHECKBOX
-									|| campaignFormElementType == CampaignFormElementType.CHECKBOXBASIC
-									|| campaignFormElementType == CampaignFormElementType.RADIO
-									|| campaignFormElementType == CampaignFormElementType.YES_NO) {
-								String caption = null;
-								if (translations != null) {
-									caption = translations.getTranslations().stream()
-											.filter(t -> t.getElementId().equals(element.getId()))
-											.map(TranslationElement::getCaption).findFirst().orElse(null);
-								}
-								if (caption == null) {
-									caption = element.getCaption();
-								}
-
-								if (caption != null) {
-									addCustomColumn(element.getId(), caption);
-								}
-							}
-						}
-					}
-				}
-			}
-			setColumnsVisibility(criteria.getGroupingLevel());
-		};
-	}
+//	private Consumer<CampaignFormMetaReferenceDto> createFormMetaChangedCallback() {
+//		return formMetaReference -> {
+//			grid.removeAllColumns();
+//			grid.addColumns();
+//			if (formMetaReference != null) {
+//				CampaignFormMetaDto formMeta = FacadeProvider.getCampaignFormMetaFacade()
+//						.getCampaignFormMetaByUuid(formMetaReference.getUuid());
+//				Language userLanguage = UserProvider.getCurrent().getUser().getLanguage();
+//				CampaignFormTranslations translations = null;
+//				if (userLanguage != null) {
+//					translations = formMeta.getCampaignFormTranslations().stream()
+//							.filter(t -> t.getLanguageCode().equals(userLanguage.getLocale().toString())).findFirst()
+//							.orElse(null);
+//				}
+////				final boolean onlyImportantFormElements = importanceFilterSwitcher.isImportantSelected();
+//				final List<CampaignFormElement> campaignFormElements = formMeta.getCampaignFormElements();
+//				for (CampaignFormElement element : campaignFormElements) {
+//					if (element.isImportant()) {// || !onlyImportantFormElements) {
+//						String type = element.getType();
+//						if (type != null) {
+//							CampaignFormElementType campaignFormElementType = CampaignFormElementType.fromString(type);
+//							if (campaignFormElementType == CampaignFormElementType.NUMBER
+//									|| campaignFormElementType == CampaignFormElementType.DECIMAL
+//									|| campaignFormElementType == CampaignFormElementType.RANGE
+//									|| campaignFormElementType == CampaignFormElementType.RADIOBASIC
+//									|| campaignFormElementType == CampaignFormElementType.CHECKBOX
+//									|| campaignFormElementType == CampaignFormElementType.CHECKBOXBASIC
+//									|| campaignFormElementType == CampaignFormElementType.RADIO
+//									|| campaignFormElementType == CampaignFormElementType.YES_NO) {
+//								String caption = null;
+//								if (translations != null) {
+//									caption = translations.getTranslations().stream()
+//											.filter(t -> t.getElementId().equals(element.getId()))
+//											.map(TranslationElement::getCaption).findFirst().orElse(null);
+//								}
+//								if (caption == null) {
+//									caption = element.getCaption();
+//								}
+//
+//								if (caption != null) {
+//									addCustomColumn(element.getId(), caption);
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//			setColumnsVisibility(criteria.getGroupingLevel());
+//		};
+//	}
 
 	public void addCustomColumn(String property, String caption) {
 		Column<CampaignStatisticsDto> newColumn = grid.addColumn(

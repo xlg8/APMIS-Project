@@ -174,7 +174,7 @@ public class AboutView extends VerticalLayout {
 		
 		releaseDetailsLayout.getStyle().set("padding-left", "90px !important");
 		releaseDetailsLayout.setWidth("100%");
-		releaseDetailsLayout.add(versionNum, releaseDate);
+//		releaseDetailsLayout.add(versionNum, releaseDate);
 		add(buttonsLayout, releaseDetailsLayout);
 
 	}
