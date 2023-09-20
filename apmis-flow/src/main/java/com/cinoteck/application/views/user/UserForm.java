@@ -180,7 +180,7 @@ public class UserForm extends FormLayout {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void configureFields(UserDto user) {		
+	public void configureFields(UserDto user) {
 
 		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 
@@ -503,7 +503,7 @@ public class UserForm extends FormLayout {
 	public void suggestUserName(boolean editMode) {
 
 //		fireEvent(new UserFieldValueChangeEvent(this, binder.getBean()));
-		if (editMode) {		
+		if (editMode) {
 
 			lastName.addValueChangeListener(e -> {
 
@@ -545,7 +545,31 @@ public class UserForm extends FormLayout {
 			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
 			if (binderUser.getUserName().toLowerCase().trim().equals(editedUser.getUserName().toLowerCase().trim())) {
 
-				fireEvent(new SaveEvent(this, binder.getBean()));
+				if (binderUser.getUserEmail().toLowerCase().trim()
+						.equals(editedUser.getUserEmail().toLowerCase().trim())) {
+					fireEvent(new SaveEvent(this, binder.getBean()));
+				} else {
+
+					if (binderUser.getUserEmail() != null) {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Email not unique");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+					}
+				}
 			} else {
 
 				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
@@ -595,31 +619,14 @@ public class UserForm extends FormLayout {
 				notification.add(layout);
 				notification.open();
 			} else {
-				fireEvent(new SaveEvent(this, binder.getBean()));
+
+				UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+				if (binderUser.getUserEmail() != null) {
+					fireEvent(new SaveEvent(this, binder.getBean()));
+				}
 			}
 		}
 	}
-
-//	private void validateUserRoles() {
-//		map.forEach((key, value) -> {
-//			Component formField = map.get(key);
-//			if (value instanceof MultiSelectComboBox<?>) {
-//
-//				MultiSelectComboBox formFieldxx = (MultiSelectComboBox) value;
-//				ValidationResult requiredValidation = userRoles.apply(formFieldxx.getValue(), null);
-//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
-//				if (requiredValidation.isError()) {
-//
-//					// Handle required field validation error
-//					formFieldxx.setInvalid(true);
-//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
-//				} else {
-//		fireEvent(new SaveEvent(this, binder.getBean()));
-//				}
-//			}
-//
-//		});
-//	}
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
 		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",

@@ -265,8 +265,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				VaadinIcon.CHAT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
-		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-				"navitem"));	       
+//		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
+//				"navitem"));	       
 
 		if (nav != null) {
 			nav.addClassName("active");
