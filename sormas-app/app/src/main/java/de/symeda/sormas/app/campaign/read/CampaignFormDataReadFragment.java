@@ -704,42 +704,76 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
         dayy = countr;
 
         if (daywise) {
-
-            if (dayy > 0) {
+            System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: "+countr);
+            if (countr > 0) {
                 spec = mTabHost.newTabSpec("tab1").setIndicator("D1",//caption_1,
                         res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet1);
                 mTabHost.addTab(spec);
                 mTabHost.getTabWidget().getChildAt(0).getLayoutParams().width = 140;
             }
-            if (dayy > 1) {
+            if (countr > 1) {
                 spec = mTabHost.newTabSpec("tab2").setIndicator("D2",//caption_1,
                         res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet2);
                 mTabHost.addTab(spec);
                 mTabHost.getTabWidget().getChildAt(1).getLayoutParams().width = 140;
             }
-            if (dayy > 2) {
+            if (countr > 2) {
                 spec = mTabHost.newTabSpec("tab3").setIndicator("D3",//caption_1,
                         res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet3);
                 mTabHost.addTab(spec);
                 mTabHost.getTabWidget().getChildAt(2).getLayoutParams().width = 140;
             }
-            if (dayy > 3) {
+            if (countr > 3) {
                 spec = mTabHost.newTabSpec("tab4").setIndicator("D4",//caption_1,
                         res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet4);
                 mTabHost.addTab(spec);
                 mTabHost.getTabWidget().getChildAt(3).getLayoutParams().width = 140;
             }
-           if (dayy > 4) {
+
+            if (countr == 6) { //>5 (four day form with summary
                 spec = mTabHost.newTabSpec("tab5").setIndicator(" ",//caption_1,
                         res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet5);
                 mTabHost.addTab(spec);
                 mTabHost.getTabWidget().getChildAt(4).getLayoutParams().width = 140;
-               mTabHost.getTabWidget().getChildAt(4).setVisibility(View.GONE);
+                mTabHost.getTabWidget().getChildAt(4).setVisibility(View.GONE);
+            }
+
+            if (countr > 4 && countr != 6) {
+                spec = mTabHost.newTabSpec("tab5").setIndicator("D5",//caption_1,
+                        res.getDrawable(R.drawable.ic_clear_black_24dp))
+                        .setContent(R.id.tabSheet5);
+                mTabHost.addTab(spec);
+                mTabHost.getTabWidget().getChildAt(4).getLayoutParams().width = 140;
+            }
+
+            if (countr > 5 && countr != 6) {
+                spec = mTabHost.newTabSpec("tab6").setIndicator("D6",//caption_1,
+                        res.getDrawable(R.drawable.ic_clear_black_24dp))
+                        .setContent(R.id.tabSheet6);
+                mTabHost.addTab(spec);
+                mTabHost.getTabWidget().getChildAt(5).getLayoutParams().width = 140;
+            }
+
+            if (countr > 6) {
+                spec = mTabHost.newTabSpec("tab7").setIndicator("D7",//caption_1,
+                        res.getDrawable(R.drawable.ic_clear_black_24dp))
+                        .setContent(R.id.tabSheet7);
+                mTabHost.addTab(spec);
+                mTabHost.getTabWidget().getChildAt(6).getLayoutParams().width = 140;
+            }
+
+            if (countr > 7) {
+                spec = mTabHost.newTabSpec("tab8").setIndicator("D8",//caption_1,
+                        res.getDrawable(R.drawable.ic_clear_black_24dp))
+                        .setContent(R.id.tabSheet8);
+                mTabHost.addTab(spec);
+                mTabHost.getTabWidget().getChildAt(7).getLayoutParams().width = 140;
+                mTabHost.getTabWidget().getChildAt(7).setVisibility(View.GONE);
             }
          /*    if (dayy > 5) {
                 spec = mTabHost.newTabSpec("tab6").setIndicator("D6",//caption_1,

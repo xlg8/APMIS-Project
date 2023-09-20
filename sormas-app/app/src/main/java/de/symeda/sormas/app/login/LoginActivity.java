@@ -83,7 +83,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		System.out.println("+++++++++++++++++>>>>trackkk onResume++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		checkLoginAndDoUpdateAndInitialSync();
 
 		if (ConfigProvider.getUser() != null) {
@@ -102,6 +102,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		System.out.println("+++++++++++++++++>>>>trackkk onRequestPermissionsResult++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		checkLoginAndDoUpdateAndInitialSync();
 	}
 
@@ -172,6 +173,8 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 			RetroProvider.connectAsyncHandled(this, true, true, result -> {
 				if (Boolean.TRUE.equals(result)) {
 					RetroProvider.disconnect();
+					System.out.println("+++++++++++++++++>>>>trackkk login(View view)++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+					checkLoginAndDoUpdateAndInitialSync();
 					checkLoginAndDoUpdateAndInitialSync();
 				} else {
 					// if we could not connect to the server, the user can't sign in - no matter the reason
@@ -203,10 +206,10 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 		RetroProvider.connectAsyncHandled(this, true, true, result -> {
 			if (Boolean.TRUE.equals(result)) {
 
-				boolean needsSync = ConfigProvider.getUser() == null || DatabaseHelper.getCaseDao().isEmpty();
+				boolean needsSync = ConfigProvider.getUser() == null || DatabaseHelper.getCampaignFormMetaDao().isEmpty();
 
 				if (needsSync) {
-					//System.out.println(">>>>>>>>>>>>>>>>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+					System.out.println(">>>>>>>>>>>trackkk needsSync>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 					SynchronizeDataAsync.call(SynchronizeDataAsync.SyncMode.Changes, getApplicationContext(), (syncFailed, syncFailedMessage) -> {
 
 						RetroProvider.disconnect();
@@ -223,7 +226,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 						if (ConfigProvider.getUser() != null) {
 							initializeFirebase();
 							if (ConfigProvider.getUser().getLanguage() != null) {
-								System.out.println(">>>>>>>>>>>>>>>>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+								System.out.println(">>>>>>>>>ConfigProvider.getUser().getLanguage() != null>>>>>>>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 
 								setNewLocale(this, ConfigProvider.getUser().getLanguage());
 							}
@@ -233,7 +236,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 						}
 					});
 				} else {
-					System.out.println(">>>>>>>>>>>>>>>>2>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+					System.out.println(">>>>>>>>>trackkk no neeed to sync>>>>>>2>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 
 					RetroProvider.disconnect();
 
@@ -245,11 +248,13 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 					initializeFirebase();
 					if (ConfigProvider.getUser().getLanguage() != null) {
 						setNewLocale(this, ConfigProvider.getUser().getLanguage());
+					}else{
+						setNewLocale(this, Language.EN);
 					}
 					openLandingActivity();
 				}
 			} else {
-			//	System.out.println(">>>>>>>>>>>>>>>3>>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+				System.out.println(">>>>>>>trackkk am unable to login>>>>>>>3>>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 				if (progressDialog != null && progressDialog.isShowing()) {
 					progressDialog.dismiss();
 					progressDialog = null;
