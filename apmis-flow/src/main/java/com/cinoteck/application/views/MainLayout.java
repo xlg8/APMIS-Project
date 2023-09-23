@@ -54,6 +54,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Router;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextAlignment;
 
@@ -163,9 +164,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.setExtendSessionOnOutsideClick(true);
 		idleNotification.setRedirectAtTimeoutUrl("logout");
 
-//		UI.getCurrent().add(idleNotification);
+		UI.getCurrent().add(idleNotification);
 
-		// System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
+		System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
 
 		addToNavbar(true, toggle, titleLayout);
 	}
@@ -281,91 +282,91 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	}
 
-	private boolean permitted(UserRole userrole) {
-		boolean check = false;
-		if (userProvider.getUser().getUserRoles() != null) {
-			for (UserRole vv : userProvider.getUser().getUserRoles()) {
-				userrole = vv;
-				check = true;
-			}
-			return check;
-		} else {
-			return check;
-		}
-	}
+//	private boolean permitted(UserRole userrole) {
+//		boolean check = false;
+//		if (userProvider.getUser().getUserRoles() != null) {
+//			for (UserRole vv : userProvider.getUser().getUserRoles()) {
+//				userrole = vv;
+//				check = true;
+//			}
+//			return check;
+//		} else {
+//			return check;
+//		}
+//	}
 
-	private boolean permitted(UserType userType) {
-		boolean check = false;
+//	private boolean permitted(UserType userType) {
+//		boolean check = false;
+//
+//		if (userProvider.getUser().getUsertype() != null) {
+//			check = true;
+//			userType = userProvider.getUser().getUsertype();
+//			return check;
+//		} else {
+//			return check;
+//		}
+//	}
 
-		if (userProvider.getUser().getUsertype() != null) {
-			check = true;
-			userType = userProvider.getUser().getUsertype();
-			return check;
-		} else {
-			return check;
-		}
-	}
-
-	private Button createPopup() {
-		Button confirmButton;
-		Button cancelButton;
-
-		Dialog dialog = new Dialog();
-		dialog.setCloseOnEsc(false);
-		dialog.setCloseOnOutsideClick(false);
-
-		VerticalLayout dialogHolderLayout = new VerticalLayout();
-
-		Div apmisImageContainer = new Div();
-		apmisImageContainer.getStyle().set("width", "100%");
-		apmisImageContainer.getStyle().set("display", "flex");
-		apmisImageContainer.getStyle().set("justify-content", "center");
-
-		Image img = new Image("images/logout.png", "APMIS-LOGO");
-		img.getStyle().set("max-height", "-webkit-fill-available");
-
-		apmisImageContainer.add(img);
-
-		Div aboutText = new Div();
-
-		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
-		Paragraph confirmationText = new Paragraph("Are you sure you want to logout?");
-
-		text.getStyle().set("color", "black");
-		text.getStyle().set("font-size", "24px");
-		confirmationText.getStyle().set("color", "green");
-		confirmationText.getStyle().set("font-size", "18px");
-
-		aboutText.getStyle().set("display", "flex");
-		aboutText.getStyle().set("flex-direction", "column");
-		aboutText.getStyle().set("align-items", "center");
-		aboutText.add(text, confirmationText);
-
-		Div logoutButtons = new Div();
-		logoutButtons.getStyle().set("display", "flex");
-		logoutButtons.getStyle().set("justify-content", "space-evenly");
-		logoutButtons.getStyle().set("width", "100%");
-
-		confirmButton = new Button("Confirm", event -> {
-//			confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
-		});
-		confirmButton.getStyle().set("width", "35%");
-		cancelButton = new Button("Cancel", event -> {
-			dialog.close();
-//			cancelButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
-		});
-		cancelButton.getStyle().set("width", "35%");
-		cancelButton.getStyle().set("background", "white");
-		cancelButton.getStyle().set("color", "green");
-		logoutButtons.add(confirmButton, cancelButton);
-
-		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
-		dialog.add(dialogHolderLayout);
-		return cancelButton;
-
-//		add(dialog);
-//		return dialog;
-	}
+//	private Button createPopup() {
+//		Button confirmButton;
+//		Button cancelButton;
+//
+//		Dialog dialog = new Dialog();
+//		dialog.setCloseOnEsc(false);
+//		dialog.setCloseOnOutsideClick(false);
+//
+//		VerticalLayout dialogHolderLayout = new VerticalLayout();
+//
+//		Div apmisImageContainer = new Div();
+//		apmisImageContainer.getStyle().set("width", "100%");
+//		apmisImageContainer.getStyle().set("display", "flex");
+//		apmisImageContainer.getStyle().set("justify-content", "center");
+//
+//		Image img = new Image("images/logout.png", "APMIS-LOGO");
+//		img.getStyle().set("max-height", "-webkit-fill-available");
+//
+//		apmisImageContainer.add(img);
+//
+//		Div aboutText = new Div();
+//
+//		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
+//		Paragraph confirmationText = new Paragraph("Are you sure you want to logout?");
+//
+//		text.getStyle().set("color", "black");
+//		text.getStyle().set("font-size", "24px");
+//		confirmationText.getStyle().set("color", "green");
+//		confirmationText.getStyle().set("font-size", "18px");
+//
+//		aboutText.getStyle().set("display", "flex");
+//		aboutText.getStyle().set("flex-direction", "column");
+//		aboutText.getStyle().set("align-items", "center");
+//		aboutText.add(text, confirmationText);
+//
+//		Div logoutButtons = new Div();
+//		logoutButtons.getStyle().set("display", "flex");
+//		logoutButtons.getStyle().set("justify-content", "space-evenly");
+//		logoutButtons.getStyle().set("width", "100%");
+//
+//		confirmButton = new Button("Confirm", event -> {
+////			confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
+//		});
+//		confirmButton.getStyle().set("width", "35%");
+//		cancelButton = new Button("Cancel", event -> {
+//			dialog.close();
+////			cancelButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
+//		});
+//		cancelButton.getStyle().set("width", "35%");
+//		cancelButton.getStyle().set("background", "white");
+//		cancelButton.getStyle().set("color", "green");
+//		logoutButtons.add(confirmButton, cancelButton);
+//
+//		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
+//		dialog.add(dialogHolderLayout);
+//		return cancelButton;
+//
+////		add(dialog);
+////		return dialog;
+//	}
 
 	private void rtlswitcher() {
 		
@@ -393,45 +394,45 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 	}
 
-	private Tabs getTabs() {
-		Tabs tabs = new Tabs();
-		tabs.add(createTab(VaadinIcon.COG_O, "Dashboard", DashboardView.class));
-		tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", CampaignDataView.class));
-		tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", CampaignsView.class));
-		tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigurationsView.class));
-		tabs.add(createTab(VaadinIcon.USERS, "Users", UserView.class));
-		tabs.add(createTab(VaadinIcon.CHART, "Report", ReportView.class));
-		tabs.add(createTab(VaadinIcon.USER, "User Profile", MyAccountView.class));
-		tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", AboutView.class));
-		tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", SupportView.class));
-		tabs.setOrientation(Tabs.Orientation.VERTICAL);
-		tabs.addClassName("tabs");
-		return tabs;
-	}
+//	private Tabs getTabs() {
+//		Tabs tabs = new Tabs();
+//		tabs.add(createTab(VaadinIcon.COG_O, "Dashboard", DashboardView.class));
+//		tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", CampaignDataView.class));
+//		tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", CampaignsView.class));
+//		tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigurationsView.class));
+//		tabs.add(createTab(VaadinIcon.USERS, "Users", UserView.class));
+//		tabs.add(createTab(VaadinIcon.CHART, "Report", ReportView.class));
+//		tabs.add(createTab(VaadinIcon.USER, "User Profile", MyAccountView.class));
+//		tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", AboutView.class));
+//		tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", SupportView.class));
+//		tabs.setOrientation(Tabs.Orientation.VERTICAL);
+//		tabs.addClassName("tabs");
+//		return tabs;
+//	}
 
 	// TODO: Move the styles into CSS classes for a cleaner code
-	private Tab createTab(VaadinIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
-		Icon icon = viewIcon.create();
-		icon.getStyle().set("box-sizing", "border-box").set("margin-inline-end", "var(--lumo-space-m)").set("padding",
-				"var(--lumo-space-xs)");
-
-		RouterLink link = new RouterLink();
-		link.setRoute(viewClass);
-
-		// Create a VerticalLayout to stack the icon and the Span vertically
-		VerticalLayout verticalLayout = new VerticalLayout(icon, new Span(viewName));
-		verticalLayout.setSpacing(false);
-		verticalLayout.setPadding(false);
-
-		// Center the elements vertically and horizontally within the VerticalLayout
-		verticalLayout.getStyle().set("display", "flex").set("flex-direction", "column").set("align-items", "center")
-				.set("justify-content", "center").set("color", "white").set("font-weight", "normal")
-				.set("margin", "8px 0px");
-
-		link.add(verticalLayout);
-
-		return new Tab(link);
-	}
+//	private Tab createTab(VaadinIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
+//		Icon icon = viewIcon.create();
+//		icon.getStyle().set("box-sizing", "border-box").set("margin-inline-end", "var(--lumo-space-m)").set("padding",
+//				"var(--lumo-space-xs)");
+//
+//		RouterLink link = new RouterLink();
+//		link.setRoute(viewClass);
+//
+//		// Create a VerticalLayout to stack the icon and the Span vertically
+//		VerticalLayout verticalLayout = new VerticalLayout(icon, new Span(viewName));
+//		verticalLayout.setSpacing(false);
+//		verticalLayout.setPadding(false);
+//
+//		// Center the elements vertically and horizontally within the VerticalLayout
+//		verticalLayout.getStyle().set("display", "flex").set("flex-direction", "column").set("align-items", "center")
+//				.set("justify-content", "center").set("color", "white").set("font-weight", "normal")
+//				.set("margin", "8px 0px");
+//
+//		link.add(verticalLayout);
+//
+//		return new Tab(link);
+//	}
 
 	private Footer createFooter() {
 		Footer layout = new Footer();
@@ -495,7 +496,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
 			dialog.close();
 //			dialog.remove(dialogHolderLayout);
-			cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
+			//cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
 		});
 		cancelButton.getStyle().set("width", "35%");
 		cancelButton.getStyle().set("background", "white");

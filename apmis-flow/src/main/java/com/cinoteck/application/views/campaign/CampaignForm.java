@@ -380,7 +380,7 @@ public class CampaignForm extends VerticalLayout {
 
 		compp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),getListDashboardFromType(INTRA_CAMPAIGN),campaignDto,INTRA_CAMPAIGN);
 
-		comppp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),getListDashboardFromType(POST_CAMPAIGN),campaignDto,POST_CAMPAIGN);
+		comppp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN)),getListDashboardFromType(POST_CAMPAIGN),campaignDto,POST_CAMPAIGN);
 
 
 		tab1.add(comp);
@@ -847,7 +847,7 @@ public class CampaignForm extends VerticalLayout {
 			archiveDearchive.setEnabled(!isOpenClose);
 		});
 
-		archiveDearchive.setEnabled(false);
+		archiveDearchive.setEnabled(isOpenClose);
 		archiveDearchive.addClickListener(e -> {
 			archive();
 
