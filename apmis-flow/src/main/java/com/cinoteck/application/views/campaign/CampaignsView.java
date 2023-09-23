@@ -460,6 +460,14 @@ public class CampaignsView extends VerticalLayout {
 		CampaignForm formLayout = (CampaignForm) event.getSource();
 
 		dialog.setHeaderTitle("Campaign Log");
+//		CampaignLogDto logDto = new CampaignLogDto();
+//		Date timestamp = logDto.getActionDate();
+//
+//		TextRenderer<CampaignLogDto> timeStampRenderer = new TextRenderer<>(dto -> {
+//			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");//new SimpleDateFormat("dd/MM/yyyy");
+//			String formatted = dateFormat.format(timestamp);
+//			return formatted;
+//		});
 
 		Grid<CampaignLogDto> grid = new Grid<>(CampaignLogDto.class, false);
 		grid.setItems(FacadeProvider.getCampaignFacade().getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));

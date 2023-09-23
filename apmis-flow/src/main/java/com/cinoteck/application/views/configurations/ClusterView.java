@@ -395,7 +395,18 @@ public class ClusterView extends VerticalLayout {
 		});
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			
+			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
+				subMenu.removeAll();
+				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
+			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
+				subMenu.removeAll();
+				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
+						event -> handleArchiveDearchiveAction());
+
+			} else {
+				subMenu.removeAll();
+				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
+			}
 			EntityRelevanceStatus selectedStatus = e.getValue();
             criteria.relevanceStatus(selectedStatus);
             refreshGridData();

@@ -374,8 +374,15 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	//	dto.setPopulation(populationDataFacade.getRegionPopulation(dto.getUuid()));
 		dto.setGrowthRate(entity.getGrowthRate());
 		dto.setExternalId(entity.getExternalId());
+		if (entity.getArea() != null) {
+			dto.setAreaexternalId(entity.getArea().getExternalId());
+		}
+
 		dto.setArea(AreaFacadeEjb.toReferenceDtox(entity.getArea()));
-		dto.setAreaexternalId(entity.getArea().getExternalId());
+//		dto.setRegionexternalId(entity.getRegion().getExternalId());
+
+//		System.out.println(entity.getArea().getExternalId() + "aread external id froIndex dto ");
+//		dto.setAreaexternalId(entity.getArea().getExternalId());
 		dto.setCountry(CountryFacadeEjb.toReferenceDto(entity.getCountry()));
 
 		return dto;
