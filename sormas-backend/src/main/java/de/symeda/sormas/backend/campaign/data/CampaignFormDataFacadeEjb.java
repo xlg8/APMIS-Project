@@ -485,7 +485,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		boolean filterIsNull = criteria.getCampaign() == null ;
 		
-		String joiner = "";
+		String whereclause = "";
 		
 		if(!filterIsNull) {
 		final CampaignReferenceDto campaign = criteria.getCampaign();
@@ -503,12 +503,18 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
 		
-		joiner = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
+		whereclause = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
 		
-		System.out.println(campaignFilter+" ===================== "+joiner);
+		
+		
+		
+		System.out.println(campaignFilter+" ===================== "+whereclause);
 		}
+		String addedWhere = "";
 		
-		
+		if(1 == 1) {
+			addedWhere = "and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+		}
 
 		String orderby = "";
 
@@ -569,6 +575,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		
 		
+		
+		
+		
 		final String joinBuilder = "select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
 				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, analyticz.campaign_id\n"
 				+ "from completionAnalysisView_e analyticz\n"
@@ -578,7 +587,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
 				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
-				+ ""+joiner+"\n"
+				+ ""+whereclause+" "+addedWhere+" \n"
 				+ orderby
 				+ " limit "+max+" offset "+first+";";
 		

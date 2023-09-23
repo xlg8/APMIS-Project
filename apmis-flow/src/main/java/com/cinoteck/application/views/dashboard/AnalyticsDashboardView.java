@@ -28,42 +28,42 @@ public class AnalyticsDashboardView extends VerticalLayout implements RouterLayo
 	protected CampaignDashboardDataProvider dataProvider;
 
 	public AnalyticsDashboardView() {
-//		 Html html = new Html("<iframe src='https://staging.afghanistan-apmis.com/analytics' style='width:100%; height:100%;'></iframe>");
+		 Html html = new Html("<iframe src='https://staging.afghanistan-apmis.com/analytics' style='width:100%; height:100%;'></iframe>");
 		 
 		 
-	        ToggleButtonGroup<String> group60 = new ToggleButtonGroup<>("Disabled group:",
-	                List.of("All", "Items", "Are", "Disabled", "Selected"));
-	        group60.setId("group60");
-	        group60.setValue("Selected");
-	        group60.setEnabled(false);
-
-	        HashMap<String, String> map = new HashMap<>();
+//	        ToggleButtonGroup<String> group60 = new ToggleButtonGroup<>("Disabled group:",
+//	                List.of("All", "Items", "Are", "Disabled", "Selected"));
+//	        group60.setId("group60");
+//	        group60.setValue("Selected");
+//	        group60.setEnabled(false);
+//
+//	        HashMap<String, String> map = new HashMap<>();
+//	        
+//	        // Adding elements to the Map
+//	        // using standard put() method
+//	        map.put("vishal", "aaaa");
+//	        map.put("sachin", "bbbb");
+//	        map.put("vaibhav", "cccc");
+//	        
+//	        
+//	        ToggleButtonGroup<String> group70 = new ToggleButtonGroup<>("Choose desert: [unavailable items are disabled]");
+//	        group70.setId("group70");
+//	      
+//	        group70.setItems(map.values().stream().collect(Collectors.toList()));
+////	        group70.setItemLabelGenerator(item -> String.format("%s (%d)", item.name, item.availableCount));
+//	        group70.addValueChangeListener(event -> {
+//	            if (event.getOldValue() != null) {
+//	               Notification.show(event.getOldValue()+" -old");
+//	            }
+//	            if (event.getValue() != null) {
+//	            	Notification.show(event.getValue() +" -new");
+//	            }
+//	           // group70.setValue(event.getValue());
+//	        });
 	        
-	        // Adding elements to the Map
-	        // using standard put() method
-	        map.put("vishal", "aaaa");
-	        map.put("sachin", "bbbb");
-	        map.put("vaibhav", "cccc");
 	        
 	        
-	        ToggleButtonGroup<String> group70 = new ToggleButtonGroup<>("Choose desert: [unavailable items are disabled]");
-	        group70.setId("group70");
-	      
-	        group70.setItems(map.values().stream().collect(Collectors.toList()));
-//	        group70.setItemLabelGenerator(item -> String.format("%s (%d)", item.name, item.availableCount));
-	        group70.addValueChangeListener(event -> {
-	            if (event.getOldValue() != null) {
-	               Notification.show(event.getOldValue()+" -old");
-	            }
-	            if (event.getValue() != null) {
-	            	Notification.show(event.getValue() +" -new");
-	            }
-	           // group70.setValue(event.getValue());
-	        });
-	        
-	        
-	        
-		add(group70);
+		add(html);
 		setSizeFull();
 	}
 
