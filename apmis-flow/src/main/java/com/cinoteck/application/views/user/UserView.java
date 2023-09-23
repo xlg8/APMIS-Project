@@ -629,9 +629,9 @@ public class UserView extends VerticalLayout {
 		form.addResetPasswordListener(this::resetUserPassWord);
 		form.addSaveListener(this::saveUser);
 		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e -> {			
+		form.addCloseListener(e -> {						
 			UI.getCurrent().getPage().reload();
-			closeEditor();
+			closeEditor();			
 		});
 
 	}

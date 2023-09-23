@@ -1,7 +1,7 @@
 package com.cinoteck.application.views.dashboard;
 
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.AREA;
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
+//import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
@@ -227,7 +227,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		// district.setEnabled(false);
 
 		groupby.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
-		groupby.setItems(campaignJurisdictionLevel.values());
+//		groupby.setItems(campaignJurisdictionLevel.values());
+		groupby.setItems(AREA, REGION, DISTRICT);
 		groupby.getStyle().set("padding-top", "0px");
 		groupby.setClassName("col-sm-6, col-xs-6");
 
@@ -562,13 +563,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			groupby.setItems(AREA, REGION, DISTRICT);
 			break;
 		case REGION:
-			groupby.setItems(REGION, DISTRICT, COMMUNITY);
+			groupby.setItems(REGION, DISTRICT);//, COMMUNITY);
 			break;
 		case DISTRICT:
-			groupby.setItems(DISTRICT, COMMUNITY);
+			groupby.setItems(DISTRICT);//, COMMUNITY);
 			break;
 		case COMMUNITY:
-			groupby.setItems(COMMUNITY);
+			groupby.setItems(DISTRICT);
 			break;
 		}
 
