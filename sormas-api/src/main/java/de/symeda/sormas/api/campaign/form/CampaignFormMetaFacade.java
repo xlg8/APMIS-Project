@@ -1,6 +1,7 @@
 package de.symeda.sormas.api.campaign.form;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -50,4 +51,6 @@ public interface CampaignFormMetaFacade {
 	List<CampaignFormMetaDto> getByUuids(List<String> uuids);
 
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignPostCamapaign(String uuid);
+
+	Collection<CampaignFormMetaDto> getAllFormElement();
 }

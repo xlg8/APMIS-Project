@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -216,6 +217,24 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 		
 		return filtered.stream().map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public Collection<CampaignFormMetaDto> getAllFormElement() {
+		 List<CampaignFormMeta> allAfter = service.getAllFormElements(userService.getCurrentUser());
+			List<CampaignFormMeta> filtered = new ArrayList<>();
+			allAfter.removeIf(e -> e.getFormCategory() == null);
+			
+			for (FormAccess n : userService.getCurrentUser().getFormAccess()) {
+				boolean yn = allAfter.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filtered.addAll(allAfter.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+			
+			return filtered.stream().map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -463,6 +482,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	@LocalBean
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
-	}
+	}	
 
 }
