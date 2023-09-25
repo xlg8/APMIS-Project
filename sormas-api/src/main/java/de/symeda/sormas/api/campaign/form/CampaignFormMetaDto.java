@@ -8,6 +8,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 import de.symeda.sormas.api.EntityDto;
+import de.symeda.sormas.api.Modality;
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.FieldConstraints;
@@ -35,8 +37,13 @@ public class CampaignFormMetaDto extends EntityDto {
 	private List<CampaignFormTranslations> campaignFormTranslations;
 	
 	@Enumerated(EnumType.STRING)
-	private FormAccess formCategory;
+	private CampaignPhase formType;	
 	
+	@Enumerated(EnumType.STRING)
+	private Modality formModality;
+	
+	@Enumerated(EnumType.STRING)
+	private FormAccess formCategory;
 	private int daysExpired;
 
 	private boolean districtentry;
@@ -87,6 +94,22 @@ public class CampaignFormMetaDto extends EntityDto {
 
 	public void setFormCategory(FormAccess formCategory) {
 		this.formCategory = formCategory;
+	}
+	
+	public CampaignPhase getFormType() {
+		return formType;
+	}
+
+	public void setFormType(CampaignPhase formType) {
+		this.formType = formType;
+	}
+	
+	public Modality getFormModality() {
+		return formModality;
+	}
+
+	public void setFormModality(Modality formModality) {
+		this.formModality = formModality;
 	}
 
 	public int getDaysExpired() {
