@@ -34,9 +34,7 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 
-@PageTitle("APMIS-UI-Builder")
-@Route(value = "UI-Builder", layout = MainLayout.class)
-public class FormBuilderView extends FormLayout {
+public class FormBuilder extends FormLayout {
 
 	/**
 		 * 
@@ -70,9 +68,9 @@ public class FormBuilderView extends FormLayout {
 
 	StringBuilder appender;
 
-	public FormBuilderView() {
+	public FormBuilder() {
 
-		this.addClassName("uibuilderview");
+		this.addClassName("");
 
 		this.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("500px", 2));
 		this.setColspan(jsonContainer, 2);

@@ -38,6 +38,7 @@ public class FormBuilderView extends VerticalLayout {
 		 * 
 		 */
 	private static final long serialVersionUID = 1L;
+	
 	Button hideFilters;
 	TextField search;
 	ComboBox<CampaignPhase> formPhase;
@@ -78,8 +79,7 @@ public class FormBuilderView extends VerticalLayout {
 		newForm = new Button("New Forms");
 
 		newForm.addClickListener(e -> {
-
-//			FormBuilderLayout builderLayout = new FormBuilderLayout(campaignFormMetaDto);
+			
 			newForm(campaignFormMetaDto);
 		});
 	}
