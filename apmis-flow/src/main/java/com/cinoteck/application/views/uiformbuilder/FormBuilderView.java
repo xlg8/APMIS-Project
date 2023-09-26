@@ -1,5 +1,8 @@
 package com.cinoteck.application.views.uiformbuilder;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.vaadin.flow.component.button.Button;
@@ -14,11 +17,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
+import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
@@ -38,7 +43,7 @@ public class FormBuilderView extends VerticalLayout {
 	ComboBox<CampaignPhase> formPhase;
 	ComboBox<FormAccess> formAccess;
 	Button newForm;
-	
+
 	CampaignFormMetaDto campaignFormMetaDto;
 
 	HorizontalLayout hr = new HorizontalLayout();
@@ -71,12 +76,28 @@ public class FormBuilderView extends VerticalLayout {
 		formAccess = new ComboBox<>("Form Access");
 		formAccess.setItems(FormAccess.values());
 		newForm = new Button("New Forms");
-		
-		
+
+		newForm.addClickListener(e -> {
+
+//			FormBuilderLayout builderLayout = new FormBuilderLayout(campaignFormMetaDto);
+			newForm(campaignFormMetaDto);
+		});
 	}
 
 	public void configureGrid() {
 
+		TextRenderer<CampaignFormMetaDto> creationDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getCreationDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			return dateFormat.format(timestamp);
+		});
+
+		TextRenderer<CampaignFormMetaDto> changeDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getChangeDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			return dateFormat.format(timestamp);
+		});
+		
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -85,9 +106,9 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.FORM_ID).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_CATEGORY).setHeader("Form Category").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(CampaignFormMetaDto.CREATION_DATE).setHeader("Creation Date").setSortable(true)
+		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(CampaignFormMetaDto.CHANGE_DATE).setHeader("Change Date").setSortable(true).setResizable(true);
+		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Entry").setSortable(true)
@@ -101,5 +122,24 @@ public class FormBuilderView extends VerticalLayout {
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
 	}
-	
+
+	private void newForm(CampaignFormMetaDto formData) {
+
+		FormBuilderLayout formLayout = new FormBuilderLayout(formData);
+		formLayout.setCampaign(formData);
+
+//		formLayout.addSaveListener(this::saveCampaign);
+//		formLayout.addOpenCloseListener(this::openCloseCampaign);
+//		formLayout.addRoundChangeListener(this::roundChange);
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		dialog.setHeaderTitle("New Form");
+		dialog.setSizeFull();
+		dialog.open();
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("formI");
+	}
+
 }
