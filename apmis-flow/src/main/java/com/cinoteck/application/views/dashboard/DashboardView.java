@@ -65,7 +65,7 @@ import de.symeda.sormas.api.user.UserRole;
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
-public class DashboardView extends VerticalLayout implements RouterLayout {
+public class DashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver  {
 
 	private static final long serialVersionUID = 1851726752523985165L;
 
@@ -591,24 +591,29 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		}
 	}
 //
-//	@Override
-//	public void beforeEnter(BeforeEnterEvent event) {
-////		try {
-////			UserProvider usrP = new UserProvider();
-////			System.out.println("trying ti use camp data " + usrP);
-////
-////			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
-////			if (!usrP.getCurrent().hasUserRole(UserRole.ADMIN)) {
-////				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
-////			}
-////		} catch (Exception e) {
-////
-////			System.err.println("ubnable tooooooooooo trying ti use camp data ");
-////
-////			// TODO Auto-generated catch block
-////			e.printStackTrace();
-////		}
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+//		try {
+			UserProvider usrP = new UserProvider();
+			System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
+			
+		for (UserRole assignedRoles : usrP.getUser().getUserRoles()) {
+//			if (assignedRoles == UserRole.ADMIN) {
+//	            event.forwardTo(CampaignDataView.class);
 //
-//	}
+////				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
+//			}
+		}
+//			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
+			
+//		} catch (Exception e) {
+//
+//			System.err.println("ubnable tooooooooooo trying ti use camp data ");
+//
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+	}
 
 }
