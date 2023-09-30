@@ -63,6 +63,14 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 				.getCampaignFormDataExtractApi(campaign_uuid, form_uuid);
 		return lstdto;
 	}
+	
+	@GET
+	@Path("/pivotAnalysis/json")
+	public List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi() {
+		List<CampaignDataExtractDto> lstdto = FacadeProvider.getCampaignFormDataFacade()
+				.getCampaignFormDataPivotExtractApi();
+		return lstdto;
+	}
 
 	@GET
 	@Path("/{campaigns_uuid}/{forms_uuid}/csv")

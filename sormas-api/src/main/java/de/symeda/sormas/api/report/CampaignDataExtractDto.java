@@ -24,6 +24,20 @@ public class CampaignDataExtractDto implements Serializable, Comparable<Campaign
 	private Long clusternumber;
 
 	public CampaignDataExtractDto(String campaignyear, String campaign, String formname, String key, String value,
+			String area, String region, String district) {
+		super();
+		this.campaignyear = campaignyear;
+		this.campaign = campaign;
+		this.formname = formname;
+		this.key = key;
+		this.value = value;
+		this.area = area;
+		this.region = region;
+		this.district = district;
+//		this.cummunity = cummunity;
+//		this.clusternumber = clusternumber;
+	}
+	public CampaignDataExtractDto(String campaignyear, String campaign, String formname, String key, String value,
 			String area, String region, String district, String cummunity, Long clusternumber) {
 		super();
 		this.campaignyear = campaignyear;
@@ -37,6 +51,8 @@ public class CampaignDataExtractDto implements Serializable, Comparable<Campaign
 		this.cummunity = cummunity;
 		this.clusternumber = clusternumber;
 	}
+	
+	
 
 	public String getCampaignyear() {
 		return campaignyear;

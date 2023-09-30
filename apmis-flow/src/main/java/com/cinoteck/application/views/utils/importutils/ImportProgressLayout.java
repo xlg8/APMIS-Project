@@ -176,7 +176,7 @@ public class ImportProgressLayout extends VerticalLayout {
 	}
 
 	public void updateProgress(ImportLineResult result) {
-		System.out.println("__________________________________________cc____________"+result);
+//		System.out.println("__________________________________________cc____________"+result);
 		currentUI.access(() -> {
 			
 			processedImportsCount++;
@@ -184,7 +184,7 @@ public class ImportProgressLayout extends VerticalLayout {
 			
 			if (result == ImportLineResult.SUCCESS) {
 				System.out.println("________if (result == ImportLineResult.SUCCESS) {___________");
-				Notification.show("++++++++++++"+ImportLineResult.SUCCESS.name());
+//				Notification.show("++++++++++++"+ImportLineResult.SUCCESS.name());
 				successfulImportsCount++;
 				successfulImportsLabel.removeAll();
 				Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
@@ -193,7 +193,7 @@ public class ImportProgressLayout extends VerticalLayout {
 			} else if (result == ImportLineResult.ERROR) {
 				
 				importErrorsCount++;
-				Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
+//				Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
 				importErrorsLabel.removeAll();
 				Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 				_importErrorsLabel.getStyle().set("color", "error");

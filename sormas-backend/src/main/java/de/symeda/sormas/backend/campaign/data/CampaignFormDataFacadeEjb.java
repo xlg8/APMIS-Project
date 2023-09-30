@@ -1648,6 +1648,49 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 	
 	@Override
+	public List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi() {
+		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\" as field, jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district \n"
+//				+ ", c.\"name\" as community, c.clusternumber as clusternumber\n"
+				+ "from campaignformdata_jsonextract jd\n"
+				+ "inner join campaignformdata cd on jd.id = cd.id\n"
+				+ "left outer join campaignformmeta c2 on cd.campaignformmeta_id = c2.id\n"
+				+ "left outer join campaigns c3 on cd.campaign_id = c3.id\n"
+				+ "left outer join region r on cd.region_id = r.id\n"
+				+ "left outer join areas a on r.area_id = a.id\n"
+				+ "left outer join district d on cd.district_id = d.id\n"
+//				+ "left outer join community c on cd.community_id = c.id\n"
+				+ "where jd.\"value\" is not null limit 20000;";
+		
+		Query seriesDataQuery = em.createNativeQuery(queryString);
+
+		List<CampaignDataExtractDto> resultData = new ArrayList<>();
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+		//Long campaignyear, String campaign, String formname, String key, String value,
+		//String area, String region, String district, String cummunity, Long clusternumber
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CampaignDataExtractDto(
+						(String) result[0],
+						(String) result[1],
+						(String) result[2], 
+						(String) result[3],
+						(String) result[4],
+						(String) result[5],
+						(String) result[6],
+						(String) result[7]
+//								,
+//						(String) result[8],
+//						((Integer) result[9]).longValue()
+						)).collect(Collectors.toList()));
+		
+
+		return resultData;
+	}
+	
+	@Override
 	public List<CampaignFormDataDto> getCampaignFormData(String campaignformuuid, String formuuid) {
 //		// get the campaign
 //		Campaign xxxxx = campaignService.getByUuid(campaignformuuid);

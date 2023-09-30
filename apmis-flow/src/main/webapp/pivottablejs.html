@@ -197,10 +197,10 @@ font-size: 14px;
         
       
 
-        $.getJSON("mps.json", function(mps) {
+        $.getJSON("http://localhost:6080/sormas-rest/apmisrestserver/pivotAnalysis/json", function(mps) {
             $("#output").pivotUI(mps, {
                 renderers: renderers,
-                hiddenAttributes: ["uuid", "formuuid"],
+                hiddenAttributes: ["uuid", "formuuid", "cummunity", "clusternumber"],
                 cols: ["area"], rows: ["year"],
                 rendererName: "TSV Export"
             });
