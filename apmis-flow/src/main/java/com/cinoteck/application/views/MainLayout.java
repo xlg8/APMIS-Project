@@ -172,7 +172,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		
 		Span versionadd = new Span();
-		versionadd.getElement().setProperty("innerHTML", "<p>APMIS Version: 4.0.0</p><p>Release date: 2|Sept|2023</p>");
+		versionadd.getElement().setProperty("innerHTML", "<p>APMIS Version: 4.0.0</p><p>Release date: 29|Sept|2023</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");

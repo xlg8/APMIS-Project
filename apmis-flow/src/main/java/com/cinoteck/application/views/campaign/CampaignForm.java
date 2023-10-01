@@ -17,8 +17,14 @@ import java.util.stream.Collectors;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
 
+import com.cinoteck.application.views.utils.DownloadUtil;
+import com.cinoteck.application.views.utils.importutils.DataImporter;
+//import com.cinoteck.application.views.utils.importutils.DefaultPopulationDataImporter;
+import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -33,6 +39,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
@@ -95,7 +102,7 @@ public class CampaignForm extends VerticalLayout {
 	Button duplicateCampaign;
 	Button deleteCampaign;
 	Button publishUnpublishCampaign;
-
+	 private Div tooltipHolder;
 	Button discardChanges;
 	Button saveChanges;
 
@@ -831,14 +838,35 @@ public class CampaignForm extends VerticalLayout {
 
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
-			archiveDearchive.setEnabled(!isOpenClose);
+//			archiveDearchive.setEnabled(!isOpenClose);
+			
 		});
+		
+//		archiveDearchive.setEnabled(isOpenClose);
+//		Tooltip tooltip = new Tooltip();
+//		System.out.println(archiveDearchive.isEnabled() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+//		if(archiveDearchive.isEnabled() == false) {
+//			tooltip.attachToComponent(archiveDearchive);
 
-		archiveDearchive.setEnabled(isOpenClose);
-		archiveDearchive.addClickListener(e -> {
-			archive();
+//			tooltip.setPosition(TooltipPosition.RIGHT);
+//			tooltip.setAlignment(TooltipAlignment.LEFT);
+//			tooltip.add(new H5("Hello"));
+//			archiveDearchive.getElement().setAttribute("data-custom-hover-attribute", "Custom hover text or attribute value");
 
-		});
+////			archiveDearchive.getElement().setAttribute("title","Please close present campaign before attemping to Archive");
+//		}
+		if (isOpenClose) {
+			archiveDearchive.addClickListener(e -> {
+				archive();
+
+			});	
+		}else {
+			archiveDearchive.addClickListener(e -> {
+				Notification.show("Please close present campaign before attemping to Archive").addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+			});	
+		}
+		
 
 		discardChanges = new Button();
 		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));

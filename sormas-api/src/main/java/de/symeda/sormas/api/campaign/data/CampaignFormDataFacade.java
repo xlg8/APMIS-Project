@@ -120,4 +120,6 @@ public interface CampaignFormDataFacade {
 	int prepareAllCompletionAnalysis();
 
 	List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuid, String formuuid);
+
+	List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi();
 }
