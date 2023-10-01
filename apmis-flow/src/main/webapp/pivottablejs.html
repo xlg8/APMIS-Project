@@ -197,7 +197,7 @@ font-size: 14px;
         
       
 
-        $.getJSON("http://localhost:6080/sormas-rest/apmisrestserver/pivotAnalysis/json", function(mps) {
+        $.getJSON("https://staging.afghanistan-apmis.com/sormas-rest/apmisrestserver/pivotAnalysis/json", function(mps) {
             $("#output").pivotUI(mps, {
                 renderers: renderers,
                 hiddenAttributes: ["uuid", "formuuid", "cummunity", "clusternumber"],

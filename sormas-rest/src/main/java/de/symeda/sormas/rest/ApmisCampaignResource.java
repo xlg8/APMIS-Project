@@ -83,7 +83,26 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 
 		return Response.ok(csv).header("Content-Disposition", "attachment; filename=Extractdata.csv").build();
 	}
+	
+	@GET
+	@Path("/all/csv")
+	@Produces("text/csv")
+	public Response getCampaignFormDataCSV() {
+		List<CampaignDataExtractDto> lstdto = FacadeProvider.getCampaignFormDataFacade()
+				.getCampaignFormDataExtractApi(null, null);
+		String csv = toExtractCsv(lstdto);
 
+		return Response.ok(csv).header("Content-Disposition", "attachment; filename=Extractdata.csv").build();
+	}
+	
+	@GET
+	@Path("/all/json")
+	public List<CampaignDataExtractDto> getCampaignFormData() {
+		List<CampaignDataExtractDto> lstdto = FacadeProvider.getCampaignFormDataFacade()
+				.getCampaignFormDataExtractApi(null, null);
+		return lstdto;
+	}
+	
 	private String toExtractCsv(List<CampaignDataExtractDto> data) {
 
 		StringWriter stringWriter = new StringWriter();

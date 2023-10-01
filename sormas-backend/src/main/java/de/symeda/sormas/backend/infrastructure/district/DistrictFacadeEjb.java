@@ -179,11 +179,11 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		Predicate filter = null;
 		if (criteria != null) {
 			
-			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
+//			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
 
 			filter = service.buildCriteriaFilter(criteria, cb, district);
 		}else {
-			System.out.println(criteria.getRelevanceStatus() + "relevamce status in Ejbbbbbbbb ");
+//			System.out.println(criteria.getRelevanceStatus() + "relevamce status in Ejbbbbbbbb ");
 		}
 		
 		Predicate filterx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
@@ -544,7 +544,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
 				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
 		
-		
+		System.out.println("::::::"+queryStringBuilder);
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 		
 		List<DistrictDto> resultData = new ArrayList<>();

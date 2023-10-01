@@ -542,7 +542,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
-		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
+//		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
 //		if(max > 100000) {
 //			max = 100;
 //			}
@@ -562,9 +562,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		Predicate filter = null;
 		if (criteria != null) {
 			filter = service.buildCriteriaFilter(criteria, cb, community);
-			System.out.println("CHECK 1TOP -------------------------------------------------------");
+//			System.out.println("CHECK 1TOP -------------------------------------------------------");
 
-			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
+//			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
 
 		}
 		
