@@ -1,22 +1,14 @@
 package com.cinoteck.application.views.dashboard;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.vaadin.addons.taefi.component.ToggleButtonGroup;
-
 import com.cinoteck.application.views.MainLayout;
 import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
-
-import java.util.stream.Collectors;
 
 @PageTitle("APMIS-Analytics Dashboard")
 @Route(value = "analytics", layout = MainLayout.class)
@@ -28,7 +20,7 @@ public class AnalyticsDashboardView extends VerticalLayout implements RouterLayo
 	protected CampaignDashboardDataProvider dataProvider;
 
 	public AnalyticsDashboardView() {
-		 Html html = new Html("<iframe src='https://staging.afghanistan-apmis.com/analytics' style='width:100%; height:100%;'></iframe>");
+		 Html html = new Html("<iframe src='https://nalytic.afghanistan-apmis.com/' style='width:100%; height:100%;'></iframe>");
 		 
 		 
 //	        ToggleButtonGroup<String> group60 = new ToggleButtonGroup<>("Disabled group:",
@@ -62,7 +54,8 @@ public class AnalyticsDashboardView extends VerticalLayout implements RouterLayo
 //	        });
 	        
 	        
-	        
+//		 togglecollapse  .getElement().callJsFunction("click");
+			UI.getCurrent().getPage().executeJs("$('#togglecollapse').click();");
 		add(html);
 		setSizeFull();
 	}

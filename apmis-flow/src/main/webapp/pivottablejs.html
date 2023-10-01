@@ -197,7 +197,7 @@ font-size: 14px;
         
       
 
-        $.getJSON("mps.json", function(mps) {
+        $.getJSON("https://staging.afghanistan-apmis.com/downloads/topoAll.json", function(mps) {
             $("#output").pivotUI(mps, {
                 renderers: renderers,
                 hiddenAttributes: ["uuid", "formuuid"],

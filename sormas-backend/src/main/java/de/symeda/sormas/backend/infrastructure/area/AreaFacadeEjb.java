@@ -321,12 +321,12 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
 		
-		System.out.println("starting....");
+//		System.out.println("starting....");
 		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue())).collect(Collectors.toList()));
 		
-		System.out.println("ending...." +resultData.size());
+//		System.out.println("ending...." +resultData.size());
 	
 	
 	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
@@ -344,7 +344,7 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 					+ "'\n" + "group by a.\"name\", a.id, a.uuid ";
 
 			
-			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+//			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
 			@SuppressWarnings("unchecked")

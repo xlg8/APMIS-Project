@@ -87,7 +87,7 @@ public class CampaignsView extends VerticalLayout {
 	ListDataProvider<CampaignIndexDto> indexDataProvider = new ListDataProvider<>(indexList);
 
 	private CampaignForm campaignForm;
-	CampaignDto dto;
+	CampaignDto dto_;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
 
@@ -259,12 +259,12 @@ public class CampaignsView extends VerticalLayout {
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
 			
-			isEditingModeActive= true;
+			isEditingModeActive= false;
 		
 			
-			CampaignForm formLayout = new CampaignForm(dto);
-			formLayout.editMode = true;
-			newCampaign(dto);
+			CampaignForm formLayout = new CampaignForm(dto_);
+			formLayout.editMode = false;
+			newCampaign(dto_);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 
@@ -342,7 +342,7 @@ public class CampaignsView extends VerticalLayout {
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
 		CampaignForm forLayout =  event.getSource();
-		if(dto == null) {
+		if(dto_ == null) {
 
 			
 			

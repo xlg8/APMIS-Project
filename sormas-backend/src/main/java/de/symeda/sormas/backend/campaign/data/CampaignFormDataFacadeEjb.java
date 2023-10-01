@@ -512,8 +512,13 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		}
 		String addedWhere = "";
 		
-		if(1 == 1) {
-			addedWhere = "and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+		
+		if(!filterIsNull) {
+			
+			whereclause = whereclause+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+			
+		} else {
+			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
 		}
 
 		String orderby = "";
@@ -1607,7 +1612,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
-	public List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuid, String formuuid) {
+	public List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuids, String formuuids) {
 		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\", jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district, c.\"name\" as community, c.clusternumber as clusternumber\n"
 				+ "from campaignformdata_jsonextract jd\n"
 				+ "inner join campaignformdata cd on jd.id = cd.id\n"

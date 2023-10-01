@@ -20,11 +20,8 @@ import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
-import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
-//import com.cinoteck.application.views.test.TestView;
 import com.cinoteck.application.views.user.UserView;
 import com.cinoteck.application.views.utils.IdleNotification;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -39,32 +36,21 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-import com.cinoteck.application.utils.authentication.AccessControlFactory;
-
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-//import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
-//import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Router;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.InitialPageSettings;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.vaadin.flow.theme.lumo.LumoUtility.TextAlignment;
-
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 /**
@@ -141,7 +127,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		titleLayout.setWidth("86%");
 		titleLayout.getStyle().set("position", "relative");
 		titleLayout.getStyle().set("left", "-4%");
-
+		toggle.setId("togglecollapse");
 		toggle.addClickListener(event -> {
 			if (event.getSource() instanceof DrawerToggle) {
 				DrawerToggle toggleButton = (DrawerToggle) event.getSource();
@@ -571,11 +557,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// page
 
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
-			if (pageTitle.contains("flow/")) {
-				intendedRoute = pageTitle.split("flow/")[1];
-				System.out.println(
-						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
-								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+			if (pageTitle.contains("main/")) {
+				intendedRoute = pageTitle.split("main/")[1];
+//				System.out.println(
+//						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
+//								+ String.format("Page title: '%s'", pageTitle.split("main/")[1]));
 
 				// JsonDatabase sdf = new JsonDatabase(pageTitle.split("flow/")[1]);
 

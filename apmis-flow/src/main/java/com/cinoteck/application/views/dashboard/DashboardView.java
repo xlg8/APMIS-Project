@@ -58,12 +58,19 @@ import de.symeda.sormas.api.user.UserRole;
 @PageTitle("APMIS-Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
-@JavaScript("https://code.highcharts.com/highcharts.js")
+//@JavaScript("https://code.highcharts.com/highcharts.js")
+@JavaScript("https://code.highcharts.com/maps/highmaps.js")
+
+@JavaScript("https://code.highcharts.com/maps/modules/data.js")
+@JavaScript("https://code.highcharts.com/maps/modules/drilldown.js")
+
+
 @JavaScript("https://code.highcharts.com/modules/variable-pie.js")
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
+
 
 public class DashboardView extends VerticalLayout implements RouterLayout {
 

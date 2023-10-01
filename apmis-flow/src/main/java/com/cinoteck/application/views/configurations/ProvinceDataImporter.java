@@ -64,6 +64,8 @@ public class ProvinceDataImporter extends DataImporter {
 
 	private boolean isOverWrite;
 
+	private boolean stopProcessNow;
+
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
 	public ProvinceDataImporter(File inputFile, boolean hasEntityClassRow, RegionDto currentUser,
@@ -101,13 +103,10 @@ public class ProvinceDataImporter extends DataImporter {
 		Long areax = null;
 		String provinceName = "";
 
-		System.out.println("++++++++++++++++++===============: " + entityProperties.length);
-
 		// Retrieve the region and district from the database or throw an error if more
 		// or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
 
-			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i);
 			
 			if (RegionDto.NAME.equalsIgnoreCase(entityProperties[i])) {
 
@@ -154,18 +153,18 @@ public class ProvinceDataImporter extends DataImporter {
 				}
 			}
 			
-			
+			System.out.println(entityProperties[i] + " == "+RegionDto.EXTERNAL_ID +"? = "+RegionDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i]));
 			if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
-
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | PCode Cannot Be Left Empty");
 					return ImportLineResult.ERROR;
 
 				} else {
+					
 					List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
+							.getByExternalId(Long.parseLong(values[i]), true);
 					
 					if (provinces.size() > 0) {
 						if (isOverWrite) {
@@ -177,7 +176,7 @@ public class ProvinceDataImporter extends DataImporter {
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
-						}else {
+						} else {
 							writeImportError(values,
 									new ImportErrorException(values[i], entityProperties[i]).getMessage());
 							return ImportLineResult.ERROR;
@@ -203,7 +202,6 @@ public class ProvinceDataImporter extends DataImporter {
 			if (RegionDto.AREA.equalsIgnoreCase(entityProperties[i])) {
 				List<AreaReferenceDto> existingAreas = FacadeProvider.getAreaFacade()
 						.getByExternalId(Long.parseLong(values[i]), false);
-				System.out.println(existingAreas + " :++++++++++++++++++===============: " +existingAreas.size());
 				if (existingAreas.size() != 1) {
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | Region Doesn't Exist");
@@ -221,7 +219,7 @@ public class ProvinceDataImporter extends DataImporter {
 			}
 
 			
-
+		}
 			
 
 			final AreaReferenceDto finalArea = area;
@@ -232,7 +230,6 @@ public class ProvinceDataImporter extends DataImporter {
 
 			RegionDto newUserLine = RegionDto.build();
 
-			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
 			newUserLine.setArea(finalArea);
 			newUserLine.setExternalId(extd);
 			newUserLine.setName(finalRProvincename);
@@ -242,67 +239,19 @@ public class ProvinceDataImporter extends DataImporter {
 
 						@Override
 						public Exception apply(ImportCellData cellData) {
-							System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
-
 							try {
-
-								if (RegionDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine.setName(cellData.getValue());
-								}
-								if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									
-									List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
-											.getByExternalId(Long.parseLong(cellData.getValue()), false);
-									if(provinces.size() > 0) {
-										String [] ccc = {cellData.getValue()};
-										
-										try {
-											writeImportError(ccc, new ImportErrorException( entityProperties[i]).getMessage() + "| PCode Exists");
-										} catch (IOException e) {
-											// TODO Auto-generated catch block
-											
-											e.printStackTrace();
-										}
-									}else {
-										newUserLine.setExternalId(Long.parseLong(cellData.getValue()));
-									}
-								}
-								if (RegionDto.AREA.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									Long externalId = Long.parseLong(cellData.getValue());
-									List<AreaReferenceDto> areasz = FacadeProvider.getAreaFacade()
-											.getByExternalId(externalId, false);
-									if(areasz.size() == 0) {
-										
-										String [] ccc = {cellData.getValue()};
-										
-										try {
-											writeImportError(ccc, new ImportErrorException( entityProperties[i]).getMessage() + "| Region does not exist");
-										} catch (IOException e) {
-											// TODO Auto-generated catch block
-											
-											e.printStackTrace();
-										}
-									}else {
-										AreaReferenceDto areaReferenceDto = areasz.get(0);
-										newUserLine.setArea(areaReferenceDto);
-									}
-									
-//									newUserLine.setArea(cellData.getValue());
-								}
 
 								newUserLinetoSave.add(newUserLine);
 
 							} catch (NumberFormatException e) {
-								System.out.println("++++++++++++++++Error found++++++++++++++++ ");
-
 								return e;
-							}
-
+//							
+						}
 							return null;
 						}
 					});
 
-			if (!usersDataHasImportError) {
+			if (!usersDataHasImportError && !stopProcessNow) {
 
 				try {
 					FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
@@ -315,10 +264,14 @@ public class ProvinceDataImporter extends DataImporter {
 			} else {
 				return ImportLineResult.ERROR;
 			}
-		}
-		return ImportLineResult.SUCCESS;
-
+		
 	}
+	
+	private void stopProcessing(boolean stop) {
+		stopProcessNow = stop;
+	}
+	
+	
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
@@ -326,17 +279,6 @@ public class ProvinceDataImporter extends DataImporter {
 
 		final boolean invokingSuccessful = super.executeDefaultInvoke(pd, element, entry, entryHeaderPath);
 		final Class<?> propertyType = pd.getPropertyType();
-//		if (propertyType.isAssignableFrom(RegionReferenceDto.class)) {
-//			private final UserFacade userFacade;
-//			final UserDto currentUserDto = userFacade.getByUuid(currentUser.getUuid());
-//			final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(currentUserDto.getUserRoles());
-//			if (jurisdictionLevel == JurisdictionLevel.REGION
-//					&& !currentUserDto.getRegion().getCaption().equals(entry)) {
-//				throw new ImportErrorException(
-//						I18nProperties.getValidationError(Validations.importEntryRegionNotInUsersJurisdiction, entry,
-//								buildEntityProperty(entryHeaderPath)));
-//			}
-//		}
 		return invokingSuccessful;
 	}
 
