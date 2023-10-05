@@ -7,13 +7,17 @@ import javax.persistence.Enumerated;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.FieldConstraints;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CampaignFormMetaDto extends EntityDto {
 
 	private static final long serialVersionUID = -1163673887940552133L;
@@ -30,7 +34,7 @@ public class CampaignFormMetaDto extends EntityDto {
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String formName;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
-	private String languageCode;
+	private String languageCode;	
 	@Valid
 	private List<CampaignFormElement> campaignFormElements;
 	@Valid
@@ -48,6 +52,12 @@ public class CampaignFormMetaDto extends EntityDto {
 
 	private boolean districtentry;
 
+	public static CampaignFormMetaDto build() {
+		CampaignFormMetaDto campaignMeta = new CampaignFormMetaDto();
+		campaignMeta.setUuid(DataHelper.createUuid());
+		return campaignMeta;
+	}
+	
 	public String getFormId() {
 		return formId;
 	}
