@@ -38,7 +38,7 @@ public class FormBuilderView extends VerticalLayout {
 		 * 
 		 */
 	private static final long serialVersionUID = 1L;
-	
+
 	Button hideFilters;
 	TextField search;
 	ComboBox<CampaignPhase> formPhase;
@@ -50,7 +50,6 @@ public class FormBuilderView extends VerticalLayout {
 	HorizontalLayout hr = new HorizontalLayout();
 
 	private Grid<CampaignFormMetaDto> grid = new Grid<>(CampaignFormMetaDto.class, false);
-
 	private GridListDataView<CampaignFormMetaDto> dataView;
 
 	public FormBuilderView() {
@@ -59,10 +58,13 @@ public class FormBuilderView extends VerticalLayout {
 		this.setHeightFull();
 		this.setWidthFull();
 		this.addClassName("uibuilderview");
-
+							
 		configureView();
 		configureGrid();
+		setHeightFull();
+		setSizeFull();
 
+		hr.getStyle().set("margin-left", "10px");
 		hr.setAlignItems(Alignment.END);
 		hr.add(hideFilters, search, formPhase, formAccess, newForm);
 		add(hr, grid);
@@ -79,7 +81,8 @@ public class FormBuilderView extends VerticalLayout {
 		newForm = new Button("New Forms");
 
 		newForm.addClickListener(e -> {
-			
+
+			campaignFormMetaDto = new CampaignFormMetaDto();
 			newForm(campaignFormMetaDto);
 		});
 	}
@@ -97,7 +100,7 @@ public class FormBuilderView extends VerticalLayout {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			return dateFormat.format(timestamp);
 		});
-		
+
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -106,8 +109,7 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.FORM_ID).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_CATEGORY).setHeader("Form Category").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true)
-				.setResizable(true);
+		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
 		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
 				.setResizable(true);
@@ -115,22 +117,23 @@ public class FormBuilderView extends VerticalLayout {
 				.setResizable(true);
 
 		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
-				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
+				.fromStream(FacadeProvider
+						.getCampaignFormMetaFacade()
+						.getAllFormElement()
+						.stream());
 
 		dataView = grid.setItems(dataprovider);
 		grid.setVisible(true);
 		grid.setWidthFull();
-		grid.setAllRowsVisible(true);
+		grid.setAllRowsVisible(true);		
 	}
 
 	private void newForm(CampaignFormMetaDto formData) {
 
-		FormBuilderLayout formLayout = new FormBuilderLayout(formData);
-		formLayout.setCampaign(formData);
+		FormBuilderLayout formLayout = new FormBuilderLayout(formData, true);
+		formLayout.setForm(formData);
 
-//		formLayout.addSaveListener(this::saveCampaign);
-//		formLayout.addOpenCloseListener(this::openCloseCampaign);
-//		formLayout.addRoundChangeListener(this::roundChange);
+		formLayout.addSaveListener(this::saveForm);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
 		dialog.setHeaderTitle("New Form");
@@ -139,7 +142,13 @@ public class FormBuilderView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 		dialog.setModal(true);
-		dialog.setClassName("formI");
+		dialog.setClassName("form");
+	}
+
+	private void saveForm(FormBuilderLayout.SaveEvent event) {
+		FormBuilderLayout forLayout = event.getSource();
+		
+		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
 
 }

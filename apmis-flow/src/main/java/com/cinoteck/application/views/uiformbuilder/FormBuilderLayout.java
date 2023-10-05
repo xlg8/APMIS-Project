@@ -1,8 +1,14 @@
 package com.cinoteck.application.views.uiformbuilder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -21,8 +27,9 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Modality;
-
+import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -31,8 +38,8 @@ import de.symeda.sormas.api.user.FormAccess;
 public class FormBuilderLayout extends VerticalLayout {
 
 	CampaignFormMetaDto campaignFormMetaDto;
-
 	List<CampaignFormElement> campaignFormElements;
+	List<CampaignFormElement> savedCampaignFormElements;
 
 	H3 formBasics = new H3("Form Basics");
 	TextField formName;
@@ -43,7 +50,7 @@ public class FormBuilderLayout extends VerticalLayout {
 	IntegerField daysExpired;
 	ComboBox<Boolean> districtEntry;
 	ComboBox<String> languageCode;
-	
+
 	FormGridComponent formGridComponent;
 
 	UUID uuid = UUID.randomUUID();
@@ -52,11 +59,35 @@ public class FormBuilderLayout extends VerticalLayout {
 
 	FormLayout formLayout = new FormLayout();
 
-	public FormBuilderLayout(CampaignFormMetaDto campaignFormMetaDto) {
-		
-		this.campaignFormMetaDto = campaignFormMetaDto;
-		formGridComponent = new FormGridComponent();
+	private boolean isNew = false;
+
+	public FormBuilderLayout(CampaignFormMetaDto campaignFormMetaDto_, boolean isNew) {
+
+		this.isNew = isNew;
+		if (isNew) {
+			CampaignFormMetaDto campMeta = new CampaignFormMetaDto();
+
+			this.campaignFormMetaDto = campMeta.build();
+		} else {
+			this.campaignFormMetaDto = campaignFormMetaDto_;
+		}
+		formGridComponent = new FormGridComponent(campaignFormMetaDto);
 		configureFields();
+	}
+
+	private List<CampaignFormElement> getFormListDashboard() {
+
+		List<CampaignFormMetaDto> empty = FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream()
+				.collect(Collectors.toList());
+
+		List<CampaignFormElement> list = new ArrayList<>();
+		for (CampaignFormMetaDto campaignFormElement : empty) {
+
+			CampaignFormElement makeList = new CampaignFormElement();
+			makeList.setId(campaignFormElement.getFormId());
+			list.add(makeList);
+		}
+		return list;
 	}
 
 	private void discardChanges() {
@@ -107,26 +138,28 @@ public class FormBuilderLayout extends VerticalLayout {
 		binder.forField(languageCode).asRequired("Language Code is Required").bind(CampaignFormMetaDto::getLanguageCode,
 				CampaignFormMetaDto::setLanguageCode);
 
-		formLayout.add(formBasics, formName, formId, formType, formCategory, modality, daysExpired, languageCode, districtEntry);
+		formLayout.add(formBasics, formName, formId, formType, formCategory, modality, daysExpired, languageCode,
+				districtEntry);
 
 		formLayout.setColspan(formBasics, 2);
-		
+
 		final HorizontalLayout hr = new HorizontalLayout();
 		hr.setWidthFull();
-		
+
 //		formLayout.setColspan(hr, 2);
 		TabSheet sheet = new TabSheet();
 		sheet.add("Form Element Data", formGridComponent);
+		sheet.setSizeFull();
 		hr.add(sheet);
 
 		add(formLayout);
 		add(hr);
-		
+
 		Button discardChanges = new Button("Dicard Changes");
 		Button saved = new Button("Save");
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(discardChanges, saved);
-		
+
 		add(buttonLayout);
 
 		discardChanges.addClickListener(e -> discardChanges());
@@ -138,21 +171,32 @@ public class FormBuilderLayout extends VerticalLayout {
 	public void setForm(CampaignFormMetaDto formData) {
 		binder.setBean(formData);
 	}
-	
-	private void validateAndSave() {
-		
-		if(binder.validate().isOk()) {
-			
-			campaignFormMetaDto = binder.getBean();
-			campaignFormMetaDto.setCampaignFormElements(formGridComponent.getGridData());
-			
-			fireEvent(new SaveEvent(this, binder.getBean()));
 
-			UI.getCurrent().getPage().reload();	
-			
+	private void validateAndSave() {
+
+		if (binder.validate().isOk()) {
+
+			List<CampaignFormElement> superList = new ArrayList<>();
+			List<CampaignFormElement> dataList = formGridComponent.getGridData();
+			campaignFormMetaDto = binder.getBean();
+
+			for (CampaignFormElement item : dataList) {
+
+				if(item != null) {
+
+					System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");					
+					superList.add(item);
+				}
+			}
+			campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
+			campaignFormMetaDto.setCampaignFormElements(superList);
+			fireEvent(new SaveEvent(this, campaignFormMetaDto));
+
+			UI.getCurrent().getPage().reload();
+
 			Notification.show("Form Saved");
 		} else {
-			
+
 			Notification.show("Unable to save Form");
 		}
 	}
@@ -171,7 +215,6 @@ public class FormBuilderLayout extends VerticalLayout {
 				return form;
 			} else {
 				return form;
-
 			}
 		}
 	}
@@ -181,7 +224,7 @@ public class FormBuilderLayout extends VerticalLayout {
 			super(source, form);
 		}
 	}
-	
+
 	public Registration addSaveListener(ComponentEventListener<SaveEvent> listener) {
 		return addListener(SaveEvent.class, listener);
 	}
