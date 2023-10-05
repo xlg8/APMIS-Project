@@ -117,6 +117,11 @@
 			<version>1.4.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.0</version> <!-- Use the latest version -->
+		</dependency>
 
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -155,8 +160,8 @@
 			<artifactId>spring-context</artifactId>
 			<version>4.3.30.RELEASE</version>
 		</dependency>
-		
-	
+
+
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 
 			<dependency>
 				<groupId>org.vaadin.highcharts</groupId>
