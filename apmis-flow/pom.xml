@@ -5,7 +5,7 @@
 	<groupId>de.symeda.sormas</groupId>
 	<artifactId>apmis-flow</artifactId>
 	<name>${project.artifactId}</name>
-	<version>1.0.30</version>
+	<version>1.0.31</version>
 	<packaging>war</packaging>
 
 
@@ -176,6 +176,12 @@
 			<artifactId>webdrivermanager</artifactId>
 			<version>5.1.0</version>
 			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+   			<groupId>com.vaadin.componentfactory</groupId>
+   			<artifactId>tooltip</artifactId>
+   			<version>22.0.1</version>
 		</dependency>
 
 

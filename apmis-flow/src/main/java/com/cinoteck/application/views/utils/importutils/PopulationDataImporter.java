@@ -78,12 +78,12 @@ public class PopulationDataImporter extends DataImporter {
 		CommunityReferenceDto community = null;
 		CampaignReferenceDto campaigns_ = null;
 		
-		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
+//		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
 
 		// Retrieve the region and district from the database or throw an error if more or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
 			
-			System.out.println(entityProperties[i]+" :++++++++++++++++++===============: "+i);
+//			System.out.println(entityProperties[i]+" :++++++++++++++++++===============: "+i);
 			if (PopulationDataDto.REGION.equalsIgnoreCase(entityProperties[i])) {
 				List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade().getByExternalId(Long.parseLong(values[i]), false);
 				if (regions.size() != 1) {
@@ -132,13 +132,13 @@ public class PopulationDataImporter extends DataImporter {
 					List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade().getByExternalId(Long.parseLong(values[i]), false);
 					if (communities.size() != 1) {
 						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-						System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//						System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage());
 						return ImportLineResult.ERROR;
 					}
 					community = communities.get(0);
 				} else {
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-					System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+//					System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
 					return ImportLineResult.ERROR;
 				}
 					}
@@ -254,10 +254,10 @@ public class PopulationDataImporter extends DataImporter {
 							|| PopulationDataDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
 							|| PopulationDataDto.CAMPAIGN.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) //Property type  not allowed
 							|| PopulationDataDto.COMMUNITY_EXTID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-							System.out.println("+++++++++++++ignoring......");
+//							System.out.println("+++++++++++++ignoring......");
 							// Ignore the region, district and community columns
 						} else if (RegionDto.GROWTH_RATE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-							System.out.println("+++++++++++++----------");
+//							System.out.println("+++++++++++++----------");
 							// Update the growth rate of the region or district
 //							if (!DataHelper.isNullOrEmpty(cellData.value)) {
 //								Float growthRate = Float.parseFloat(cellData.value);
@@ -316,7 +316,7 @@ public class PopulationDataImporter extends DataImporter {
 							}
 						}
 					} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
-						System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+//						System.out.println("++++++++++++++++Error found++++++++++++++++ ");
 						
 						return e;
 					}

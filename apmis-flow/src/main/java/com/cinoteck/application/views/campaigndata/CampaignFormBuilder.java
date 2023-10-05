@@ -605,8 +605,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				if (type == CampaignFormElementType.YES_NO) {
 					
 					 HashMap<Boolean, String> map = new HashMap<>();
-				        map.put(true, "Yes");
-				        map.put(false, "No");
+				        map.put(true, I18nProperties.getCaption(Captions.actionYes));
+				        map.put(false, I18nProperties.getCaption(Captions.actionNo));
 				        
 				        
 				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(), List.of(true, false));

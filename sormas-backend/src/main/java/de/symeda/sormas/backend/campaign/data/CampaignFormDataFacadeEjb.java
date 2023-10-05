@@ -485,7 +485,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		boolean filterIsNull = criteria.getCampaign() == null ;
 		
-		String joiner = "";
+		String whereclause = "";
 		
 		if(!filterIsNull) {
 		final CampaignReferenceDto campaign = criteria.getCampaign();
@@ -503,12 +503,23 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
 		
-		joiner = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
+		whereclause = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
 		
-		System.out.println(campaignFilter+" ===================== "+joiner);
+		
+		
+		
+		System.out.println(campaignFilter+" ===================== "+whereclause);
 		}
+		String addedWhere = "";
 		
 		
+		if(!filterIsNull) {
+			
+			whereclause = whereclause+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+			
+		} else {
+			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
+		}
 
 		String orderby = "";
 
@@ -569,6 +580,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		
 		
+		
+		
+		
 		final String joinBuilder = "select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
 				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, analyticz.campaign_id\n"
 				+ "from completionAnalysisView_e analyticz\n"
@@ -578,7 +592,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
 				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
-				+ ""+joiner+"\n"
+				+ ""+whereclause+" "+addedWhere+" \n"
 				+ orderby
 				+ " limit "+max+" offset "+first+";";
 		
@@ -1598,7 +1612,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
-	public List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuid, String formuuid) {
+	public List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuids, String formuuids) {
 		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\", jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district, c.\"name\" as community, c.clusternumber as clusternumber\n"
 				+ "from campaignformdata_jsonextract jd\n"
 				+ "inner join campaignformdata cd on jd.id = cd.id\n"
@@ -1632,6 +1646,49 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 						(String) result[7],
 						(String) result[8],
 						((Integer) result[9]).longValue()
+						)).collect(Collectors.toList()));
+		
+
+		return resultData;
+	}
+	
+	@Override
+	public List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi() {
+		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\" as field, jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district \n"
+//				+ ", c.\"name\" as community, c.clusternumber as clusternumber\n"
+				+ "from campaignformdata_jsonextract jd\n"
+				+ "inner join campaignformdata cd on jd.id = cd.id\n"
+				+ "left outer join campaignformmeta c2 on cd.campaignformmeta_id = c2.id\n"
+				+ "left outer join campaigns c3 on cd.campaign_id = c3.id\n"
+				+ "left outer join region r on cd.region_id = r.id\n"
+				+ "left outer join areas a on r.area_id = a.id\n"
+				+ "left outer join district d on cd.district_id = d.id\n"
+//				+ "left outer join community c on cd.community_id = c.id\n"
+				+ "where jd.\"value\" is not null limit 20000;";
+		
+		Query seriesDataQuery = em.createNativeQuery(queryString);
+
+		List<CampaignDataExtractDto> resultData = new ArrayList<>();
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+		//Long campaignyear, String campaign, String formname, String key, String value,
+		//String area, String region, String district, String cummunity, Long clusternumber
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CampaignDataExtractDto(
+						(String) result[0],
+						(String) result[1],
+						(String) result[2], 
+						(String) result[3],
+						(String) result[4],
+						(String) result[5],
+						(String) result[6],
+						(String) result[7]
+//								,
+//						(String) result[8],
+//						((Integer) result[9]).longValue()
 						)).collect(Collectors.toList()));
 		
 

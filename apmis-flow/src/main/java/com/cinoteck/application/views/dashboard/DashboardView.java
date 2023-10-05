@@ -1,7 +1,7 @@
 package com.cinoteck.application.views.dashboard;
 
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.AREA;
-import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
+//import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.COMMUNITY;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
@@ -58,7 +58,13 @@ import de.symeda.sormas.api.user.UserRole;
 @PageTitle("APMIS-Campaign Dashboard")
 @Route(value = "dashboard", layout = MainLayout.class)
 
-@JavaScript("https://code.highcharts.com/highcharts.js")
+//@JavaScript("https://code.highcharts.com/highcharts.js")
+@JavaScript("https://code.highcharts.com/maps/highmaps.js")
+
+@JavaScript("https://code.highcharts.com/maps/modules/data.js")
+@JavaScript("https://code.highcharts.com/maps/modules/drilldown.js")
+
+
 @JavaScript("https://code.highcharts.com/modules/variable-pie.js")
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
@@ -227,7 +233,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 		// district.setEnabled(false);
 
 		groupby.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
-		groupby.setItems(campaignJurisdictionLevel.values());
+//		groupby.setItems(campaignJurisdictionLevel.values());
+		groupby.setItems(AREA, REGION, DISTRICT);
 		groupby.getStyle().set("padding-top", "0px");
 		groupby.setClassName("col-sm-6, col-xs-6");
 
@@ -562,13 +569,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			groupby.setItems(AREA, REGION, DISTRICT);
 			break;
 		case REGION:
-			groupby.setItems(REGION, DISTRICT, COMMUNITY);
+			groupby.setItems(REGION, DISTRICT);//, COMMUNITY);
 			break;
 		case DISTRICT:
-			groupby.setItems(DISTRICT, COMMUNITY);
+			groupby.setItems(DISTRICT);//, COMMUNITY);
 			break;
 		case COMMUNITY:
-			groupby.setItems(COMMUNITY);
+			groupby.setItems(DISTRICT);
 			break;
 		}
 
@@ -589,17 +596,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			return campaignPhase.toString();
 		}
 	}
-//
+////
 //	@Override
 //	public void beforeEnter(BeforeEnterEvent event) {
 ////		try {
-////			UserProvider usrP = new UserProvider();
-////			System.out.println("trying ti use camp data " + usrP);
+//			UserProvider usrP = new UserProvider();
+//			System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
+//			
+//		for (UserRole assignedRoles : usrP.getUser().getUserRoles()) {
+////			if (assignedRoles == UserRole.ADMIN) {
+////	            event.forwardTo(CampaignDataView.class);
 ////
-////			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
-////			if (!usrP.getCurrent().hasUserRole(UserRole.ADMIN)) {
-////				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
+//////				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
 ////			}
+//		}
+////			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
+//			
 ////		} catch (Exception e) {
 ////
 ////			System.err.println("ubnable tooooooooooo trying ti use camp data ");

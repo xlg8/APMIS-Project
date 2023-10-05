@@ -190,6 +190,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			subMenu.addItem("Archive", e -> handleArchiveDearchiveAction());
 
 		}
+//		System.out.println(criteria + "criteria from inde xxxx ");
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		dataProvider = DataProvider
@@ -274,20 +275,28 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
 
 		relevanceStatusFilter.addValueChangeListener(e -> {
+			System.out.println(criteria.relevanceStatus(e.getValue()) + "criteria relevance " +criteria + "jjjjjjj"+ e.getValue());
+			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+			refreshGridData();
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
+//				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+//				refreshGridData();
 				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive), event -> handleArchiveDearchiveAction());
+//				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+//				refreshGridData();
 
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ALL)) {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance) );
+//				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+//				refreshGridData();
 //				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk action ");
 			}
-			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
-			refreshGridData();
+			
 
 		});
 		layout.add(relevanceStatusFilter);
@@ -299,12 +308,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		resetButton.addClickListener(e -> {
 			if (!searchField.isEmpty()) {
 				searchField.clear();
+				relevanceStatusFilter.clear();
 			} else {
 
 			}
 			if (regionFilter.getValue() != null) {
 				refreshGridData();
 				regionFilter.clear();
+				relevanceStatusFilter.clear();
 			}
 			if (relevanceStatusFilter.getValue() != null) {
 				refreshGridData();

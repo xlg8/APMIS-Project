@@ -31,6 +31,9 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
@@ -87,7 +90,7 @@ public class CampaignsView extends VerticalLayout {
 	ListDataProvider<CampaignIndexDto> indexDataProvider = new ListDataProvider<>(indexList);
 
 	private CampaignForm campaignForm;
-	CampaignDto dto;
+	CampaignDto dto_;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;
 
@@ -259,12 +262,12 @@ public class CampaignsView extends VerticalLayout {
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
 			
-			isEditingModeActive= true;
+			isEditingModeActive= false;
 		
 			
-			CampaignForm formLayout = new CampaignForm(dto);
-			formLayout.editMode = true;
-			newCampaign(dto);
+			CampaignForm formLayout = new CampaignForm(dto_);
+			formLayout.editMode = false;
+			newCampaign(dto_);
 		});
 		filterLayout.add(searchField, relevanceStatusFilter);
 
@@ -298,8 +301,27 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		Dialog dialog = new Dialog();
-		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
+		
+		Div header = new Div();
+		header.addClassName("dialog-headers");
+		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
+		closeIcon.addClassName("close-icon-dialog");
+		closeIcon.addClickListener(event -> dialog.close());
+		H3 headerText = new H3(I18nProperties.getCaption(Captions.campaignNewCampaign));
+		headerText.addClassName("headingText");
+		header.add(headerText);
+		header.add(closeIcon);
+		VerticalLayout content = new VerticalLayout(header, formLayout);
+		content.setWidthFull();
+		dialog.add(content);
+		
+//		header.add(new Span(I18nProperties.getCaption(Captions.campaignNewCampaign)));
+//		header.add(closeIcon);
+//		VerticalLayout content = new VerticalLayout(header, formLayout);
+//		dialog.add(content);
+		
+//		dialog.add(formLayout);
+//		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -311,7 +333,6 @@ public class CampaignsView extends VerticalLayout {
 	private void openFormLayout(CampaignDto formData) {
 		Dialog dialog = new Dialog();
 		String isclosedOpen = FacadeProvider.getCampaignFacade().isClosedd(formData.getUuid()) ? " (Closed)" : "";
-		
 		CampaignForm formLayout = new CampaignForm(formData);
 		formLayout.setCampaign(formData);
 		formLayout.addSaveListener(this::saveCampaign);
@@ -322,8 +343,21 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDeleteListener(this::deleteCampaign);
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
-		dialog.add(formLayout);
-		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen );
+		
+		Div header = new Div();
+		header.addClassName("dialog-headers");
+		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
+		closeIcon.addClassName("close-icon-dialog");
+		closeIcon.addClickListener(event -> dialog.close());
+		H3 headerText = new H3(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen);
+		headerText.addClassName("headingText");
+		header.add(headerText);
+		header.add(closeIcon);
+		VerticalLayout content = new VerticalLayout(header, formLayout);
+		content.setWidthFull();
+		dialog.add(content);
+//		dialog.add(formLayout);
+//		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen );
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);
@@ -342,7 +376,7 @@ public class CampaignsView extends VerticalLayout {
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
 		CampaignForm forLayout =  event.getSource();
-		if(dto == null) {
+		if(dto_ == null) {
 
 			
 			
@@ -460,6 +494,14 @@ public class CampaignsView extends VerticalLayout {
 		CampaignForm formLayout = (CampaignForm) event.getSource();
 
 		dialog.setHeaderTitle("Campaign Log");
+//		CampaignLogDto logDto = new CampaignLogDto();
+//		Date timestamp = logDto.getActionDate();
+//
+//		TextRenderer<CampaignLogDto> timeStampRenderer = new TextRenderer<>(dto -> {
+//			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");//new SimpleDateFormat("dd/MM/yyyy");
+//			String formatted = dateFormat.format(timestamp);
+//			return formatted;
+//		});
 
 		Grid<CampaignLogDto> grid = new Grid<>(CampaignLogDto.class, false);
 		grid.setItems(FacadeProvider.getCampaignFacade().getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));

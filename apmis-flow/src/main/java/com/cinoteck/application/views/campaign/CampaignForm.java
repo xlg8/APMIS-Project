@@ -1,12 +1,5 @@
 package com.cinoteck.application.views.campaign;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,9 +22,9 @@ import com.cinoteck.application.views.utils.importutils.DataImporter;
 //import com.cinoteck.application.views.utils.importutils.DefaultPopulationDataImporter;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
-
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -46,6 +39,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
@@ -79,8 +73,6 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.importexport.ImportFacade;
-import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -90,8 +82,8 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.utils.DataHelper;
 
 @PageTitle("APMIS-Edit Campaign")
 @Route(value = "/data")
@@ -110,7 +102,7 @@ public class CampaignForm extends VerticalLayout {
 	Button duplicateCampaign;
 	Button deleteCampaign;
 	Button publishUnpublishCampaign;
-
+	 private Div tooltipHolder;
 	Button discardChanges;
 	Button saveChanges;
 
@@ -149,7 +141,7 @@ public class CampaignForm extends VerticalLayout {
 	private Set<PopulationDataDto> popopulationDataDtoSet = new HashSet<>();
 
 	private final VerticalLayout statusChangeLayout;
-	private Boolean isCreateForm = null;
+	public Boolean isCreateForm = null;
 
 	CampaignFormMetaReferenceDto xx;
 	CampaignDto formDatac;
@@ -292,8 +284,9 @@ public class CampaignForm extends VerticalLayout {
 
 //		round.setItemLabelGenerator(CampaignDto::getRound);
 
-		if (creatingUuid.getValue() == "" || creatingUuid.getValue() == "") {
-			creatingUuid.setValue(uuid.toString().toUpperCase());
+		if (creatingUuid.getValue() == "") {
+			
+			creatingUuid.setValue(DataHelper.createUuid());
 			creatingUser.setValue(curentUse);
 
 		}
@@ -380,7 +373,7 @@ public class CampaignForm extends VerticalLayout {
 
 		compp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),getListDashboardFromType(INTRA_CAMPAIGN),campaignDto,INTRA_CAMPAIGN);
 
-		comppp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),getListDashboardFromType(POST_CAMPAIGN),campaignDto,POST_CAMPAIGN);
+		comppp2=new CampaignDashboardGridElementComponent(this.campaignDto==null?Collections.EMPTY_LIST:new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN)),getListDashboardFromType(POST_CAMPAIGN),campaignDto,POST_CAMPAIGN);
 
 
 		tab1.add(comp);
@@ -465,7 +458,7 @@ public class CampaignForm extends VerticalLayout {
 		treeGrid.setWidthFull();
 		if (campaignDto != null) {
 
-			treeGrid.setItems(generateTreeGridData(formData), CampaignTreeGridDto::getRegionData);
+			treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
 
 			treeGrid.setWidthFull();
 
@@ -477,28 +470,29 @@ public class CampaignForm extends VerticalLayout {
 
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
+			System.out.println("area: "+campaignDto.getAreas().size() +"====== region: "+campaignDto.getRegion().size()+"   ====   district:"+campaignDto.getRegion().size());
 
 			for (AreaReferenceDto root : campaignDto.getAreas()) {
-////
+
 				for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
-////
+
 					if (areax.getUuid().equals(root.getUuid())) {
-////					
+					
 						treeGrid.select(areax);
 					}
-//////				
+				
 					for (RegionReferenceDto region_root : campaignDto.getRegion()) {
-////
+
 						for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
-////
+
 							if (regionx.getUuid().equals(region_root.getUuid())) {
 								treeGrid.select(regionx);
 							}
-////						
+						
 							for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
-////
+
 								for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
-////
+
 									if (districtx.getUuid().equals(district_root.getUuid())) {
 										treeGrid.select(districtx);
 									}
@@ -509,14 +503,14 @@ public class CampaignForm extends VerticalLayout {
 				}
 			}
 		}
-		for (int i = 0; i < treeGrid.getTreeData().getRootItems().size(); i++) {
-
+//		for (int i = 0; i < treeGrid.getTreeData().getRootItems().size(); i++) {
+//
 //			 ftg.setIsClicked(777L);
-		}
+//		}
 
 		treeGrid.addItemClickListener(e -> {
 
-			boolean isSelectedClicked = false;
+//			boolean isSelectedClicked = false;
 			// we set 777 to the clicked and selected items and check for it.
 
 			if (e.getItem().getIsClicked() != null) {
@@ -578,14 +572,14 @@ public class CampaignForm extends VerticalLayout {
 			}
 		});
 
-		// check class of selection and cast to the appropriate class v-tree8-expander
-		// collapsed .v-tree .v-tree .sormas .v-tree-expander
 		treeGrid.addSelectionListener(event -> {
 			areass.clear();
 			region.clear();
 			districts.clear();
 			community.clear();
 			popopulationDataDtoSet.clear();
+			
+			System.out.println("ssssssssssssssssssssssssssssssssssss");
 
 			for (int i = 0; i < event.getAllSelectedItems().size(); i++) {
 
@@ -623,7 +617,7 @@ public class CampaignForm extends VerticalLayout {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 				campaignDto.setRegion((Set<RegionReferenceDto>) region);
 				campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
-				// System.out.println("==================== "+popopulationDataDtoSet.size());
+				 System.out.println("==================== "+popopulationDataDtoSet.size());
 				campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
 				campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
 			}
@@ -844,21 +838,41 @@ public class CampaignForm extends VerticalLayout {
 
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
-			archiveDearchive.setEnabled(!isOpenClose);
+//			archiveDearchive.setEnabled(!isOpenClose);
+			
 		});
+		
+//		archiveDearchive.setEnabled(isOpenClose);
+//		Tooltip tooltip = new Tooltip();
+//		System.out.println(archiveDearchive.isEnabled() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+//		if(archiveDearchive.isEnabled() == false) {
+//			tooltip.attachToComponent(archiveDearchive);
 
-		archiveDearchive.setEnabled(false);
-		archiveDearchive.addClickListener(e -> {
-			archive();
+//			tooltip.setPosition(TooltipPosition.RIGHT);
+//			tooltip.setAlignment(TooltipAlignment.LEFT);
+//			tooltip.add(new H5("Hello"));
+//			archiveDearchive.getElement().setAttribute("data-custom-hover-attribute", "Custom hover text or attribute value");
 
-		});
+////			archiveDearchive.getElement().setAttribute("title","Please close present campaign before attemping to Archive");
+//		}
+		if (isOpenClose) {
+			archiveDearchive.addClickListener(e -> {
+				archive();
+
+			});	
+		}else {
+			archiveDearchive.addClickListener(e -> {
+				Notification.show("Please close present campaign before attemping to Archive").addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+			});	
+		}
+		
 
 		discardChanges = new Button();
 		discardChanges.setText(I18nProperties.getCaption(Captions.actionDiscard));
-
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		
 		discardChanges.addClickListener(e -> {
-
 			discardChanges();
 		});
 
@@ -875,14 +889,15 @@ public class CampaignForm extends VerticalLayout {
 		leftFloat.setJustifyContentMode(JustifyContentMode.START);
 
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
+		
 		if (campaignDto != null) {
-			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
-					deleteCampaign, logButton);
+			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign, deleteCampaign, logButton);
 		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
 			leftFloat.add(publishUnpublishCampaign, openCloseCampaign, logButton);
 		}
+		
 		leftFloat.setWidth("50%");
 
 		rightFloat.add(discardChanges, saveChanges);
@@ -958,38 +973,32 @@ public class CampaignForm extends VerticalLayout {
 
 	}
 
-	private List<CampaignTreeGridDto> generateTreeGridData(CampaignDto formData) {
-		List<CampaignTreeGridDto> gridData = new ArrayList<>();
-		this.campaignDto = formData;
+	private List<CampaignTreeGridDto> generateTreeGridData() {
+        List<CampaignTreeGridDto> gridData = new ArrayList<>();
+        List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation(campaignDto);
+		
+        for (AreaDto area_ : areas) {
+        	CampaignTreeGridDto areaData = new CampaignTreeGridDto(area_.getName(), area_.getAreaid(), "Area", area_.getUuid_(), "area");
+        	List<RegionDto> regions_ = FacadeProvider.getRegionFacade().getAllActiveAsReferenceAndPopulation(area_.getAreaid(), campaignDto.getUuid());
+        	 for (RegionDto regions_x : regions_) {
+        		 CampaignTreeGridDto regionData = new CampaignTreeGridDto(regions_x.getName(), regions_x.getRegionId(), regions_x.getAreaUuid_(), regions_x.getUuid_(), "region");
+        		 List<DistrictDto> district_ = FacadeProvider.getDistrictFacade().getAllActiveAsReferenceAndPopulation(regions_x.getRegionId(), campaignDto);
+        		 ArrayList arr = new ArrayList<>();
+        		 for (DistrictDto district_x : district_) {
+        			 arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(), district_x.getRegionId(),
+        					 district_x.getRegionUuid_(), district_x.getUuid_(), "district", district_x.getSelectedPopulationData()));
+         		};
+        		 
+        		 regionData.setRegionData(arr);
+        		 
+        		 areaData.addRegionData(regionData);
+            }
+        	
+        	 gridData.add(areaData);
+        }
+        return gridData;
+    }
 
-		List<AreaDto> areas = FacadeProvider.getAreaFacade().getAllActiveAsReferenceAndPopulation(formData);
-		for (AreaDto area_ : areas) {
-			CampaignTreeGridDto areaData = new CampaignTreeGridDto(area_.getName(), area_.getAreaid(), "Area",
-					area_.getUuid_(), "area");
-			List<RegionDto> regions_ = FacadeProvider.getRegionFacade()
-					.getAllActiveAsReferenceAndPopulation(area_.getAreaid(), campaignDto.getUuid());
-			for (RegionDto regions_x : regions_) {
-				CampaignTreeGridDto regionData = new CampaignTreeGridDto(regions_x.getName(), regions_x.getRegionId(),
-						regions_x.getAreaUuid_(), regions_x.getUuid_(), "region");
-				List<DistrictDto> district_ = FacadeProvider.getDistrictFacade()
-						.getAllActiveAsReferenceAndPopulation(regions_x.getRegionId(), campaignDto);
-				ArrayList arr = new ArrayList<>();
-				for (DistrictDto district_x : district_) {
-					arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(),
-							district_x.getRegionId(), district_x.getRegionUuid_(), district_x.getUuid_(), "district",
-							district_x.getSelectedPopulationData()));
-				}
-				;
-
-				regionData.setRegionData(arr);
-
-				areaData.addRegionData(regionData);
-			}
-
-			gridData.add(areaData);
-		}
-		return gridData;
-	}
 
 	private void discardChanges() {
 		UI currentUI = UI.getCurrent();
@@ -1042,6 +1051,7 @@ public class CampaignForm extends VerticalLayout {
 			formDatac.setEndDate(endxDatex);
 			formDatac.setDescription(description.getValue());
 			formDatac.setCampaignStatus(formDatac.campaignStatus = "Closed");
+			
 			List<CampaignDashboardElement> preCampaigngridData = comp1.getGridData();
 			List<CampaignDashboardElement> intraCampaigngridData = compp2.getGridData();
 			List<CampaignDashboardElement> postCampaigngridData = comppp2.getGridData();
@@ -1099,6 +1109,14 @@ public class CampaignForm extends VerticalLayout {
 			formDatac.setCampaignDashboardElements(superList);
 			formDatac.setCampaignFormMetas(superSet);
 
+			
+			//Do the facade save stuff for population list here
+			
+			FacadeProvider.getPopulationDataFacade().savePopulationList(campaignDto.getPopulationdata());
+				
+				Notification.show(String.format(I18nProperties.getString(Strings.messageCampaignSaved), campaignDto.getName()));
+				
+				
 			fireEvent(new SaveEvent(this, formDatac));
 			UI.getCurrent().getPage().reload();
 
@@ -1107,11 +1125,15 @@ public class CampaignForm extends VerticalLayout {
 		} else {
 			if (binder.validate().isOk()) {
 
+				FacadeProvider.getPopulationDataFacade().savePopulationList(campaignDto.getPopulationdata());
+				
+				Notification.show(String.format(I18nProperties.getString(Strings.messageCampaignSaved), campaignDto.getName()));
+				
 				fireEvent(new SaveEvent(this, binderx.getBean()));
 
 				UI.getCurrent().getPage().reload();
 
-				Notification.show(I18nProperties.getString(Strings.headingUploadSuccess) + "!");
+//				Notification.show(I18nProperties.getString(Strings.headingUploadSuccess) + "!");
 
 			} else {
 				Notification.show(I18nProperties.getString(Strings.errorCampaignForm));

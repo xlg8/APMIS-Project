@@ -1,6 +1,5 @@
 package de.symeda.sormas.backend.campaign;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,16 +30,12 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignFacade;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
@@ -51,12 +46,10 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
-import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
-import de.symeda.sormas.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.backend.campaign.diagram.CampaignDiagramDefinitionFacadeEjb;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
@@ -258,7 +251,7 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 	@Override
 	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
 
-		String qr = "select c.action_logged, c.lastupdated, ca.name, ur.username from campaignlog c\n"
+		String qr = "select c.action_logged, c.creationdate, ca.name, ur.username from campaignlog c\n"
 				+ "left outer join campaigns ca on c.campaign_id = ca.id\n"
 				+ "left outer join users ur on c.creatinguser_id = ur.id \n"
 				+ "where ca.uuid = '"+camp.getUuid()+"';";
