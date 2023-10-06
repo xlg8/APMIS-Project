@@ -209,7 +209,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 				boolean needsSync = ConfigProvider.getUser() == null || DatabaseHelper.getCampaignFormMetaDao().isEmpty();
 
 				if (needsSync) {
-					System.out.println(">>>>>>>>>>>trackkk needsSync>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+//					System.out.println(">>>>>>>>>>>trackkk needsSync>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 					SynchronizeDataAsync.call(SynchronizeDataAsync.SyncMode.Changes, getApplicationContext(), (syncFailed, syncFailedMessage) -> {
 
 						RetroProvider.disconnect();

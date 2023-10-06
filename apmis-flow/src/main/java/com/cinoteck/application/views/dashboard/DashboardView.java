@@ -18,6 +18,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
@@ -53,6 +54,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 
 @PageTitle("APMIS-Campaign Dashboard")
@@ -71,7 +73,7 @@ import de.symeda.sormas.api.user.UserRole;
 @JavaScript("https://code.highcharts.com/modules/accessibility.js")
 @JavaScript("https://code.highcharts.com/modules/no-data-to-display.js")
 
-public class DashboardView extends VerticalLayout implements RouterLayout {
+public class DashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1851726752523985165L;
 
@@ -321,6 +323,15 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 				groupby.setValue(campaignJurisdictionLevel.AREA);
 
 			}
+			
+//			if(province.getValue() != null  ) {
+//				province.clear();
+//			}
+//			
+//			if( district.getValue() != null  ) {
+//				
+//				district.clear();
+//			}
 
 		});
 
@@ -596,30 +607,20 @@ public class DashboardView extends VerticalLayout implements RouterLayout {
 			return campaignPhase.toString();
 		}
 	}
-////
-//	@Override
-//	public void beforeEnter(BeforeEnterEvent event) {
-////		try {
-//			UserProvider usrP = new UserProvider();
-//			System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
-//			
-//		for (UserRole assignedRoles : usrP.getUser().getUserRoles()) {
-////			if (assignedRoles == UserRole.ADMIN) {
-////	            event.forwardTo(CampaignDataView.class);
-////
-//////				event.rerouteTo(CampaignDataView.class); // Redirect to a different view
-////			}
-//		}
-////			System.out.println("trying ti use camp data " + usrP.getCurrent().hasUserRole(UserRole.CASE_OFFICER));
-//			
-////		} catch (Exception e) {
-////
-////			System.err.println("ubnable tooooooooooo trying ti use camp data ");
-////
-////			// TODO Auto-generated catch block
-////			e.printStackTrace();
-////		}
-//
-//	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+
+			UserProvider usrP = new UserProvider();
+			System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
+			
+
+			if (!userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+				event.rerouteTo(AboutView.class); 
+		}
+
+	}
+
+	
 
 }
