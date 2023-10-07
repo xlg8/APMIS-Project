@@ -21,12 +21,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.symeda.auditlog.api.Audited;
+import de.symeda.auditlog.api.AuditedIgnore;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
+import de.symeda.sormas.backend.util.ModelConstants;
 
 @Entity
 @Audited
@@ -56,10 +58,14 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	
 	private String formName;
 	private String languageCode;
-	private String campaignFormElements;
-	private List<CampaignFormElement> campaignFormElementsList;
-	private String campaignFormTranslations;
-	private List<CampaignFormTranslations> campaignFormTranslationsList;
+	private List<CampaignFormElement> campaignFormElements;
+//	private List<CampaignFormElement> campaignFormElementsList;
+//	private String campaignFormElements;
+//	private List<CampaignFormElement> campaignFormElementsList;
+	private List<CampaignFormTranslations> campaignFormTranslations;
+//	private List<CampaignFormTranslations> campaignFormTranslationsList;
+//	private String campaignFormTranslations;
+//	private List<CampaignFormTranslations> campaignFormTranslationsList;
 
 	@Column
 	public String getFormId() {
@@ -116,62 +122,75 @@ public class CampaignFormMeta extends AbstractDomainObject {
 		this.languageCode = languageCode;
 	}
 
-	@Lob
-	@Type(type = "org.hibernate.type.TextType")
-	public String getCampaignFormElements() {
+	@AuditedIgnore
+	@Type(type = ModelConstants.HIBERNATE_TYPE_JSON)
+	@Column(columnDefinition = ModelConstants.COLUMN_DEFINITION_JSON)
+	public List<CampaignFormElement> getCampaignFormElements() {
 		return campaignFormElements;
 	}
 
-	public void setCampaignFormElements(String campaignFormElements) {
+	public void setCampaignFormElements(List<CampaignFormElement> campaignFormElements) {
 		this.campaignFormElements = campaignFormElements;
-		campaignFormElementsList = null;
+//		campaignFormElementsList = null;
 	}
+	
+//	@Lob
+//	@Type(type = "org.hibernate.type.TextType")
+//	public String getCampaignFormElements() {
+//		return campaignFormElements;
+//	}
+//
+//	public void setCampaignFormElements(String campaignFormElements) {
+//		this.campaignFormElements = campaignFormElements;
+//		campaignFormElementsList = null;
+//	}
 
-	@Transient
-	public List<CampaignFormElement> getCampaignFormElementsList() {
-		if (campaignFormElementsList == null) {
-			if (StringUtils.isBlank(campaignFormElements)) {
-				campaignFormElementsList = new ArrayList<>();
-			} else {
-				try {
-					ObjectMapper mapper = new ObjectMapper();
-					campaignFormElementsList = Arrays.asList(mapper.readValue(campaignFormElements, CampaignFormElement[].class));
-				} catch (IOException e) {
-					System.out.println(e.getMessage());
-					throw new ValidationRuntimeException(
-						"Content of campaignFormElements could not be parsed to List<CampaignFormElement> - ID: " + getId());
-				}
-				
-			}
-		}
-		return campaignFormElementsList;
-	}
+//	@Transient
+//	public List<CampaignFormElement> getCampaignFormElementsList() {
+//		if (campaignFormElementsList == null) {
+//			if (StringUtils.isBlank(campaignFormElements)) {
+//				campaignFormElementsList = new ArrayList<>();
+//			} else {
+//				try {
+//					ObjectMapper mapper = new ObjectMapper();
+//					campaignFormElementsList = Arrays.asList(mapper.readValue(campaignFormElements, CampaignFormElement[].class));
+//				} catch (IOException e) {
+//					System.out.println(e.getMessage());
+//					throw new ValidationRuntimeException(
+//						"Content of campaignFormElements could not be parsed to List<CampaignFormElement> - ID: " + getId());
+//				}
+//				
+//			}
+//		}
+//		return campaignFormElementsList;
+//	}
+//
+//	public void setCampaignFormElementsList(List<CampaignFormElement> campaignFormElementsList) {
+//		this.campaignFormElementsList = campaignFormElementsList;
+//
+//		if (this.campaignFormElementsList == null) {
+//			campaignFormElements = null;
+//			return;
+//		}
+//
+//		try {
+//			ObjectMapper mapper = new ObjectMapper();
+//			campaignFormElements = mapper.writeValueAsString(campaignFormElementsList);
+//		} catch (JsonProcessingException e) {
+//			throw new RuntimeException("Content of campaignFormElementsList could not be parsed to JSON String - ID: " + getId());
+//		}
+//	}
 
-	public void setCampaignFormElementsList(List<CampaignFormElement> campaignFormElementsList) {
-		this.campaignFormElementsList = campaignFormElementsList;
-
-		if (this.campaignFormElementsList == null) {
-			campaignFormElements = null;
-			return;
-		}
-
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			campaignFormElements = mapper.writeValueAsString(campaignFormElementsList);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Content of campaignFormElementsList could not be parsed to JSON String - ID: " + getId());
-		}
-	}
-
-	@Lob
-	@Type(type = "org.hibernate.type.TextType")
-	public String getCampaignFormTranslations() {
+	@AuditedIgnore
+	@Type(type = ModelConstants.HIBERNATE_TYPE_JSON)
+	@Column(columnDefinition = ModelConstants.COLUMN_DEFINITION_JSON)
+	public List<CampaignFormTranslations> getCampaignFormTranslations() {
 		return campaignFormTranslations;
 	}
 
-	public void setCampaignFormTranslations(String campaignFormTranslations) {
+	public void setCampaignFormTranslations(List<CampaignFormTranslations> campaignFormTranslations) {
 		this.campaignFormTranslations = campaignFormTranslations;
-		campaignFormTranslationsList = null;
+//		campaignFormTranslationsList = null;
 	}
 
 	@Column
@@ -183,39 +202,39 @@ public class CampaignFormMeta extends AbstractDomainObject {
 		this.districtentry = districtentry;
 	}
 
-	@Transient
-	public List<CampaignFormTranslations> getCampaignFormTranslationsList() {
-		if (campaignFormTranslationsList == null) {
-			if (StringUtils.isBlank(campaignFormTranslations)) {
-				campaignFormTranslationsList = new ArrayList<>();
-			} else {
-				try {
-					ObjectMapper mapper = new ObjectMapper();
-					campaignFormTranslationsList = Arrays.asList(mapper.readValue(campaignFormTranslations, CampaignFormTranslations[].class));
-				} catch (IOException e) {
-					throw new ValidationRuntimeException(
-						"Content of campaignFormTranslations could not be parsed to List<CampaignFormTranslations> - ID: " + getId());
-				}
-			}
-		}
-		return campaignFormTranslationsList;
-	}
-
-	public void setCampaignFormTranslationsList(List<CampaignFormTranslations> campaignFormTranslationsList) {
-		this.campaignFormTranslationsList = campaignFormTranslationsList;
-
-		if (this.campaignFormTranslationsList == null) {
-			campaignFormTranslations = null;
-			return;
-		}
-
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			campaignFormTranslations = mapper.writeValueAsString(campaignFormTranslationsList);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Content of campaignFormTranslationsList could not be parsed to JSON String - ID: " + getId());
-		}
-	}
+//	@Transient
+//	public List<CampaignFormTranslations> getCampaignFormTranslationsList() {
+//		if (campaignFormTranslationsList == null) {
+//			if (StringUtils.isBlank(campaignFormTranslations)) {
+//				campaignFormTranslationsList = new ArrayList<>();
+//			} else {
+//				try {
+//					ObjectMapper mapper = new ObjectMapper();
+//					campaignFormTranslationsList = Arrays.asList(mapper.readValue(campaignFormTranslations, CampaignFormTranslations[].class));
+//				} catch (IOException e) {
+//					throw new ValidationRuntimeException(
+//						"Content of campaignFormTranslations could not be parsed to List<CampaignFormTranslations> - ID: " + getId());
+//				}
+//			}
+//		}
+//		return campaignFormTranslationsList;
+//	}
+//
+//	public void setCampaignFormTranslationsList(List<CampaignFormTranslations> campaignFormTranslationsList) {
+//		this.campaignFormTranslationsList = campaignFormTranslationsList;
+//
+//		if (this.campaignFormTranslationsList == null) {
+//			campaignFormTranslations = null;
+//			return;
+//		}
+//
+//		try {
+//			ObjectMapper mapper = new ObjectMapper();
+//			campaignFormTranslations = mapper.writeValueAsString(campaignFormTranslationsList);
+//		} catch (JsonProcessingException e) {
+//			throw new RuntimeException("Content of campaignFormTranslationsList could not be parsed to JSON String - ID: " + getId());
+//		}
+//	}
 
 	public CampaignFormMetaReferenceDto toReference() {
 		return new CampaignFormMetaReferenceDto(getUuid(), formName, formType, formCategory, daysExpired);

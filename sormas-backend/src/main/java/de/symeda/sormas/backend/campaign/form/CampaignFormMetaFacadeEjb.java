@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -28,12 +29,14 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.model.Parameter.Source;
 import org.jsoup.safety.Whitelist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.TextFormat.ParseException;
 
 import de.symeda.sormas.api.ReferenceDto;
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
@@ -73,11 +76,14 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				"dssssssssssssssefaasdgasdgasdgasdfasdfasdfasfeasfdasdfs " + service.getByUuid(source.getUuid()));
 
 		target.setFormId(source.getFormId());
+		target.setFormType(source.getFormType().toString().toLowerCase());
 		target.setFormName(source.getFormName());
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
-		target.setCampaignFormElementsList(source.getCampaignFormElements());
-		target.setCampaignFormTranslationsList(source.getCampaignFormTranslations());
+		target.setCampaignFormElements(source.getCampaignFormElements());
+		target.setCampaignFormTranslations(source.getCampaignFormTranslations());
+		target.setDaysExpired(source.getDaysExpired());
+		target.setDistrictentry(source.isDistrictentry());
 
 		return target;
 	}
@@ -91,11 +97,15 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		DtoHelper.fillDto(target, source);
 
 		target.setFormId(source.getFormId());
+		target.setFormType((source.getFormType().toLowerCase() == CampaignPhase.PRE.toString().toLowerCase()) ? CampaignPhase.PRE 
+				: (source.getFormType().toLowerCase() == CampaignPhase.INTRA.toString().toLowerCase()) ? CampaignPhase.INTRA 
+						: CampaignPhase.POST);
 		target.setFormName(source.getFormName());
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
-		target.setCampaignFormElements(source.getCampaignFormElementsList());
-		target.setCampaignFormTranslations(source.getCampaignFormTranslationsList());
+		target.setCampaignFormElements(source.getCampaignFormElements());
+		target.setCampaignFormTranslations(source.getCampaignFormTranslations());
+		target.setDaysExpired(source.getDaysExpired());
 		target.setDistrictentry(source.isDistrictentry());
 
 		return target;
@@ -216,6 +226,24 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 		
 		return filtered.stream().map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public Collection<CampaignFormMetaDto> getAllFormElement() {
+		 List<CampaignFormMeta> allAfter = service.getAllFormElements(userService.getCurrentUser());
+			List<CampaignFormMeta> filtered = new ArrayList<>();
+			allAfter.removeIf(e -> e.getFormCategory() == null);
+			
+			for (FormAccess n : userService.getCurrentUser().getFormAccess()) {
+				boolean yn = allAfter.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filtered.addAll(allAfter.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+			
+			return filtered.stream().map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -463,6 +491,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	@LocalBean
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
-	}
+	}	
 
 }

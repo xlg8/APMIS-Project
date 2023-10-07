@@ -175,9 +175,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		this.userLocale = I18nProperties.getUserLanguage().getLocale();
 		if (userLocale != null) {
+			if(translations != null) {
 			translations.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString())).findFirst().ifPresent(
 					filteredTranslations -> userTranslations = filteredTranslations.getTranslations().stream().collect(
 							Collectors.toMap(TranslationElement::getElementId, TranslationElement::getCaption)));
+		}
 		}
 
 		FormLayout vertical_ = new FormLayout();
