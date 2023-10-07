@@ -59,6 +59,30 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		List<CampaignFormMeta> resultList = em.createQuery(cq).getResultList();
 		return resultList;
 	}
+	
+	public List<CampaignFormMeta> getAllFormElements(User user) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormMeta> cq = cb.createQuery(getElementClass());
+		Root<CampaignFormMeta> root = cq.from(getElementClass());
+
+		Predicate filter = createUserFilter(cb, cq, root);
+//		if (since != null) {
+//			Predicate dateFilter = createChangeDateFilter(cb, root, since);
+//			if (filter != null) {
+//				filter = cb.and(filter, dateFilter);
+//			} else {
+//				filter = dateFilter;
+//			}
+//		}
+		if (filter != null) {
+			cq.where(filter);
+		}
+		cq.orderBy(cb.desc(root.get(AbstractDomainObject.CHANGE_DATE)));
+
+		List<CampaignFormMeta> resultList = em.createQuery(cq).getResultList();
+		return resultList;
+	}
 
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
