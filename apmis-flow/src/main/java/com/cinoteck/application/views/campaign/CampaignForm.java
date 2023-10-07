@@ -873,7 +873,8 @@ public class CampaignForm extends VerticalLayout {
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
 		
 		discardChanges.addClickListener(e -> {
-			discardChanges();
+//			discardChanges();
+			discard();
 		});
 
 		saveChanges = new Button();
@@ -1112,10 +1113,10 @@ public class CampaignForm extends VerticalLayout {
 			
 			//Do the facade save stuff for population list here
 			
-			FacadeProvider.getPopulationDataFacade().savePopulationList(campaignDto.getPopulationdata());
-				
-				Notification.show(String.format(I18nProperties.getString(Strings.messageCampaignSaved), campaignDto.getName()));
-				
+//			FacadeProvider.getPopulationDataFacade().savePopulationList(campaignDto.getPopulationdata());
+//				
+//				Notification.show(String.format(I18nProperties.getString(Strings.messageCampaignSaved), campaignDto.getName()));
+//				
 				
 			fireEvent(new SaveEvent(this, formDatac));
 			UI.getCurrent().getPage().reload();
@@ -1188,6 +1189,12 @@ public class CampaignForm extends VerticalLayout {
 		fireEvent(new RoundChangeEvent(this, binderx.getBean()));
 
 	}
+	
+	private void discard() {
+
+		fireEvent(new DiscardEvent(this));
+
+	}
 
 	public void setCampaign(CampaignDto campaignIndexDto) {
 		// TODO Auto-generated method stub
@@ -1250,6 +1257,12 @@ public class CampaignForm extends VerticalLayout {
 			super(source, null);
 		}
 	}
+	
+	public static class DiscardEvent extends CampaignFormEvent {
+		DiscardEvent(CampaignForm source) {
+			super(source, null);
+		}
+	}
 
 	public Registration addDeleteListener(ComponentEventListener<DeleteEvent> listener) {
 		return addListener(DeleteEvent.class, listener);
@@ -1285,6 +1298,10 @@ public class CampaignForm extends VerticalLayout {
 
 	public Registration addRoundChangeListener(ComponentEventListener<RoundChangeEvent> listener) {
 		return addListener(RoundChangeEvent.class, listener);
+	}
+	
+	public Registration addDiscardListener(ComponentEventListener<DiscardEvent> listener) {
+		return addListener(DiscardEvent.class, listener);
 	}
 
 	private List<CampaignDashboardElement> getListDashboardFromType(String phaseTy) {

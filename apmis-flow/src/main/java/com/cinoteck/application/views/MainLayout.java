@@ -1,5 +1,9 @@
 package com.cinoteck.application.views;
 
+
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
 
 import com.cinoteck.application.UserProvider;
@@ -48,9 +52,11 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserType;
 
 /**
@@ -100,8 +106,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.getUserLanguage();
 			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
 		}
-
-		
 
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
@@ -153,7 +157,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		UI.getCurrent().add(idleNotification);
 
-		System.out.println("++++++++++++++++++++++++:"+VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
+		System.out.println(
+				"++++++++++++++++++++++++:" + VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
 
 		addToNavbar(true, toggle, titleLayout);
 	}
@@ -170,13 +175,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		Header header = new Header(imgApmis);
 
-		
 		Span versionadd = new Span();
-		versionadd.getElement().setProperty("innerHTML", "<p>APMIS Version: 4.0.0</p><p>Release date: 29|Sept|2023</p>");
+		versionadd.getElement().setProperty("innerHTML",
+				"<p>APMIS Version: 4.0.0</p><p>Release date: 29|Sept|2023</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");
-		
+
 		addToDrawer(header, scroller, versionadd);
 
 
@@ -190,44 +195,45 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		Button myButton = new Button();
 
-		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
-				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,
-					VaadinIcon.GRID_BIG_O, "navitem"));
-		}
+	
+			if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,
+						VaadinIcon.GRID_BIG_O, "navitem"));
+			}
 
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard), AnalyticsDashboardView.class,
-				VaadinIcon.GRID_BIG_O, "navitem"));
 
-		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
-				|| userProvider.getUser().getUsertype() == UserType.EOC_USER
-				|| userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
+//		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
+//				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "navitem"));
+
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,
 					VaadinIcon.CLIPBOARD, "navitem"));
 		}
 
-		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
-				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class,
 					VaadinIcon.CLIPBOARD_TEXT, "navitem"));
 		}
 
-		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
-				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-
+		if (userProvider.hasUserRight(UserRight.CONFIGURATION_ACCESS)) {
+			if (userProvider.getUser().getUsertype() == UserType.WHO_USER
+					|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
 					ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+			}
 
 		}
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-//			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)
-//					|| permitted(UserRole.ADMIN_SUPERVISOR) || permitted(UserRole.COMMUNITY_INFORMANT))) {
+		if	(userProvider.hasUserRight(UserRight.USER_VIEW)){
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
 					VaadinIcon.USERS, "navitem"));
+			}
+//			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)
+//					|| permitted(UserRole.ADMIN_SUPERVISOR) || permitted(UserRole.COMMUNITY_INFORMANT))) {
+			
 //			}
 		}
 
@@ -238,7 +244,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 					VaadinIcon.CHART_LINE, "navitem"));
 		}
 
-		nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
+		
+//		if	(userProvider.hasUserRight(UserRight.USER_RIGHTS_MANAGE)) {
+//			nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
+//		}
+		
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
 		// VaadinIcon.TREE_TABLE, "navitem"));
 		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
@@ -247,6 +257,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				VaadinIcon.CHAT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
+		
+		
+
+		
+	
 //		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
 //				"navitem"));	       
 
@@ -259,11 +274,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	}
 
 	private void rtlswitcher() {
-		
+
 		if (userProvider.getUser().getLanguage() != null) {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
-			
+
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
@@ -277,7 +292,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		} else {
 			I18nProperties.setUserLanguage(Language.EN);
 			I18nProperties.getUserLanguage();
-			
+
 			userProvider.getUser().setLanguage(Language.EN);
 //			userProvider.getUser //.setLanguage(Language.EN);
 			UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
@@ -346,7 +361,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
 			dialog.close();
 //			dialog.remove(dialogHolderLayout);
-			//cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
+			// cancelButton.getUI().ifPresent(ui -> ui.navigate(intendedRoute));
 		});
 		cancelButton.getStyle().set("width", "35%");
 		cancelButton.getStyle().set("background", "white");
@@ -365,10 +380,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			dialog.setCloseOnOutsideClick(false);
 			dialog.open();
 		});
-		
-		
-		
-		
 
 		layout.add(logoutButton);
 

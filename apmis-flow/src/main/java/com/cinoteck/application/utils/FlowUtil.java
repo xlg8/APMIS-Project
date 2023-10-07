@@ -1,4 +1,4 @@
-package com.cinoteck.application.views;
+package com.cinoteck.application.utils;
 
 import com.cinoteck.application.UserProvider;
 
@@ -11,15 +11,15 @@ import de.symeda.sormas.api.user.UserType;
 
 public class FlowUtil {
 
-	private FlowUtil() {
+	public FlowUtil() {
 	}
 
-	public static boolean permitted(FeatureType feature, UserRight userRight) {
+	public static boolean permittedx(FeatureType feature, UserRight userRight) {
 		return (feature == null || !FacadeProvider.getFeatureConfigurationFacade().isFeatureDisabled(feature))
 				&& (userRight == null || UserProvider.getCurrent().hasUserRight(userRight));
 	}
 
-	public static boolean permitted(UserType userType) {
+	public static boolean permittedx(UserType userType) {
 		boolean check = false;
 		if (UserProvider.getCurrent().hasUserType(userType)) {
 			check = true;
@@ -29,7 +29,7 @@ public class FlowUtil {
 		}
 	}
 	
-	public static boolean permitted(FormAccess formAccess) {
+	public static boolean permittedx(FormAccess formAccess) {
 		boolean check = false;
 		if (UserProvider.getCurrent().hasFormAccess(formAccess)) {
 			check = true;
@@ -39,7 +39,7 @@ public class FlowUtil {
 		}
 	}
 	
-	public static boolean permitted(UserRole userrole) {
+	public static boolean permittedx(UserRole userrole) {
 		boolean check = false;
 		if (UserProvider.getCurrent().hasUserRole(userrole)) {
 			check = true;
@@ -50,6 +50,6 @@ public class FlowUtil {
 	}
 
 	public static boolean permitted(UserRight userRight) {
-		return permitted(null, userRight);
+		return permittedx(null, userRight);
 	}
 }

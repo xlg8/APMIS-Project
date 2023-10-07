@@ -146,7 +146,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				
 				if(pageTitle.split("flow/").length > 0)
 				intendedRoute = pageTitle.split("flow/")[1];
-				
 			}
 		});
 

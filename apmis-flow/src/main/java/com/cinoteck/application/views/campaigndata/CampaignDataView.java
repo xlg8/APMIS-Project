@@ -690,6 +690,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		deleteAllSelectedItems(grid.getSelectedItems());
 
+
 	}
 
 	public void deleteAllSelectedItems(Collection<CampaignFormDataIndexDto> selectedRows) {
@@ -731,6 +732,8 @@ public class CampaignDataView extends VerticalLayout {
 					grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 
 					dropdownBulkOperations.setVisible(false);
+					selectAllButtonpLACEHOLDER.setVisible(false);
+
 				}
 			});
 
