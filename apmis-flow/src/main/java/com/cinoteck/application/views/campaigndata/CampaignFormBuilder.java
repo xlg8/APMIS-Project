@@ -572,7 +572,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					temp = temp - 1;
 					layout.setClassName("daywise_background_" + temp); // .addStyleName(dependingOnId); sormas
 																		// background: green
-					accrd.add(formElement.getCaption(), layout);
+					accrd.add(get18nCaption(formElement.getId(), formElement.getCaption()), layout);
 
 					vertical = new FormLayout();
 					vertical.setSizeFull();
@@ -588,7 +588,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			} else if (type == CampaignFormElementType.LABEL) {
 
 				Label labx = new Label();
-				labx.getElement().setProperty("innerHTML", formElement.getCaption());
+				labx.getElement().setProperty("innerHTML", get18nCaption(formElement.getId(), get18nCaption(formElement.getId(), formElement.getCaption())));
 				labx.setId(formElement.getId());
 				vertical.setColspan(labx, 3);
 				vertical.add(labx);
@@ -607,11 +607,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 				        map.put(false, I18nProperties.getCaption(Captions.actionNo));
 				        
 				        
-				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(), List.of(true, false));
+				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 				        toggle.setId(formElement.getId());
 				        
 				        toggle.setItemLabelGenerator(item -> map.get(item));
-				        
+				        toggle.setRequiredIndicatorVisible(formElement.isImportant());
 				        setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 				        
 					vertical.add(toggle);
@@ -624,7 +624,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.TEXT) {
 					TextField textField = new TextField();
-					textField.setLabel(formElement.getCaption());
+					textField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					// textField.setValue("Ruukinkatu 2");
 					textField.setClearButtonVisible(true);
 					textField.setPrefixComponent(VaadinIcon.PENCIL.create());
@@ -642,7 +642,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.NUMBER) {
 					NumberField numberField = new NumberField();
-					numberField.setLabel(formElement.getCaption());
+					numberField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					numberField.setId(formElement.getId());
 					numberField.setSizeFull();
 					numberField.setRequiredIndicatorVisible(formElement.isImportant());
@@ -697,7 +697,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.RANGE) {
 					IntegerField integerField = new IntegerField();
-					integerField.setLabel(formElement.getCaption());
+					integerField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 //					integerField.setHelperText("Max 10 items");
 					integerField.setId(formElement.getId());
 					integerField.setStepButtonsVisible(true);
@@ -767,7 +767,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.DECIMAL) {
 					BigDecimalField bigDecimalField = new BigDecimalField();
-					bigDecimalField.setLabel(formElement.getCaption());
+					bigDecimalField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					bigDecimalField.setWidth("240px");
 					bigDecimalField.setValue(new BigDecimal("948205817.472950487"));
 					bigDecimalField.setId(formElement.getId());
@@ -786,7 +786,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.TEXTBOX) {
 					TextArea textArea = new TextArea();
 					textArea.setWidthFull();
-					textArea.setLabel(formElement.getCaption());
+					textArea.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					textArea.setId(formElement.getId());
 					textArea.setSizeFull();
 					textArea.setRequiredIndicatorVisible(formElement.isImportant());
@@ -801,7 +801,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.RADIO) {
 					RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
-					radioGroup.setLabel(formElement.getCaption());
+					radioGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
 					radioGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
@@ -822,7 +822,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.RADIOBASIC) {
 					RadioButtonGroup<String> radioGroupVert = new RadioButtonGroup<>();
 					radioGroupVert.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-					radioGroupVert.setLabel(formElement.getCaption());
+					radioGroupVert.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -848,7 +848,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					
 					
 
-					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
+					ComboBox<String> select = new ComboBox<>(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
 
@@ -879,7 +879,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.CHECKBOX) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
-					checkboxGroup.setLabel(formElement.getCaption());
+					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -901,7 +901,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.CHECKBOXBASIC) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
-					checkboxGroup.setLabel(formElement.getCaption());
+					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -926,7 +926,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
 					singleFormatI18n.setDateFormat("dd-MM-yyyy");
 
-					DatePicker datePicker = new DatePicker(formElement.getCaption());
+					DatePicker datePicker = new DatePicker(get18nCaption(formElement.getId(), formElement.getCaption()));
 					datePicker.setI18n(singleFormatI18n);
 					datePicker.setSizeFull();
 					datePicker.setPlaceholder("DD-MM-YYYY");

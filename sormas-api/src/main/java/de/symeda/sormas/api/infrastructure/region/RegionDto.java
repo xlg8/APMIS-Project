@@ -61,6 +61,7 @@ public class RegionDto extends EntityDto {
 	private Long regionId;
 	private String areaUuid_;
 	private String uuid_;
+	private String mapHasc;
 
 	public RegionDto(
 		Date creationDate,
@@ -103,6 +104,13 @@ public class RegionDto extends EntityDto {
 		this.areaUuid_ = areaUuid;
 		this.uuid_ = uuid_;
 	};
+	
+	
+	public RegionDto(@Size(max = 255, message = "textTooLong") String name, String mapHasc) {
+		super();
+		this.name = name;
+		this.mapHasc = mapHasc;
+	}
 
 	public String getName() {
 		return name;
@@ -223,6 +231,16 @@ public class RegionDto extends EntityDto {
 	public void setUuid_(String uuid_) {
 		this.uuid_ = uuid_;
 	}
+
+	public String getMapHasc() {
+		return mapHasc;
+	}
+
+	public void setMapHasc(String mapHasc) {
+		this.mapHasc = mapHasc;
+	}
+	
+	
 	
 	
 	

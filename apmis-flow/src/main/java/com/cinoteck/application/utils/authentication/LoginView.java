@@ -55,7 +55,8 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private void buildUI() {
 		setSizeFull();
 		setClassName("login-screen");
-
+		
+		
 		LoginForm loginForm = new LoginForm();
 		loginForm.setI18n(createLoginI18n());
 		loginForm.addLoginListener(this::login);
@@ -87,26 +88,10 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 
 		if (httpSession.getAttribute("intendedRoute") != null) {
 			intendedRoute = (String) httpSession.getAttribute("intendedRoute");
-			System.out.println("____httpSession.getAttributhttpSession.getAttribut________: " + intendedRoute);
-		} else {
-			System.out.println("_httpSession.getAttribut___________: " + intendedRoute);
 		}
 
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
-//			IdleNotification idleNotification = new IdleNotification();
-//
-//			// No. of secs before timeout, at which point the notification is displayed
-//			idleNotification.setSecondsBeforeNotification(40);
-//			idleNotification.setMessage("Your session will expire in " +  
-//			    IdleNotification.MessageFormatting.SECS_TO_TIMEOUT  
-//			    + " seconds.");
-//			idleNotification.addExtendSessionButton("Extend session");
-//			idleNotification.addRedirectButton("Logout now", "logout");
-//			idleNotification.addCloseButton();
-//			idleNotification.setExtendSessionOnOutsideClick(false);
-//
-//			 UI.getCurrent().add(idleNotification);
 
 			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
 
@@ -117,14 +102,13 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				}
 				if (intendedRoute.equals("logout")) {
 					getUI().get().navigate("/dashboard");
+				} else if (intendedRoute.equals("/")) {
+					getUI().get().navigate("/dashboard");
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
 			} else {
-//				if(userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
-//					getUI().get().navigate("/campaigndata");
-//				}
-//				
+
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
 					getUI().get().navigate("/campaigndata");
 				} else {
@@ -132,24 +116,12 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				}
 
 			}
-//			UI.getCurrent().getPage().reload();
 
 		} else {
 			event.getSource().setError(true);
 		}
 	}
 
-//	public void loginNavigationControl() {
-//		if (userProvider.getUser().getUserRoles().contains(UserRole.COMMUNITY_INFORMANT)
-//				&& userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
-//			if (intendedRoute.equals("dashboard") || intendedRoute.equals("analytics")
-//					|| intendedRoute.equals("configurations") || intendedRoute.equals("campaign")
-//					|| intendedRoute.equals("user") || intendedRoute.equals("reports")
-//					|| intendedRoute.equals("pivot")) {
-//				getUI().get().navigate("/campaigndata");
-//			}
-//		}
-//	}
 
 	private LoginI18n createLoginI18n() {
 		final LoginI18n i18n = LoginI18n.createDefault();
@@ -169,32 +141,15 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	public void beforeEnter(BeforeEnterEvent event) {
 		// Store the intended route in the UI instance before navigating to the login
 		// page
-
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
 			if (pageTitle.contains("flow/")) {
+				
+				if(pageTitle.split("flow/").length > 0)
 				intendedRoute = pageTitle.split("flow/")[1];
-				System.out
-						.println("___________________________/////___________________________________________________: "
-								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+				
 			}
-//			Notification.show(String.format("Page title: '%s'", pageTitle));
 		});
-//	       if (!accessControl.isUserAllowedToAccessView(event.getNavigationTarget())) {
-//	            // User does not have access, navigate to a view they have access to
-//	            // You can define your own logic to determine the target view
-//	            Class<?> targetView = accessControl.getTargetViewForUser(UI.getCurrent().getSession());
-//
-//	            if (targetView != null) {
-//	                event.forwardTo(targetView);
-//	            } else {
-//	                // If no target view is available, show an error message or navigate to a default view
-//	                Notification.show("You do not have access to this view.");
-//	                event.rerouteTo(DefaultView.class); // Adjust to your default view
-//	            }
-//	        }
-//	    }
 
-//		 VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
 
 	}
 }

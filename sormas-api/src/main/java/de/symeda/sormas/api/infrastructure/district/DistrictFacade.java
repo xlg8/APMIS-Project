@@ -69,4 +69,6 @@ public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictI
 	boolean isDistrictAllowed(String campaignUUID, String uuid);
 
 	List<DistrictReferenceDto> getAllActiveByRegionAndSelectedInCampaign(String uuid, String campaingUUID);
+
+	String getMapDiagramDistrictHascByUuid(String districtUuid);
 }

@@ -133,7 +133,7 @@ public class IdleNotification extends Component {
      */
     public IdleNotification(String message, int secondsBeforeNotification) throws IllegalArgumentException {
         this(message, secondsBeforeNotification, VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
-        System.out.println("___________________________________________________:" +VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
+        System.out.println("______________getMaxInactiveInterval______________:" +VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
     }
 
     /**

@@ -103,27 +103,33 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 	}
 
 	public User getByUserName(String userName) {
+		System.out.println("+++++++_+__+_+ " + userName);
+		User entity = new User();
+		if (userName != null) {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			ParameterExpression<String> userNameParam = cb.parameter(String.class, User.USER_NAME);
+			CriteriaQuery<User> cq = cb.createQuery(getElementClass());
+			Root<User> from = cq.from(getElementClass());
 
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		ParameterExpression<String> userNameParam = cb.parameter(String.class, User.USER_NAME);
-		CriteriaQuery<User> cq = cb.createQuery(getElementClass());
-		Root<User> from = cq.from(getElementClass());
+			Expression<String> userNameExpression = from.get(User.USER_NAME);
+			String userNameParamValue = userName;
+			if (AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
+				userNameExpression = cb.lower(userNameExpression);
+				userNameParamValue = userName.toLowerCase();
+			}
 
-		Expression<String> userNameExpression = from.get(User.USER_NAME);
-		String userNameParamValue = userName;
-		if (AuthProvider.getProvider(configFacade).isUsernameCaseSensitive()) {
-			userNameExpression = cb.lower(userNameExpression);
-			userNameParamValue = userName.toLowerCase();
+			cq.where(cb.equal(userNameExpression, userNameParam));
+
+			TypedQuery<User> q = em.createQuery(cq).setParameter(userNameParam, userNameParamValue);
+
+			entity = q.getResultList().stream().findFirst().orElse(null);
+			return entity;
+		} else {
+
+			return entity;
 		}
-
-		cq.where(cb.equal(userNameExpression, userNameParam));
-
-		TypedQuery<User> q = em.createQuery(cq).setParameter(userNameParam, userNameParamValue);
-
-		User entity = q.getResultList().stream().findFirst().orElse(null);
-		return entity;
 	}
-	
+
 	public User getByEmail(String email) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -138,7 +144,9 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			userNameParamValue = email.toLowerCase();
 		}
 
-		cq.where(cb.equal(userNameExpression, userNameParam));
+		Predicate pds = cb.equal(userNameExpression, userNameParam);
+		Predicate pdss = cb.notEqual(userNameExpression, "");
+		cq.where(pds, pdss);
 
 		TypedQuery<User> q = em.createQuery(cq).setParameter(userNameParam, userNameParamValue);
 
@@ -208,19 +216,17 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 		return getAllByRegionsAndUserRoles(Collections.singletonList(region), Arrays.asList(userRoles),
 				this::createJurisdictionFilter);
 	}
-	
+
 	public List<User> getAllByCommunity() {
-		
+
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<User> cq = cb.createQuery(User.class);
 		Root<User> root = cq.from(User.class);
 		cq.select(root);
-		
+
 		Predicate filter = cb.equal(root.get(User.ACTIVE), true);
-		
+
 		cq.where(filter);
-		
-		
 
 		return em.createQuery(cq).getResultList();
 	}
@@ -360,7 +366,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 		cq.distinct(true);
 		cq.orderBy(cb.asc(root.get(User.ID)));
 
-		System.out.println("SSSSSSSSS44SSSSSSSSSS"+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("SSSSSSSSS44SSSSSSSSSS" + SQLExtractor.from(em.createQuery(cq)));
 		List<UserReference> resultList = em.createQuery(cq).setHint(ModelConstants.HINT_HIBERNATE_READ_ONLY, true)
 				.getResultList();
 		return resultList;
@@ -514,7 +520,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 	}
 
 	public Predicate buildCriteriaFilter(UserCriteria userCriteria, CriteriaBuilder cb, Root<User> from) {
-		
+
 		Predicate filter = null;
 		if (userCriteria.getActive() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(User.ACTIVE), userCriteria.getActive()));
@@ -542,7 +548,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 					continue;
 				}
 
-				Predicate likeFilters = cb.or( //getCurrent
+				Predicate likeFilters = cb.or( // getCurrent
 						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(User.FIRST_NAME), textFilter),
 						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(User.LAST_NAME), textFilter),
 						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(User.USER_NAME), textFilter),
@@ -552,42 +558,33 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 				filter = CriteriaBuilderHelper.and(cb, filter, likeFilters);
 			}
 		}
-		
+
 		if (this.getCurrentUser().getUsertype().equals(UserType.EOC_USER)) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.notEqual(from.get(User.USER_TYPE), UserType.WHO_USER)); 
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.notEqual(from.get(User.USER_TYPE), UserType.WHO_USER));
+		} else {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.notEqual(from.get(User.USER_TYPE), UserType.EOC_USER));
 		}
-		else {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.notEqual(from.get(User.USER_TYPE), UserType.EOC_USER));
-		}
-		
-	
-		
-		
-		if(this.getCurrentUser().hasAnyUserRole(UserRole.COMMUNITY_INFORMANT)) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
+
+		if (this.getCurrentUser().hasAnyUserRole(UserRole.COMMUNITY_INFORMANT)) {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.isMember(UserRole.COMMUNITY_OFFICER, from.get(User.USER_ROLES)));
 		}
-		if(this.getCurrentUser().hasAnyUserRole(UserRole.AREA_ADMIN_SUPERVISOR)) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
+		if (this.getCurrentUser().hasAnyUserRole(UserRole.AREA_ADMIN_SUPERVISOR)) {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.get(User.AREA), this.getCurrentUser().getArea()));
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.isMember(UserRole.COMMUNITY_OFFICER, from.get(User.USER_ROLES)));
 		}
-		if(this.getCurrentUser().hasAnyUserRole(UserRole.ADMIN_SUPERVISOR)) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
+		if (this.getCurrentUser().hasAnyUserRole(UserRole.ADMIN_SUPERVISOR)) {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.isMember(UserRole.REST_USER, from.get(User.USER_ROLES)));
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.get(User.REGION), this.getCurrentUser().getRegion()));
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.isMember(UserRole.COMMUNITY_OFFICER, from.get(User.USER_ROLES)));
 		}
-	
+
 		return filter;
 	}
 

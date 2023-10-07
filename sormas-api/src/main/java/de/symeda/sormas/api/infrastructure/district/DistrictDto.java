@@ -57,6 +57,7 @@ public class DistrictDto extends EntityDto {
 	private Long regionId;
 	private String regionUuid_;
 	private String uuid_;
+	private String mapHasc;
 	
 	//@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	
@@ -96,6 +97,14 @@ public class DistrictDto extends EntityDto {
 		this.uuid_ = uuid_;
 		this.selectedPopulationData = selectedPopulationData;
 	};
+	
+	
+
+	public DistrictDto(@Size(max = 255, message = "textTooLong") String name, String mapHasc) {
+		super();
+		this.name = name;
+		this.mapHasc = mapHasc;
+	}
 
 	public DistrictDto() {
 		super();
@@ -236,6 +245,14 @@ public class DistrictDto extends EntityDto {
 
 	public void setSelectedPopulationData(String selectedPopulationData) {
 		this.selectedPopulationData = selectedPopulationData;
+	}
+
+	public String getMapHasc() {
+		return mapHasc;
+	}
+
+	public void setMapHasc(String mapHasc) {
+		this.mapHasc = mapHasc;
 	}
 
 	

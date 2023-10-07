@@ -30,6 +30,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -536,5 +537,16 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		return resultData;
 	}
 
+	@Override
+	public String getMapDiagramRegionHascByUuid(String regionUuid) {
 
+		String selectBuilder = "select d.hasc from region d where d.uuid = '" + regionUuid + "';";
+
+		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
+		try {
+			return seriesDataQuery.getSingleResult().toString();
+		} catch (NoResultException e) {
+			return "";
+		}
+	}
 }

@@ -11,6 +11,7 @@
     "@polymer/polymer": "3.5.1",
     "@vaadin-component-factory/vcf-anchor-nav": "23.3.0",
     "@vaadin-component-factory/vcf-nav": "1.0.6",
+    "@vaadin-component-factory/vcf-tooltip": "22.0.0",
     "@vaadin/accordion": "23.3.7",
     "@vaadin/app-layout": "23.3.7",
     "@vaadin/avatar": "23.3.7",
@@ -155,6 +156,7 @@
       "@polymer/iron-resizable-behavior": "3.0.1",
       "@polymer/polymer": "3.5.1",
       "@vaadin-component-factory/vcf-nav": "1.0.6",
+      "@vaadin-component-factory/vcf-tooltip": "22.0.0",
       "@vaadin/accordion": "23.3.7",
       "@vaadin/app-layout": "23.3.7",
       "@vaadin/avatar": "23.3.7",
@@ -282,7 +284,7 @@
       "workbox-precaching": "6.5.4",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "ca947d67cbb8f7b2338b5c1470d38431b34b2f976f81a0bdee47c017f616b4cb"
+    "hash": "97c6dfbd08e98902a2f4189416d20640e5a82ffc55a4a9941d4aea339297733f"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -396,6 +398,7 @@
     "line-awesome": "$line-awesome",
     "lit": "$lit",
     "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar"
+    "chokidar": "$chokidar",
+    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip"
   }
 }

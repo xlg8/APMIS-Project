@@ -149,7 +149,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.addRedirectButton("Logout now", "logout");
 		idleNotification.addCloseButton();
 		idleNotification.setExtendSessionOnOutsideClick(true);
-		idleNotification.setRedirectAtTimeoutUrl("logout");
+		idleNotification.setRedirectAtTimeoutUrl("./");
 
 		UI.getCurrent().add(idleNotification);
 
@@ -162,7 +162,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			imgApmis = new Image("images/APMIS_Neoc_Banner.jpg", "APMIS-LOGO");
 		} else {
-			imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
+			imgApmis = new Image("images/APMIS_Horizontal_Logo_1.jpg", "APMIS-LOGO");
 
 		}
 		imgApmis.setMaxWidth("100%");
@@ -179,14 +179,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		addToDrawer(header, scroller, versionadd);
 
-//		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
-//                new Locale("fa","IR", "فارسی"));
-//		
-//		languageSwitcher.setClassName("vieLangiuageSwitcher");
 
 		addToDrawer(createFooter());
 
-		// addToDrawer(header, scroller, createFooter());
 	}
 
 	private AppNav createNavigation() {
@@ -263,92 +258,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	}
 
-//	private boolean permitted(UserRole userrole) {
-//		boolean check = false;
-//		if (userProvider.getUser().getUserRoles() != null) {
-//			for (UserRole vv : userProvider.getUser().getUserRoles()) {
-//				userrole = vv;
-//				check = true;
-//			}
-//			return check;
-//		} else {
-//			return check;
-//		}
-//	}
-
-//	private boolean permitted(UserType userType) {
-//		boolean check = false;
-//
-//		if (userProvider.getUser().getUsertype() != null) {
-//			check = true;
-//			userType = userProvider.getUser().getUsertype();
-//			return check;
-//		} else {
-//			return check;
-//		}
-//	}
-
-//	private Button createPopup() {
-//		Button confirmButton;
-//		Button cancelButton;
-//
-//		Dialog dialog = new Dialog();
-//		dialog.setCloseOnEsc(false);
-//		dialog.setCloseOnOutsideClick(false);
-//
-//		VerticalLayout dialogHolderLayout = new VerticalLayout();
-//
-//		Div apmisImageContainer = new Div();
-//		apmisImageContainer.getStyle().set("width", "100%");
-//		apmisImageContainer.getStyle().set("display", "flex");
-//		apmisImageContainer.getStyle().set("justify-content", "center");
-//
-//		Image img = new Image("images/logout.png", "APMIS-LOGO");
-//		img.getStyle().set("max-height", "-webkit-fill-available");
-//
-//		apmisImageContainer.add(img);
-//
-//		Div aboutText = new Div();
-//
-//		Paragraph text = new Paragraph("You are attempting to log out of APMIS");
-//		Paragraph confirmationText = new Paragraph("Are you sure you want to logout?");
-//
-//		text.getStyle().set("color", "black");
-//		text.getStyle().set("font-size", "24px");
-//		confirmationText.getStyle().set("color", "green");
-//		confirmationText.getStyle().set("font-size", "18px");
-//
-//		aboutText.getStyle().set("display", "flex");
-//		aboutText.getStyle().set("flex-direction", "column");
-//		aboutText.getStyle().set("align-items", "center");
-//		aboutText.add(text, confirmationText);
-//
-//		Div logoutButtons = new Div();
-//		logoutButtons.getStyle().set("display", "flex");
-//		logoutButtons.getStyle().set("justify-content", "space-evenly");
-//		logoutButtons.getStyle().set("width", "100%");
-//
-//		confirmButton = new Button("Confirm", event -> {
-////			confirmButton.getUI().ifPresent(ui -> ui.navigate(""));
-//		});
-//		confirmButton.getStyle().set("width", "35%");
-//		cancelButton = new Button("Cancel", event -> {
-//			dialog.close();
-////			cancelButton.getUI().ifPresent(ui -> ui.navigate("dashboard"));
-//		});
-//		cancelButton.getStyle().set("width", "35%");
-//		cancelButton.getStyle().set("background", "white");
-//		cancelButton.getStyle().set("color", "green");
-//		logoutButtons.add(confirmButton, cancelButton);
-//
-//		dialogHolderLayout.add(apmisImageContainer, aboutText, logoutButtons);
-//		dialog.add(dialogHolderLayout);
-//		return cancelButton;
-//
-////		add(dialog);
-////		return dialog;
-//	}
-
 	private void rtlswitcher() {
 		
 		if (userProvider.getUser().getLanguage() != null) {
@@ -374,46 +283,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 		}
 	}
-
-//	private Tabs getTabs() {
-//		Tabs tabs = new Tabs();
-//		tabs.add(createTab(VaadinIcon.COG_O, "Dashboard", DashboardView.class));
-//		tabs.add(createTab(VaadinIcon.CLIPBOARD, "Campaign Data", CampaignDataView.class));
-//		tabs.add(createTab(VaadinIcon.CLIPBOARD_TEXT, "All Campaigns", CampaignsView.class));
-//		tabs.add(createTab(VaadinIcon.COG_O, "Configurations", ConfigurationsView.class));
-//		tabs.add(createTab(VaadinIcon.USERS, "Users", UserView.class));
-//		tabs.add(createTab(VaadinIcon.CHART, "Report", ReportView.class));
-//		tabs.add(createTab(VaadinIcon.USER, "User Profile", MyAccountView.class));
-//		tabs.add(createTab(VaadinIcon.INFO_CIRCLE_O, "About", AboutView.class));
-//		tabs.add(createTab(VaadinIcon.SIGN_OUT_ALT, "Sign-Out", SupportView.class));
-//		tabs.setOrientation(Tabs.Orientation.VERTICAL);
-//		tabs.addClassName("tabs");
-//		return tabs;
-//	}
-
-	// TODO: Move the styles into CSS classes for a cleaner code
-//	private Tab createTab(VaadinIcon viewIcon, String viewName, Class<? extends Component> viewClass) {
-//		Icon icon = viewIcon.create();
-//		icon.getStyle().set("box-sizing", "border-box").set("margin-inline-end", "var(--lumo-space-m)").set("padding",
-//				"var(--lumo-space-xs)");
-//
-//		RouterLink link = new RouterLink();
-//		link.setRoute(viewClass);
-//
-//		// Create a VerticalLayout to stack the icon and the Span vertically
-//		VerticalLayout verticalLayout = new VerticalLayout(icon, new Span(viewName));
-//		verticalLayout.setSpacing(false);
-//		verticalLayout.setPadding(false);
-//
-//		// Center the elements vertically and horizontally within the VerticalLayout
-//		verticalLayout.getStyle().set("display", "flex").set("flex-direction", "column").set("align-items", "center")
-//				.set("justify-content", "center").set("color", "white").set("font-weight", "normal")
-//				.set("margin", "8px 0px");
-//
-//		link.add(verticalLayout);
-//
-//		return new Tab(link);
-//	}
 
 	private Footer createFooter() {
 		Footer layout = new Footer();
@@ -489,15 +358,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		dialog.add(dialogHolderLayout);
 
 		logoutButton.addClickListener(event -> {
-			if (I18nProperties.getUserLanguage() == null) {
-
-				I18nProperties.setUserLanguage(Language.EN);
-			} else {
-
-				I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
-				I18nProperties.getUserLanguage();
-			}
-			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
+			
 			dialog.add(dialogHolderLayout);
 
 			dialog.setCloseOnEsc(false);
@@ -517,6 +378,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	@Override
 	protected void afterNavigation() {
 		super.afterNavigation();
+		rtlswitcher();
 		viewTitle.setText(getCurrentPageTitle());
 	}
 
@@ -553,12 +415,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		
 		// Store the intended route in the UI instance before navigating to the login
 		// page
 
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
-			if (pageTitle.contains("main/")) {
-				intendedRoute = pageTitle.split("main/")[1];
+			if (pageTitle.contains("flow/")) {
+				intendedRoute = pageTitle.split("flow/")[1];
 //				System.out.println(
 //						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
 //								+ String.format("Page title: '%s'", pageTitle.split("main/")[1]));
