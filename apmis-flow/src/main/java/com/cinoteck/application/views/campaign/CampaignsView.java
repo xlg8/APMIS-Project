@@ -98,6 +98,8 @@ public class CampaignsView extends VerticalLayout {
 
 	boolean isEditingModeActive;
 
+	Dialog dialog = new Dialog();
+
 	public CampaignsView() {
 		if (I18nProperties.getUserLanguage() == null) {
 
@@ -261,10 +263,9 @@ public class CampaignsView extends VerticalLayout {
 				new Icon(VaadinIcon.PLUS_CIRCLE));
 		createButton.setClassName("col-sm-6, col-xs-6");
 		createButton.addClickListener(e -> {
-			
-			isEditingModeActive= false;
-		
-			
+
+			isEditingModeActive = false;
+
 			CampaignForm formLayout = new CampaignForm(dto_);
 			formLayout.editMode = false;
 			newCampaign(dto_);
@@ -292,7 +293,7 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void newCampaign(CampaignDto formData) {
-		
+
 		System.out.println(formData + "formn data in configure ");
 		CampaignForm formLayout = new CampaignForm(formData);
 		formLayout.setCampaign(formData);
@@ -300,8 +301,9 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addSaveListener(this::saveCampaign);
 		formLayout.addOpenCloseListener(this::openCloseCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
-		Dialog dialog = new Dialog();
-		
+		formLayout.addDiscardListener(this::discardForm);
+
+
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
@@ -314,12 +316,12 @@ public class CampaignsView extends VerticalLayout {
 		VerticalLayout content = new VerticalLayout(header, formLayout);
 		content.setWidthFull();
 		dialog.add(content);
-		
+
 //		header.add(new Span(I18nProperties.getCaption(Captions.campaignNewCampaign)));
 //		header.add(closeIcon);
 //		VerticalLayout content = new VerticalLayout(header, formLayout);
 //		dialog.add(content);
-		
+
 //		dialog.add(formLayout);
 //		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		dialog.setSizeFull();
@@ -331,7 +333,7 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void openFormLayout(CampaignDto formData) {
-		Dialog dialog = new Dialog();
+//		Dialog dialog = new Dialog();
 		String isclosedOpen = FacadeProvider.getCampaignFacade().isClosedd(formData.getUuid()) ? " (Closed)" : "";
 		CampaignForm formLayout = new CampaignForm(formData);
 		formLayout.setCampaign(formData);
@@ -343,13 +345,15 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDeleteListener(this::deleteCampaign);
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
-		
+		formLayout.addDiscardListener(this::discardForm);
+
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
 		closeIcon.addClickListener(event -> dialog.close());
-		H3 headerText = new H3(I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen);
+		H3 headerText = new H3(
+				I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen);
 		headerText.addClassName("headingText");
 		header.add(headerText);
 		header.add(closeIcon);
@@ -375,29 +379,23 @@ public class CampaignsView extends VerticalLayout {
 	}
 
 	private void saveCampaign(CampaignForm.SaveEvent event) {
-		CampaignForm forLayout =  event.getSource();
-		if(dto_ == null) {
+		CampaignForm forLayout = event.getSource();
+		if (dto_ == null) {
 
-			
-			
-			System.out.println(event.getCampaign()+ "save new     event campaign " + forLayout);
+			System.out.println(event.getCampaign() + "save new     event campaign " + forLayout);
 
 			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
 
-
 //			FacadeProvider.getCampaignFacade().saveCampaign(dto);
-		
-		}else {
 
-			System.out.println(event.getCampaign()+ "save event campaign " + forLayout);
+		} else {
+
+			System.out.println(event.getCampaign() + "save event campaign " + forLayout);
 			FacadeProvider.getCampaignFacade().saveCampaign(event.getCampaign());
 
 		}
-		
-	
-	}
 
-	
+	}
 
 	private void roundChange(CampaignForm.RoundChangeEvent event) {
 
@@ -406,6 +404,16 @@ public class CampaignsView extends VerticalLayout {
 			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
 		}
 
+	}
+
+	private void discardForm(CampaignForm.DiscardEvent event) {
+
+//		if (event.getSource().round.getValue() == "Training") {
+//			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+//			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
+//		}
+		dialog.close();
+		UI.getCurrent().getPage().reload();
 	}
 
 	private void archiveDearchiveCampaign(CampaignForm.ArchiveEvent event) {
@@ -504,7 +512,8 @@ public class CampaignsView extends VerticalLayout {
 //		});
 
 		Grid<CampaignLogDto> grid = new Grid<>(CampaignLogDto.class, false);
-		grid.setItems(FacadeProvider.getCampaignFacade().getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));
+		grid.setItems(FacadeProvider.getCampaignFacade()
+				.getAuditLog(FacadeProvider.getCampaignFacade().getReferenceByUuid(event.getCampaign().getUuid())));
 //	        grid.setSelectionMode(Grid.SelectionMode.MULTI);
 		grid.addColumn(CampaignLogDto::getCreatingUser_string).setHeader("User").setAutoWidth(true);
 		grid.addColumn(CampaignLogDto::getAction).setHeader("Action").setAutoWidth(true);
@@ -531,7 +540,6 @@ public class CampaignsView extends VerticalLayout {
 
 	}
 
-
 	private void openCloseCampaign(CampaignForm.OpenCloseEvent event) {
 		ConfirmDialog dialog = new ConfirmDialog();
 		dialog.setCancelable(true);
@@ -547,7 +555,8 @@ public class CampaignsView extends VerticalLayout {
 		if (isOpened) {
 
 			dialog.setHeader("Open Campaign");
-			dialog.setText("Are you sure you want to Open this campaign? This will make this campaign status Open, and lost any unsaved changes");
+			dialog.setText(
+					"Are you sure you want to Open this campaign? This will make this campaign status Open, and lost any unsaved changes");
 			dialog.addConfirmListener(e -> {
 				FacadeProvider.getCampaignFacade().closeandOpenCampaign(event.getCampaign().getUuid(), false);
 				formLayout.updateOpenCloseButtonText(false);

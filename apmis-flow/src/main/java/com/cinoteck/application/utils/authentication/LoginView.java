@@ -94,19 +94,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 
 		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
-//			IdleNotification idleNotification = new IdleNotification();
-//
-//			// No. of secs before timeout, at which point the notification is displayed
-//			idleNotification.setSecondsBeforeNotification(40);
-//			idleNotification.setMessage("Your session will expire in " +  
-//			    IdleNotification.MessageFormatting.SECS_TO_TIMEOUT  
-//			    + " seconds.");
-//			idleNotification.addExtendSessionButton("Extend session");
-//			idleNotification.addRedirectButton("Logout now", "logout");
-//			idleNotification.addCloseButton();
-//			idleNotification.setExtendSessionOnOutsideClick(false);
-//
-//			 UI.getCurrent().add(idleNotification);
 
 			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
 
@@ -174,7 +161,7 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			if (pageTitle.contains("flow/")) {
 				intendedRoute = pageTitle.split("flow/")[1];
 				System.out
-						.println("___________________________/////___________________________________________________: "
+						.println("__________________________________________________: "
 								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
 			}
 //			Notification.show(String.format("Page title: '%s'", pageTitle));

@@ -44,6 +44,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 	private ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
 	private ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>();
 	private ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>();
+	private ComboBox<String> errorFilter = new ComboBox<>();
 	private Button resetButton;
 
 	List<CampaignReferenceDto> campaigns;
@@ -164,6 +165,17 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 			}
 		});
+		
+		errorFilter.setLabel("Error Status");
+		errorFilter.setPlaceholder("Error Status");
+		errorFilter.setItems("Error Report", "None Error Report");
+		errorFilter.addValueChangeListener(e -> {
+//			DistrictReferenceDto selectedDistrict = e.getValue();
+			criteria.setError_status(e.getValue());
+			refreshGridData(formAccess);
+		
+		});
+		
 		resetButton = new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e -> {
 			campaign.clear();
@@ -198,7 +210,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, resetButton, exportReport, anchor);
+		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport, anchor);
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
@@ -255,6 +267,8 @@ public class CompletionAnalysisView extends VerticalLayout  {
 				.setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
 				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getError_status)
+		.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
 		String numberOfRows = FacadeProvider.getCampaignFormDataFacade()

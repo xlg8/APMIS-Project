@@ -331,8 +331,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
 							comdto.getExternalId());
-					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
-							comdto.getExternalId());
+//					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
+//							comdto.getExternalId());
 //				
 					System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
 							+ "| >>>>>>" + comdto.getClusterNumber());
@@ -601,19 +601,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 				boolean fieldIsRequired = formElement.isImportant();
 
 				if (type == CampaignFormElementType.YES_NO) {
-					
-					 HashMap<Boolean, String> map = new HashMap<>();
-				        map.put(true, I18nProperties.getCaption(Captions.actionYes));
-				        map.put(false, I18nProperties.getCaption(Captions.actionNo));
-				        
-				        
-				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(), List.of(true, false));
-				        toggle.setId(formElement.getId());
-				        
-				        toggle.setItemLabelGenerator(item -> map.get(item));
-				        
-				        setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
-				        
+
+					HashMap<Boolean, String> map = new HashMap<>();
+					map.put(true, I18nProperties.getCaption(Captions.actionYes));
+					map.put(false, I18nProperties.getCaption(Captions.actionNo));
+
+					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(),
+							List.of(true, false));
+					toggle.setId(formElement.getId());
+
+					toggle.setItemLabelGenerator(item -> map.get(item));
+
+					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
+
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
 
@@ -654,22 +654,70 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (fieldId.equalsIgnoreCase("Villagecode")) {
 						numberField.setAllowedCharPattern("(?!.*000$).*");
-//								 new RegexpValidator("(?!.*000$).*", I18nProperties.getValidationError(
-//											errormsg == null ? caption + ": " + Validations.onlyDecimalNumbersAllowed : errormsg, caption) ));
 
 						numberField.addValueChangeListener(e -> {
-							if (e.getValue() != null && e.getValue().toString().length() > 2
-									&& e.getValue().toString().length() < 8) {
-								if (VaadinService.getCurrentRequest().getWrappedSession()
+							
+							String inputValue = e.getValue() != null ? e.getValue().toString() : "";
+
+							
+							if (e.getValue() != null && e.getValue().toString().length() == 3) {
+								String result = inputValue.substring(0, 1);
+
+					         // Checking the finl length of the trimmd val
+					            int length = result.length();
+					            if (length == 1 && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
+					                // Prefix "00" for single-digit numbers
+					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber") + "00" + result;
+//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
 
-									final String des = VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber") + e.getValue().toString().substring(0, 3);
-
-									numberField.setValue(Double.parseDouble(des));
-
-								}
+					            }
+					        
+					            numberField.setValue(Double.parseDouble(result));
+							
 							}
+							if (e.getValue() != null && e.getValue().toString().length() == 4) {
+								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
+								
+//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
+
+					            int length = result.length();
+					            if (length == 2  && VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("Clusternumber") != null) {
+					                // Prefix "00" for single-digit numbers
+					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber") + "0" + result;
+//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
+
+					            }
+
+					            numberField.setValue(Double.parseDouble(result));
+							
+							}
+							if (e.getValue() != null && e.getValue().toString().length() == 5) {
+//								System.out.println(e.getValue() + "lento ttttttttttttttttttttt" + e.getValue().toString().length() );
+								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
+								
+//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
+								
+								
+//					            String trimmedValue = inputValue.replaceFirst("^0+(?!$)", "");
+					         // Check the length of the trimmed value
+					            int length = result.length();
+					            if (length == 3  && VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("Clusternumber") != null) {
+					                // Prefix "00" for single-digit numbers
+					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber")  + result;
+//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
+
+					            }
+
+					            numberField.setValue(Double.parseDouble(result));
+							
+							}
+				
 						});
 
 					}
@@ -843,10 +891,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
-					
+
 					System.out.println(data.size() + "_____..................._____" + value);
-					
-					
 
 					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
 
@@ -856,16 +902,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
-					
+
 					System.out.println(data.get(value) + "_K____...................____V_" + value);
-					
-					
+
 					select.addValueChangeListener(ee -> {
-						
-						System.out.println("ssssssssssssssssssss: "+ ee.getValue());
+
+						System.out.println("ssssssssssssssssssss: " + ee.getValue());
 					});
-					
-					
 
 					setFieldValue(select, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
@@ -982,8 +1025,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (value instanceof String) {
 					Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
-							: value.toString().equalsIgnoreCase("NO") ? false :  value.toString().equalsIgnoreCase("true") ? true
-									: value.toString().equalsIgnoreCase("false") ? false : null;					
+							: value.toString().equalsIgnoreCase("NO") ? false
+									: value.toString().equalsIgnoreCase("true") ? true
+											: value.toString().equalsIgnoreCase("false") ? false : null;
 					((ToggleButtonGroup) field).setValue(dvalue);
 
 				}
@@ -1539,9 +1583,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			if (openData) {
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-				
-				for(CampaignFormDataEntry sdxc : getFormValues()) {
-					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
+
+				for (CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId() + "____values____ " + sdxc.getValue());
 				}
 				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByUuid(uuidForm);
@@ -1560,8 +1604,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-				for(CampaignFormDataEntry sdxc : getFormValues()) {
-					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
+				for (CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId() + "____values____ " + sdxc.getValue());
 				}
 				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
 						cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());

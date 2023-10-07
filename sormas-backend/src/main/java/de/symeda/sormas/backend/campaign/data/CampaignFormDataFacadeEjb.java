@@ -210,7 +210,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setSource(source.getSource());
 		return target;
 	}
-	 
 
 	@Override
 	public CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto campaignFormDataDto)
@@ -474,7 +473,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
-		
+		String error_statusFilter ="";
+
 		//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
 		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
 		
@@ -492,16 +492,26 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		final AreaReferenceDto area = criteria.getArea();
 		final RegionReferenceDto region = criteria.getRegion();
 		final DistrictReferenceDto district = criteria.getDistrict();
+		final String error_status = criteria.getError_status();
 		
 		
 		
 		
 		//@formatter:off
 		
+
+		
 		final String campaignFilter = campaign != null ? "campaignfo0_x.uuid = '"+campaign.getUuid()+"'" : "";
 		final String areaFilter = area != null ? "AND area3_x.uuid = '"+area.getUuid()+"'" : "";
 		final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 		final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
+		if(error_status != null) {
+			error_statusFilter = "WHERE error_status = '" +error_status + "'" ;
+			System.out.println(error_statusFilter+" =========errrrrooor status ============ "+whereclause);
+
+				}
+		
+
 		
 		whereclause = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
 		
@@ -515,11 +525,13 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		if(!filterIsNull) {
 			
-			whereclause = whereclause+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+			whereclause = whereclause;
+//			+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
 			
-		} else {
-			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
-		}
+		} 
+//		else {
+//			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
+//		}
 
 		String orderby = "";
 
@@ -527,44 +539,44 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			for (SortProperty sortProperty : sortProperties) {
 				switch (sortProperty.propertyName) {
 				case "region":
-					orderby = orderby.isEmpty() ? " order by area3_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area3_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "province":
-					orderby = orderby.isEmpty() ? " order by region4_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region4_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 					
 				case "district":
-					orderby = orderby.isEmpty() ? " order by district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district5_x.\"name\" " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
 				break;	
 				
-				case "clusterNumberr":
-					orderby = orderby.isEmpty() ? " order by commut.clusternumber " + (sortProperty.ascending ? "asc" : "desc") : orderby+", commut.clusternumber " + (sortProperty.ascending ? "asc" : "desc");
+				case "clusterNumber":
+					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "ccode":
-					orderby = orderby.isEmpty() ? " order by commut.externalid " + (sortProperty.ascending ? "asc" : "desc") : orderby+", commut.externalid " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "supervisor":
-					orderby = orderby.isEmpty() ? " order by analyticz.supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.supervisor " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "revisit":
-					orderby = orderby.isEmpty() ? " order by analyticz.revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.revisit " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "household":
-					orderby = orderby.isEmpty() ? " order by analyticz.household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.household " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "teammonitori":
-					orderby = orderby.isEmpty() ? " order by analyticz.teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.teammonitori " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
-//				case "message":
-//					orderby = orderby.isEmpty() ? " order by analyticz.household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", analyticz.household " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
+				case "errorfilter":
+					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
+				break;
 				
 				
 				
@@ -583,8 +595,18 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 		
 		
-		final String joinBuilder = "select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
-				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, analyticz.campaign_id\n"
+		
+		final String joinBuilder = "WITH cte AS (select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
+				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, \n"
+				+ "CASE\n"
+				+ "        WHEN\n"
+				+ "            analyticz.supervisor = 0 OR\n"
+				+ "            analyticz.revisit = 0 OR\n"
+				+ "            analyticz.household = 0 OR\n"
+				+ "            analyticz.teammonitori = 0\n"
+				+ "        THEN 'Error Report'\n"
+				+ "        ELSE 'None Error Report'\n"
+				+ "    END AS error_status\n"
 				+ "from completionAnalysisView_e analyticz\n"
 				+ "left outer join community commut on analyticz.community_id = commut.id\n"
 				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
@@ -592,7 +614,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
 				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
-				+ ""+whereclause+" "+addedWhere+" \n"
+				+ ""+whereclause+" "+") select * from cte"+ " "+ error_statusFilter +addedWhere+" \n"
+				
 				+ orderby
 				+ " limit "+max+" offset "+first+";";
 		
@@ -610,13 +633,19 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	System.out.println("starting....");
 		
 		resultData.addAll(resultList.stream()
-				.map((result) -> new CampaignFormDataIndexDto((String) result[0].toString(), (String) result[1].toString(),
-						(String) result[2].toString(),"", (Integer) result[3], 
+				.map((result) -> new CampaignFormDataIndexDto(
+						(String) result[0].toString(), 
+						(String) result[1].toString(),
+						(String) result[2].toString(),
+						"", 
+						(Integer) result[3], 
 						((BigInteger) result[4]).longValue(),  
 						((BigInteger) result[5]).longValue(), 
 						((BigInteger) result[6]).longValue(), 
 						((BigInteger) result[7]).longValue(),
-						((BigInteger) result[8]).longValue()
+						((BigInteger) result[8]).longValue(),
+					
+						(String) result[9].toString()
 				)).collect(Collectors.toList()));
 		
 	//	//System.out.println("ending...." +resultData.size());
@@ -1614,87 +1643,71 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuids, String formuuids) {
 		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\", jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district, c.\"name\" as community, c.clusternumber as clusternumber\n"
-				+ "from campaignformdata_jsonextract jd\n"
-				+ "inner join campaignformdata cd on jd.id = cd.id\n"
+				+ "from campaignformdata_jsonextract jd\n" + "inner join campaignformdata cd on jd.id = cd.id\n"
 				+ "left outer join campaignformmeta c2 on cd.campaignformmeta_id = c2.id\n"
 				+ "left outer join campaigns c3 on cd.campaign_id = c3.id\n"
-				+ "left outer join region r on cd.region_id = r.id\n"
-				+ "left outer join areas a on r.area_id = a.id\n"
+				+ "left outer join region r on cd.region_id = r.id\n" + "left outer join areas a on r.area_id = a.id\n"
 				+ "left outer join district d on cd.district_id = d.id\n"
 				+ "left outer join community c on cd.community_id = c.id\n"
 				+ "where jd.\"value\" is not null limit 10000;";
-		
+
 		Query seriesDataQuery = em.createNativeQuery(queryString);
 
 		List<CampaignDataExtractDto> resultData = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList();
-		
-		//Long campaignyear, String campaign, String formname, String key, String value,
-		//String area, String region, String district, String cummunity, Long clusternumber
-		
+
+		// Long campaignyear, String campaign, String formname, String key, String
+		// value,
+		// String area, String region, String district, String cummunity, Long
+		// clusternumber
+
 		resultData.addAll(resultList.stream()
-				.map((result) -> new CampaignDataExtractDto(
-						(String) result[0],
-						(String) result[1],
-						(String) result[2], 
-						(String) result[3],
-						(String) result[4],
-						(String) result[5],
-						(String) result[6],
-						(String) result[7],
-						(String) result[8],
-						((Integer) result[9]).longValue()
-						)).collect(Collectors.toList()));
-		
+				.map((result) -> new CampaignDataExtractDto((String) result[0], (String) result[1], (String) result[2],
+						(String) result[3], (String) result[4], (String) result[5], (String) result[6],
+						(String) result[7], (String) result[8], ((Integer) result[9]).longValue()))
+				.collect(Collectors.toList()));
 
 		return resultData;
 	}
-	
+
 	@Override
 	public List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi() {
 		String queryString = "select c3.campaignyear, c3.\"name\" as campagin, c2.formname, jd.\"key\" as field, jd.value, a.\"name\" as area, r.\"name\" as region, d.\"name\" as district \n"
 //				+ ", c.\"name\" as community, c.clusternumber as clusternumber\n"
-				+ "from campaignformdata_jsonextract jd\n"
-				+ "inner join campaignformdata cd on jd.id = cd.id\n"
+				+ "from campaignformdata_jsonextract jd\n" + "inner join campaignformdata cd on jd.id = cd.id\n"
 				+ "left outer join campaignformmeta c2 on cd.campaignformmeta_id = c2.id\n"
 				+ "left outer join campaigns c3 on cd.campaign_id = c3.id\n"
-				+ "left outer join region r on cd.region_id = r.id\n"
-				+ "left outer join areas a on r.area_id = a.id\n"
+				+ "left outer join region r on cd.region_id = r.id\n" + "left outer join areas a on r.area_id = a.id\n"
 				+ "left outer join district d on cd.district_id = d.id\n"
 //				+ "left outer join community c on cd.community_id = c.id\n"
 				+ "where jd.\"value\" is not null limit 20000;";
-		
+
 		Query seriesDataQuery = em.createNativeQuery(queryString);
 
 		List<CampaignDataExtractDto> resultData = new ArrayList<>();
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList();
-		
-		//Long campaignyear, String campaign, String formname, String key, String value,
-		//String area, String region, String district, String cummunity, Long clusternumber
-		
+
+		// Long campaignyear, String campaign, String formname, String key, String
+		// value,
+		// String area, String region, String district, String cummunity, Long
+		// clusternumber
+
 		resultData.addAll(resultList.stream()
-				.map((result) -> new CampaignDataExtractDto(
-						(String) result[0],
-						(String) result[1],
-						(String) result[2], 
-						(String) result[3],
-						(String) result[4],
-						(String) result[5],
-						(String) result[6],
+				.map((result) -> new CampaignDataExtractDto((String) result[0], (String) result[1], (String) result[2],
+						(String) result[3], (String) result[4], (String) result[5], (String) result[6],
 						(String) result[7]
 //								,
 //						(String) result[8],
 //						((Integer) result[9]).longValue()
-						)).collect(Collectors.toList()));
-		
+				)).collect(Collectors.toList()));
 
 		return resultData;
 	}
-	
+
 	@Override
 	public List<CampaignFormDataDto> getCampaignFormData(String campaignformuuid, String formuuid) {
 //		// get the campaign

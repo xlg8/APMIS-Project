@@ -36,7 +36,8 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String COMMUNITY = "community";
 	public static final String FORM_DATE = "formDate";
 	public static final String FORM_TYPE = "formType";
-	public static final String FORM_PHASE = "formPhase"; //for filter
+	public static final String FORM_PHASE = "formPhase"; 
+	public static final String ERROR_STATUS = "error_status";//for filter
 	
 
 	private static final long serialVersionUID = 8124072093160133408L;
@@ -49,7 +50,8 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private CommunityReferenceDto community;
 	private Date formDate;
 	private String formType;
-	private CampaignFormMetaReferenceDto formPhase; // for filter
+	private CampaignFormMetaReferenceDto formPhase; 
+	private String error_status;// for filter
 
 	
 
@@ -167,6 +169,16 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 		this.formPhase = formPhase;
 		return this;
 	}
+
+	public String getError_status() {
+		return error_status;
+	}
+
+	public void setError_status(String error_status) {
+		this.error_status = error_status;
+	}
+	
+	
 	
 	
 }

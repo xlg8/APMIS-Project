@@ -46,6 +46,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String ANALYSIS_FIELD_B = "analysis_b";
 	public static final String ANALYSIS_FIELD_C = "analysis_c";
 	public static final String ANALYSIS_FIELD_D = "analysis_d";
+	public static final String CAMPAIGN_ID = "campaign_id";
+	public static final String ERROR_REPORT = "error_status";
 	
 	public static final String ANALYSIS_FIELD_A_ = "analysis_a_";
 	public static final String ANALYSIS_FIELD_B_ = "analysis_b_";
@@ -78,6 +80,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Long analysis_b;
 	private Long analysis_c;
 	private Long analysis_d;
+	private Long campaign_id;
+	private String error_status;
 	
 	private Integer analysis_a_;
 	private Integer analysis_b_;
@@ -136,6 +140,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 			Long analysis_b,
 			Long analysis_c,
 			Long analysis_d
+			
 			) {
 			this.area = area;
 			this.region = region;
@@ -148,6 +153,37 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 			this.analysis_b = analysis_b;
 			this.analysis_c = analysis_c;
 			this.analysis_d = analysis_d;
+			
+		}
+	
+	public CampaignFormDataIndexDto(
+			String area,
+			String region,
+			String district,
+			String community,
+			Integer clusternumer,
+			//Long clusternumber_,
+			Long ccode,
+			Long analysis_a,
+			Long analysis_b,
+			Long analysis_c,
+			Long analysis_d,
+//			Long campaign_id,
+			 String error_status
+			) {
+			this.area = area;
+			this.region = region;
+			this.district = district;
+			this.community = community;
+			this.clusternumber = clusternumer;
+			//this.clusternumber_ = clusternumber_;
+			this.ccode = ccode;
+			this.analysis_a = analysis_a;
+			this.analysis_b = analysis_b;
+			this.analysis_c = analysis_c;
+			this.analysis_d = analysis_d;
+//			this.campaign_id = campaign_id;
+			this.error_status = error_status;
 		}
 	
 	public CampaignFormDataIndexDto(
@@ -411,6 +447,16 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setAnalysis_d_(Integer analysis_d_) {
 		this.analysis_d_ = analysis_d_;
 	}
+
+	public String getError_status() {
+		return error_status;
+	}
+
+	public void setError_status(String error_status) {
+		this.error_status = error_status;
+	}
+	
+	
 
 	
 }

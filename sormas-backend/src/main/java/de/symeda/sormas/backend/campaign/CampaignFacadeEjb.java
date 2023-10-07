@@ -774,12 +774,12 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		if (publishedandunpublishbutton) {
 			
 			log.setCampaign(getByUuid(campaignUuid));
-			log.setAction("Publish Campaign: " + log.getCampaign().getName());
+			log.setAction("Unpublish Campaign: " + log.getCampaign().getName());
 
 		} else {
 			
 			log.setCampaign(getByUuid(campaignUuid));
-			log.setAction("Unpublishing Campaign: " + log.getCampaign().getName());
+			log.setAction("Publishing Campaign: " + log.getCampaign().getName());
 			
 		}
 
