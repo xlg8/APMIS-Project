@@ -109,7 +109,7 @@
     "@vaadin/vertical-layout": "23.3.7",
     "@vaadin/virtual-list": "23.3.7",
     "construct-style-sheets-polyfill": "3.1.0",
-    "date-fns": "2.29.3",
+    "date-fns": "2.16.0",
     "highcharts": "^9.2.2",
     "line-awesome": "1.3.0",
     "lit": "2.6.1",
@@ -255,7 +255,7 @@
       "@vaadin/virtual-list": "23.3.7",
       "@webcomponents/webcomponentsjs": "^2.2.10",
       "construct-style-sheets-polyfill": "3.1.0",
-      "date-fns": "2.29.3",
+      "date-fns": "2.16.0",
       "line-awesome": "1.3.0",
       "lit": "2.6.1",
       "lumo-css-framework": "^4.0.10"
@@ -284,7 +284,7 @@
       "workbox-precaching": "6.5.4",
       "workbox-webpack-plugin": "6.5.0"
     },
-    "hash": "97c6dfbd08e98902a2f4189416d20640e5a82ffc55a4a9941d4aea339297733f"
+    "hash": "0f5771dc690a46f8e0ebf87d5c433033bea792333c9ccc04df6b23083779d5c1"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",

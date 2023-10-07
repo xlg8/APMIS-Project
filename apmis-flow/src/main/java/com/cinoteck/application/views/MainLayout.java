@@ -431,8 +431,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// page
 
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
-			if (pageTitle.contains("flow/")) {
-				intendedRoute = pageTitle.split("flow/")[1];
+			if (pageTitle.contains("main/")) {
+				intendedRoute = pageTitle.split("main/")[1];
 //				System.out.println(
 //						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
 //								+ String.format("Page title: '%s'", pageTitle.split("main/")[1]));

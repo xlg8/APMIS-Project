@@ -142,10 +142,10 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		// Store the intended route in the UI instance before navigating to the login
 		// page
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
-			if (pageTitle.contains("flow/")) {
+			if (pageTitle.contains("main/")) {
 				
-				if(pageTitle.split("flow/").length > 0)
-				intendedRoute = pageTitle.split("flow/")[1];
+				if(pageTitle.split("main/").length > 0)
+				intendedRoute = pageTitle.split("main/")[1];
 			}
 		});
 
