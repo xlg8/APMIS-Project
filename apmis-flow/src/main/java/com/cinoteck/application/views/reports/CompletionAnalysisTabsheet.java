@@ -23,12 +23,13 @@ public class CompletionAnalysisTabsheet extends VerticalLayout implements Router
 
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
 	CompletionAnalysisView completionAnalysisView = new CompletionAnalysisView();
-	   List<Tab> tabList = new ArrayList<>(tabComponentMap.keySet());
+	List<Tab> tabList = new ArrayList<>(tabComponentMap.keySet());
 
 	private Tabs createTabs() {
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)),
 				new CompletionAnalysisView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.adminDataCompleteness)), new AdminCompletionAnalysisView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.syncErrors)), new FlwErrorAnalysisView());
 //		tabComponentMap.put(new Tab("Admin Data Completion"), new AdminCompletionAnalysisView());
 		tabList = new ArrayList<>(tabComponentMap.keySet());
 		    Tabs tabs = new Tabs(tabList.toArray(new Tab[] {}));
@@ -52,7 +53,7 @@ public class CompletionAnalysisTabsheet extends VerticalLayout implements Router
 		tabs.addSelectedChangeListener(e -> {
 			contentContainer.removeAll();
 			contentContainer.add(tabComponentMap.get(e.getSelectedTab()));
-			
+
 		});
 		// Set initial content
 //		tabs.getSelectedTab().getStyle().set("color", "red");
