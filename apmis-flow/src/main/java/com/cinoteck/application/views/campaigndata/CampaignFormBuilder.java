@@ -638,15 +638,97 @@ public class CampaignFormBuilder extends VerticalLayout {
 //											errormsg == null ? caption + ": " + Validations.onlyDecimalNumbersAllowed : errormsg, caption) ));
 
 						numberField.addValueChangeListener(e -> {
-							if (e.getValue() != null && e.getValue().toString().length() > 2
-									&& e.getValue().toString().length() < 8) {
-								if (VaadinService.getCurrentRequest().getWrappedSession()
+							
+							String inputValue = e.getValue() != null ? e.getValue().toString() : "";
+
+							
+							if (e.getValue() != null && e.getValue().toString().length() == 3) {
+								String result = inputValue.substring(0, 1);
+								System.out.println(result + " resultrrrr lento " + e.getValue().toString().length() + "ttt11111111111" +inputValue+ " tttttttttttttttttt" + result.length() );
+
+					         // Checking the finl length of the trimmd val
+					            int length = result.length();
+					            if (length == 1 && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
+					            	
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "000" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "00" + result;
+					            	}
+					            	
+					                // Prefix "00" for single-digit numbers
+					            	
+									System.out.println(result + " resultrrrr lento ttt222222222222tttttttttttttttttt" + result.length() );
 
-									final String des = VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber") + e.getValue().toString().substring(0, 3);
+					            }
+					        
+					            numberField.setValue(Double.parseDouble(result));
+							
+							}
+							if (e.getValue() != null && e.getValue().toString().length() == 4) {
+								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
+								
+//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
 
-									numberField.setValue(Double.parseDouble(des));
+					            int length = result.length();
+					            if (length == 2  && VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("Clusternumber") != null) {
+					                // Prefix "0" for single-digit numbers
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "00" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "0" + result;
+					            	}
+//					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+//											.getAttribute("Clusternumber") + "0" + result;
+//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
+
+					            }
+
+					            numberField.setValue(Double.parseDouble(result));
+							
+							}
+							if (e.getValue() != null && e.getValue().toString().length() == 5) {
+//								System.out.println(e.getValue() + "lento ttttttttttttttttttttt" + e.getValue().toString().length() );
+								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
+								
+//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
+								
+								
+//					            String trimmedValue = inputValue.replaceFirst("^0+(?!$)", "");
+					         // Check the length of the trimmed value
+					            int length = result.length();
+					            if (length == 3  && VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("Clusternumber") != null) {
+					                // Prefix "00" for single-digit numbers
+					            	
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "0" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + result;
+					            	}
+
+
+									numberField.setValue(Double.parseDouble(result));
 
 								}
 							}
@@ -1502,7 +1584,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 //
 //	}
 	public void hasErrorFormValues(int numer) {
-		Notification.show("Error found in: " + numer);
+//		Notification.show("Error found in: " + numer);
 		invalidForm = true;
 
 	}
