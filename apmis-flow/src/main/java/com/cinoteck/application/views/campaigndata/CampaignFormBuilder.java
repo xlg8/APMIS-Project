@@ -14,7 +14,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -33,11 +32,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.vaadin.addons.taefi.component.ToggleButtonGroup;
 
 import com.cinoteck.application.UserProvider;
-import com.cinoteck.application.views.campaign.CampaignForm;
-import com.cinoteck.application.views.campaign.CampaignForm.CampaignFormEvent;
-import com.cinoteck.application.views.campaign.CampaignForm.DeleteEvent;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 
 //import org.hibernate.internal.build.AllowSysOut;
@@ -45,8 +39,6 @@ import com.google.common.collect.Sets;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -70,16 +62,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.shared.Registration;
-
-import antlr.debug.Event;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
-import de.symeda.sormas.api.campaign.data.PlatformEnum;
 import de.symeda.sormas.api.campaign.data.translation.TranslationElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementStyle;
@@ -175,9 +163,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		this.userLocale = I18nProperties.getUserLanguage().getLocale();
 		if (userLocale != null) {
+			if(translations != null) {
 			translations.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString())).findFirst().ifPresent(
 					filteredTranslations -> userTranslations = filteredTranslations.getTranslations().stream().collect(
 							Collectors.toMap(TranslationElement::getElementId, TranslationElement::getCaption)));
+		}
 		}
 
 		FormLayout vertical_ = new FormLayout();
@@ -572,7 +562,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					temp = temp - 1;
 					layout.setClassName("daywise_background_" + temp); // .addStyleName(dependingOnId); sormas
 																		// background: green
-					accrd.add(formElement.getCaption(), layout);
+					accrd.add(get18nCaption(formElement.getId(), formElement.getCaption()), layout);
 
 					vertical = new FormLayout();
 					vertical.setSizeFull();
@@ -588,7 +578,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			} else if (type == CampaignFormElementType.LABEL) {
 
 				Label labx = new Label();
-				labx.getElement().setProperty("innerHTML", formElement.getCaption());
+				labx.getElement().setProperty("innerHTML", get18nCaption(formElement.getId(), get18nCaption(formElement.getId(), formElement.getCaption())));
 				labx.setId(formElement.getId());
 				vertical.setColspan(labx, 3);
 				vertical.add(labx);
@@ -601,19 +591,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 				boolean fieldIsRequired = formElement.isImportant();
 
 				if (type == CampaignFormElementType.YES_NO) {
-
-					HashMap<Boolean, String> map = new HashMap<>();
-					map.put(true, I18nProperties.getCaption(Captions.actionYes));
-					map.put(false, I18nProperties.getCaption(Captions.actionNo));
-
-					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(formElement.getCaption(),
-							List.of(true, false));
-					toggle.setId(formElement.getId());
-
-					toggle.setItemLabelGenerator(item -> map.get(item));
-
-					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
-
+					
+					 HashMap<Boolean, String> map = new HashMap<>();
+				        map.put(true, I18nProperties.getCaption(Captions.actionYes));
+				        map.put(false, I18nProperties.getCaption(Captions.actionNo));
+				        
+				        
+				        ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
+				        toggle.setId(formElement.getId());
+				        
+				        toggle.setItemLabelGenerator(item -> map.get(item));
+				        toggle.setRequiredIndicatorVisible(formElement.isImportant());
+				        setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
+				        
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
 
@@ -624,7 +614,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.TEXT) {
 					TextField textField = new TextField();
-					textField.setLabel(formElement.getCaption());
+					textField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					// textField.setValue("Ruukinkatu 2");
 					textField.setClearButtonVisible(true);
 					textField.setPrefixComponent(VaadinIcon.PENCIL.create());
@@ -642,7 +632,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.NUMBER) {
 					NumberField numberField = new NumberField();
-					numberField.setLabel(formElement.getCaption());
+					numberField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					numberField.setId(formElement.getId());
 					numberField.setSizeFull();
 					numberField.setRequiredIndicatorVisible(formElement.isImportant());
@@ -654,8 +644,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (fieldId.equalsIgnoreCase("Villagecode")) {
 						numberField.setAllowedCharPattern("(?!.*000$).*");
+//								 new RegexpValidator("(?!.*000$).*", I18nProperties.getValidationError(
+//											errormsg == null ? caption + ": " + Validations.onlyDecimalNumbersAllowed : errormsg, caption) ));
 
 						numberField.addValueChangeListener(e -> {
+// <<<<<<< team_collaboration_branch
 							
 							String inputValue = e.getValue() != null ? e.getValue().toString() : "";
 
@@ -747,13 +740,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 //					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
 //											.getAttribute("Clusternumber")  + result;
 //									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
+// =======
+// 							if (e.getValue() != null && e.getValue().toString().length() > 2
+// 									&& e.getValue().toString().length() < 8) {
+// 								if (VaadinService.getCurrentRequest().getWrappedSession()
+// 										.getAttribute("Clusternumber") != null) {
 
-					            }
+// 									final String des = VaadinService.getCurrentRequest().getWrappedSession()
+// 											.getAttribute("Clusternumber") + e.getValue().toString().substring(0, 3);
+// >>>>>>> development
 
-					            numberField.setValue(Double.parseDouble(result));
-							
+									numberField.setValue(Double.parseDouble(result));
+
+								}
 							}
-				
 						});
 
 					}
@@ -781,7 +781,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.RANGE) {
 					IntegerField integerField = new IntegerField();
-					integerField.setLabel(formElement.getCaption());
+					integerField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 //					integerField.setHelperText("Max 10 items");
 					integerField.setId(formElement.getId());
 					integerField.setStepButtonsVisible(true);
@@ -851,7 +851,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.DECIMAL) {
 					BigDecimalField bigDecimalField = new BigDecimalField();
-					bigDecimalField.setLabel(formElement.getCaption());
+					bigDecimalField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					bigDecimalField.setWidth("240px");
 					bigDecimalField.setValue(new BigDecimal("948205817.472950487"));
 					bigDecimalField.setId(formElement.getId());
@@ -870,7 +870,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.TEXTBOX) {
 					TextArea textArea = new TextArea();
 					textArea.setWidthFull();
-					textArea.setLabel(formElement.getCaption());
+					textArea.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					textArea.setId(formElement.getId());
 					textArea.setSizeFull();
 					textArea.setRequiredIndicatorVisible(formElement.isImportant());
@@ -885,7 +885,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.RADIO) {
 					RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
-					radioGroup.setLabel(formElement.getCaption());
+					radioGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
 					radioGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
@@ -906,7 +906,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.RADIOBASIC) {
 					RadioButtonGroup<String> radioGroupVert = new RadioButtonGroup<>();
 					radioGroupVert.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-					radioGroupVert.setLabel(formElement.getCaption());
+					radioGroupVert.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -927,10 +927,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
-
+					
 					System.out.println(data.size() + "_____..................._____" + value);
+					
+					
 
-					ComboBox<String> select = new ComboBox<>(formElement.getCaption());
+					ComboBox<String> select = new ComboBox<>(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
 
@@ -938,13 +940,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
-
+					
 					System.out.println(data.get(value) + "_K____...................____V_" + value);
-
+					
+					
 					select.addValueChangeListener(ee -> {
-
-						System.out.println("ssssssssssssssssssss: " + ee.getValue());
+						
+						System.out.println("ssssssssssssssssssss: "+ ee.getValue());
 					});
+					
+					
 
 					setFieldValue(select, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
@@ -958,7 +963,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.CHECKBOX) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
-					checkboxGroup.setLabel(formElement.getCaption());
+					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -980,7 +985,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				} else if (type == CampaignFormElementType.CHECKBOXBASIC) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
-					checkboxGroup.setLabel(formElement.getCaption());
+					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -1005,7 +1010,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
 					singleFormatI18n.setDateFormat("dd-MM-yyyy");
 
-					DatePicker datePicker = new DatePicker(formElement.getCaption());
+					DatePicker datePicker = new DatePicker(get18nCaption(formElement.getId(), formElement.getCaption()));
 					datePicker.setI18n(singleFormatI18n);
 					datePicker.setSizeFull();
 					datePicker.setPlaceholder("DD-MM-YYYY");
@@ -1061,9 +1066,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (value instanceof String) {
 					Boolean dvalue = value.toString().equalsIgnoreCase("YES") ? true
-							: value.toString().equalsIgnoreCase("NO") ? false
-									: value.toString().equalsIgnoreCase("true") ? true
-											: value.toString().equalsIgnoreCase("false") ? false : null;
+							: value.toString().equalsIgnoreCase("NO") ? false :  value.toString().equalsIgnoreCase("true") ? true
+									: value.toString().equalsIgnoreCase("false") ? false : null;					
 					((ToggleButtonGroup) field).setValue(dvalue);
 
 				}
@@ -1619,9 +1623,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			if (openData) {
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-
-				for (CampaignFormDataEntry sdxc : getFormValues()) {
-					System.out.println(sdxc.getId() + "____values____ " + sdxc.getValue());
+				
+				for(CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
 				}
 				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByUuid(uuidForm);
@@ -1640,8 +1644,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
-				for (CampaignFormDataEntry sdxc : getFormValues()) {
-					System.out.println(sdxc.getId() + "____values____ " + sdxc.getValue());
+				for(CampaignFormDataEntry sdxc : getFormValues()) {
+					System.out.println(sdxc.getId()+"____values____ "+sdxc.getValue());
 				}
 				CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
 						cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
