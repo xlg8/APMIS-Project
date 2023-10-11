@@ -68,6 +68,8 @@ public class DataUtils {
 	}
 
 	public static List<Item> getBooleanItems() {
+
+
 		List<Item> list = new ArrayList<>();
 		list.add(new Item<>(DatabaseHelper.getString(R.string.yes), Boolean.TRUE));
 		list.add(new Item<>(DatabaseHelper.getString(R.string.no), Boolean.FALSE));

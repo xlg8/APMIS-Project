@@ -9070,5 +9070,23 @@ ALTER TABLE public.region ADD hasc varchar NULL;
 
 INSERT INTO schema_version (version_number, comment) VALUES (448, 'upgrading api');
 
+
+
+CREATE VIEW flwduplicateerrorreport as
+SELECT 
+    campaignformdata.id as id,
+    jsondata.value ->> 'value' AS value
+FROM campaignformdata
+LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id,
+LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),
+LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)
+WHERE 
+    (jsondata.value ->> 'id'::text) IN ('TazkiraNo') AND
+    (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) 
+    and campaignformmeta.id = 2170 and campaignformmeta.formcategory = 'FLW';
+    
+    
+INSERT INTO schema_version (version_number, comment) VALUES (449, 'adding FLW report'); 
+    
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

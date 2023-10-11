@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -43,6 +44,7 @@ import androidx.databinding.InverseBindingListener;
 import de.symeda.sormas.api.symptoms.SymptomState;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.YesNoUnknown;
+import de.symeda.sormas.api.utils.fieldvisibility.FieldVisibilityCheckers;
 import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.component.Item;
@@ -108,13 +110,43 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 		button.setClickable(input.isEnabled());
 	}
 
+	public <E extends Enum<?>> List<Item> getEnumItems(Class<E> clazz, boolean withNull, boolean checkers) {
+		E[] enumConstants = clazz.getEnumConstants();
+		if (!clazz.isEnum()) {
+			throw new IllegalArgumentException(clazz.toString() + " is not an enum");
+		}
+		List<Item> list = new ArrayList<>();
+
+		if (withNull) {
+			list.add(new Item<E>("", null));
+		}
+		Resources resources = this.getContext().getResources();
+
+		String yes = resources.getString(R.string.yes);
+		String no = resources.getString(R.string.no);
+
+
+		for (E enumConstant : enumConstants) {
+			if(enumConstant.toString().equalsIgnoreCase("yes")){
+				list.add(new Item<>(yes, enumConstant));
+			}
+
+			if(enumConstant.toString().equalsIgnoreCase("no")){
+				list.add(new Item<>(no, enumConstant));
+			}
+
+		}
+		return list;
+	}
+
 	public void setEnumClass(Class<? extends Enum> c) {
 		if (!DataHelper.equal(c, enumClass)) {
 			suppressListeners = true;
 			removeAllItems();
 
-			List<Item> items = DataUtils.getEnumItems(c, false);
+//			List<Item> items = DataUtils.getEnumItems(c, false);
 
+			List<Item> items = getEnumItems(c, false, false);
 			int itemTotal = items.size();
 			for (int i = 0; i < items.size(); i++) {
 				addItem(i, itemTotal - 1, items.get(i));
@@ -126,10 +158,25 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 	}
 
 	public void setBooleanContent() {
+
+		System.out.println("trackereeeeeee");
+
+
 		suppressListeners = true;
 		removeAllItems();
 
-		List<Item> items = DataUtils.getBooleanItems();
+
+		Resources resources = this.getContext().getResources();
+
+		String yes = resources.getString(R.string.yes);
+		String no = resources.getString(R.string.no);
+
+		List<Item> itemsx = new ArrayList<>();
+		itemsx.add(new Item<>(yes, Boolean.TRUE)); //DatabaseHelper.getString(R.string.yes)
+		itemsx.add(new Item<>(no, Boolean.FALSE));//DatabaseHelper.getString(R.string.no)
+
+
+		List<Item> items = itemsx;//DataUtils.getBooleanItems();
 
 		int itemTotal = items.size();
 		for (int i = 0; i < items.size(); i++) {
@@ -138,6 +185,32 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 
 		suppressListeners = false;
 	}
+
+
+//	public void setEnumClassLocal(Class<? extends Enum> c) {
+//
+//
+//		suppressListeners = true;
+//		removeAllItems();
+//
+//		Resources resources = this.getContext().getResources();
+//
+//		String yes = resources.getString(R.string.yes);
+//		String no = resources.getString(R.string.no);
+//
+//		List<Item> items = new ArrayList<>();
+//		items.add(new Item<>(yes, Boolean.TRUE)); //DatabaseHelper.getString(R.string.yes)
+//		items.add(new Item<>(no, Boolean.FALSE));//DatabaseHelper.getString(R.string.no)
+//
+//		int itemTotal = items.size();
+//		for (int i = 0; i < items.size(); i++) {
+//			addItem(i, itemTotal - 1, items.get(i));
+//		}
+//
+//		suppressListeners = false;
+//
+//	}
+
 
 	private void addItem(int index, int lastIndex, Item item) {
 		final RadioButton button = createRadioButton(index, lastIndex, item);
