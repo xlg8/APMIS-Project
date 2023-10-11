@@ -331,8 +331,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
 							comdto.getExternalId());
-//					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
-//							comdto.getExternalId());
+					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber",
+							comdto.getExternalId());
 //				
 					System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
 							+ "| >>>>>>" + comdto.getClusterNumber());
@@ -662,15 +662,28 @@ public class CampaignFormBuilder extends VerticalLayout {
 							
 							if (e.getValue() != null && e.getValue().toString().length() == 3) {
 								String result = inputValue.substring(0, 1);
+								System.out.println(result + " resultrrrr lento " + e.getValue().toString().length() + "ttt11111111111" +inputValue+ " tttttttttttttttttt" + result.length() );
 
 					         // Checking the finl length of the trimmd val
 					            int length = result.length();
 					            if (length == 1 && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
+					            	
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "000" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "00" + result;
+					            	}
+					            	
 					                // Prefix "00" for single-digit numbers
-					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber") + "00" + result;
-//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
+					            	
+									System.out.println(result + " resultrrrr lento ttt222222222222tttttttttttttttttt" + result.length() );
 
 					            }
 					        
@@ -685,9 +698,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 					            int length = result.length();
 					            if (length == 2  && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
-					                // Prefix "00" for single-digit numbers
-					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber") + "0" + result;
+					                // Prefix "0" for single-digit numbers
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "00" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "0" + result;
+					            	}
+//					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+//											.getAttribute("Clusternumber") + "0" + result;
 //									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
 
 					            }
@@ -708,8 +732,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 					            if (length == 3  && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
 					                // Prefix "00" for single-digit numbers
-					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber")  + result;
+					            	
+					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+					            	
+					            	int ccodeCheckLength = cCodeLengthCheck.length();
+					            	if(ccodeCheckLength == 6) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "0" + result;
+					            	}else if(ccodeCheckLength == 7) {
+					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + result;
+					            	}
+//					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
+//											.getAttribute("Clusternumber")  + result;
 //									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
 
 					            }
@@ -1572,7 +1608,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 //
 //	}
 	public void hasErrorFormValues(int numer) {
-		Notification.show("Error found in: " + numer);
+//		Notification.show("Error found in: " + numer);
 		invalidForm = true;
 
 	}

@@ -430,7 +430,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
 		System.out.println(" ==============getByCompletionAnalysisCountgetByCompletionAnalysisCount======= ");
-
+		String error_statusFilter ="";
 		boolean filterIsNull = criteria.getCampaign() == null;
 
 		String joiner = "";
@@ -440,6 +440,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final AreaReferenceDto area = criteria.getArea();
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
+			final String error_status = criteria.getError_status();
+
 
 			//@formatter:off
 			
@@ -448,24 +450,52 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final String areaFilter = area != null ? " AND  area3_x.uuid = '"+area.getUuid()+"'" : "";
 			final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 			final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
+			
+			if(error_status != null) {
+				error_statusFilter = "WHERE error_status = '" +error_status + "'" ;
+				System.out.println(error_statusFilter+" =========errrrrooor status ============ ");
+
+					}
+			
 			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
 			
-			System.out.println(campaignFilter+" ===================== "+joiner);
+//			System.out.println(campaignFilter+" ===================== "+joiner);
 		} 
 		
 		
 		
 		
-		final String joinBuilder = "select count(*)\n"
+//		final String joinBuilder = "select count(*)\n"
+//				+ "from completionAnalysisView_e analyticz\n"
+//				+ "left outer join community commut on analyticz.community_id = commut.id\n"
+//				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
+//				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
+//				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
+//				+ "left outer join ( SELECT id, uuid  FROM campaigns) campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+//				
+//				+ ""+joiner+"\n";
+		
+		final String joinBuilder = "WITH cte AS (select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
+				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, \n"
+				+ "CASE\n"
+				+ "        WHEN\n"
+				+ "            analyticz.supervisor = 0 OR\n"
+				+ "            analyticz.revisit = 0 OR\n"
+				+ "            analyticz.household = 0 OR\n"
+				+ "            analyticz.teammonitori = 0\n"
+				+ "        THEN 'Error Report'\n"
+				+ "        ELSE 'None Error Report'\n"
+				+ "    END AS error_status\n"
 				+ "from completionAnalysisView_e analyticz\n"
 				+ "left outer join community commut on analyticz.community_id = commut.id\n"
 				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
 				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
-				+ "left outer join ( SELECT id, uuid  FROM campaigns) campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
-				+ ""+joiner+"\n";
+				+ ""+joiner+" "+") select count(*) from cte"+ " "+ error_statusFilter +";";
 		
+//		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== "+joiner);
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
