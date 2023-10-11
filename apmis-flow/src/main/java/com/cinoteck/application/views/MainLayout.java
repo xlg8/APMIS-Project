@@ -153,7 +153,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.addRedirectButton("Logout now", "logout");
 		idleNotification.addCloseButton();
 		idleNotification.setExtendSessionOnOutsideClick(true);
-		idleNotification.setRedirectAtTimeoutUrl("logout");
+		idleNotification.setRedirectAtTimeoutUrl("./");
 
 		UI.getCurrent().add(idleNotification);
 
@@ -167,7 +167,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			imgApmis = new Image("images/APMIS_Neoc_Banner.jpg", "APMIS-LOGO");
 		} else {
-			imgApmis = new Image("images/APMIS_Horizontal_Logo 1.jpg", "APMIS-LOGO");
+			imgApmis = new Image("images/APMIS_Horizontal_Logo_1.jpg", "APMIS-LOGO");
 
 		}
 		imgApmis.setMaxWidth("100%");
@@ -184,14 +184,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		addToDrawer(header, scroller, versionadd);
 
-//		LanguageSwitcher languageSwitcher = new LanguageSwitcher(Locale.ENGLISH,
-//                new Locale("fa","IR", "فارسی"));
-//		
-//		languageSwitcher.setClassName("vieLangiuageSwitcher");
 
 		addToDrawer(createFooter());
 
-		// addToDrawer(header, scroller, createFooter());
 	}
 
 	private AppNav createNavigation() {
@@ -378,15 +373,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		dialog.add(dialogHolderLayout);
 
 		logoutButton.addClickListener(event -> {
-			if (I18nProperties.getUserLanguage() == null) {
-
-				I18nProperties.setUserLanguage(Language.EN);
-			} else {
-
-				I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
-				I18nProperties.getUserLanguage();
-			}
-			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
+			
 			dialog.add(dialogHolderLayout);
 
 			dialog.setCloseOnEsc(false);
@@ -402,6 +389,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	@Override
 	protected void afterNavigation() {
 		super.afterNavigation();
+		rtlswitcher();
 		viewTitle.setText(getCurrentPageTitle());
 	}
 
@@ -438,6 +426,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		
 		// Store the intended route in the UI instance before navigating to the login
 		// page
 

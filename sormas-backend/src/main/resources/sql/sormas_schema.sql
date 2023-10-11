@@ -9062,6 +9062,12 @@ FROM (
 ) AS j
 with data; 
 
+
+ALTER TABLE public.district ADD hasc varchar NULL;
+
+ALTER TABLE public.region ADD hasc varchar NULL;
+
+
 INSERT INTO schema_version (version_number, comment) VALUES (448, 'upgrading api');
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***

@@ -11,9 +11,12 @@ import java.util.Objects;
 
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.i18n.Validations;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CampaignFormElement implements Serializable {
 
 	public static final String ID = "id";

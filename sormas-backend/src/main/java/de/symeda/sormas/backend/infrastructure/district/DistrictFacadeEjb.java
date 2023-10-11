@@ -31,6 +31,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -627,4 +628,19 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	
 		return resultData;
 	}
+	
+	@Override
+	public String getMapDiagramDistrictHascByUuid(String districtUuid) {
+		System.out.println(districtUuid + "UUID----");
+		try {
+			String selectBuilder = "select d.hasc from district d where d.uuid = '"+districtUuid+"';";
+			
+			Query seriesDataQuery = em.createNativeQuery(selectBuilder);
+			return seriesDataQuery.getSingleResult().toString();
+		} catch (NoResultException e) {
+			return "";
+		}
+	}
+
 }
+

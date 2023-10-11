@@ -62,4 +62,6 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	boolean isUsedInOtherInfrastructureData(Collection<String> regionUuids);
 
 	List<RegionIndexDto> getAllRegions();
+
+	String getMapDiagramRegionHascByUuid(String chartrandom);
 }

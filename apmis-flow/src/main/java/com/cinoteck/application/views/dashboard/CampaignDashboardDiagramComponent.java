@@ -27,6 +27,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinSession;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.data.translation.TranslationElement;
@@ -105,14 +106,35 @@ public class CampaignDashboardDiagramComponent extends Div {
 		randomx = chartrandom;
 
 		// Notification.show(randomx);
-
 		final Map<Object, String> axisInfo = new HashMap<>();
+		StringBuilder mapData = new StringBuilder("");
 		for (CampaignDiagramDataDto diagramData : diagramDataList) {
 			final Object groupingKey = diagramData.getGroupingKey();
 			if (!axisInfo.containsKey(groupingKey)) {
 
 				axisInfo.put(groupingKey, diagramData.getGroupingCaption());
+   
+				if (chartType.equalsIgnoreCase(DiagramType.MAP.toString())) {
+					String mapHascCode = "";
+					String val = campaignJurisdictionLevelGroupBy+"";
+					String val_ = CampaignJurisdictionLevel.REGION.toString();
+					if (val.equalsIgnoreCase("Region")) {
+						mapHascCode = FacadeProvider.getRegionFacade()
+								.getMapDiagramRegionHascByUuid(groupingKey.toString());
+					} else {
+						mapHascCode = FacadeProvider.getDistrictFacade()
+								.getMapDiagramDistrictHascByUuid(groupingKey.toString());
+					}
+					// ['AFG_1115', 10], ['AFG_617', 100], ['AFG_1203', 45]\n"
+					if (mapHascCode != null && !mapHascCode.isEmpty()) {
+						
+						mapData.append("['" + mapHascCode + "', " + diagramData.getValueSum() + "], ");
+						
+					}
+					
+				}
 			}
+		
 
 			String seriesKey = diagramData.getFormId() + diagramData.getFieldId();
 			if (!diagramDataBySeriesAndXAxis.containsKey(seriesKey)) {
@@ -127,101 +149,28 @@ public class CampaignDashboardDiagramComponent extends Div {
 			}
 			objectCampaignDiagramDataDtoMap.put(groupingKey, diagramData);
 		}
-
+		
 		xAxisInfo = axisInfo.entrySet().stream()
 				.sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getValue(), o2.getValue()))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
-		// TODO would be cleaner to extend the HighChart class to provide customizable
-		// toggle options
-
-//		String funct =  "this.changeDiagramPercentage_" + diagramDefinition.getDiagramId()+" function(){"
-//				+ "alert($1);"
-////				+ "$server.buildDiagramChart($0,$1);"
-////				+ "setShowPercentages($2);"
-//				+ "}";
-//		
-//	//	Notification.show(funct);	
-//		 
-//		getElement().executeJs("window."+diagramDefinition.getDiagramId()+" = function "+diagramDefinition.getDiagramId()+"(name, element) {\n"
-//				+ "   console.log('Hi, = '+ name );\n"
-//			//	+ "   element.$server.greetxc('server');\n"
-//				+ "}"
-//				+ "");//, getDiagramCaption(), campaignJurisdictionLevelGroupBy.toString(), !isShowPercentages());
-//		
-		// getElement().executeJs(""+diagramDefinition.getDiagramId()+"('"+diagramDefinition.getDiagramId()+"')");
-
-//		getElement().executeJs("changeDiagramPercentage_" + diagramDefinition.getDiagramId()+"()",
-//				(JavaScriptFunction) jsonArray -> {
-//					setShowPercentages(!isShowPercentages());
-//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
-//				});
-
-//		JavaScript.getCurrent().addFunction("changeDiagramLabels_" + diagramDefinition.getDiagramId(),
-//				(JavaScriptFunction) jsonArray -> {
-//					setShowDataLabels(!isShowDataLabels());
-//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
-//				});
-//
-//		JavaScript.getCurrent().addFunction("changeDiagramChartType_" + diagramDefinition.getDiagramId(),
-//				(JavaScriptFunction) jsonArray -> {
-//					setShowAsColumnChart(!isShowAsColumnChart());
-//					buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
-//				});
-//		// JavaScript.getCurrent().execute("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js");
-//
-//		JavaScript.getCurrent().execute(" var el = document.getElementsByClassName('highcharts-data-table');"
-//
-//				+ "  window.onclick = function(event) {\n"
-//
-//				+ " var divsToHide = document.getElementsByClassName(\"highcharts-data-table\"); //divsToHide is an array\n"
-//				+ "    for(var i = 0; i < divsToHide.length; i++){\n"
-//
-//				+ "        divsToHide[i].style.display = \"none\"; \n" + "    };"
-//
-//				+ "}");
-//		
-//		
-
-//		 String javascriptCode = "<script>\n" +
-//	                "  function myFunction() {\n" +
-//	                "    console.log('Hello from JavaScript!');\n" +
-//	                "  }\n" +
-//	                "</script>";
-//
-//	        Html html = new Html(javascriptCode);
-//	        add(html);
-
-//	        String script = "function changeDiagramPercentage_"+ diagramDefinition.getDiagramId()+"() {" +
-//	                "    console.log('Dynamic Function Invoked');" +
-//	                "}";
-//	        
-//	        String functionName = "changeDiagramPercentage_" + diagramDefinition.getDiagramId();
-
-//		getElement().executeJs(" var el = document.getElementsByClassName('highcharts-data-table');"
-//
-//				+ "  window.onclick = function(event) {\n"
-//
-//				+ " var divsToHide = document.getElementsByClassName(\"highcharts-data-table\"); //divsToHide is an array\n"
-//				+ "    for(var i = 0; i < divsToHide.length; i++){\n"
-//
-//				+ "        divsToHide[i].style.display = \"none\"; \n" + "    };"
-//
-//				+ "}");
-
+		
 		if (chartType.equalsIgnoreCase(DiagramType.MAP.toString())) {
-			buildMapChart(getDiagramCaption()) ;
+			buildMapChart(getDiagramCaption(), mapData.deleteCharAt(mapData.length() - 1)) ;
 		} else {
 			buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
 		}
 
 	}
 	
-	private void buildMapChart(String maptitle) {
-		String mapConfigurator = " const all_data = [\n"
-				+ "    ['11', 10],  ['32', 100], ['15', 45], ['19', 77], ['AFG_503', 10],  ['AFG_505', 100], ['AFG_3204', 45], ['AFG_502', 77], ['AFG_2603', 10],  ['AFG_3208', 20], ['AFG_2611', 45], ['AFG_3111', 9],  ['AFG_3205', 77], ['AFG_3110', 25]  ];\n"
-				+ "\n"
-				+ "    const drilldown = async function (e) {\n"
+	private void buildMapChart(String maptitle, StringBuilder mapData_) {
+		String mapConfigurator = " "
+				+ "const all_data = [\n"
+				//+ "    ['11', 10],  ['32', 100], ['15', 45], ['19', 77], ['AFG_503', 10],  ['AFG_505', 100], ['AFG_3204', 45], ['AFG_502', 77], ['AFG_2603', 10],  ['AFG_3208', 20], ['AFG_2611', 45], ['AFG_3111', 9],  ['AFG_3205', 77], ['AFG_3110', 25] "
+				
++ mapData_+"\n"
+				+ " ];\n"
+				+ "const drilldown = async function (e) {\n"
 				+ "    if (!e.seriesOptions) {\n"
 				+ "        const chart = this,\n"
 				+ "            mapKey = `${e.point.drilldown}`;\n"
@@ -311,7 +260,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "};\n"
 				+ "\n"
 				+ "(async () => {\n"
-				+ " alert('ddddddddddddd');\n"
+				+ "\n"
 				+ "    const topology = await fetch(\n"
 				+ "        'maps/afgallprovince.json'\n"
 				+ "    ).then(response => response.json());\n"
@@ -344,7 +293,9 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "            }\n"
 				+ "        },\n"
 				+ "\n"
-				+ "title:{ text: '" + StringEscapeUtils.escapeEcmaScript(maptitle) + "', style: { fontSize: '15px' } },\n"
+				+ "        title: {\n"
+				+ "            text: '" + StringEscapeUtils.escapeEcmaScript(maptitle) + "', style: { fontSize: '15px' }\n"
+				+ "        },\n"
 				+ "\n"
 				+ "        colorAxis: {\n"
 				+ "            min: 0,\n"
@@ -375,13 +326,25 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "            dataClasses:[{\n"
 				+ "            color: '#dc143c',\n"
 				+ "            from:0,\n"
-				+ "            name: 'low',\n"
-				+ "            to:10\n"
+				+ "            name: 'low (0-5)',\n"
+				+ "            to:5\n"
 				+ "            },\n"
 				+ "            {\n"
-				+ "            color: '#0ea103',\n"
+				+ "            color: '#E9AE03',\n"
+				+ "            from:5,\n"
+				+ "            name: 'medium (5-25)',\n"
+				+ "            to:25\n"
+				+ "            },\n"
+				+ "            {\n"
+				+ "            color: '#0ee103',\n"
+				+ "            from:25,\n"
+				+ "            name: 'average (25-50)',\n"
+				+ "            to:50\n"
+				+ "            },\n"
+				+ "            {\n"
+				+ "            color: '#E92C03',\n"
 				+ "            from:51,\n"
-				+ "            name: 'high',\n"
+				+ "            name: 'high (50-100)',\n"
 				+ "            to:100\n"
 				+ "            }\n"
 				+ "            ]\n"
@@ -389,7 +352,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "        series: [{\n"
 				+ "            data: data,\n"
 				+ "            borderColor: '#A0A0A0',\n"
-				+ "            nullColor: 'rgba(200, 200, 200, 0.3)',\n"
+				+ "            nullColor: '#E7E6E5',\n"
 				+ "            name: 'AFGHANISTAN'//,\n"
 				+ "            // dataLabels: {\n"
 				+ "            //     enabled: true,\n"
@@ -407,8 +370,8 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "                textOutline: '1px #000000'\n"
 				+ "            },\n"
 				+ "            breadcrumbs: {\n"
-				+ "                floating: true,\n"
-				+ "                relativeTo: 'spacingBox'\n"
+				+ "                floating: true"//,\n"
+				//+ "                relativeTo: 'spacingBox'\n"
 				+ "            },\n"
 				+ "            drillUpButton: {\n"
 				+ "                relativeTo: 'spacingBox',\n"
@@ -421,6 +384,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "    });\n"
 				+ "\n"
 				+ "})();";
+				
 		
 		
 		
@@ -431,7 +395,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "        'ours.json'\n"
 				+ "    ).then(response => response.json());\n"
 				+ "    const data = [\n"
-				+ "    ['AFG_1115', 10],  ['AFG_617', 100], ['AFG_1203', 45]\n"
+				+ mapData_+"\n"
 				+ "    ];\n"
 				+ "    Highcharts.mapChart('"+randomx+"', {\n"
 				+ "        chart: {\n"
@@ -481,8 +445,8 @@ public class CampaignDashboardDiagramComponent extends Div {
 				+ "    });\n"
 				+ "})();";
 		
-		chartComponent = new BarChartCardComponent(mapConfigurator_, randomx, DiagramType.MAP);
-		System.out.println(mapConfigurator_);
+		chartComponent = new BarChartCardComponent(mapConfigurator, randomx, DiagramType.MAP);
+		System.out.println(mapConfigurator);
 		this.add(chartComponent);
 	}
 

@@ -85,7 +85,8 @@ import de.symeda.sormas.api.user.UserType;
 @PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
-
+	
+	HorizontalLayout mainContainer = new HorizontalLayout();
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
@@ -112,7 +113,7 @@ public class UserView extends VerticalLayout {
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 
-	UserForm form;
+	UserForm userForm;
 
 	MenuBar menuBar = new MenuBar();
 
@@ -136,9 +137,7 @@ public class UserView extends VerticalLayout {
 	HorizontalLayout layout = new HorizontalLayout();
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Paragraph countRowItems;
-	boolean isEditingMode;
-
-	boolean isEditingModeActive;
+	boolean isNewUser = false;
 
 	public UserView() {
 
@@ -187,8 +186,7 @@ public class UserView extends VerticalLayout {
 		Icon createIcon = new Icon(VaadinIcon.PLUS_CIRCLE_O);
 		createUserButton.setIcon(createIcon);
 		createUserButton.addClickListener(e -> {
-			editUser(false);
-			isEditingModeActive = true;
+			editUser(true);
 		});
 
 		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
@@ -503,8 +501,8 @@ public class UserView extends VerticalLayout {
 
 	private void configureGrid() {
 
-		ComponentRenderer<Span, UserDto> userRolesRenderer = new ComponentRenderer<>(reportModelDto -> {
-			String value = String.valueOf(reportModelDto.getUserRoles()).replace("[", "").replace("]", "")
+		ComponentRenderer<Span, UserDto> userRolesRenderer = new ComponentRenderer<>(userroles -> {
+			String value = String.valueOf(userroles.getUserRoles()).replace("[", "").replace("]", "")
 					.replace("null,", "").replace("null", "");
 			Span label = new Span(value);
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
@@ -612,7 +610,7 @@ public class UserView extends VerticalLayout {
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
 			grid.addSelectionListener(event -> {
-				editUser(event.getFirstSelectedItem(), true);
+				editUser(event.getFirstSelectedItem().get(), false);
 			});
 		}
 
@@ -622,14 +620,14 @@ public class UserView extends VerticalLayout {
 
 	private void configureForm(UserDto user) {
 		
-		form = new UserForm(regions, provinces, districts, user, false);
-		form.setSizeFull();
+		userForm = new UserForm(regions, provinces, districts, user, false);
+		userForm.setSizeFull();
 //		form.addUserFieldValueChangeEventListener(this::suggestUserName);
 //	    form.addResetPasswordListener(event -> resetUserPassword(event, user)); // Use the resetUserPassword method
-		form.addResetPasswordListener(this::resetUserPassWord);
-		form.addSaveListener(this::saveUser);
-		form.addDeleteListener(this::deleteContact);
-		form.addCloseListener(e -> {						
+		userForm.addResetPasswordListener(this::resetUserPassWord);
+		userForm.addSaveListener(this::saveUser);
+		userForm.addDeleteListener(this::deleteContact);
+		userForm.addCloseListener(e -> {						
 			UI.getCurrent().getPage().reload();
 			closeEditor();			
 		});
@@ -637,56 +635,53 @@ public class UserView extends VerticalLayout {
 	}
 
 	private Component getContent() {
-		HorizontalLayout content = new HorizontalLayout();
+		
 		// content.setFlexGrow(2, grid);
-		content.setFlexGrow(4, form);
-		content.addClassNames("content");
-		content.setSizeFull();
-		content.add(grid, form);
-		return content;
+		mainContainer.setFlexGrow(4, userForm);
+		mainContainer.addClassNames("content");
+		mainContainer.setSizeFull();
+		mainContainer.add(grid, userForm);
+		return mainContainer;
 	}
+	
 
-	public void editUser(Optional<UserDto> userr, boolean isEdMode) {
+	//editing existing user :open dialog with data in it
+	public void editUser(UserDto userr, boolean isEdMode) {
+
+		mainContainer.remove(userForm);	
+		configureForm(userr);
+		mainContainer.add(userForm);
+
 		
-		UserDto user;
-		isEditingMode = isEdMode;
-		if (userr.isPresent()) {
-			user = userr.get();
-			form.setUser(user);
-			form.setVisible(true);
-			form.setSizeFull();
-			grid.setVisible(false);
-			setFiltersVisible(false);
-			addClassName("editing");
-			form.save.addClickListener(event -> form.validateAndSaveEdit(userr.get()));
-		}
-		
-		isEditingModeActive = true;
-		System.out.println(isEditingModeActive + " isEditingModeActive");
-	}
-
-	public void editUser(boolean isEdMode) {
-
-		form.createPassword.setVisible(false);
-		isEditingMode = isEdMode;
-		UserDto user = new UserDto();
-		form.setUser(user);
-//		form.addUserFieldValueChangeEventListener(this::suggestUserName);
-		form.setVisible(true);
-		form.setSizeFull();
+		isNewUser = false;
+		//configureForm(userr);//this make sure the userform dialog is a new container
+		userForm.setUser(userr);
+		userForm.setVisible(true);
+		userForm.setSizeFull();
 		grid.setVisible(false);
 		setFiltersVisible(false);
-		form.save.addClickListener(event -> form.validateAndSaveNew());
-		if (!isEdMode) {
-
-			form.firstName.addValueChangeListener(e -> suggestUserNameWorking());
-			form.lastName.addValueChangeListener(e -> suggestUserNameWorking());			
-		}
-
-		isEditingModeActive = false;
-
-		System.out.println(isEditingModeActive + "isEditingModeActive");
+		addClassName("editing");
+		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr));
+		
 	}
+
+	//new user... dialog with no data in it
+	public void editUser(boolean isEdMode) {
+		
+		isNewUser = true;
+		UserDto user = new UserDto();
+	//	configureForm(user); //this make sure the userform dialog is a new container
+		userForm.createPassword.setVisible(false);
+		userForm.setUser(user);
+//		form.addUserFieldValueChangeEventListener(this::suggestUserName);
+		userForm.setVisible(true);
+		userForm.setSizeFull();
+		grid.setVisible(false);
+		setFiltersVisible(false);
+		userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
+		userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
+		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());			
+		}
 
 	private void updateRowCount() {
 
@@ -698,11 +693,11 @@ public class UserView extends VerticalLayout {
 	}
 
 	private void closeEditor() {
-		form.setVisible(false);
+		userForm.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);
 		removeClassName("editing");
-		form.setUser(new UserDto());
+		userForm.setUser(new UserDto());
 	}
 
 	private void setFiltersVisible(boolean state) {
@@ -739,9 +734,8 @@ public class UserView extends VerticalLayout {
 		System.out.println(event.getContact().getUsertype() + "event user type" + event.getSource().commusr.getValue());
 		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
 
-		if (!isEditingMode) {
+		if (isNewUser) {
 			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
-
 		}
 		grid.getDataProvider().refreshAll();
 		closeEditor();;
@@ -751,11 +745,10 @@ public class UserView extends VerticalLayout {
 
 		UserForm formLayout = (UserForm) event.getSource();
 
-		formLayout.suggestUserName(isEditingModeActive);
-		if (isEditingModeActive) {
+		formLayout.suggestUserName(!isNewUser);
+		
+		if (!isNewUser) {
 			event.getSource().lastName.addValueChangeListener(e -> {
-				System.out.println("i kicked ___________isEditingModeActive");
-
 				if (formLayout.userName.isEmpty()) {
 					formLayout.userName.setValue(UserHelper.getSuggestedUsername(formLayout.firstName.getValue(),
 							formLayout.lastName.getValue()));
@@ -764,24 +757,20 @@ public class UserView extends VerticalLayout {
 		}
 
 	}
-
-	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
-
-		UserForm formLayout = (UserForm) event.getSource();
-
-		System.out.println(isEditingModeActive + "___________isEditingModeActive");
-		formLayout.suggestUserName(isEditingModeActive);
-		if (isEditingModeActive) {
-
-		}
-
-	}
+//
+//	private void suggestUserName(UserForm.UserFieldValueChangeEvent event) {
+//
+//		UserForm formLayout = (UserForm) event.getSource();
+//
+//		formLayout.suggestUserName(isEditingModeActive);
+//		
+//	}
 
 	private void suggestUserNameWorking() {
 
-		if (!form.firstName.isEmpty() && !form.lastName.isEmpty() && form.userName.isEmpty()) {
-			form.userName
-					.setValue(UserHelper.getSuggestedUsername(form.firstName.getValue(), form.lastName.getValue()));
+		if (!userForm.firstName.isEmpty() && !userForm.lastName.isEmpty() && userForm.userName.isEmpty()) {
+			userForm.userName
+					.setValue(UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 		}
 
 	}

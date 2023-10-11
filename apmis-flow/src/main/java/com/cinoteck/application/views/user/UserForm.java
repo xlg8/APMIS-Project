@@ -78,7 +78,11 @@ import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
 public class UserForm extends FormLayout {
-	Dialog neee;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6918900346481904170L;
+
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -176,7 +180,12 @@ public class UserForm extends FormLayout {
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields(user);
+		System.out.println("____TRSTING LANGUAGE TRANSLATOR : "+I18nProperties.getUserLanguage());
 		updatePasswordDialog();
+	}
+
+	public UserForm() {
+		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")
@@ -538,23 +547,39 @@ public class UserForm extends FormLayout {
 		this.setColspan(horizontallayout, 2);
 	}
 
-	public void validateAndSaveEdit(UserDto editedUser) {
+	public void validateAndSaveEdit(UserDto originalUser) {
+		System.out.println(binder.getBean().getUserEmail() != null + " ++++++++++++++++++++++++++++++++++++ "+ binder.getBean().getUserEmail());
+		System.out.println(binder.getBean().getUserEmail() != "" +"__________________________________________________________");
+		
+		
+		
 		if (binder.validate().isOk()) {
 			
 			boolean isErrored = false;
-			if (binder.getBean().getUserEmail() != null) {
+			
+			//userName
+			
+			if (binder.getBean().getUserEmail() != null || binder.getBean().getUserEmail() != "") {
 				
-				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
-				
-				if (binderEmailValidation == null) {
-					fireEvent(new SaveEvent(this, binder.getBean()));
+				UserDto anyEmailFromDb = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+				System.out.println((anyEmailFromDb == null )+"__________________________________________________________");
+				System.out.println("__________________________________________________________");
+				System.out.println("__________________________________________________________");
+				if (anyEmailFromDb == null) {
+					
+					isErrored = false;
 
 				} else {
+					
+					System.out.println((anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim()))+"__________________________________________________________");
+					System.out.println((!originalUser.getUserName().isEmpty())+"__________________________________________________________");
+					System.out.println(originalUser.getUserName()+"____________________________xxxxx___________________________"+originalUser.getUserName().trim());
 
-					if (binderEmailValidation.getUserName().trim().equals(editedUser.getUserName().trim())
-							&& !editedUser.getUserName().isEmpty()) {
-//email has not changed
-						fireEvent(new SaveEvent(this, binder.getBean()));
+					if (anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
+							&& !originalUser.getUserName().isEmpty()) {
+						
+						isErrored = false;
+						
 					} else {
 						
 						isErrored = true;
@@ -568,7 +593,7 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email already in the system");
+						Paragraph text = new Paragraph("Error : Email already in the system_.");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
@@ -582,10 +607,13 @@ public class UserForm extends FormLayout {
 				}
 			}
 
-			UserDto binderUser = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+			
+			if(binder.getBean().getUserName() != null || userName != null) {
+				System.out.println(binder.getBean().getUserName() != null+"_______________________binder.getBean().getUserName() != null________________________");
+			UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
 
-			if (binderUser.getUserName().trim().equals(editedUser.getUserName().trim())
-					&& !editedUser.getUserName().isEmpty() && !isErrored) {
+			if (retrieveBinderUserFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
+					&& !originalUser.getUserName().isEmpty() && !isErrored) {
 
 				fireEvent(new SaveEvent(this, binder.getBean()));
 			} else {
@@ -615,11 +643,14 @@ public class UserForm extends FormLayout {
 			}
 		}
 	}
+		}
+	
 
 	public void validateAndSaveNew() {
 
 		if (binder.validate().isOk()) {
-			
+			System.out.println(binder.getBean().getUserEmail() != null + " validateAndSaveNew++++++++++++++++++++++++++++++++++++ "+ binder.getBean().getUserEmail());
+				
 			if (binder.getBean().getUserEmail() != null) {
 				
 				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
@@ -647,7 +678,7 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email already in the system");
+						Paragraph text = new Paragraph("Error : Email already in the system...");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
@@ -786,6 +817,7 @@ public class UserForm extends FormLayout {
 	}
 
 	public void setUser(UserDto user) {
+		this.user = user;
 		binder.setBean(user);
 	}
 

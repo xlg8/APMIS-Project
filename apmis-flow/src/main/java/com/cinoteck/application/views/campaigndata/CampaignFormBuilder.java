@@ -648,7 +648,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 //											errormsg == null ? caption + ": " + Validations.onlyDecimalNumbersAllowed : errormsg, caption) ));
 
 						numberField.addValueChangeListener(e -> {
-// <<<<<<< team_collaboration_branch
 							
 							String inputValue = e.getValue() != null ? e.getValue().toString() : "";
 
@@ -737,18 +736,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
 												.getAttribute("Clusternumber") + result;
 					            	}
-//					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
-//											.getAttribute("Clusternumber")  + result;
-//									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
-// =======
-// 							if (e.getValue() != null && e.getValue().toString().length() > 2
-// 									&& e.getValue().toString().length() < 8) {
-// 								if (VaadinService.getCurrentRequest().getWrappedSession()
-// 										.getAttribute("Clusternumber") != null) {
 
-// 									final String des = VaadinService.getCurrentRequest().getWrappedSession()
-// 											.getAttribute("Clusternumber") + e.getValue().toString().substring(0, 3);
-// >>>>>>> development
 
 									numberField.setValue(Double.parseDouble(result));
 

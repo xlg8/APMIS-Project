@@ -484,7 +484,57 @@ public class CampaignDashboardDataProvider {
 					}*/
 			}
 				
-	} else {
+	} else if(campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getDiagramType() == DiagramType.MAP) {
+		
+		CampaignJurisdictionLevel campaignJurisdictionLevelGrp_ = CampaignJurisdictionLevel.DISTRICT;
+		
+		if(campaignJurisdictionLevelGroupBy == CampaignJurisdictionLevel.AREA) {
+			campaignJurisdictionLevelGrp_ = CampaignJurisdictionLevel.REGION;
+		}
+		
+		List<CampaignDiagramDataDto> diagramData = FacadeProvider.getCampaignFormDataFacade()
+				.getDiagramDataFlow(
+					campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
+					new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGrp_));
+			
+			campaignFormDataMap.put(campaignDashboardDiagramDto, diagramData);
+			
+			
+			
+			List<CampaignDiagramSeries> campaignSeriesTotal =
+				campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal();
+
+			List<CampaignDiagramDataDto> percentageDiagramData = null;
+			if (campaignSeriesTotal != null) {
+				Optional populationGroup = campaignSeriesTotal.stream().filter(e -> Objects.nonNull(e.getPopulationGroup())).findFirst();
+				Optional formIdOptional = campaignSeriesTotal.stream().filter(e -> Objects.nonNull(e.getFormId())).findFirst();
+				{
+					if (populationGroup.isPresent()) {
+						percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
+							.getDiagramDataByAgeGroup(
+								(CampaignDiagramSeries) populationGroup.get(),
+								campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries().get(0),
+								new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGrp_));
+						if (formIdOptional.isPresent()) {
+							logger.warn(String.format(I18nProperties.getString(Strings.errorFormIdPopulationAgeGroup)));
+						}
+					} else {
+						percentageDiagramData = FacadeProvider.getCampaignFormDataFacade()
+							.getDiagramDataFlow(
+								campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignSeriesTotal(),
+								new CampaignDiagramCriteria(campaign, area, region, district, campaignJurisdictionLevelGrp_));
+					}
+					Map<CampaignDashboardTotalsReference, Double> percentageMap = new HashMap<>();
+					for (CampaignDiagramDataDto data : percentageDiagramData) {
+						CampaignDashboardTotalsReference totals = new CampaignDashboardTotalsReference(data.getGroupingKey(), data.getStack());
+						Double value = percentageMap.getOrDefault(totals, 0D);
+						value += data.getValueSum().doubleValue();
+						percentageMap.put(totals, value);
+					}
+					campaignFormTotalsMap.put(campaignDashboardDiagramDto, percentageMap);
+				}
+			}
+		} else {
 				List<CampaignDiagramDataDto> diagramData = FacadeProvider.getCampaignFormDataFacade()
 					.getDiagramDataFlow(
 						campaignDashboardDiagramDto.getCampaignDiagramDefinitionDto().getCampaignDiagramSeries(),
