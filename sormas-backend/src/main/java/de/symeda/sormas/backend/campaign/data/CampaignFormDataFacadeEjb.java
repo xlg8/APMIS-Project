@@ -430,7 +430,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
 		System.out.println(" ==============getByCompletionAnalysisCountgetByCompletionAnalysisCount======= ");
-
+		String error_statusFilter ="";
 		boolean filterIsNull = criteria.getCampaign() == null;
 
 		String joiner = "";
@@ -440,6 +440,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final AreaReferenceDto area = criteria.getArea();
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
+			final String error_status = criteria.getError_status();
+
 
 			//@formatter:off
 			
@@ -448,24 +450,52 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final String areaFilter = area != null ? " AND  area3_x.uuid = '"+area.getUuid()+"'" : "";
 			final String regionFilter = region != null ? " AND region4_x.uuid = '"+region.getUuid()+"'" : "";
 			final String districtFilter = district != null ? " AND district5_x.uuid = '"+district.getUuid()+"'" : "";
+			
+			if(error_status != null) {
+				error_statusFilter = "WHERE error_status = '" +error_status + "'" ;
+				System.out.println(error_statusFilter+" =========errrrrooor status ============ ");
+
+					}
+			
 			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
 			
-			System.out.println(campaignFilter+" ===================== "+joiner);
+//			System.out.println(campaignFilter+" ===================== "+joiner);
 		} 
 		
 		
 		
 		
-		final String joinBuilder = "select count(*)\n"
+//		final String joinBuilder = "select count(*)\n"
+//				+ "from completionAnalysisView_e analyticz\n"
+//				+ "left outer join community commut on analyticz.community_id = commut.id\n"
+//				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
+//				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
+//				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
+//				+ "left outer join ( SELECT id, uuid  FROM campaigns) campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+//				
+//				+ ""+joiner+"\n";
+		
+		final String joinBuilder = "WITH cte AS (select area3_x.\"name\" as area_, region4_x.\"name\" as region_, district5_x.\"name\" as district_, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
+				+ "analyticz.supervisor, analyticz.revisit, analyticz.household, analyticz.teammonitori, \n"
+				+ "CASE\n"
+				+ "        WHEN\n"
+				+ "            analyticz.supervisor = 0 OR\n"
+				+ "            analyticz.revisit = 0 OR\n"
+				+ "            analyticz.household = 0 OR\n"
+				+ "            analyticz.teammonitori = 0\n"
+				+ "        THEN 'Error Report'\n"
+				+ "        ELSE 'None Error Report'\n"
+				+ "    END AS error_status\n"
 				+ "from completionAnalysisView_e analyticz\n"
 				+ "left outer join community commut on analyticz.community_id = commut.id\n"
 				+ "left outer join District district5_x on commut.district_id=district5_x.id\n"
 				+ "left outer join Region region4_x on district5_x.region_id=region4_x.id\n"
 				+ "left outer join areas area3_x on region4_x.area_id=area3_x.id\n"
-				+ "left outer join ( SELECT id, uuid  FROM campaigns) campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
+				+ "left outer join  ( SELECT id, uuid  FROM campaigns)campaignfo0_x on analyticz.campaign_id=campaignfo0_x.id\n"
 				
-				+ ""+joiner+"\n";
+				+ ""+joiner+" "+") select count(*) from cte"+ " "+ error_statusFilter +";";
 		
+//		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== "+joiner);
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -654,6 +684,396 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
+	
+	
+	
+	
+	
+	@Override
+	public List<CampaignFormDataIndexDto> getFlwDuplicateErrorAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
+		String error_statusFilter ="";
+
+		boolean filterIsNull = criteria.getCampaign() == null ;
+		
+		String whereclause = "";
+		
+		if(!filterIsNull) {
+		final CampaignReferenceDto campaign = criteria.getCampaign();
+		final AreaReferenceDto area = criteria.getArea();
+		final RegionReferenceDto region = criteria.getRegion();
+		final DistrictReferenceDto district = criteria.getDistrict();
+		final String error_status = criteria.getError_status();
+		
+		
+		
+		
+		//@formatter:off
+		
+
+		
+		final String campaignFilter = campaign != null ? "campaigns.uuid = '"+campaign.getUuid()+"'" : "";
+		final String areaFilter = area != null ? "AND areas.uuid = '"+area.getUuid()+"'" : "";
+		final String regionFilter = region != null ? " AND region.uuid = '"+region.getUuid()+"'" : "";
+		final String districtFilter = district != null ? " AND district.uuid = '"+district.getUuid()+"'" : "";
+		if(error_status != null) {
+			error_statusFilter = "and error_status = '" +error_status + "'" ;
+			System.out.println(error_statusFilter+" =========errrrrooor status ============ "+whereclause);
+
+				}
+		
+
+		
+		whereclause = "and " + campaignFilter + areaFilter + regionFilter + districtFilter ;
+		
+		
+		
+		
+		System.out.println(campaignFilter+" ===================== "+whereclause);
+		}
+		String addedWhere = "";
+		
+		
+		if(!filterIsNull) {
+			
+			whereclause = whereclause;
+//			+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+			
+		} 
+//		else {
+//			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
+//		}
+
+		String orderby = "";
+
+		if (sortProperties != null && sortProperties.size() > 0) {
+			for (SortProperty sortProperty : sortProperties) {
+				switch (sortProperty.propertyName) {
+				case "region":
+					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "province":
+					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+					
+				case "district":
+					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;	
+				
+				case "clusterNumber":
+					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "ccode":
+					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+//				case "supervisor":
+//					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "revisit":
+//					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "household":
+//					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "teammonitori":
+//					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+				
+				case "errorfilter":
+					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				
+				
+				default:
+					throw new IllegalArgumentException(sortProperty.propertyName);
+				}
+				
+			}
+		}
+		
+		System.out.println(" ====orderbyorderbyderby====== "+orderby);
+		
+		
+		
+		
+		
+		
+		
+		
+		final String joinBuilder = ""
+				+ " SELECT \n"
+				+ "    areas.name AS area,\n"
+				+ "    region.name AS region,\n"
+				+ "    district.name AS district,\n"
+				+ "    community.clusternumber AS clusterNo,\n"
+				+ "    community.externalid AS ccode,\n"
+				+ "    users.firstname as firstName,\n"
+				+ "    users.userposition as title,\n"
+				+ "    jsondata.value ->> 'value'::text as tazkiraNumber\n"
+				+ "FROM campaignformdata\n"
+				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
+				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
+				+ "LEFT JOIN areas ON campaignformdata.area_id = areas.id\n"
+				+ "LEFT JOIN district ON campaignformdata.district_id = district.id\n"
+				+ "LEFT JOIN community ON campaignformdata.community_id = community.id\n"
+				+ "LEFT JOIN users ON campaignformdata.creatinguser_id = users.id\n"
+				+ "LEFT JOIN campaigns ON campaignformdata.campaign_id = campaigns.id,\n"
+				+ "LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),\n"
+				+ "LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)\n"
+				+ "WHERE \n"
+				+ "    (jsondata.value ->> 'id'::text) IN ('TazkiraNo') AND\n"
+				+ "    (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) \n"
+				+whereclause+"\n"
+				+ "    and campaignformdata.id in (\n"
+				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id), ', '), ',')) AS bigint) AS individual_values\n"
+				+ "		FROM flwduplicateerrorreport\n"
+				+ "		GROUP BY value\n"
+				+ "		HAVING COUNT(*) > 1\n"
+				+ "    );"
+				
+				+ ""+whereclause+" \n"
+				
+				+ orderby
+				+ " limit "+max+" offset "+first+";";
+		
+	System.out.println("=====seriesDataQuery======== "+joinBuilder);
+		
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		
+		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+	System.out.println("starting....");
+		
+//		resultData.addAll(resultList.stream()
+//				.map((result) -> new CampaignFormDataIndexDto(
+//						(String) result[0].toString(), 
+//						(String) result[1].toString(),
+//						(String) result[2].toString(),
+//						"", 
+//						(Integer) result[3], 
+//						((BigInteger) result[4]).longValue(),  
+//						((BigInteger) result[5]).longValue(), 
+//						((BigInteger) result[6]).longValue(), 
+//						((BigInteger) result[7]).longValue(),
+//						((BigInteger) result[8]).longValue(),
+//					
+//						(String) result[9].toString()
+//				)).collect(Collectors.toList()));
+		
+	//	//System.out.println("ending...." +resultData.size());
+	
+	
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	return resultData;
+	}
+	
+	
+	
+
+	
+	@Override
+	public String getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
+		String error_statusFilter ="";
+
+		boolean filterIsNull = criteria.getCampaign() == null ;
+		
+		String whereclause = "";
+		
+		if(!filterIsNull) {
+		final CampaignReferenceDto campaign = criteria.getCampaign();
+		final AreaReferenceDto area = criteria.getArea();
+		final RegionReferenceDto region = criteria.getRegion();
+		final DistrictReferenceDto district = criteria.getDistrict();
+		final String error_status = criteria.getError_status();
+		
+		
+		
+		
+		//@formatter:off
+		
+
+		
+		final String campaignFilter = campaign != null ? "campaigns.uuid = '"+campaign.getUuid()+"'" : "";
+		final String areaFilter = area != null ? "AND areas.uuid = '"+area.getUuid()+"'" : "";
+		final String regionFilter = region != null ? " AND region.uuid = '"+region.getUuid()+"'" : "";
+		final String districtFilter = district != null ? " AND district.uuid = '"+district.getUuid()+"'" : "";
+		if(error_status != null) {
+			error_statusFilter = "and error_status = '" +error_status + "'" ;
+			System.out.println(error_statusFilter+" =========errrrrooor status ============ "+whereclause);
+
+				}
+		
+
+		
+		whereclause = "and " + campaignFilter + areaFilter + regionFilter + districtFilter ;
+		
+		
+		
+		
+		System.out.println(campaignFilter+" ===================== "+whereclause);
+		}
+		String addedWhere = "";
+		
+		
+		if(!filterIsNull) {
+			
+			whereclause = whereclause;
+//			+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
+			
+		} 
+//		else {
+//			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
+//		}
+
+		String orderby = "";
+
+		if (sortProperties != null && sortProperties.size() > 0) {
+			for (SortProperty sortProperty : sortProperties) {
+				switch (sortProperty.propertyName) {
+				case "region":
+					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "province":
+					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+					
+				case "district":
+					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;	
+				
+				case "clusterNumber":
+					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "ccode":
+					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+//				case "supervisor":
+//					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "revisit":
+//					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "household":
+//					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+//				
+//				case "teammonitori":
+//					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
+//				break;
+				
+				case "errorfilter":
+					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				
+				
+				default:
+					throw new IllegalArgumentException(sortProperty.propertyName);
+				}
+				
+			}
+		}
+		
+		System.out.println(" ====orderbyorderbyderby====== "+orderby);
+		
+		
+		
+		
+		
+		
+		
+		
+		final String joinBuilder = ""
+				+ " SELECT \n"
+				+ "    areas.name AS area,\n"
+				+ "    region.name AS region,\n"
+				+ "    district.name AS district,\n"
+				+ "    community.clusternumber AS clusterNo,\n"
+				+ "    community.externalid AS ccode,\n"
+				+ "    users.firstname as firstName,\n"
+				+ "    users.userposition as title,\n"
+				+ "    jsondata.value ->> 'value'::text as tazkiraNumber\n"
+				+ "FROM campaignformdata\n"
+				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
+				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
+				+ "LEFT JOIN areas ON campaignformdata.area_id = areas.id\n"
+				+ "LEFT JOIN district ON campaignformdata.district_id = district.id\n"
+				+ "LEFT JOIN community ON campaignformdata.community_id = community.id\n"
+				+ "LEFT JOIN users ON campaignformdata.creatinguser_id = users.id\n"
+				+ "LEFT JOIN campaigns ON campaignformdata.campaign_id = campaigns.id,\n"
+				+ "LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),\n"
+				+ "LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)\n"
+				+ "WHERE \n"
+				+ "    (jsondata.value ->> 'id'::text) IN ('TazkiraNo') AND\n"
+				+ "    (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) \n"
+				+whereclause+"\n"
+				+ "    and campaignformdata.id in (\n"
+				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id), ', '), ',')) AS bigint) AS individual_values\n"
+				+ "		FROM flwduplicateerrorreport\n"
+				+ "		GROUP BY value\n"
+				+ "		HAVING COUNT(*) > 1\n"
+				+ "    );"
+				
+				+ ""+whereclause+" \n"
+				
+				+ orderby
+				+ " limit "+max+" offset "+first+";";
+		
+	System.out.println("=====seriesDataQuery======== "+joinBuilder);
+		
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		
+		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+	System.out.println("starting....");
+		
+//		resultData.addAll(resultList.stream()
+//				.map((result) -> new CampaignFormDataIndexDto(
+//						(String) result[0].toString(), 
+//						(String) result[1].toString(),
+//						(String) result[2].toString(),
+//						"", 
+//						(Integer) result[3], 
+//						((BigInteger) result[4]).longValue(),  
+//						((BigInteger) result[5]).longValue(), 
+//						((BigInteger) result[6]).longValue(), 
+//						((BigInteger) result[7]).longValue(),
+//						((BigInteger) result[8]).longValue(),
+//					
+//						(String) result[9].toString()
+//				)).collect(Collectors.toList()));
+		
+	//	//System.out.println("ending...." +resultData.size());
+	
+	
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	return resultData;
+	}
+	
+	
 
 	@Override
 	public int prepareAllCompletionAnalysis() {

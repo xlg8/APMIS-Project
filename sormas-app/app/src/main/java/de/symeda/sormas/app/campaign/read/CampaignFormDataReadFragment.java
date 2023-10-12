@@ -645,14 +645,36 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     dynamicField.setShowCaption(true);
 
 
+                    Resources resources = this.getContext().getResources();
+
+                    String yes_no = "";
 
 
                     if (value != null) {
 
-                        if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                        if (type == CampaignFormElementType.YES_NO) {
+                            if(value.equalsIgnoreCase("yes")){
+                                yes_no = resources.getString(R.string.yes);
+                                ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                            } else if(value.equalsIgnoreCase("no")){
+                                yes_no = resources.getString(R.string.yes);
+                                ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                            }
+                         } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                             ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                         } else if(type == CampaignFormElementType.DROPDOWN){
-                            ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
+                            //TODO get the tranlated version
+
+                            if(optionsValues.get(value).equalsIgnoreCase("yes")){
+                                yes_no = resources.getString(R.string.yes);
+                                ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null, null);
+                            }else if(optionsValues.get(value).equalsIgnoreCase("no")){
+                                yes_no = resources.getString(R.string.no);
+                                ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null, null);
+                            } else {
+                                ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
+                            }
+
                             //optionsValues.get(value)
                         }else{
                             ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null, null);

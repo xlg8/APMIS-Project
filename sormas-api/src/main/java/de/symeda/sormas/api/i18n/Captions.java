@@ -120,6 +120,8 @@ public interface Captions {
 	String editing="editing";
 	String apmisVersionNumber="apmisVersionNumber";
 	String releaseDate="releaseDate";
+	String support="support";
+	String userProfile ="userProfile";
 	String upload="upload";
 	String overridaExistingEntriesWithImportedData="overridaExistingEntriesWithImportedData";
 	String downloadCredentialsButton="downloadCredentialsButton";
@@ -139,7 +141,6 @@ public interface Captions {
 	String aboutDataDictionary = "aboutDataDictionary";
 	String aboutDocuments = "aboutDocuments";
 	String aboutSormasVersion = "aboutSormasVersion";
-	String aboutApmisVersion = "APMIS Version:";
 	String aboutText = "The Afghanistan Polio Management Information System (APMIS) is an online data system for inputting, storing, managing, and visualizing monitoring data of Polio immunization activities in Afghanistan.";
 	String aboutSormasWebsite = "aboutSormasWebsite";
 	String aboutTechnicalManual = "aboutTechnicalManual";

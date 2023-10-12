@@ -452,13 +452,13 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			if (user == null) {
 				return;
 			} else {
-				userName.setText(R.string.value_no_username);
-				userRole.setText(R.string.value_role_unassigned);
-				userUserName.setText("UserName Unassigned");
-				userUserName.setText("User Region Unassigned");
-				userUserName.setText("User Province Unassigned");
-				userUserName.setText("User District Unassigned");
-				userUserName.setText("User Cluster Unassigned");
+//				userName.setText(R.string.value_no_username);
+//				userRole.setText(R.string.value_role_unassigned);
+//				userUserName.setText("UserName Unassigned");
+//				userUserName.setText("User Region Unassigned");
+//				userUserName.setText("User Province Unassigned");
+//				userUserName.setText("User District Unassigned");
+//				userUserName.setText("User Cluster Unassigned");
 
 			}
 

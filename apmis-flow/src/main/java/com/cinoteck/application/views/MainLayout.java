@@ -111,8 +111,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
-		userProvider.getUser().getUsertype();
-		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+		
 	}
 
 	private void addHeaderContent() {
@@ -157,8 +156,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		UI.getCurrent().add(idleNotification);
 
-		System.out.println(
-				"++++++++++++++++++++++++:" + VaadinSession.getCurrent().getSession().getMaxInactiveInterval());
 
 		addToNavbar(true, toggle, titleLayout);
 	}
@@ -177,7 +174,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		Span versionadd = new Span();
 		versionadd.getElement().setProperty("innerHTML",
-				"<p>APMIS Version: 4.0.0</p><p>Release date: 29|Sept|2023</p>");
+				"<p>"+I18nProperties.getCaption(Captions.apmisVersionNumber)+": 4.0.0</p><p>"+I18nProperties.getCaption(Captions.releaseDate)+": 29|Sept|2023</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");
@@ -251,9 +248,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
 		// VaadinIcon.TREE_TABLE, "navitem"));
-		nav.addItem(new AppNavItem("User Profile", MyAccountView.class, VaadinIcon.USER, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), MyAccountView.class, VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuSupport), SupportView.class,
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.support), SupportView.class,
 				VaadinIcon.CHAT, "navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
@@ -274,7 +271,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	}
 
 	private void rtlswitcher() {
-
 		if (userProvider.getUser().getLanguage() != null) {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
@@ -294,7 +290,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.getUserLanguage();
 
 			userProvider.getUser().setLanguage(Language.EN);
-//			userProvider.getUser //.setLanguage(Language.EN);
 			UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
 		}
 	}
