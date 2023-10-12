@@ -180,7 +180,7 @@ public class UserForm extends FormLayout {
 		add(hor);
 		// Configure what is passed to the fields here
 		configureFields(user);
-		System.out.println("____TRSTING LANGUAGE TRANSLATOR : "+I18nProperties.getUserLanguage());
+		System.out.println("____TRSTING LANGUAGE TRANSLATOR : " + I18nProperties.getUserLanguage());
 		updatePasswordDialog();
 	}
 
@@ -207,9 +207,9 @@ public class UserForm extends FormLayout {
 		binder.forField(lastName).asRequired(I18nProperties.getCaption(Captions.lastNameRequired))
 				.bind(UserDto::getLastName, UserDto::setLastName);
 
-		binder.forField(userEmail)//.asRequired(I18nProperties.getCaption(Captions.emailRequired))
+		binder.forField(userEmail)// .asRequired(I18nProperties.getCaption(Captions.emailRequired))
 				.bind(UserDto::getUserEmail, UserDto::setUserEmail);
-	//	map.put("email", userEmail);
+		// map.put("email", userEmail);
 
 		binder.forField(phone).bind(UserDto::getPhone, UserDto::setPhone);
 
@@ -417,17 +417,14 @@ public class UserForm extends FormLayout {
 				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
 				sortedUserRoles.remove(UserRole.BAG_USER);
 				sortedUserRoles.remove(UserRole.REST_USER);
-//				roles.add(UserRole.REST_USER);
 
-				userRoles.setItems(sortedUserRoles);
-//				userRoles.setItems(roles);
-			} else {
-				roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-				roles.remove(UserRole.BAG_USER);
-//				userRoles.setItems(roles);
 				userRoles.setItems(sortedUserRoles);
 			}
-
+			
+			if ((boolean) e.getValue() == false) {
+				Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+				userRoles.setItems(sortedUserRoless);
+			}
 		});
 
 		language.setItemLabelGenerator(Language::toString);
@@ -548,40 +545,45 @@ public class UserForm extends FormLayout {
 	}
 
 	public void validateAndSaveEdit(UserDto originalUser) {
-		System.out.println(binder.getBean().getUserEmail() != null + " ++++++++++++++++++++++++++++++++++++ "+ binder.getBean().getUserEmail());
-		System.out.println(binder.getBean().getUserEmail() != "" +"__________________________________________________________");
-		
-		
-		
+		System.out.println(binder.getBean().getUserEmail() != null + " ++++++++++++++++++++++++++++++++++++ "
+				+ binder.getBean().getUserEmail());
+		System.out.println(
+				binder.getBean().getUserEmail() != "" + "__________________________________________________________");
+
 		if (binder.validate().isOk()) {
-			
+
 			boolean isErrored = false;
-			
-			//userName
-			
+
+			// userName
+
 			if (binder.getBean().getUserEmail() != null || binder.getBean().getUserEmail() != "") {
-				
+
 				UserDto anyEmailFromDb = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
-				System.out.println((anyEmailFromDb == null )+"__________________________________________________________");
+				System.out.println(
+						(anyEmailFromDb == null) + "__________________________________________________________");
 				System.out.println("__________________________________________________________");
 				System.out.println("__________________________________________________________");
 				if (anyEmailFromDb == null) {
-					
+
 					isErrored = false;
 
 				} else {
-					
-					System.out.println((anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim()))+"__________________________________________________________");
-					System.out.println((!originalUser.getUserName().isEmpty())+"__________________________________________________________");
-					System.out.println(originalUser.getUserName()+"____________________________xxxxx___________________________"+originalUser.getUserName().trim());
+
+					System.out.println((anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim()))
+							+ "__________________________________________________________");
+					System.out.println((!originalUser.getUserName().isEmpty())
+							+ "__________________________________________________________");
+					System.out.println(
+							originalUser.getUserName() + "____________________________xxxxx___________________________"
+									+ originalUser.getUserName().trim());
 
 					if (anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
 							&& !originalUser.getUserName().isEmpty()) {
-						
+
 						isErrored = false;
-						
+
 					} else {
-						
+
 						isErrored = true;
 						Notification notification = new Notification();
 						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -600,74 +602,27 @@ public class UserForm extends FormLayout {
 
 						notification.add(layout);
 						notification.open();
-						
+
 						return;
-						
+
 					}
 				}
 			}
 
-			
-			if(binder.getBean().getUserName() != null || userName != null) {
-				System.out.println(binder.getBean().getUserName() != null+"_______________________binder.getBean().getUserName() != null________________________");
-			UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+			if (binder.getBean().getUserName() != null || userName != null) {
+				System.out.println(binder.getBean().getUserName() != null
+						+ "_______________________binder.getBean().getUserName() != null________________________");
+				UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
+						.getByUserName(binder.getBean().getUserName());
 
-			if (retrieveBinderUserFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
-					&& !originalUser.getUserName().isEmpty() && !isErrored) {
+				if (retrieveBinderUserFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
+						&& !originalUser.getUserName().isEmpty() && !isErrored) {
 
-				fireEvent(new SaveEvent(this, binder.getBean()));
-			} else {
-
-				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
-
-					Notification notification = new Notification();
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notification.setPosition(Position.MIDDLE);
-					Button closeButton = new Button(new Icon("lumo", "cross"));
-					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-					closeButton.getElement().setAttribute("aria-label", "Close");
-					closeButton.addClickListener(event -> {
-						notification.close();
-					});
-
-					Paragraph text = new Paragraph("Error : Username not unique");
-
-					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-					layout.setAlignItems(Alignment.CENTER);
-
-					notification.add(layout);
-					notification.open();
-					
-					return;
-				}
-			}
-		}
-	}
-		}
-	
-
-	public void validateAndSaveNew() {
-
-		if (binder.validate().isOk()) {
-			System.out.println(binder.getBean().getUserEmail() != null + " validateAndSaveNew++++++++++++++++++++++++++++++++++++ "+ binder.getBean().getUserEmail());
-				
-			if (binder.getBean().getUserEmail() != null) {
-				
-				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
-				
-				if (binderEmailValidation == null) {
-					
 					fireEvent(new SaveEvent(this, binder.getBean()));
-
 				} else {
 
-					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
-							&& !binder.getBean().getUserName().isEmpty()) {
-//email has not changed
-						fireEvent(new SaveEvent(this, binder.getBean()));
-					} else {
+					if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
-						
 						Notification notification = new Notification();
 						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 						notification.setPosition(Position.MIDDLE);
@@ -678,21 +633,96 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email already in the system...");
+						Paragraph text = new Paragraph("Error : Username not unique");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
 
 						notification.add(layout);
 						notification.open();
+
 						return;
-						
-						
 					}
 				}
 			}
-			
-			
+		}
+	}
+
+//	public void validateAndSaveNew() {
+//
+//		if (binder.validate().isOk()) {
+//			System.out.println(binder.getBean().getUserEmail() != null + " validateAndSaveNew++++++++++++++++++++++++++++++++++++ "+ binder.getBean().getUserEmail());
+//				
+//			if (binder.getBean().getUserEmail() != null) {
+//				
+//				UserDto binderEmailValidation = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+//				
+//				if (binderEmailValidation == null) {
+//					
+//					fireEvent(new SaveEvent(this, binder.getBean()));
+//
+//				} else {
+//
+//					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
+//							&& !binder.getBean().getUserName().isEmpty()) {
+////email has not changed
+//						fireEvent(new SaveEvent(this, binder.getBean()));
+//					} else {
+//
+//						
+//						Notification notification = new Notification();
+//						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//						notification.setPosition(Position.MIDDLE);
+//						Button closeButton = new Button(new Icon("lumo", "cross"));
+//						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+//						closeButton.getElement().setAttribute("aria-label", "Close");
+//						closeButton.addClickListener(event -> {
+//							notification.close();
+//						});
+//
+//						Paragraph text = new Paragraph("Error : Email already in the system...");
+//
+//						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+//						layout.setAlignItems(Alignment.CENTER);
+//
+//						notification.add(layout);
+//						notification.open();
+//						return;
+//						
+//						
+//					}
+//				}
+//			}
+//			
+//			
+//			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+//
+//				Notification notification = new Notification();
+//				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//				notification.setPosition(Position.MIDDLE);
+//				Button closeButton = new Button(new Icon("lumo", "cross"));
+//				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+//				closeButton.getElement().setAttribute("aria-label", "Close");
+//				closeButton.addClickListener(event -> {
+//					notification.close();
+//				});
+//
+//				Paragraph text = new Paragraph("Error : Username not unique");
+//
+//				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+//				layout.setAlignItems(Alignment.CENTER);
+//
+//				notification.add(layout);
+//				notification.open();
+//				return;
+//			} else {
+//				fireEvent(new SaveEvent(this, binder.getBean()));
+//			}
+//		}
+//	}
+
+	public void validateAndSaveNew() {
+		if (binder.validate().isOk()) {
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
 				Notification notification = new Notification();
@@ -712,9 +742,35 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
-				return;
 			} else {
-				fireEvent(new SaveEvent(this, binder.getBean()));
+				if (FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail()) != null) {
+
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("Error : Email already in the system");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
+
+				} else {
+					if (binder.getBean().getUserEmail().isBlank() || binder.getBean().getUserEmail().isEmpty()) {
+						binder.getBean().setUserEmail(null);
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					}
+				}
 			}
 		}
 	}
