@@ -2,7 +2,9 @@ package com.cinoteck.application.views.uiformbuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.vaadin.flow.component.button.Button;
@@ -29,6 +31,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserRight;
 
 @PageTitle("APMIS-UI-Builder")
 @Route(value = "UI-Builder", layout = MainLayout.class)
@@ -47,6 +50,7 @@ public class FormBuilderView extends VerticalLayout {
 
 	CampaignFormMetaDto campaignFormMetaDto;
 
+	UserProvider userProvider = new UserProvider();
 	HorizontalLayout hr = new HorizontalLayout();
 
 	private Grid<CampaignFormMetaDto> grid = new Grid<>(CampaignFormMetaDto.class, false);
@@ -125,7 +129,30 @@ public class FormBuilderView extends VerticalLayout {
 		dataView = grid.setItems(dataprovider);
 		grid.setVisible(true);
 		grid.setWidthFull();
-		grid.setAllRowsVisible(true);		
+		grid.setAllRowsVisible(true);	
+		
+		if(userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
+			
+			grid.asSingleSelect().addValueChangeListener(event -> editForm(event.getValue()));
+		}
+			
+	}
+
+	private void editForm(CampaignFormMetaDto formData) {
+	
+		FormBuilderLayout formLayout = new FormBuilderLayout(formData, false);
+		formLayout.setForm(formData);
+		
+		formLayout.addSaveListener(this::saveForm);
+		Dialog dialog = new Dialog();
+		dialog.add(formLayout);
+		dialog.setHeaderTitle("Editing Form");
+		dialog.setSizeFull();
+		dialog.open();
+		dialog.setCloseOnEsc(false);
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setModal(true);
+		dialog.setClassName("edit-form");		
 	}
 
 	private void newForm(CampaignFormMetaDto formData) {
@@ -142,11 +169,11 @@ public class FormBuilderView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 		dialog.setModal(true);
-		dialog.setClassName("form");
+		dialog.setClassName("new-form");
 	}
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
-		FormBuilderLayout forLayout = event.getSource();
+//		FormBuilderLayout forLayout = event.getSource();
 		
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}

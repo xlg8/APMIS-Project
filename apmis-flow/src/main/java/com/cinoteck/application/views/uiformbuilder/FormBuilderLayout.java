@@ -53,8 +53,6 @@ public class FormBuilderLayout extends VerticalLayout {
 
 	FormGridComponent formGridComponent;
 
-	UUID uuid = UUID.randomUUID();
-
 	Binder<CampaignFormMetaDto> binder = new BeanValidationBinder<>(CampaignFormMetaDto.class);
 
 	FormLayout formLayout = new FormLayout();
@@ -176,20 +174,9 @@ public class FormBuilderLayout extends VerticalLayout {
 
 		if (binder.validate().isOk()) {
 
-			List<CampaignFormElement> superList = new ArrayList<>();
-			List<CampaignFormElement> dataList = formGridComponent.getGridData();
 			campaignFormMetaDto = binder.getBean();
+			campaignFormMetaDto.setCampaignFormElements(formGridComponent.getGridData());
 
-			for (CampaignFormElement item : dataList) {
-
-				if(item != null) {
-
-					System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");					
-					superList.add(item);
-				}
-			}
-			campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
-			campaignFormMetaDto.setCampaignFormElements(superList);
 			fireEvent(new SaveEvent(this, campaignFormMetaDto));
 
 			UI.getCurrent().getPage().reload();
