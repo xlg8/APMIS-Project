@@ -120,10 +120,11 @@ public interface Captions {
 	String editing="editing";
 	String apmisVersionNumber="apmisVersionNumber";
 	String releaseDate="releaseDate";
-	
-	
-	
-	
+	String upload="upload";
+	String overridaExistingEntriesWithImportedData="overridaExistingEntriesWithImportedData";
+	String downloadCredentialsButton="downloadCredentialsButton";
+	String done="done";
+	String downloadCsv="downloadCsv";
 	
 	
 	
