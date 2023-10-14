@@ -1070,7 +1070,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	
 	
 	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData;
+	return resultData.toString();
 	}
 	
 	
