@@ -27,6 +27,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -52,6 +53,8 @@ public class FormBuilderView extends VerticalLayout {
 
 	UserProvider userProvider = new UserProvider();
 	HorizontalLayout hr = new HorizontalLayout();
+	
+	CampaignFormCriteria criteria = new CampaignFormCriteria();
 
 	private Grid<CampaignFormMetaDto> grid = new Grid<>(CampaignFormMetaDto.class, false);
 	private GridListDataView<CampaignFormMetaDto> dataView;
@@ -88,6 +91,20 @@ public class FormBuilderView extends VerticalLayout {
 
 			campaignFormMetaDto = new CampaignFormMetaDto();
 			newForm(campaignFormMetaDto);
+		});
+		
+		search.addValueChangeListener(e -> dataView.addFilter(event -> {
+			String searchTerm = event.getFormName().trim();
+			if (searchTerm.isEmpty())
+				return true;
+			boolean matchesDistrictName = String.valueOf(event.getFormName()).toLowerCase()
+					.contains(searchTerm.toLowerCase());
+			return matchesDistrictName;
+		}));
+		
+		formPhase.addValueChangeListener(event -> {
+			
+			
 		});
 	}
 
