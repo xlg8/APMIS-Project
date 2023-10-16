@@ -62,7 +62,8 @@ public class SupportView extends VerticalLayout implements View {
 				+ "        });");
 		
 		Label infoLabel = new Label(
-				I18nProperties.getCaption(Captions.aboutApmisVersion) + " " + InfoProvider.InfoProvider_apmis(),
+				//I18nProperties.getCaption(Captions.aboutApmisVersion) +
+				" " + InfoProvider.InfoProvider_apmis(),
 				ContentMode.HTML);
 		addComponent(infoLabel);
 		

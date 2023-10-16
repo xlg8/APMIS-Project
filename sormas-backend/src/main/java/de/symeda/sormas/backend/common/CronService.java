@@ -57,145 +57,140 @@ public class CronService {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@EJB
-	private ConfigFacadeEjbLocal configFacade;
-	@EJB
-	private ContactFacadeEjbLocal contactFacade;
-	@EJB
-	private WeeklyReportFacadeEjbLocal weeklyReportFacade;
-	@EJB
-	private TaskFacadeEjbLocal taskFacade;
-	@EJB
-	private FeatureConfigurationFacadeEjbLocal featureConfigurationFacade;
-	@EJB
-	private CaseFacadeEjbLocal caseFacdade;
+//	@EJB
+//	private ConfigFacadeEjbLocal configFacade;
+//	@EJB
+//	private ContactFacadeEjbLocal contactFacade;
+//	@EJB
+//	private WeeklyReportFacadeEjbLocal weeklyReportFacade;
+//	@EJB
+//	private TaskFacadeEjbLocal taskFacade;
+//	@EJB
+//	private FeatureConfigurationFacadeEjbLocal featureConfigurationFacade;
+//	@EJB
+//	private CaseFacadeEjbLocal caseFacdade;
 	@EJB
 	private CampaignFormDataFacadeEjbLocal campaingDataFacade;
-	@EJB
-	private EventFacadeEjbLocal eventFacade;
-	@EJB
-	private DocumentFacadeEjbLocal documentFacade;
-	@EJB
-	private SystemEventFacadeEjbLocal systemEventFacade;
-	@EJB
-	private LabMessageFacadeEjbLocal labMessageFacade;
-	@EJB
-	private ImmunizationFacadeEjb.ImmunizationFacadeEjbLocal immunizationFacade;
+//	@EJB
+//	private EventFacadeEjbLocal eventFacade;
+//	@EJB
+//	private DocumentFacadeEjbLocal documentFacade;
+//	@EJB
+//	private SystemEventFacadeEjbLocal systemEventFacade;
+//	@EJB
+//	private LabMessageFacadeEjbLocal labMessageFacade;
+//	@EJB
+//	private ImmunizationFacadeEjb.ImmunizationFacadeEjbLocal immunizationFacade;
 
-	@Schedule(hour = "*", minute = "*/" + TASK_UPDATE_INTERVAL, second = "0", persistent = false)
-	public void sendNewAndDueTaskMessages() {
-		taskFacade.sendNewAndDueTaskMessages();
-	}
+//	@Schedule(hour = "*", minute = "*/" + TASK_UPDATE_INTERVAL, second = "0", persistent = false)
+//	public void sendNewAndDueTaskMessages() {
+//		taskFacade.sendNewAndDueTaskMessages();
+//	}
 
 	//check and update Analysis Table for Campaign Dashboard CampaignFormDataFacadeEjbLocal
 	@Schedule(hour = "*", minute = "*/15", second = "0", persistent = false)
 	public void calculateCaseCompletion() {
 		long timeStart = DateHelper.startTime();
 		campaingDataFacade.checkLastAnalytics();
-//		
-//		DashboardRunnable myRunnable = new DashboardRunnable();
-//        ExecutorService executor = Executors.newSingleThreadExecutor();
-//        executor.execute(myRunnable);
-//        executor.shutdown();
-		//int casesUpdated = campaingDataFacade..updateCompleteness();
+
 		logger.debug("running analytics updates finished. {} proccessed, {} s", 0, DateHelper.durationSeconds(timeStart));
 	}
-
-//	@Schedule(hour = "*", minute = "*/2", second = "0", persistent = false)
-//	public void checkAndUpdateAnalysis {
-//		long timeStart = DateHelper.startTime();
-//		int casesUpdated = caseFacade.updateCompleteness();
-//		logger.debug("calculateCaseCompletion finished. {} cases, {} s", casesUpdated, DateHelper.durationSeconds(timeStart));
+//
+////	@Schedule(hour = "*", minute = "*/2", second = "0", persistent = false)
+////	public void checkAndUpdateAnalysis {
+////		long timeStart = DateHelper.startTime();
+////		int casesUpdated = caseFacade.updateCompleteness();
+////		logger.debug("calculateCaseCompletion finished. {} cases, {} s", casesUpdated, DateHelper.durationSeconds(timeStart));
+////	}
+//	
+//	//
+//	@Schedule(hour = "1", minute = "0", second = "0", persistent = false)
+//	public void deleteAllExpiredFeatureConfigurations() {
+//
+//		// Remove all feature configurations whose end dates have been reached
+//		featureConfigurationFacade.deleteAllExpiredFeatureConfigurations(new Date());
+//		logger.info("Deleted expired feature configurations");
 //	}
-	
-	//
-	@Schedule(hour = "1", minute = "0", second = "0", persistent = false)
-	public void deleteAllExpiredFeatureConfigurations() {
-
-		// Remove all feature configurations whose end dates have been reached
-		featureConfigurationFacade.deleteAllExpiredFeatureConfigurations(new Date());
-		logger.info("Deleted expired feature configurations");
-	}
-
-	@Schedule(hour = "1", minute = "5", second = "0", persistent = false)
-	public void generateAutomaticTasks() {
-
-		if (featureConfigurationFacade.isTaskGenerationFeatureEnabled(TaskType.CONTACT_FOLLOW_UP)) {
-			contactFacade.generateContactFollowUpTasks();
-		}
-		if (featureConfigurationFacade.isTaskGenerationFeatureEnabled(TaskType.WEEKLY_REPORT_GENERATION)) {
-			weeklyReportFacade.generateSubmitWeeklyReportTasks();
-		}
-	}
-
-	@Schedule(hour = "1", minute = "10", second = "0", persistent = false)
-	public void cleanUpTemporaryFiles() {
-
-		Date now = new Date();
-		File exportFolder = new File(configFacade.getTempFilesPath());
-		int numberOfDeletedFiles = 0;
-		for (final File fileEntry : exportFolder.listFiles()) {
-			// Skip the file if it's a directory or not a temporary sormas file
-			if (!fileEntry.isFile() || (!fileEntry.getName().startsWith(ImportExportUtils.TEMP_FILE_PREFIX))) {
-				continue;
-			}
-
-			try {
-				BasicFileAttributes fileAttributes = Files.readAttributes(fileEntry.toPath(), BasicFileAttributes.class);
-				if (now.getTime() - fileAttributes.creationTime().toMillis() >= 1000 * 60 * 120) {
-					fileEntry.delete();
-					numberOfDeletedFiles++;
-				}
-			} catch (IOException e) {
-				logger.info("Error deleting a file in CronService. The file in question was " + fileEntry.getAbsolutePath(), e);
-			}
-		}
-
-		logger.info("Deleted " + numberOfDeletedFiles + " export files");
-	}
-
-	@Schedule(hour = "1", minute = "15", second = "0", persistent = false)
-	public void archiveCases() {
-
-		int daysAfterCaseGetsArchived = configFacade.getDaysAfterCaseGetsArchived();
-		if (daysAfterCaseGetsArchived >= 1) {
-			//caseFacade.archiveAllArchivableCases(daysAfterCaseGetsArchived);
-		}
-	}
-
-	@Schedule(hour = "1", minute = "20", second = "0", persistent = false)
-	public void archiveEvents() {
-
-		int daysAfterEventsGetsArchived = configFacade.getDaysAfterEventGetsArchived();
-		if (daysAfterEventsGetsArchived >= 1) {
-			eventFacade.archiveAllArchivableEvents(daysAfterEventsGetsArchived);
-		}
-	}
-
-	@Schedule(hour = "1", minute = "25", second = "0", persistent = false)
-	public void cleanupDeletedDocuments() {
-		documentFacade.cleanupDeletedDocuments();
-	}
-
-	@Schedule(hour = "1", minute = "30", second = "0", persistent = false)
-	public void deleteSystemEvents() {
-		int daysAfterSystemEventGetsDeleted = configFacade.getDaysAfterSystemEventGetsDeleted();
-		if (daysAfterSystemEventGetsDeleted >= 1) {
-			systemEventFacade.deleteAllDeletableSystemEvents(daysAfterSystemEventGetsDeleted);
-		}
-	}
-
-	@Schedule(hour = "1", minute = "35", second = "0", persistent = false)
-	public void fetchLabMessages() {
-		if (featureConfigurationFacade.isFeatureEnabled(FeatureType.LAB_MESSAGES)) {
-			labMessageFacade.fetchAndSaveExternalLabMessages(null);
-		}
-	}
-
-	@Schedule(hour = "1", minute = "40", second = "0", persistent = false)
-	public void updateImmunizationStatuses() {
-		if (featureConfigurationFacade.isFeatureEnabled(FeatureType.IMMUNIZATION_STATUS_AUTOMATION)) {
-			immunizationFacade.updateImmunizationStatuses();
-		}
-	}
+//
+//	@Schedule(hour = "1", minute = "5", second = "0", persistent = false)
+//	public void generateAutomaticTasks() {
+//
+//		if (featureConfigurationFacade.isTaskGenerationFeatureEnabled(TaskType.CONTACT_FOLLOW_UP)) {
+//			contactFacade.generateContactFollowUpTasks();
+//		}
+//		if (featureConfigurationFacade.isTaskGenerationFeatureEnabled(TaskType.WEEKLY_REPORT_GENERATION)) {
+//			weeklyReportFacade.generateSubmitWeeklyReportTasks();
+//		}
+//	}
+//
+//	@Schedule(hour = "1", minute = "10", second = "0", persistent = false)
+//	public void cleanUpTemporaryFiles() {
+//
+//		Date now = new Date();
+//		File exportFolder = new File(configFacade.getTempFilesPath());
+//		int numberOfDeletedFiles = 0;
+//		for (final File fileEntry : exportFolder.listFiles()) {
+//			// Skip the file if it's a directory or not a temporary sormas file
+//			if (!fileEntry.isFile() || (!fileEntry.getName().startsWith(ImportExportUtils.TEMP_FILE_PREFIX))) {
+//				continue;
+//			}
+//
+//			try {
+//				BasicFileAttributes fileAttributes = Files.readAttributes(fileEntry.toPath(), BasicFileAttributes.class);
+//				if (now.getTime() - fileAttributes.creationTime().toMillis() >= 1000 * 60 * 120) {
+//					fileEntry.delete();
+//					numberOfDeletedFiles++;
+//				}
+//			} catch (IOException e) {
+//				logger.info("Error deleting a file in CronService. The file in question was " + fileEntry.getAbsolutePath(), e);
+//			}
+//		}
+//
+//		logger.info("Deleted " + numberOfDeletedFiles + " export files");
+//	}
+//
+//	@Schedule(hour = "1", minute = "15", second = "0", persistent = false)
+//	public void archiveCases() {
+//
+//		int daysAfterCaseGetsArchived = configFacade.getDaysAfterCaseGetsArchived();
+//		if (daysAfterCaseGetsArchived >= 1) {
+//			//caseFacade.archiveAllArchivableCases(daysAfterCaseGetsArchived);
+//		}
+//	}
+//
+//	@Schedule(hour = "1", minute = "20", second = "0", persistent = false)
+//	public void archiveEvents() {
+//
+//		int daysAfterEventsGetsArchived = configFacade.getDaysAfterEventGetsArchived();
+//		if (daysAfterEventsGetsArchived >= 1) {
+//			eventFacade.archiveAllArchivableEvents(daysAfterEventsGetsArchived);
+//		}
+//	}
+//
+//	@Schedule(hour = "1", minute = "25", second = "0", persistent = false)
+//	public void cleanupDeletedDocuments() {
+//		documentFacade.cleanupDeletedDocuments();
+//	}
+//
+//	@Schedule(hour = "1", minute = "30", second = "0", persistent = false)
+//	public void deleteSystemEvents() {
+//		int daysAfterSystemEventGetsDeleted = configFacade.getDaysAfterSystemEventGetsDeleted();
+//		if (daysAfterSystemEventGetsDeleted >= 1) {
+//			systemEventFacade.deleteAllDeletableSystemEvents(daysAfterSystemEventGetsDeleted);
+//		}
+//	}
+//
+//	@Schedule(hour = "1", minute = "35", second = "0", persistent = false)
+//	public void fetchLabMessages() {
+//		if (featureConfigurationFacade.isFeatureEnabled(FeatureType.LAB_MESSAGES)) {
+//			labMessageFacade.fetchAndSaveExternalLabMessages(null);
+//		}
+//	}
+//
+//	@Schedule(hour = "1", minute = "40", second = "0", persistent = false)
+//	public void updateImmunizationStatuses() {
+//		if (featureConfigurationFacade.isFeatureEnabled(FeatureType.IMMUNIZATION_STATUS_AUTOMATION)) {
+//			immunizationFacade.updateImmunizationStatuses();
+//		}
+//	}
 }
