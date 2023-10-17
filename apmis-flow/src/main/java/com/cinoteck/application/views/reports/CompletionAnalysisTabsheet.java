@@ -29,7 +29,7 @@ public class CompletionAnalysisTabsheet extends VerticalLayout implements Router
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.dataCompleteness)),
 				new CompletionAnalysisView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.adminDataCompleteness)), new AdminCompletionAnalysisView());
-		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.syncErrors)), new FlwErrorAnalysisView());
+		tabComponentMap.put(new Tab("FLW Operation Report"), new FlwErrorAnalysisView());//new Tab(I18nProperties.getCaption(Captions.syncErrors)), new FlwErrorAnalysisView());
 //		tabComponentMap.put(new Tab("Admin Data Completion"), new AdminCompletionAnalysisView());
 		tabList = new ArrayList<>(tabComponentMap.keySet());
 		    Tabs tabs = new Tabs(tabList.toArray(new Tab[] {}));

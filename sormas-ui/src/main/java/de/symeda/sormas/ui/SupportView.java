@@ -61,10 +61,18 @@ public class SupportView extends VerticalLayout implements View {
 				+ "});\n"
 				+ "        });");
 		
-//		Label infoLabel = new Label(
-//				I18nProperties.getCaption(Captions.aboutApmisVersion) + " " + InfoProvider.InfoProvider_apmis(),
-//				ContentMode.HTML);
-//		addComponent(infoLabel);
+//<<<<<<< HEAD
+////		Label infoLabel = new Label(
+////				I18nProperties.getCaption(Captions.aboutApmisVersion) + " " + InfoProvider.InfoProvider_apmis(),
+////				ContentMode.HTML);
+////		addComponent(infoLabel);
+//=======
+		Label infoLabel = new Label(
+				//I18nProperties.getCaption(Captions.aboutApmisVersion) +
+				" " + InfoProvider.InfoProvider_apmis(),
+				ContentMode.HTML);
+		addComponent(infoLabel);
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 		
 	}
 	

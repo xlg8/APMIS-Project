@@ -57,6 +57,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
 	
+	public static final String PERSON_TITLE = "personTitle";
 
 	private static final long serialVersionUID = -6672198324526771162L;
 
@@ -90,6 +91,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	
 	private String source;
 	private String creatingUser;
+	
+	private String personTitle;
 	
 	public CampaignFormDataIndexDto(
 		String uuid,
@@ -128,6 +131,23 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.creatingUser = creatingUser;
 	}
 	
+	
+			//FLW Contructor
+	public CampaignFormDataIndexDto(String area, String region, String district, Integer clusternumber, Long ccode,
+			String source, String creatingUser, String personTitle, String error_status) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.clusternumber = clusternumber;
+		this.ccode = ccode;
+		this.source = source; //taskiaNumber
+		this.creatingUser = creatingUser;
+		this.personTitle = personTitle;
+		this.error_status = "Error: Duplicate Tazkira number";
+	}
+
+
+
 	public CampaignFormDataIndexDto(
 			String area,
 			String region,
@@ -455,8 +475,22 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setError_status(String error_status) {
 		this.error_status = error_status;
 	}
+
+	public Long getCampaign_id() {
+		return campaign_id;
+	}
+
+	public void setCampaign_id(Long campaign_id) {
+		this.campaign_id = campaign_id;
+	}
 	
+	public String getPersonTitle() {
+		return personTitle;
+	}
 	
+	public void setPersonTitle(String personTitle) {
+		this.personTitle = personTitle;
+	}
 
 	
 }

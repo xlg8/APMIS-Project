@@ -716,3 +716,7 @@ vaadin-checkbox.custom-checkbox-class:checked {
 	align-self : center;
 	font-size :  9px
 }
+
+.toggle-button-group[invalid] {
+    background-color: #ffe5e5;
+}

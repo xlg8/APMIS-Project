@@ -126,6 +126,6 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataIndexDto> getFlwDuplicateErrorAnalysis(CampaignFormDataCriteria criteria, Integer first,
 			Integer max, List<SortProperty> sortProperties);
 
-	String getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
+	int getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties);
 }

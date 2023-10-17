@@ -429,7 +429,22 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Override
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
-		System.out.println(" ==============getByCompletionAnalysisCountgetByCompletionAnalysisCount======= ");
+		
+		int isLocked = isUpdateTrakerLocked("completionanalysisview_e"); 
+		if(isLocked == 0){
+			updateTrakerTableCoreTimeStamp("campaignformdata");
+			//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
+			if (isAnalyticsOld) {
+				try{
+					updateTrakerTable("completionanalysisview_e", true);
+					int noUse = prepareAllCompletionAnalysis();
+				} finally {
+					updateTrakerTable("completionanalysisview_e", false);
+				}
+			}
+		}
+		
 		String error_statusFilter ="";
 		boolean filterIsNull = criteria.getCampaign() == null;
 
@@ -498,20 +513,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 //		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== "+joiner);
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
-	
+	 
 	
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
 		String error_statusFilter ="";
-
-		//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
 		
-		if(isAnalyticsOld) {
-			System.out.println(" ==runing analysis again=======++++++++++++++++++++++++++++++++++ ");
-			int noUse = prepareAllCompletionAnalysis();
-		}
+		
 		
 		boolean filterIsNull = criteria.getCampaign() == null ;
 		
@@ -750,46 +759,32 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			for (SortProperty sortProperty : sortProperties) {
 				switch (sortProperty.propertyName) {
 				case "region":
-					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by areas.name " + (sortProperty.ascending ? "asc" : "desc") : orderby+", areas.name " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "province":
-					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by region.name " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region.name " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 					
 				case "district":
-					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by district.name " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district.name " + (sortProperty.ascending ? "asc" : "desc");
 				break;	
 				
 				case "clusterNumber":
-					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by community.clusternumber " + (sortProperty.ascending ? "asc" : "desc") : orderby+", community.clusternumber " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "ccode":
-					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by community.externalid " + (sortProperty.ascending ? "asc" : "desc") : orderby+", community.externalid " + (sortProperty.ascending ? "asc" : "desc");
 				break;
-				
-//				case "supervisor":
-//					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "revisit":
-//					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "household":
-//					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "teammonitori":
-//					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-				
-				case "errorfilter":
-					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
+								
+				case "creatinguser":
+					orderby = orderby.isEmpty() ? " order by users.firstname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", users.firstname " + (sortProperty.ascending ? "asc" : "desc");
 				break;
-				
-				
+//				
+				case "title":
+					orderby = orderby.isEmpty() ? " order by users.userposition " + (sortProperty.ascending ? "asc" : "desc") : orderby+", users.userposition " + (sortProperty.ascending ? "asc" : "desc");
+				break;
 				
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -816,7 +811,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "    community.externalid AS ccode,\n"
 				+ "    users.firstname as firstName,\n"
 				+ "    users.userposition as title,\n"
-				+ "    jsondata.value ->> 'value'::text as tazkiraNumber\n"
+				+ "    jsondata.value ->> 'value' as tazkiraNumber\n"
 				+ "FROM campaignformdata\n"
 				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
 				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
@@ -828,17 +823,15 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),\n"
 				+ "LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)\n"
 				+ "WHERE \n"
-				+ "    (jsondata.value ->> 'id'::text) IN ('TazkiraNo') AND\n"
-				+ "    (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) \n"
+				+ "    (jsondata.value ->> 'id') IN ('TazkiraNo') AND\n"
+				+ "    (jsondata.value ->> 'id') = (jsonmeta.value ->> 'id') \n"
 				+whereclause+"\n"
 				+ "    and campaignformdata.id in (\n"
-				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id), ', '), ',')) AS bigint) AS individual_values\n"
+				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id),', '), ',')) AS bigint) AS individual_values\n"
 				+ "		FROM flwduplicateerrorreport\n"
 				+ "		GROUP BY value\n"
 				+ "		HAVING COUNT(*) > 1\n"
-				+ "    );"
-				
-				+ ""+whereclause+" \n"
+				+ "    ) "
 				
 				+ orderby
 				+ " limit "+max+" offset "+first+";";
@@ -856,26 +849,23 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		
 	System.out.println("starting....");
 		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CampaignFormDataIndexDto(
-//						(String) result[0].toString(), 
-//						(String) result[1].toString(),
-//						(String) result[2].toString(),
-//						"", 
-//						(Integer) result[3], 
-//						((BigInteger) result[4]).longValue(),  
-//						((BigInteger) result[5]).longValue(), 
-//						((BigInteger) result[6]).longValue(), 
-//						((BigInteger) result[7]).longValue(),
-//						((BigInteger) result[8]).longValue(),
-//					
-//						(String) result[9].toString()
-//				)).collect(Collectors.toList()));
+	
+	//public CampaignFormDataIndexDto(String area, String region, String district, Integer clusternumber, Long ccode,
+	//String source, String creatingUser, String title, String error_status) {
+	
+	resultData.addAll(resultList.stream()
+			.map((result) -> new CampaignFormDataIndexDto(
+						(String) result[0].toString(), 
+						(String) result[1].toString(),
+						(String) result[2].toString(),
+						(Integer) result[3], 
+						((BigInteger) result[4]).longValue(),  
+						((String) result[5]).toString(), 
+						((String) result[6]).toString(), 
+						((String) result[7]).toString(),
+						((String) result[8]).toString()
+					)).collect(Collectors.toList()));
 		
-	//	//System.out.println("ending...." +resultData.size());
-	
-	
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
@@ -884,7 +874,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 	
 	@Override
-	public String getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
+	public int getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
 		String error_statusFilter ="";
 
@@ -919,10 +909,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		
 		whereclause = "and " + campaignFilter + areaFilter + regionFilter + districtFilter ;
-		
-		
-		
-		
+	
 		System.out.println(campaignFilter+" ===================== "+whereclause);
 		}
 		String addedWhere = "";
@@ -931,78 +918,11 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if(!filterIsNull) {
 			
 			whereclause = whereclause;
-//			+" and (analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0)";
-			
+	
 		} 
-//		else {
-//			whereclause = "where analyticz.supervisor = 0 or analyticz.revisit = 0 or analyticz.household = 0 or analyticz.teammonitori = 0";
-//		}
 
-		String orderby = "";
-
-		if (sortProperties != null && sortProperties.size() > 0) {
-			for (SortProperty sortProperty : sortProperties) {
-				switch (sortProperty.propertyName) {
-				case "region":
-					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "province":
-					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-					
-				case "district":
-					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
-				break;	
-				
-				case "clusterNumber":
-					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "ccode":
-					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-//				case "supervisor":
-//					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "revisit":
-//					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "household":
-//					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-//				
-//				case "teammonitori":
-//					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
-//				break;
-				
-				case "errorfilter":
-					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				
-				
-				default:
-					throw new IllegalArgumentException(sortProperty.propertyName);
-				}
-				
-			}
-		}
-		
-		System.out.println(" ====orderbyorderbyderby====== "+orderby);
-		
-		
-		
-		
-		
-		
-		
-		
 		final String joinBuilder = ""
-				+ " SELECT \n"
+				+ "SELECT \n"
 				+ "    areas.name AS area,\n"
 				+ "    region.name AS region,\n"
 				+ "    district.name AS district,\n"
@@ -1010,7 +930,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "    community.externalid AS ccode,\n"
 				+ "    users.firstname as firstName,\n"
 				+ "    users.userposition as title,\n"
-				+ "    jsondata.value ->> 'value'::text as tazkiraNumber\n"
+				+ "    jsondata.value ->> 'value' as tazkiraNumber\n"
 				+ "FROM campaignformdata\n"
 				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
 				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
@@ -1022,62 +942,28 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ "LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),\n"
 				+ "LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)\n"
 				+ "WHERE \n"
-				+ "    (jsondata.value ->> 'id'::text) IN ('TazkiraNo') AND\n"
-				+ "    (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) \n"
-				+whereclause+"\n"
+				+ "    (jsondata.value ->> 'id') IN ('TazkiraNo') AND\n"
+				+ "    (jsondata.value ->> 'id') = (jsonmeta.value ->> 'id') \n"
+				+whereclause+" \n"
 				+ "    and campaignformdata.id in (\n"
-				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id), ', '), ',')) AS bigint) AS individual_values\n"
+				+ "	    SELECT CAST(unnest(string_to_array(array_to_string(array_agg (id),', '), ',')) AS bigint) AS individual_values\n"
 				+ "		FROM flwduplicateerrorreport\n"
 				+ "		GROUP BY value\n"
 				+ "		HAVING COUNT(*) > 1\n"
-				+ "    );"
-				
-				+ ""+whereclause+" \n"
-				
-				+ orderby
-				+ " limit "+max+" offset "+first+";";
+				+ "    )";
 		
 	System.out.println("=====seriesDataQuery======== "+joinBuilder);
 		
 		
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
 		
-		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
-		
-		
-		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
-	System.out.println("starting....");
-		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CampaignFormDataIndexDto(
-//						(String) result[0].toString(), 
-//						(String) result[1].toString(),
-//						(String) result[2].toString(),
-//						"", 
-//						(Integer) result[3], 
-//						((BigInteger) result[4]).longValue(),  
-//						((BigInteger) result[5]).longValue(), 
-//						((BigInteger) result[6]).longValue(), 
-//						((BigInteger) result[7]).longValue(),
-//						((BigInteger) result[8]).longValue(),
-//					
-//						(String) result[9].toString()
-//				)).collect(Collectors.toList()));
-		
-	//	//System.out.println("ending...." +resultData.size());
-	
-	
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData.toString();
+	return seriesDataQuery.getResultList().size();
+
 	}
-	
-	
 
 	@Override
 	public int prepareAllCompletionAnalysis() {
-		
+		System.out.println(" =========prepareAllCompletionAnalysis==--------------------");
 		final String[] jpqlQueries = {
 
 			//clear the table
@@ -1143,9 +1029,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		try {
 			for (String sqlQuery : jpqlQueries) {
-				
-		      em.createNativeQuery(sqlQuery).executeUpdate();
-		      
+				System.out.println(" =========EXCUTING: " +sqlQuery);
+		      int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
+		      System.out.println(" =========done: " +dsc);
 		    }
 		} catch (Exception e) {
 		   System.err.println(e.getStackTrace());
@@ -2928,9 +2814,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	public void checkLastAnalytics() {
+		//completionanalysisview_e
+		int isLocked = isUpdateTrakerLocked("camapaigndata_main");
+		if(isLocked == 0){
+		updateTrakerTableCoreTimeStamp("campaignformdata");
+		
 		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "camapaigndata_main");
+		
 		if (isAnalyticsOld) {
-
 			final String jpqlQueries = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_main;";
 			final String jpqlQueries_ = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_admin;";
 
@@ -2944,7 +2835,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				updateTrakerTable("camapaigndata_main", false);
 
 				try {
-					updateTrakerTable("camapaigndata_main", true);
+					updateTrakerTable("camapaigndata_admin", true);
 					em.createNativeQuery(jpqlQueries_).executeUpdate();
 
 				} catch (Exception e) {
@@ -2955,30 +2846,61 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			}
 
 		}
+		}
 	}
+	
+	private int isUpdateTrakerLocked(String tableToCheck) {
+		// get the total size of the analysis
+		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '"+tableToCheck+"' and isLocked = true;";
+
+		return Integer.parseInt(em.createNativeQuery(joinBuilder).getSingleResult().toString());
+
+	};
 
 	private void updateTrakerTable(String tabled, boolean isLocked_) {
 		// get the total size of the analysis
+		System.out.println("111111111111111111updateTrakerTable(    :"+tabled);
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
-				+ "    VALUES ('" + tabled + "', NOW(), isLocked_)\n" + "    ON CONFLICT (table_name)\n"
-				+ "    DO UPDATE SET last_updated = NOW(), isLocked = isLocked_;";
+				+ "    VALUES ('" + tabled + "', NOW(), "+isLocked_+")\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW(), isLocked = "+isLocked_+";";
 
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
 
+	
+	
+	private void updateTrakerTableCoreTimeStamp(String coretabled) {
+		// get the total size of the analysis
+		final String joinBuilder = "update tracktableupdates set last_updated = (select lastupdated from campaignformdata ORDER BY lastupdated DESC limit 1) "
+				+ "where table_name = 'campaignformdata';";
+
+		em.createNativeQuery(joinBuilder).executeUpdate();
+
+	};
+	
+	
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysisAdmin(CampaignFormDataCriteria criteria, Integer first,
 			Integer max, List<SortProperty> sortProperties, FormAccess frm) {
-
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata",
-				"completionanalysisview_e");
-
-		if (isAnalyticsOld) {
-//			System.out.println(" ==runing analysis again=======++++++++++++++++++++++++++++++++++ ");
-			int noUse = prepareAllCompletionAnalysis();
+		
+		int isLocked = isUpdateTrakerLocked("completionanalysisview_e");
+		System.out.println(" =========ADMINNN===--------------------: "+isLocked);
+		if (isLocked == 1) {
+			//RESET TO LAST TIME CAMPAIGN FORM WAS SUBMITTED
+			updateTrakerTableCoreTimeStamp("campaignformdata");
+			
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
+			System.out.println(" =========ADMINNN===--------------------: "+isAnalyticsOld);
+			if (isAnalyticsOld) {
+				try{
+					updateTrakerTable("completionanalysisview_e", true);
+					int noUse = prepareAllCompletionAnalysis();
+				} finally {
+					updateTrakerTable("completionanalysisview_e", false);
+				}
+			}
 		}
-
 		boolean filterIsNull = criteria.getCampaign() == null;
 
 		String joiner = "";

@@ -75,6 +75,7 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.poi.hssf.util.AreaReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -462,6 +463,72 @@ System.out.println("YESSSS");
 
 		writeTemplate(Paths.get(getUserImportTemplateFilePath()), importColumns, false);
 	}
+	
+	@Override
+	public void generateAreaImportTemplateFile() throws IOException {
+		
+		createExportDirectoryIfNecessary();
+
+		char separator = configFacade.getCsvSeparator();
+		
+		List<ImportColumn> importColumns = new ArrayList<>();
+		importColumns.add(ImportColumn.from(AreaDto.class, AreaDto.NAME, String.class, separator));
+		importColumns.add(ImportColumn.from(AreaDto.class, AreaDto.EXTERNAL_ID, Integer.class, separator));
+		
+		writeTemplate(Paths.get(getAreaImportTemplateFilePath()), importColumns, false);
+	}
+	
+	@Override
+	public void generateRegionImportTemplateFile() throws IOException {
+		
+		createExportDirectoryIfNecessary();
+
+		char separator = configFacade.getCsvSeparator();
+		
+		List<ImportColumn> importColumns = new ArrayList<>();
+		importColumns.add(ImportColumn.from(AreaDto.class, "RCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(RegionDto.class, "Province_Name", String.class, separator));
+		importColumns.add(ImportColumn.from(RegionDto.class, "PCode", Integer.class, separator));
+
+		
+		writeTemplate(Paths.get(getRegionImportTemplateFilePath()), importColumns, false);
+	}
+
+	
+	@Override
+	public void generateDistrictImportTemplateFile() throws IOException {
+		
+		createExportDirectoryIfNecessary();
+
+		char separator = configFacade.getCsvSeparator();
+		
+		List<ImportColumn> importColumns = new ArrayList<>();
+		importColumns.add(ImportColumn.from(Region.class, "PCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(DistrictDto.class, "District_Name", String.class, separator));
+		importColumns.add(ImportColumn.from(DistrictDto.class, "DCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(DistrictDto.class, DistrictDto.RISK, String.class, separator));
+		
+		writeTemplate(Paths.get(getDistrictImportTemplateFilePath()), importColumns, false);
+	}
+	
+	@Override
+	public void generateCommunityImportTemplateFile() throws IOException {
+		
+		createExportDirectoryIfNecessary();
+
+		char separator = configFacade.getCsvSeparator();
+		
+		List<ImportColumn> importColumns = new ArrayList<>();
+		importColumns.add(ImportColumn.from(Region.class, "PCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(DistrictDto.class, "DCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(CommunityDto.class, "Cluster_Name", String.class, separator));
+		importColumns.add(ImportColumn.from(CommunityDto.class, "CCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(CommunityDto.class, "ClusterNo", Integer.class, separator));
+		
+		writeTemplate(Paths.get(getCommunityImportTemplateFilePath()), importColumns, false);
+	}
+	
+	
 
 	private void createExportDirectoryIfNecessary() throws IOException {
 
@@ -471,11 +538,6 @@ System.out.println("YESSSS");
 			logger.error("Generated files directory doesn't exist and creation failed.");
 			throw e;
 		}
-	}
-
-	@Override
-	public void generateAreaImportTemplateFile() throws IOException {
-		generateImportTemplateFile(AreaDto.class, Paths.get(getAreaImportTemplateFilePath()));
 	}
 
 	@Override
@@ -493,20 +555,15 @@ System.out.println("YESSSS");
 		generateImportTemplateFile(CountryDto.class, Paths.get(getCountryImportTemplateFilePath()));
 	}
 
-	@Override
-	public void generateRegionImportTemplateFile() throws IOException {
-		generateImportTemplateFile(RegionDto.class, Paths.get(getRegionImportTemplateFilePath()));
-	}
+//	@Override
+//	public void generateDistrictImportTemplateFile() throws IOException {
+//		generateImportTemplateFile(DistrictDto.class, Paths.get(getDistrictImportTemplateFilePath()));
+//	}
 
-	@Override
-	public void generateDistrictImportTemplateFile() throws IOException {
-		generateImportTemplateFile(DistrictDto.class, Paths.get(getDistrictImportTemplateFilePath()));
-	}
-
-	@Override
-	public void generateCommunityImportTemplateFile() throws IOException {
-		generateImportTemplateFile(CommunityDto.class, Paths.get(getCommunityImportTemplateFilePath()));
-	}
+//	@Override
+//	public void generateCommunityImportTemplateFile() throws IOException {
+//		generateImportTemplateFile(CommunityDto.class, Paths.get(getCommunityImportTemplateFilePath()));
+//	}
 
 	@Override
 	public void generateFacilityImportTemplateFile() throws IOException {
