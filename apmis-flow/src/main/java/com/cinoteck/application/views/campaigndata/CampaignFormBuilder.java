@@ -914,6 +914,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					select.setItems(sortedKeys);
 
+					select.setRequiredIndicatorVisible(formElement.isImportant());
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
 
@@ -1506,7 +1507,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	}
 
 	private boolean validateAndSave() {
-		boolean anyProblem = false;
+		hasErrorFormValuesReset();
 		fields.forEach((key, value) -> {
 			Component formField = fields.get(key);
 
@@ -1533,9 +1534,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 
 			if (((AbstractField) formField).isRequiredIndicatorVisible()) {
+				System.out.println(((AbstractField) formField).getValue() + "++++++++++" +((AbstractField) formField).getId());
+				
 				if (((AbstractField) formField).getValue() == null || ((AbstractField) formField).getValue() == "") {
 					hasErrorFormValues(6);
 					formField.getElement().setProperty("invalid", true);
+				} else {
+					formField.getElement().setProperty("invalid", false);
 				}
 			}
 
@@ -1587,6 +1592,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 //		Notification.show("Error found in: " + numer);
 		invalidForm = true;
 
+	}
+	
+	public void hasErrorFormValuesReset() {
+		invalidForm = false;
 	}
 
 	public boolean saveFormValues() {

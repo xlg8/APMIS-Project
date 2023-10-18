@@ -8829,36 +8829,45 @@ INSERT INTO schema_version (version_number, comment) VALUES (443, 'Optimizing co
     
     
   --Patch of Optimzation #202 Dashboard  
+-- public.camapaigndata_main source
 
-CREATE MATERIALIZED VIEW camapaigndata_main
-AS
-select  
-campaignformmeta.uuid as formUuid, 
-campaignformmeta.formId as formId, 
-jsonData->>'id' as fieldId, 
-jsonMeta->>'caption' as fieldCaption, 
-CASE WHEN ((jsonMeta ->> 'type') = 'number') OR((jsonMeta ->> 'type') = 'decimal') OR((jsonMeta ->> 'type') = 'range') THEN sum(cast_number(jsonData->>'value', 0)) ELSE sum(CASE WHEN(jsonData->>'value') = '' THEN 0 ELSE 1 END) END as sumValue, 
-areas."name" as Area, 
-region."name" as Region, 
-district."name" as District,
-areas.uuid as areas_uuid, 
-region.uuid as region_uuid, 
-district.uuid as district_uuid,
-campaigns.uuid as campaigns_uuid
-FROM campaignFormData
-LEFT JOIN campaignformmeta ON campaignFormMeta_id = campaignformmeta.id
-LEFT JOIN region ON region_id =region.id
-LEFT JOIN areas ON campaignFormData.area_id = areas.id
-LEFT JOIN district ON district_id = district.id
-LEFT JOIN community ON community_id = community.id
-LEFT JOIN campaigns ON campaign_id = campaigns.id,
-json_array_elements(formValues) as jsonData, json_array_elements(campaignFormElements) as jsonMeta
-WHERE jsonData->>'value' IS NOT NULL
-AND jsonData->>'id' = jsonMeta->>'id'
-GROUP BY campaigns.uuid, campaignformmeta.uuid, campaignformmeta.formId, jsonData->>'id', jsonMeta->>'caption', jsonMeta->>'type', areas."name", region."name", district."name", areas.uuid, region.uuid, district.uuid
-with data;
+CREATE MATERIALIZED VIEW public.camapaigndata_main
+TABLESPACE pg_default
+AS SELECT campaignformmeta.uuid AS formuuid,
+    campaignformmeta.formid,
+    jsondata.value ->> 'id'::text AS fieldid,
+    jsonmeta.value ->> 'caption'::text AS fieldcaption,
+        CASE
+            WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR (jsonmeta.value ->> 'type'::text) = 'range'::text THEN sum(cast_number(jsondata.value ->> 'value'::text, 0::numeric))
+            WHEN (jsonmeta.value ->> 'type'::text) = 'text'::text THEN sum(
+            CASE
+                WHEN (jsondata.value ->> 'value'::text) = ''::text THEN 0
+                ELSE 1
+            END)::numeric
+            ELSE NULL::numeric
+        END AS sumvalue,
+    areas.name AS area,
+    region.name AS region,
+    district.name AS district,
+    areas.uuid AS areas_uuid,
+    region.uuid AS region_uuid,
+    district.uuid AS district_uuid,
+    campaigns.uuid AS campaigns_uuid
+   FROM campaignformdata
+     LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN region ON campaignformdata.region_id = region.id
+     LEFT JOIN areas ON campaignformdata.area_id = areas.id
+     LEFT JOIN district ON campaignformdata.district_id = district.id
+     LEFT JOIN community ON campaignformdata.community_id = community.id
+     LEFT JOIN campaigns ON campaignformdata.campaign_id = campaigns.id,
+    LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),
+    LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)
+  WHERE (jsondata.value ->> 'value'::text) IS NOT NULL AND (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) AND campaignformdata.archived = false AND campaigns.archived = false AND (jsonmeta.value ->> 'caption'::text) IS NOT NULL AND (jsondata.value ->> 'value'::text) <> '0'::text AND (jsondata.value ->> 'value'::text) <> ''::text
+  GROUP BY campaigns.uuid, campaignformmeta.uuid, campaignformmeta.formid, (jsondata.value ->> 'id'::text), (jsonmeta.value ->> 'caption'::text), (jsonmeta.value ->> 'type'::text), areas.name, region.name, district.name, areas.uuid, region.uuid, district.uuid
+WITH DATA;
 
-CREATE UNIQUE INDEX camapaigndata_main_fieldid_idx ON public.camapaigndata_main (fieldid,formuuid,campaigns_uuid,district_uuid);
+-- View indexes:
+CREATE UNIQUE INDEX camapaigndata_main_fieldid_idx ON public.camapaigndata_main USING btree (fieldid, formuuid, campaigns_uuid, district_uuid);
 
 INSERT INTO tracktableupdates (table_name, last_updated)
 VALUES ('camapaigndata_main', NOW())

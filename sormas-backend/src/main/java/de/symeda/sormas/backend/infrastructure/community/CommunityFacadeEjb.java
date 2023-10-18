@@ -27,6 +27,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.print.attribute.standard.MediaSize.ISO;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -202,9 +203,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		System.out.println("DEBUGGER r567ujhgty8isdfasjyu8dfrf  " + SQLExtractor.from(em.createQuery(cq)));
 
-		return QueryHelper.getResultList(em, cq, first, max, this::toDtoList);// .stream().filter(e -> e.getMessage() !=
-																				// "Correctly
-																				// assigned").collect(Collectors.toList());
+		return QueryHelper.getResultList(em, cq, first, max, this::toDtoList);
 	}
 
 	private void updateTrakerTable() {
@@ -216,19 +215,44 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
+	
+	private int isUpdateTrakerLocked(String tableToCheck) {
+		// get the total size of the analysis
+		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '"+tableToCheck+"' and isLocked = true;";
+		return Integer.parseInt(em.createNativeQuery(joinBuilder).getSingleResult().toString());
+
+	};
+
+	private void updateTrakerTable(String tabled, boolean isLocked_) {
+		// get the total size of the analysis
+		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
+				+ "    VALUES ('" + tabled + "', NOW(), "+isLocked_+")\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW(), isLocked = "+isLocked_+";";
+		em.createNativeQuery(joinBuilder).executeUpdate();
+	};
 
 	@Override
 	public List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceFlow(CommunityCriteriaNew criteria,
 			Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
 		frmsAccess = formacc;
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
+		int isLocked = isUpdateTrakerLocked("useranalysis_main");
+		if(isLocked == 0){
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
+	
+				if (isAnalyticsOld) {
+					try {
+						updateTrakerTable("useranalysis_main", true);
+						
+						updateTrakerTable();
+						String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
+						em.createNativeQuery(updateAnalysisSql).executeUpdate();
 
-		if (isAnalyticsOld) {
-
-			updateTrakerTable();
-			String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
-			em.createNativeQuery(updateAnalysisSql).executeUpdate();
-
+					} catch (Exception e) {
+						
+					} finally {
+						updateTrakerTable("useranalysis_main", false);
+					}
+				}
 		}
 
 		boolean filterIsNull = criteria.getArea() == null;
@@ -371,15 +395,22 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	public Integer getAllActiveCommunitytoRerenceCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
 
 		frmsAccess = formacc;
-		
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
-
-		if (isAnalyticsOld) {
-
-			updateTrakerTable();
-			String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
-			em.createNativeQuery(updateAnalysisSql).executeUpdate();
-
+		int isLocked = isUpdateTrakerLocked("useranalysis_main");
+		if(isLocked == 0){
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
+				if (isAnalyticsOld) {
+					try {
+						updateTrakerTable("useranalysis_main", true);
+				
+						
+						String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
+						em.createNativeQuery(updateAnalysisSql).executeUpdate();
+						updateTrakerTable();
+					} finally {
+						updateTrakerTable("useranalysis_main", false);
+						
+					}
+				}
 		}
 
 		boolean filterIsNull = criteria == null;

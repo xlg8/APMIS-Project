@@ -57,7 +57,11 @@ import de.symeda.sormas.api.utils.ValidationRuntimeException;
 public class ProvinceDataImporter extends DataImporter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProvinceDataImporter.class);
-
+	
+	private static final String PROVINCE_NAME = "Province_Name";
+	private static final String R_CODE = "RCode";
+	private static final String P_CODE = "PCode";
+			
 	private final RegionFacade regionFacade;
 
 	private UI currentUI;
@@ -96,37 +100,33 @@ public class ProvinceDataImporter extends DataImporter {
 
 		// Lets run some validations
 
-		AreaReferenceDto area = null;
-		RegionReferenceDto region = null;
-		RegionDto regionDto = null;
+		AreaReferenceDto region = null;
 		Long provinceExternalId = null;
-		Long areax = null;
 		String provinceName = "";
-
+		
 		// Retrieve the region and district from the database or throw an error if more
 		// or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
-
 			
-			if (RegionDto.NAME.equalsIgnoreCase(entityProperties[i])) {
-
+			if (PROVINCE_NAME.equalsIgnoreCase(entityProperties[i])) {
+				String provinceName_ = values[i];
 				if (DataHelper.isNullOrEmpty(values[i])) {
-					provinceName = null;
+					provinceName = "";
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | This cannot be empty");
 					return ImportLineResult.ERROR;
 
 				} else {
-
-					String provinceName_ = values[i];
+					
 
 					String regex = "\\S+";
 					boolean isNoSpaceMatch = provinceName_.matches(regex);
+					boolean isNotTooShort = provinceName_.length() > 2;
 
-					if ( !isNoSpaceMatch) {
+					if ( !isNoSpaceMatch && isNotTooShort) {
 						writeImportError(values,
 								new ImportErrorException(values[i], entityProperties[i]).getMessage()
-										+ " | This cannot be empty or have white space.");
+										+ " | This cannot be empty or have white space or too short (less than 2 letters).");
 						return ImportLineResult.ERROR;
 					} else {
 						List<RegionDto> provinceNameList = FacadeProvider.getRegionFacade().getByName(provinceName_, true);
@@ -153,9 +153,14 @@ public class ProvinceDataImporter extends DataImporter {
 				}
 			}
 			
-			System.out.println(entityProperties[i] + " == "+RegionDto.EXTERNAL_ID +"? = "+RegionDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i]));
-			if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
-
+			if (P_CODE.equalsIgnoreCase(entityProperties[i])) {
+				try {
+					Long.parseLong(values[i]);
+				} catch (NumberFormatException e) {
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " | PCode accepts number only");
+					return ImportLineResult.ERROR;
+				}
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | PCode Cannot Be Left Empty");
@@ -173,12 +178,12 @@ public class ProvinceDataImporter extends DataImporter {
 								provinceExternalId = externalIdValue;
 							} catch (NumberFormatException e) {
 								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+										new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | " +e.getMessage());
 								return ImportLineResult.ERROR;
 							}
 						} else {
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									new ImportErrorException(values[i], entityProperties[i]).getMessage()+" | PCode already on the system");
 							return ImportLineResult.ERROR;
 						}
 
@@ -199,30 +204,49 @@ public class ProvinceDataImporter extends DataImporter {
 
 
 			
-			if (RegionDto.AREA.equalsIgnoreCase(entityProperties[i])) {
+			if (R_CODE.equalsIgnoreCase(entityProperties[i])) {
+				try {
+					Long.parseLong(values[i]);
+				} catch (NumberFormatException e) {
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " | RCode accepts number only");
+					return ImportLineResult.ERROR;
+				}
 				List<AreaReferenceDto> existingAreas = FacadeProvider.getAreaFacade()
 						.getByExternalId(Long.parseLong(values[i]), false);
 				if (existingAreas.size() != 1) {
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | Region Doesn't Exist");
 					return ImportLineResult.ERROR;
-				} else {
+				} else if (existingAreas.size() == 1){
+					region = existingAreas.get(0);
 					try {
-						Long externalIdValue = Long.parseLong(values[i]);
-						areax = externalIdValue;
+						region = existingAreas.get(0);
 					} catch (NumberFormatException e) {
 						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
 						return ImportLineResult.ERROR;
 					}
+				} else {
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " | More thank one Region found for this RCode");
+					return ImportLineResult.ERROR;
 				}
 
 			}
-
+			
+			System.out.println(provinceName+" | "+entityProperties[i] + " == "+ P_CODE +"? = "+P_CODE.equalsIgnoreCase(entityProperties[i]) + "__:_" +values[i]);
+			
 			
 		}
 			
-
-			final AreaReferenceDto finalArea = area;
+		if (region != null && provinceExternalId != null && provinceName != "") {}else {
+			writeImportError(values, " | Somthing went wrong");
+			return ImportLineResult.ERROR;
+		}
+		
+		System.out.println(provinceName+" | "+provinceExternalId);
+		
+			final AreaReferenceDto finalArea = region;
 			final String finalRProvincename = provinceName;
 			final Long extd = provinceExternalId;
 

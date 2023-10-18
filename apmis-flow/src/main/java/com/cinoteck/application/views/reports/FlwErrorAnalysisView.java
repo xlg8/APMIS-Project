@@ -72,13 +72,12 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 												sortOrder.getDirection() == SortDirection.ASCENDING))
 										.collect(Collectors.toList()))
 						.stream(),
-				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(
+				query -> FacadeProvider.getCampaignFormDataFacade().getFlwDuplicateErrorAnalysisCount(
 						criteria, query.getOffset(), query.getLimit(),
 						query.getSortOrders().stream()
 								.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 										sortOrder.getDirection() == SortDirection.ASCENDING))
-								.collect(Collectors.toList()),
-						null)));
+								.collect(Collectors.toList())));
 
 		grid.setDataProvider(dataProvider);
 	}
@@ -242,7 +241,6 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-//		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
 
 		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortProperty("region")
 				.setSortable(true).setResizable(true);
@@ -256,22 +254,20 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
 				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber").setSortable(true).setResizable(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor").setSortable(true)
+		grid.addColumn(CampaignFormDataIndexDto::getCreatingUser)
+				.setHeader(I18nProperties.getCaption(Captions.firstName)).setSortProperty("creatinguser").setSortable(true).setResizable(true);
+		
+		grid.addColumn(CampaignFormDataIndexDto::getPersonTitle)
+				.setHeader(I18nProperties.getCaption(Captions.Action_title)).setSortProperty("title").setSortable(true).setResizable(true);
+		
+		grid.addColumn(CampaignFormDataIndexDto::getSource).setHeader("Tazkira No.").setSortProperty("source").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
-				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household").setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
-				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getError_status)
-		.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter").setSortable(true).setResizable(true);
+		
+		grid.addColumn(CampaignFormDataIndexDto::getError_status).setHeader(I18nProperties.getCaption("Error Status")).setResizable(true);
 
 		grid.setVisible(true);
-		String numberOfRows = FacadeProvider.getCampaignFormDataFacade()
-				.getByCompletionAnalysisCount(criteria, null, null, null,null );
+		int numberOfRows = FacadeProvider.getCampaignFormDataFacade()
+				.getFlwDuplicateErrorAnalysisCount(criteria, null, null, null);
 		criteria.campaign(lastStarted);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(query -> FacadeProvider.getCampaignFormDataFacade()
@@ -279,7 +275,7 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 								sortOrder.getDirection() == SortDirection.ASCENDING))
 						.collect(Collectors.toList()))
-				.stream(), query -> Integer.parseInt(numberOfRows));
+				.stream(), query -> numberOfRows);
 		grid.setDataProvider(dataProvider);
 
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);

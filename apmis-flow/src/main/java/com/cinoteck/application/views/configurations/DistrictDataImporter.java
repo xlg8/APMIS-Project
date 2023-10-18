@@ -59,6 +59,10 @@ import de.symeda.sormas.api.utils.ValidationRuntimeException;
 public class DistrictDataImporter extends DataImporter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProvinceDataImporter.class);
+	private static final String DISTRICT_NAME = "District_Name";
+	private static final String P_CODE = "PCode";
+	private static final String D_CODE = "DCode";
+	
 
 	private final DistrictFacade districtFacade;
 
@@ -95,24 +99,19 @@ public class DistrictDataImporter extends DataImporter {
 		}
 
 		// Lets run some validations
-
-		AreaReferenceDto area = null;
-		RegionReferenceDto region = null;
-		DistrictReferenceDto district = null;
-		Long aext_id = null;
-		Long areax = null;
+		RegionReferenceDto province = null;
+		Long province_xt_id = null;
+		
 		Long districtExtId = null;
 		String districtName = "";
 		String risk = "";
-
-		System.out.println("++++++++++++++++++===============: " + entityProperties.length);
 
 		// Retrieve the region and district from the database or throw an error if more
 		// or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
 
-			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i);
-			if (DistrictDto.NAME.equalsIgnoreCase(entityProperties[i])) {
+			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i+" = "+values[i]);
+			if (DISTRICT_NAME.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					districtName = null;
@@ -143,7 +142,7 @@ public class DistrictDataImporter extends DataImporter {
 							if (isOverWrite) {
 
 								districtName = districtName_;
-								return ImportLineResult.SUCCESS;
+								//return ImportLineResult.SUCCESS;
 
 							} else {
 								writeImportError(values,
@@ -158,35 +157,46 @@ public class DistrictDataImporter extends DataImporter {
 				}
 			}
 //			
-			if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
+//			if (R_CODE.equalsIgnoreCase(entityProperties[i])) {
+//				try {
+//					region_xt_id = Long.parseLong(values[i]);
+//
+//				} catch (NumberFormatException e) {
+//					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//					return ImportLineResult.ERROR;
+//				}
+//			}
+			
+
+			if (P_CODE.equalsIgnoreCase(entityProperties[i])) {
+
 				try {
-					Long externalIdValue = Long.parseLong(values[i]);
+					province_xt_id = Long.parseLong(values[i]);
+					List<RegionReferenceDto> existingProvinces = FacadeProvider.getRegionFacade()
+							.getByExternalId(province_xt_id, false);
 
-					areax = externalIdValue;
+					if (existingProvinces.size() < 1) {
+						province_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | Province does not exist or > 1");
+						return ImportLineResult.ERROR;
+					} else if (existingProvinces.size() == 1) {
+
+						province = existingProvinces.get(0);
+
+					} else {
+						province_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | Posible Duplicate PCode Found");
+						return ImportLineResult.ERROR;
+					}
 				} catch (NumberFormatException e) {
-					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-					return ImportLineResult.ERROR;
-				}
-			}
-
-			if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
-				List<AreaReferenceDto> existingProvinces = FacadeProvider.getAreaFacade()
-						.getByExternalId(Long.parseLong(values[i]), false);
-				if (existingProvinces.size() != 1) {
-					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " | Region Doesn't Exist");
-					return ImportLineResult.ERROR;
-				} else {
-				try {
-
-					Long externalIdValue = Long.parseLong(values[i]);
-					aext_id = externalIdValue;
-				} catch (NumberFormatException e) {
+					province_xt_id = null;
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " : " + e.getLocalizedMessage());
 					return ImportLineResult.ERROR;
 				}
-				}
+
 			}
 			
 			if (DistrictDto.RISK.equalsIgnoreCase(entityProperties[i])) {
@@ -194,69 +204,59 @@ public class DistrictDataImporter extends DataImporter {
 				
 			}
 
-			if (DistrictDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
+			if (D_CODE.equalsIgnoreCase(entityProperties[i])) {
 				if (DataHelper.isNullOrEmpty(values[i])) {
 
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " | DCode Cannot Be Left Empty");
+							+ " | DCode cannot be left empty");
 					return ImportLineResult.ERROR;
 
 				} else {
-					List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
 					
-					if (districts.size() > 0) {
-						if (isOverWrite) {
-							try {
-								Long externalIdValue = Long.parseLong(values[i]);
-								districtExtId = externalIdValue;
-							} catch (NumberFormatException e) {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
-								return ImportLineResult.ERROR;
-							}
-						}else {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							return ImportLineResult.ERROR;
-						}
-
-					}else if (districts.size() == 0) {
-						try {
+					try {
 							Long externalIdValue = Long.parseLong(values[i]);
-							districtExtId = externalIdValue;
-						} catch (NumberFormatException e) {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " : "
-											+ e.getLocalizedMessage());
-							return ImportLineResult.ERROR;
-						}
+						
+							List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
+									.getByExternalId(externalIdValue, false);
+							
+							if (districts.size() > 0) {
+								if (isOverWrite && districts.size() == 1) {										
+										districtExtId = externalIdValue;
+									} else if (districts.size() > 1) {
+										writeImportError(values,
+												new ImportErrorException(values[i], entityProperties[i]).getMessage() +" | Possible duplicate already on this system");
+										return ImportLineResult.ERROR;
+									} else {
+										writeImportError(values,
+												new ImportErrorException(values[i], entityProperties[i]).getMessage());
+										return ImportLineResult.ERROR;
+									}
+		
+							} else if (districts.size() == 0) {
+							
+									districtExtId = externalIdValue;
+								
+							}
+						
+					} catch (NumberFormatException e) {
+						writeImportError(values,
+								new ImportErrorException(values[i], entityProperties[i]).getMessage());
+						return ImportLineResult.ERROR;
 					}
-				}
-//				try {
-////					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
-////							.getByExternalId(Long.parseLong(values[i]), false);
-////					if (regions.size() != 1) {
-////						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-////						return ImportLineResult.ERROR;
-////					}
-////					region = regions.get(0);
-////					aext_id = Long.parseLong(regions.get(0).toString());
-//					Long externalIdValue = Long.parseLong(values[i]);
-//					districtExtId = externalIdValue;
-//				} catch (NumberFormatException e) {
-//					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-//							+ " : " + e.getLocalizedMessage());
-//					return ImportLineResult.ERROR;
-//				}
-			}
 
-			final AreaReferenceDto finalArea = area;
-			final RegionReferenceDto finalRegion = region;
-			final DistrictReferenceDto finalDistrict = district;
+			}
+			}
+		}
+		
+		if (province_xt_id != null && province != null && districtName != "" && districtExtId != null) {}else {
+			writeImportError(values, " | Somthing went wrong: Required data not supplied");
+			return ImportLineResult.ERROR;
+		}
+		
+		
+		
+			final RegionReferenceDto finalRegion = province;
 			final String finalDistrictname = districtName;
-			final Long extd = aext_id;
-			final Long areaid = areax;
 			final Long districtid = districtExtId;
 			String rixk = risk;
 
@@ -264,13 +264,10 @@ public class DistrictDataImporter extends DataImporter {
 
 			DistrictDto newUserLine = DistrictDto.build();
 
-			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
 			newUserLine.setName(finalDistrictname);
 			newUserLine.setRegion(finalRegion);
-//			newUserLine.setArea(finalArea);
 			newUserLine.setExternalId(districtid);
 			newUserLine.setRisk(rixk);
-//			newUserLine.setName(finalRProvincename);
 
 			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
@@ -324,9 +321,7 @@ public class DistrictDataImporter extends DataImporter {
 			} else {
 				return ImportLineResult.ERROR;
 			}
-		}
-		return ImportLineResult.SUCCESS;
-
+		
 	}
 
 	@Override
@@ -335,17 +330,6 @@ public class DistrictDataImporter extends DataImporter {
 
 		final boolean invokingSuccessful = super.executeDefaultInvoke(pd, element, entry, entryHeaderPath);
 		final Class<?> propertyType = pd.getPropertyType();
-//		if (propertyType.isAssignableFrom(RegionReferenceDto.class)) {
-//			private final UserFacade userFacade;
-//			final UserDto currentUserDto = userFacade.getByUuid(currentUser.getUuid());
-//			final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(currentUserDto.getUserRoles());
-//			if (jurisdictionLevel == JurisdictionLevel.REGION
-//					&& !currentUserDto.getRegion().getCaption().equals(entry)) {
-//				throw new ImportErrorException(
-//						I18nProperties.getValidationError(Validations.importEntryRegionNotInUsersJurisdiction, entry,
-//								buildEntityProperty(entryHeaderPath)));
-//			}
-//		}
 		return invokingSuccessful;
 	}
 

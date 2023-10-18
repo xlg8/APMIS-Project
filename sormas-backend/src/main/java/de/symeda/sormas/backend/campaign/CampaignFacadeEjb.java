@@ -348,6 +348,58 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 		return target;
 
 	}
+	
+	
+	public Campaign cloneFromDto(@NotNull CampaignDto source, User creatingUser) {
+		
+		validate(source);
+		Campaign campaign = new Campaign();
+		
+
+		Campaign target = DtoHelper.fillOrBuildEntity(source, campaign, Campaign::new, false);
+
+		target.setCreatingUser(creatingUser);
+		target.setDescription(source.getDescription());
+		target.setEndDate(source.getEndDate());
+		target.setName(source.getName() +"-DUP");
+		target.setRound(source.getRound());
+		target.setCampaignYear(source.getCampaignYear());
+		target.setStartDate(source.getStartDate());
+
+		final Set<AreaReferenceDto> areas = source.getAreas();
+		if (!CollectionUtils.isEmpty(areas)) {
+			target.setAreas(areas.stream().map(e -> areaService.getByUuid(e.getUuid())).collect(Collectors.toSet()));
+		}
+
+		final Set<RegionReferenceDto> region = source.getRegion();
+		if (!CollectionUtils.isEmpty(region)) {
+			target.setRegion(
+					region.stream().map(e -> regionService.getByUuid(e.getUuid())).collect(Collectors.toSet()));
+		}
+
+		final Set<DistrictReferenceDto> district = source.getDistricts();
+		if (!CollectionUtils.isEmpty(district)) {
+			target.setDistricts(
+					district.stream().map(e -> districtService.getByUuid(e.getUuid())).collect(Collectors.toSet()));
+		}
+
+		final Set<CommunityReferenceDto> community = source.getCommunity();
+		if (!CollectionUtils.isEmpty(community)) {
+			target.setCommunity(
+					community.stream().map(e -> communityService.getByUuid(e.getUuid())).collect(Collectors.toSet()));
+		}
+
+		final Set<CampaignFormMetaReferenceDto> campaignFormMetas = source.getCampaignFormMetas(); // Campaign data
+		if (!CollectionUtils.isEmpty(campaignFormMetas)) {
+			target.setCampaignFormMetas(
+					campaignFormMetas.stream().map(campaignFormMetaReferenceDto -> campaignFormMetaService
+							.getByUuid(campaignFormMetaReferenceDto.getUuid())).collect(Collectors.toSet()));
+		}
+		target.setDashboardElements(source.getCampaignDashboardElements());// .stream().filter(e ->
+																			// e.getDiagramId().equals("")));
+		return target;
+
+	}
 
 	public void validate(CampaignReferenceDto campaignReferenceDto, String formPhase) {
 		validate(getByUuid(campaignReferenceDto.getUuid()), formPhase);
@@ -725,11 +777,19 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 					+ " is not allowed to duplicate " + I18nProperties.getString(Strings.entityCampaigns).toLowerCase()
 					+ ".");
 		}
-		String newUuid = campaignService.cloneForm(campaignService.getByUuid(campaignUuid), user.getId());
+		
+		CampaignDto oldCampaignDto = getByUuid(campaignUuid);
+		Campaign newCampaign = cloneFromDto(oldCampaignDto, user);
+		
+		campaignService.ensurePersisted(newCampaign);
+		
+		
+		
+//		String newUuid_ = campaignService.cloneForm(campaignService.getByUuid(campaignUuid), user.getId());
+		String newUuid = newCampaign.getUuid();
 
-		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid),
-				null);
-		final Campaign cmp = campaignService.getByUuid(newUuid);
+		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid), null);
+		final Campaign cmp = newCampaign;
 		for (PopulationData popListx : popList) {
 			PopulationData ppData = new PopulationData();
 			ppData.setAgeGroup(popListx.getAgeGroup());

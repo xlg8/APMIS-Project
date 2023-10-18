@@ -107,7 +107,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 
 		// Notification.show(randomx);
 		final Map<Object, String> axisInfo = new HashMap<>();
-		StringBuilder mapData = new StringBuilder("");
+		StringBuilder mapData = new StringBuilder(" ");
 		for (CampaignDiagramDataDto diagramData : diagramDataList) {
 			final Object groupingKey = diagramData.getGroupingKey();
 			if (!axisInfo.containsKey(groupingKey)) {
@@ -156,7 +156,7 @@ public class CampaignDashboardDiagramComponent extends Div {
 
 		
 		if (chartType.equalsIgnoreCase(DiagramType.MAP.toString())) {
-			buildMapChart(getDiagramCaption(), mapData.deleteCharAt(mapData.length() - 1)) ;
+		buildMapChart(getDiagramCaption(), mapData.deleteCharAt(mapData.length() - 1)) ;
 		} else {
 			buildDiagramChart(getDiagramCaption(), campaignJurisdictionLevelGroupBy);
 		}
