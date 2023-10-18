@@ -3,10 +3,12 @@ package com.cinoteck.application.views.uiformbuilder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -32,10 +35,12 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserCriteria;
+import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 
-@PageTitle("APMIS-UI-Builder")
-@Route(value = "UI-Builder", layout = MainLayout.class)
+@PageTitle("APMIS-Form-Builder-Wizard")
+@Route(value = "Form-Builder-Wizard", layout = MainLayout.class)
 public class FormBuilderView extends VerticalLayout {
 
 	/**
@@ -53,7 +58,10 @@ public class FormBuilderView extends VerticalLayout {
 
 	UserProvider userProvider = new UserProvider();
 	HorizontalLayout hr = new HorizontalLayout();
-	
+
+	private FormBuilderDataProvider formBuilderDataProvider = new FormBuilderDataProvider();
+	private ConfigurableFilterDataProvider<CampaignFormMetaDto, Void, CampaignFormCriteria> filterDataProvider;
+
 	CampaignFormCriteria criteria = new CampaignFormCriteria();
 
 	private Grid<CampaignFormMetaDto> grid = new Grid<>(CampaignFormMetaDto.class, false);
@@ -65,7 +73,9 @@ public class FormBuilderView extends VerticalLayout {
 		this.setHeightFull();
 		this.setWidthFull();
 		this.addClassName("uibuilderview");
-							
+
+		filterDataProvider = formBuilderDataProvider.withConfigurableFilter();
+
 		configureView();
 		configureGrid();
 		setHeightFull();
@@ -92,19 +102,19 @@ public class FormBuilderView extends VerticalLayout {
 			campaignFormMetaDto = new CampaignFormMetaDto();
 			newForm(campaignFormMetaDto);
 		});
-		
-		search.addValueChangeListener(e -> dataView.addFilter(event -> {
-			String searchTerm = event.getFormName().trim();
-			if (searchTerm.isEmpty())
-				return true;
-			boolean matchesDistrictName = String.valueOf(event.getFormName()).toLowerCase()
-					.contains(searchTerm.toLowerCase());
-			return matchesDistrictName;
-		}));
-		
+
+		search.addValueChangeListener(e -> {
+
+//			if (e.getValue() != null) {
+//				criteria.setFormName(e.getValue());
+//				filterDataProvider.setFilter(criteria);
+//				
+//				filterDataProvider.refreshAll();
+//			}
+		});
+
 		formPhase.addValueChangeListener(event -> {
-			
-			
+
 		});
 	}
 
@@ -138,28 +148,26 @@ public class FormBuilderView extends VerticalLayout {
 				.setResizable(true);
 
 		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
-				.fromStream(FacadeProvider
-						.getCampaignFormMetaFacade()
-						.getAllFormElement()
-						.stream());
+				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
 
-		dataView = grid.setItems(dataprovider);
 		grid.setVisible(true);
 		grid.setWidthFull();
-		grid.setAllRowsVisible(true);	
-		
-		if(userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
-			
+		grid.setAllRowsVisible(true);
+		grid.setItems(dataprovider);
+
+//		grid.setDataProvider(filterDataProvider);
+		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
+
 			grid.asSingleSelect().addValueChangeListener(event -> editForm(event.getValue()));
 		}
-			
+
 	}
 
 	private void editForm(CampaignFormMetaDto formData) {
-	
+
 		FormBuilderLayout formLayout = new FormBuilderLayout(formData, false);
 		formLayout.setForm(formData);
-		
+
 		formLayout.addSaveListener(this::saveForm);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
@@ -169,7 +177,7 @@ public class FormBuilderView extends VerticalLayout {
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
 		dialog.setModal(true);
-		dialog.setClassName("edit-form");		
+		dialog.setClassName("edit-form");
 	}
 
 	private void newForm(CampaignFormMetaDto formData) {
@@ -191,7 +199,7 @@ public class FormBuilderView extends VerticalLayout {
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
 //		FormBuilderLayout forLayout = event.getSource();
-		
+
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
 

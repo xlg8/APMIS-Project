@@ -21,7 +21,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -29,12 +28,9 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 
 import de.symeda.sormas.api.MapperUtil;
-import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
 
 public class FormGridComponent extends VerticalLayout {
 
@@ -120,6 +116,7 @@ public class FormGridComponent extends VerticalLayout {
 
 		Button plus = new Button(new Icon(VaadinIcon.PLUS));
 		Button del = new Button(new Icon(VaadinIcon.DEL_A));
+		del.getStyle().set("background-color", "red!important");
 
 		Button moreFields = new Button("Show More Fields");
 		Button cancel = new Button("Cancel");
@@ -143,7 +140,6 @@ public class FormGridComponent extends VerticalLayout {
 			if (size > 0) {
 
 				formBeenEdited = ee.getFirstSelectedItem().get();
-//				formBeenEdited = selectedCamp;
 				boolean isSingleSelection = size == 1;
 				vr1.setEnabled(isSingleSelection);
 				vr3.setEnabled(isSingleSelection);
@@ -211,7 +207,8 @@ public class FormGridComponent extends VerticalLayout {
 					errorMessage.setValue(formBeenEdited.getExpression());
 					errorMessage.setVisible(true);
 				}
-
+			} else {
+				formBeenEdited = new CampaignFormElement();
 			}
 		});
 
@@ -237,24 +234,25 @@ public class FormGridComponent extends VerticalLayout {
 			errorMessage.setValue("");
 
 			if (campaignFormMetaDto == null) {
-
+				campaignFormMetaDto = new CampaignFormMetaDto();
+				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			} else {
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
 
 			grid.setHeight("auto !important");
 		});
-		
+
 		del.addClickListener(e -> {
-			
-			formBeenEdited = new CampaignFormElement();
-			if(formBeenEdited != null) {
-				
+
+//			formBeenEdited = new CampaignFormElement();
+			if (formBeenEdited != null) {
+
 				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
 				Notification.show("Selected Form Element Deleted");
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			} else {
-				
+
 				Notification.show("No Form Element Selected");
 			}
 		});
@@ -294,8 +292,6 @@ public class FormGridComponent extends VerticalLayout {
 
 		save.addClickListener(e -> {
 
-//			CampaignFormElement newform = new CampaignFormElement();
-
 			vr1.setVisible(true);
 			formLayout.setVisible(false);
 			vr3.setVisible(false);
@@ -316,7 +312,7 @@ public class FormGridComponent extends VerticalLayout {
 				if (!caption.getValue().isEmpty()) {
 
 					newForm.setCaption(caption.getValue());
-				}				
+				}
 
 				if (important.getValue() != null) {
 					newForm.setImportant(important.getValue());
@@ -384,9 +380,94 @@ public class FormGridComponent extends VerticalLayout {
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 
 			} else {
-
+				if (formBeenEdited != null) {
 				
-			}			
+					CampaignFormElement newForm = new CampaignFormElement();
+					
+					if (!formType.getValue().toString().isEmpty()) {
+
+						newForm.setType(formType.getValue().toString());
+					}
+
+					if (!formId.getValue().isEmpty()) {
+
+						newForm.setId(formId.getValue());
+					}
+
+					if (!caption.getValue().isEmpty()) {
+
+						newForm.setCaption(caption.getValue());
+					}
+
+					if (important.getValue() != null) {
+						newForm.setImportant(important.getValue());
+					}
+
+					if (!options.getValue().isEmpty()) {
+
+						List<MapperUtil> option = new ArrayList<>();
+						for (String values : options.getValue().split(",")) {
+
+							MapperUtil mapperUtil = new MapperUtil();
+							mapperUtil.setKey(values);
+							mapperUtil.setCaption(values);
+							option.add(mapperUtil);
+						}
+
+						newForm.setOptions(option);
+					}
+
+					if (constraints.getValue() != null) {
+
+						if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
+
+							newForm.setConstraints(constraints.getValue().split(","));
+						} else {
+
+							if (min.getValue() != null && max.getValue() != null && min.getValue() < max.getValue()) {
+
+								String valueOfMinMAx = min.getValue() + " " + max.getValue();
+								newForm.setConstraints(valueOfMinMAx.split(" "));
+							} else {
+
+								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+							}
+						}
+
+					}
+
+					if (!expression.getValue().isEmpty()) {
+
+						newForm.setExpression(expression.getValue());
+					}
+
+					if (!dependingOn.getValue().isEmpty()) {
+
+						newForm.setDependingOn(dependingOn.getValue());
+					}
+
+					if (dependingOnValues.getValue() != null) {
+
+						newForm.setDependingOnValues(dependingOnValues.getValue().split(","));
+					}
+
+					if (!errorMessage.getValue().isEmpty()) {
+
+						newForm.setErrormessage(errorMessage.getValue());
+					}
+
+					if (campaignFormMetaDto.getCampaignFormElements() == null) {
+
+						campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
+					}
+
+					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
+					campaignFormMetaDto.getCampaignFormElements().add(newForm);
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());					
+				} else {
+					Notification.show("Select an Element to edit Please");
+				}
+			}
 		});
 
 		formLayout.add(formType, formId, caption, important, options, expression, dependingOn, dependingOnValues,
@@ -450,9 +531,6 @@ public class FormGridComponent extends VerticalLayout {
 		return CampaignFormElementType.LABEL;
 	}
 
-	private void updateGrid() {
-	}
-
 	void configureGrid() {
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -481,8 +559,8 @@ public class FormGridComponent extends VerticalLayout {
 //				.setResizable(true);
 //		grid.addColumn(CampaignFormElement::getDefaultvalue).setHeader("Default Value").setSortable(true)
 //				.setResizable(true);
-		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
-				.setResizable(true);
+//		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
+//				.setResizable(true);
 
 		List<CampaignFormElement> existingElements = campaignFormMetaDto.getCampaignFormElements();
 
