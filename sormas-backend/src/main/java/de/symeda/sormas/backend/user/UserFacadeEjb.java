@@ -167,7 +167,10 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
+		
+		if(source.getCommunity() != null){
 		target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
+		}
 //		target.setHealthFacility(FacilityFacadeEjb.toReferenceDto(source.getHealthFacility()));
 //		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
 //		target.setLaboratory(FacilityFacadeEjb.toReferenceDto(source.getLaboratory()));
@@ -176,10 +179,10 @@ public class UserFacadeEjb implements UserFacade {
 		target.setLanguage(source.getLanguage());
 	//	target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
 
-		source.getUserRoles().size();
+//		source.getUserRoles().size();
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
 
-		source.getFormAccess().size();
+//		source.getFormAccess().size();
 		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 
 		target.setUsertype(source.getUsertype());
