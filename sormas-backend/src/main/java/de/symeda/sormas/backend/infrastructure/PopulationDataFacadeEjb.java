@@ -148,6 +148,8 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		return QueryHelper.getSingleResult(em, cq);
 	}
 
+	
+	
 	@Override
 	public Integer getDistrictPopulationByType(String districtUuid, String campaignUuid, AgeGroup ageGroup) {
 
@@ -211,6 +213,31 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			service.ensurePersisted(entity);
 		}
 	}
+	
+	
+
+
+	@Override
+	public List<PopulationDataDto> getDistrictPopulationByTypeUsingUUIDs(String districtUuid, String campaignUuid, AgeGroup ageGroup) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
+		Root<PopulationData> root = cq.from(PopulationData.class);
+		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
+		Join<PopulationData, District> districtJoin = root.join(PopulationData.DISTRICT);
+
+		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), campaignUuid));
+		Predicate districtFilter = cb.and(cb.equal(districtJoin.get(District.UUID), districtUuid));
+		Predicate ageFilter = cb.and(cb.equal(root.get(PopulationData.AGE_GROUP), ageGroup));
+
+		cq.where(campaignFilter, districtFilter, ageFilter);
+
+
+		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
+				.collect(Collectors.toList());
+	}
+	
+	
 
 	@Override
 	public List<PopulationDataDto> getPopulationData(PopulationDataCriteria criteria) {
