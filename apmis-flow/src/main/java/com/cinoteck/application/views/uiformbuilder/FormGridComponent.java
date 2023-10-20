@@ -2,8 +2,10 @@ package com.cinoteck.application.views.uiformbuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
@@ -31,6 +33,7 @@ import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 
 public class FormGridComponent extends VerticalLayout {
 
@@ -134,12 +137,12 @@ public class FormGridComponent extends VerticalLayout {
 		vrsub.add(vr1, formLayout, vr3);
 
 		grid.addSelectionListener(ee -> {
-
-			save.setText("Update");
+			
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
 
-				formBeenEdited = ee.getFirstSelectedItem().get();
+				CampaignFormElement selectedCamp = ee.getFirstSelectedItem().get();
+				formBeenEdited = selectedCamp;
 				boolean isSingleSelection = size == 1;
 				vr1.setEnabled(isSingleSelection);
 				vr3.setEnabled(isSingleSelection);
@@ -150,7 +153,7 @@ public class FormGridComponent extends VerticalLayout {
 				formType.setValue(generateType(formBeenEdited.getType()));
 				formType.setVisible(true);
 
-				if (formBeenEdited.getCaption() != null) {
+				if (formBeenEdited.getId() != null) {
 					formId.setValue(formBeenEdited.getId());
 					formId.setVisible(true);
 				}
@@ -164,7 +167,7 @@ public class FormGridComponent extends VerticalLayout {
 				important.setVisible(true);
 
 				if (formBeenEdited.getOptions() != null) {
-					options.setValue(formBeenEdited.getCaption());
+					options.setValue(formBeenEdited.getOptions().toString());
 					options.setVisible(true);
 				}
 
@@ -207,9 +210,10 @@ public class FormGridComponent extends VerticalLayout {
 					errorMessage.setValue(formBeenEdited.getExpression());
 					errorMessage.setVisible(true);
 				}
-			} else {
-				formBeenEdited = new CampaignFormElement();
-			}
+				
+				save.setText("Update");
+			} 
+			
 		});
 
 		plus.addClickListener(e -> {
@@ -297,8 +301,9 @@ public class FormGridComponent extends VerticalLayout {
 			vr3.setVisible(false);
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
-				newForm = new CampaignFormElement();
-
+				
+				CampaignFormElement newForm = new CampaignFormElement();
+				List<CampaignFormElement> elementList = new ArrayList<>();
 				if (!formType.getValue().toString().isEmpty()) {
 
 					newForm.setType(formType.getValue().toString());
@@ -371,19 +376,23 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setErrormessage(errorMessage.getValue());
 				}
 
-				if (campaignFormMetaDto.getCampaignFormElements() == null) {
-
-					campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
+				if (campaignFormMetaDto == null) {
+					
+					campaignFormMetaDto = new CampaignFormMetaDto();
+					elementList.add(newForm);
+					campaignFormMetaDto.setCampaignFormElements(elementList);
 				}
 
 				campaignFormMetaDto.getCampaignFormElements().add(newForm);
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-
+				getGridData();
+				Notification.show("New Form Element Saved");
 			} else {
+								
 				if (formBeenEdited != null) {
-				
+
 					CampaignFormElement newForm = new CampaignFormElement();
-					
+
 					if (!formType.getValue().toString().isEmpty()) {
 
 						newForm.setType(formType.getValue().toString());
@@ -463,9 +472,12 @@ public class FormGridComponent extends VerticalLayout {
 
 					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
 					campaignFormMetaDto.getCampaignFormElements().add(newForm);
-					grid.setItems(campaignFormMetaDto.getCampaignFormElements());					
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+					getGridData();
+					
+					Notification.show("Form Element Updated");
 				} else {
-					Notification.show("Select an Element to edit Please");
+					Notification.show("Select an Form Element to edit Please");
 				}
 			}
 		});

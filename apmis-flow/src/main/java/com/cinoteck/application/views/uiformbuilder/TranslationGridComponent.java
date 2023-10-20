@@ -45,6 +45,9 @@ public class TranslationGridComponent extends VerticalLayout {
 	HorizontalLayout vr3 = new HorizontalLayout();
 	HorizontalLayout vr1 = new HorizontalLayout();
 
+	private Grid<CampaignFormTranslations> outerGrid = new Grid<>(CampaignFormTranslations.class, false);
+	private GridListDataView<CampaignFormTranslations> outerDataView;
+	
 	private Grid<TranslationElement> grid = new Grid<>(TranslationElement.class, false);
 	private GridListDataView<TranslationElement> dataView;
 
@@ -77,30 +80,42 @@ public class TranslationGridComponent extends VerticalLayout {
 			Span id = new Span(hf[1].toString());
 			return id;
 		});
+		
+		outerGrid.setSelectionMode(SelectionMode.SINGLE);
+		outerGrid.setMultiSort(true, MultiSortPriority.APPEND);
+		outerGrid.setSizeFull();
+		outerGrid.setColumnReorderingAllowed(true);
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-//		grid.addColumn(CampaignFormTranslations::getLanguageCode).setHeader("Language Code").setSortable(true)
-//				.setResizable(true);
-		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
-		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
+		outerGrid.addColumn(CampaignFormTranslations::getLanguageCode).setHeader("Language Code").setSortable(true)
+				.setResizable(true);
+		
+		List<CampaignFormTranslations> existingFormTranslations = campaignFormMetaDto.getCampaignFormTranslations();
+		existingFormTranslations = existingFormTranslations == null ? new ArrayList<>() : existingFormTranslations;
+		ListDataProvider<CampaignFormTranslations> outerDataprovider = DataProvider
+				.fromStream(existingFormTranslations.stream());
+		
+//		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
+//		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);		
+//		
+//		List<TranslationElement> allTranslations = existingFormTranslations.stream()
+//			    .flatMap(abc -> abc.getTranslations().stream()) // Extract the translations and flatten the nested streams
+//			    .collect(Collectors.toList());
+//		allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
+//		ListDataProvider<TranslationElement> dataprovider = DataProvider
+//				.fromStream(allTranslations.stream());
 
-		List<CampaignFormTranslations> existingTranslations = campaignFormMetaDto.getCampaignFormTranslations();
-		existingTranslations = existingTranslations == null ? new ArrayList<>() : existingTranslations;
-		List<TranslationElement> allTranslations = existingTranslations.stream()
-			    .flatMap(cft -> cft.getTranslations().stream()) // Extract the translations and flatten the nested streams
-			    .collect(Collectors.toList());
-
-		allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
-		ListDataProvider<TranslationElement> dataprovider = DataProvider
-				.fromStream(allTranslations.stream());
-
-		dataView = grid.setItems(dataprovider);
-		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
+		outerDataView = outerGrid.setItems(outerDataprovider);
+		outerGrid.setVisible(true);
+		outerGrid.setAllRowsVisible(true);
+		
+//		dataView = grid.setItems(dataprovider);
+//		grid.setVisible(false);
+//		grid.setAllRowsVisible(true);
 	}
 
 	private void configureFields() {
@@ -113,7 +128,7 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		VerticalLayout editorLayout = editForm();
 		editorLayout.getStyle().remove("width");
-		HorizontalLayout layout = new HorizontalLayout(grid, editorLayout);
+		HorizontalLayout layout = new HorizontalLayout(outerGrid, grid, editorLayout);
 		layout.setFlexGrow(4, grid);
 		layout.setFlexGrow(0, editorLayout);
 		layout.setSizeFull();
@@ -141,6 +156,25 @@ public class TranslationGridComponent extends VerticalLayout {
 		vr3.setSpacing(true);
 
 		vrsub.add(vr1, formLayout, vr3);
+		
+		outerGrid.addSelectionListener(eee -> {
+			grid.setVisible(true);
+			outerGrid.setVisible(false);	
+			
+			grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
+			grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);		
+			
+			List<TranslationElement> allTranslations = eee.getFirstSelectedItem().get().getTranslations().stream()
+//				    .flatMap(abc -> abc.getTranslations().stream()) // Extract the translations and flatten the nested streams
+				    .collect(Collectors.toList());
+			allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
+			ListDataProvider<TranslationElement> dataprovider = DataProvider
+					.fromStream(allTranslations.stream());
+			
+			dataView = grid.setItems(dataprovider);
+//			grid.setVisible(false);
+			grid.setAllRowsVisible(true);
+		});
 
 		grid.addSelectionListener(ee -> {
 
@@ -251,7 +285,7 @@ public class TranslationGridComponent extends VerticalLayout {
 			}
 		});
 
-		formLayout.add(languageCode, elementId, caption);
+		formLayout.add(elementId, caption);
 
 		formLayout.setColspan(languageCode, 2);
 		formLayout.setColspan(elementId, 2);
