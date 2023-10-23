@@ -58,6 +58,7 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return this;
 	}
 	
+//	@IgnoreForUrl
 	public String getFormName() {
 		return formName;
 	}
@@ -67,7 +68,7 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return this;
 	}
 	
-	@IgnoreForUrl
+//	@IgnoreForUrl
 	public String getFormType() {
 		return formType;
 	}

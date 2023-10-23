@@ -401,39 +401,40 @@ public class UserForm extends FormLayout {
 
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
-		ComboBox<UserType> userTypes = new ComboBox<UserType>();
+	ComboBox<UserType> userTypes = new ComboBox<UserType>();
 
-		userTypes.setItems(UserType.values());
+	userTypes.setItems(UserType.values());
 
-		commusr.addValueChangeListener(e -> {
+	commusr.addValueChangeListener(e->
+	{
 
-			UserProvider currentUser = new UserProvider();
+		UserProvider currentUser = new UserProvider();
 
-			System.out.println((boolean) e.getValue());
-			if ((boolean) e.getValue() == true) {
-				userTypes.setValue(UserType.COMMON_USER);
-				sortedUserRoles.remove(UserRole.ADMIN);
-				sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
-				sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
-				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
-				sortedUserRoles.remove(UserRole.BAG_USER);
-				sortedUserRoles.remove(UserRole.REST_USER);
+		System.out.println((boolean) e.getValue());
+		if ((boolean) e.getValue() == true) {
+			userTypes.setValue(UserType.COMMON_USER);
+			sortedUserRoles.remove(UserRole.ADMIN);
+			sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
+			sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
+			sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
+			sortedUserRoles.remove(UserRole.BAG_USER);
+			sortedUserRoles.remove(UserRole.REST_USER);
 
 				userRoles.setItems(sortedUserRoles);
-			}else if ((boolean) e.getValue() == false) {
-				Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
-//				sortedUserRoles.add(UserRole.ADMIN);
-				userRoles.setItems(sortedUserRoless);
 			}
-		});
+		
 
-		language.setItemLabelGenerator(Language::toString);
-		language.setItems(Language.getAssignableLanguages());
+		if ((boolean) e.getValue() == false) {
+			Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+			userRoles.setItems(sortedUserRoless);
+		}
+	});
 
-		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
-				.bind(UserDto::getLanguage, UserDto::setLanguage);
+	language.setItemLabelGenerator(Language::toString);language.setItems(Language.getAssignableLanguages());
 
-		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
+	binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired)).bind(UserDto::getLanguage,UserDto::setLanguage);
+
+	add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
 				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
 				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
 				district, clusterNo);
@@ -648,9 +649,52 @@ public class UserForm extends FormLayout {
 		}
 	}
 
-
 	public void validateAndSaveNew() {
+
 		if (binder.validate().isOk()) {
+			System.out.println(binder.getBean().getUserEmail() != null
+					+ " validateAndSaveNew++++++++++++++++++++++++++++++++++++ " + binder.getBean().getUserEmail());
+
+			if (binder.getBean().getUserEmail() != null) {
+
+				UserDto binderEmailValidation = FacadeProvider.getUserFacade()
+						.getByEmail(binder.getBean().getUserEmail());
+
+				if (binderEmailValidation == null) {
+
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				} else {
+
+					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
+							&& !binder.getBean().getUserName().isEmpty()) {
+//email has not changed
+						fireEvent(new SaveEvent(this, binder.getBean()));
+					} else {
+
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Email already in the system...");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						return;
+
+					}
+				}
+			}
+
 			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
 				Notification notification = new Notification();
@@ -670,38 +714,14 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
+				return;
 			} else {
-				if (FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail()) != null) {
-
-					Notification notification = new Notification();
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notification.setPosition(Position.MIDDLE);
-					Button closeButton = new Button(new Icon("lumo", "cross"));
-					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-					closeButton.getElement().setAttribute("aria-label", "Close");
-					closeButton.addClickListener(event -> {
-						notification.close();
-					});
-
-					Paragraph text = new Paragraph("Error : Email already in the system");
-
-					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-					layout.setAlignItems(Alignment.CENTER);
-
-					notification.add(layout);
-					notification.open();
-
-				} else {
-					if (binder.getBean().getUserEmail().isBlank() || binder.getBean().getUserEmail().isEmpty()) {
-						binder.getBean().setUserEmail(null);
-						fireEvent(new SaveEvent(this, binder.getBean()));
-					} else {
-						fireEvent(new SaveEvent(this, binder.getBean()));
-					}
-				}
+				fireEvent(new SaveEvent(this, binder.getBean()));
 			}
 		}
 	}
+	
+	
 
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
@@ -754,7 +774,7 @@ public class UserForm extends FormLayout {
 		}
 	}
 
-	private void validateUserRoles() {
+	protected void validateUserRoles() {
 		map.forEach((key, value) -> {
 			Component formField = value;
 
@@ -851,7 +871,7 @@ public class UserForm extends FormLayout {
 	}
 
 	// TODO: This algorithm can be written better for good time and space complexity
-	private void updateFieldsByUserRole(Set<UserRole> userRoles) {
+	protected void updateFieldsByUserRole(Set<UserRole> userRoles) {
 
 		final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(userRoles);
 		final boolean useCommunity = jurisdictionLevel == JurisdictionLevel.COMMUNITY;
@@ -880,7 +900,7 @@ public class UserForm extends FormLayout {
 			province.setVisible(false);
 			region.setVisible(true);
 		} else {
-//			community.setVisible(false);
+			clusterNo.setVisible(false);
 			district.setVisible(false);
 			province.setVisible(false);
 			region.setVisible(false);
