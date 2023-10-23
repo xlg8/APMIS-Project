@@ -246,7 +246,7 @@ public class DistrictView extends VerticalLayout {
 		searchField.setPrefixComponent(searchIcon);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.setWidth("10%");
-
+		searchField.setClearButtonVisible(true);
 		layout.add(searchField);
 
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
@@ -330,7 +330,7 @@ public class DistrictView extends VerticalLayout {
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
-
+		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
 				return I18nProperties.getCaption(Captions.districtArchivedDistricts);

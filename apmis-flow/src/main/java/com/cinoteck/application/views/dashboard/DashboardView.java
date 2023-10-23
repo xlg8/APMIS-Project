@@ -335,18 +335,31 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		});
 
+		province.setClearButtonVisible(true);
 		province.addValueChangeListener(e -> {
-			changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
-			groupby.setValue(campaignJurisdictionLevel.REGION);
-			dataProvider.setRegion(e.getValue());
-			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-			district.setEnabled(true);
-			district.setItems(districts);
+			if(e.getValue() != null) {
+				changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
+				groupby.setValue(campaignJurisdictionLevel.REGION);
+				dataProvider.setRegion(e.getValue());
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				district.setEnabled(true);
+				district.setItems(districts);
 
-			groupby.setValue(campaignJurisdictionLevel.DISTRICT);
+				groupby.setValue(campaignJurisdictionLevel.DISTRICT);	
+			}else {
+				changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
+				dataProvider.setRegion(e.getValue());
+				if(district.getValue() != null) {
+					district.clear();
+					district.setEnabled(false);
+				}
+				groupby.setValue(campaignJurisdictionLevel.AREA);
+			}
+			
 
 		});
 
+		district.setClearButtonVisible(true);
 		district.addValueChangeListener(e -> {
 			changeCampaignJuridictionLevel(campaignJurisdictionLevel.DISTRICT);
 			groupby.setValue(campaignJurisdictionLevel.DISTRICT);

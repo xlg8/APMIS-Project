@@ -142,6 +142,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
 //		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		provinceFilter.setClearButtonVisible(true);
 		provinceFilter.addValueChangeListener(e -> {
             RegionReferenceDto selectedRegion = e.getValue();
             if (selectedRegion != null) {
@@ -159,6 +160,7 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 //		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		districtFilter.setClearButtonVisible(true);
 		   districtFilter.addValueChangeListener(e -> {
 	            DistrictReferenceDto selectedDistrict = e.getValue();
 	            if (selectedDistrict != null) {

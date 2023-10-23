@@ -240,6 +240,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
+		searchField.setClearButtonVisible(true);
 		searchField.addValueChangeListener(e -> {
 			criteria.nameEpidLike(e.getValue());
 			refreshGridData();
@@ -273,7 +274,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.relevanceStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
-
+		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			System.out.println(criteria.relevanceStatus(e.getValue()) + "criteria relevance " +criteria + "jjjjjjj"+ e.getValue());
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
@@ -295,6 +296,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 //				refreshGridData();
 //				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk action ");
+			}else {
+				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
+				refreshGridData();	
 			}
 			
 

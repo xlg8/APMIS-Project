@@ -218,7 +218,7 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClassName("col-sm-6, col-xs-6");
-
+		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
@@ -308,7 +308,11 @@ public class CampaignsView extends VerticalLayout {
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
-		closeIcon.addClickListener(event -> dialog.close());
+		closeIcon.addClickListener(event -> {
+			 dialog.removeAll();
+			dialog.close();
+//			UI.getCurrent().getPage().reload();
+		});
 		H3 headerText = new H3(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		headerText.addClassName("headingText");
 		header.add(headerText);
@@ -351,7 +355,11 @@ public class CampaignsView extends VerticalLayout {
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
-		closeIcon.addClickListener(event -> dialog.close());
+		closeIcon.addClickListener(event -> {
+			 dialog.removeAll();
+			dialog.close();
+//			UI.getCurrent().getPage().reload();
+		});
 		H3 headerText = new H3(
 				I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen);
 		headerText.addClassName("headingText");
