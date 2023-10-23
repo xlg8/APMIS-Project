@@ -186,7 +186,7 @@ public class FormBuilderLayout extends VerticalLayout {
 			Notification.show("Form Saved");
 		} else {
 
-			Notification.show("Unable to save Form");
+			Notification.show("Unable to Save Form");
 		}
 	}
 

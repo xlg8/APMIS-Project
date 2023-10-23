@@ -30,26 +30,34 @@ import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 
 public class TranslationGridComponent extends VerticalLayout {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1204658853656142982L;
 	ComboBox<String> languageCode = new ComboBox<String>("Tranlation Language Code");
 	TextField elementId = new TextField("Element Id");
 	TextField caption = new TextField("Caption");
 
-	CampaignFormMetaDto campaignFormMetaDto;	
+	CampaignFormMetaDto campaignFormMetaDto;
 	CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
-	
+
 	TranslationElement translationBeenEdited;
 	TranslationElement newTranslation;
 	List<TranslationElement> translationSet = new ArrayList<>();
+
+	FormLayout mainLayout = new FormLayout();
 	FormLayout formLayout = new FormLayout();
-	
+
 	HorizontalLayout vr3 = new HorizontalLayout();
 	HorizontalLayout vr1 = new HorizontalLayout();
+//	HorizontalLayout vr11 = new HorizontalLayout();
 
 	private Grid<CampaignFormTranslations> outerGrid = new Grid<>(CampaignFormTranslations.class, false);
 	private GridListDataView<CampaignFormTranslations> outerDataView;
-	
+
 	private Grid<TranslationElement> grid = new Grid<>(TranslationElement.class, false);
 	private GridListDataView<TranslationElement> dataView;
+	private ListDataProvider<TranslationElement> dataprovider;
 
 	private boolean isNewForm = false;
 
@@ -65,63 +73,34 @@ public class TranslationGridComponent extends VerticalLayout {
 
 	private void configureGrid() {
 
-		ComponentRenderer<Span, CampaignFormTranslations> elementIdRenderer = new ComponentRenderer<>(event -> {
-			List<TranslationElement> bf = event.getTranslations();
-			String[] hf = String.valueOf(bf.toString()).replace("[", "").replace("]", "").replace("null,", "")
-					.replace("null", "").split(",");
-			Span id = new Span(hf[0].toString());
-			return id;
-		});
-
-		ComponentRenderer<Span, CampaignFormTranslations> captionRenderer = new ComponentRenderer<>(event -> {
-			List<TranslationElement> bf = event.getTranslations();
-			String[] hf = String.valueOf(bf.toString()).replace("[", "").replace("]", "").replace("null,", "")
-					.replace("null", "").split(",");
-			Span id = new Span(hf[1].toString());
-			return id;
-		});
-		
 		outerGrid.setSelectionMode(SelectionMode.SINGLE);
 		outerGrid.setMultiSort(true, MultiSortPriority.APPEND);
 		outerGrid.setSizeFull();
 		outerGrid.setColumnReorderingAllowed(true);
 
-		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setMultiSort(true, MultiSortPriority.APPEND);
-		grid.setSizeFull();
-		grid.setColumnReorderingAllowed(true);
-
 		outerGrid.addColumn(CampaignFormTranslations::getLanguageCode).setHeader("Language Code").setSortable(true)
 				.setResizable(true);
-		
+		outerGrid.addColumn(CampaignFormTranslations::getTranslations).setHeader("Translation Element")
+				.setSortable(true).setResizable(true);
+
+		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
+		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
+
 		List<CampaignFormTranslations> existingFormTranslations = campaignFormMetaDto.getCampaignFormTranslations();
 		existingFormTranslations = existingFormTranslations == null ? new ArrayList<>() : existingFormTranslations;
 		ListDataProvider<CampaignFormTranslations> outerDataprovider = DataProvider
 				.fromStream(existingFormTranslations.stream());
-		
-//		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
-//		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);		
-//		
-//		List<TranslationElement> allTranslations = existingFormTranslations.stream()
-//			    .flatMap(abc -> abc.getTranslations().stream()) // Extract the translations and flatten the nested streams
-//			    .collect(Collectors.toList());
-//		allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
-//		ListDataProvider<TranslationElement> dataprovider = DataProvider
-//				.fromStream(allTranslations.stream());
 
 		outerDataView = outerGrid.setItems(outerDataprovider);
 		outerGrid.setVisible(true);
 		outerGrid.setAllRowsVisible(true);
-		
-//		dataView = grid.setItems(dataprovider);
-//		grid.setVisible(false);
-//		grid.setAllRowsVisible(true);
+
 	}
 
 	private void configureFields() {
 
 		languageCode.setItems("ps_AF", "fa_AF");
-		languageCode.setHelperText("You only need to select this field once");
+		languageCode.setHelperText("You only need to select this field once");	
 	}
 
 	private Component getContent() {
@@ -129,6 +108,7 @@ public class TranslationGridComponent extends VerticalLayout {
 		VerticalLayout editorLayout = editForm();
 		editorLayout.getStyle().remove("width");
 		HorizontalLayout layout = new HorizontalLayout(outerGrid, grid, editorLayout);
+		layout.setFlexGrow(4, outerGrid);
 		layout.setFlexGrow(4, grid);
 		layout.setFlexGrow(0, editorLayout);
 		layout.setSizeFull();
@@ -139,46 +119,69 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		VerticalLayout vrsub = new VerticalLayout();
 
+		Button back = new Button(new Icon(VaadinIcon.BACKWARDS));
+		back.setVisible(false);
 		Button plus = new Button(new Icon(VaadinIcon.PLUS));
+		plus.setId("main");
 		Button del = new Button(new Icon(VaadinIcon.DEL_A));
-		del.getStyle().set("background-color", "red!important");
+		del.setId("main");
+		del.getStyle().set("background-color", "red !important");
 
 		Button cancel = new Button("Cancel");
+		cancel.setId("main");
 		Button save = new Button("Save");
+		save.setId("main");
 
-		formLayout.setVisible(false);
-		vr3.setVisible(false);
-
-		vr1.add(plus, del);
-
+		vr1.add(back, plus, del);
 		vr3.add(save, cancel);
 		vr3.setJustifyContentMode(JustifyContentMode.END);
 		vr3.setSpacing(true);
 
-		vrsub.add(vr1, formLayout, vr3);
-		
+		mainLayout.setVisible(false);
+		formLayout.setVisible(false);
+		vr3.setVisible(false);
+		back.setVisible(false);
+
+		vrsub.add(vr1, formLayout, mainLayout, vr3);
+
 		outerGrid.addSelectionListener(eee -> {
-			grid.setVisible(true);
-			outerGrid.setVisible(false);	
-			
-			grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
-			grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);		
-			
-			List<TranslationElement> allTranslations = eee.getFirstSelectedItem().get().getTranslations().stream()
-//				    .flatMap(abc -> abc.getTranslations().stream()) // Extract the translations and flatten the nested streams
-				    .collect(Collectors.toList());
-			allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
-			ListDataProvider<TranslationElement> dataprovider = DataProvider
-					.fromStream(allTranslations.stream());
-			
-			dataView = grid.setItems(dataprovider);
-//			grid.setVisible(false);
+
+			grid.setSelectionMode(SelectionMode.SINGLE);
+			grid.setMultiSort(true, MultiSortPriority.APPEND);
+			grid.setSizeFull();
+			grid.setColumnReorderingAllowed(true);			
 			grid.setAllRowsVisible(true);
+			
+			plus.setId("sub");
+			del.setId("sub");
+			cancel.setId("sub");
+			save.setId("sub");
+			
+			if (mainLayout.isVisible()) {
+				mainLayout.setVisible(false);
+			}
+			
+			if (vr3.isVisible()) {
+				vr3.setVisible(false);
+			}
+			
+			if (!vr1.isVisible()) {
+				vr1.setVisible(true);
+			}
+			
+			outerGrid.setVisible(false);
+			grid.setVisible(true);
+			back.setVisible(true);
+
+			List<TranslationElement> allTranslations = eee.getFirstSelectedItem().get().getTranslations().stream()
+					.collect(Collectors.toList());
+			allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
+			dataprovider = DataProvider.fromStream(allTranslations.stream());
+			dataView = grid.setItems(dataprovider);			
 		});
 
 		grid.addSelectionListener(ee -> {
 
-			save.setText("Update");
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
 
@@ -187,47 +190,80 @@ public class TranslationGridComponent extends VerticalLayout {
 				vr1.setEnabled(isSingleSelection);
 				vr3.setEnabled(isSingleSelection);
 
+				if(mainLayout.isVisible()) {
+					mainLayout.setVisible(false);
+				}
+				
+				if(vr3.isVisible()) {
+					vr3.setVisible(false);
+				}
+				
+				vr1.setVisible(false);
 				formLayout.setVisible(true);
-				vr3.setVisible(true);
-				
-				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
-				
-//				
-//				if (formBeenEdited.getTranslations() != null) {				
-//					
-//					TranslationElement translationElement = formBeenEdited.;
-//					caption.setValue(translationElement.getCaption());
-//					caption.setVisible(true);
-//				}
-//				
-//				if (formBeenEdited.getCaption() != null) {
-//					caption.setValue(formBeenEdited.getCaption());
-//					caption.setVisible(true);
-//				}
+				vr3.setVisible(true);							
+
+				if (translationBeenEdited.getElementId() != null) {
+					elementId.setValue(translationBeenEdited.getElementId());
+				}
+
+				if (translationBeenEdited.getCaption() != null) {
+					caption.setValue(translationBeenEdited.getCaption());
+				}
+				save.setText("Update");
 			}
+		});
+
+		back.addClickListener(e -> {
+
+			plus.setId("main");
+			del.setId("main");
+			cancel.setId("main");
+			save.setId("main");
+
+			if(formLayout.isVisible()) {
+				formLayout.setVisible(false);
+			}
+			
+			if(vr3.isVisible()) {
+				vr3.setVisible(false);
+			}
+			back.setVisible(false);
+			grid.setVisible(false);
+			outerGrid.setVisible(true);
+			
 		});
 
 		plus.addClickListener(e -> {
 
 			save.setText("Save");
+			if (((Button) e.getSource()).getId().get().equals("main")) {
 
-			formLayout.setVisible(true);
-			vr3.setVisible(true);
-			vr1.setVisible(false);
-
-			elementId.setValue("");
-			caption.setValue("");
-			
-			newTranslation = new TranslationElement();
-
-			if (campaignFormMetaDto == null) {
-				campaignFormMetaDto = new CampaignFormMetaDto();
-							
-				grid.setItems(translationSet);
+				languageCode.clear();
+				mainLayout.setVisible(true);
+				vr3.setVisible(true);
+				vr1.setVisible(false);
+				System.out.println("mainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
 			} else {
-				grid.setItems(translationSet);
-			}
+				if (((Button) e.getSource()).getId().get().equals("sub")) {
 
+					System.out.println("subbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+					formLayout.setVisible(true);
+					vr3.setVisible(true);
+					vr1.setVisible(false);
+
+					elementId.setValue("");
+					caption.setValue("");
+
+					newTranslation = new TranslationElement();
+
+					if (campaignFormMetaDto == null) {
+						campaignFormMetaDto = new CampaignFormMetaDto();
+						grid.setItems(dataprovider);
+					} else {
+						grid.setItems(dataprovider);
+					}
+				}
+			}
 			grid.setHeight("auto !important");
 		});
 
@@ -240,54 +276,75 @@ public class TranslationGridComponent extends VerticalLayout {
 				Notification.show("Selected Form Translation Deleted");
 				grid.setItems(translationBeenEdited);
 			} else {
-
 				Notification.show("No Form Translation Selected");
 			}
 		});
 
 		cancel.addClickListener(e -> {
 
-			vr1.setVisible(true);
-			formLayout.setVisible(false);
-			vr3.setVisible(false);
+			if (((Button) e.getSource()).getId().get().equals("main")) {
 
-			elementId.setVisible(false);
-			caption.setVisible(false);
+				mainLayout.setVisible(false);
+				vr3.setVisible(false);
+				vr1.setVisible(true);
+			} else {
+				if (((Button) e.getSource()).getId().get().equals("sub")) {
 
-			elementId.setValue("");
-			caption.setValue("");
+					vr1.setVisible(true);
+					formLayout.setVisible(false);
+					vr3.setVisible(false);
 
-			save.setText("Save");
-			grid.setItems(translationSet);
+					elementId.setValue("");
+					caption.setValue("");
+
+					System.out.println("Egbon ah dey hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+					save.setText("Save");
+					grid.setItems(dataprovider);		
+				}
+			}
 		});
 
 		save.addClickListener(e -> {
 
-//			CampaignFormTranslations newform = new CampaignFormTranslations();
-
-			vr1.setVisible(true);
-			formLayout.setVisible(false);
-			vr3.setVisible(false);
-
-			if (((Button) e.getSource()).getText().equals("Save")) {
+			if (((Button) e.getSource()).getText().equals("main")) {
+				
+				vr1.setVisible(true);
+				mainLayout.setVisible(false);
+				vr3.setVisible(false);
+				
 				newTranslation = new TranslationElement();
+				
+				if(languageCode.getValue() != null) {
+					
 				newTranslation.setElementId(elementId.getValue());
 				newTranslation.setCaption(caption.getValue());
-				
+
 				translationSet.add(newTranslation);
 				campaignFormTranslations.setLanguageCode(languageCode.getValue());
 				campaignFormTranslations.setTranslations(translationSet);
-				
+
 //				campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
-				grid.setItems(translationSet);
+//				outerGrid.setItems();
+				}
 			} else {
+				if(((Button) e.getSource()).getText().equals("sub")) {
+					
+					vr1.setVisible(true);
+					formLayout.setVisible(false);
+					vr3.setVisible(false);
+					
+					if(elementId.getValue() != null && caption.getValue() != null) {
+						
+					}					
+				}
 
 			}
 		});
 
-		formLayout.add(elementId, caption);
+		mainLayout.add(languageCode);
+		mainLayout.setColspan(languageCode, 2);
 
-		formLayout.setColspan(languageCode, 2);
+		formLayout.add(elementId, caption);
 		formLayout.setColspan(elementId, 2);
 		formLayout.setColspan(caption, 2);
 
