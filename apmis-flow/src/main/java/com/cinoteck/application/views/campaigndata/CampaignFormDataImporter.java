@@ -81,9 +81,9 @@ public class CampaignFormDataImporter extends DataImporter {
 	List<Long> regionexternalIdList = new ArrayList<>();
 	List<Long> districtexternalIdList = new ArrayList<>();
 
-	private static final String R_CODE = "area";
-	private static final String P_CODE = "region";
-	private static final String D_CODE = "district";
+	private static final String R_CODE = "RCode";
+	private static final String P_CODE = "PCode";
+	private static final String D_CODE = "DCode";
 	String selectedAreaUUid = "";
 	String selectedRegionUUid = "";
 	String selectedDistrictUUid = "";

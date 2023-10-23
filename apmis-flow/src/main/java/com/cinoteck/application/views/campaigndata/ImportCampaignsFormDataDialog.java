@@ -87,11 +87,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		VerticalLayout dialog = new VerticalLayout();
 
 
-//		campaignFilter.setId(CampaignDto.NAME);
-//		campaignFilter.setRequired(true);
-//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-//		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignReferenceDto.getUuid()));
-//		campaignFilter.setEnabled(false);
 
 		campaignFormMetaFilter.setText(campaignForm.getCaption());
 
