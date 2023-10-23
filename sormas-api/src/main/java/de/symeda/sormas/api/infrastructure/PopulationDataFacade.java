@@ -17,6 +17,8 @@ public interface PopulationDataFacade {
 	
 	Integer getDistrictPopulationByType(String districtUuid, String campaignUuid, AgeGroup ageGroup);
 	
+	List<PopulationDataDto> getDistrictPopulationByTypeUsingUUIDs(String districtUuid, String campaignUuid, AgeGroup ageGroup);
+	
 
 	/**
 	 * Returns the population of the district, projected to the current point in time based on its growth rate
