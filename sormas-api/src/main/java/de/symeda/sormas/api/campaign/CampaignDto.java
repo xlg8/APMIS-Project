@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
@@ -42,6 +44,7 @@ public class CampaignDto extends EntityDto {
 	public static final String CAMPAIGN_TYPES = "campaignTypes";
 	public static final String CAMPAIGN_AREAS = "areas";
 	public static final String CAMPAIGN_STATUS = "campaignStatus";
+	public static final String CAMPAIGNEXPIRY = "campaignFormMetaExpiryDto";
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String name;
@@ -65,6 +68,8 @@ public class CampaignDto extends EntityDto {
 	private Set<DistrictReferenceDto> districts = new HashSet<DistrictReferenceDto>();
 	private Set<CommunityReferenceDto> community = new HashSet<CommunityReferenceDto>();
 
+	@Transient
+	private Set<CampaignFormMetaExpiryDto> campaignFormMetaExpiryDto = new HashSet<CampaignFormMetaExpiryDto>(); 
 	private Set<PopulationDataDto> populationdata = new HashSet<PopulationDataDto>();
 
 	@Valid
@@ -228,6 +233,14 @@ public class CampaignDto extends EntityDto {
 
 	public Boolean isPublished() {
 		return published;
+	}
+
+	public Set<CampaignFormMetaExpiryDto> getCampaignFormMetaExpiryDto() {
+		return campaignFormMetaExpiryDto;
+	}
+
+	public void setCampaignFormMetaExpiryDto(Set<CampaignFormMetaExpiryDto> campaignFormMetaExpiryDto) {
+		this.campaignFormMetaExpiryDto = campaignFormMetaExpiryDto;
 	}
 
 }

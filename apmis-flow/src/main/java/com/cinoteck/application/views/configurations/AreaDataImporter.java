@@ -64,6 +64,10 @@ public class AreaDataImporter extends DataImporter {
 	private static final String HEADER_PATTERN = "[A-Z]+_[A-Z]{3}_\\d+_(\\d+|PLUS)";
 	private final AreaReferenceDto areaReferenceDto;
 	private boolean isOverWrite;
+	private boolean isOverWriteEnabledName;
+	private boolean isOverWriteEnabledCode;
+	List<AreaReferenceDto> areas = new ArrayList<>();
+	List<AreaReferenceDto> araeNameList = new ArrayList<>();
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -105,11 +109,10 @@ public class AreaDataImporter extends DataImporter {
 
 
 		for (int i = 0; i < entityProperties.length; i++) {
-
-			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i);
 			if (AreaDto.NAME.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
+					
 					regionName = null;
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | This cannot be empty");
@@ -128,23 +131,23 @@ public class AreaDataImporter extends DataImporter {
 										+ " | This cannot be empty or have white space. ");
 						return ImportLineResult.ERROR;
 					} else {
-						List<AreaReferenceDto> araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
+						araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
 
 						if (araeNameList.size() < 1) {// (usrCheck == null) {
 							regionName = regionName_;
 
 						} else {
-							if(isOverWrite){
-			
-								regionName = regionName_;
-								return ImportLineResult.SUCCESS;
+//							if(isOverWrite){
+//								regionName = regionName_;
+//								isOverWriteEnabledName = true;
+								//return ImportLineResult.SUCCESS;
 
-							}else {
+//							} else {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
 												+ " | Region Name Exists ");
 								return ImportLineResult.ERROR;
-							}
+//							}
 							
 						}
 
@@ -163,13 +166,15 @@ public class AreaDataImporter extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					List<AreaReferenceDto> areas = FacadeProvider.getAreaFacade()
+					areas = FacadeProvider.getAreaFacade()
 							.getByExternalId(Long.parseLong(values[i]), false);
 					if (areas.size() > 0) {
 						if(isOverWrite){
 							try {
+								
 								Long externalIdValue = Long.parseLong(values[i]);
 								areaExternalId = externalIdValue;
+								isOverWriteEnabledCode = true;
 							} catch (NumberFormatException e) {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
@@ -205,13 +210,63 @@ public class AreaDataImporter extends DataImporter {
 
 		newUserLine.setExternalId(finalRegionExternalId);
 		newUserLine.setName(finalRegionName);
+		
+		if(isOverWrite && isOverWriteEnabledCode) {
+			
+			AreaDto newUserLine_ = FacadeProvider.getAreaFacade().getByUuid(areas.get(0).getUuid());
+			
+			
+			 boolean isSameData = checkSameInstances(areas, araeNameList);
+			 if(isSameData) {
+				 return ImportLineResult.SUCCESS;
+			 }
+			 
+			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+					new Function<ImportCellData, Exception>() {
+
+						@Override
+						public Exception apply(ImportCellData cellData) {
+							
+							try {
+
+								if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine_.setName(cellData.getValue());
+								}
+//								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+//									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
+//								}
+								
+
+								newUserLinetoSave.add(newUserLine_);
+
+							} catch (NumberFormatException e) {
+								return e;
+							}
+
+							return null;
+						}
+					});
+
+			if (!usersDataHasImportError) {
+
+				try {
+					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+
+					return ImportLineResult.SUCCESS;
+				} catch (ValidationRuntimeException e) {
+					writeImportError(values, e.getMessage());
+					return ImportLineResult.ERROR;
+				}
+			} else {
+				return ImportLineResult.ERROR;
+			}
+		}else {
 		boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 				new Function<ImportCellData, Exception>() {
 
 					@Override
 					public Exception apply(ImportCellData cellData) {
-						System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
-
+						
 						try {
 
 							if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
@@ -225,8 +280,6 @@ public class AreaDataImporter extends DataImporter {
 							newUserLinetoSave.add(newUserLine);
 
 						} catch (NumberFormatException e) {
-							System.out.println("++++++++++++++++Error found++++++++++++++++ ");
-
 							return e;
 						}
 
@@ -248,7 +301,23 @@ public class AreaDataImporter extends DataImporter {
 			return ImportLineResult.ERROR;
 		}
 	}
+	}
+	
+	
+	 public static boolean checkSameInstances(List<AreaReferenceDto> list1, List<AreaReferenceDto> list2) {
+	        if (list1.size() != list2.size()) {
+	            return false;
+	        }
 
+	        for (AreaReferenceDto model : list1) {
+	            if (!list2.contains(model)) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
+	 
+	 
 	public void makeInitialPassword(String userUuid, String userEmail, String[] lineWorkingOn) throws IOException {
 		if (StringUtils.isBlank(userEmail)
 				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
