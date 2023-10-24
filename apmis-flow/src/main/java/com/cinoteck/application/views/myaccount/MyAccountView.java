@@ -42,6 +42,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 //import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
@@ -337,11 +338,13 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 					
 					languageSwitcher.switchLanguage(Locale.ENGLISH);			
 				}
-
+				
+				VaadinSession.getCurrent().close();
 			} else {
 
 				Notification.show(I18nProperties.getString(Strings.choosePreferredLanguage) + languagee.isInvalid());
 			}
+			
 
 		});
 		actionss.getStyle().set("margin", "20px");
