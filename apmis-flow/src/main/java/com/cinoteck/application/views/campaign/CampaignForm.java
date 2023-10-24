@@ -63,6 +63,7 @@ import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.CampaignTreeGridDtoImpl;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -121,7 +122,7 @@ public class CampaignForm extends VerticalLayout {
 	TextField creatingUuid = new TextField(I18nProperties.getCaption(Captions.uuid));
 	TextField campaaignYear = new TextField(I18nProperties.getCaption(Captions.campaignYear));
 
-	//UUID uuid = UUID.randomUUID();
+	UUID uuid = UUID.randomUUID();
 	TextArea description = new TextArea(I18nProperties.getCaption(Captions.description));
 
 	public static TreeGrid<CampaignTreeGridDto> treeGrid = new TreeGrid<>();
@@ -157,13 +158,15 @@ public class CampaignForm extends VerticalLayout {
 	CampaignDashboardGridElementComponent compp2;
 
 	CampaignDashboardGridElementComponent comppp2;
+	
+	private boolean isSingleSelectClickItemLock;
 	private boolean isMultiSelectItemLock;
 	private boolean isSelectItemLock;
 
 	private static final String DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME = "default_population_data.csv";
 
 	public CampaignForm(CampaignDto formData) {
-
+		super();
 		this.statusChangeLayout = new VerticalLayout();
 		this.formDatac = formData;
 
@@ -274,7 +277,7 @@ public class CampaignForm extends VerticalLayout {
 		hort.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
 //		round.setItems(CampaignRounds.values());
-		round.setItems("NID", "SNID", "Case Respond", "Mopping-Up", "Training");
+		round.setItems("NID", "SNID", "CRC", "Mopping-Up", "Training");
 
 //		round.setItemLabelGenerator(CampaignDto::getRound);
 
@@ -463,15 +466,16 @@ public class CampaignForm extends VerticalLayout {
 		parentTab3.add(layoutPost);
 		tabsheetParent.add(I18nProperties.getCaption(Captions.postCampaignPhase), parentTab3);
 
-		System.out.println(campaignDto + "campaign DTOoooooooooooooooooooooooooooooooooo");
-
 		VerticalLayout parentTab4 = new VerticalLayout();
 		final HorizontalLayout layoutAssocCamp = new HorizontalLayout();
 		layoutAssocCamp.setWidthFull();
 
-		treeGrid.setWidthFull();
+		
 		if (campaignDto != null) {
-
+			treeGrid = new TreeGrid<>();
+			
+			treeGrid.removeAllColumns();
+			treeGrid.setWidthFull();
 			treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
 
 			treeGrid.setWidthFull();
@@ -485,8 +489,8 @@ public class CampaignForm extends VerticalLayout {
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
 			selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.HIDDEN);
-			System.out.println("area: " + campaignDto.getAreas().size() + "====== region: "
-					+ campaignDto.getRegion().size() + "   ====   district:" + campaignDto.getRegion().size());
+//			System.out.println("area: " + campaignDto.getAreas().size() + "====== region: "
+//					+ campaignDto.getRegion().size() + "   ====   district:" + campaignDto.getRegion().size());
 
 			for (AreaReferenceDto root : campaignDto.getAreas()) {
 
@@ -518,15 +522,16 @@ public class CampaignForm extends VerticalLayout {
 					}
 				}
 			}
-		}
+		
 
 		treeGrid.addItemClickListener(ee -> { //.addItemDoubleClickListener(ee -> {
-			if (campaignDto != null) {
-			createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(), campaignDto);
-			Notification.show(
-					ee.getItem().getUuid() + " _xx___ " + ee.getItem().getPopulationData() + " : " + ee.getItem().getId()
-							+ " | " + ee.getItem().getLevelAssessed() + " ++ " + ee.getItem().getSavedData());
+			
+			isSingleSelectClickItemLock = true;
+			if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
+			createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(), campaignDto, ee.getItem());
+			
 			}
+			
 
 		});
 
@@ -534,18 +539,21 @@ public class CampaignForm extends VerticalLayout {
 		
 		treeGrid.asMultiSelect().addSelectionListener(eventx -> {
 			isMultiSelectItemLock = true;
+			if(!isSingleSelectClickItemLock) {
+				isSelectItemLock = false;
+				
+				return;
+			}
+			
 			
 			if(!isSelectItemLock) {
 				isSelectItemLock = true;
 			
 			for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
-				System.out.println("s4444444444444444ssssss!!!!!!!: " + camTrGrid.getName());
-
+				
 				if (camTrGrid.getIsClicked() != null) {
-					System.out.println("sssssssssssssss1111");
 					if (camTrGrid.getIsClicked() == 777L) {
 						treeGrid.deselect(camTrGrid);
-						System.out.println("sssssssssssssss2222");
 						// deselect its children
 						treeGrid.getTreeData().getChildren(camTrGrid)
 								.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
@@ -564,7 +572,6 @@ public class CampaignForm extends VerticalLayout {
 						camTrGrid.setIsClicked(7L);
 
 					} else {
-						System.out.println("sssssssssssssss3333");
 						camTrGrid.setIsClicked(777L);
 						treeGrid.select(camTrGrid);
 
@@ -579,7 +586,6 @@ public class CampaignForm extends VerticalLayout {
 
 					}
 				} else {
-					System.out.println("sssssssssssssss44444");
 					camTrGrid.setIsClicked(777L);
 					treeGrid.select(camTrGrid);
 					treeGrid.getTreeData().getChildren(camTrGrid)
@@ -598,7 +604,6 @@ public class CampaignForm extends VerticalLayout {
 			
 			
 			for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
-				System.out.println("sssssssssssssss555");
 				ftg.setIsClicked(777L);
 			}
 
@@ -612,7 +617,6 @@ public class CampaignForm extends VerticalLayout {
 			community.clear();
 			popopulationDataDtoSet.clear();
 			
-			System.out.println(eventx.getAllSelectedItems().size()+ " sssssssssssssss555 : "+ treeGrid.getSelectionModel().getSelectedItems().size());
 			for (int i = 0; i < treeGrid.getSelectionModel().getSelectedItems().size(); i++) {
  //TODO: let make thnis work faster by implementing a converion of treeGrid.getSelectionModel().getSelectedItems() into a set of campaigngridto
 				
@@ -652,7 +656,6 @@ public class CampaignForm extends VerticalLayout {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 				campaignDto.setRegion((Set<RegionReferenceDto>) region);
 				campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
-				 System.out.println("=================.=== "+popopulationDataDtoSet.size());
 				campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
 				campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
 				isMultiSelectItemLock = false;
@@ -711,16 +714,19 @@ public class CampaignForm extends VerticalLayout {
 					campaignDto.setAreas((Set<AreaReferenceDto>) areass);
 					campaignDto.setRegion((Set<RegionReferenceDto>) region);
 					campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
-					System.out.println("==================== " + popopulationDataDtoSet.size());
 					campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
 					campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
 					
 				}
 			}
 		});
-
+		
 		parentTab4.add(treeGrid);
-
+		} else {
+			Div textx = new Div(new Text(I18nProperties.getString(Strings.infoSaveCampaignFirst)));
+			parentTab4.add(textx);
+		}
+		
 		parentTab4.add(layoutAssocCamp);
 		tabsheetParent.add(I18nProperties.getCaption(Captions.associateCampaign), parentTab4);
 
@@ -846,70 +852,7 @@ public class CampaignForm extends VerticalLayout {
 			Notification.show("clicked");
 			logEventMethod();
 		});
-//		
-//		generateDefaultPopulation = new Button();
-//		generateDefaultPopulation.setText("Generate Campaign Population");
-//		generateDefaultPopulation.addClickListener(e -> {
-////			 UserProvider usrr = new UserProvider();
-//			
-//				UserDto srDto = usr.getUser();
-//				private File file_ = new File();
-//			try {
-//
-//				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignDto.getUuid());
-//				
-//				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
-//				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-//			} catch (IOException | CsvValidationException e) {
-//				Notification.show(
-//					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-//					I18nProperties.getString(Strings.messageImportFailed));
-//			}
-//			
-//		});
-//		ImportFacade importFacade = FacadeProvider.getImportFacade();
-////		URI templateFilePath;
-////		templateFilePath = importFacade.getAllContinentsImportFilePath();
-//		
-//		generateDefaultPopulation = new Button();
-//		generateDefaultPopulation.setText("Generate Campaign Population");
-//		generateDefaultPopulation.addClickListener(e -> {
-//			System.out.println( "file pathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-//		    // Assuming you have an InputStream for your embedded CSV file
-//		    InputStream inputStream = getClass().getResourceAsStream("/default_population_data.csv");
-//
-//		    if (inputStream != null) {
-//		    	
-//		        // Create a temporary File to pass to your importer
-//		        File tempFile;
-//		        try {
-//		            tempFile = File.createTempFile("tempCSV", ".csv");
-//		            tempFile.deleteOnExit();
-//
-//		            // Copy the content of the embedded CSV file to the temporary File
-//		            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
-//		                byte[] buffer = new byte[1024];
-//		                int bytesRead;
-//		                while ((bytesRead = inputStream.read(buffer)) != -1) {
-//		                    outputStream.write(buffer, 0, bytesRead);
-//		                }
-//		            }
-//
-//		            UserDto srDto = usr.getUser();
-//		            CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(campaignDto.getUuid());
-//
-//		            DataImporter importer = new DefaultPopulationDataImporter(tempFile, srDto, acmpDto, ValueSeparator.COMMA);
-//		            importer.startImport(null, null, false, UI.getCurrent(), true);
-//		        } catch (IOException | CsvValidationException e1) {
-//		            Notification.show(
-//		                I18nProperties.getString(Strings.headingImportFailed) + " : " +
-//		                I18nProperties.getString(Strings.messageImportFailed)
-//		            );
-//		        }
-//		    } else {
-//		        Notification.show("Embedded CSV file not found.");
-//		    }
-//		});
+
 
 		publishUnpublishCampaign = new Button();
 
@@ -933,23 +876,9 @@ public class CampaignForm extends VerticalLayout {
 
 		openCloseCampaign.addClickListener(e -> {
 			openCloseCampaign();
-//			archiveDearchive.setEnabled(!isOpenClose);
 
 		});
 
-//		archiveDearchive.setEnabled(isOpenClose);
-//		Tooltip tooltip = new Tooltip();
-//		System.out.println(archiveDearchive.isEnabled() + "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
-//		if(archiveDearchive.isEnabled() == false) {
-//			tooltip.attachToComponent(archiveDearchive);
-
-//			tooltip.setPosition(TooltipPosition.RIGHT);
-//			tooltip.setAlignment(TooltipAlignment.LEFT);
-//			tooltip.add(new H5("Hello"));
-//			archiveDearchive.getElement().setAttribute("data-custom-hover-attribute", "Custom hover text or attribute value");
-
-////			archiveDearchive.getElement().setAttribute("title","Please close present campaign before attemping to Archive");
-//		}
 		if (isOpenClose) {
 			archiveDearchive.addClickListener(e -> {
 				archive();
@@ -968,7 +897,6 @@ public class CampaignForm extends VerticalLayout {
 		discardChanges.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
 		discardChanges.addClickListener(e -> {
-//			discardChanges();
 			discard();
 		});
 
@@ -1023,15 +951,12 @@ public class CampaignForm extends VerticalLayout {
 		add(campaignBasics, formL, layoutParent, actionButtonsLayout); // ,
 
 	}
-//	protected URI getImportFilePath() {
-//		return FacadeProvider.getImportFacade().getDefaualtPopulationImportFilePath();
-//	}
-//	
-//	
 
-	private void createDialogBasic(String Uuid, Long selectedPopData, String name_, CampaignDto campaignDto_) {
+	private void createDialogBasic(String Uuid, Long selectedPopData, String name_, CampaignDto campaignDto_, CampaignTreeGridDto campaignTreeGridDto) {
 		Dialog dialog = new Dialog();
 
+		dialog.removeAll();
+		
 		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.editing) + " " + name_);
 
 		
@@ -1041,19 +966,17 @@ public class CampaignForm extends VerticalLayout {
 		dialog.getFooter().add(cancelButton);
 		dialog.getFooter().add(saveButton);
 		
-		VerticalLayout dialogLayout = createDialogLayout(name_, selectedPopData, saveButton, Uuid, campaignDto_, dialog);
+		VerticalLayout dialogLayout = createDialogLayout(name_, selectedPopData, saveButton, Uuid, campaignDto_, dialog, campaignTreeGridDto);
 		dialog.add(dialogLayout);
 		
 		add(dialog);
 
 		dialog.open();
+		
+		isSingleSelectClickItemLock = false;
+		}
 
-		// Center the button within the example
-//		getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")
-//				.set("display", "flex").set("align-items", "center").set("justify-content", "center");
-	}
-
-	private static VerticalLayout createDialogLayout(String name_, Long selectedPopData, Button saveButton, String Uuid, CampaignDto campaignDto_, Dialog dialog) {
+	private static VerticalLayout createDialogLayout(String name_, Long selectedPopData, Button saveButton, String Uuid, CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto) {
 		
 		TextField district = new TextField(I18nProperties.getCaption(Captions.district));
 		district.setValue(name_);
@@ -1071,9 +994,10 @@ public class CampaignForm extends VerticalLayout {
 			// new ArrayList<>();
 			popDataDto.get(0).setPopulation(popData.getValue());
 			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto);
-			treeGrid.getDataProvider().refreshAll();
 			dialog.close();
-			Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
+			
+			treeGrid.getDataProvider().refreshAll();//.refreshItem(campaignTreeGridDto);  //add , true to regresh children
+			Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully)+" +++_");
 			
 		});
 		
@@ -1186,7 +1110,6 @@ public class CampaignForm extends VerticalLayout {
 		public CampaignDto getCampaign() {
 			if (campaign == null) {
 				campaign = new CampaignDto();
-//				campaign.setUuid(uuid.toString().toUpperCase());
 				return campaign;
 			} else {
 				return campaign;
@@ -1217,6 +1140,8 @@ public class CampaignForm extends VerticalLayout {
 			formDatac.setEndDate(endxDatex);
 			formDatac.setDescription(description.getValue());
 			formDatac.setCampaignStatus(formDatac.campaignStatus = "Closed");
+			
+			
 
 			List<CampaignDashboardElement> preCampaigngridData = comp1.getGridData();
 			List<CampaignDashboardElement> intraCampaigngridData = compp2.getGridData();
@@ -1250,7 +1175,7 @@ public class CampaignForm extends VerticalLayout {
 			List<CampaignFormMetaReferenceDto> postCampaignDashboardgridData = comppp.getSavedElements();
 
 			Set<CampaignFormMetaReferenceDto> superSet = new HashSet<>();
-
+		
 			for (CampaignFormMetaReferenceDto item : preCampaignDashboardgridData) {
 				if (item != null) {
 					superSet.add(item);
@@ -1293,7 +1218,7 @@ public class CampaignForm extends VerticalLayout {
 
 				Notification.show(
 						String.format(I18nProperties.getString(Strings.messageCampaignSaved), campaignDto.getName()));
-
+				
 				fireEvent(new SaveEvent(this, binderx.getBean()));
 
 				UI.getCurrent().getPage().reload();
