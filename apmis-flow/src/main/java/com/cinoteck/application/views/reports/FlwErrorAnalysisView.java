@@ -95,7 +95,7 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 
 		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
 		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		campaign.setItems(campaigns);
 
 		campaign.setValue(lastStarted);

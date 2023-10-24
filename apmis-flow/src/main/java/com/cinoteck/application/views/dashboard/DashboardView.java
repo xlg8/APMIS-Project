@@ -144,10 +144,22 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		UserProvider usr = new UserProvider();
 
 		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear().trim());
+		
+			
+		}
+		
+		List<CampaignReferenceDto> filteredCampaigns = new ArrayList<>();
+
+		for (String year : campaingYears) {
+		    for (CampaignReferenceDto cmfdto : campaigns) {
+		        if (cmfdto.getCampaignYear().trim().equals(year)) {
+		            filteredCampaigns.add(cmfdto);
+		        }
+		    }
 		}
 		
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
@@ -160,7 +172,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		campaign.setLabel(I18nProperties.getCaption(Captions.Campaign));
 
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 
 		campaign.setItems(campaigns);
 		campaign.getStyle().set("padding-top", "0px");
@@ -275,20 +287,21 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		});
 
 		campaignYear.addValueChangeListener(e -> {
-			if (!isCampaignChanged) {
+//			if (!isCampaignChanged) {
 				List<CampaignReferenceDto> campaigns_ = new ArrayList<>();
 				;
 
-				campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+				campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 				campaign.clear();
 				for (CampaignReferenceDto cmfdto : campaigns) {
 					if (cmfdto.getCampaignYear().equals(e.getValue())) {
+//						campaigns_.clear();
 						campaigns_.add(cmfdto);
 					}
 				}
 				campaign.setItems(campaigns_);
 				campaign.setValue(campaigns_.get(0));
-			}
+//			}
 			isCampaignChanged = false;
 		});
 

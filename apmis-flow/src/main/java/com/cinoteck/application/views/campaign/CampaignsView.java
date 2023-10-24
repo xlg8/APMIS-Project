@@ -350,7 +350,11 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		formLayout.addDiscardListener(this::discardForm);
-
+		System.out.println(  "ROUND VALUE BAWSED OFF the form selected " + formLayout.round.getValue() );
+		if(formLayout.round.getValue() ==  "Case Respond" ) {
+			formLayout.round.setValue("CRC");	
+//		System.out.println( round.getValue() + "ROUND VALUE BAWSED OFF BINDER ");
+	}
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
@@ -407,7 +411,7 @@ public class CampaignsView extends VerticalLayout {
 
 	private void roundChange(CampaignForm.RoundChangeEvent event) {
 
-		if (event.getSource().round.getValue() == "Training") {
+		if (event.getSource().round.getValue() == CampaignRounds.TRAINING || event.getSource().round.getValue() == "Training") {
 			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
 		}
@@ -416,10 +420,6 @@ public class CampaignsView extends VerticalLayout {
 
 	private void discardForm(CampaignForm.DiscardEvent event) {
 
-//		if (event.getSource().round.getValue() == "Training") {
-//			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
-//			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
-//		}
 		dialog.close();
 		UI.getCurrent().getPage().reload();
 	}

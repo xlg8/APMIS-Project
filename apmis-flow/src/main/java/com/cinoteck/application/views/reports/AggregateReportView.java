@@ -1,3 +1,4 @@
+
 package com.cinoteck.application.views.reports;
 
 import java.text.SimpleDateFormat;
@@ -207,7 +208,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		groupBy.getStyle().set("width", "145px !important");
 
 		// Initialize Item lists
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());

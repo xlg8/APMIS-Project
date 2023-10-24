@@ -22,6 +22,8 @@ import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.validation.constraints.NotNull;
 
+import de.symeda.sormas.backend.campaign.Campaign;
+
 public interface AdoService<ADO extends AbstractDomainObject> {
 
 	List<ADO> getAll();
@@ -29,6 +31,8 @@ public interface AdoService<ADO extends AbstractDomainObject> {
 	List<ADO> getByRound(String round);
 	
 	List<ADO> getByRoundAndCampaign(String round, String uuid);
+	
+	List<Campaign> getAllCampaignByStartDate();
 
 	ADO getById(long id);
 
@@ -66,4 +70,8 @@ public interface AdoService<ADO extends AbstractDomainObject> {
 	 * JPA-Session flushen
 	 */
 	void doFlush();
+
+	
+
+	
 }

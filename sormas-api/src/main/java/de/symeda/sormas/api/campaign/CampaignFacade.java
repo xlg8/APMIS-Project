@@ -18,6 +18,8 @@ public interface CampaignFacade { //CampaignFacadeEjb
 
 	List<CampaignReferenceDto> getAllActiveCampaignsAsReference();
 	
+	List<CampaignReferenceDto> getAllCampaignByStartDate();
+	
 	CampaignReferenceDto getLastStartedCampaign();
 
 	long count(CampaignCriteria campaignCriteria);
@@ -64,5 +66,7 @@ public interface CampaignFacade { //CampaignFacadeEjb
 	CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto);
 
 	List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp);
+
+	
 	
 }

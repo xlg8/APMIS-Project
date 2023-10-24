@@ -46,6 +46,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.report.CampaignDataExtractDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -166,7 +167,13 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		return campaignService.getAll().stream().filter(c -> !c.isDeleted() && !c.isArchived())
 				.map(CampaignFacadeEjb::toReferenceDtoYear).collect(Collectors.toList());
 	}
+	
+	@Override
+	public List<CampaignReferenceDto> getAllCampaignByStartDate() {
+		return campaignService.getAllActiveByCampaignStartDate().stream().map(CampaignFacadeEjb::toReferenceDtoYear).collect(Collectors.toList());
+	}
 
+	
 	@Override
 	public CampaignReferenceDto getLastStartedCampaign() {
 
@@ -950,5 +957,11 @@ System.out.println(dto + "from the campaign facade when its trying to save ");
 	@Stateless
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
+
+
+
+	
+
+	
 
 }

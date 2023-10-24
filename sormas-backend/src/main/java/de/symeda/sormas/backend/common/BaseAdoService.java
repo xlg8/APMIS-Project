@@ -51,7 +51,9 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.ReferenceDto;
+import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.utils.DateHelper;
+import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.user.CurrentUser;
 import de.symeda.sormas.backend.user.CurrentUserQualifier;
 import de.symeda.sormas.backend.user.User;
@@ -147,8 +149,20 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
 		Root<ADO> from = cq.from(getElementClass());
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
-	//	System.out.println("DEBUGGER 5678ijhyuio __________________________________________ "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER 5678ijhyuio __________________vvyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
+	}
+	
+	
+	@Override
+	public List<Campaign> getAllCampaignByStartDate() {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
+		Root<ADO> from = cq.from(getElementClass());
+		cq.orderBy(cb.desc(from.get(CampaignIndexDto.START_DATE)));
+		System.out.println("DEBUGGER 5678ijhyuio __________________vvrgyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
+		return (List<Campaign>) em.createQuery(cq).getResultList();
 	}
 	
 	

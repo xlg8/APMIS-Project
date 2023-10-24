@@ -20,6 +20,7 @@
 
 package de.symeda.sormas.api.campaign;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import de.symeda.sormas.api.ReferenceDto;
@@ -27,6 +28,8 @@ import de.symeda.sormas.api.ReferenceDto;
 public class CampaignReferenceDto extends ReferenceDto {
 	
 	private String campaignYear;
+	
+	private Date startDate;
 
 	public CampaignReferenceDto() {
 	}
@@ -45,6 +48,13 @@ public class CampaignReferenceDto extends ReferenceDto {
 		setCaption(caption);
 		this.campaignYear = campaignYear;
 	}
+	
+	public CampaignReferenceDto(String uuid, String caption, String campaignYear, Date startDate) {
+		setUuid(uuid);
+		setCaption(caption);
+		this.campaignYear = campaignYear;
+		this.startDate = startDate;
+	}
 
 	public String getCampaignYear() {
 		return campaignYear;
@@ -54,5 +64,11 @@ public class CampaignReferenceDto extends ReferenceDto {
 		this.campaignYear = campaignYear;
 	}
 	
+	public Date getStartDate() {
+		return startDate;
+	}
 	
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
 }

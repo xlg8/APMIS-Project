@@ -302,7 +302,7 @@ public class CampaignDataView extends VerticalLayout {
 		clusterCombo.setEnabled(false);
 
 		// Initialize Item lists
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());
