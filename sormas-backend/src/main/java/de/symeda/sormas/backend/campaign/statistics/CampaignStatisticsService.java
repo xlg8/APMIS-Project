@@ -475,8 +475,6 @@ public class CampaignStatisticsService {
 
 		boolean comparisonResult = query.getSingleResult();
 
-		System.out.println("____Not LockedLocked_____" + !comparisonResult);
-
 		return !comparisonResult;
 
 	}
