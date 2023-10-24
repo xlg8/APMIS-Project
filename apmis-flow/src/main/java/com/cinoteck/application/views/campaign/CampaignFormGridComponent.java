@@ -1,5 +1,6 @@
 package com.cinoteck.application.views.campaign;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -183,22 +185,25 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-				Set<CampaignFormMetaReferenceDto> formSet = new HashSet<>();
+				CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(), daysExpire.getValue());
+				
+//				Set<CampaignFormMetaReferenceDto> formSet = new HashSet<>();
 				
 				
 				newCampForm.setCaption(forms.getValue().toString());
 				newCampForm.setDaysExpired(daysExpire.getValue());
 			
-				if (capaingDto == null) {
-					capaingDto = new CampaignDto();
-					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
-					formSet.add(newCampForm);
-					capaingDto.setCampaignFormMetas(formSet);
-					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo");
-
-				}
+//				if (capaingDto == null) {
+//					capaingDto = new CampaignDto();
+//					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo22222");
+//					formSet.add(newCampForm);
+//					capaingDto.setCampaignFormMetas(formSet);
+//					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo211111");
+//
+//				}
+				
 				capaingDto.getCampaignFormMetas().add(newCampForm);
-
+				capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp);
 				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 				allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
 
@@ -212,9 +217,19 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				// formBeenEdited
 				if (formBeenEdited != null) {
 					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-					CampaignDto capdto = capaingDto;
+//					CampaignDto capdto = capaingDto;
 					capaingDto.getCampaignFormMetas().remove(formBeenEdited);
 					capaingDto.getCampaignFormMetas().add(newCampForm);
+					List<CampaignFormMetaExpiryDto> camFormExp_ = new ArrayList<>();
+					
+					camFormExp_ = capaingDto.getCampaignFormMetaExpiryDto().stream().filter(ew -> ew.getFormId() == formBeenEdited).collect(Collectors.toList());
+					CampaignFormMetaExpiryDto camFormExp_i = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(), daysExpire.getValue());
+					
+					if(camFormExp_.size() > 0)
+					capaingDto.getCampaignFormMetaExpiryDto().remove(camFormExp_.get(0));
+					
+					capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp_i);
+					
 					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 					getSavedElements();

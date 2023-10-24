@@ -89,7 +89,7 @@ public class CampaignsView extends VerticalLayout {
 	List<CampaignIndexDto> indexList = FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null);
 	ListDataProvider<CampaignIndexDto> indexDataProvider = new ListDataProvider<>(indexList);
 
-	private CampaignForm campaignForm;
+	private CampaignForm campaignForm = null;
 	CampaignDto dto_;
 	private List<CampaignReferenceDto> campaignName, campaignRound, campaignStartDate, campaignEndDate,
 			campaignDescription;

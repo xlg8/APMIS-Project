@@ -20,8 +20,10 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
@@ -38,6 +40,7 @@ import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -52,6 +55,7 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.campaign.diagram.CampaignDiagramDefinitionFacadeEjb;
+import de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
@@ -215,11 +219,35 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 	@Override
 	public CampaignDto saveCampaign(@Valid CampaignDto dto) {
+		
 System.out.println(dto + "from the campaign facade when its trying to save ");
+
+saveCampaignFormExp(dto);
+
 		Campaign campaign = fromDto(dto, true);
 		campaignService.ensurePersisted(campaign);
 		return toDto(campaign);
 	}
+	
+	private void saveCampaignFormExp(CampaignDto dto) {
+			try {
+				for (CampaignFormMetaExpiryDto data : dto.getCampaignFormMetaExpiryDto()) {
+					String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + " set "
+							+ CampaignFormMetaExpDay.FORM_ID + " = '" + data.getFormId().getUuid() + "', \n"
+							+ CampaignFormMetaExpDay.CAMPAIGN + " = '" + data.getCampaignId().getUuid() + "', \n"
+							+ CampaignFormMetaExpDay.EXPIRE_DAY + " = " + data.getExpiryDay() + ";";
+					System.out.println(data.getCampaignId().getUuid() + " :__________________: "
+							+ data.getFormId().getUuid() + " :__________________: " + data.getExpiryDay());
+					System.out.println("____________: " + sqlQuery);
+
+					int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
+					System.out.println(" =========done: " + dsc);
+				}
+			} catch (Exception e) {
+				System.err.println(e.getStackTrace());
+			}
+	
+	        }
 
 	@Override
 	public CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto) {

@@ -442,17 +442,23 @@ System.out.println("YESSSS");
 
 		List<ImportColumn> importColumns = new ArrayList<>();
 
-		importColumns.add(ImportColumn.from(UserDto.class, UserDto.AREA, AreaReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(UserDto.class, UserDto.REGION, RegionReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(UserDto.class, UserDto.DISTRICT, DistrictReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(UserDto.class, UserDto.COMMUNITY, String[].class, separator));
+		importColumns.add(ImportColumn.from(AreaDto.class, "RCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(RegionDto.class, "PCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(DistrictDto.class, "DCode", Integer.class, separator));
+		importColumns.add(ImportColumn.from(CommunityDto.class, "CCode", Integer.class, separator));
+		
+//		
+//		importColumns.add(ImportColumn.from(UserDto.class, UserDto.AREA, AreaReferenceDto.class, separator));
+//		importColumns.add(ImportColumn.from(UserDto.class, UserDto.REGION, RegionReferenceDto.class, separator));
+//		importColumns.add(ImportColumn.from(UserDto.class, UserDto.DISTRICT, DistrictReferenceDto.class, separator));
+//		importColumns.add(ImportColumn.from(UserDto.class, UserDto.COMMUNITY, String[].class, separator));
 		
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_NAME, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.FIRST_NAME, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.LAST_NAME, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_POSITION, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_ORGANISATION, String.class, separator));
-		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_EMAIL, String.class, separator));
+//		importColumns.add(ImportColumn.from(UserDto.class, UserDto.USER_EMAIL, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.PHONE, String.class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.FORM_ACCESS, String[].class, separator));
 		importColumns.add(ImportColumn.from(UserDto.class, UserDto.COMMON_USER, Boolean.class, separator));

@@ -57,6 +57,10 @@ public class UsersDataImporter extends DataImporter {
 	private final UserFacade userFacade;
 	private UI currentUI;
 	private Set<UserRole> userRole = new HashSet<>();
+	
+	private static final String P_CODE = "PCode";
+	private static final String D_CODE = "DCode";
+	private static final String C_CODE = "CCode";
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -86,11 +90,15 @@ public class UsersDataImporter extends DataImporter {
 		// Lets run some validations
 
 		AreaReferenceDto area = null;
-		RegionReferenceDto region = null;
+		RegionReferenceDto province = null;
 		DistrictReferenceDto district = null;
 		Set<CommunityReferenceDto> community = new HashSet<>();
 		Set<FormAccess> formAccess= new HashSet<>();
 		String username = "";
+		
+		Long province_xt_id = null;
+		Long district_xt_id = null;
+		
 
 		System.out.println("++++++++++++++++++===============: " + entityProperties.length);
 
@@ -99,67 +107,97 @@ public class UsersDataImporter extends DataImporter {
 		for (int i = 0; i < entityProperties.length; i++) {
 
 			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i);
-			if (UserDto.AREA.equalsIgnoreCase(entityProperties[i])) {
+			
+			
+			if (P_CODE.equalsIgnoreCase(entityProperties[i])) {
 				try {
-					List<AreaReferenceDto> areas = FacadeProvider.getAreaFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
-					if (areas.size() != 1) {
-						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-						return ImportLineResult.ERROR;
-					}
-					area = areas.get(0);
-				} catch (NumberFormatException e) {
-					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " : " + e.getLocalizedMessage());
-					return ImportLineResult.ERROR;
-				}
-			}
-			if (UserDto.REGION.equalsIgnoreCase(entityProperties[i])) {
-				try {
-					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
-					if (regions.size() != 1) {
-						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-						return ImportLineResult.ERROR;
-					}
-					region = regions.get(0);
-				} catch (NumberFormatException e) {
-					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " : " + e.getLocalizedMessage());
-					return ImportLineResult.ERROR;
-				}
-			}
-			if (UserDto.DISTRICT.equalsIgnoreCase(entityProperties[i])) {
-				if (DataHelper.isNullOrEmpty(values[i])) {
-					district = null;
-				} else {
-					try {
-						List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
-								.getByExternalID(Long.parseLong(values[i]), region, false);
-						if (districts.size() != 1) {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							return ImportLineResult.ERROR;
-						}
-						district = districts.get(0);
+					province_xt_id = Long.parseLong(values[i]);
+					List<RegionReferenceDto> existingProvinces = FacadeProvider.getRegionFacade()
+							.getByExternalId(province_xt_id, false);
 
-					} catch (NumberFormatException e) {
+					if (existingProvinces.size() < 1) {
+						province_xt_id = null;
 						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-								+ " : " + e.getLocalizedMessage());
+								+ " | Province does not exist or > 1");
+						return ImportLineResult.ERROR;
+					} else if (existingProvinces.size() == 1) {
+
+						province = existingProvinces.get(0);
+
+					} else {
+						province_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | Posible Duplicate PCode Found");
 						return ImportLineResult.ERROR;
 					}
+				} catch (NumberFormatException e) {
+					province_xt_id = null;
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " : " + e.getLocalizedMessage());
+					return ImportLineResult.ERROR;
 				}
 			}
 
-			if (UserDto.COMMUNITY.equalsIgnoreCase(entityProperties[i])) {
+			
+			if (D_CODE.equalsIgnoreCase(entityProperties[i])) {
+				try {
+					district_xt_id = Long.parseLong(values[i]);
+					List<DistrictReferenceDto> existingDistricts = FacadeProvider.getDistrictFacade()
+							.getByExternalId(district_xt_id, false);
 
+					if (existingDistricts.size() < 1) {
+						district_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | District does not exist or > 1");
+						return ImportLineResult.ERROR;
+					} else if (existingDistricts.size() == 1) {
+
+						district = existingDistricts.get(0);
+
+					} else {
+						district_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | Posible Duplicate DCode Found");
+						return ImportLineResult.ERROR;
+					}
+				} catch (NumberFormatException e) {
+					district_xt_id = null;
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " : " + e.getLocalizedMessage());
+					return ImportLineResult.ERROR;
+				}
+			}
+
+			if (C_CODE.equalsIgnoreCase(entityProperties[i])) {
 				if (DataHelper.isNullOrEmpty(values[i])) {
-					community = null;
+
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " | CCode cannot be empty");
+					return ImportLineResult.ERROR;
+
 				} else {
+					
+				
 					String inputString = values[i];
 
-					String[] cCodes = inputString.substring(1, inputString.length() - 1).split(",");
-
+					String[] cCodes = null;
+					
+					if(inputString.contains("[") && inputString.contains("]")) {
+						cCodes = inputString.substring(1, inputString.length() - 1).split(",");
+					
+					} else if (!inputString.contains("[") && !inputString.contains("]")) {
+						
+						cCodes = inputString.split(",");
+					} else {
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " : Cluster not properly provided, please add [] and seperate by ,");
+						return ImportLineResult.ERROR;
+					}
+					
+					
+					System.out.println("____"+cCodes+"_____");
+					
+					
 					for (int ix = 0; ix < cCodes.length; ix++) {
 						
 						try {
@@ -172,32 +210,49 @@ public class UsersDataImporter extends DataImporter {
 							for(CommunityReferenceDto ds : communities) {
 							community.add(ds);
 							}
-							
-
 						} catch (NumberFormatException e) {
 							writeImportError(values,
 									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " : "
 											+ e.getLocalizedMessage());
 							return ImportLineResult.ERROR;
 						}
-
+					
+								
 					}
-
-				}
 			}
+			}
+			
+//			
 
 			if (UserDto.FORM_ACCESS.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					formAccess = null;
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " | This cannot be empty");
+							+ " | This cannot be empty err201");
 					return ImportLineResult.ERROR;
 				} else {
 					String inputString = values[i];
 
-					String[] formAccess_ = inputString.substring(1, inputString.length() - 1).split(",");
+//					String[] formAccess_ = inputString.substring(1, inputString.length() - 1).split(",");
 
+					
+					String[] formAccess_ = null;
+					
+					if(inputString.contains("[") && inputString.contains("]")) {
+						formAccess_ = inputString.substring(1, inputString.length() - 1).split(",");
+					
+					} else if (!inputString.contains("[") && !inputString.contains("]")) {
+						
+						formAccess_ = inputString.split(",");
+					} else {
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " : FORMACCESS not properly provided, please add [] and seperate by ,");
+						return ImportLineResult.ERROR;
+					}
+					
+					
+					
 					for (int ix = 0; ix < formAccess_.length; ix++) {
 						String formAccessx = formAccess_[ix].trim();
 						try {
@@ -205,16 +260,18 @@ public class UsersDataImporter extends DataImporter {
 							int iv = 0;
 
 							for (FormAccess myEnum : FormAccess.values()) {
+								
 								if (myEnum.name().equalsIgnoreCase(formAccessx)) {
 									iv++;
 									formAccess.add(myEnum);
 								}
+								System.out.println(formAccessx +"++++++++++++++++ _"+iv+"_ +++++++++++++++++++: "+ myEnum.name().equalsIgnoreCase(formAccessx));
 							}
 
 							if (iv < 1) {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
-												+ " | This cannot be empty");
+												+ " | This cannot be empty  err202");
 								return ImportLineResult.ERROR;
 							}
 
@@ -234,7 +291,7 @@ public class UsersDataImporter extends DataImporter {
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					username = null;
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-							+ " | This cannot be empty");
+							+ " | This cannot be empty  err203");
 					return ImportLineResult.ERROR;
 
 				} else {
@@ -273,7 +330,7 @@ public class UsersDataImporter extends DataImporter {
 			// The region and district that will be used to save the population data to the
 			// database
 			final AreaReferenceDto finalArea = area;
-			final RegionReferenceDto finalRegion = region;
+			final RegionReferenceDto finalRegion = province;
 			final DistrictReferenceDto finalDistrict = district;
 			final Set<CommunityReferenceDto> finalCommunity = community;
 			final Set<FormAccess> finalFormAccess = formAccess;
@@ -284,7 +341,7 @@ public class UsersDataImporter extends DataImporter {
 			
 			UserDto newUserLine = UserDto.build();
 			
-			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
+//			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
 			newUserLine.setArea(finalArea);
 			newUserLine.setRegion(finalRegion);
 			newUserLine.setDistrict(finalDistrict);
@@ -303,7 +360,7 @@ public class UsersDataImporter extends DataImporter {
 
 						@Override
 						public Exception apply(ImportCellData cellData) {
-							System.out.println("++++++++++++++++111111111: "+cellData.getEntityPropertyPath()[0]);
+//							System.out.println("++++++++++++++++111111111: "+cellData.getEntityPropertyPath()[0]);
 
 							try {
 								
