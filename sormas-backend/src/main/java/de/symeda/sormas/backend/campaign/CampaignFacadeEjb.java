@@ -15,6 +15,7 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -237,14 +238,12 @@ public class CampaignFacadeEjb implements CampaignFacade {
 				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
 						+ CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN + ", "
 						+ CampaignFormMetaExpDay.EXPIRE_DAY + ")" + " values (" + "'" + data.getFormId().getUuid()
-						+ "'," + "'" + data.getCampaignId().getUuid() + "'," + data.getExpiryDay() + ");";
-
-				System.out.println(" ======DeBUGGER 545454545=========: " + sqlQuery);
-
-				System.out.println(data.getCampaignId().getUuid() + " :__________________: "
-						+ data.getFormId().getUuid() + " :__________________: " + data.getExpiryDay());
-				System.out.println("____________: " + sqlQuery);
-
+						+ "'," + "'" + data.getCampaignId().getUuid() + "'," + data.getExpiryDay() + ")"
+								+ "ON CONFLICT ("+CampaignFormMetaExpDay.FORM_ID+", "+CampaignFormMetaExpDay.CAMPAIGN+") DO UPDATE\n"
+								+ "SET "+CampaignFormMetaExpDay.EXPIRE_DAY+" = EXCLUDED."+CampaignFormMetaExpDay.EXPIRE_DAY+";"
+								+ ";";
+				
+			
 				int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
 				System.out.println(" =========done: " + dsc);
 			}
@@ -253,7 +252,21 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		}
 
 	}
-
+	
+	@Override
+	public int getCampaignFormExp(String formUuuid, String campaignUuid) {
+		int dsc = 0;
+		try {
+				String sqlQuery = "select "+ CampaignFormMetaExpDay.EXPIRE_DAY + " from " + CampaignFormMetaExpDay.TABLE_NAME
+						 +" where " +CampaignFormMetaExpDay.FORM_ID+"= '"+formUuuid+"' and "+CampaignFormMetaExpDay.CAMPAIGN+" = '"+campaignUuid+"';";
+				dsc = (int) em.createNativeQuery(sqlQuery).getSingleResult();
+				System.out.println(" =========retriving...: " + dsc);
+		 } catch (NoResultException e) {
+	           
+	     }			
+		return dsc;
+	}
+	
 	@Override
 	public CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto) {
 		campaignLogDto.setCreatingUser(userServiceEBJ.getCurrentUser());
