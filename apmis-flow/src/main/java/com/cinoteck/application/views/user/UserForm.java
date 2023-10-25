@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,6 +129,10 @@ public class UserForm extends FormLayout {
 			I18nProperties.getCaption(Captions.User_userRoles));
 
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
+	CheckboxGroup<FormAccess> preCampformAccess = new CheckboxGroup<>();
+	CheckboxGroup<FormAccess> intraCampformAccess = new CheckboxGroup<>();
+	CheckboxGroup<FormAccess> postCampformAccess = new CheckboxGroup<>();
+
 	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 
 	CheckboxGroup clusterNo = new CheckboxGroup<>();
@@ -150,7 +155,10 @@ public class UserForm extends FormLayout {
 	UserDto usr = new UserDto();
 	static UserProvider currentUser = new UserProvider();
 	Set<UserRole> roles = new HashSet<UserRole>();
-	Set<FormAccess> formAccessesList = new HashSet<FormAccess>();
+	Set<FormAccess> formAccessesList = new LinkedHashSet<FormAccess>();
+	Set<FormAccess> preCampformAccessesList = new LinkedHashSet<FormAccess>();
+	Set<FormAccess> intraCampformAccessesList = new LinkedHashSet<FormAccess>();
+	Set<FormAccess> postCampformAccessesList = new LinkedHashSet<FormAccess>();
 	private final UserProvider userProvider = new UserProvider();
 
 	boolean editmode = false;
@@ -195,9 +203,6 @@ public class UserForm extends FormLayout {
 
 		this.setColspan(pInfo, 2);
 
-		H2 fInfo = new H2(I18nProperties.getCaption(Captions.address));
-		this.setColspan(fInfo, 2);
-
 		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
@@ -234,8 +239,19 @@ public class UserForm extends FormLayout {
 //		this.setColspan(userRoles, 1);
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
+		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
+		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
+		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
 				UserDto::setFormAccess);
+
+		
+		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+
+		binder.forField(intraCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+
+		
+		binder.forField(postCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
@@ -333,14 +349,14 @@ public class UserForm extends FormLayout {
 		});
 
 //		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
-		houseNumber.setPlaceholder(I18nProperties.getCaption(Captions.enterHouseNumberHere));
-		additionalInformation.setPlaceholder(I18nProperties.getCaption(Captions.enterAdditionalInformationHere));
-		postalCode.setPlaceholder(I18nProperties.getCaption(Captions.enterPostalCodeHere));
-		city.setPlaceholder(I18nProperties.getCaption(Captions.enterCityHere));
-
-		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
-		areaType.setItems(AreaType.values());
+//		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
+//		houseNumber.setPlaceholder(I18nProperties.getCaption(Captions.enterHouseNumberHere));
+//		additionalInformation.setPlaceholder(I18nProperties.getCaption(Captions.enterAdditionalInformationHere));
+//		postalCode.setPlaceholder(I18nProperties.getCaption(Captions.enterPostalCodeHere));
+//		city.setPlaceholder(I18nProperties.getCaption(Captions.enterCityHere));
+//
+//		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
+//		areaType.setItems(AreaType.values());
 //		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
 
 		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
@@ -361,8 +377,6 @@ public class UserForm extends FormLayout {
 		Set<UserRole> sortedUserRoles = new TreeSet<>(rolesz);
 		userRoles.setItems(sortedUserRoles);
 
-		formAccessesList = UserUiHelper.getAssignableForms();
-
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 
@@ -376,9 +390,20 @@ public class UserForm extends FormLayout {
 			validateUserRoles();
 		});
 
+//		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
+//		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
+//		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
+		
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		formAccess.setItems(UserUiHelper.getAssignableForms());
+		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
+		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
+		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
+
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+		preCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+		intraCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+		postCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+
 		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess))
 				.bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
@@ -388,56 +413,87 @@ public class UserForm extends FormLayout {
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+			formAccessesList.add(FormAccess.ARCHIVE);
+			preCampformAccessesList.add(FormAccess.FLW);
+			preCampformAccessesList.add(FormAccess.TRAINING);
+			intraCampformAccessesList.add(FormAccess.ICM);
+			intraCampformAccessesList.add(FormAccess.ADMIN);
+			intraCampformAccessesList.add(FormAccess.EAG_ICM);
+			intraCampformAccessesList.add(FormAccess.EAG_ADMIN);
+			postCampformAccessesList.add(FormAccess.PCA);
+			postCampformAccessesList.add(FormAccess.FMS);
+			postCampformAccessesList.add(FormAccess.LQAS);
+			postCampformAccessesList.add(FormAccess.EAG_PCA);
+			postCampformAccessesList.add(FormAccess.EAG_FMS);
+			postCampformAccessesList.add(FormAccess.EAG_LQAS);
 			formAccess.setItems(formAccessesList);
+			preCampformAccess.setItems(preCampformAccessesList);
+			intraCampformAccess.setItems(intraCampformAccessesList);
+			postCampformAccess.setItems(postCampformAccessesList);
 		} else {
-			formAccessesList.remove(FormAccess.TRAINING);
-			formAccessesList.remove(FormAccess.PCA);
-			formAccessesList.remove(FormAccess.LQAS);
-			formAccessesList.remove(FormAccess.FMS);
-			formAccessesList.remove(FormAccess.FLW);
+			preCampformAccessesList.remove(FormAccess.TRAINING);
+			postCampformAccessesList.remove(FormAccess.PCA);
+			postCampformAccessesList.remove(FormAccess.LQAS);
+			postCampformAccessesList.remove(FormAccess.FMS);
+			preCampformAccessesList.remove(FormAccess.FLW);
 			formAccess.setItems(formAccessesList);
+			preCampformAccess.setItems(preCampformAccessesList);
+			intraCampformAccess.setItems(intraCampformAccessesList);
+			postCampformAccess.setItems(postCampformAccessesList);
 		}
 //		commusr.setValue(isCommonUser);
 
 		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
-	ComboBox<UserType> userTypes = new ComboBox<UserType>();
+		ComboBox<UserType> userTypes = new ComboBox<UserType>();
 
-	userTypes.setItems(UserType.values());
+		userTypes.setItems(UserType.values());
 
-	commusr.addValueChangeListener(e->
-	{
+		commusr.addValueChangeListener(e -> {
 
-		UserProvider currentUser = new UserProvider();
+			UserProvider currentUser = new UserProvider();
 
-		System.out.println((boolean) e.getValue());
-		if ((boolean) e.getValue() == true) {
-			userTypes.setValue(UserType.COMMON_USER);
-			sortedUserRoles.remove(UserRole.ADMIN);
-			sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
-			sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
-			sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
-			sortedUserRoles.remove(UserRole.BAG_USER);
-			sortedUserRoles.remove(UserRole.REST_USER);
+			System.out.println((boolean) e.getValue());
+			if ((boolean) e.getValue() == true) {
+				userTypes.setValue(UserType.COMMON_USER);
+				sortedUserRoles.remove(UserRole.ADMIN);
+				sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
+				sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.BAG_USER);
+				sortedUserRoles.remove(UserRole.REST_USER);
 
 				userRoles.setItems(sortedUserRoles);
 			}
+
+			if ((boolean) e.getValue() == false) {
+				Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+				userRoles.setItems(sortedUserRoless);
+			}
+		});
+
+		language.setItemLabelGenerator(Language::toString);
+		language.setItems(Language.getAssignableLanguages());
+
+		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
+				.bind(UserDto::getLanguage, UserDto::setLanguage);
 		
+		language.setWidthFull();
+		region.setWidthFull();
+		province.setWidthFull();
+		district.setWidthFull();
 
-		if ((boolean) e.getValue() == false) {
-			Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
-			userRoles.setItems(sortedUserRoless);
-		}
-	});
 
-	language.setItemLabelGenerator(Language::toString);language.setItems(Language.getAssignableLanguages());
+		VerticalLayout otherFormField = new VerticalLayout(language, region, province, district);
 
-	binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired)).bind(UserDto::getLanguage,UserDto::setLanguage);
-
-	add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, fInfo, userRegion,
-				userProvince, userDistrict, userCommunity, street, houseNumber, additionalInformation, postalCode, city,
-				areaType, userData, userName, activeCheck, commusr, userRoles, formAccess, language, region, province,
-				district, clusterNo);
+		VerticalLayout formAccessParentLayout = new VerticalLayout(formAccess, preCampformAccess, intraCampformAccess,
+				postCampformAccess);
+		formAccessParentLayout.setPadding(false);
+		formAccessParentLayout.setSpacing(false);
+		HorizontalLayout allFieldLayout = new HorizontalLayout(formAccessParentLayout, otherFormField);
+		this.setColspan(allFieldLayout, 2);
+		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, userData, userName,
+				activeCheck, commusr, userRoles, allFieldLayout, clusterNo);
 
 		createButtonsLayout();
 	}
@@ -720,9 +776,6 @@ public class UserForm extends FormLayout {
 			}
 		}
 	}
-	
-	
-
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
 		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",

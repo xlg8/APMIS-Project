@@ -9106,6 +9106,13 @@ CREATE TABLE public.campaignformmetawithexp (
     
     
 INSERT INTO schema_version (version_number, comment) VALUES (450, 'adding Campaign Form Deadline Table'); 
+
+
+UPDATE public.campaigns 
+SET round = 'CRC'
+WHERE round = 'Case Respond';
+
+INSERT INTO schema_version (version_number, comment) VALUES (451, 'Updating Campaign Round from Case Respond to CRC'); 
     
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

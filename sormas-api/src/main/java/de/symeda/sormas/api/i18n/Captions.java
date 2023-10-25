@@ -44,6 +44,9 @@ public interface Captions {
 	String uuid="uuid";
 	String preCampaignDashboard="preCampaignDashboard";
 	String preCampaignPhase="preCampaignPhase";
+	String preCampaign="preCampaign";
+	String intraCampaign="intraCampaign";
+	String postCampaign="postCampaign"; 
 	String intraCampaignForms="intraCampaignForms";
 	String intraCampaignDashboard="intraCampaignDashboard";
 	String intraCampaignPhase="intraCampaignPhase";
