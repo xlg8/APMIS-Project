@@ -336,14 +336,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			layout.add(addNew);
 		}
 
-		Button exportProvince = new Button("Export");
+		Button exportProvince = new Button(I18nProperties.getCaption(Captions.export));
 		exportProvince.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportProvince.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
 		
-		Button importProvince = new Button("Import");
+		Button importProvince = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importProvince.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importProvince.addClickListener(e -> {
 			ImportProvinceDataDialog dialog = new ImportProvinceDataDialog();

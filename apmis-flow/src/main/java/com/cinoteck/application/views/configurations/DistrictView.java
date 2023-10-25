@@ -409,14 +409,14 @@ public class DistrictView extends VerticalLayout {
 			layout.add(addNew);
 		}
 		
-		Button importDistrict = new Button("Import");
+		Button importDistrict = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importDistrict.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importDistrict.addClickListener(e -> {
 			ImportDistrictDataDialog dialog = new ImportDistrictDataDialog();
 			dialog.open();
 		});
 
-		Button exportDistrict = new Button("Export");
+		Button exportDistrict = new Button(I18nProperties.getCaption(Captions.export));
 		exportDistrict.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportDistrict.addClickListener(e -> {
 			anchor.getElement().setAttribute("download", true);

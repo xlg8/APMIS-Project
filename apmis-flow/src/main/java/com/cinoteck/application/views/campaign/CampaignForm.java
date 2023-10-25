@@ -786,7 +786,7 @@ public class CampaignForm extends VerticalLayout {
 			populationDataStreamResource.setCacheTime(0);
 
 			// Create an anchor to trigger the download
-			Anchor downloadAnchor = new Anchor(populationDataStreamResource, "Download CSV");
+			Anchor downloadAnchor = new Anchor(populationDataStreamResource, I18nProperties.getCaption(Captions.downloadCsv));
 			downloadAnchor.getElement().setAttribute("download", true);
 			downloadAnchor.getStyle().set("display", "none");
 
@@ -847,7 +847,7 @@ public class CampaignForm extends VerticalLayout {
 		});
 
 		logButton = new Button();
-		logButton.setText("Log");
+		logButton.setText(I18nProperties.getCaption(Captions.log));
 		logButton.addClickListener(e -> {
 			Notification.show("clicked");
 			logEventMethod();
@@ -1027,11 +1027,11 @@ public class CampaignForm extends VerticalLayout {
 	public void updateArchiveButtonText(boolean isArchived) {
 		this.isArchived = isArchived;
 		if (isArchived) {
-			archiveDearchive.setText("De-Archive");
+			archiveDearchive.setText(I18nProperties.getCaption(Captions.actionDearchive));
 
 		} else {
 
-			archiveDearchive.setText("Archive");
+			archiveDearchive.setText(I18nProperties.getCaption(Captions.actionArchive));
 		}
 
 	}
@@ -1039,10 +1039,10 @@ public class CampaignForm extends VerticalLayout {
 	public void updatePublishButtonText(boolean isPublished) {
 		this.isPublished = isPublished;
 		if (isPublished) {
-			publishUnpublishCampaign.setText("Publish");
+			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.publish));
 		} else {
 
-			publishUnpublishCampaign.setText("Un-Publish");
+			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.unpublish));
 		}
 
 	}
@@ -1050,10 +1050,10 @@ public class CampaignForm extends VerticalLayout {
 	public void updateOpenCloseButtonText(boolean isOpenClose) {
 		this.isOpenClose = isOpenClose;
 		if (isOpenClose) {
-			openCloseCampaign.setText("Open Campaign");
+			openCloseCampaign.setText(I18nProperties.getString(Strings.openCampaign));
 		} else {
 
-			openCloseCampaign.setText("Close Campaign");
+			openCloseCampaign.setText(I18nProperties.getString(Strings.closeCampaign));
 		}
 
 	}

@@ -104,7 +104,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	Button enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 	Button leaveBulkEdit = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	Paragraph countRowItems;
-	Button exportRegion = new Button("Export");
+	Button exportRegion = new Button(I18nProperties.getCaption(Captions.export));
 	List<AreaDto> data;
 	MenuBar dropdownBulkOperations = new MenuBar();
 	SubMenu subMenu;

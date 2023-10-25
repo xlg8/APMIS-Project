@@ -127,7 +127,7 @@ public interface Captions {
 	String downloadCredentialsButton="downloadCredentialsButton";
 	String done="done";
 	String downloadCsv="downloadCsv";
-	
+	String log="log";
 	
 	
 	
