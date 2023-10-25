@@ -54,6 +54,8 @@ import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.utils.DateHelper;
 import de.symeda.sormas.backend.campaign.Campaign;
+//import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
+//import de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay;
 import de.symeda.sormas.backend.user.CurrentUser;
 import de.symeda.sormas.backend.user.CurrentUserQualifier;
 import de.symeda.sormas.backend.user.User;
@@ -165,6 +167,55 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		return (List<Campaign>) em.createQuery(cq).getResultList();
 	}
 	
+//	@Override
+//	public List<ADO> getByRoundAndExpiryDate(String round) {
+//		CriteriaBuilder cb = em.getCriteriaBuilder();
+//		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
+////		Root<ADO> from = cq.from(getElementClass());
+//		Root<CampaignFormMeta> campaignRoot = cq.from(CampaignFormMeta.class);
+//		
+//		
+//		Root<CampaignFormMetaExpDay> cRoot = cq.from(CampaignFormMetaExpDay.class);
+//		System.out.println(getElementClass() + "DEBUGGER 5678ijhyuio ____" + cRoot + campaignRoot);
+//
+//		 cq.select(cb.construct(
+//				 elementClass,
+//				 campaignRoot.get("id").alias("campaign_id"),
+//			        campaignRoot.get("changeDate").alias("campaign_change_date"),
+//			        campaignRoot.get("creationDate").alias("campaign_creation_date"),
+//			        cRoot.get(CampaignFormMetaExpDay.CAMPAIGN).alias("campaign_uuid"),
+//			        campaignRoot.get("campaignFormElements").alias("campaign_form_elements"),
+//			        campaignRoot.get("campaignFormTranslations").alias("campaign_form_translations"),
+//			        cRoot.get(CampaignFormMetaExpDay.EXPIRE_DAY).alias("days_expired"),
+//			        campaignRoot.get("districtentry").alias("district"),
+//			        campaignRoot.get("formCategory").alias("form_category"),
+//			        campaignRoot.get("formId").alias("form_id"),
+//			        campaignRoot.get("formName").alias("form_name"),
+//			        campaignRoot.get("formType").alias("form_type"),
+//			        campaignRoot.get("languageCode").alias("language_code"),
+//			        campaignRoot.get("modality").alias("modality")
+////			        cRoot.get(CampaignFormMetaExpDay.FORM_ID).alias("campaignformuuid")
+//				 ));
+//		
+//		cq.where(
+//				cb.and(
+//				cb.equal(campaignRoot.get("formType"), round),
+//				cb.equal(campaignRoot.get("formId"), cRoot.get("formId"))
+//				)
+//				);
+//		cq.orderBy(cb.desc(campaignRoot.get("changeDate")));
+//		
+//		
+//		
+//		
+//		System.out.println(getElementClass() + "DEBUGGER 5678ijhyuio __________________vvrvvvgyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
+//
+//		return em.createQuery(cq).getResultList();
+//		
+//	}
+	
+	
+	
 	
 	
 	@Override
@@ -175,7 +226,8 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		cq.where(cb.equal(from.get("formType"), round));
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
 		
-		
+		System.out.println(getElementClass() + "DEBUGGER 5678ijhyuio __________________vvrvvvgyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
+
 
 		return em.createQuery(cq).getResultList();
 		

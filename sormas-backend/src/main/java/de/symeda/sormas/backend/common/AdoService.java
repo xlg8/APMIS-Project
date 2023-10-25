@@ -71,6 +71,8 @@ public interface AdoService<ADO extends AbstractDomainObject> {
 	 */
 	void doFlush();
 
+//	List<ADO> getByRoundAndExpiryDate(String round);
+
 	
 
 	

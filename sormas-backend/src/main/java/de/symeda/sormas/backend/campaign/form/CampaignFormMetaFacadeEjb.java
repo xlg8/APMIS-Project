@@ -39,6 +39,7 @@ import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+//import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -173,6 +174,28 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
 				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
 	}
+
+//	@Override
+//	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round) {
+//		String queryString = "SELECT \n" + "    campaign.id AS campaign_id,\n"
+//				+ "    campaign.changeDate AS campaign_change_date,\n"
+//				+ "    campaign.creationDate AS campaign_creation_date,\n" + "    c.campaignid AS campaign_uuid,\n"
+//				+ "    campaign.campaignFormElements AS campaign_form_elements,\n"
+//				+ "    campaign.campaignFormTranslations AS campaign_form_translations,\n"
+//				+ "    c.expiryday AS days_expired,\n" + "    campaign.districtentry AS district,\n"
+//				+ "    campaign.formCategory AS form_category,\n" + "    campaign.formId AS form_id,\n"
+//				+ "    campaign.formName AS form_name,\n" + "    campaign.formType AS form_type,\n"
+//				+ "    campaign.languageCode AS language_code,\n" + "    campaign.modality AS modality\n"
+//
+//				+ "FROM CampaignFormMeta campaign\n" + "JOIN campaignformmetawithexp c ON campaign.uuid  = c.formid\n"
+//				+ "WHERE campaign.formType = " + "'" + round + "'" + "ORDER BY campaign.changeDate DESC;";
+//
+//		Query seriesDataQuery = em.createNativeQuery(queryString);
+//
+//		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+//		return service.getByRoundAndExpiryDate(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
+//				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+//	}
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round,
