@@ -9096,6 +9096,17 @@ WHERE
     
     
 INSERT INTO schema_version (version_number, comment) VALUES (449, 'adding FLW report'); 
+
+CREATE TABLE public.campaignformmetawithexp (
+	formid varchar NULL,
+	campaignid varchar NULL,
+	expiryday int4 NULL,
+	CONSTRAINT campaignformmetawithexp_un UNIQUE (formid, campaignid)
+);
+
+UPDATE campaigns SET campaignyear = REPLACE(campaignyear, ' ', '');
+    
+INSERT INTO schema_version (version_number, comment) VALUES (450, 'adding Campaign Form Deadline Table'); 
     
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

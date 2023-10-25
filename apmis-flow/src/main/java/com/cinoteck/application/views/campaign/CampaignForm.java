@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.user.UserUiHelper;
 import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
 
 import com.vaadin.flow.component.ComponentEvent;
@@ -77,6 +78,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
@@ -276,10 +278,9 @@ public class CampaignForm extends VerticalLayout {
 		hort.add(creatingUuid, creatingUser, campaaignYear);
 		hort.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-//		round.setItems(CampaignRounds.values());
-		round.setItems("NID", "SNID", "CRC", "Mopping-Up", "Training");
 
-//		round.setItemLabelGenerator(CampaignDto::getRound);
+		round.setItems("NID", "SNID", "CRC", "Mopping-Up", "Training");
+	
 
 		if (creatingUuid.getValue() == "") {
 
@@ -298,6 +299,10 @@ public class CampaignForm extends VerticalLayout {
 				.bind(CampaignDto.NAME);
 		binderx.forField(round).asRequired(I18nProperties.getString(Strings.campaignRoundrequired))
 				.bind(CampaignDto.ROUND);
+//		if(binderx.getBean().getRound()!= null && binderx.getBean().getRound() ==  "Case Respond" ) {
+//			round.setValue("CRC");	
+			System.out.println( round.getValue() + "ROUND VALUE BAWSED OFF BINDER ");
+//		}
 
 		binderx.forField(startDate).withConverter(new LocalDateToDateConverter()).bind(CampaignDto::getStartDate,
 				CampaignDto::setStartDate);

@@ -2,12 +2,16 @@ package com.cinoteck.application.views.user;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +19,7 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
+import com.cinoteck.application.views.user.UserForm.UserRoleCustomComparator;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -311,6 +316,7 @@ public class UserView extends VerticalLayout {
 		activeFilter.setId(UserDto.ACTIVE);
 		activeFilter.setWidth("145px");
 
+		activeFilter.setClearButtonVisible(true);
 		activeFilter.setLabel(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_active));
 		activeFilter.getStyle().set("margin-left", "12px");
@@ -322,6 +328,8 @@ public class UserView extends VerticalLayout {
 				criteria.active(true);
 			} else if (e.getValue().equals("Inactive")) {
 				criteria.active(false);
+			}else {
+				criteria.active(null);
 			}
 			filterDataProvider.setFilter(criteria);
 			filterDataProvider.refreshAll();
@@ -340,8 +348,19 @@ public class UserView extends VerticalLayout {
 		userRolesFilter.getStyle().set("margin-left", "0.1rem");
 		userRolesFilter.getStyle().set("padding-top", "0px!important");
 		userRolesFilter.setClearButtonVisible(true);
+		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+		roles.remove(UserRole.BAG_USER);
+
+		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+		roles.remove(UserRole.BAG_USER);
+
+		// Sorting the user roles usng comprtor
+		Collections.sort(rolesz, new UserRoleCustomComparator());
+		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+
+
 		userRolesFilter
-				.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+				.setItems(sortedUserRoless);
 		userRolesFilter.addValueChangeListener(e -> {
 
 			UserRole userRole = e.getValue();
@@ -916,6 +935,32 @@ public class UserView extends VerticalLayout {
 		confirmationPopup.setConfirmText("Disable");
 		confirmationPopup.addConfirmListener(e -> disableUser(grid.getSelectedItems()));
 		confirmationPopup.open();
+	}
+	
+	class UserRoleCustomComparator implements Comparator<UserRole> {
+		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
+				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",
+				"Provincial Observer", "Provincial Data Clerk", "Provincial Officer", "District Officer",
+				"District Observer" };
+
+		@Override
+		public int compare(UserRole role1, UserRole role2) {
+			// Get the indexes of the roles in the custom order
+			int index1 = indexOfRole(role1);
+			int index2 = indexOfRole(role2);
+
+			// Compare based on their indexes in the custom order
+			return Integer.compare(index1, index2);
+		}
+
+		private int indexOfRole(UserRole role) {
+			for (int i = 0; i < customOrder.length; i++) {
+				if (customOrder[i].equals(role.name())) {
+					return i;
+				}
+			}
+			return customOrder.length; // Role not found, place it at the end
+		}
 	}
 
 }

@@ -1550,7 +1550,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			Component formField = fields.get(key);
 			if (formField.getElement().getProperty("invalid", false)) {
 				hasErrorFormValues(7);
-				Notification.show("Error on field: " + formField.getElement().getProperty("label"));
+//				Notification.show("Error on field: " + formField.getElement().getProperty("label"));
 				return;
 			}
 

@@ -141,6 +141,10 @@ public interface Captions {
 	String aboutDataDictionary = "aboutDataDictionary";
 	String aboutDocuments = "aboutDocuments";
 	String aboutSormasVersion = "aboutSormasVersion";
+	String areaNotExistInCampaignImportError = "areaNotExistInCampaignImportError";
+	String regionNotExistInCampaignImportError = "regionNotExistInCampaignImportError";
+	String districtNotExistInCampaignImportError = "districtNotExistInCampaignImportError";
+	String clusterNotExistInCampaignImportError = "clusterNotExistInCampaignImportError";
 	String aboutText = "The Afghanistan Polio Management Information System (APMIS) is an online data system for inputting, storing, managing, and visualizing monitoring data of Polio immunization activities in Afghanistan.";
 	String aboutSormasWebsite = "aboutSormasWebsite";
 	String aboutTechnicalManual = "aboutTechnicalManual";

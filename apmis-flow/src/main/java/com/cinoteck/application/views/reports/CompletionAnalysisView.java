@@ -34,7 +34,7 @@ import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
 
 @Route(layout = CompletionAnalysisTabsheet.class)
-public class CompletionAnalysisView extends VerticalLayout  {
+public class CompletionAnalysisView extends VerticalLayout {
 
 	/**
 	 * 
@@ -97,7 +97,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 		campaign.setLabel(I18nProperties.getCaption(Captions.Campaigns));
 		campaign.setPlaceholder(I18nProperties.getCaption(Captions.campaignAllCampaigns));
-		campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		campaign.setItems(campaigns);
 
 		campaign.setValue(lastStarted);
@@ -154,6 +154,7 @@ public class CompletionAnalysisView extends VerticalLayout  {
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
 //		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		districtFilter.setClearButtonVisible(true);
 		districtFilter.addValueChangeListener(e -> {
 			DistrictReferenceDto selectedDistrict = e.getValue();
 			if (selectedDistrict != null) {
@@ -165,7 +166,8 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 			}
 		});
-		
+
+		errorFilter.setClearButtonVisible(true);
 		errorFilter.setLabel("Error Status");
 		errorFilter.setPlaceholder("Error Status");
 		errorFilter.setItems("Error Report", "None Error Report");
@@ -173,9 +175,9 @@ public class CompletionAnalysisView extends VerticalLayout  {
 //			DistrictReferenceDto selectedDistrict = e.getValue();
 			criteria.setError_status(e.getValue());
 			refreshGridData(formAccess);
-		
+
 		});
-		
+
 		resetButton = new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e -> {
 			campaign.clear();
@@ -210,7 +212,8 @@ public class CompletionAnalysisView extends VerticalLayout  {
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport, anchor);
+		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport,
+				anchor);
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
@@ -245,42 +248,49 @@ public class CompletionAnalysisView extends VerticalLayout  {
 
 //		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortProperty("region")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortProperty("province")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district")
-				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+				.setSortProperty("region").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+				.setSortProperty("province").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+				.setSortProperty("district").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getCcode)
-				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode").setSortable(true)
-				.setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
+				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
-				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber").setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber")
+				.setSortable(true).setResizable(true);
 
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor").setSortable(true)
-				.setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor")
+				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
-				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household").setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true)
 				.setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
+				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household")
+				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
-				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getError_status)
-		.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter").setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori")
+				.setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getError_status).setHeader(I18nProperties.getCaption("Error Status"))
+				.setSortProperty("errorfilter").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
-		String numberOfRows = FacadeProvider.getCampaignFormDataFacade()
-				.getByCompletionAnalysisCount(criteria, null, null, null,null );
+		String numberOfRows = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(criteria, null,
+				null, null, null);
 		criteria.campaign(lastStarted);
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
-		dataProvider = DataProvider.fromFilteringCallbacks(query -> FacadeProvider.getCampaignFormDataFacade()
-				.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
-						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-								sortOrder.getDirection() == SortDirection.ASCENDING))
-						.collect(Collectors.toList()), null)
-				.stream(), query -> Integer.parseInt(numberOfRows));
+		dataProvider = DataProvider.fromFilteringCallbacks(
+				query -> FacadeProvider.getCampaignFormDataFacade()
+						.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(),
+								query.getSortOrders().stream()
+										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+												sortOrder.getDirection() == SortDirection.ASCENDING))
+										.collect(Collectors.toList()),
+								null)
+						.stream(),
+				query -> Integer.parseInt(numberOfRows));
 		grid.setDataProvider(dataProvider);
 
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid);

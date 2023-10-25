@@ -49,6 +49,7 @@ import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
+import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
@@ -301,7 +302,7 @@ public class CampaignDataView extends VerticalLayout {
 		clusterCombo.setEnabled(false);
 
 		// Initialize Item lists
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());
@@ -414,23 +415,44 @@ public class CampaignDataView extends VerticalLayout {
 
 		});
 
+		
+		regionCombo.setClearButtonVisible(true);
 		regionCombo.addValueChangeListener(e -> {
+			if(e.getValue() != null) {
 			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 			provinceCombo.setItems(provinces);
 			provinceCombo.setEnabled(true);
+			}else {
+				if(provinceCombo.getValue() != null) {
+					provinceCombo.clear();
+				}
+				provinceCombo.setEnabled(false);
+			}
 			reload();
 			updateRowCount();
 		});
 
+		provinceCombo.setClearButtonVisible(true);
+
 		provinceCombo.addValueChangeListener(e -> {
+			if(e.getValue() != null) {
 			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 			districtCombo.setItems(districts);
 			districtCombo.setEnabled(true);
+			}else {
+				if(districtCombo.getValue() != null) {
+					districtCombo.clear();
+				}
+				districtCombo.setEnabled(false);
+			}
 			reload();
 			updateRowCount();
 		});
 
+		districtCombo.setClearButtonVisible(true);
+
 		districtCombo.addValueChangeListener(e -> {
+			if(e.getValue() != null) {
 			communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 			clusterCombo.setItemLabelGenerator(itm -> {
 				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -439,10 +461,18 @@ public class CampaignDataView extends VerticalLayout {
 			clusterCombo.setItems(communities);
 
 			clusterCombo.setEnabled(true);
+			}else {
+				if(clusterCombo.getValue() != null) {
+					clusterCombo.clear();
+				}
+				clusterCombo.setEnabled(false);
+			}
+			
 			reload();
 			updateRowCount();
 		});
 
+		clusterCombo.setClearButtonVisible(true);
 		clusterCombo.addValueChangeListener(e -> {
 			reload();
 			updateRowCount();
@@ -466,10 +496,11 @@ public class CampaignDataView extends VerticalLayout {
 		});
 
 		importFormData.addValueChangeListener(e -> {
+			CampaignDto campaignUuid = FacadeProvider.getCampaignFacade().getByUuid(campaignz.getValue().getUuid());
 			
 			if (importFormData.getValue() != null) {
 				//CampaignReferenceDto camapigndto, CampaignFormMetaDto campaignFormMetaDto
-				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(), importFormData.getValue());
+				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(), importFormData.getValue(), campaignUuid);
 				dialogx.open();
 			}
 		});

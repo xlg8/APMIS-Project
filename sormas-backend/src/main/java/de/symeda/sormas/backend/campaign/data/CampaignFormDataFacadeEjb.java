@@ -958,7 +958,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
 		
 	return seriesDataQuery.getResultList().size();
-	
+
 	}
 
 	@Override

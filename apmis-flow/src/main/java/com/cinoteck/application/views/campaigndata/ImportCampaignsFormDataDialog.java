@@ -64,12 +64,16 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
+	CampaignDto campaignDto = new CampaignDto();
+
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
-			CampaignFormMetaReferenceDto campaignForm) {
+			CampaignFormMetaReferenceDto campaignForm, CampaignDto campaignDto) {
 		String dto;
 		if (campaignReferenceDto != null) {
 			dto = campaignReferenceDto.getCaption();
+			this.campaignDto = campaignDto;
+//			this.campaignDto = campaignDto;
 		} else {
 			dto = "New Campaign";
 		}
@@ -83,11 +87,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		VerticalLayout dialog = new VerticalLayout();
 
 
-//		campaignFilter.setId(CampaignDto.NAME);
-//		campaignFilter.setRequired(true);
-//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-//		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignReferenceDto.getUuid()));
-//		campaignFilter.setEnabled(false);
 
 		campaignFormMetaFilter.setText(campaignForm.getCaption());
 
@@ -173,16 +172,15 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
-
+		
 		startDataImport.addClickListener(ed -> {
 
 			try {
 
-				// CampaignDto campaignDto =
-				// FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+				 
 
 				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),
-						campaignReferenceDto, ValueSeparator.COMMA);
+						campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "

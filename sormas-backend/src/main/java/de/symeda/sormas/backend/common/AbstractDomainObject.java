@@ -20,6 +20,7 @@ package de.symeda.sormas.backend.common;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -28,6 +29,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import javax.validation.constraints.Size;
 
@@ -62,10 +65,12 @@ public abstract class AbstractDomainObject implements Serializable, Cloneable, H
 	public static final String CHANGE_DATE = "changeDate";
 	public static final String FORM = "changeDate";
 
+
 	private Long id;
 	private String uuid;
 	private Timestamp creationDate;
 	private Timestamp changeDate;
+	
 
 	@Override
 	public AbstractDomainObject clone() {
@@ -123,6 +128,8 @@ public abstract class AbstractDomainObject implements Serializable, Cloneable, H
 	public void setCreationDate(Timestamp creationDate) {
 		this.creationDate = creationDate;
 	}
+	
+	
 
 	@Version
 	@Column(nullable = false)
@@ -133,6 +140,7 @@ public abstract class AbstractDomainObject implements Serializable, Cloneable, H
 	public void setChangeDate(Timestamp changeDate) {
 		this.changeDate = changeDate;
 	}
+	
 
 	@Override
 	public boolean equals(Object o) {
@@ -158,4 +166,6 @@ public abstract class AbstractDomainObject implements Serializable, Cloneable, H
 	public int hashCode() {
 		return getUuid().hashCode();
 	}
+
+	
 }

@@ -378,6 +378,7 @@ public class UserForm extends FormLayout {
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		formAccess.setItems(UserUiHelper.getAssignableForms());
+		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
 		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess))
 				.bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
@@ -419,8 +420,9 @@ public class UserForm extends FormLayout {
 			sortedUserRoles.remove(UserRole.BAG_USER);
 			sortedUserRoles.remove(UserRole.REST_USER);
 
-			userRoles.setItems(sortedUserRoles);
-		}
+				userRoles.setItems(sortedUserRoles);
+			}
+		
 
 		if ((boolean) e.getValue() == false) {
 			Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
@@ -721,26 +723,6 @@ public class UserForm extends FormLayout {
 	
 	
 
-//	private void validateUserRoles() {
-//		map.forEach((key, value) -> {
-//			Component formField = map.get(key);
-//			if (value instanceof MultiSelectComboBox<?>) {
-//
-//				MultiSelectComboBox formFieldxx = (MultiSelectComboBox) value;
-//				ValidationResult requiredValidation = userRoles.apply(formFieldxx.getValue(), null);
-//				ValidationResult secondRequiredValidation = patternValidator.apply(formFieldxx.getValue(), null);
-//				if (requiredValidation.isError()) {
-//
-//					// Handle required field validation error
-//					formFieldxx.setInvalid(true);
-//					formFieldxx.setErrorMessage(requiredValidation.getErrorMessage());
-//				} else {
-//		fireEvent(new SaveEvent(this, binder.getBean()));
-//				}
-//			}
-//
-//		});
-//	}
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
 		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
