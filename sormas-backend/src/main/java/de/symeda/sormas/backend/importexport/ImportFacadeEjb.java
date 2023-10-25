@@ -307,13 +307,13 @@ public class ImportFacadeEjb implements ImportFacade {
 
 		List<ImportColumn> importColumns = new ArrayList<>();
 		char separator = configFacade.getCsvSeparator();
-
+//		importColumns.add(ImportColumn.from(AreaDto.class, "RCode", Integer.class, separator));
 		/* importColumns.add(ImportColumn.from(CampaignFormDataDto.class, CAMPAIGN, CampaignReferenceDto.class, separator)); */
 		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, FORM_DATE, Date.class, separator));
-		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, CampaignFormDataDto.AREA, AreaReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, REGION, RegionReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, DISTRICT, DistrictReferenceDto.class, separator));
-		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, COMMUNITY, CommunityReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, "RCode", AreaReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, "PCode", RegionReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, "DCode", DistrictReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(CampaignFormDataDto.class, "CCode", CommunityReferenceDto.class, separator));
 System.out.println("YESSSS");
 		CampaignFormMetaDto campaignFormMetaDto = campaignFormMetaFacade.getCampaignFormMetaByUuid(campaignFormUuid);
 		campaignFormMetaDto.getCampaignFormElements()

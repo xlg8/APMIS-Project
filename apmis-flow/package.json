@@ -391,6 +391,7 @@
     "@polymer/polymer": "$@polymer/polymer",
     "@vaadin-component-factory/vcf-anchor-nav": "$@vaadin-component-factory/vcf-anchor-nav",
     "@vaadin-component-factory/vcf-nav": "$@vaadin-component-factory/vcf-nav",
+    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip",
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
     "date-fns": "$date-fns",
@@ -398,7 +399,6 @@
     "line-awesome": "$line-awesome",
     "lit": "$lit",
     "lumo-css-framework": "$lumo-css-framework",
-    "chokidar": "$chokidar",
-    "@vaadin-component-factory/vcf-tooltip": "$@vaadin-component-factory/vcf-tooltip"
+    "chokidar": "$chokidar"
   }
 }

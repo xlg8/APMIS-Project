@@ -137,6 +137,20 @@ public class CampaignService extends AbstractCoreAdoService<Campaign> {
 
 		return em.createQuery(cq).getResultList();
 	}
+	
+	public List<Campaign> getAllActiveByCampaignStartDate() {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Campaign> cq = cb.createQuery(getElementClass());
+		Root<Campaign> root = cq.from(getElementClass());
+		cq.where(cb.and(cb.isFalse(root.get(Campaign.ARCHIVED)), cb.isFalse(root.get(Campaign.DELETED))));
+		cq.orderBy(cb.desc(root.get(Campaign.START_DATE)));
+
+		return em.createQuery(cq).getResultList();
+	}
+	
+	
+
 
 //	public String cloneForm(Campaign uuidx, Long userCreatingId) {
 //

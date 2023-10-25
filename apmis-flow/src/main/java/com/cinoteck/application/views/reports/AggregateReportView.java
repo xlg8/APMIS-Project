@@ -1,3 +1,4 @@
+
 package com.cinoteck.application.views.reports;
 
 import java.text.SimpleDateFormat;
@@ -63,7 +64,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 	ComboBox<CampaignFormElementImportance> importanceSwitcher = new ComboBox<>();
 
 	Button resetHandler = new Button();
-	
+
 	Button exportReport = new Button();
 
 	private Grid<CampaignStatisticsDto> grid = new Grid<>(CampaignStatisticsDto.class, false);
@@ -77,11 +78,9 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 	private Consumer<CampaignFormMetaReferenceDto> formMetaChangedCallback;
 
-	
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
-	
-	
+
 	public AggregateReportView() {
 		setSpacing(false);
 		criteria = new CampaignStatisticsCriteria();
@@ -99,17 +98,23 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		grid.addColumn(CampaignStatisticsDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));
-		grid.addColumn(CampaignStatisticsDto.FORM).setHeader(I18nProperties.getCaption(Captions.formname)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formname));
-		grid.addColumn(CampaignStatisticsDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-		grid.addColumn(CampaignStatisticsDto.REGION).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region)).setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.DISTRICT).setHeader(I18nProperties.getCaption(Captions.district)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district)).setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true).setResizable(true)
-				.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community)).setVisible(false);
-		grid.addColumn(CampaignStatisticsDto.FORM_COUNT).setHeader(I18nProperties.getCaption(Captions.formCount)).setSortable(true).setResizable(true)
+		grid.addColumn(CampaignStatisticsDto.FORM).setHeader(I18nProperties.getCaption(Captions.formname))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formname));
+		grid.addColumn(CampaignStatisticsDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
+				.setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(CampaignStatisticsDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.DISTRICT).setHeader(I18nProperties.getCaption(Captions.district))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
+				.setSortable(true).setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community)).setVisible(false);
+		grid.addColumn(CampaignStatisticsDto.FORM_COUNT).setHeader(I18nProperties.getCaption(Captions.formCount))
+				.setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
 
 		grid.setVisible(true);
@@ -117,7 +122,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		dataProvider = DataProvider.fromStream(getGridData().stream());
 
 		grid.setDataProvider(dataProvider);
-		
+
 		GridExporter<CampaignStatisticsDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 
@@ -169,7 +174,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //		criteria.district(user.getDistrict()); // .setDistrict(user.getDistrict());
 ////		
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
+				new Icon(VaadinIcon.SLIDERS));
 
 		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setVisible(true);
@@ -177,7 +183,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.add(campaignYear, campaignz, groupBy, campaignFormCombo, regionCombo, provinceCombo,
-				districtCombo, importanceSwitcher, resetHandler,exportReport, anchor);
+				districtCombo, importanceSwitcher, resetHandler, exportReport, anchor);
 
 		displayFilters.addClickListener(e -> {
 			if (!actionButtonlayout.isVisible()) {
@@ -197,14 +203,12 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignz.getStyle().set("padding-top", "0px !important");
 		campaignz.getStyle().set("width", "145px !important");
 
-		
 		groupBy.setLabel(I18nProperties.getCaption(Captions.campaignDiagramGroupBy));
 		groupBy.getStyle().set("padding-top", "0px !important");
 		groupBy.getStyle().set("width", "145px !important");
 
-
 		// Initialize Item lists
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference();
+		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());
@@ -217,6 +221,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		campaignz.setItems(allCampaigns);
 		campaignz.setValue(lastStarted);
+		campaignz.setClearButtonVisible(true);
 		criteria.setCampaign(lastStarted);
 
 //		if(userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -233,15 +238,14 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		campaignFormCombo.getStyle().set("width", "145px !important");
-
-
+		campaignFormCombo.setClearButtonVisible(true);
 
 		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
-		
-		
+
 		campaignFormCombo.setItems(campaignFormReferences_);
 		campaignFormCombo.addValueChangeListener(event -> {
+			System.out.println(event.getValue() + "event valueeeeeeeeeeeeeeeeeeeeeeeeee");
 			if (event.getValue() != null) {
 				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaByUuid(event.getValue().getUuid());
@@ -251,7 +255,8 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 				importanceSwitcher.setReadOnly(false);
 				importanceSwitcher.clear();
 			} else {
-
+				criteria.setCampaignFormMeta(event.getValue());
+				reloadData();
 				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(true);
 
@@ -323,54 +328,62 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		importanceSwitcher.setPlaceholder(I18nProperties.getCaption(Captions.importance));
 		importanceSwitcher.setItems(CampaignFormElementImportance.values());
-//		importanceSwitcher.setClearButtonVisible(true);
+		importanceSwitcher.setClearButtonVisible(true);
 		importanceSwitcher.setReadOnly(true);
 		importanceSwitcher.setTooltipText(I18nProperties.getCaption(Captions.selectFormFirst));
 
 		importanceSwitcher.addValueChangeListener(e -> {
+			System.out.println(e.getValue() + " importance value at every value changfe");
+			if (e.getValue() != null) {
+				if (formMetaReference != null) {
+					grid.removeAllColumns();
+					configureGrid(criteria);
 
-			if (formMetaReference != null) {
-				grid.removeAllColumns();
-				configureGrid(criteria);
+					final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
+					final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.IMPORTANT;
 
-				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
-				final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.IMPORTANT;
+					final List<CampaignFormElement> campaignFormElements = formMetaReference.getCampaignFormElements();
 
-				final List<CampaignFormElement> campaignFormElements = formMetaReference.getCampaignFormElements();
+					for (CampaignFormElement element : campaignFormElements) {
 
-				for (CampaignFormElement element : campaignFormElements) {
+						if (element.isImportant() && onlyImportantFormElements) {
+							String caption = null;
+							if (caption == null) {
+								caption = element.getCaption();
+							}
 
-					if (element.isImportant() && onlyImportantFormElements) {
-						String caption = null;
-						if (caption == null) {
-							caption = element.getCaption();
-						}
-
-						if (caption != null) {
-							addCustomColumn(element.getId(), caption);
-						}
-					} else if (allAndImportantFormElements) {
-						String caption = null;
-						if (caption == null) {
-							caption = element.getCaption();
-						}
-						if (caption != null) {
-							addCustomColumn(element.getId(), caption);
-						}
-					} else if (element.isImportant()) {
-						String caption = null;
-						if (caption == null) {
-							caption = element.getCaption();
-						}
-						if (caption != null) {
-							addCustomColumn(element.getId(), caption);
+							if (caption != null) {
+								addCustomColumn(element.getId(), caption);
+							}
+						} else if (allAndImportantFormElements) {
+							String caption = null;
+							if (caption == null) {
+								caption = element.getCaption();
+							}
+							if (caption != null) {
+								addCustomColumn(element.getId(), caption);
+							}
+						} else if (element.isImportant()) {
+							String caption = null;
+							if (caption == null) {
+								caption = element.getCaption();
+							}
+							if (caption != null) {
+								addCustomColumn(element.getId(), caption);
+							}
 						}
 					}
 				}
+			}else {
+				grid.removeAllColumns();
+				configureGrid(criteria);
+
 			}
 
-		});
+			System.out.println(formMetaReference + "form meta reference at evenery value changge ");
 
+		});
+		System.out.println(campaignFormCombo.getValue() + " initial campaign fformr  combovalue ");
 		campaignYear.addValueChangeListener(e -> {
 			campaignz.clear();
 			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream()
@@ -383,15 +396,19 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			if (e.getValue() != null) {
 				criteria.setCampaign(e.getValue());
 				reloadData();
-				List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUIDx = 
-						FacadeProvider.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(e.getValue().getUuid());
-				
+				List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUIDx = FacadeProvider
+						.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(e.getValue().getUuid());
+
 				campaignFormCombo.clear();
 				campaignFormCombo.setItems(campaignFormReferences_byCampUUIDx);
-				
+
+			} else {
+				criteria.setCampaign(e.getValue());
+				reloadData();
 			}
 		});
 
+		groupBy.setClearButtonVisible(true);
 		groupBy.addValueChangeListener(e -> {
 
 			// TODO: Improve the initialization of this code
@@ -432,7 +449,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		});
 		anchor.getStyle().set("display", "none");
 
-		
 		VerticalLayout filterBlock = new VerticalLayout();
 		filterBlock.setSpacing(true);
 		filterBlock.setMargin(true);
@@ -441,7 +457,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
 
-		layout.add(displayFilters , actionButtonlayout);
+		layout.add(displayFilters, actionButtonlayout);
 
 		filterBlock.add(layout);
 

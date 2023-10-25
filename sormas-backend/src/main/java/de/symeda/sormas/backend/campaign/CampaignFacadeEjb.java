@@ -49,6 +49,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.report.CampaignDataExtractDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -172,6 +173,12 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	}
 
 	@Override
+	public List<CampaignReferenceDto> getAllCampaignByStartDate() {
+		return campaignService.getAllActiveByCampaignStartDate().stream().map(CampaignFacadeEjb::toReferenceDtoYear)
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public CampaignReferenceDto getLastStartedCampaign() {
 
 		final CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -212,35 +219,40 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 	@Override
 	public CampaignDto saveCampaign(@Valid CampaignDto dto) {
-		
-System.out.println(dto + "from the campaign facade when its trying to save ");
 
-saveCampaignFormExp(dto);
+//System.out.println(dto + "from the campaign facade when its trying to save ");
+
+		saveCampaignFormExp(dto);
 
 		Campaign campaign = fromDto(dto, true);
 		campaignService.ensurePersisted(campaign);
 		return toDto(campaign);
 	}
-	
-	private void saveCampaignFormExp(CampaignDto dto) {
-			try {
-				for (CampaignFormMetaExpiryDto data : dto.getCampaignFormMetaExpiryDto()) {
-					String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + " set "
-							+ CampaignFormMetaExpDay.FORM_ID + " = '" + data.getFormId().getUuid() + "', \n"
-							+ CampaignFormMetaExpDay.CAMPAIGN + " = '" + data.getCampaignId().getUuid() + "', \n"
-							+ CampaignFormMetaExpDay.EXPIRE_DAY + " = " + data.getExpiryDay() + ";";
-					System.out.println(data.getCampaignId().getUuid() + " :__________________: "
-							+ data.getFormId().getUuid() + " :__________________: " + data.getExpiryDay());
-					System.out.println("____________: " + sqlQuery);
 
-					int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
-					System.out.println(" =========done: " + dsc);
-				}
-			} catch (Exception e) {
-				System.err.println(e.getStackTrace());
+	private void saveCampaignFormExp(CampaignDto dto) {
+		try {
+			for (CampaignFormMetaExpiryDto data : dto.getCampaignFormMetaExpiryDto()) {
+			
+
+				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
+						+ CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN + ", "
+						+ CampaignFormMetaExpDay.EXPIRE_DAY + ")" + " values (" + "'" + data.getFormId().getUuid()
+						+ "'," + "'" + data.getCampaignId().getUuid() + "'," + data.getExpiryDay() + ");";
+
+				System.out.println(" ======DeBUGGER 545454545=========: " + sqlQuery);
+
+				System.out.println(data.getCampaignId().getUuid() + " :__________________: "
+						+ data.getFormId().getUuid() + " :__________________: " + data.getExpiryDay());
+				System.out.println("____________: " + sqlQuery);
+
+				int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
+				System.out.println(" =========done: " + dsc);
 			}
-	
-	        }
+		} catch (Exception e) {
+			System.err.println(e.getStackTrace());
+		}
+
+	}
 
 	@Override
 	public CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto) {
@@ -281,8 +293,8 @@ saveCampaignFormExp(dto);
 
 		String qr = "select c.action_logged, c.creationdate, ca.name, ur.username from campaignlog c\n"
 				+ "left outer join campaigns ca on c.campaign_id = ca.id\n"
-				+ "left outer join users ur on c.creatinguser_id = ur.id \n"
-				+ "where ca.uuid = '"+camp.getUuid()+"';";
+				+ "left outer join users ur on c.creatinguser_id = ur.id \n" + "where ca.uuid = '" + camp.getUuid()
+				+ "';";
 
 		Query seriesDataQuery = em.createNativeQuery(qr);
 
@@ -327,8 +339,8 @@ saveCampaignFormExp(dto);
 	}
 
 	public Campaign fromDto(@NotNull CampaignDto source, boolean checkChangeDate) {
-		
-		System.out.println(source + " source fromdtoooooooo");
+
+//		System.out.println(source + " source fromdtoooooooo");
 		validate(source);
 
 		Campaign target = DtoHelper.fillOrBuildEntity(source, campaignService.getByUuid(source.getUuid()),
@@ -376,20 +388,18 @@ saveCampaignFormExp(dto);
 		return target;
 
 	}
-	
-	
+
 	public Campaign cloneFromDto(@NotNull CampaignDto source, User creatingUser) {
-		
+
 		validate(source);
 		Campaign campaign = new Campaign();
-		
 
 		Campaign target = DtoHelper.fillOrBuildEntity(source, campaign, Campaign::new, false);
 
 		target.setCreatingUser(creatingUser);
 		target.setDescription(source.getDescription());
 		target.setEndDate(source.getEndDate());
-		target.setName(source.getName() +"-DUP");
+		target.setName(source.getName() + "-DUP");
 		target.setRound(source.getRound());
 		target.setCampaignYear(source.getCampaignYear());
 		target.setStartDate(source.getStartDate());
@@ -779,7 +789,7 @@ saveCampaignFormExp(dto);
 					I18nProperties.getString(Strings.entityUser) + " " + user.getUuid() + " is not allowed to delete "
 							+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
-		
+
 		CampaignLogDto log = new CampaignLogDto();
 
 		// logging audit
@@ -787,7 +797,7 @@ saveCampaignFormExp(dto);
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Deleted Campaign: " + log.getCampaign().getName());
 
-		} 
+		}
 
 		saveAuditLog(log);
 
@@ -805,18 +815,17 @@ saveCampaignFormExp(dto);
 					+ " is not allowed to duplicate " + I18nProperties.getString(Strings.entityCampaigns).toLowerCase()
 					+ ".");
 		}
-		
+
 		CampaignDto oldCampaignDto = getByUuid(campaignUuid);
 		Campaign newCampaign = cloneFromDto(oldCampaignDto, user);
-		
+
 		campaignService.ensurePersisted(newCampaign);
-		
-		
-		
+
 //		String newUuid_ = campaignService.cloneForm(campaignService.getByUuid(campaignUuid), user.getId());
 		String newUuid = newCampaign.getUuid();
 
-		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid), null);
+		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid),
+				null);
 		final Campaign cmp = newCampaign;
 		for (PopulationData popListx : popList) {
 			PopulationData ppData = new PopulationData();
@@ -837,7 +846,7 @@ saveCampaignFormExp(dto);
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Clone Campaign: " + log.getCampaign().getName());
 
-		} 
+		}
 
 		saveAuditLog(log);
 
@@ -855,20 +864,20 @@ saveCampaignFormExp(dto);
 					+ " is not allowed to publish a campaign data  "
 					+ I18nProperties.getString(Strings.entityCampaigns).toLowerCase() + ".");
 		}
-		
+
 		CampaignLogDto log = new CampaignLogDto();
 
 		// logging audit
 		if (publishedandunpublishbutton) {
-			
+
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Unpublish Campaign: " + log.getCampaign().getName());
 
 		} else {
-			
+
 			log.setCampaign(getByUuid(campaignUuid));
 			log.setAction("Publishing Campaign: " + log.getCampaign().getName());
-			
+
 		}
 
 		saveAuditLog(log);
@@ -879,7 +888,7 @@ saveCampaignFormExp(dto);
 
 	@Override
 	public void closeandOpenCampaign(String campaignUuid, boolean openandclosebutton) {
-		
+
 		CampaignLogDto log = new CampaignLogDto();
 
 		// logging audit
@@ -893,8 +902,7 @@ saveCampaignFormExp(dto);
 		}
 
 		saveAuditLog(log);
-		
-		
+
 		campaignService.closeAndOpenForm(campaignUuid, openandclosebutton);
 
 	}
@@ -904,7 +912,7 @@ saveCampaignFormExp(dto);
 
 		Campaign campaign = campaignService.getByUuid(campaignUuid);
 		campaign.setArchived(archive);
-		
+
 		CampaignLogDto log = new CampaignLogDto();
 
 		// logging audit

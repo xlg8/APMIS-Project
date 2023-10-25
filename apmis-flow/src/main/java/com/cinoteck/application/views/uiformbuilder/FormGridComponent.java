@@ -2,8 +2,10 @@ package com.cinoteck.application.views.uiformbuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.Component;
@@ -21,7 +23,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -29,12 +30,10 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 
 import de.symeda.sormas.api.MapperUtil;
-import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 
 public class FormGridComponent extends VerticalLayout {
 
@@ -120,6 +119,7 @@ public class FormGridComponent extends VerticalLayout {
 
 		Button plus = new Button(new Icon(VaadinIcon.PLUS));
 		Button del = new Button(new Icon(VaadinIcon.DEL_A));
+		del.getStyle().set("background-color", "red!important");
 
 		Button moreFields = new Button("Show More Fields");
 		Button cancel = new Button("Cancel");
@@ -137,13 +137,12 @@ public class FormGridComponent extends VerticalLayout {
 		vrsub.add(vr1, formLayout, vr3);
 
 		grid.addSelectionListener(ee -> {
-
-			save.setText("Update");
+			
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
 
-				formBeenEdited = ee.getFirstSelectedItem().get();
-//				formBeenEdited = selectedCamp;
+				CampaignFormElement selectedCamp = ee.getFirstSelectedItem().get();
+				formBeenEdited = selectedCamp;
 				boolean isSingleSelection = size == 1;
 				vr1.setEnabled(isSingleSelection);
 				vr3.setEnabled(isSingleSelection);
@@ -154,7 +153,7 @@ public class FormGridComponent extends VerticalLayout {
 				formType.setValue(generateType(formBeenEdited.getType()));
 				formType.setVisible(true);
 
-				if (formBeenEdited.getCaption() != null) {
+				if (formBeenEdited.getId() != null) {
 					formId.setValue(formBeenEdited.getId());
 					formId.setVisible(true);
 				}
@@ -168,7 +167,7 @@ public class FormGridComponent extends VerticalLayout {
 				important.setVisible(true);
 
 				if (formBeenEdited.getOptions() != null) {
-					options.setValue(formBeenEdited.getCaption());
+					options.setValue(formBeenEdited.getOptions().toString());
 					options.setVisible(true);
 				}
 
@@ -211,8 +210,10 @@ public class FormGridComponent extends VerticalLayout {
 					errorMessage.setValue(formBeenEdited.getExpression());
 					errorMessage.setVisible(true);
 				}
-
-			}
+				
+				save.setText("Update");
+			} 
+			
 		});
 
 		plus.addClickListener(e -> {
@@ -237,24 +238,25 @@ public class FormGridComponent extends VerticalLayout {
 			errorMessage.setValue("");
 
 			if (campaignFormMetaDto == null) {
-
+				campaignFormMetaDto = new CampaignFormMetaDto();
+				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			} else {
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
 
 			grid.setHeight("auto !important");
 		});
-		
+
 		del.addClickListener(e -> {
-			
-			formBeenEdited = new CampaignFormElement();
-			if(formBeenEdited != null) {
-				
+
+//			formBeenEdited = new CampaignFormElement();
+			if (formBeenEdited != null) {
+
 				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
 				Notification.show("Selected Form Element Deleted");
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			} else {
-				
+
 				Notification.show("No Form Element Selected");
 			}
 		});
@@ -294,15 +296,14 @@ public class FormGridComponent extends VerticalLayout {
 
 		save.addClickListener(e -> {
 
-//			CampaignFormElement newform = new CampaignFormElement();
-
 			vr1.setVisible(true);
 			formLayout.setVisible(false);
 			vr3.setVisible(false);
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
-				newForm = new CampaignFormElement();
-
+				
+				CampaignFormElement newForm = new CampaignFormElement();
+				List<CampaignFormElement> elementList = new ArrayList<>();
 				if (!formType.getValue().toString().isEmpty()) {
 
 					newForm.setType(formType.getValue().toString());
@@ -316,7 +317,7 @@ public class FormGridComponent extends VerticalLayout {
 				if (!caption.getValue().isEmpty()) {
 
 					newForm.setCaption(caption.getValue());
-				}				
+				}
 
 				if (important.getValue() != null) {
 					newForm.setImportant(important.getValue());
@@ -375,18 +376,110 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setErrormessage(errorMessage.getValue());
 				}
 
-				if (campaignFormMetaDto.getCampaignFormElements() == null) {
-
-					campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
+				if (campaignFormMetaDto == null) {
+					
+					campaignFormMetaDto = new CampaignFormMetaDto();
+					elementList.add(newForm);
+					campaignFormMetaDto.setCampaignFormElements(elementList);
 				}
 
 				campaignFormMetaDto.getCampaignFormElements().add(newForm);
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-
+				getGridData();
+				Notification.show("New Form Element Saved");
 			} else {
+								
+				if (formBeenEdited != null) {
 
-				
-			}			
+					CampaignFormElement newForm = new CampaignFormElement();
+
+					if (!formType.getValue().toString().isEmpty()) {
+
+						newForm.setType(formType.getValue().toString());
+					}
+
+					if (!formId.getValue().isEmpty()) {
+
+						newForm.setId(formId.getValue());
+					}
+
+					if (!caption.getValue().isEmpty()) {
+
+						newForm.setCaption(caption.getValue());
+					}
+
+					if (important.getValue() != null) {
+						newForm.setImportant(important.getValue());
+					}
+
+					if (!options.getValue().isEmpty()) {
+
+						List<MapperUtil> option = new ArrayList<>();
+						for (String values : options.getValue().split(",")) {
+
+							MapperUtil mapperUtil = new MapperUtil();
+							mapperUtil.setKey(values);
+							mapperUtil.setCaption(values);
+							option.add(mapperUtil);
+						}
+
+						newForm.setOptions(option);
+					}
+
+					if (constraints.getValue() != null) {
+
+						if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
+
+							newForm.setConstraints(constraints.getValue().split(","));
+						} else {
+
+							if (min.getValue() != null && max.getValue() != null && min.getValue() < max.getValue()) {
+
+								String valueOfMinMAx = min.getValue() + " " + max.getValue();
+								newForm.setConstraints(valueOfMinMAx.split(" "));
+							} else {
+
+								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+							}
+						}
+
+					}
+
+					if (!expression.getValue().isEmpty()) {
+
+						newForm.setExpression(expression.getValue());
+					}
+
+					if (!dependingOn.getValue().isEmpty()) {
+
+						newForm.setDependingOn(dependingOn.getValue());
+					}
+
+					if (dependingOnValues.getValue() != null) {
+
+						newForm.setDependingOnValues(dependingOnValues.getValue().split(","));
+					}
+
+					if (!errorMessage.getValue().isEmpty()) {
+
+						newForm.setErrormessage(errorMessage.getValue());
+					}
+
+					if (campaignFormMetaDto.getCampaignFormElements() == null) {
+
+						campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
+					}
+
+					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
+					campaignFormMetaDto.getCampaignFormElements().add(newForm);
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+					getGridData();
+					
+					Notification.show("Form Element Updated");
+				} else {
+					Notification.show("Select an Form Element to edit Please");
+				}
+			}
 		});
 
 		formLayout.add(formType, formId, caption, important, options, expression, dependingOn, dependingOnValues,
@@ -450,9 +543,6 @@ public class FormGridComponent extends VerticalLayout {
 		return CampaignFormElementType.LABEL;
 	}
 
-	private void updateGrid() {
-	}
-
 	void configureGrid() {
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -481,8 +571,8 @@ public class FormGridComponent extends VerticalLayout {
 //				.setResizable(true);
 //		grid.addColumn(CampaignFormElement::getDefaultvalue).setHeader("Default Value").setSortable(true)
 //				.setResizable(true);
-		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
-				.setResizable(true);
+//		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
+//				.setResizable(true);
 
 		List<CampaignFormElement> existingElements = campaignFormMetaDto.getCampaignFormElements();
 

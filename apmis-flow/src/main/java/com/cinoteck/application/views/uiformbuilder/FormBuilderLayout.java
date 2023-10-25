@@ -1,14 +1,9 @@
 package com.cinoteck.application.views.uiformbuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -29,7 +24,6 @@ import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Modality;
-import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -52,8 +46,7 @@ public class FormBuilderLayout extends VerticalLayout {
 	ComboBox<String> languageCode;
 
 	FormGridComponent formGridComponent;
-
-	UUID uuid = UUID.randomUUID();
+	TranslationGridComponent translationGridComponent;
 
 	Binder<CampaignFormMetaDto> binder = new BeanValidationBinder<>(CampaignFormMetaDto.class);
 
@@ -72,6 +65,7 @@ public class FormBuilderLayout extends VerticalLayout {
 			this.campaignFormMetaDto = campaignFormMetaDto_;
 		}
 		formGridComponent = new FormGridComponent(campaignFormMetaDto);
+		translationGridComponent = new TranslationGridComponent(campaignFormMetaDto);
 		configureFields();
 	}
 
@@ -146,12 +140,18 @@ public class FormBuilderLayout extends VerticalLayout {
 		final HorizontalLayout hr = new HorizontalLayout();
 		hr.setWidthFull();
 
-//		formLayout.setColspan(hr, 2);
-		TabSheet sheet = new TabSheet();
-		sheet.add("Form Element Data", formGridComponent);
+		TabSheet sheet = new TabSheet();		
+		
+		VerticalLayout tab1 = new VerticalLayout(formGridComponent);
+		VerticalLayout tab2 = new VerticalLayout(translationGridComponent);
+		
+		sheet.add("Form Elements", tab1);
+		sheet.add("Form Translations", tab2);
+		
 		sheet.setSizeFull();
+		
 		hr.add(sheet);
-
+		
 		add(formLayout);
 		add(hr);
 
@@ -176,20 +176,9 @@ public class FormBuilderLayout extends VerticalLayout {
 
 		if (binder.validate().isOk()) {
 
-			List<CampaignFormElement> superList = new ArrayList<>();
-			List<CampaignFormElement> dataList = formGridComponent.getGridData();
 			campaignFormMetaDto = binder.getBean();
+			campaignFormMetaDto.setCampaignFormElements(formGridComponent.getGridData());
 
-			for (CampaignFormElement item : dataList) {
-
-				if(item != null) {
-
-					System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");					
-					superList.add(item);
-				}
-			}
-			campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
-			campaignFormMetaDto.setCampaignFormElements(superList);
 			fireEvent(new SaveEvent(this, campaignFormMetaDto));
 
 			UI.getCurrent().getPage().reload();
@@ -197,7 +186,7 @@ public class FormBuilderLayout extends VerticalLayout {
 			Notification.show("Form Saved");
 		} else {
 
-			Notification.show("Unable to save Form");
+			Notification.show("Unable to Save Form");
 		}
 	}
 

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.symeda.auditlog.api.Audited;
 import de.symeda.auditlog.api.AuditedIgnore;
+import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
@@ -56,6 +57,8 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	private FormAccess formCategory;
 	private int daysExpired;
 	
+	private String modality;	
+
 	private String formName;
 	private String languageCode;
 	private List<CampaignFormElement> campaignFormElements;
@@ -200,6 +203,14 @@ public class CampaignFormMeta extends AbstractDomainObject {
 
 	public void setDistrictentry(boolean districtentry) {
 		this.districtentry = districtentry;
+	}
+	
+	public String getModality() {
+		return modality;
+	}
+
+	public void setModality(String modality) {
+		this.modality = modality;
 	}
 
 //	@Transient

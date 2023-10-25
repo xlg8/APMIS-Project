@@ -217,12 +217,15 @@ public class CampaignStatisticsService {
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {
+			System.out.println("criteriaaaa "   + criteria.getCampaignFormMeta().toString());
 			if (whereBuilder.length() > 0) {
 				whereBuilder.append(" AND ");
 			}
 
 			whereBuilder.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.UUID).append(" = '")
 					.append(criteria.getCampaignFormMeta().getUuid()).append("'");
+		}else {
+			whereBuilder.append("");
 		}
 		if (criteria.getArea() != null) {
 			if (whereBuilder.length() > 0) {

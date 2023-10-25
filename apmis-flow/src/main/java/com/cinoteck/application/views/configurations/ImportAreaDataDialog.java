@@ -61,7 +61,7 @@ public class ImportAreaDataDialog extends Dialog {
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
-	public Checkbox overWriteExistingData =  new Checkbox("Override existing entries with imported data.");
+	public Checkbox overWriteExistingData =  new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
 	boolean overWrite = false;
 	
 	Span anchorSpan = new Span();
@@ -69,7 +69,7 @@ public class ImportAreaDataDialog extends Dialog {
 	
 	public ImportAreaDataDialog() {
 		
-		this.setHeaderTitle("Region Import Module");
+		this.setHeaderTitle(I18nProperties.getString(Strings.regionImportModule));
 //		this.getStyle().set("color" , "#0D6938");
 
 		Hr seperatorr = new Hr();
@@ -86,7 +86,7 @@ public class ImportAreaDataDialog extends Dialog {
 //		});
 
 		H3 step2 = new H3();
-		step2.add("Step 1: Download the Import Template");
+		step2.add(I18nProperties.getString(Strings.step1));
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 		
 		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
@@ -118,7 +118,7 @@ public class ImportAreaDataDialog extends Dialog {
 				streamResource.setCacheTime(0); // Disable caching
 
 				// Create an anchor to trigger the download
-				Anchor downloadAnchor = new Anchor(streamResource, "Download CSV");
+				Anchor downloadAnchor = new Anchor(streamResource, I18nProperties.getCaption(Captions.downloadCsv));
 				downloadAnchor.getElement().setAttribute("download", true);
 				downloadAnchor.getStyle().set("display", "none");
 
@@ -141,7 +141,7 @@ public class ImportAreaDataDialog extends Dialog {
 		);
 
 		H3 step3 = new H3();
-		step3.add("Step 2: Import CSV File");
+		step3.add(I18nProperties.getString(Strings.step2));
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
 		
 		overWriteExistingData.setValue(false);
@@ -149,7 +149,7 @@ public class ImportAreaDataDialog extends Dialog {
 			overWrite = e.getValue();
 		});
 		
-		Label sd = new Label("Upload");
+		Label sd = new Label(I18nProperties.getCaption(Captions.upload));
 		
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		FileUploader buffer = new FileUploader();  
@@ -204,7 +204,7 @@ public class ImportAreaDataDialog extends Dialog {
 		
 		
 		H3 step5 = new H3();
-		step5.add("Step 3: Download Error Report");
+		step5.add(I18nProperties.getString(Strings.step3));
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 //		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");
@@ -212,7 +212,7 @@ public class ImportAreaDataDialog extends Dialog {
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
+			Notification.show("Button clicked to download error "+downloadErrorReportButton.getHref());
 			
 		downloadErrorReportButton.getElement().callJsFunction("click");
 		});
@@ -245,7 +245,7 @@ public class ImportAreaDataDialog extends Dialog {
 		//hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
 		
-		Button doneButton = new Button("Done", e -> {
+		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
 			close();
 //			stopIntervalCallback();
 			

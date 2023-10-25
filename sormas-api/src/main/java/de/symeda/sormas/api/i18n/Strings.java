@@ -84,6 +84,15 @@ public interface Strings {
 	String newUserPassword="newUserPassword";
 	String pleaseCopyPassword="pleaseCopyPassword";
 	String changePasswordForUser="changePasswordForUser";
+	String provinceImportModule="provinceImportModule";
+	String regionImportModule="regionImportModule";
+	String districtImportModule="districtImportModule";
+	String clusterImportModule="clusterImportModule";
+	
+	
+	
+	
+	
 	
 	
 	

@@ -53,4 +53,6 @@ public interface CampaignFormMetaFacade {
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignPostCamapaign(String uuid);
 
 	Collection<CampaignFormMetaDto> getAllFormElement();
+
+//	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
 }

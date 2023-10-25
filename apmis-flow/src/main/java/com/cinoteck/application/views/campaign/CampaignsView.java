@@ -218,7 +218,7 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
 		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
 		searchField.setClassName("col-sm-6, col-xs-6");
-
+		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
 		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
@@ -308,7 +308,11 @@ public class CampaignsView extends VerticalLayout {
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
-		closeIcon.addClickListener(event -> dialog.close());
+		closeIcon.addClickListener(event -> {
+			 dialog.removeAll();
+			dialog.close();
+//			UI.getCurrent().getPage().reload();
+		});
 		H3 headerText = new H3(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		headerText.addClassName("headingText");
 		header.add(headerText);
@@ -346,12 +350,20 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		formLayout.addDiscardListener(this::discardForm);
-
+		System.out.println(  "ROUND VALUE BAWSED OFF the form selected " + formLayout.round.getValue() );
+		if(formLayout.round.getValue() ==  "Case Respond" ) {
+			formLayout.round.setValue("CRC");	
+//		System.out.println( round.getValue() + "ROUND VALUE BAWSED OFF BINDER ");
+	}
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
-		closeIcon.addClickListener(event -> dialog.close());
+		closeIcon.addClickListener(event -> {
+			 dialog.removeAll();
+			dialog.close();
+//			UI.getCurrent().getPage().reload();
+		});
 		H3 headerText = new H3(
 				I18nProperties.getCaption(Captions.Campaign_edit) + " | " + formData.getName() + isclosedOpen);
 		headerText.addClassName("headingText");
@@ -399,7 +411,7 @@ public class CampaignsView extends VerticalLayout {
 
 	private void roundChange(CampaignForm.RoundChangeEvent event) {
 
-		if (event.getSource().round.getValue() == "Training") {
+		if (event.getSource().round.getValue() == CampaignRounds.TRAINING || event.getSource().round.getValue() == "Training") {
 			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
 		}
@@ -408,10 +420,6 @@ public class CampaignsView extends VerticalLayout {
 
 	private void discardForm(CampaignForm.DiscardEvent event) {
 
-//		if (event.getSource().round.getValue() == "Training") {
-//			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
-//			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
-//		}
 		dialog.close();
 		UI.getCurrent().getPage().reload();
 	}

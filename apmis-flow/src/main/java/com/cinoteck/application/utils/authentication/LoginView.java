@@ -60,7 +60,10 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		LoginForm loginForm = new LoginForm();
 		loginForm.setI18n(createLoginI18n());
 		loginForm.addLoginListener(this::login);
-		loginForm.addForgotPasswordListener(event -> Notification.show(resourceBundle.getString("login_hint")));
+		loginForm.addForgotPasswordListener(event -> {
+			UI.getCurrent().navigate("http://afghanistan-apmis.com/forgot-password");
+//			getUI().ifPresent(ui -> ui.navigate("https://afghanistan-apmis.com/forgot-password"));
+		});
 
 		VerticalLayout loginInformation = new VerticalLayout();
 
