@@ -17,6 +17,8 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
@@ -27,6 +29,7 @@ import de.symeda.sormas.api.i18n.Strings;
 
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.function.ValueProvider;
 
 public class CampaignFormGridComponent extends VerticalLayout {
 	/**
@@ -51,12 +54,19 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaReferenceDto::getCaption)
 				.setHeader(I18nProperties.getCaption(Captions.formname));
 		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
-				.setHeader(I18nProperties.getCaption(Captions.expiry));
+				.setHeader(I18nProperties.getCaption(Captions.expiry)+" (default)");
+		grid.addColumn(this::getDaysExpiredEditable)
+		.setHeader(I18nProperties.getCaption(Captions.expiry) +" custom days (may not update until saved)");
+		
 		grid.setItems(savedCampaignFormMetas);
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
 		
+	}
+	
+	private int getDaysExpiredEditable(CampaignFormMetaReferenceDto item) {
+		return FacadeProvider.getCampaignFacade().getCampaignFormExp(item.getUuid(), capaingDto.getUuid());
 	}
 
 	private Component getContent() {
@@ -96,12 +106,13 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		IntegerField daysExpire = new IntegerField();
 		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
+		
 		if (capaingDto != null && capaingDto.getStartDate() != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
-		}else if(capaingDto != null && capaingDto.getStartDate() == null) {
+		} else if(capaingDto != null && capaingDto.getStartDate() == null) {
 			
 		}
-		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) + datd);
+		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) +" ("+ datd +")");
 		daysExpire.setMin(1);
 		daysExpire.setMax(60);
 		daysExpire.setStepButtonsVisible(true);
@@ -132,7 +143,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				// delete.setEnabled(size != 0);
 				forms.setValue(selectedCamp);
 				saveButton.setText(I18nProperties.getCaption(Captions.update));
-				daysExpire.setValue(selectedCamp.getDaysExpired());
+				int dayz = getDaysExpiredEditable(selectedCamp);
+				daysExpire.setValue(dayz == 0 ? selectedCamp.getDaysExpired() : dayz);
 			} else {
 				formBeenEdited = new CampaignFormMetaReferenceDto();
 			}

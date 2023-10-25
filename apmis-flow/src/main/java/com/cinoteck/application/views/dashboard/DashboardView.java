@@ -104,6 +104,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	List<String> campaingYears = new ArrayList<>();
 
 	boolean isCampaignChanged;
+	boolean isCampaignYearChanging;
 	
 	private boolean isSubAvaialable = false;
 	private CampaignJurisdictionLevel campaignJurisdictionLevel;
@@ -152,21 +153,23 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			
 		}
 		
-		List<CampaignReferenceDto> filteredCampaigns = new ArrayList<>();
-
-		for (String year : campaingYears) {
-		    for (CampaignReferenceDto cmfdto : campaigns) {
-		        if (cmfdto.getCampaignYear().trim().equals(year)) {
-		            filteredCampaigns.add(cmfdto);
-		        }
-		    }
-		}
-		
+//		List<CampaignReferenceDto> filteredCampaigns = new ArrayList<>();
+//
+//		for (String year : campaingYears) {
+//		    for (CampaignReferenceDto cmfdto : campaigns) {
+//		        if (cmfdto.getCampaignYear().trim().equals(year)) {
+//		            filteredCampaigns.add(cmfdto);
+//		        }
+//		    }
+//		}
+//		
+//		
+//		campaingYears.clear();
+//		campaingYears.addAll(setDeduplicated);
+//
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
-		campaingYears.clear();
-		campaingYears.addAll(setDeduplicated);
-
-		campaignYear.setItems(campaingYears);
+		campaignYear.setItems(setDeduplicated);
+		
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
@@ -189,27 +192,42 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		// campaignFormPhaseSelector = new
 		// CampaignFormPhaseSelector(lastStartedCampaign);
 
-		System.out.println(VaadinSession.getCurrent().getSession().getAttribute("campaignPhase"));
-		System.out.println(VaadinSession.getCurrent().getSession().getAttribute("campaign"));
+		System.out.println("campaignPhase _ session "+VaadinSession.getCurrent().getSession().getAttribute("campaignPhase"));
+		System.out.println("camp _ session"+VaadinSession.getCurrent().getSession().getAttribute("campaign"));
 
-		if (VaadinSession.getCurrent().getSession().getAttribute("campaignPhase") != null) {
+		if (VaadinSession.getCurrent().getSession().getAttribute("campaign") != null) {
 			String sessionCheckPhase = VaadinSession.getCurrent().getSession().getAttribute("campaignPhase").toString();
 			String sessionCheckCampaign = VaadinSession.getCurrent().getSession().getAttribute("campaign").toString();
 
 			CampaignReferenceDto sx = FacadeProvider.getCampaignFacade().getReferenceByUuid(sessionCheckCampaign);
-			dataProvider.setCampaign(sx);
+			
 			campaign.setValue(sx);
 			campaignYear.setValue(sx.getCampaignYear());
 			campaignPhase.setValue(CampaignPhase.valueOf(sessionCheckPhase.replace("-campaign", "").toUpperCase()));
+			dataProvider.setCampaign(sx);
 			dataProvider.setFormType(sessionCheckPhase);
 
 		} else {
 			final CampaignReferenceDto lastStartedCampaign = dataProvider.getLastStartedCampaign();
 
 			if (lastStartedCampaign != null) {
+				
+				List<CampaignReferenceDto> campaigns_x = new ArrayList<>();
+				for (CampaignReferenceDto cmfdto : campaigns) {
+					if (cmfdto.getCampaignYear().equals(lastStartedCampaign.getCampaignYear())) {
+//						campaigns_.clear();
+						campaigns_x.add(cmfdto);
+					}
+				}
+				
+				campaign.clear();
+				campaign.setItems(campaigns_x);
 				campaign.setValue(lastStartedCampaign);
 				campaignYear.setValue(lastStartedCampaign.getCampaignYear());
 				campaignPhase.setValue(CampaignPhase.INTRA);
+				
+				
+				
 			}
 
 			dataProvider.setCampaign(lastStartedCampaign);
@@ -269,8 +287,12 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
 
 		// filter listeners
+		
 		campaign.addValueChangeListener(e -> {
+			System.out.println("hgfghyuioffkjbnjkijhnbjk");
 			isCampaignChanged = true;
+			
+			if(!isCampaignYearChanging) {
 			UUID uuid = UUID.randomUUID();
 			VaadinSession.getCurrent().getSession().setAttribute("campaignPhase",
 					campaignPhase.getValue().toString().toLowerCase());
@@ -284,14 +306,18 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			add(mainContentContainerx);
 
 			campaignYear.setValue(e.getValue().getCampaignYear());
+			}
 		});
 
+		
+		
 		campaignYear.addValueChangeListener(e -> {
-//			if (!isCampaignChanged) {
+			if (!isCampaignChanged) {
 				List<CampaignReferenceDto> campaigns_ = new ArrayList<>();
-				;
+				
 
 				campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
+				isCampaignYearChanging = true;
 				campaign.clear();
 				for (CampaignReferenceDto cmfdto : campaigns) {
 					if (cmfdto.getCampaignYear().equals(e.getValue())) {
@@ -300,8 +326,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 					}
 				}
 				campaign.setItems(campaigns_);
+				isCampaignYearChanging = false;
 				campaign.setValue(campaigns_.get(0));
-//			}
+			}
 			isCampaignChanged = false;
 		});
 

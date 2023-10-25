@@ -140,6 +140,8 @@ public class CampaignDashboardGridElementComponent extends VerticalLayout {
 		setSizeFull();
 		add(getContent());
 	}
+	
+	
 
 	private String getDiagramCaption(CampaignDashboardElement item) {
 		return getItemCaption(item, diagramIdCaptionMap_);

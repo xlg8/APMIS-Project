@@ -67,6 +67,8 @@ public interface CampaignFacade { //CampaignFacadeEjb
 
 	List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp);
 
+	int getCampaignFormExp(String formUuuid, String campaignUuid);
+
 	
 	
 }
