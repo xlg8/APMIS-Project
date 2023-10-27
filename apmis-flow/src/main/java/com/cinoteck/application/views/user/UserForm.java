@@ -437,8 +437,13 @@ public class UserForm extends FormLayout {
 			postCampformAccessesList.remove(FormAccess.LQAS);
 			postCampformAccessesList.remove(FormAccess.FMS);
 			
+			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccess.setItems(formAccessesList);
 			preCampformAccess.setVisible(false);
+			intraCampformAccessesList.add(FormAccess.ICM);
+			intraCampformAccessesList.add(FormAccess.ADMIN);
+			intraCampformAccessesList.add(FormAccess.EAG_ICM);
+			intraCampformAccessesList.add(FormAccess.EAG_ADMIN);
 			intraCampformAccess.setItems(intraCampformAccessesList);
 			postCampformAccess.setVisible(false);
 		}
