@@ -395,9 +395,9 @@ public class UserForm extends FormLayout {
 //		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
 		
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
-		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
-		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
+		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign ) + " : ");
+		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign ) + " : ");
+		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
 
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
 		preCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
@@ -431,15 +431,16 @@ public class UserForm extends FormLayout {
 			intraCampformAccess.setItems(intraCampformAccessesList);
 			postCampformAccess.setItems(postCampformAccessesList);
 		} else {
+			preCampformAccessesList.remove(FormAccess.FLW);
 			preCampformAccessesList.remove(FormAccess.TRAINING);
 			postCampformAccessesList.remove(FormAccess.PCA);
 			postCampformAccessesList.remove(FormAccess.LQAS);
 			postCampformAccessesList.remove(FormAccess.FMS);
-			preCampformAccessesList.remove(FormAccess.FLW);
+			
 			formAccess.setItems(formAccessesList);
-			preCampformAccess.setItems(preCampformAccessesList);
+			preCampformAccess.setVisible(false);
 			intraCampformAccess.setItems(intraCampformAccessesList);
-			postCampformAccess.setItems(postCampformAccessesList);
+			postCampformAccess.setVisible(false);
 		}
 //		commusr.setValue(isCommonUser);
 

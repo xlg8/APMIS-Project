@@ -335,11 +335,11 @@ public class ClusterView extends VerticalLayout {
 
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
-				return I18nProperties.getCaption(Captions.communityArchivedCommunities);
+				return I18nProperties.getCaption(Captions.archived);
 			} else if (status == EntityRelevanceStatus.ACTIVE) {
-				return I18nProperties.getCaption(Captions.communityActiveCommunities);
+				return I18nProperties.getCaption(Captions.active);
 			} else if (status == EntityRelevanceStatus.ALL) {
-				return I18nProperties.getCaption(Captions.communityAllCommunities);
+				return I18nProperties.getCaption(Captions.all);
 			}
 			// Handle other enum values if needed
 			return status.toString();
