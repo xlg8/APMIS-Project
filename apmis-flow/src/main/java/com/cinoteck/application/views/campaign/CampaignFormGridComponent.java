@@ -94,7 +94,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		deleteButton.getStyle().set("background-color", "red!important");
 		deleteButton.setTooltipText(I18nProperties.getCaption(Captions.removeThisForm));
 
-		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave), new Icon(VaadinIcon.CHECK));
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionAdd), new Icon(VaadinIcon.CHECK));
 
 		Button cacleButton = new Button(I18nProperties.getCaption(Captions.actionCancel), new Icon(VaadinIcon.REFRESH));
 
@@ -172,7 +172,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 			try {
 				forms.setValue(newcampform);
 			} finally {
-				saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+				saveButton.setText(I18nProperties.getCaption(Captions.actionAdd));
 				daysExpire.setValue(5);
 			}
 			grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
@@ -195,7 +195,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		saveButton.addClickListener(e -> {
 
-			if (((Button) e.getSource()).getText().equals("Save")) {
+			if (((Button) e.getSource()).getText().equals("Add")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
 				CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(), daysExpire.getValue());
 				
