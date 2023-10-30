@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -22,6 +21,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,8 +41,11 @@ import com.google.protobuf.TextFormat.ParseException;
 
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
+import de.symeda.sormas.api.campaign.CampaignCriteria;
+import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
@@ -48,14 +55,26 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.report.UserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.HtmlHelper;
+import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
+import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
+import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
+import de.symeda.sormas.backend.infrastructure.area.Area;
+import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.facility.Facility;
+import de.symeda.sormas.backend.infrastructure.region.Region;
+import de.symeda.sormas.backend.location.Location;
+import de.symeda.sormas.backend.user.User;
+import de.symeda.sormas.backend.user.UserFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
+import de.symeda.sormas.backend.util.QueryHelper;
 
 @Stateless(name = "CampaignFormMetaFacade")
 public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
@@ -91,7 +110,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return target;
 	}
 
-	public CampaignFormMetaDto toDto(CampaignFormMeta source) {
+	public static CampaignFormMetaDto toDto(CampaignFormMeta source) {
 		if (source == null) {
 			return null;
 		}
@@ -271,6 +290,118 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 
 		return filtered.stream().map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CampaignFormMetaDto> getIndexList(CampaignFormCriteria campaignFormCriteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormMeta> cq = cb.createQuery(CampaignFormMeta.class);
+		Root<CampaignFormMeta> campaignFormMeta = cq.from(CampaignFormMeta.class);
+
+		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
+				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
+				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
+				campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY),
+				campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE),
+				campaignFormMeta.get(CampaignFormMeta.CREATION_DATE),
+				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
+//		Join<CampaignFormMeta, FormAccess> formaccess = campaignFormMeta.join(CampaignFormMeta.FORM_CATEGORY, JoinType.LEFT);
+
+		// TODO: We'll need a user filter for users at some point, to make sure that
+		// users can edit their own details,
+		// but not those of others
+
+		Predicate filter = null;
+
+		if (campaignFormCriteria != null) {
+			 System.out.println("DEBUGGER: 45fffffffiiilibraryii = "+ campaignFormCriteria);
+			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
+		}
+
+		if (filter != null) {
+			/*
+			 * No preemptive distinct because this does collide with ORDER BY
+			 * User.location.address (which is not part of the SELECT clause). UserType
+			 */
+			cq.where(filter);
+		}
+
+		if (sortProperties != null && sortProperties.size() > 0) {
+			List<Order> order = new ArrayList<Order>(sortProperties.size());
+			for (SortProperty sortProperty : sortProperties) {
+				Expression<?> expression;
+				switch (sortProperty.propertyName) {
+				case CampaignFormMeta.UUID:
+//				case CampaignFormMeta.FORM_ID:
+				case CampaignFormMeta.MODALITY:
+//				case CampaignFormMeta.FORM_NAME:
+//				case CampaignFormMeta.DAYSTOEXPIRE:
+//				case CampaignFormMeta.DISTRICTENTRY:
+//				case CampaignFormMeta.FORM_TYPE:
+					System.out.println("DEBUGGER: gfgdgjhgfgddgfghhjhg");
+					expression = campaignFormMeta.get(sortProperty.propertyName);
+					break;
+				case CampaignFormMeta.FORM_NAME:				
+					System.out.println("DEBUGGER: firsthvshgshvshgd");
+					expression = campaignFormMeta.get(CampaignFormMeta.FORM_NAME);
+//					order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
+					break;
+				case CampaignFormMeta.FORM_TYPE:
+					System.out.println("DEBUGGER: 456ddddddt67ujhgtyuikjhu");
+					expression = campaignFormMeta.get(CampaignFormMeta.FORM_TYPE);
+					break;
+				case CampaignFormMeta.FORM_CATEGORY:
+					System.out.println("DEBUGGER: jfhgsghsghsjgsfhgsghshgs");
+					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
+					break;
+//				case UserReportModelDto.REGION:
+//					// System.out.println("DEBUGGER: 4567uhgfrt678456789ppppailed to load the
+//					// bootstrap javascrippppppppppppppp876543hgtyuikjhu");
+//					expression = region.get(Region.NAME);
+//					break;
+//				case UserReportModelDto.USER_ORGANISATION:
+//					expression = user.get(User.USER_ORGANISATION);
+//					// System.out.println("DEBUGGER:
+//					// 4567uhgfrt6oooooooooooooooooooooo78uijhgft67ujhgtyuikjhu");
+//					order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
+//					// expression = user.get(User.USER_ORGANISATION);
+//					break;		
+				default:
+					throw new IllegalArgumentException(sortProperty.propertyName);
+				}
+				order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
+			}
+			cq.orderBy(order);
+		} else {
+			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
+		}
+
+		cq.select(campaignFormMeta);
+
+		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
+	}
+
+	@Override
+	public long count(CampaignFormCriteria campaignFormCriteria) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<CampaignFormMeta> root = cq.from(CampaignFormMeta.class);
+
+		Predicate filter = null;
+
+		if (campaignFormCriteria != null) {
+			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, root);
+		}
+
+		if (filter != null) {
+			cq.where(filter);
+		}
+
+		cq.select(cb.count(root));
+		return em.createQuery(cq).getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -30,6 +30,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
@@ -105,16 +106,23 @@ public class FormBuilderView extends VerticalLayout {
 
 		search.addValueChangeListener(e -> {
 
-//			if (e.getValue() != null) {
-//				criteria.setFormName(e.getValue());
-//				filterDataProvider.setFilter(criteria);
-//				
-//				filterDataProvider.refreshAll();
-//			}
+			if (e.getValue() != null) {
+				criteria.setFormName(e.getValue().toString());
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			}
 		});
 
-		formPhase.addValueChangeListener(event -> {
+		formPhase.addValueChangeListener(e -> {
+			
+			if (e.getValue() != null) {
+				CampaignPhase campaignPhase = e.getValue();
+//				criteria.setFormPhase(campaignPhase);
+				filterDataProvider.setFilter(criteria);
 
+				filterDataProvider.refreshAll();
+			}
 		});
 	}
 
@@ -137,7 +145,7 @@ public class FormBuilderView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CampaignFormMetaDto.FORM_ID).setHeader("Form Name").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormMetaDto.FORM_NAME).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_CATEGORY).setHeader("Form Category").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
@@ -147,15 +155,15 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Entry").setSortable(true)
 				.setResizable(true);
 
-		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
-				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
+//		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
+//				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
 
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
-		grid.setItems(dataprovider);
+//		grid.setItems(dataprovider);
 
-//		grid.setDataProvider(filterDataProvider);
+		grid.setDataProvider(filterDataProvider);
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 
 			grid.asSingleSelect().addValueChangeListener(event -> editForm(event.getValue()));

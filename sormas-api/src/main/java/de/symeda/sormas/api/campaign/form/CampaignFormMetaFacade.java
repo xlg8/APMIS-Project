@@ -9,7 +9,9 @@ import java.util.Set;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
+import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.utils.SortProperty;
 
 @Remote
 public interface CampaignFormMetaFacade {
@@ -53,6 +55,10 @@ public interface CampaignFormMetaFacade {
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignPostCamapaign(String uuid);
 
 	Collection<CampaignFormMetaDto> getAllFormElement();
+	
+	List<CampaignFormMetaDto> getIndexList(CampaignFormCriteria campaignFormCriteria, Integer first, Integer max,
+			List<SortProperty> sortProperties);
 
+	long count(CampaignFormCriteria campaignFormCriteria);
 //	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
 }

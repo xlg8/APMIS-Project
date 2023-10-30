@@ -15,12 +15,16 @@ import javax.persistence.criteria.Root;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserType;
+import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.AdoServiceWithUserFilter;
+import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.user.User;
 
 @Stateless
@@ -31,9 +35,56 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		super(CampaignFormMeta.class);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Predicate createUserFilter(CriteriaBuilder cb, CriteriaQuery cq, From<?, CampaignFormMeta> from) {
 		return null;
+	}
+	
+	public Predicate buildCriteriaFilter(CampaignFormCriteria campaignFormCriteria, CriteriaBuilder cb,
+			Root<CampaignFormMeta> from) {
+		Predicate filter = null;
+//		if (campaignFormCriteria.getFormCategory() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(from.get(CampaignFormMeta.FORM_CATEGORY), campaignFormCriteria.getFormCategory()));
+//		}		
+//		if (campaignFormCriteria.getFormPhase() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(from.get(CampaignFormMeta.FORM_TYPE), campaignFormCriteria.getFormPhase()));
+//		}
+		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.between(from.get(CampaignFormMeta.CREATION_DATE),
+					campaignFormCriteria.getStartDate(), campaignFormCriteria.getEndDate()));
+		}
+		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.between(from.get(CampaignFormMeta.CHANGE_DATE),
+					campaignFormCriteria.getStartDate(), campaignFormCriteria.getEndDate()));
+		}
+		if (campaignFormCriteria.getFormName() != null) {
+			String[] textFilters = (campaignFormCriteria.getFormName().split("\\s+"));
+			for (String textFilter : textFilters) {
+				if (DataHelper.isNullOrEmpty(textFilter)) {
+					continue;
+				}
+
+				Predicate likeFilters = cb.or(
+						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_NAME), textFilter),
+						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_CATEGORY), textFilter),
+						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),
+						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),
+						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.UUID), textFilter));
+				filter = CriteriaBuilderHelper.and(cb, filter, likeFilters);
+			}
+		}
+//		if (campaignCriteria.getRelevanceStatus() != null) {
+//			if (campaignCriteria.getRelevanceStatus() == EntityRelevanceStatus.ACTIVE) {
+//				filter = CriteriaBuilderHelper.and(cb, filter,
+//						cb.or(cb.equal(from.get(Campaign.ARCHIVED), false), cb.isNull(from.get(Campaign.ARCHIVED))));
+//			} else if (campaignCriteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+//				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(Campaign.ARCHIVED), true));
+//			}
+//		}
+		return filter;	
 	}
 
 	public List<CampaignFormMeta> getAllAfter(Date since, User user) {

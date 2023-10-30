@@ -19,12 +19,16 @@ public class FormBuilderDataProvider extends AbstractBackEndDataProvider<Campaig
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Stream<CampaignFormMetaDto> fetchFromBackEnd(Query<CampaignFormMetaDto, CampaignFormCriteria> query) {	
-		return FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream();
+		return FacadeProvider.getCampaignFormMetaFacade().getIndexList(
+				 query.getFilter().orElse(null),
+                 query.getOffset(),
+                 query.getLimit(),
+                 null).stream();
 	}
 
 	@Override
 	protected int sizeInBackEnd(Query<CampaignFormMetaDto, CampaignFormCriteria> query) {		
-		return 55;
+		return (int) FacadeProvider.getCampaignFormMetaFacade().count(query.getFilter().orElse(null));
 	}
 
 }

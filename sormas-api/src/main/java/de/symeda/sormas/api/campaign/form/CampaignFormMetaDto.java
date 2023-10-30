@@ -23,6 +23,7 @@ public class CampaignFormMetaDto extends EntityDto {
 	private static final long serialVersionUID = -1163673887940552133L;
 
 	public static final String FORM_ID = "formId";
+	public static final String FORM_NAME = "formName";
 	public static final String LANGUAGE_CODE = "languageCode";
 	public static final String CAMPAIGN_FORM_ELEMENTS = "campaignFormElements";
 	public static final String FORM_CATEGORY = "formCategory";
@@ -50,7 +51,7 @@ public class CampaignFormMetaDto extends EntityDto {
 	private FormAccess formCategory;
 	private int daysExpired;
 
-	private boolean districtentry;
+	private boolean districtentry = false;
 
 	public static CampaignFormMetaDto build() {
 		CampaignFormMetaDto campaignMeta = new CampaignFormMetaDto();
