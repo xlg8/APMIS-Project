@@ -333,11 +333,11 @@ public class DistrictView extends VerticalLayout {
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
-				return I18nProperties.getCaption(Captions.districtArchivedDistricts);
+				return I18nProperties.getCaption(Captions.archived);
 			} else if (status == EntityRelevanceStatus.ACTIVE) {
-				return I18nProperties.getCaption(Captions.districtActiveDistricts);
+				return I18nProperties.getCaption(Captions.active);
 			} else if (status == EntityRelevanceStatus.ALL) {
-				return I18nProperties.getCaption(Captions.districtAllDistricts);
+				return I18nProperties.getCaption(Captions.all);
 
 			}
 			// Handle other enum values if needed

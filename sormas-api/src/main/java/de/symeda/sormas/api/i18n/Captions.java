@@ -10,8 +10,12 @@ public interface Captions {
 	 * constants of this class is accepted: Close as false positive.
 	 */
 
-	//New added by Yahaya, end by the next big space 
+	// New added by Yahaya, end by the next big space
 	String about = "about";
+	String archived = "archived";
+	String active = "active";
+
+//	String all= "All";
 	String clusterNumber = "clusterNumber";
 	String formPhase = "formPhase";
 	String formAccess = "formAccess";
@@ -44,6 +48,9 @@ public interface Captions {
 	String uuid="uuid";
 	String preCampaignDashboard="preCampaignDashboard";
 	String preCampaignPhase="preCampaignPhase";
+	String preCampaign = "preCampaign";
+	String intraCampaign = "intraCampaign";
+	String postCampaign = "postCampaign";
 	String intraCampaignForms="intraCampaignForms";
 	String intraCampaignDashboard="intraCampaignDashboard";
 	String intraCampaignPhase="intraCampaignPhase";
@@ -221,6 +228,7 @@ public interface Captions {
 	String actionResetEnumCache = "actionResetEnumCache";
 	String actionResetFilters = "actionResetFilters";
 	String actionSave = "actionSave";
+	String actionAdd = "actionAdd";
 	String actionSaveAndAddNew = "actionSaveAndAddNew";
 	String actionSaveChanges = "actionSaveChanges";
 	String actionSearch = "actionSearch";

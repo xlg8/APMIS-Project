@@ -58,6 +58,8 @@ public class UsersDataImporter extends DataImporter {
 	private UI currentUI;
 	private Set<UserRole> userRole = new HashSet<>();
 	
+	
+	private static final String R_CODE = "RCode";
 	private static final String P_CODE = "PCode";
 	private static final String D_CODE = "DCode";
 	private static final String C_CODE = "CCode";
@@ -96,6 +98,8 @@ public class UsersDataImporter extends DataImporter {
 		Set<FormAccess> formAccess= new HashSet<>();
 		String username = "";
 		
+		Long region_xt_id = null;
+
 		Long province_xt_id = null;
 		Long district_xt_id = null;
 		
@@ -107,6 +111,30 @@ public class UsersDataImporter extends DataImporter {
 		for (int i = 0; i < entityProperties.length; i++) {
 
 			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i);
+			if (R_CODE.equalsIgnoreCase(entityProperties[i])) {
+				try {
+					region_xt_id = Long.parseLong(values[i]);
+					List<AreaReferenceDto> existingRegions = FacadeProvider.getAreaFacade()
+							.getByExternalId(region_xt_id, false);
+
+					if (existingRegions.size() < 1) {
+						region_xt_id = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | Region does not exist or > 1");
+						return ImportLineResult.ERROR;
+					} else if (existingRegions.size() == 1) {
+
+						area = existingRegions.get(0);
+//						return ImportLineResult.SUCCESS;
+
+					} 
+				} catch (NumberFormatException e) {
+					region_xt_id = null;
+					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+							+ " : " + e.getLocalizedMessage());
+					return ImportLineResult.ERROR;
+				}
+			}
 			
 			
 			if (P_CODE.equalsIgnoreCase(entityProperties[i])) {
@@ -381,9 +409,9 @@ public class UsersDataImporter extends DataImporter {
 										if (UserDto.USER_POSITION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 										newUserLine.setUserPosition(cellData.getValue());
 										}
-										if (UserDto.USER_EMAIL.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-										newUserLine.setUserEmail(cellData.getValue());
-										}
+//										if (UserDto.USER_EMAIL.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+//										newUserLine.setUserEmail(cellData.getValue());
+//										}
 										if (UserDto.PHONE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 										newUserLine.setPhone(cellData.getValue());
 										}
