@@ -482,6 +482,8 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setFa_af(entity.getFa_af());
+		dto.setPs_af(entity.getPs_af());
 		dto.setEpidCode(entity.getEpidCode());
 		dto.setRisk(entity.getRisk());
 		dto.setGrowthRate(entity.getGrowthRate());

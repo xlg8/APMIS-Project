@@ -371,6 +371,8 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setFa_af(entity.getFa_af());
+		dto.setPs_af(entity.getPs_af());
 		dto.setEpidCode(entity.getEpidCode());
 	//	dto.setPopulation(populationDataFacade.getRegionPopulation(dto.getUuid()));
 		dto.setGrowthRate(entity.getGrowthRate());
