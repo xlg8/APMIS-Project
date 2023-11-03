@@ -324,7 +324,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
 				I18nProperties.setUserLanguage(languagee.getValue());
 				I18nProperties.getUserLanguage();
-				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
+//				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
 			
 				String userLanguage = userProvider.getUser().getLanguage().toString();
 
