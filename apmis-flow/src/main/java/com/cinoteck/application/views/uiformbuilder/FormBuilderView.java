@@ -148,11 +148,13 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.FORM_NAME).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_CATEGORY).setHeader("Form Category").setSortable(true)
 				.setResizable(true);
+		grid.addColumn(CampaignFormMetaDto.FORM_TYPE).setHeader("Campaign Phase").setSortable(true)
+		.setResizable(true);
+		grid.addColumn(CampaignFormMetaDto::getModality).setHeader("Modality").setSortable(true)
+		.setResizable(true);
 		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
-		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
+		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);		
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Entry").setSortable(true)
 				.setResizable(true);
 
 //		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider

@@ -99,7 +99,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		target.setFormId(source.getFormId());
 		target.setFormType(source.getFormType().toString().toLowerCase());
 		target.setFormName(source.getFormName());
-		target.setModality(source.getFormModality().toString());
+		target.setModality(source.getModality().toString());
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
 		target.setCampaignFormElements(source.getCampaignFormElements());
@@ -120,14 +120,15 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 
 		target.setFormId(source.getFormId());
 		target.setFormType(
-				(source.getFormType().toLowerCase() == CampaignPhase.PRE.toString().toLowerCase()) ? CampaignPhase.PRE
-						: (source.getFormType().toLowerCase() == CampaignPhase.INTRA.toString().toLowerCase())
+				(source.getFormType().toLowerCase().equals(CampaignPhase.PRE.toString().toLowerCase())) ? CampaignPhase.PRE
+						: (source.getFormType().toLowerCase().equals(CampaignPhase.INTRA.toString().toLowerCase()))
 								? CampaignPhase.INTRA
 								: CampaignPhase.POST);
 		target.setFormName(source.getFormName());
-		target.setFormModality(source.getModality() == Modality.S2S.toString() ? Modality.S2S
-				: source.getModality() == Modality.HF2HF.toString() ? Modality.HF2HF
-						: source.getModality() == Modality.M2M.toString() ? Modality.M2M : Modality.H2H);
+		if(source.getModality() != null)
+		target.setModality(source.getModality().equals(Modality.S2S.toString()) ? Modality.S2S
+				: source.getModality().equals(Modality.HF2HF.toString()) ? Modality.HF2HF
+						: source.getModality().equals(Modality.M2M.toString()) ? Modality.M2M : Modality.H2H);
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
 		target.setCampaignFormElements(source.getCampaignFormElements());
