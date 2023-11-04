@@ -310,10 +310,10 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		//Analysis A  && B Model Getter was used to get the data for Late Form Count while B is uses to get the %  on the Grid 
 				//TODO Create Pojo and i18Ln Caption also 
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader("Late Form Count").setSortProperty("supervisor")
+				.setHeader(I18nProperties.getCaption(Captions.dataTimeLinessLateFormCount)).setSortProperty("supervisor")
 				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader("Percentage").setSortProperty("revisit").setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.percentage)).setSortProperty("revisit").setSortable(true)
 				.setResizable(true);
 	
 		grid.setVisible(true);
@@ -337,7 +337,7 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		exporter.setAutoAttachExportButtons(false);
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
-		exporter.setFileName("ICM Completion Analysis Report"
+		exporter.setFileName("Data Timeliness Report"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());

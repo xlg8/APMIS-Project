@@ -1072,6 +1072,9 @@ public interface Captions {
 	String DiseaseBurden_previousCaseCount = "DiseaseBurden.previousCaseCount";
 	String diseaseVariantDetails = "diseaseVariantDetails";
 	String district = "district";
+	String dataTimeliness = "dataTimeliness";
+	String dataTimeLinessLateFormCount = "dataTimeLinessLateFormCount";
+	String percentage = "percentage";
 	String District_archived = "District.archived";
 	String District_epidCode = "District.epidCode";
 	String District_risk = "District.risk";
