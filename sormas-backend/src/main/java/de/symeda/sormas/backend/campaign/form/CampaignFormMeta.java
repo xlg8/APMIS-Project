@@ -41,18 +41,18 @@ public class CampaignFormMeta extends AbstractDomainObject {
 
 	public static final String FORM_ID = "formId";
 	public static final String FORM_TYPE = "formType";
+	public static final String DISTRICTENTRY = "districtentry";
 	public static final String FORM_NAME = "formName"; 
-	public static final String FORM_CATEGORY = "formCategory"; 
+	public static final String FORM_CATEGORY = "formCategory";
+	public static final String MODALITY = "modality";
 	public static final String CAMPAIGN_FORM_ELEMENTS = "campaignFormElements";
 	public static final String CAMPAIGN_FORM_TRANSLATIONS = "campaignFormTranslations";
 	public static final String DAYSTOEXPIRE = "daysExpired";
 
-	public static final String DISTRICTENTRY = "districtentry";
-
 	private String formId;
 	private String formType;
 
-	private boolean districtentry;
+	private boolean districtentry = false;
 	
 	private FormAccess formCategory;
 	private int daysExpired;

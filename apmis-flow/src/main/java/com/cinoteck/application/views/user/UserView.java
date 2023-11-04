@@ -123,8 +123,8 @@ public class UserView extends VerticalLayout {
 	MenuBar menuBar = new MenuBar();
 
 	Button createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
-	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
-	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
+//	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
+//	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
 	Button bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 	Button leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	TextField searchField = new TextField();
@@ -194,12 +194,14 @@ public class UserView extends VerticalLayout {
 			editUser(true);
 		});
 
+		exportUsers = new Button(I18nProperties.getCaption(Captions.export));
 		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
 		
+		importUsers = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importUsers.addClickListener(e -> {
 			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
@@ -226,6 +228,8 @@ public class UserView extends VerticalLayout {
 //		layout.add(anchor);
 		layout.addClassNames("row pl-4");
 
+		bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+		leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		bulkModeButton.addClassName("bulkActionButton");
 //		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -722,9 +726,9 @@ public class UserView extends VerticalLayout {
 	private void setFiltersVisible(boolean state) {
 		displayFilters.setVisible(state);
 		createUserButton.setVisible(state);
-		exportUsersButton.setVisible(state);
+//		exportUsersButton.setVisible(state);
 		importUsers.setVisible(state);
-		exportRolesButton.setVisible(state);
+//		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
 		exportUsers.setVisible(state);
 		searchField.setVisible(state);

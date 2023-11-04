@@ -248,6 +248,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		DtoHelper.fillDto(target, source);
 
 		target.setName(source.getName());
+		target.setFa_af(source.getFa_af());
+		target.setPs_af(source.getPs_af());
 		target.setExternalId(source.getExternalId());
 		target.setArchived(source.isArchived());
 
@@ -325,7 +327,7 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue())).collect(Collectors.toList()));
-		
+
 //		System.out.println("ending...." +resultData.size());
 	
 	

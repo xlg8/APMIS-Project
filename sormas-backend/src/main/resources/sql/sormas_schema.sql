@@ -9113,6 +9113,7 @@ UPDATE public.campaigns
 SET round = 'CRC'
 WHERE round = 'Case Respond';
 
+<<<<<<< HEAD
 INSERT INTO schema_version (version_number, comment) VALUES (451, 'Updating Campaign Round from Case Respond to CRC'); 
 
 
@@ -9145,6 +9146,23 @@ AS SELECT count(*) AS count,
 WITH DATA;
 
 INSERT INTO schema_version (version_number, comment) VALUES (452, 'Creating latedate report roption and total view ');
-    
+
+
+ALTER TABLE public.areas ADD fa_af varchar(100) NULL;
+ALTER TABLE public.areas ADD ps_af varchar(100) NULL;
+
+
+ALTER TABLE public.region ADD fa_af varchar(100) NULL;
+ALTER TABLE public.region ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.district ADD fa_af varchar(100) NULL;
+ALTER TABLE public.district ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.community ADD fa_af varchar(100) NULL;
+ALTER TABLE public.community ADD ps_af varchar(100) NULL;
+
+ 
+INSERT INTO schema_version (version_number, comment) VALUES (453, 'Adding the admin units translation to local languages in Configuration page'); 
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

@@ -442,15 +442,15 @@ public class ClusterView extends VerticalLayout {
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
 			layout.add(addNew);
 		}
-		Button exportCluster = new Button("Export");
+		Button exportCluster = new Button(I18nProperties.getCaption(Captions.export));
 		exportCluster.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		exportCluster.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
-
-		Button importCluster = new Button("Import");
+		
+		Button importCluster = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importCluster.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 
 		importCluster.addClickListener(e -> {

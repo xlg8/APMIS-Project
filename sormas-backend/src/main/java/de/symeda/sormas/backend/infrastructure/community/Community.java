@@ -36,12 +36,16 @@ public class Community extends InfrastructureAdo {
 	public static final String TABLE_NAME = "community";
 
 	public static final String NAME = "name";
+	public static final String FA_AF = "fa_af";
+	public static final String PS_AF = "ps_af";
 	public static final String DISTRICT = "district";
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String EXTERNAL_ID = "externalId";
 	public static final String CLUSTER_NUMBER = "clusterNumber";
 
 	private String name;
+	private String fa_af;
+	private String ps_af;
 	private District district;
 	private Float growthRate;
 	private Long externalId;
@@ -53,6 +57,22 @@ public class Community extends InfrastructureAdo {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getFa_af() {
+		return fa_af;
+	}
+
+	public void setFa_af(String fa_af) {
+		this.fa_af = fa_af;
+	}
+
+	public String getPs_af() {
+		return ps_af;
+	}
+
+	public void setPs_af(String ps_af) {
+		this.ps_af = ps_af;
 	}
 
 	@ManyToOne(cascade = CascadeType.REFRESH, optional = false)

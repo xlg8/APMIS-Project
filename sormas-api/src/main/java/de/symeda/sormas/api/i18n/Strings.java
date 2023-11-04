@@ -16,6 +16,9 @@ public interface Strings {
 	//New added by Yahaya, end by the next big space 
 	String dataSavedSuccessfully = "dataSavedSuccessfully";
 	String openCampaign="openCampaign";
+	String closeCampaign="closeCampaign";
+	String publish="publish";
+	String unpublish="unpublish";
 	String duplicate="duplicate";
 	String campaignDataUpdated="campaignDataUpdated";
 	String campaignDataSaved="campaignDataSaved";

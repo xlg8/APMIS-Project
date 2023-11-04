@@ -121,17 +121,59 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(RegionIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-		grid.addColumn(RegionIndexDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-		grid.addColumn(RegionIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-		grid.addColumn(RegionIndexDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 
-		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(RegionIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(RegionIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(RegionIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(RegionIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			
+			grid.setVisible(true);
+			grid.setAllRowsVisible(true);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+
+			grid.addColumn(RegionIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(RegionIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(RegionIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(RegionIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			
+			grid.setVisible(true);
+			grid.setAllRowsVisible(true);
+		} else {
+
+			grid.addColumn(RegionIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(RegionIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(RegionIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(RegionIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			
+			grid.setVisible(true);
+			grid.setAllRowsVisible(true);
+		}
+
 		if (criteria == null) {
 			criteria = new RegionCriteria();
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
@@ -219,7 +261,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 		vlayout.setAlignItems(Alignment.END);
 
-		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters), new Icon(VaadinIcon.SLIDERS));
+		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
+				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
 			if (layout.isVisible() == false) {
@@ -276,7 +319,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.addValueChangeListener(e -> {
-			System.out.println(criteria.relevanceStatus(e.getValue()) + "criteria relevance " +criteria + "jjjjjjj"+ e.getValue());
+			System.out.println(criteria.relevanceStatus(e.getValue()) + "criteria relevance " + criteria + "jjjjjjj"
+					+ e.getValue());
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 			refreshGridData();
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
@@ -286,26 +330,25 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ARCHIVED)) {
 				subMenu.removeAll();
-				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive), event -> handleArchiveDearchiveAction());
+				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
+						event -> handleArchiveDearchiveAction());
 //				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 //				refreshGridData();
 
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ALL)) {
 				subMenu.removeAll();
-				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance) );
+				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
 //				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 //				refreshGridData();
 //				Notification.show("Please Select Either Active or Archived Unit to carry out a bulk action ");
-			}else {
+			} else {
 				criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
-				refreshGridData();	
+				refreshGridData();
 			}
-			
 
 		});
 		layout.add(relevanceStatusFilter);
 
-		
 		Button resetButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
 
 		resetButton.addClassName("resetButton");
@@ -340,14 +383,14 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			layout.add(addNew);
 		}
 
-		Button exportProvince = new Button("Export");
+		Button exportProvince = new Button(I18nProperties.getCaption(Captions.export));
 		exportProvince.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportProvince.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
-		
-		Button importProvince = new Button("Import");
+
+		Button importProvince = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importProvince.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importProvince.addClickListener(e -> {
 			ImportProvinceDataDialog dialog = new ImportProvinceDataDialog();
@@ -356,7 +399,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		});
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
-			layout.add(importProvince , exportProvince, anchor);
+			layout.add(importProvince, exportProvince, anchor);
 		}
 		layout.setWidth("80%");
 		layout.addClassName("pl-3");
@@ -419,8 +462,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			archiveDearchiveConfirmation.setConfirmText("Ok");
 
 			archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.errorArchiving));
-			archiveDearchiveConfirmation
-					.setText(I18nProperties.getString(Strings.youHaveNotSeleceted));
+			archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.youHaveNotSeleceted));
 
 			archiveDearchiveConfirmation.open();
 		} else {
@@ -442,7 +484,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				System.out.println(archive + " archived or not " + regionUUid + "selected region  uuid");
 				if (!archive) {
 					archiveDearchiveConfirmation.setHeader(I18nProperties.getString(Strings.archiveSelectedProvinces));
-					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveProvinces) );
+					archiveDearchiveConfirmation
+							.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveProvinces));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getRegionFacade().archive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -457,8 +500,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //					Notification.show("Archiving Selected Rows ");
 				} else {
 
-					archiveDearchiveConfirmation.setHeader(I18nProperties.getString(Strings.dearchiveSelecetdProvinces));
-					archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedProvinces) );
+					archiveDearchiveConfirmation
+							.setHeader(I18nProperties.getString(Strings.dearchiveSelecetdProvinces));
+					archiveDearchiveConfirmation
+							.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedProvinces));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getRegionFacade().dearchive(selectedRow.getUuid());
 //						if (leaveBulkEdit.isVisible()) {
@@ -521,7 +566,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			archiveButton.setText(isArchivedx ? "De-Archive" : "Archive");
 			archiveButton.addClickListener(archiveEvent -> {
 				archiveDearchiveConfirmation = new ConfirmDialog();
-		
+
 				archiveDearchiveConfirmation.setRejectable(true);
 				archiveDearchiveConfirmation.setRejectText("No");
 				archiveDearchiveConfirmation.addRejectListener(e -> dialog.close());
@@ -535,9 +580,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					if (uuidsz != null) {
 						if (isArchived == true) {
 
-							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.dearchiveProvince));
-							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedProvince));
-
+							archiveDearchiveConfirmation
+									.setHeader(I18nProperties.getCaption(Captions.dearchiveProvince));
+							archiveDearchiveConfirmation.setText(
+									I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedProvince));
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().dearchive(uuidsz);
@@ -548,7 +594,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 						} else {
 							archiveDearchiveConfirmation.setHeader(I18nProperties.getCaption(Captions.archiveProvince));
-							archiveDearchiveConfirmation.setText(I18nProperties.getString(Strings.areSureYouWantToArchiveProvince));
+							archiveDearchiveConfirmation
+									.setText(I18nProperties.getString(Strings.areSureYouWantToArchiveProvince));
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().archive(uuidsz);
@@ -572,7 +619,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			if (regionDto != null) {
 				uuids = regionDto.getUuid();
 			}
-			if ((name != null && name != "") &&  (!pCodeField.getValue().isBlank() || !pCodeField.getValue().isEmpty())) {
+			if ((name != null && name != "")
+					&& (!pCodeField.getValue().isBlank() || !pCodeField.getValue().isEmpty())) {
 				RegionDto dce = FacadeProvider.getRegionFacade().getByUuid(uuids);
 				if (dce != null) {
 					dce.setName(name);
@@ -592,33 +640,33 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					dcex.setArea(areaField.getValue());
 
 					try {
-					FacadeProvider.getRegionFacade().save(dcex, true);
-					Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
-					dialog.close();
-					refreshGridData();
-						}catch (Exception e) {
-							Notification notification = new Notification();
-							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-							notification.setPosition(Position.MIDDLE);
-							Button closeButton = new Button(new Icon("lumo", "cross"));
-							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-							closeButton.getElement().setAttribute("aria-label", "Close");
-							closeButton.addClickListener(event -> {
-							    notification.close();
-							});
-							
-							Paragraph text = new Paragraph("Province exist. Please create a unique province.");
+						FacadeProvider.getRegionFacade().save(dcex, true);
+						Notification.show(I18nProperties.getString(Strings.savedNewRegion) + name + " " + code);
+						dialog.close();
+						refreshGridData();
+					} catch (Exception e) {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
 
-							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-							layout.setAlignItems(Alignment.CENTER);
+						Paragraph text = new Paragraph("Province exist. Please create a unique province.");
 
-							notification.add(layout);
-							notification.open();
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
-					    }
+					}
 
 				}
-			} else if((nameField.getValue().isBlank() || nameField.getValue().isEmpty()) ) {
+			} else if ((nameField.getValue().isBlank() || nameField.getValue().isEmpty())) {
 				Notification notification = new Notification();
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.setPosition(Position.MIDDLE);
@@ -626,9 +674,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 				closeButton.getElement().setAttribute("aria-label", "Close");
 				closeButton.addClickListener(event -> {
-				    notification.close();
+					notification.close();
 				});
-				
+
 				Paragraph text = new Paragraph("Province Name Cannot be left blank.");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
@@ -636,7 +684,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 				notification.add(layout);
 				notification.open();
-			}else if((pCodeField.getValue().isBlank() || pCodeField.getValue().isEmpty()) ) {
+			} else if ((pCodeField.getValue().isBlank() || pCodeField.getValue().isEmpty())) {
 				Notification notification = new Notification();
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.setPosition(Position.MIDDLE);
@@ -644,9 +692,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 				closeButton.getElement().setAttribute("aria-label", "Close");
 				closeButton.addClickListener(event -> {
-				    notification.close();
+					notification.close();
 				});
-				
+
 				Paragraph text = new Paragraph("Province Code Cannot be left blank.");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
@@ -654,7 +702,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 				notification.add(layout);
 				notification.open();
-			}else if(areaField.getValue() == null   ) {
+			} else if (areaField.getValue() == null) {
 				Notification notification = new Notification();
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.setPosition(Position.MIDDLE);
@@ -662,9 +710,9 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
 				closeButton.getElement().setAttribute("aria-label", "Close");
 				closeButton.addClickListener(event -> {
-				    notification.close();
+					notification.close();
 				});
-				
+
 				Paragraph text = new Paragraph("Please Select A Valid Region.");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
@@ -672,7 +720,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 				notification.add(layout);
 				notification.open();
-			}else {
+			} else {
 				Notification.show(I18nProperties.getCaption(Captions.notValidValue) + name + " " + code);
 			}
 

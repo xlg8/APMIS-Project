@@ -5,10 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.Size;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import de.symeda.sormas.api.EntityDto;
-import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.utils.DataHelper;
@@ -18,22 +15,27 @@ public class AreaDto extends EntityDto {
 
 	public static final String I18N_PREFIX = "Area";
 	public static final String NAME = "name";
+	public static final String FA_AF = "fa_af";
+	public static final String PS_AF = "ps_af";
 	public static final String EXTERNAL_ID = "externalId";
 	public static final String POPULATION_DATA = "populationData";
-	public static final String UUID = "uuid";
-	
+	public static final String UUID = "uuid";	
 
 	private static final long serialVersionUID = -6241927331721175673L;
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String name;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
+	private String fa_af;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
+	private String ps_af;
+
 	//@NotNull(message = "Please enter valid externalID")
 	private Long externalId;
 	private boolean archived;
 	private Long populationData;
 	private Long areaid;
 	private String uuid_;
-
   
   //TODO check if you want to leave this here 
 	private List<RegionDto> regionData = new ArrayList<>();
@@ -56,8 +58,6 @@ public class AreaDto extends EntityDto {
 		this.externalId = cxternalID;
 	}
 
-
-
 	public AreaReferenceDto toReference() {
 		return new AreaReferenceDto(getUuid());
 	}
@@ -70,6 +70,22 @@ public class AreaDto extends EntityDto {
 		this.name = name;
 	}
 
+	public String getFa_af() {
+		return fa_af;
+	}
+
+	public void setFa_af(String fa_af) {
+		this.fa_af = fa_af;
+	}
+
+	public String getPs_af() {
+		return ps_af;
+	}
+
+	public void setPs_af(String ps_af) {
+		this.ps_af = ps_af;
+	}
+	
 	public Long getExternalId() {
 		return externalId;
 	}
@@ -86,13 +102,13 @@ public class AreaDto extends EntityDto {
 		this.archived = archived;
 	}
 
-	public Long getPopulationData() {
-		return populationData;
-	}
-
-	public void setPopulationData(Long populationData) {
-		this.populationData = populationData;
-	}
+//	public Long getPopulationData() {
+//		return populationData;
+//	}
+//
+//	public void setPopulationData(Long populationData) {
+//		this.populationData = populationData;
+//	}
 
 
 	public Long getAreaid() {

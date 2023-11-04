@@ -120,26 +120,74 @@ public class DistrictView extends VerticalLayout {
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area))
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-		grid.addColumn(DistrictIndexDto::getAreaexternalId)
-				.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-		grid.addColumn(DistrictIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-		grid.addColumn(DistrictIndexDto::getRegionexternalId)
-				.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
-		grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district))
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
-		grid.addColumn(DistrictIndexDto::getExternalId)
-				.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 
-		grid.setVisible(true);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+
+			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(DistrictIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(DistrictIndexDto::getRegionexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true)
+					.setSortable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(DistrictIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.setVisible(true);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+
+			grid.addColumn(DistrictIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(DistrictIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(DistrictIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(DistrictIndexDto::getRegionexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true)
+					.setSortable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(DistrictIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(DistrictIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.setVisible(true);
+		} else {
+
+			grid.addColumn(DistrictIndexDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(DistrictIndexDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(DistrictIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(DistrictIndexDto::getRegionexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true)
+					.setSortable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(DistrictIndexDto::getName).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(DistrictIndexDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.setVisible(true);
+		}
 
 		if (criteria == null) {
 			criteria = new DistrictCriteria();
@@ -408,15 +456,15 @@ public class DistrictView extends VerticalLayout {
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
 			layout.add(addNew);
 		}
-		
-		Button importDistrict = new Button("Import");
+
+		Button importDistrict = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importDistrict.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importDistrict.addClickListener(e -> {
 			ImportDistrictDataDialog dialog = new ImportDistrictDataDialog();
 			dialog.open();
 		});
 
-		Button exportDistrict = new Button("Export");
+		Button exportDistrict = new Button(I18nProperties.getCaption(Captions.export));
 		exportDistrict.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportDistrict.addClickListener(e -> {
 			anchor.getElement().setAttribute("download", true);
