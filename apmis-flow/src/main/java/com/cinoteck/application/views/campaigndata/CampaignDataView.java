@@ -24,12 +24,14 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -72,6 +74,7 @@ import de.symeda.sormas.api.utils.SortProperty;
 
 @PageTitle("APMIS-Campaign Data")
 @Route(value = "campaigndata", layout = MainLayout.class)
+@CssImport(value = "./styles/custom-grid-styles.css", themeFor = "vaadin-grid")
 public class CampaignDataView extends VerticalLayout {
 
 	/**
@@ -95,6 +98,7 @@ public class CampaignDataView extends VerticalLayout {
 	ComboBox<DistrictReferenceDto> districtCombo = new ComboBox<>();
 	ComboBox<CommunityReferenceDto> clusterCombo = new ComboBox<>();
 	ComboBox<CampaignFormElementImportance> importanceSwitcher = new ComboBox<>();
+	ComboBox<String> timelinessFilter = new ComboBox<>();
 	Button resetHandler = new Button();
 //	Button applyHandler = new Button();
 	List<AreaReferenceDto> regions;
@@ -136,6 +140,7 @@ public class CampaignDataView extends VerticalLayout {
 		createCampaignDataFilter();
 
 		configureGrid(criteria);
+		configureColumnStyles(criteria);
 	}
 
 	private String getLabelForEnum(CampaignPhase campaignPhase) {
@@ -551,6 +556,18 @@ public class CampaignDataView extends VerticalLayout {
 			}
 
 		});
+//		
+//		timelinessFilter.setLabel("Timeliness");
+//		timelinessFilter.setItems("On Time" , "Late");
+//		timelinessFilter.addValueChangeListener(e->{
+//			if(e.getValue().toString() == "On Time") {
+//				
+//			}else if (e.getValue().toString() == "Late") {
+//				
+//			}else {
+//				
+//			}
+//		});
 
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
@@ -857,6 +874,8 @@ public class CampaignDataView extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser)).setSortable(true)
 				.setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign_creatingUser) + e.getSource());
+		
+
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -906,6 +925,27 @@ public class CampaignDataView extends VerticalLayout {
 
 		add(grid);
 
+	}
+//	
+	private void configureColumnStyles(CampaignFormDataCriteria criteria) {
+	Date formExpiryDate = FacadeProvider.getCampaignFormMetaFacade().formExpiryDate(criteria);
+			// TODO Auto-generated();
+	System.out.println(formExpiryDate.toString() + "form expiryrryyryry11111111111 "  );
+		
+		grid.setClassNameGenerator((v) -> {
+	        if (v.getFormDate() != null && v.getFormDate().after((Date) formExpiryDate)) {
+	        	
+	        	System.out.println(formExpiryDate.toString() + "grid form expiryyyyy 2222222 "  + v.getFormDate() );
+	            return "lateData";
+	        }else {
+	        	System.out.println(formExpiryDate.toString() + "grid form expiryyyyy 333333 " + v.getFormDate() );
+	        	  return "";
+	        
+	        }
+	      
+	    });
+		
+		
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {

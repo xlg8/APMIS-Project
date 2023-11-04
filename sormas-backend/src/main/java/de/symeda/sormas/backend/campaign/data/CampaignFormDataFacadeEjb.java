@@ -68,6 +68,7 @@ import de.symeda.sormas.api.campaign.diagram.CampaignDiagramSeries;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
@@ -513,6 +514,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 //		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== "+joiner);
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
+	
 	 
 	
 	@Override
@@ -685,6 +687,264 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 						((BigInteger) result[8]).longValue(),
 					
 						(String) result[9].toString()
+				)).collect(Collectors.toList()));
+		
+	//	//System.out.println("ending...." +resultData.size());
+	
+	
+	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	return resultData;
+	}
+	
+	private void updateTrakerTable() {
+		// get the total size of the analysis
+		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated)\n"
+				+ "    VALUES ('lateformdataportion', NOW())\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW();";
+
+		em.createNativeQuery(joinBuilder).executeUpdate();
+
+	};
+	
+	@Override
+	public String getByTimelinessAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties, FormAccess frms) {
+
+		
+		int isLocked = isUpdateTrakerLocked("lateformdataportion");
+		if(isLocked == 0){
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "lateformdataportion");
+			System.out.println(isAnalyticsOld + " =========dcccccccccccccccTotalAnalyticsOld===--------------------: " );
+
+				if (isAnalyticsOld) {
+					try {
+						updateTrakerTable("lateformdataportion", true);
+						
+						updateTrakerTable();
+						String updateAnalysisSql = "REFRESH MATERIALIZED VIEW  lateformdataportion  with data ;"
+								+ "REFRESH MATERIALIZED VIEW  lateformdatatotal  with data ;";
+						em.createNativeQuery(updateAnalysisSql).executeUpdate();
+
+					} catch (Exception e) {
+						
+					} finally {
+						updateTrakerTable("lateformdataportion", false);
+					}
+				}
+		}
+
+		
+		
+		boolean filterIsNull = criteria.getCampaign() == null;
+
+		String joiner = "";
+
+		if (!filterIsNull) {
+			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto form = criteria.getCampaignFormMeta();
+//			System.out.println(  "campaign fromr filter value ======================" + form);
+
+			final AreaReferenceDto area = criteria.getArea();
+			final RegionReferenceDto region = criteria.getRegion();
+			final DistrictReferenceDto district = criteria.getDistrict();
+//			final String error_status = criteria.getError_status();
+
+
+			//@formatter:off
+			
+			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
+			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+//			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
+
+			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
+			final String regionFilter = region != null ? " AND region.name = '"+region.getCaption()+"'" : "";
+			final String districtFilter = district != null ? " AND district.name = '"+district.getCaption()+"'" : "";
+			
+			joiner = " where " + campaignFilter + campaignFormFilter + areaFilter + regionFilter + districtFilter ;
+			
+		} 
+		
+
+		
+		
+		final String joinBuilder = "WITH cte AS ( " 
+				+ "SELECT dst.count, dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name, formmeta.formname, areas.\"name\", region.\"name\", district.name,\r\n"
+				+ "    trunc(cast((( SELECT lp.count\r\n"
+				+ "           FROM lateformdataportion lp\r\n"
+				+ "         WHERE lp.district_id = dst.district_id\r\n"
+				+ "          and lp.campaignuuid = dst.campaignuuid\r\n"
+				+ "          and lp.formmetauuid = dst.formmetauuid\r\n"
+				+ "         LIMIT 1)) as numeric) / cast((( SELECT lt.count\r\n"
+				+ "           FROM lateformdatatotal lt\r\n"
+				+ "          WHERE lt.district_id = dst.district_id\r\n"
+				+ "          and lt.campaignuuid = dst.campaignuuid\r\n"
+				+ "          and lt.formmetauuid = dst.formmetauuid\r\n"
+				+ "         LIMIT 1)) as numeric) * cast(100 as numeric), 2) AS perc\r\n"
+				+ "   FROM lateformdataportion dst\r\n"
+				+ "LEFT JOIN campaigns ON dst.campaignuuid = campaigns.uuid \r\n"
+				+ "left join campaignformmeta formmeta on dst.formmetauuid  = formmeta.uuid\r\n"
+				+ "LEFT JOIN district ON dst.district_id = district.id\r\n"
+				+ "LEFT JOIN region ON district.region_id = region.id\r\n"
+				+ "LEFT JOIN areas ON region.area_id = areas.id " 
+				+ joiner +" ) select count(*) from cte ;";
+		
+		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== ");
+	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
+	}
+	
+	
+	@Override
+	public List<CampaignFormDataIndexDto> getByTimelinessAnalysis(CampaignFormDataCriteria criteria, Integer first,
+			Integer max, List<SortProperty> sortProperties, FormAccess frm) {
+	
+			
+		
+		boolean filterIsNull = criteria.getCampaign() == null ;
+		
+		String whereclause = "";
+		
+		if(!filterIsNull) {
+			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto form = criteria.getCampaignFormMeta();
+			System.out.println(  "campaign fromr filter value ======================" + form);
+
+			final AreaReferenceDto area = criteria.getArea();
+			final RegionReferenceDto region = criteria.getRegion();
+			final DistrictReferenceDto district = criteria.getDistrict();
+//			final String error_status = criteria.getError_status();
+
+
+			//@formatter:off
+			
+			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
+			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+//			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
+
+			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
+			final String regionFilter = region != null ? " AND region.name = '"+region.getCaption()+"'" : "";
+			final String districtFilter = district != null ? " AND district.name = '"+district.getCaption()+"'" : "";
+			
+			whereclause = " where " + campaignFilter + campaignFormFilter + areaFilter + regionFilter + districtFilter ;
+		
+		
+//		System.out.println(campaignFilter+" ===================== "+whereclause);
+		}
+		String addedWhere = "";
+		
+		
+		if(!filterIsNull) {
+			
+			whereclause = whereclause;
+			
+		} 
+
+
+		String orderby = "";
+
+		if (sortProperties != null && sortProperties.size() > 0) {
+			for (SortProperty sortProperty : sortProperties) {
+				switch (sortProperty.propertyName) {
+				case "region":
+					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "province":
+					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+					
+				case "district":
+					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;	
+				
+				case "clusterNumber":
+					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "ccode":
+					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "supervisor":
+					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "revisit":
+					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "household":
+					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "teammonitori":
+					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "errorfilter":
+					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				
+				
+				default:
+					throw new IllegalArgumentException(sortProperty.propertyName);
+				}
+				
+			}
+		}
+		
+
+		
+		
+		
+		final String joinBuilder = "SELECT dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name as capaignname, formmeta.formname, areas.\"name\" as areaname, region.\"name\" as regionname, district.name as districtname, dst.count, \r\n"
+				+ "    trunc(cast((( SELECT lp.count\r\n"
+				+ "           FROM lateformdataportion lp\r\n"
+				+ "         WHERE lp.district_id = dst.district_id\r\n"
+				+ "          and lp.campaignuuid = dst.campaignuuid\r\n"
+				+ "          and lp.formmetauuid = dst.formmetauuid\r\n"
+				+ "         LIMIT 1)) as numeric) / cast((( SELECT lt.count\r\n"
+				+ "           FROM lateformdatatotal lt\r\n"
+				+ "          WHERE lt.district_id = dst.district_id\r\n"
+				+ "          and lt.campaignuuid = dst.campaignuuid\r\n"
+				+ "          and lt.formmetauuid = dst.formmetauuid\r\n"
+				+ "         LIMIT 1)) as numeric) * cast(100 as numeric), 2) AS perc\r\n"
+				+ "   FROM lateformdataportion dst\r\n"
+				+ "LEFT JOIN campaigns ON dst.campaignuuid = campaigns.uuid \r\n"
+				+ "left join campaignformmeta formmeta on dst.formmetauuid  = formmeta.uuid\r\n"
+				+ "LEFT JOIN district ON dst.district_id = district.id\r\n"
+				+ "LEFT JOIN region ON district.region_id = region.id\r\n"
+
+				+ "LEFT JOIN areas ON region.area_id = areas.id" + whereclause 
+//				
+//				+ orderby
+				+ " limit "+max+" offset "+first+";";
+//		
+	System.out.println( max + "dfdf"+ first +"=====seriesDataQuery======== "+joinBuilder );
+		
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		
+		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+	System.out.println("starting....");
+		
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CampaignFormDataIndexDto(
+						(String) result[0].toString(), 
+						(String) result[1].toString(),
+						((BigInteger) result[2]).longValue(), 
+						(String) result[3].toString(),
+						(String) result[4].toString(),
+						(String) result[5].toString(), 
+						(String) result[6].toString(), 
+						(String) result[7].toString(), 
+						((BigInteger) result[8]).longValue(), 
+						((BigDecimal) result[9]).longValue()
 				)).collect(Collectors.toList()));
 		
 	//	//System.out.println("ending...." +resultData.size());
@@ -3061,11 +3321,23 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 	
 	
+	
+	
 
 	@LocalBean
 	@Stateless
 	public static class CampaignFormDataFacadeEjbLocal extends CampaignFormDataFacadeEjb {
 	}
+
+
+
+
+
+
+
+
+
+	
 
 	
 }

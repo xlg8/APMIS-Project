@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.user.FormAccess;
 
 @Remote
@@ -55,4 +56,6 @@ public interface CampaignFormMetaFacade {
 	Collection<CampaignFormMetaDto> getAllFormElement();
 
 //	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
+	
+	Date formExpiryDate(CampaignFormDataCriteria criteria);
 }

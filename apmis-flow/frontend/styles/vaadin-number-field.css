@@ -1,0 +1,14 @@
+:host([disabled]) {
+}
+
+:host([disabled]) [part='label'] {
+      -webkit-text-fill-color: #000000d1 !important;
+}
+
+host([disabled]) [part='input-field'] {
+    -webkit-text-fill-color: #000000d1 !important;
+}
+
+:host([disabled]) ::slotted(*) {
+     -webkit-text-fill-color: #000000d1 !important;
+}

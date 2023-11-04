@@ -18,13 +18,17 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.function.Predicate;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -39,6 +43,7 @@ import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
@@ -52,6 +57,7 @@ import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.HtmlHelper;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
+import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
@@ -513,6 +519,44 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.toString(), entity.getFormType(),
 				entity.getFormCategory(), entity.getDaysExpired());
 	}
+	
+	@Override
+	public Date formExpiryDate(CampaignFormDataCriteria criteria) {
+		// TODO Auto-generated method stub
+		boolean filterIsNull = false;
+		if(criteria != null) {
+			filterIsNull = criteria.getCampaign() == null;
+		}
+		
+		String joiner = "";
+		
+		if (!filterIsNull && criteria != null) {
+			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto form = criteria.getCampaignFormMeta();
+			
+
+			//@formatter:off
+			final String campaignFilter = campaign != null ? "campwitex.campaignid = '"+campaign.getUuid()+"'" : "";
+			final String formFilter = form != null ? " AND  campwitex.formid = '"+form.getUuid()+"'" : "";
+			
+			joiner = "where "+campaignFilter + formFilter;
+			
+//			System.out.println(campaignFilter+" ===================== "+joiner);
+		}
+		
+		
+		String queryBuilder = "SELECT \n"
+				+ "campwitex.enddate as  endDate \n"
+				+ "FROM campaignformmetawithexp campwitex\r\n"
+				+ "LEFT OUTER JOIN campaigns campaignG ON campwitex.campaignid = campaignG.uuid "
+				+ joiner;
+		
+	
+		
+		return (Date) em.createNativeQuery(queryBuilder).getSingleResult();
+	}
+
+
 
 	@LocalBean
 	@Stateless

@@ -494,8 +494,8 @@ public class CampaignForm extends VerticalLayout {
 			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
 					.setSelectionMode(SelectionMode.MULTI);
 			selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.HIDDEN);
-//			System.out.println("area: " + campaignDto.getAreas().size() + "====== region: "
-//					+ campaignDto.getRegion().size() + "   ====   district:" + campaignDto.getRegion().size());
+			System.out.println("area: " + campaignDto.getAreas().size() + "====== region: "
+					+ campaignDto.getRegion().size() + "   ====   district:" + campaignDto.getRegion().size());
 
 			for (AreaReferenceDto root : campaignDto.getAreas()) {
 
@@ -544,8 +544,13 @@ public class CampaignForm extends VerticalLayout {
 		
 		treeGrid.asMultiSelect().addSelectionListener(eventx -> {
 			isMultiSelectItemLock = true;
+			
+			System.out.println( "isMultiSelectItemLock ===1111 "  );
+			
 			if(!isSingleSelectClickItemLock) {
 				isSelectItemLock = false;
+				
+				System.out.println( "isSelectItemLock === "  );
 				
 				return;
 			}
@@ -553,6 +558,8 @@ public class CampaignForm extends VerticalLayout {
 			
 			if(!isSelectItemLock) {
 				isSelectItemLock = true;
+				
+				System.out.println( "isSelectItemLock ===XXXXXX "  );
 			
 			for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
 				
@@ -672,8 +679,10 @@ public class CampaignForm extends VerticalLayout {
 		});
 
 		treeGrid.addSelectionListener(event -> {
-
-			if (!isMultiSelectItemLock) {
+			System.out.println( "isSelectItemLock ===444444444 "   + isMultiSelectItemLock + " multiselect boolean Val" + isSelectItemLock);
+			if (isMultiSelectItemLock) {
+				
+				System.out.println( "isSelectItemLock ===555555555555555 "  );
 				areass.clear();
 				region.clear();
 				districts.clear();
@@ -724,6 +733,8 @@ public class CampaignForm extends VerticalLayout {
 					
 				}
 			}
+			
+			System.out.println( "isSelectItemLock ===666666666666 "  );
 		});
 		
 		parentTab4.add(treeGrid);

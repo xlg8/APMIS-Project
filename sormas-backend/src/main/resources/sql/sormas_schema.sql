@@ -9114,6 +9114,37 @@ SET round = 'CRC'
 WHERE round = 'Case Respond';
 
 INSERT INTO schema_version (version_number, comment) VALUES (451, 'Updating Campaign Round from Case Respond to CRC'); 
+
+
+CREATE MATERIALIZED VIEW public.lateformdataportion
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  WHERE c.formdate > c2.enddate
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+
+CREATE MATERIALIZED VIEW public.lateformdatatotal
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+INSERT INTO schema_version (version_number, comment) VALUES (452, 'Creating latedate report roption and total view ');
     
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
