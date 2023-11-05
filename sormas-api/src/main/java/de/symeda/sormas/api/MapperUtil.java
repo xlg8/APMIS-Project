@@ -16,6 +16,8 @@ public class MapperUtil implements Serializable {
 	private String key;
 	@Size(max = CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String caption;
+	@Size(max = CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
+	private String order;
 
 	public String getKey() {
 		return key;
@@ -33,6 +35,14 @@ public class MapperUtil implements Serializable {
 		this.caption = caption;
 	}
 
+	public String getOrder() {
+		return order;
+	}
+
+	public void setOrder(String order) {
+		this.order = order;
+	}
+
 	/**
 	 * Needed. Otherwise hibernate will persist whenever loading,
 	 * because hibernate types creates new instances that aren't equal.
@@ -44,7 +54,7 @@ public class MapperUtil implements Serializable {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		MapperUtil that = (MapperUtil) o;
-		return Objects.equals(key, that.key) && Objects.equals(caption, that.caption);
+		return Objects.equals(key, that.key) && (Objects.equals(caption, that.caption) || Objects.equals(order, that.order));
 	}
 
 	@Override
