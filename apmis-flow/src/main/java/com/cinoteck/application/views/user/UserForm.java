@@ -245,12 +245,10 @@ public class UserForm extends FormLayout {
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
 				UserDto::setFormAccess);
 
-		
 		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(intraCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
-		
 		binder.forField(postCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
@@ -393,10 +391,10 @@ public class UserForm extends FormLayout {
 //		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 //		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
 //		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
-		
+
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign ) + " : ");
-		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign ) + " : ");
+		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
+		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
 		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
 
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
@@ -436,7 +434,7 @@ public class UserForm extends FormLayout {
 			postCampformAccessesList.remove(FormAccess.PCA);
 			postCampformAccessesList.remove(FormAccess.LQAS);
 			postCampformAccessesList.remove(FormAccess.FMS);
-			
+
 			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccess.setItems(formAccessesList);
 			preCampformAccess.setVisible(false);
@@ -483,12 +481,11 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-		
+
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
 		district.setWidthFull();
-
 
 		VerticalLayout otherFormField = new VerticalLayout(language, region, province, district);
 
@@ -712,7 +709,8 @@ public class UserForm extends FormLayout {
 	}
 
 	public void validateAndSaveNew() {
-
+		boolean isErrored = false;
+		
 		if (binder.validate().isOk()) {
 			System.out.println(binder.getBean().getUserEmail() != null
 					+ " validateAndSaveNew++++++++++++++++++++++++++++++++++++ " + binder.getBean().getUserEmail());
@@ -724,14 +722,15 @@ public class UserForm extends FormLayout {
 
 				if (binderEmailValidation == null) {
 
-					fireEvent(new SaveEvent(this, binder.getBean()));
+//					isErrored = false;
+//					fireEvent(new SaveEvent(this, binder.getBean()));
 
 				} else {
 
 					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
 							&& !binder.getBean().getUserName().isEmpty()) {
 //email has not changed
-						fireEvent(new SaveEvent(this, binder.getBean()));
+//						fireEvent(new SaveEvent(this, binder.getBean()));
 					} else {
 
 						Notification notification = new Notification();
@@ -751,6 +750,7 @@ public class UserForm extends FormLayout {
 
 						notification.add(layout);
 						notification.open();
+						isErrored = true;
 						return;
 
 					}
@@ -776,9 +776,14 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
+				isErrored = true;
 				return;
 			} else {
-				fireEvent(new SaveEvent(this, binder.getBean()));
+				if(!isErrored ) {
+					
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				}
 			}
 		}
 	}

@@ -9164,5 +9164,21 @@ ALTER TABLE public.community ADD ps_af varchar(100) NULL;
  
 INSERT INTO schema_version (version_number, comment) VALUES (453, 'Adding the admin units translation to local languages in Configuration page'); 
 
+CREATE OR REPLACE FUNCTION public.function_copy()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    INSERT INTO user_account(id,username,email)
+        VALUES(new.id,new.username,new.useremail)
+ON CONFLICT DO NOTHING;
+           RETURN new;
+END;
+$function$
+;
+
+INSERT INTO schema_version (version_number, comment) VALUES (454, 'Updating username conflict issue '); 
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
