@@ -308,8 +308,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE),
 				campaignFormMeta.get(CampaignFormMeta.CREATION_DATE),
 				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
-//		Join<CampaignFormMeta, FormAccess> formaccess = campaignFormMeta.join(CampaignFormMeta.FORM_CATEGORY, JoinType.LEFT);
-
 		// TODO: We'll need a user filter for users at some point, to make sure that
 		// users can edit their own details,
 		// but not those of others
@@ -356,19 +354,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				case CampaignFormMeta.FORM_CATEGORY:
 					System.out.println("DEBUGGER: jfhgsghsghsjgsfhgsghshgs");
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
-					break;
-//				case UserReportModelDto.REGION:
-//					// System.out.println("DEBUGGER: 4567uhgfrt678456789ppppailed to load the
-//					// bootstrap javascrippppppppppppppp876543hgtyuikjhu");
-//					expression = region.get(Region.NAME);
-//					break;
-//				case UserReportModelDto.USER_ORGANISATION:
-//					expression = user.get(User.USER_ORGANISATION);
-//					// System.out.println("DEBUGGER:
-//					// 4567uhgfrt6oooooooooooooooooooooo78uijhgft67ujhgtyuikjhu");
-//					order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
-//					// expression = user.get(User.USER_ORGANISATION);
-//					break;		
+					break;		
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
@@ -378,9 +364,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		} else {
 			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
 		}
-
 		cq.select(campaignFormMeta);
-
 		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
 	}
 

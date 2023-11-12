@@ -245,12 +245,10 @@ public class UserForm extends FormLayout {
 		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
 				UserDto::setFormAccess);
 
-		
 		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(intraCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
-		
 		binder.forField(postCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
@@ -264,15 +262,30 @@ public class UserForm extends FormLayout {
 		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
-
+			
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-		region.setItems(regions);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			region.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			region.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			region.setItems(regions);
+		}
+
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				province.setItems(provinces);
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					province.setItems(
+							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					province.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					province.setItems(provinces);
+				}
 			}
 		});
 
@@ -281,7 +294,15 @@ public class UserForm extends FormLayout {
 
 			if (e.getValue() != null) {
 				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				district.setItems(districts);
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					district.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					district.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					district.setItems(districts);
+				}
 			}
 		});
 
@@ -393,10 +414,10 @@ public class UserForm extends FormLayout {
 //		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 //		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
 //		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
-		
+
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign ) + " : ");
-		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign ) + " : ");
+		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
+		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
 		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
 
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
@@ -436,7 +457,7 @@ public class UserForm extends FormLayout {
 			postCampformAccessesList.remove(FormAccess.PCA);
 			postCampformAccessesList.remove(FormAccess.LQAS);
 			postCampformAccessesList.remove(FormAccess.FMS);
-			
+
 			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccess.setItems(formAccessesList);
 			preCampformAccess.setVisible(false);
@@ -483,12 +504,11 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
 				.bind(UserDto::getLanguage, UserDto::setLanguage);
-		
+
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
 		district.setWidthFull();
-
 
 		VerticalLayout otherFormField = new VerticalLayout(language, region, province, district);
 

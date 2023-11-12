@@ -14,12 +14,22 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 	 */
 	private static final long serialVersionUID = -4206918019308278802L;
 	private String formCategory;
+	private String modality;
 	private String formPhase;
 	private Date startDate;
 	private Date endDate;
 	private String formName;
 	private String formType;
 	
+	public String getModality() {
+		return modality;
+	}
+
+	public CampaignFormCriteria setModality(String modality) {
+		this.modality = modality;
+		return this;
+	}
+
 	public String getFormCategory() {
 		return formCategory;
 	}
@@ -28,16 +38,18 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public CampaignFormCriteria setStartDate(Date startDate) {
 		this.startDate = startDate;
+		return this;
 	}
 
 	public Date getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
+	public CampaignFormCriteria setEndDate(Date endDate) {
 		this.endDate = endDate;
+		return this;
 	}
 
 	public CampaignFormCriteria setFormCategory(String formCategory) {

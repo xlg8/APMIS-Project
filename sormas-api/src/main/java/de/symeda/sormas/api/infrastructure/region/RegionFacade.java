@@ -35,12 +35,20 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 
 	List<RegionReferenceDto> getAllActiveByCountry(String countryUuid);
 
-	List<RegionReferenceDto> getAllActiveByArea(String areaUuid);
+	List<RegionReferenceDto> getAllActiveByArea(String areaUuid); 
+	
+	List<RegionReferenceDto> getAllActiveByAreaPashto(String areaUuid);
+	
+	List<RegionReferenceDto> getAllActiveByAreaDari(String areaUuid);
 	
 	List<RegionReferenceDto> getAllActiveByAreaAndSelectedInCampaign(String areaUuid, String campaignUUID);
 
 	List<RegionReferenceDto> getAllActiveAsReference();
 
+	List<RegionReferenceDto> getAllActiveAsReferencePashto();
+	
+	List<RegionReferenceDto> getAllActiveAsReferenceDari();
+	
 	List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId, String campaignDto);
 
 

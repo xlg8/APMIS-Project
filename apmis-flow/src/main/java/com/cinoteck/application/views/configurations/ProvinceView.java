@@ -294,7 +294,15 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+		}
+
 		regionFilter.getStyle().set("width", "145px !important");
 
 		regionFilter.setClearButtonVisible(true);

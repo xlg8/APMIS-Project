@@ -147,17 +147,31 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 	public void addFilter() {
 		UserProvider user = new UserProvider();
-//		UserDto user = UserProvider.getCurrent().getUser();
 		AreaReferenceDto userArea = user.getUser().getArea();
 		RegionReferenceDto userRegion = user.getUser().getRegion();
 		DistrictReferenceDto userDistrict = user.getUser().getDistrict();
 		CommunityReferenceDto userCommunity = null;
 		if (userArea != null) {
 			regionCombo.setEnabled(false);
-			provinceCombo.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(userArea.getUuid()));
-			if (userRegion != null) {
+			if (user.getUser().getLanguage().toString().equals("Pashto")) {		
+				provinceCombo.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(userArea.getUuid()));
+			} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+				provinceCombo.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(userArea.getUuid()));
+			} else {
+				provinceCombo.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(userArea.getUuid()));
+			}			
+			if (userRegion != null) {				
 				provinceCombo.setEnabled(false);
-				districtCombo.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(userRegion.getUuid()));
+				if (user.getUser().getLanguage().toString().equals("Pashto")) {
+					districtCombo.setItems(FacadeProvider.getDistrictFacade()
+							.getAllActiveByRegionPashto(user.getUser().getRegion().getUuid()));
+				} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+					districtCombo.setItems(FacadeProvider.getDistrictFacade()
+							.getAllActiveByRegionDari(user.getUser().getRegion().getUuid()));
+				} else {
+					districtCombo.setItems(FacadeProvider.getDistrictFacade()
+							.getAllActiveByRegion(user.getUser().getRegion().getUuid()));
+				}
 				if (userDistrict != null) {
 					districtCombo.setEnabled(false);
 					// communityFilter.addItems(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(userDistrict.getUuid()));
@@ -268,16 +282,31 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		regionCombo.getStyle().set("width", "145px !important");
 		regionCombo.setClearButtonVisible(true);
 		regionCombo.setPlaceholder(I18nProperties.getCaption(Captions.area));
-		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-		regionCombo.setItems(regions);
+		
+		if (user.getUser().getLanguage().toString().equals("Pashto")) {
+			regionCombo.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+			regionCombo.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+			regionCombo.setItems(regions);
+		}
+		
 		regionCombo.setEnabled(true);
 		regionCombo.addValueChangeListener(e -> {
 			criteria.setArea(e.getValue());
-			reloadData();
-			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-			provinceCombo.setItems(provinces);
+			reloadData();			
+			if (user.getUser().getLanguage().toString().equals("Pashto")) {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+				provinceCombo.setItems(provinces);
+			} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+				provinceCombo.setItems(provinces);
+			} else {		
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				provinceCombo.setItems(provinces);
+			}	
 			provinceCombo.setEnabled(true);
-
 		});
 
 		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
@@ -292,9 +321,17 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		provinceCombo.addValueChangeListener(e -> {
 			criteria.setRegion(e.getValue());
-			reloadData();
-			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-			districtCombo.setItems(districts);
+			reloadData();			
+			if (user.getUser().getLanguage().toString().equals("Pashto")) {
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+				districtCombo.setItems(districts);
+			} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+				districtCombo.setItems(districts);
+			} else {
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districtCombo.setItems(districts);
+			}			
 			districtCombo.setEnabled(true);
 
 		});

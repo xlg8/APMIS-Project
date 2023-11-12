@@ -118,7 +118,7 @@ public class FormBuilderView extends VerticalLayout {
 			
 			if (e.getValue() != null) {
 				CampaignPhase campaignPhase = e.getValue();
-//				criteria.setFormPhase(campaignPhase);
+				criteria.setFormPhase(campaignPhase.toString());
 				filterDataProvider.setFilter(criteria);
 
 				filterDataProvider.refreshAll();
