@@ -300,7 +300,15 @@ public class DistrictView extends VerticalLayout {
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.getStyle().set("width", "145px !important");
 		regionFilter.setClearButtonVisible(true);
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+		}
+		
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 			criteria.area(currentUser.getUser().getArea());
@@ -336,7 +344,13 @@ public class DistrictView extends VerticalLayout {
 			if (regionFilter.getValue() != null) {
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
-				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {					
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				}	
 				refreshGridData();
 			} else {
 				criteria.area(null);

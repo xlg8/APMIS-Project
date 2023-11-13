@@ -45,6 +45,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.vladmihalcea.hibernate.type.util.SQLExtractor;
+
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.feature.FeatureType;
@@ -75,6 +77,7 @@ import de.symeda.sormas.backend.infrastructure.country.CountryFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.country.CountryFacadeEjb.CountryFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.country.CountryService;
 import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.district.DistrictFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.pointofentry.PointOfEntry;
 import de.symeda.sormas.backend.user.UserService;
@@ -161,12 +164,34 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	public List<RegionReferenceDto> getAllActiveByArea(String areaUuid) {
 		return getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.AREA).get(Area.UUID), areaUuid));
 	}
+	
+	@Override
+	public List<RegionReferenceDto> getAllActiveByAreaPashto(String areaUuid) {
+		Area area = areaService.getByUuid(areaUuid);
+		return area.getRegions().stream().filter(d -> !d.isArchived()).map(RegionFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<RegionReferenceDto> getAllActiveByAreaDari(String areaUuid) {
+		Area area = areaService.getByUuid(areaUuid);
+		return area.getRegions().stream().filter(d -> !d.isArchived()).map(RegionFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+	}
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveAsReference() {
 		return service.getAllActive(Region.NAME, true).stream().map(f -> toReferenceDto(f)).collect(Collectors.toList());
 	}
+	
+	@Override
+	public List<RegionReferenceDto> getAllActiveAsReferencePashto() {
+		return service.getAllActive(Region.PS_AF, true).stream().map(RegionFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
 
+	@Override
+	public List<RegionReferenceDto> getAllActiveAsReferenceDari() {
+		return service.getAllActive(Region.FA_AF, true).stream().map(RegionFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+	}
+	
 	@Override
 	public List<RegionDto> getAllAfter(Date date) {
 
@@ -342,6 +367,22 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		}
 		return new RegionReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
 	}
+	
+	public static RegionReferenceDto toReferenceDtoP(Region entity) {
+
+		if (entity == null) {
+			return null;
+		}
+		return new RegionReferenceDto(entity.getUuid(), entity.getPs_af());
+	}
+	
+	public static RegionReferenceDto toReferenceDtoD(Region entity) {
+
+		if (entity == null) {
+			return null;
+		}
+		return new RegionReferenceDto(entity.getUuid(), entity.getPs_af());
+	}
 
 	public RegionDto toDto(Region entity) {
 
@@ -446,11 +487,27 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
 		Root<Region> root = cq.from(Region.class);
 
+		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll "+ SQLExtractor.from(em.createQuery(cq)));
 		Predicate basicFilter = service.createBasicFilter(cb, root);
 		cq.where(CriteriaBuilderHelper.and(cb, basicFilter, buildPredicate.apply(cb, root)));
 
 		cq.orderBy(cb.asc(root.get(Region.NAME)));
 
+		
+		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
+	}
+	
+	private List<RegionReferenceDto> getAllActiveByPredicatePashto(BiFunction<CriteriaBuilder, Root<Region>, Predicate> buildPredicate) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
+		Root<Region> root = cq.from(Region.class);
+
+		Predicate basicFilter = service.createBasicFilter(cb, root);
+		cq.where(CriteriaBuilderHelper.and(cb, basicFilter, buildPredicate.apply(cb, root)));
+
+		cq.orderBy(cb.asc(root.get(Region.PS_AF)));
+
+		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll "+ SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 

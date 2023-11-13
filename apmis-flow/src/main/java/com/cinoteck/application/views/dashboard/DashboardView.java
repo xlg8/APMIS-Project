@@ -66,7 +66,6 @@ import de.symeda.sormas.api.user.UserRole;
 @JavaScript("https://code.highcharts.com/maps/modules/data.js")
 @JavaScript("https://code.highcharts.com/maps/modules/drilldown.js")
 
-
 @JavaScript("https://code.highcharts.com/modules/variable-pie.js")
 @JavaScript("https://code.highcharts.com/modules/exporting.js")
 @JavaScript("https://code.highcharts.com/modules/export-data.js")
@@ -98,14 +97,17 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	List<CampaignReferenceDto> campaigns, campaignss;
 	List<CampaignReferenceDto> campaignPhases;
 	List<AreaReferenceDto> regions;
+	List<AreaReferenceDto> regionsx;
 	List<RegionReferenceDto> provinces;
+	List<RegionReferenceDto> provincesx;
 	List<DistrictReferenceDto> districts;
+	List<DistrictReferenceDto> districtsx;
 	List<CommunityReferenceDto> communities;
 	List<String> campaingYears = new ArrayList<>();
 
 	boolean isCampaignChanged;
 	boolean isCampaignYearChanging;
-	
+
 	private boolean isSubAvaialable = false;
 	private CampaignJurisdictionLevel campaignJurisdictionLevel;
 
@@ -114,7 +116,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	private Div mainContentContainerx;
 
 	UserProvider userProvider = new UserProvider();
-	
+
 	String firstSubtabId = null;
 
 	public DashboardView() {
@@ -130,14 +132,14 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		setSpacing(false);
 		// UI.getCurrent().getPage().reload();
 		// UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
-		
-		if(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack") != null) {
-			
+
+		if (VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack") != null) {
+
 			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack")
 					+ "  Pluto is active");
 			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack")
 					+ " Elon is active");
-			}
+		}
 
 		dataProvider = new CampaignDashboardDataProvider();
 //		String deletab = FacadeProvider.getUserFacade().getCurrentUser().getUsertype().toString();
@@ -149,10 +151,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		for (CampaignReferenceDto cmfdto : campaigns) {
 			campaingYears.add(cmfdto.getCampaignYear().trim());
-		
-			
+
 		}
-		
+
 //		List<CampaignReferenceDto> filteredCampaigns = new ArrayList<>();
 //
 //		for (String year : campaingYears) {
@@ -169,7 +170,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 //
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
 		campaignYear.setItems(setDeduplicated);
-		
+
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
 
@@ -192,15 +193,16 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		// campaignFormPhaseSelector = new
 		// CampaignFormPhaseSelector(lastStartedCampaign);
 
-		System.out.println("campaignPhase _ session "+VaadinSession.getCurrent().getSession().getAttribute("campaignPhase"));
-		System.out.println("camp _ session"+VaadinSession.getCurrent().getSession().getAttribute("campaign"));
+		System.out.println(
+				"campaignPhase _ session " + VaadinSession.getCurrent().getSession().getAttribute("campaignPhase"));
+		System.out.println("camp _ session" + VaadinSession.getCurrent().getSession().getAttribute("campaign"));
 
 		if (VaadinSession.getCurrent().getSession().getAttribute("campaign") != null) {
 			String sessionCheckPhase = VaadinSession.getCurrent().getSession().getAttribute("campaignPhase").toString();
 			String sessionCheckCampaign = VaadinSession.getCurrent().getSession().getAttribute("campaign").toString();
 
 			CampaignReferenceDto sx = FacadeProvider.getCampaignFacade().getReferenceByUuid(sessionCheckCampaign);
-			
+
 			campaign.setValue(sx);
 			campaignYear.setValue(sx.getCampaignYear());
 			campaignPhase.setValue(CampaignPhase.valueOf(sessionCheckPhase.replace("-campaign", "").toUpperCase()));
@@ -211,7 +213,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			final CampaignReferenceDto lastStartedCampaign = dataProvider.getLastStartedCampaign();
 
 			if (lastStartedCampaign != null) {
-				
+
 				List<CampaignReferenceDto> campaigns_x = new ArrayList<>();
 				for (CampaignReferenceDto cmfdto : campaigns) {
 					if (cmfdto.getCampaignYear().equals(lastStartedCampaign.getCampaignYear())) {
@@ -219,15 +221,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 						campaigns_x.add(cmfdto);
 					}
 				}
-				
+
 				campaign.clear();
 				campaign.setItems(campaigns_x);
 				campaign.setValue(lastStartedCampaign);
 				campaignYear.setValue(lastStartedCampaign.getCampaignYear());
 				campaignPhase.setValue(CampaignPhase.INTRA);
-				
-				
-				
+
 			}
 
 			dataProvider.setCampaign(lastStartedCampaign);
@@ -237,10 +237,19 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		// Filter initializers
 		region.setLabel(I18nProperties.getCaption(Captions.area));
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
-		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-		region.setClearButtonVisible(true);
-		region.setItems(regions);
 
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionsx = FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto();
+			region.setItems(regionsx);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionsx = FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari();
+			region.setItems(regionsx);
+		} else {
+			regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+			region.setItems(regions);			
+		}
+
+		region.setClearButtonVisible(true);
 		// TODO: this is only for debugging purpose, please remove after test
 		dataProvider.setCampaignJurisdictionLevelGroupBy(campaignJurisdictionLevel.AREA);
 		// dataProvider.setArea(FacadeProvider.getAreaFacade().getAreaReferenceByUuid("W5R34K-APYPCA-4GZXDO-IVJWKGIM"));
@@ -250,16 +259,36 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		province.setLabel(I18nProperties.getCaption(Captions.region));
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
-		provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
-		province.setItems(provinces);
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			provincesx = FacadeProvider.getRegionFacade().getAllActiveAsReferencePashto();
+			province.setItems(provincesx);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			provincesx = FacadeProvider.getRegionFacade().getAllActiveAsReferenceDari();
+			province.setItems(provincesx);
+		} else {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
+			province.setItems(provinces);
+		}
+
 		province.getStyle().set("padding-top", "0px");
 		province.setClassName("col-sm-6, col-xs-6");
 		// province.setEnabled(false);
 
 		district.setLabel(I18nProperties.getCaption(Captions.district));
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
-		districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
-		district.setItems(districts);
+
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			districtsx = FacadeProvider.getDistrictFacade().getAllActiveAsReferencePashto();
+			district.setItems(districtsx);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			districtsx = FacadeProvider.getDistrictFacade().getAllActiveAsReferenceDari();
+			district.setItems(districtsx);
+		} else {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
+			district.setItems(districts);
+		}
+
 		district.getStyle().set("padding-top", "0px");
 		district.setClassName("col-sm-6, col-xs-6");
 		// district.setEnabled(false);
@@ -287,34 +316,31 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		displayFilters.setIcon(new Icon(VaadinIcon.SLIDERS));
 
 		// filter listeners
-		
+
 		campaign.addValueChangeListener(e -> {
 			System.out.println("hgfghyuioffkjbnjkijhnbjk");
 			isCampaignChanged = true;
-			
-			if(!isCampaignYearChanging) {
-			UUID uuid = UUID.randomUUID();
-			VaadinSession.getCurrent().getSession().setAttribute("campaignPhase",
-					campaignPhase.getValue().toString().toLowerCase());
-			VaadinSession.getCurrent().getSession().setAttribute("campaign", campaign.getValue().getUuid());
-			// UI.getCurrent().getPage().reload();
 
-			dataProvider.setCampaign((CampaignReferenceDto) campaign.getValue());
+			if (!isCampaignYearChanging) {
+				UUID uuid = UUID.randomUUID();
+				VaadinSession.getCurrent().getSession().setAttribute("campaignPhase",
+						campaignPhase.getValue().toString().toLowerCase());
+				VaadinSession.getCurrent().getSession().setAttribute("campaign", campaign.getValue().getUuid());
+				// UI.getCurrent().getPage().reload();
 
-			remove(mainContentContainerx);
-			mainContentContainerx = drawDashboardAndTabs(uuid.toString());
-			add(mainContentContainerx);
+				dataProvider.setCampaign((CampaignReferenceDto) campaign.getValue());
 
-			campaignYear.setValue(e.getValue().getCampaignYear());
+				remove(mainContentContainerx);
+				mainContentContainerx = drawDashboardAndTabs(uuid.toString());
+				add(mainContentContainerx);
+
+				campaignYear.setValue(e.getValue().getCampaignYear());
 			}
 		});
 
-		
-		
 		campaignYear.addValueChangeListener(e -> {
 			if (!isCampaignChanged) {
 				List<CampaignReferenceDto> campaigns_ = new ArrayList<>();
-				
 
 				campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 				isCampaignYearChanging = true;
@@ -352,18 +378,26 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		region.addValueChangeListener(e -> {
 			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
-
-			dataProvider.setArea(e.getValue());
-			if (e.getValue() != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+			
+			if (e.getValue() != null) {	
+				dataProvider.setArea(e.getValue());
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provincesx = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+					province.setItems(provincesx);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provincesx = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+					province.setItems(provincesx);
+				} else {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+					province.setItems(provinces);
+				}				
 				province.setEnabled(true);
-				province.setItems(provinces);
 				groupby.setValue(campaignJurisdictionLevel.REGION);
 			} else {
 				groupby.setValue(campaignJurisdictionLevel.AREA);
 
 			}
-			
+
 //			if(province.getValue() != null  ) {
 //				province.clear();
 //			}
@@ -377,25 +411,32 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		province.setClearButtonVisible(true);
 		province.addValueChangeListener(e -> {
-			if(e.getValue() != null) {
+			if (e.getValue() != null) {
 				changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
 				groupby.setValue(campaignJurisdictionLevel.REGION);
-				dataProvider.setRegion(e.getValue());
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				dataProvider.setRegion(e.getValue());								
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districtsx = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+					district.setItems(districtsx);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districtsx = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+					district.setItems(districtsx);
+				} else {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+					district.setItems(districts);
+				}				
 				district.setEnabled(true);
-				district.setItems(districts);
-
-				groupby.setValue(campaignJurisdictionLevel.DISTRICT);	
-			}else {
+				groupby.setValue(campaignJurisdictionLevel.DISTRICT);
+				
+			} else {
 				changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
 				dataProvider.setRegion(e.getValue());
-				if(district.getValue() != null) {
+				if (district.getValue() != null) {
 					district.clear();
 					district.setEnabled(false);
 				}
 				groupby.setValue(campaignJurisdictionLevel.AREA);
 			}
-			
 
 		});
 
@@ -515,7 +556,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			}
 		}
 
-	
 		mtabs.addSelectedChangeListener(e -> {
 
 			VaadinService.getCurrentRequest().getWrappedSession().setAttribute("mtabtrack", mtabs.getSelectedIndex());
@@ -533,8 +573,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			for (String sbTabId : subTabx) {
 				listnrCtr++;
 				if (listnrCtr == 1) {
-					
-					firstSbTabId = sbTabId;							
+
+					firstSbTabId = sbTabId;
 					System.out.println(firstSbTabId + " first subtab IDDDDDDDDDDDDDDDDDDDDDD");
 				}
 				// String sbtabId = WordUtils.capitalizeFully(tabIdc);
@@ -547,7 +587,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			}
 			if (VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack") != null) {
 				firstSbTabId = (String) VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack");
-				firstSbTabId =  firstSbTabId.replaceAll("submain_", "");
+				firstSbTabId = firstSbTabId.replaceAll("submain_", "");
 				firstSubtabId = firstSbTabId;
 				System.out.println(firstSbTabId + " first subtab IIDDDDDDDDDDDDDDDDDDDDDD");
 //				sTabs.setSelectedTab(
@@ -570,12 +610,14 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			System.out.println("Subtab enteredddddddddddddddddddddddd");
 
 			String listnrCtr = listerCheck;
-			
+
 			if (e.getSelectedTab() != null) {
 				System.out.print(e.getSelectedTab().getId().get() + " hhhkkkkk " + e.getSelectedTab());
-				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("stabtrack", e.getSelectedTab().getId().get());
-				 
-				System.out.print(e.getSelectedTab().getId().get().toString() + " e.getSelectedTab().getId().get().toString() ");
+				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("stabtrack",
+						e.getSelectedTab().getId().get());
+
+				System.out.print(
+						e.getSelectedTab().getId().get().toString() + " e.getSelectedTab().getId().get().toString() ");
 				String listnrCtrx = e.getSelectedTab().getId().get().replaceAll("submain_", "");
 				System.out.print(listnrCtrx + " listnrCtrx");
 				// Notification.show(listnrCtr +" _____________________________ "+listnrCtrx);
@@ -593,7 +635,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			contentContainer.add(campaignSummaryGridView.CampaignSummaryGridViewInit(firstMntabId, dataProvider,
 					campaignPhase.getValue(), firstSubtabId));
 		}
-		
+
 		contentContainer.getStyle().set("margin-top", "0.4rem");
 		contentContainer.setId("tabsSheet");
 		contentContainer.setSizeFull();
@@ -603,11 +645,11 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 				mtabs.setSelectedIndex(
 						(int) VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack"));
-			}	
+			}
 		} finally {
-			
+
 		}
-		
+
 		mainContentContainer.add(mtabs, sTabs, contentContainer);
 		return mainContentContainer;
 	}
@@ -634,10 +676,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			groupby.setItems(AREA, REGION, DISTRICT);
 			break;
 		case REGION:
-			groupby.setItems(REGION, DISTRICT);//, COMMUNITY);
+			groupby.setItems(REGION, DISTRICT);// , COMMUNITY);
 			break;
 		case DISTRICT:
-			groupby.setItems(DISTRICT);//, COMMUNITY);
+			groupby.setItems(DISTRICT);// , COMMUNITY);
 			break;
 		case COMMUNITY:
 			groupby.setItems(DISTRICT);
@@ -665,16 +707,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 
-			UserProvider usrP = new UserProvider();
-			System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
-			
+		UserProvider usrP = new UserProvider();
+		System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
 
-			if (!userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
-				event.rerouteTo(AboutView.class); 
+		if (!userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+			event.rerouteTo(AboutView.class);
 		}
 
 	}
-
-	
 
 }

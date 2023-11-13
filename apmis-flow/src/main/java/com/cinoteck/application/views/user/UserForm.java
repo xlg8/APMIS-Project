@@ -262,15 +262,30 @@ public class UserForm extends FormLayout {
 		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
-
+			
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-		region.setItems(regions);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			region.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			region.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			region.setItems(regions);
+		}
+
 		region.setItemLabelGenerator(AreaReferenceDto::getCaption);
 		region.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				province.setItems(provinces);
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					province.setItems(
+							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					province.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					province.setItems(provinces);
+				}
 			}
 		});
 
@@ -279,7 +294,15 @@ public class UserForm extends FormLayout {
 
 			if (e.getValue() != null) {
 				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				district.setItems(districts);
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					district.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					district.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					district.setItems(districts);
+				}
 			}
 		});
 

@@ -291,7 +291,16 @@ public class ClusterView extends VerticalLayout {
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.getStyle().set("width", "145px !important");
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+//		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+		}
+		
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 			criteria.area(currentUser.getUser().getArea());
@@ -356,7 +365,13 @@ public class ClusterView extends VerticalLayout {
 
 		regionFilter.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {					
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				}	
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
 				refreshGridData();
@@ -371,8 +386,14 @@ public class ClusterView extends VerticalLayout {
 
 		provinceFilter.addValueChangeListener(e -> {
 			if (provinceFilter.getValue() != null) {
-				districtFilter
-						.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+				
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+				}
 //			filteredDataProvider.setFilter(criteria);
 				RegionReferenceDto province = e.getValue();
 				criteria.region(province);

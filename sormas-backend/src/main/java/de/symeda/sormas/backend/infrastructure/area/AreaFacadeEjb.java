@@ -110,6 +110,16 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 	public List<AreaReferenceDto> getAllActiveAsReference() {
 		return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
+	
+	@Override
+	public List<AreaReferenceDto> getAllActiveAsReferencePashto() {
+		return service.getAllActive(Area.PS_AF, true).stream().map(AreaFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<AreaReferenceDto> getAllActiveAsReferenceDari() {
+		return service.getAllActive(Area.FA_AF, true).stream().map(AreaFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+	}
 
 	@Override
 	public AreaDto getByUuid(String uuid) {
@@ -268,6 +278,20 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 			return null;
 		}
 		return new AreaReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
+	}
+	
+	public static AreaReferenceDto toReferenceDtoP(Area entity) {
+		if (entity == null) {
+			return null;
+		}
+		return new AreaReferenceDto(entity.getUuid(), entity.getPs_af());
+	}
+	
+	public static AreaReferenceDto toReferenceDtoD(Area entity) {
+		if (entity == null) {
+			return null;
+		}
+		return new AreaReferenceDto(entity.getUuid(), entity.getFa_af());
 	}
 
 	@Override

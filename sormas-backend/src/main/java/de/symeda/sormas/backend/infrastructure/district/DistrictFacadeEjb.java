@@ -111,6 +111,16 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	}
 
 	@Override
+	public List<DistrictReferenceDto> getAllActiveAsReferencePashto() {
+		return service.getAllActive(District.PS_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveAsReferenceDari() {
+		return service.getAllActive(District.FA_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+	}
+	
+	@Override
 	public List<DistrictReferenceDto> getAllActiveByArea(String areaUuid) {
 
 		Area area = areaService.getByUuid(areaUuid);
@@ -122,6 +132,18 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		Region region = regionService.getByUuid(regionUuid);
 		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(f -> toReferenceDto(f)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveByRegionPashto(String regionUuid) {
+		Region region = regionService.getByUuid(regionUuid);
+		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveByRegionDari(String regionUuid) {
+		Region region = regionService.getByUuid(regionUuid);
+		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
 	}
 
 	@Override
@@ -439,6 +461,26 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		}
 
 		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
+		return dto;
+	}
+	
+	public static DistrictReferenceDto toReferenceDtoP(District entity) {
+
+		if (entity == null) {
+			return null;
+		}
+
+		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.getPs_af());
+		return dto;
+	}
+	
+	public static DistrictReferenceDto toReferenceDtoD(District entity) {
+
+		if (entity == null) {
+			return null;
+		}
+
+		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.getFa_af());
 		return dto;
 	}
 

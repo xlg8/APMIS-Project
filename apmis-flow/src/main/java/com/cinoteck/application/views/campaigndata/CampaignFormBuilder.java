@@ -205,7 +205,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		//
 
 		cbArea.setRequired(true);
-		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {	
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());	
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());		
+		} else {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());		
+		}		
 		cbArea.setId("my-disabled-textfield");
 		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
 
@@ -230,7 +236,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {	
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+				} else {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				}				
 				cbRegion.clear();
 				cbRegion.setReadOnly(false);
 				;
@@ -257,9 +269,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				cbDistrict.setReadOnly(false);
-				;
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {			
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+				} else {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				}				
+				cbDistrict.setReadOnly(false);				
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);

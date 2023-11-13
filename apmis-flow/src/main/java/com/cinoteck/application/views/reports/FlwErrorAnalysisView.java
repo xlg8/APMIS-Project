@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cinoteck.application.UserProvider;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -62,6 +63,8 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
+	private UserProvider userProvider = new UserProvider();
+	
 	private void refreshGridData() {
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
@@ -114,13 +117,29 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		}
+		
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
-			if (selectedArea != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
-				provinceFilter.setItems(provinces);
+			if (selectedArea != null) {				
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+					provinceFilter.setItems(provinces);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+					provinceFilter.setItems(provinces);
+				} else {		
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
+					provinceFilter.setItems(provinces);
+				}	
 				criteria.campaign(campaign.getValue());
 				criteria.area(selectedArea);
 
@@ -139,8 +158,17 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
 			if (selectedRegion != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
-				districtFilter.setItems(districts);
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+					districtFilter.setItems(districts);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+					districtFilter.setItems(districts);
+				} else {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
+					districtFilter.setItems(districts);
+				}		
+				
 				criteria.region(selectedRegion);
 				refreshGridData();
 			} else {
