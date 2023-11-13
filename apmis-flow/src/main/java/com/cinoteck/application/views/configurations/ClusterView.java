@@ -195,7 +195,7 @@ public class ClusterView extends VerticalLayout {
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName(
-				"APMIS_Clusters" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Clusters_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -470,6 +470,8 @@ public class ClusterView extends VerticalLayout {
 		relevancelayout.add(relevanceStatusFilter, countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
+		vlayout.getStyle().set("margin-right", "0.5rem");
+
 		add(vlayout);
 
 		dropdownBulkOperations.getStyle().set("margin-top", "5px");

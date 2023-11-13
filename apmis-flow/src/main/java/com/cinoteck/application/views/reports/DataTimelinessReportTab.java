@@ -337,8 +337,10 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		exporter.setAutoAttachExportButtons(false);
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
-		exporter.setFileName("Data Timeliness Report"
-				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+		
+		String exportFileName = "Data Timeliness Report_"+ campaign.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+
+		exporter.setFileName(exportFileName);
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);

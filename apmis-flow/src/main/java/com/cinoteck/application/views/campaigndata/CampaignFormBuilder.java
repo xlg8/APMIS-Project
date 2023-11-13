@@ -112,6 +112,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
 
+	
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
@@ -180,11 +181,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 		}
 
 		FormLayout vertical_ = new FormLayout();
-
+		VerticalLayout formNameLabelLayout = new VerticalLayout();
 		Label formNam = new Label();
 		formNam.getElement().setProperty("innerHTML", "<h3>" + formName + "</h3>");
-		vertical_.setColspan(formNam, 3);
-		vertical_.add(formNam);
+		formNameLabelLayout.add(formNam);
+		vertical_.setColspan(formNameLabelLayout, 3);
+		vertical_.add(formNameLabelLayout);
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
@@ -371,7 +373,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		vertical_.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("520px", 2),
 				new ResponsiveStep("1000px", 3));
+//		VerticalLayout formVerticalLayout = new VerticalLayout();
+
+//		formVerticalLayout.
 		add(vertical_);
+//		add(formVerticalLayout);
 
 		if (currentUser.getUser().getArea() != null) {
 			cbArea.setValue(currentUser.getUser().getArea());
@@ -484,8 +490,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				optionsValues = formElement.getOptions().stream()
 						.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption)); // .collect(Collectors.toList());
-				
-					
+
 				if (userLocale != null) {
 					if (translationsOpt != null) {
 						translationsOpt.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString()))
@@ -572,8 +577,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 				labx.getElement().setProperty("innerHTML", get18nCaption(formElement.getId(),
 						get18nCaption(formElement.getId(), formElement.getCaption())));
 				labx.setId(formElement.getId());
-				vertical.setColspan(labx, 3);
-				vertical.add(labx);
+				
+				VerticalLayout labelLayout = new VerticalLayout();
+				
+				labelLayout.add(labx);
+				vertical.setColspan(labelLayout, 3);
+				vertical.add(labelLayout);
 				if (dependingOnId != null && dependingOnValues != null) {
 					// needed
 					setVisibilityDependency(labx, dependingOnId, dependingOnValues, type);
@@ -906,56 +915,55 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
-					//Note: carrying out the option sorting only i the dropdown
-					//to avoid getting a null pointer fro other input types with the 
-					//option method because making all the checks global would require including the order value in other 
-					//input types that are not dropdown 
-					
-				// get the order valuie, do a null check incase order wouldnt be specified 
-					if (formElement.getOptions().stream().collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder)) != null){
-						//pop the map with the order based off the key 
+					// Note: carrying out the option sorting only i the dropdown
+					// to avoid getting a null pointer fro other input types with the
+					// option method because making all the checks global would require including
+					// the order value in other
+					// input types that are not dropdown
+
+					// get the order valuie, do a null check incase order wouldnt be specified
+					if (formElement.getOptions().stream()
+							.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder)) != null) {
+						// pop the map with the order based off the key
 						optionsOrder = formElement.getOptions().stream()
 								.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder));
-					};
-					
+					} else {
+						optionsOrder = new HashMap<String, String>();
+					}
+
 					if (userOptTranslations.size() == 0) {
 						campaignFormElementOptions.setOptionsListValues(optionsValues);
 
 					} else {
 						campaignFormElementOptions.setOptionsListValues(userOptTranslations);
 					}
-					//Trying toGetting order when using translation(not adequately tes)
+					// Trying toGetting order when using translation(not adequately tes)
 					if (optionsOrder != null) {
 						if (userOptTranslations.size() == 0) {
 							campaignFormElementOptions.setOptionsListOrder(optionsOrder);
-							} else {
+						} else {
 							campaignFormElementOptions.setOptionsListOrder(optionsOrder);
 						}
-					
-					}
-					
-					
-					final HashMap<String, String> dataOrder = (HashMap<String, String>) campaignFormElementOptions.getOptionsListOrder();
 
-					
+					}
+
+					final HashMap<String, String> dataOrder = (HashMap<String, String>) campaignFormElementOptions
+							.getOptionsListOrder();
 
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-					
-					if(dataOrder != null ) {
+
+					if (dataOrder != null) {
 						Comparator<String> orderComparator = (key1, key2) -> {
-						    String order1 = getOrderValue(dataOrder, key1);
-						    String order2 = getOrderValue(dataOrder, key2);
-						    return Integer.compare(Integer.parseInt(order1), Integer.parseInt(order2));
+							String order1 = getOrderValue(dataOrder, key1);
+							String order2 = getOrderValue(dataOrder, key2);
+							return Integer.compare(Integer.parseInt(order1), Integer.parseInt(order2));
 						};
 
 						sortedKeys.sort(orderComparator);
 					}
-
-
-					
 
 					select.setItems(sortedKeys);
 
@@ -963,8 +971,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
 
-				
-					
 					select.addValueChangeListener(ee -> {
 					});
 
@@ -1051,7 +1057,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			if (accrd_count == 0) {
 				vertical.setVisible(false);
-				add(vertical);
+				VerticalLayout builfFormLayout = new VerticalLayout();
+				builfFormLayout.add(vertical);
+				add(builfFormLayout);
 			} else {
 
 				add(accrd);
@@ -1071,13 +1079,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 		setSizeFull();
 	}
 
-
 	private String getOrderValue(Map<String, String> data, String key) {
-	    String orderValue = data.get(key);
-	    if (orderValue != null) {
-	        return orderValue;
-	    }
-		return orderValue; 
+		String orderValue = data.get(key);
+		if (orderValue != null) {
+			return orderValue;
+		}
+		return orderValue;
 	}
 
 	public <T extends Component> void setFieldValue(T field, CampaignFormElementType type, Object value,

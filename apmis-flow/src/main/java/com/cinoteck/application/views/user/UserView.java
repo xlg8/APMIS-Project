@@ -181,6 +181,7 @@ public class UserView extends VerticalLayout {
 		layout.setMargin(true);
 		layout.setPadding(false);
 		layout.setWidthFull();
+		layout.getStyle().set("margin-right", "1rem");
 
 		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
 		createUserButton.addClassName("createUserButton");
@@ -518,6 +519,7 @@ public class UserView extends VerticalLayout {
 		filterLayout.setClassName("row pl-3");
 		filterLayout.add(districtFilter, coluntLay);
 		vlayout.add(displayFilters, filterLayout);
+		vlayout.getStyle().set("margin-right", "1rem");
 		vlayout.setWidth("98%");
 		add(layout, vlayout);
 	}
@@ -575,7 +577,7 @@ public class UserView extends VerticalLayout {
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
-		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+		exporter.setFileName("APMIS_Users_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {

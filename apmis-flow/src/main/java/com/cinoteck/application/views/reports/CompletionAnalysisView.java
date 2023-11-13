@@ -297,8 +297,10 @@ public class CompletionAnalysisView extends VerticalLayout {
 		exporter.setAutoAttachExportButtons(false);
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
-		exporter.setFileName("ICM Completion Analysis Report"
-				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+		
+		String exportFileName = "Completion_Analysis_"+ campaign.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+
+		exporter.setFileName(exportFileName);
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);

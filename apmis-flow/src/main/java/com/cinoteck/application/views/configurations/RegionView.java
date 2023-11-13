@@ -196,7 +196,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.User));
 		exporter.setFileName(
-				"APMIS_Regions" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Regions_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -394,6 +394,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevancelayout.add(countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
+		vlayout.getStyle().set("margin-right", "0.5rem");
+
 		add(vlayout);
 
 		dropdownBulkOperations.getStyle().set("margin-top", "5px");

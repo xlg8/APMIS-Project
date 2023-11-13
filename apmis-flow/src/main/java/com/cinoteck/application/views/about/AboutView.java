@@ -154,9 +154,11 @@ public class AboutView extends VerticalLayout {
 		excelLink.getStyle().set("color", "0D6938 !important");
 		HorizontalLayout buttonsLayout = new HorizontalLayout();
 		buttonsLayout.getStyle().set("padding-left", "90px");
+		buttonsLayout.getStyle().set("margin-right", "6rem");
 		buttonsLayout.setWidth("100%");
 //		buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 		excelLink.getStyle().set("display", "none");
+		
 		buttonsLayout.add(getUserGuide, getTechnicalGuide, getMobileGuide,exportJsonGloassary, excelLink);
 		
 		

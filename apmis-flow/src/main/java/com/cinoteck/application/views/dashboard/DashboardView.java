@@ -439,6 +439,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		HorizontalLayout filterLay = new HorizontalLayout();
 
 		filterLay.add(displayFilters, selectFilterLayoutparent);
+		filterLay.getStyle().set("margin-right", "0.5rem");
 		filterLay.setAlignItems(Alignment.END);
 		add(filterLay);
 		// , mtabs, sTabs, contentContainer);
