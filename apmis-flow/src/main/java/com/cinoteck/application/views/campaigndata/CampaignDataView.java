@@ -68,6 +68,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -284,12 +285,23 @@ public class CampaignDataView extends VerticalLayout {
 			regionCombo.setItems(regions);
 		}
 
-//		if (userProvider.getUser().getArea() != null) {// || (userProvider.getUser().getUsertype() == UserType.EOC_USER
-//														// && userProvider.getUser().getArea() != null)) {
-//			regionCombo.setValue(userProvider.getUser().getArea());
-//			regionCombo.setEnabled(false);
-//		}
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
+		
+		if (userProvider.getUser().getArea() != null) {// || (userProvider.getUser().getUsertype() == UserType.EOC_USER
+														// && userProvider.getUser().getArea() != null)) {
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				AreaReferenceDto singleArea = userProvider.getUser().getArea();			
+				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());
+				System.out.println("ggaggasgak     " + hgsghsag.getFa_af() + "     ytwuhgsjfgshgsjfs     " + hgsghsag.getPs_af() 
+				+ "    ajagjaja    " + hgsghsag.getFa_af());
+				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(hgsghsag.getUuid(), hgsghsag.getFa_af());
+				regionCombo.setValue(singleAreatw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				regionCombo.setValue(userProvider.getUser().getArea());
+			} else {
+				regionCombo.setValue(userProvider.getUser().getArea());// rda56kGbCAja
+			}	
+				regionCombo.setEnabled(false);
+		}
 
 		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
@@ -929,15 +941,30 @@ public class CampaignDataView extends VerticalLayout {
 				query -> (int) FacadeProvider.getCampaignFormDataFacade().count(criteria));
 
 	}
-
-	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(
-			Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
-		return FacadeProvider.getCampaignFormDataFacade()
-				.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
-						.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-								sortOrder.getDirection() == SortDirection.ASCENDING))
-						.collect(Collectors.toList()))
-				.stream();
+	
+	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
+		if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			return FacadeProvider.getCampaignFormDataFacade()
+					.getIndexListPashto(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+									sortOrder.getDirection() == SortDirection.ASCENDING))
+							.collect(Collectors.toList()))
+					.stream();
+		}else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			return FacadeProvider.getCampaignFormDataFacade()
+					.getIndexListDari(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+									sortOrder.getDirection() == SortDirection.ASCENDING))
+							.collect(Collectors.toList()))
+					.stream();
+		} else {
+			return FacadeProvider.getCampaignFormDataFacade()
+					.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
+							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+									sortOrder.getDirection() == SortDirection.ASCENDING))
+							.collect(Collectors.toList()))
+					.stream();			
+		}		
 	}
 
 	private int countCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {

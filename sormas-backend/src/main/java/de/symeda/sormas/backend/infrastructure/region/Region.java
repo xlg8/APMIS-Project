@@ -144,4 +144,6 @@ public class Region extends InfrastructureAdo {
 	public void setCountry(Country country) {
 		this.country = country;
 	}
+	
+	
 }

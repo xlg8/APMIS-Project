@@ -271,8 +271,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		
 	
-		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-				"navitem"));	       
+//		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
+//				"navitem"));	       
 
 		if (nav != null) {
 			nav.addClassName("active");

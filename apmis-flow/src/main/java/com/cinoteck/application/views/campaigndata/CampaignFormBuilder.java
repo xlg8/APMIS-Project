@@ -82,10 +82,13 @@ import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 
@@ -117,7 +120,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
-	UserProvider currentUser = new UserProvider();
+//	private UserProvider currentUser = new UserProvider();
 
 	private ExpressionProcessor expressionProcessor;
 
@@ -204,12 +207,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		//
 
 		cbArea.setRequired(true);
-		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {	
-			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());	
-		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
-			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
 		} else {
 			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());		
+
 		}
 		cbArea.setId("my-disabled-textfield");
 		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
@@ -235,13 +239,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {	
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
 				} else {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				}				cbRegion.clear();
+
+				}
+				cbRegion.clear();
 				cbRegion.setReadOnly(false);
 				;
 				cbRegion.setItems(provinces);
@@ -269,13 +275,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 			if (e.getValue() != null) {
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {			
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
 				} else {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 				}
 				cbDistrict.setReadOnly(false);
-				
+
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
@@ -391,39 +397,76 @@ public class CampaignFormBuilder extends VerticalLayout {
 				new ResponsiveStep("1000px", 3));
 		add(vertical_);
 
-		if (currentUser.getUser().getArea() != null) {
-			cbArea.setValue(currentUser.getUser().getArea());
+		if (userProvider.getUser().getArea() != null) {
+			AreaReferenceDto singleArea = userProvider.getUser().getArea();	
+			AreaDto singleAreaDto = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(singleAreaDto.getUuid(), singleAreaDto.getPs_af());
+				cbArea.setValue(singleAreatw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(singleAreaDto.getUuid(), singleAreaDto.getFa_af());
+				cbArea.setValue(singleAreatw0);				
+			} else {
+				cbArea.setValue(userProvider.getUser().getArea());
+			}	
+			
+			// rda56kGbCAja
 			cbArea.setReadOnly(true);
 			;
 
 			List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
-					.getAllActiveByArea(currentUser.getUser().getArea().getUuid());
+					.getAllActiveByArea(userProvider.getUser().getArea().getUuid());
 			cbRegion.clear();
 			cbRegion.setReadOnly(false);
 			;
 			cbRegion.setItems(provinces);
 		}
 
-		if (currentUser.getUser().getRegion() != null) {
-			cbRegion.setValue(currentUser.getUser().getRegion());
+		if (userProvider.getUser().getRegion() != null) {
+			RegionReferenceDto singleRegion = userProvider.getUser().getRegion();	
+			RegionDto singleRegionDto = FacadeProvider.getRegionFacade().getByUuid(singleRegion.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				RegionReferenceDto singleRegiontw0 = new RegionReferenceDto(singleRegionDto.getUuid(), singleRegionDto.getPs_af());
+				cbRegion.setValue(singleRegiontw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				RegionReferenceDto singleRegiontw0 = new RegionReferenceDto(singleRegionDto.getUuid(), singleRegionDto.getFa_af());
+				cbRegion.setValue(singleRegiontw0);			
+			} else {
+				cbRegion.setValue(userProvider.getUser().getRegion());
+			}	
+
 			cbRegion.setReadOnly(true);
 			;
 
 			List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
-					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid());
+					.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid());
 			cbDistrict.clear();
 			cbDistrict.setReadOnly(false);
 			;
 			cbDistrict.setItems(districts);
 		}
 
-		if (currentUser.getUser().getDistrict() != null) {
-			cbDistrict.setValue(currentUser.getUser().getDistrict());
+		if (userProvider.getUser().getDistrict() != null) {
+			DistrictReferenceDto singleDistrict = userProvider.getUser().getDistrict();	
+			DistrictDto singleDistrictDto = FacadeProvider.getDistrictFacade().getByUuid(singleDistrict.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				DistrictReferenceDto singleDistricttw0 = new DistrictReferenceDto(singleDistrictDto.getUuid(), singleDistrictDto.getPs_af());
+				cbDistrict.setValue(singleDistricttw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				DistrictReferenceDto singleDistricttw0 = new DistrictReferenceDto(singleDistrictDto.getUuid(), singleDistrictDto.getFa_af());
+				cbDistrict.setValue(singleDistricttw0);		
+			} else {
+				cbDistrict.setValue(userProvider.getUser().getDistrict());
+			}
+			
 			cbDistrict.setReadOnly(true);
 			;
 
 			List<CommunityReferenceDto> districts = FacadeProvider.getCommunityFacade()
-					.getAllActiveByDistrict(currentUser.getUser().getDistrict().getUuid());
+					.getAllActiveByDistrict(userProvider.getUser().getDistrict().getUuid());
 			cbCommunity.clear();
 			cbCommunity.setReadOnly(false);
 			;
@@ -502,8 +545,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				optionsValues = formElement.getOptions().stream()
 						.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption)); // .collect(Collectors.toList());
-				
-					
+
 				if (userLocale != null) {
 					if (translationsOpt != null) {
 						translationsOpt.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString()))
@@ -943,6 +985,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 					if (userOptTranslations.size() == 0) {
 						campaignFormElementOptions.setOptionsListValues(optionsValues);
 
+//<<<<<<< HEAD
 					} else {
 						campaignFormElementOptions.setOptionsListValues(userOptTranslations);
 					}
@@ -961,6 +1004,8 @@ VerticalLayout labelLayout = new VerticalLayout();
 
 					
 
+//=======
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
@@ -985,8 +1030,11 @@ VerticalLayout labelLayout = new VerticalLayout();
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
 
-				
-					
+//<<<<<<< HEAD
+//				
+//					
+//=======
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 					select.addValueChangeListener(ee -> {
 					});
 

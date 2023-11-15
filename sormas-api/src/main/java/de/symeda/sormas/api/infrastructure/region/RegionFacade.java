@@ -49,9 +49,12 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	
 	List<RegionReferenceDto> getAllActiveAsReferenceDari();
 	
-	List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId, String campaignDto);
+	List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId, String campaignDto); 
 
-
+	List<RegionDto> getAllActiveAsReferenceAndPopulationPashto(Long areaId, String campaignDto); 
+	
+	List<RegionDto> getAllActiveAsReferenceAndPopulationDari(Long areaId, String campaignDto); 
+	
 	Page<RegionIndexDto> getIndexPage(RegionCriteria regionCriteria, Integer offset, Integer size, List<SortProperty> sortProperties);
 
 	RegionReferenceDto getRegionReferenceByUuid(String uuid);

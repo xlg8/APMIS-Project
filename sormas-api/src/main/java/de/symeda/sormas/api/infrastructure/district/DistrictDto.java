@@ -35,6 +35,8 @@ public class DistrictDto extends EntityDto {
 	public static final String I18N_PREFIX = "District";
 
 	public static final String NAME = "name";
+	public static final String FA_AF = "fa_af";
+	public static final String PS_AF = "ps_af";
 	public static final String EPID_CODE = "epidCode";
 	public static final String RISK = "risk";
 	public static final String GROWTH_RATE = "growthRate";
@@ -44,6 +46,10 @@ public class DistrictDto extends EntityDto {
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String name;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
+	private String fa_af;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
+	private String ps_af;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String epidCode;
 	private String risk;
@@ -255,7 +261,20 @@ public class DistrictDto extends EntityDto {
 		this.mapHasc = mapHasc;
 	}
 
-	
-	
+	public String getFa_af() {
+		return fa_af;
+	}
+
+	public void setFa_af(String fa_af) {
+		this.fa_af = fa_af;
+	}
+
+	public String getPs_af() {
+		return ps_af;
+	}
+
+	public void setPs_af(String ps_af) {
+		this.ps_af = ps_af;
+	}
 	
 }
