@@ -126,6 +126,44 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	
 
 	@Override
+	public List<RegionDto> getAllActiveAsReferenceAndPopulationPashto(Long areaId, String campaignDt) {
+		String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
+				+ "left outer join populationdata p on a.id = p.region_id\n"
+				+ "left outer join areas ar on ar.id = "+areaId+"\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+" and ca.uuid = '"+campaignDt+"'\n"
+				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
+
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		List<RegionDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		resultData.addAll(resultList.stream()
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
+
+	return resultData;
+	}
+	
+	@Override
+	public List<RegionDto> getAllActiveAsReferenceAndPopulationDari(Long areaId, String campaignDt) {
+		String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
+				+ "left outer join populationdata p on a.id = p.region_id\n"
+				+ "left outer join areas ar on ar.id = "+areaId+"\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+" and ca.uuid = '"+campaignDt+"'\n"
+				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
+
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		List<RegionDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		resultData.addAll(resultList.stream()
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
+
+	return resultData;
+	}
+	
+	@Override
 	public List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId, String campaignDt) {
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
 				+ "left outer join populationdata p on a.id = p.region_id\n"
@@ -393,6 +431,8 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setPs_af(entity.getPs_af());
+		dto.setFa_af(entity.getFa_af());
 		dto.setEpidCode(entity.getEpidCode());
 		dto.setGrowthRate(entity.getGrowthRate());
 		dto.setArchived(entity.isArchived());

@@ -42,8 +42,12 @@ public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictI
 	
 	int getCountByRegion(String regionUuid);
 	
-	List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long RegionId, CampaignDto campaignDt);
+	List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long RegionId, CampaignDto campaignDt); 
 
+	List<DistrictDto> getAllActiveAsReferenceAndPopulationPashto(Long RegionId, CampaignDto campaignDt); 
+	
+	List<DistrictDto> getAllActiveAsReferenceAndPopulationDari(Long RegionId, CampaignDto campaignDt);
+	
 	Page<DistrictIndexDto> getIndexPage(DistrictCriteria districtCriteria, Integer offset, Integer size, List<SortProperty> sortProperties);
 
 	DistrictDto getDistrictByUuid(String uuid);
