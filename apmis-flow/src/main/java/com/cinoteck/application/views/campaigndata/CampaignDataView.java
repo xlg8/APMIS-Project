@@ -32,6 +32,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
+import com.vaadin.flow.component.grid.GridSelectionModel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
@@ -94,6 +95,8 @@ public class CampaignDataView extends VerticalLayout {
 	private static final long serialVersionUID = 7588118851062483372L;
 
 	private Grid<CampaignFormDataIndexDto> grid = new Grid<>(CampaignFormDataIndexDto.class, false);
+//	GridSelectionModel<CampaignFormDataIndexDto> selectionModel = grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+
 //	private GridListDataView<CampaignFormDataIndexDto> dataView;
 	private CampaignFormDataCriteria criteria;
 	private CampaignFormMetaDto formMetaReference;
@@ -285,48 +288,28 @@ public class CampaignDataView extends VerticalLayout {
 			regionCombo.setItems(regions);
 		}
 
-		
 		if (userProvider.getUser().getArea() != null) {// || (userProvider.getUser().getUsertype() == UserType.EOC_USER
 														// && userProvider.getUser().getArea() != null)) {
-			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-				AreaReferenceDto singleArea = userProvider.getUser().getArea();			
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				AreaReferenceDto singleArea = userProvider.getUser().getArea();
 				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());
-				System.out.println("ggaggasgak     " + hgsghsag.getFa_af() + "     ytwuhgsjfgshgsjfs     " + hgsghsag.getPs_af() 
-				+ "    ajagjaja    " + hgsghsag.getFa_af());
+				System.out.println("ggaggasgak     " + hgsghsag.getFa_af() + "     ytwuhgsjfgshgsjfs     "
+						+ hgsghsag.getPs_af() + "    ajagjaja    " + hgsghsag.getFa_af());
 				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(hgsghsag.getUuid(), hgsghsag.getFa_af());
 				regionCombo.setValue(singleAreatw0);
-			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 				regionCombo.setValue(userProvider.getUser().getArea());
 			} else {
 				regionCombo.setValue(userProvider.getUser().getArea());// rda56kGbCAja
-			}	
-				regionCombo.setEnabled(false);
+			}
+			regionCombo.setEnabled(false);
 		}
 
 		provinceCombo.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceCombo.getStyle().set("padding-top", "0px !important");
 		provinceCombo.setClassName("col-sm-6, col-xs-6");
 		provinceCombo.setPlaceholder(I18nProperties.getCaption(Captions.region));
-//<<<<<<< HEAD
-//=======
 
-//		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-//			provinces = FacadeProvider.getRegionFacade().getAllActiveAsReferencePashto();
-//			provinceCombo.setItems(provinces);
-//		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-//			provinces = FacadeProvider.getRegionFacade().getAllActiveAsReferenceDari();
-//			provinceCombo.setItems(provinces);
-//		} else {
-//			provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
-//			provinceCombo.setItems(provinces);
-//		}
-
-//		if (userProvider.getUser().getRegion() != null) {// || (userProvider.getUser().getUsertype() ==
-//															// UserType.EOC_USER && userProvider.getUser().getRegion()
-//															// != null)) {
-//			provinceCombo.setValue(userProvider.getUser().getRegion());
-//		}
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 		provinceCombo.setEnabled(false);
 		districtCombo.setEnabled(false);
 		clusterCombo.setEnabled(false);
@@ -364,11 +347,11 @@ public class CampaignDataView extends VerticalLayout {
 				provinceCombo.setValue(userProvider.getUser().getRegion());
 				provinceCombo.setEnabled(false);
 
-					districts = FacadeProvider.getDistrictFacade()
-							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid());
-					districtCombo.setItems(districts);
-					districtCombo.setEnabled(true);
-				
+				districts = FacadeProvider.getDistrictFacade()
+						.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid());
+				districtCombo.setItems(districts);
+				districtCombo.setEnabled(true);
+
 			} else if (userProvider.getUser().getRegion() != null
 					&& !userProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_SUPERVISOR)) {
 
@@ -486,7 +469,6 @@ public class CampaignDataView extends VerticalLayout {
 		districtCombo.setClassName("col-sm-6, col-xs-6");
 		districtCombo.setPlaceholder(I18nProperties.getCaption(Captions.district));
 
-
 		clusterCombo.setLabel(I18nProperties.getCaption(Captions.community));
 		clusterCombo.getStyle().set("padding-top", "0px !important");
 		clusterCombo.setPlaceholder(I18nProperties.getCaption(Captions.community));
@@ -592,21 +574,31 @@ public class CampaignDataView extends VerticalLayout {
 			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
 							campaignz.getValue().getUuid());
-			
+
 			campaignFormCombo.setItems(campaignFormReferences_);
 			campaignFormCombo.setValue(campaignFormReferences_.get(0));
 			newForm.setItems(campaignFormReferences_);
 			importFormData.setItems(campaignFormReferences_);
-			
+
+//			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
+//
+//			if (userProvider.getUser().getUsertype() == UserType.EOC_USER
+//					&& (isPublished && e.getValue().toString().equals("POST-CAMPAIGN"))) {
+//				System.out.println("6666666666666666666666666666666666666666666666666666666666666");
+//
+//				grid.setSelectionMode(SelectionMode.NONE);
+//				grid.getElement().executeJs("this.getDataProvider().refreshAll()");
+//				System.out.println(grid.setSelectionMode(SelectionMode.NONE)
+//						+ "777777777777777777777777777777777777777777777777777777777777"
+//						+ grid.getElement().executeJs("this.getDataProvider().refreshAll()"));
+//				removeColumnsSelectionn();
+//			}
+
 			grid.removeAllColumns();
 			configureGrid(criteria);
-			
-			
 			reload();
 			updateRowCount();
-//			grid.
-			
-//			configureGridDataRestricttion(criteria);
+
 		});
 
 		campaignFormCombo.addValueChangeListener(e -> {
@@ -621,11 +613,26 @@ public class CampaignDataView extends VerticalLayout {
 //				System.out.println(exportFileName + "Export file name on form change ");
 				anchor.setHref(exporter.getCsvStreamResource());
 				importanceSwitcher.setReadOnly(false);
-				
+
 //				grid.removeAllColumns();
 //				configureGrid(criteria);
+//				if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+//					boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
+//					
+//					System.out.println(campaignPhase.getValue() + "CAMPAIGNPHASE VALUE " );
+//					
+//					if(isPublished && campaignPhase.getValue().toString().equals("POST-CAMPAIGN")){
+//					grid.setSelectionMode(SelectionMode.NONE);
+//								
+//					}else if(((!isPublished) && campaignPhase.getValue().toString().equals("POST-CAMPAIGN")) || !campaignPhase.getValue().toString().equals("POST-CAMPAIGN")){
+//						
+//						System.out.println(campaignPhase.getValue() +  " not  CAMPAIGNPHASE VALUE " );
+//						grid.setSelectionMode(SelectionMode.SINGLE);
+//						}
+//					}
 
 				reload();
+
 //				configureGridDataRestricttion(criteria);
 
 				// add method to update the grid after this combo changes
@@ -913,6 +920,21 @@ public class CampaignDataView extends VerticalLayout {
 		add(filterBlock);
 	}
 
+//	
+	public void removeColumnsSelectionn() {
+		grid.setSelectionMode(SelectionMode.NONE);
+	}
+
+	private void updateGridSelectionMode() {
+		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
+
+			if (isPublished && criteria.getFormType().toString().equals("POST-CAMPAIGN")) {
+				grid.setSelectionMode(SelectionMode.SINGLE);
+			}
+		}
+	}
+
 	private void selectAllItems(ListDataProvider<CampaignFormDataIndexDto> dataProvider) {
 		MultiSelect<Grid<CampaignFormDataIndexDto>, CampaignFormDataIndexDto> multiSelect = grid.asMultiSelect();
 		dataProvider.getItems().forEach(multiSelect::select);
@@ -941,16 +963,17 @@ public class CampaignDataView extends VerticalLayout {
 				query -> (int) FacadeProvider.getCampaignFormDataFacade().count(criteria));
 
 	}
-	
-	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
-		if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+
+	private Stream<CampaignFormDataIndexDto> fetchCampaignFormData(
+			Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			return FacadeProvider.getCampaignFormDataFacade()
 					.getIndexListPashto(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 									sortOrder.getDirection() == SortDirection.ASCENDING))
 							.collect(Collectors.toList()))
 					.stream();
-		}else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			return FacadeProvider.getCampaignFormDataFacade()
 					.getIndexListDari(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
@@ -963,8 +986,8 @@ public class CampaignDataView extends VerticalLayout {
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 									sortOrder.getDirection() == SortDirection.ASCENDING))
 							.collect(Collectors.toList()))
-					.stream();			
-		}		
+					.stream();
+		}
 	}
 
 	private int countCampaignFormData(Query<CampaignFormDataIndexDto, CampaignFormDataCriteria> query) {
@@ -1058,11 +1081,6 @@ public class CampaignDataView extends VerticalLayout {
 			return label;
 		});
 
-//<<<<<<< HEAD
-//		grid.addColumn(CampaignFormDataIndexDto.FORM_TYPE).setHeader(I18nProperties.getCaption(Captions.formPhase))
-//				.setSortable(true).setResizable(true).setAutoWidth(true)
-//				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formPhase));
-//=======
 		ComponentRenderer<Span, CampaignFormDataIndexDto> pCodeRender = new ComponentRenderer<>(input -> {
 
 			NumberFormat arabicFormat = NumberFormat.getInstance();
@@ -1110,7 +1128,6 @@ public class CampaignDataView extends VerticalLayout {
 
 		ComponentRenderer<Span, CampaignFormDataIndexDto> clusterNumberRender = new ComponentRenderer<>(input -> {
 
-//			NumberFormat arabicFormat = NumberFormat.getInstance(I18nProperties.getUserLanguage().getLocale());
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
@@ -1219,10 +1236,8 @@ public class CampaignDataView extends VerticalLayout {
 							e -> I18nProperties.getCaption(Captions.Campaign_creatingUser) + e.getSource());
 		} else {
 
-			grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN)
-			.setHeader(I18nProperties.getCaption(Captions.Campaigns))
-					.setSortable(true).setResizable(true).setAutoWidth(true)
-					.setTooltipGenerator(e -> e.getCampaign());
+			grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
+					.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getCampaign());
 
 			grid.addColumn(CampaignFormDataIndexDto.FORM)
 					.setHeader(I18nProperties.getCaption(Captions.campaignCampaignForm)).setSortable(true)
@@ -1238,7 +1253,6 @@ public class CampaignDataView extends VerticalLayout {
 
 			grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
 					.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getRegion());
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 			grid.addColumn(CampaignFormDataIndexDto.PCODE)
 					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
@@ -1282,14 +1296,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		grid.setVisible(true);
 		grid.setWidthFull();
-//		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
 
-//<<<<<<< HEAD
-//=======
-
-//		setDataProvider();
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
 		grid.setDataProvider(dataProvider);
 
@@ -1306,49 +1314,66 @@ public class CampaignDataView extends VerticalLayout {
 //					campaignz.getValue(), true, formData.getUuid(), grid, false);
 //
 //		});
-		
+
+//		grid.setSelectionMode(SelectionMode.SINGLE);
+
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
+			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(campaignz.getValue().getUuid());
 			
-			System.out.println(campaignPhase.getValue() + "CAMPAIGNPHASE VALUE " );
-			
-			if(isPublished && criteria.getFormType().toString().equals("POST-CAMPAIGN")){
-			grid.setSelectionMode(SelectionMode.NONE);
-						
-			}else if(((!isPublished) && criteria.getFormType().toString().equals("POST-CAMPAIGN")) || !criteria.getFormType().toString().equals("POST-CAMPAIGN")){
-			grid.asSingleSelect().addValueChangeListener(ex -> {
-				System.out.println(ex.getValue() + " 6666666666666666vv6666666666666" + ex.getValue().getUuid());
-							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-									.getCampaignFormDataByUuid(ex.getValue().getUuid());
-							
-							System.out.println(formData + " 6666666666666666vv6666666666666" );
+			System.out.println("1111111111111111111" + campaignPhase.getValue() + campaignz.getValue());
+			if ( campaignPhase.getValue().toString().equalsIgnoreCase("POST-CAMPAIGN")) {
+//		        newSelectionModel = new GridSelectionModel<CampaignFormDataIndexDto>(Grid.SelectionMode.NONE);
+				System.out.println("1111111111111111111aaaaaaaaaaaaaa");
+				if (isPublished ) {
+					grid.setSelectionMode(Grid.SelectionMode.NONE);
+					System.out.println("1111111111111111111bbbbbbbbbbbbbbb");
+				}
+				
 
-							CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-									campaignz.getValue(), true, formData.getUuid(), grid, false);
-						});
-			
-			
+			}else {
+				
+				System.out.println("1111111111111111111cccccccccccccccccccc");
+				grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+				grid.asSingleSelect().addValueChangeListener(e -> {
+					if(e.getValue() != null) {
+					CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+							.getCampaignFormDataByUuid(e.getValue().getUuid());
+
+					CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
+							campaignz.getValue(), true, formData.getUuid(), grid, false);
+					}
+				});
 			}
-			}else{
+		} else {
+			System.out.println("2222222222222222222222");
+
+			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			grid.asSingleSelect().addValueChangeListener(e -> {
-						CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-								.getCampaignFormDataByUuid(e.getValue().getUuid());
+				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+						.getCampaignFormDataByUuid(e.getValue().getUuid());
 
-						CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-								campaignz.getValue(), true, formData.getUuid(), grid, false);
-					});
-			}
+				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
+						campaignz.getValue(), true, formData.getUuid(), grid, false);
+			});
+		}
+		
 
+//		if (grid.getSelectionModel() == SelectionMode.SINGLE) {
+//			System.out.println("3333333333333333333333");
+//
+//			grid.asSingleSelect().addValueChangeListener(e -> {
+//				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+//						.getCampaignFormDataByUuid(e.getValue().getUuid());
+//
+//				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
+//						campaignz.getValue(), true, formData.getUuid(), grid, false);
+//			});
+//		}
 
-//		configureGridDataRestricttion(criteria);
+//		
 
 		exporter = GridExporter.createFor(grid);
-//	    exporter.setExportValue(comm, item -> "" + item);
-//	    exporter.setColumnPosition(lastNameCol, 1);
-//		exporter.setExportColumn(formDateGrid, false);
-//		exporter.setExportColumn(formDateExportColumn, true);
 		exporter.setAutoAttachExportButtons(false);
-
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exportFileName = campaignz.getValue().toString() + "_"
 				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
@@ -1359,7 +1384,6 @@ public class CampaignDataView extends VerticalLayout {
 		anchor.getElement().setAttribute("download", true);
 		anchor.setClassName("exportJsonGLoss");
 		anchor.setId("campDatAnchor");
-
 		anchor.getStyle().set("width", "100px");
 
 		icon.getStyle().set("margin-right", "8px");
@@ -1373,109 +1397,13 @@ public class CampaignDataView extends VerticalLayout {
 	private void configureColumnStyles(CampaignFormDataCriteria criteria) {
 		Date formExpiryDate = FacadeProvider.getCampaignFormMetaFacade().formExpiryDate(criteria);
 		// TODO Auto-generated();
-		System.out.println(formExpiryDate.toString() + "form expiryrryyryry11111111111 ");
-
 		grid.setClassNameGenerator((v) -> {
 			if (v.getFormDate() != null && v.getFormDate().after((Date) formExpiryDate)) {
-
-				System.out.println(formExpiryDate.toString() + "grid form expiryyyyy 2222222 " + v.getFormDate());
 				return "lateData";
 			} else {
-				System.out.println(formExpiryDate.toString() + "grid form expiryyyyy 333333 " + v.getFormDate());
 				return "";
-
 			}
-
 		});
-
-	}
-
-
-
-	private void configureGridDataRestricttion(CampaignFormDataCriteria criteria) {
-		grid.setSelectionMode(SelectionMode.SINGLE);
-//		boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
-////		System.out.println("ZZZZZZZZZZZZPPPPPPPPPPPPPP" + isPublished);
-//		System.out.println(criteria.getFormType() + "44444444444ZZZZZZZZZZZZPPPPPPPPPPPPPP" + isPublished
-//				+ "ppppppppppppp" + campaignPhase.getValue());
-//
-//		if (userProvider.getUser().getUsertype() != UserType.EOC_USER) {
-//			System.out.println("NOT EOC USER ");
-//
-//			grid.asSingleSelect().addValueChangeListener(e -> {
-//				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-//						.getCampaignFormDataByUuid(e.getValue().getUuid());
-//
-//				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-//						campaignz.getValue(), true, formData.getUuid(), grid, false);
-//			});
-//		} else {
-//			System.out.println("EOC USERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR ");
-//			if (!criteria.getFormType().equals("POST-CAMPAIGN")) {
-//				
-//				System.out.println("NOT PCMMMMMMMMMMMMMMMMMMMMMMMMMR ");
-//				grid.asSingleSelect().addValueChangeListener(e -> {
-//					CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-//							.getCampaignFormDataByUuid(e.getValue().getUuid());
-//
-//					CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-//							campaignz.getValue(), true, formData.getUuid(), grid, false);
-//				});
-//			}
-//
-//			else if (criteria.getFormType().equals("POST-CAMPAIGN") && isPublished == true) {
-//				System.out.println(
-//						userProvider.getUser().getUsertype() + "33333333ZZZZZZZZZZZZPPPPPPPPPPPPPP" + isPublished);
-//
-//				grid.setSelectionMode(SelectionMode.NONE);
-////		grid.asSingleSelect().addValueChangeListener(exx -> {
-//				Notification.show("gor here ");
-//			} else if (criteria.getFormType().equals("POST-CAMPAIGN") && isPublished == false) {
-//
-//				System.out.println("EOC USEERRRR PLUS PUBLISHED   ");
-//
-//				grid.asSingleSelect().addValueChangeListener(e -> {
-//					CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-//							.getCampaignFormDataByUuid(e.getValue().getUuid());
-//
-//					CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-//							campaignz.getValue(), true, formData.getUuid(), grid, false);
-//				});
-//			}
-//		}
-		
-		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
-			
-			System.out.println(campaignPhase.getValue() + "CAMPAIGNPHASE VALUE " );
-			
-			if(isPublished && criteria.getFormType().toString().equals("POST-CAMPAIGN")){
-			grid.setSelectionMode(SelectionMode.NONE);
-						Notification.show("gor here ");
-			}else if(((!isPublished) && criteria.getFormType().toString().equals("POST-CAMPAIGN")) || !criteria.getFormType().toString().equals("POST-CAMPAIGN")){
-			grid.asSingleSelect().addValueChangeListener(ex -> {
-				System.out.println(ex.getValue() + " 6666666666666666vv6666666666666" + ex.getValue().getUuid());
-							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-									.getCampaignFormDataByUuid(ex.getValue().getUuid());
-							
-							System.out.println(formData + " 6666666666666666vv6666666666666" );
-
-							CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-									campaignz.getValue(), true, formData.getUuid(), grid, false);
-						});
-			
-			
-			}
-			}else{
-			grid.asSingleSelect().addValueChangeListener(e -> {
-						CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-								.getCampaignFormDataByUuid(e.getValue().getUuid());
-
-						CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-								campaignz.getValue(), true, formData.getUuid(), grid, false);
-					});
-			}
-
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {
