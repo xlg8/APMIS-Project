@@ -1306,8 +1306,41 @@ public class CampaignDataView extends VerticalLayout {
 //					campaignz.getValue(), true, formData.getUuid(), grid, false);
 //
 //		});
+		
+		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(criteria.getCampaign().getUuid());
+			
+			System.out.println(campaignPhase.getValue() + "CAMPAIGNPHASE VALUE " );
+			
+			if(isPublished && criteria.getFormType().toString().equals("POST-CAMPAIGN")){
+			grid.setSelectionMode(SelectionMode.NONE);
+						
+			}else if(((!isPublished) && criteria.getFormType().toString().equals("POST-CAMPAIGN")) || !criteria.getFormType().toString().equals("POST-CAMPAIGN")){
+			grid.asSingleSelect().addValueChangeListener(ex -> {
+				System.out.println(ex.getValue() + " 6666666666666666vv6666666666666" + ex.getValue().getUuid());
+							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+									.getCampaignFormDataByUuid(ex.getValue().getUuid());
+							
+							System.out.println(formData + " 6666666666666666vv6666666666666" );
 
-		configureGridDataRestricttion(criteria);
+							CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
+									campaignz.getValue(), true, formData.getUuid(), grid, false);
+						});
+			
+			
+			}
+			}else{
+			grid.asSingleSelect().addValueChangeListener(e -> {
+						CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
+								.getCampaignFormDataByUuid(e.getValue().getUuid());
+
+						CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
+								campaignz.getValue(), true, formData.getUuid(), grid, false);
+					});
+			}
+
+
+//		configureGridDataRestricttion(criteria);
 
 		exporter = GridExporter.createFor(grid);
 //	    exporter.setExportValue(comm, item -> "" + item);
