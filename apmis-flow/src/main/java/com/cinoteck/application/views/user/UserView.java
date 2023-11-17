@@ -90,12 +90,12 @@ import de.symeda.sormas.api.user.UserType;
 @PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout {
-	
+
 	HorizontalLayout mainContainer = new HorizontalLayout();
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
-	private ComboBox<UserRole> userRolesFilter;
+	private ComboBox<UserRole> userRolesFilter = new ComboBox<UserRole>();
 	private ComboBox<AreaReferenceDto> areaFilter;
 	private ComboBox<RegionReferenceDto> regionFilter;
 	private ComboBox<DistrictReferenceDto> districtFilter;
@@ -123,15 +123,14 @@ public class UserView extends VerticalLayout {
 	MenuBar menuBar = new MenuBar();
 
 	Button createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
-	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
-	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
+//	Button exportUsersButton = new Button(I18nProperties.getCaption(Captions.export));
+//	Button exportRolesButton = new Button(I18nProperties.getCaption(Captions.exportUserRoles));
 	Button bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 	Button leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 	TextField searchField = new TextField();
 	Button exportUsers = new Button(I18nProperties.getCaption(Captions.export));
 	Button importUsers = new Button(I18nProperties.getCaption(Captions.actionImport));
 
-	
 	Button displayFilters;
 
 	ConfirmDialog confirmationPopup = new ConfirmDialog();
@@ -181,6 +180,7 @@ public class UserView extends VerticalLayout {
 		layout.setMargin(true);
 		layout.setPadding(false);
 		layout.setWidthFull();
+		layout.getStyle().set("margin-right", "1rem");
 
 		createUserButton = new Button(I18nProperties.getCaption(Captions.userNewUser));
 		createUserButton.addClassName("createUserButton");
@@ -194,38 +194,44 @@ public class UserView extends VerticalLayout {
 			editUser(true);
 		});
 
+		exportUsers = new Button(I18nProperties.getCaption(Captions.export));
 		exportUsers.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportUsers.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
-		
+
+		importUsers = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importUsers.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importUsers.addClickListener(e -> {
-			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
+			if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)
+					&& userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT)
+					&& userProvider.hasUserRight(UserRight.USER_CREATE)) {
 
 				ImportUsersDataDialog dialogx = new ImportUsersDataDialog();
 				dialogx.open();
 			}
-			
-			//anchor.getElement().callJsFunction("click");
+
+			// anchor.getElement().callJsFunction("click");
 
 		});
-		
-		
+
 		anchor.getStyle().set("display", "none");
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)) {
 			layout.add(exportUsers, anchor, importUsers);
 		}
-		
-		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT) && userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT) && userProvider.hasUserRight(UserRight.USER_CREATE)) {
+
+		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_EXPORT)
+				&& userProvider.hasUserRight(UserRight.INFRASTRUCTURE_IMPORT)
+				&& userProvider.hasUserRight(UserRight.USER_CREATE)) {
 			layout.add(importUsers);
 		}
-		
 
 //		layout.add(anchor);
 		layout.addClassNames("row pl-4");
 
+		bulkModeButton = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
+		leaveBulkModeButton = new Button(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		leaveBulkModeButton.setText(I18nProperties.getCaption(Captions.actionLeaveBulkEditMode));
 		bulkModeButton.addClassName("bulkActionButton");
 //		bulkModeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -328,7 +334,7 @@ public class UserView extends VerticalLayout {
 				criteria.active(true);
 			} else if (e.getValue().equals("Inactive")) {
 				criteria.active(false);
-			}else {
+			} else {
 				criteria.active(null);
 			}
 			filterDataProvider.setFilter(criteria);
@@ -358,9 +364,7 @@ public class UserView extends VerticalLayout {
 		Collections.sort(rolesz, new UserRoleCustomComparator());
 		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
 
-
-		userRolesFilter
-				.setItems(sortedUserRoless);
+		userRolesFilter.setItems(sortedUserRoless);
 		userRolesFilter.addValueChangeListener(e -> {
 
 			UserRole userRole = e.getValue();
@@ -382,15 +386,32 @@ public class UserView extends VerticalLayout {
 		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
 		areaFilter.getStyle().set("margin-left", "0.1rem");
 		areaFilter.getStyle().set("padding-top", "0px!important");
-		areaFilter.setItems(regions);
+		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
+
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			areaFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			areaFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			areaFilter.setItems(regions);
+		}
+
 		areaFilter.setClearButtonVisible(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
 			areaFilter.setValue(userProvider.getUser().getArea());
 			if (regionFilter != null) {
 				regionFilter.clear();
 				if (userProvider.getUser().getArea().getUuid() != null) {
-					regionFilter.setItems(FacadeProvider.getRegionFacade()
-							.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+					if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+						regionFilter.setItems(FacadeProvider.getRegionFacade()
+								.getAllActiveByAreaPashto(userProvider.getUser().getArea().getUuid()));
+					} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+						regionFilter.setItems(FacadeProvider.getRegionFacade()
+								.getAllActiveByAreaDari(userProvider.getUser().getArea().getUuid()));
+					} else {
+						regionFilter.setItems(FacadeProvider.getRegionFacade()
+								.getAllActiveByArea(userProvider.getUser().getArea().getUuid()));
+					}
 				}
 			}
 			filterDataProvider.setFilter(criteria.area(userProvider.getUser().getArea()));
@@ -404,7 +425,17 @@ public class UserView extends VerticalLayout {
 				AreaReferenceDto area = e.getValue();
 				regionFilter.clear();
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-				regionFilter.setItems(provinces);
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					regionFilter.setItems(
+							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					regionFilter
+							.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					regionFilter.setItems(provinces);
+				}
+
 				criteria.area(area);
 				regionFilter.setReadOnly(false);
 				districtFilter.clear();
@@ -439,8 +470,17 @@ public class UserView extends VerticalLayout {
 			if (districtFilter != null) {
 				districtFilter.clear();
 				if (userProvider.getUser().getRegion().getUuid() != null) {
-					districtFilter.setItems(FacadeProvider.getDistrictFacade()
-							.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
+//					districtFilter.setItems();
+					if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+						districtFilter.setItems(FacadeProvider.getDistrictFacade()
+								.getAllActiveByRegionPashto(userProvider.getUser().getRegion().getUuid()));
+					} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+						districtFilter.setItems(FacadeProvider.getDistrictFacade()
+								.getAllActiveByRegionDari(userProvider.getUser().getRegion().getUuid()));
+					} else {
+						districtFilter.setItems(FacadeProvider.getDistrictFacade()
+								.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid()));
+					}
 				}
 			}
 			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
@@ -453,10 +493,19 @@ public class UserView extends VerticalLayout {
 			if (e.getValue() != null) {
 				RegionReferenceDto region = e.getValue();
 				districtFilter.clear();
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				districtFilter.setItems(districts);
-				criteria.region(region);
 
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					districtFilter.setItems(districts);
+				}
+
+				criteria.region(region);
 				districtFilter.setReadOnly(false);
 				criteria.district(null);
 			} else {
@@ -474,7 +523,7 @@ public class UserView extends VerticalLayout {
 
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
-		 districtFilter.setWidth(145, Unit.PIXELS);
+		districtFilter.setWidth(145, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
 		districtFilter.getStyle().set("margin-left", "0.1rem");
@@ -514,6 +563,7 @@ public class UserView extends VerticalLayout {
 		filterLayout.setClassName("row pl-3");
 		filterLayout.add(districtFilter, coluntLay);
 		vlayout.add(displayFilters, filterLayout);
+		vlayout.getStyle().set("margin-right", "1rem");
 		vlayout.setWidth("98%");
 		add(layout, vlayout);
 	}
@@ -571,7 +621,7 @@ public class UserView extends VerticalLayout {
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
-		exporter.setFileName("APMIS_Users" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+		exporter.setFileName("APMIS_Users_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -638,7 +688,7 @@ public class UserView extends VerticalLayout {
 	}
 
 	private void configureForm(UserDto user) {
-		
+
 		userForm = new UserForm(regions, provinces, districts, user, false);
 		userForm.setSizeFull();
 //		form.addUserFieldValueChangeEventListener(this::suggestUserName);
@@ -646,15 +696,15 @@ public class UserView extends VerticalLayout {
 		userForm.addResetPasswordListener(this::resetUserPassWord);
 		userForm.addSaveListener(this::saveUser);
 		userForm.addDeleteListener(this::deleteContact);
-		userForm.addCloseListener(e -> {						
+		userForm.addCloseListener(e -> {
 			UI.getCurrent().getPage().reload();
-			closeEditor();			
+			closeEditor();
 		});
 
 	}
 
 	private Component getContent() {
-		
+
 		// content.setFlexGrow(2, grid);
 		mainContainer.setFlexGrow(4, userForm);
 		mainContainer.addClassNames("content");
@@ -662,18 +712,16 @@ public class UserView extends VerticalLayout {
 		mainContainer.add(grid, userForm);
 		return mainContainer;
 	}
-	
 
-	//editing existing user :open dialog with data in it
+	// editing existing user :open dialog with data in it
 	public void editUser(UserDto userr, boolean isEdMode) {
 
-		mainContainer.remove(userForm);	
+		mainContainer.remove(userForm);
 		configureForm(userr);
 		mainContainer.add(userForm);
 
-		
 		isNewUser = false;
-		//configureForm(userr);//this make sure the userform dialog is a new container
+		// configureForm(userr);//this make sure the userform dialog is a new container
 		userForm.setUser(userr);
 		userForm.setVisible(true);
 		userForm.setSizeFull();
@@ -681,15 +729,15 @@ public class UserView extends VerticalLayout {
 		setFiltersVisible(false);
 		addClassName("editing");
 		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr));
-		
+
 	}
 
-	//new user... dialog with no data in it
+	// new user... dialog with no data in it
 	public void editUser(boolean isEdMode) {
-		
+
 		isNewUser = true;
 		UserDto user = new UserDto();
-	//	configureForm(user); //this make sure the userform dialog is a new container
+		// configureForm(user); //this make sure the userform dialog is a new container
 		userForm.createPassword.setVisible(false);
 		userForm.setUser(user);
 //		form.addUserFieldValueChangeEventListener(this::suggestUserName);
@@ -699,8 +747,8 @@ public class UserView extends VerticalLayout {
 		setFiltersVisible(false);
 		userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
 		userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
-		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());			
-		}
+		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
+	}
 
 	private void updateRowCount() {
 
@@ -722,9 +770,9 @@ public class UserView extends VerticalLayout {
 	private void setFiltersVisible(boolean state) {
 		displayFilters.setVisible(state);
 		createUserButton.setVisible(state);
-		exportUsersButton.setVisible(state);
+//		exportUsersButton.setVisible(state);
 		importUsers.setVisible(state);
-		exportRolesButton.setVisible(state);
+//		exportRolesButton.setVisible(state);
 		bulkModeButton.setVisible(state);
 		exportUsers.setVisible(state);
 		searchField.setVisible(state);
@@ -757,7 +805,8 @@ public class UserView extends VerticalLayout {
 			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
 		}
 		grid.getDataProvider().refreshAll();
-		closeEditor();;
+		closeEditor();
+		;
 	}
 
 	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
@@ -765,7 +814,7 @@ public class UserView extends VerticalLayout {
 		UserForm formLayout = (UserForm) event.getSource();
 
 		formLayout.suggestUserName(!isNewUser);
-		
+
 		if (!isNewUser) {
 			event.getSource().lastName.addValueChangeListener(e -> {
 				if (formLayout.userName.isEmpty()) {
@@ -788,8 +837,8 @@ public class UserView extends VerticalLayout {
 	private void suggestUserNameWorking() {
 
 		if (!userForm.firstName.isEmpty() && !userForm.lastName.isEmpty() && userForm.userName.isEmpty()) {
-			userForm.userName
-					.setValue(UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
+			userForm.userName.setValue(
+					UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 		}
 
 	}
@@ -936,7 +985,7 @@ public class UserView extends VerticalLayout {
 		confirmationPopup.addConfirmListener(e -> disableUser(grid.getSelectedItems()));
 		confirmationPopup.open();
 	}
-	
+
 	class UserRoleCustomComparator implements Comparator<UserRole> {
 		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
 				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",

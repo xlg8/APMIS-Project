@@ -31,9 +31,18 @@ public class RegionReferenceDto extends InfrastructureDataReferenceDto implement
 		super(uuid);
 	}
 
+	public RegionReferenceDto(String uuid, String caption) {
+		setUuid(uuid);
+		setCaption(caption);
+	}
+	
 	public RegionReferenceDto(String uuid, String caption, Long externalId) {
 		super(uuid, caption, externalId);
 	}
+	
+//	public RegionReferenceDto(String uuid, String caption, Long externalId,  Integer number, String ps_af, String fa_af) {
+//		super(uuid, caption, externalId, number,  ps_af, fa_af);
+//	}
 
 	@Override
 	public int keyCompareTo(StatisticsGroupingKey o) {

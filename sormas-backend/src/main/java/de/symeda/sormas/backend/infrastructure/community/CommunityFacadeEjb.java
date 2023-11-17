@@ -844,6 +844,8 @@ System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.crea
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setFa_af(entity.getFa_af());
+		dto.setPs_af(entity.getPs_af());
 		dto.setGrowthRate(entity.getGrowthRate());
 		dto.setDistrict(DistrictFacadeEjb.toReferenceDto(entity.getDistrict()));
 		dto.setDistrictexternalId(entity.getDistrict().getExternalId());

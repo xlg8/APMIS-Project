@@ -36,10 +36,18 @@ public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictI
 
 	List<DistrictReferenceDto> getAllActiveByRegion(String regionUuid);
 
+	List<DistrictReferenceDto> getAllActiveByRegionPashto(String regionUuid);
+	
+	List<DistrictReferenceDto> getAllActiveByRegionDari(String regionUuid);
+	
 	int getCountByRegion(String regionUuid);
 	
-	List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long RegionId, CampaignDto campaignDt);
+	List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long RegionId, CampaignDto campaignDt); 
 
+	List<DistrictDto> getAllActiveAsReferenceAndPopulationPashto(Long RegionId, CampaignDto campaignDt); 
+	
+	List<DistrictDto> getAllActiveAsReferenceAndPopulationDari(Long RegionId, CampaignDto campaignDt);
+	
 	Page<DistrictIndexDto> getIndexPage(DistrictCriteria districtCriteria, Integer offset, Integer size, List<SortProperty> sortProperties);
 
 	DistrictDto getDistrictByUuid(String uuid);
@@ -48,7 +56,11 @@ public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictI
 
 	DistrictReferenceDto getDistrictReferenceById(long id);
 
-	List<DistrictReferenceDto> getAllActiveAsReference();
+	List<DistrictReferenceDto> getAllActiveAsReference(); 
+	
+	List<DistrictReferenceDto> getAllActiveAsReferencePashto();
+	
+	List<DistrictReferenceDto> getAllActiveAsReferenceDari();
 
 	List<DistrictReferenceDto> getByName(String name, RegionReferenceDto regionRef, boolean includeArchivedEntities);
 	

@@ -1,22 +1,29 @@
 package com.cinoteck.application.views.reports;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.cinoteck.application.UserProvider;
 import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
@@ -26,6 +33,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -34,14 +42,13 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
 
-@Route(layout = CompletionAnalysisTabsheet.class)
-public class CompletionAnalysisView extends VerticalLayout {
+@Route(layout = ReportView.class)
 
-	/**
-	 * 
-	 */
+public class DataTimelinessReportTab extends VerticalLayout implements RouterLayout {
+
 	private static final long serialVersionUID = -6242228590115105671L;
 	private ComboBox<CampaignReferenceDto> campaign = new ComboBox<>();
+	ComboBox<CampaignFormMetaReferenceDto> campaignFormCombo = new ComboBox<>();	
 	private ComboBox<AreaReferenceDto> regionFilter = new ComboBox<>();
 	private ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>();
 	private ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>();
@@ -50,6 +57,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 
 	List<CampaignReferenceDto> campaigns;
 	List<CampaignReferenceDto> campaignPhases;
+	List<CampaignFormMetaReferenceDto> campaignForms;
 	List<AreaReferenceDto> regions;
 	List<RegionReferenceDto> provinces;
 	List<DistrictReferenceDto> districts;
@@ -63,20 +71,18 @@ public class CompletionAnalysisView extends VerticalLayout {
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
-	private UserProvider userProvider = new UserProvider();
-	
 	private void refreshGridData(FormAccess formAccess) {
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(),
+						.getByTimelinessAnalysis(criteria, query.getOffset(), query.getLimit(),
 								query.getSortOrders().stream()
 										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 												sortOrder.getDirection() == SortDirection.ASCENDING))
 										.collect(Collectors.toList()),
 								null)
 						.stream(),
-				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(
+				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByTimelinessAnalysisCount(
 						criteria, query.getOffset(), query.getLimit(),
 						query.getSortOrders().stream()
 								.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
@@ -87,7 +93,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 		grid.setDataProvider(dataProvider);
 	}
 
-	public CompletionAnalysisView() {
+	public DataTimelinessReportTab() {
 
 		this.criteria = new CampaignFormDataCriteria();
 
@@ -108,6 +114,11 @@ public class CompletionAnalysisView extends VerticalLayout {
 		campaign.addValueChangeListener(e -> {
 			CampaignReferenceDto selectedCAmpaign = e.getValue();
 			if (selectedCAmpaign != null) {
+				campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetasAsReferencesByCampaign(
+								campaign.getValue().getUuid());
+				campaignFormCombo.setItems(campaignForms);
+				
 				criteria.campaign(selectedCAmpaign);
 				refreshGridData(formAccess);
 			} else {
@@ -116,31 +127,50 @@ public class CompletionAnalysisView extends VerticalLayout {
 			}
 
 		});
+		
+		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
+//		campaignFormCombo.getStyle().set("padding-top", "0px !important");
+//		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
+		campaignFormCombo.setClassName("col-sm-6, col-xs-6");
+		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+				.getCampaignFormMetasAsReferencesByCampaign(
+						campaign.getValue().getUuid());
+		campaignFormCombo.setItems(campaignForms);
+//		
+		
+//
+		
+		campaignFormCombo.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.setCampaignFormMeta(e.getValue());
+//				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
+//						.getCampaignFormMetaByUuid(e.getValue().getUuid());
+//				importanceSwitcher.setReadOnly(false);
+				refreshGridData(formAccess);
+				// add method to update the grid after this combo changes
+
+			} else {
+
+				criteria.setCampaignFormMeta(null);
+//				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
+//						.getCampaignFormMetaByUuid(e.getValue().getUuid());
+//				importanceSwitcher.setReadOnly(false);
+				refreshGridData(formAccess);
+			}
+//			updateRowCount();
+
+		});
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		
-		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
-		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
-		} else {
-			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-		}
+		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
-			if (selectedArea != null) {				
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
-					provinceFilter.setItems(provinces);
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
-					provinceFilter.setItems(provinces);
-				} else {		
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
-					provinceFilter.setItems(provinces);
-				}	
+			if (selectedArea != null) {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
+				provinceFilter.setItems(provinces);
 				criteria.campaign(campaign.getValue());
 				criteria.area(selectedArea);
 
@@ -159,16 +189,8 @@ public class CompletionAnalysisView extends VerticalLayout {
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
 			if (selectedRegion != null) {
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
-					districtFilter.setItems(districts);
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
-					districtFilter.setItems(districts);
-				} else {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
-					districtFilter.setItems(districts);
-				}					
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
+				districtFilter.setItems(districts);
 				criteria.region(selectedRegion);
 				refreshGridData(formAccess);
 			} else {
@@ -193,16 +215,16 @@ public class CompletionAnalysisView extends VerticalLayout {
 			}
 		});
 
-		errorFilter.setClearButtonVisible(true);
-		errorFilter.setLabel("Error Status");
-		errorFilter.setPlaceholder("Error Status");
-		errorFilter.setItems("Error Report", "None Error Report");
-		errorFilter.addValueChangeListener(e -> {
-//			DistrictReferenceDto selectedDistrict = e.getValue();
-			criteria.setError_status(e.getValue());
-			refreshGridData(formAccess);
-
-		});
+//		errorFilter.setClearButtonVisible(true);
+//		errorFilter.setLabel("Error Status");
+//		errorFilter.setPlaceholder("Error Status");
+//		errorFilter.setItems("Error Report", "None Error Report");
+//		errorFilter.addValueChangeListener(e -> {
+////			DistrictReferenceDto selectedDistrict = e.getValue();
+//			criteria.setError_status(e.getValue());
+//			refreshGridData(formAccess);
+//
+//		});
 
 		resetButton = new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e -> {
@@ -238,7 +260,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport,
+		filterLayout.add(campaign, campaignFormCombo,  regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport,
 				anchor);
 
 		HorizontalLayout layout = new HorizontalLayout();
@@ -255,9 +277,10 @@ public class CompletionAnalysisView extends VerticalLayout {
 	public void reload() {
 		grid.getDataProvider().refreshAll();
 		criteria.campaign(campaign.getValue());
+//		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
+
 		criteria.area(regionFilter.getValue());
 //		criteria.setFormType(campaignPhase.getValue().toString());
-//		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
 //		criteria.area(regionCombo.getValue());
 //		criteria.region(provinceCombo.getValue());
 //		criteria.district(districtCombo.getValue());
@@ -272,36 +295,27 @@ public class CompletionAnalysisView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-//		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
-
+		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
+		//Creating user Model Getter was used to get the data for Form Name on the Grid 
+		//TODO Create Pojo and i18Ln Captionalso 
+		grid.addColumn(CampaignFormDataIndexDto::getCreatingUser).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
 				.setSortProperty("region").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
 				.setSortProperty("province").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
 				.setSortProperty("district").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getCcode)
-				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
-				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber")
-				.setSortable(true).setResizable(true);
 
+		
+		//Analysis A  && B Model Getter was used to get the data for Late Form Count while B is uses to get the %  on the Grid 
+				//TODO Create Pojo and i18Ln Caption also 
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor")
+				.setHeader(I18nProperties.getCaption(Captions.dataTimeLinessLateFormCount)).setSortProperty("supervisor")
 				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.percentage)).setSortProperty("revisit").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
-				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
-				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getError_status).setHeader(I18nProperties.getCaption("Error Status"))
-				.setSortProperty("errorfilter").setSortable(true).setResizable(true);
-
+	
 		grid.setVisible(true);
 		String numberOfRows = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(criteria, null,
 				null, null, null);
@@ -324,7 +338,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		
-		String exportFileName = "Completion_Analysis_"+ campaign.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+		String exportFileName = "Data Timeliness Report_"+ campaign.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 
 		exporter.setFileName(exportFileName);
 

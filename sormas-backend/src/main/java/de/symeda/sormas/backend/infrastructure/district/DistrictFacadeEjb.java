@@ -55,6 +55,7 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictFacade;
@@ -111,6 +112,16 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	}
 
 	@Override
+	public List<DistrictReferenceDto> getAllActiveAsReferencePashto() {
+		return service.getAllActive(District.PS_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveAsReferenceDari() {
+		return service.getAllActive(District.FA_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+	}
+	
+	@Override
 	public List<DistrictReferenceDto> getAllActiveByArea(String areaUuid) {
 
 		Area area = areaService.getByUuid(areaUuid);
@@ -122,6 +133,18 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		Region region = regionService.getByUuid(regionUuid);
 		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(f -> toReferenceDto(f)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveByRegionPashto(String regionUuid) {
+		Region region = regionService.getByUuid(regionUuid);
+		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<DistrictReferenceDto> getAllActiveByRegionDari(String regionUuid) {
+		Region region = regionService.getByUuid(regionUuid);
+		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
 	}
 
 	@Override
@@ -441,6 +464,26 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
 		return dto;
 	}
+	
+	public static DistrictReferenceDto toReferenceDtoP(District entity) {
+
+		if (entity == null) {
+			return null;
+		}
+
+		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.getPs_af());
+		return dto;
+	}
+	
+	public static DistrictReferenceDto toReferenceDtoD(District entity) {
+
+		if (entity == null) {
+			return null;
+		}
+
+		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.getFa_af());
+		return dto;
+	}
 
 	public DistrictDto toDto(District entity) {
 
@@ -452,6 +495,8 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setFa_af(entity.getFa_af());
+		dto.setPs_af(entity.getPs_af());
 		dto.setEpidCode(entity.getEpidCode());
 		dto.setRisk(entity.getRisk());
 		dto.setGrowthRate(entity.getGrowthRate());
@@ -482,6 +527,8 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		DtoHelper.fillDto(dto, entity);
 
 		dto.setName(entity.getName());
+		dto.setFa_af(entity.getFa_af());
+		dto.setPs_af(entity.getPs_af());
 		dto.setEpidCode(entity.getEpidCode());
 		dto.setRisk(entity.getRisk());
 		dto.setGrowthRate(entity.getGrowthRate());
@@ -566,6 +613,48 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	return resultData;
   }
   
+	@Override
+	public List<DistrictDto> getAllActiveAsReferenceAndPopulationPashto(Long regionId, CampaignDto campaignDt) {
+		String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn, p.selected from district a\n"
+				+ "left outer join populationdata p on a.id = p.district_id\n"
+				+ "left outer join region ar on ar.id = "+regionId+"\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
+				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
+		
+		System.out.println("::::::"+queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		List<DistrictDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+
+		resultData.addAll(resultList.stream()
+				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString(), (String) result[5].toString())).collect(Collectors.toList()));
+		
+	return resultData;
+  }
+	
+	@Override
+	public List<DistrictDto> getAllActiveAsReferenceAndPopulationDari(Long regionId, CampaignDto campaignDt) {
+		String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn, p.selected from district a\n"
+				+ "left outer join populationdata p on a.id = p.district_id\n"
+				+ "left outer join region ar on ar.id = "+regionId+"\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
+				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
+		
+		System.out.println("::::::"+queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		List<DistrictDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+
+		resultData.addAll(resultList.stream()
+				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString(), (String) result[5].toString())).collect(Collectors.toList()));
+		
+	return resultData;
+  }
+	
 	public List<DistrictIndexDto> getAllDistricts() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<District> cq = cb.createQuery(District.class);

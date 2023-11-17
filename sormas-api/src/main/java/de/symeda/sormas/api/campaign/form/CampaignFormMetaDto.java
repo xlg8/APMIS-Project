@@ -23,11 +23,14 @@ public class CampaignFormMetaDto extends EntityDto {
 	private static final long serialVersionUID = -1163673887940552133L;
 
 	public static final String FORM_ID = "formId";
+	public static final String FORM_NAME = "formName";
 	public static final String LANGUAGE_CODE = "languageCode";
 	public static final String CAMPAIGN_FORM_ELEMENTS = "campaignFormElements";
 	public static final String FORM_CATEGORY = "formCategory";
 	public static final String DAYSTOEXPIRE = "daysExpired";
 	public static final String DISTRICTENTRY = "districtentry";
+	public static final String FORM_TYPE = "formType";
+	public static final String MODALITY = "modality";
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String formId;
@@ -44,13 +47,13 @@ public class CampaignFormMetaDto extends EntityDto {
 	private CampaignPhase formType;	
 	
 	@Enumerated(EnumType.STRING)
-	private Modality formModality;
+	private Modality modality;
 	
 	@Enumerated(EnumType.STRING)
 	private FormAccess formCategory;
 	private int daysExpired;
 
-	private boolean districtentry;
+	private boolean districtentry = false;
 
 	public static CampaignFormMetaDto build() {
 		CampaignFormMetaDto campaignMeta = new CampaignFormMetaDto();
@@ -114,12 +117,12 @@ public class CampaignFormMetaDto extends EntityDto {
 		this.formType = formType;
 	}
 	
-	public Modality getFormModality() {
-		return formModality;
+	public Modality getModality() {
+		return modality;
 	}
 
-	public void setFormModality(Modality formModality) {
-		this.formModality = formModality;
+	public void setModality(Modality modality) {
+		this.modality = modality;
 	}
 
 	public int getDaysExpired() {

@@ -12,7 +12,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -21,8 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.data.provider.Query;
 
 import de.symeda.sormas.api.campaign.data.translation.TranslationElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -40,6 +38,7 @@ public class TranslationGridComponent extends VerticalLayout {
 
 	CampaignFormMetaDto campaignFormMetaDto;
 	CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
+	List<CampaignFormTranslations> campaignFormTranslationsList = new ArrayList<>();
 
 	TranslationElement translationBeenEdited;
 	TranslationElement newTranslation;
@@ -50,7 +49,6 @@ public class TranslationGridComponent extends VerticalLayout {
 
 	HorizontalLayout vr3 = new HorizontalLayout();
 	HorizontalLayout vr1 = new HorizontalLayout();
-//	HorizontalLayout vr11 = new HorizontalLayout();
 
 	private Grid<CampaignFormTranslations> outerGrid = new Grid<>(CampaignFormTranslations.class, false);
 	private GridListDataView<CampaignFormTranslations> outerDataView;
@@ -60,6 +58,7 @@ public class TranslationGridComponent extends VerticalLayout {
 	private ListDataProvider<TranslationElement> dataprovider;
 
 	private boolean isNewForm = false;
+	ListDataProvider<CampaignFormTranslations> outerDataprovider;
 
 	public TranslationGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 		this.campaignFormMetaDto = campaignFormMetaDto;
@@ -88,8 +87,8 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		List<CampaignFormTranslations> existingFormTranslations = campaignFormMetaDto.getCampaignFormTranslations();
 		existingFormTranslations = existingFormTranslations == null ? new ArrayList<>() : existingFormTranslations;
-		ListDataProvider<CampaignFormTranslations> outerDataprovider = DataProvider
-				.fromStream(existingFormTranslations.stream());
+//		ListDataProvider<CampaignFormTranslations> 
+		outerDataprovider = DataProvider.fromStream(existingFormTranslations.stream());
 
 		outerDataView = outerGrid.setItems(outerDataprovider);
 		outerGrid.setVisible(true);
@@ -100,7 +99,7 @@ public class TranslationGridComponent extends VerticalLayout {
 	private void configureFields() {
 
 		languageCode.setItems("ps_AF", "fa_AF");
-		languageCode.setHelperText("You only need to select this field once");	
+		languageCode.setHelperText("You only need to select this field once");
 	}
 
 	private Component getContent() {
@@ -149,26 +148,26 @@ public class TranslationGridComponent extends VerticalLayout {
 			grid.setSelectionMode(SelectionMode.SINGLE);
 			grid.setMultiSort(true, MultiSortPriority.APPEND);
 			grid.setSizeFull();
-			grid.setColumnReorderingAllowed(true);			
+			grid.setColumnReorderingAllowed(true);
 			grid.setAllRowsVisible(true);
-			
+
 			plus.setId("sub");
 			del.setId("sub");
 			cancel.setId("sub");
 			save.setId("sub");
-			
+
 			if (mainLayout.isVisible()) {
 				mainLayout.setVisible(false);
 			}
-			
+
 			if (vr3.isVisible()) {
 				vr3.setVisible(false);
 			}
-			
+
 			if (!vr1.isVisible()) {
 				vr1.setVisible(true);
 			}
-			
+
 			outerGrid.setVisible(false);
 			grid.setVisible(true);
 			back.setVisible(true);
@@ -177,7 +176,7 @@ public class TranslationGridComponent extends VerticalLayout {
 					.collect(Collectors.toList());
 			allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
 			dataprovider = DataProvider.fromStream(allTranslations.stream());
-			dataView = grid.setItems(dataprovider);			
+			dataView = grid.setItems(dataprovider);
 		});
 
 		grid.addSelectionListener(ee -> {
@@ -190,17 +189,17 @@ public class TranslationGridComponent extends VerticalLayout {
 				vr1.setEnabled(isSingleSelection);
 				vr3.setEnabled(isSingleSelection);
 
-				if(mainLayout.isVisible()) {
+				if (mainLayout.isVisible()) {
 					mainLayout.setVisible(false);
 				}
-				
-				if(vr3.isVisible()) {
+
+				if (vr3.isVisible()) {
 					vr3.setVisible(false);
 				}
-				
+
 				vr1.setVisible(false);
 				formLayout.setVisible(true);
-				vr3.setVisible(true);							
+				vr3.setVisible(true);
 
 				if (translationBeenEdited.getElementId() != null) {
 					elementId.setValue(translationBeenEdited.getElementId());
@@ -220,17 +219,17 @@ public class TranslationGridComponent extends VerticalLayout {
 			cancel.setId("main");
 			save.setId("main");
 
-			if(formLayout.isVisible()) {
+			if (formLayout.isVisible()) {
 				formLayout.setVisible(false);
 			}
-			
-			if(vr3.isVisible()) {
+
+			if (vr3.isVisible()) {
 				vr3.setVisible(false);
 			}
 			back.setVisible(false);
 			grid.setVisible(false);
 			outerGrid.setVisible(true);
-			
+
 		});
 
 		plus.addClickListener(e -> {
@@ -296,46 +295,54 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					elementId.setValue("");
 					caption.setValue("");
-
-					System.out.println("Egbon ah dey hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+					
 					save.setText("Save");
-					grid.setItems(dataprovider);		
+					grid.setItems(dataprovider);
 				}
 			}
 		});
 
 		save.addClickListener(e -> {
 
-			if (((Button) e.getSource()).getText().equals("main")) {
-				
-				vr1.setVisible(true);
-				mainLayout.setVisible(false);
-				vr3.setVisible(false);
-				
-				newTranslation = new TranslationElement();
-				
-				if(languageCode.getValue() != null) {
+			if (((Button) e.getSource()).getId().get().equals("main")) {
+
+				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
+				List<CampaignFormTranslations> campaignFormTranslationsList = new ArrayList<>();
+				List<TranslationElement> translationSet = new ArrayList<>();
+				if (languageCode.getValue() != null) {
+
+					System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+					campaignFormTranslations.setLanguageCode(languageCode.getValue());
+					campaignFormTranslations.setTranslations(translationSet);
 					
-				newTranslation.setElementId(elementId.getValue());
-				newTranslation.setCaption(caption.getValue());
+					if (campaignFormMetaDto == null) {
 
-				translationSet.add(newTranslation);
-				campaignFormTranslations.setLanguageCode(languageCode.getValue());
-				campaignFormTranslations.setTranslations(translationSet);
+						campaignFormMetaDto = new CampaignFormMetaDto();
+						campaignFormTranslationsList.add(campaignFormTranslations);
+						campaignFormMetaDto.setCampaignFormTranslations(campaignFormTranslationsList);
+					}
 
-//				campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
-//				outerGrid.setItems();
+					campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
+					outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+//					getGridData();
+					
+					vr1.setVisible(true);
+					mainLayout.setVisible(false);
+					vr3.setVisible(false);
+					Notification.show("New Language Translation Saved");
+				} else {
+					Notification.show("Choose a Language Translation Type you want to add for Form");
 				}
 			} else {
-				if(((Button) e.getSource()).getText().equals("sub")) {
-					
+				if (((Button) e.getSource()).getId().get().equals("sub")) {
+
 					vr1.setVisible(true);
 					formLayout.setVisible(false);
 					vr3.setVisible(false);
-					
-					if(elementId.getValue() != null && caption.getValue() != null) {
-						
-					}					
+
+					if (elementId.getValue() != null && caption.getValue() != null) {
+
+					}
 				}
 
 			}
@@ -349,6 +356,10 @@ public class TranslationGridComponent extends VerticalLayout {
 		formLayout.setColspan(caption, 2);
 
 		return vrsub;
+	}
+
+	public List<CampaignFormTranslations> getGridData() {
+		return outerGrid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
 	}
 
 }

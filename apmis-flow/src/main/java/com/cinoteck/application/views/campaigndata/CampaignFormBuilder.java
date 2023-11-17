@@ -11,6 +11,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,12 +85,17 @@ import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+
 import de.symeda.sormas.api.infrastructure.PopulationDataCriteria;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
+
+import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 
@@ -106,7 +112,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private Map<String, String> userTranslations = new HashMap<String, String>();
 	private Map<String, String> userOptTranslations = new HashMap<String, String>();
 	Map<String, Component> fields;
-	private Map<String, String> optionsValues = new LinkedHashMap<String, String>();
+
+	private Map<String, String> optionsValues = new HashMap<String, String>();
+	private Map<String, String> optionsOrder = new HashMap<String, String>();
+
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
@@ -121,7 +130,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
-	UserProvider currentUser = new UserProvider();
+//	private UserProvider currentUser = new UserProvider();
 
 	private ExpressionProcessor expressionProcessor;
 
@@ -167,14 +176,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// this.campaignFormLayout = new FormLayout();
 		this.fields = new HashMap<>();
 		this.translationsOpt = translations;
-		
+
 		UserProvider userProvider = new UserProvider();
 		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		this.userLocale = I18nProperties.getUserLanguage().getLocale();
-		
-		
+
 //		System.out.println(userProvider.getUser().getLanguage() +" : I18nProperties.getUserLanguage().getLocale(): "+I18nProperties.getUserLanguage().getLocale());
-		
+
 		if (userLocale != null) {
 			if (translations != null) {
 				translations.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString())).findFirst()
@@ -185,11 +193,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 		}
 
 		FormLayout vertical_ = new FormLayout();
-
+		VerticalLayout formNameLabelLayout = new VerticalLayout();
 		Label formNam = new Label();
 		formNam.getElement().setProperty("innerHTML", "<h3>" + formName + "</h3>");
-		vertical_.setColspan(formNam, 3);
-		vertical_.add(formNam);
+		formNameLabelLayout.add(formNam);
+		vertical_.setColspan(formNameLabelLayout, 3);
+		vertical_.add(formNameLabelLayout);
 
 		cbCampaign.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
 		cbCampaign.setValue(campaignReferenceDto);
@@ -212,7 +221,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 		System.out.println("++++++++++++++++++++++++++++++++"+popDto.size());
 		
 		cbArea.setRequired(true);
-		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());		
+
+		}
 		cbArea.setId("my-disabled-textfield");
 		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
 
@@ -237,9 +253,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid())
-						.stream().filter(ex -> popDto.stream().anyMatch(dto -> dto.getRegion().getUuid().equals(ex.getUuid()))).collect(Collectors.toList());
-						
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+				} else {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+
+				}
 				
 				cbRegion.clear();
 				cbRegion.setReadOnly(false);
@@ -261,9 +283,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid())
-						.stream().filter(ex -> popDto.stream().anyMatch(dto -> dto.getDistrict().getUuid().equals(ex.getUuid()))).collect(Collectors.toList());
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+				} else {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				}
 				cbDistrict.setReadOnly(false);
+
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
@@ -376,39 +405,76 @@ public class CampaignFormBuilder extends VerticalLayout {
 				new ResponsiveStep("1000px", 3));
 		add(vertical_);
 
-		if (currentUser.getUser().getArea() != null) {
-			cbArea.setValue(currentUser.getUser().getArea());
+		if (userProvider.getUser().getArea() != null) {
+			AreaReferenceDto singleArea = userProvider.getUser().getArea();	
+			AreaDto singleAreaDto = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(singleAreaDto.getUuid(), singleAreaDto.getPs_af());
+				cbArea.setValue(singleAreatw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(singleAreaDto.getUuid(), singleAreaDto.getFa_af());
+				cbArea.setValue(singleAreatw0);				
+			} else {
+				cbArea.setValue(userProvider.getUser().getArea());
+			}	
+			
+			// rda56kGbCAja
 			cbArea.setReadOnly(true);
 			;
 
 			List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
-					.getAllActiveByArea(currentUser.getUser().getArea().getUuid());
+					.getAllActiveByArea(userProvider.getUser().getArea().getUuid());
 			cbRegion.clear();
 			cbRegion.setReadOnly(false);
 			;
 			cbRegion.setItems(provinces);
 		}
 
-		if (currentUser.getUser().getRegion() != null) {
-			cbRegion.setValue(currentUser.getUser().getRegion());
+		if (userProvider.getUser().getRegion() != null) {
+			RegionReferenceDto singleRegion = userProvider.getUser().getRegion();	
+			RegionDto singleRegionDto = FacadeProvider.getRegionFacade().getByUuid(singleRegion.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				RegionReferenceDto singleRegiontw0 = new RegionReferenceDto(singleRegionDto.getUuid(), singleRegionDto.getPs_af());
+				cbRegion.setValue(singleRegiontw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				RegionReferenceDto singleRegiontw0 = new RegionReferenceDto(singleRegionDto.getUuid(), singleRegionDto.getFa_af());
+				cbRegion.setValue(singleRegiontw0);			
+			} else {
+				cbRegion.setValue(userProvider.getUser().getRegion());
+			}	
+
 			cbRegion.setReadOnly(true);
 			;
 
 			List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
-					.getAllActiveByRegion(currentUser.getUser().getRegion().getUuid());
+					.getAllActiveByRegion(userProvider.getUser().getRegion().getUuid());
 			cbDistrict.clear();
 			cbDistrict.setReadOnly(false);
 			;
 			cbDistrict.setItems(districts);
 		}
 
-		if (currentUser.getUser().getDistrict() != null) {
-			cbDistrict.setValue(currentUser.getUser().getDistrict());
+		if (userProvider.getUser().getDistrict() != null) {
+			DistrictReferenceDto singleDistrict = userProvider.getUser().getDistrict();	
+			DistrictDto singleDistrictDto = FacadeProvider.getDistrictFacade().getByUuid(singleDistrict.getUuid());	
+			
+			if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {										
+				DistrictReferenceDto singleDistricttw0 = new DistrictReferenceDto(singleDistrictDto.getUuid(), singleDistrictDto.getPs_af());
+				cbDistrict.setValue(singleDistricttw0);
+			} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				DistrictReferenceDto singleDistricttw0 = new DistrictReferenceDto(singleDistrictDto.getUuid(), singleDistrictDto.getFa_af());
+				cbDistrict.setValue(singleDistricttw0);		
+			} else {
+				cbDistrict.setValue(userProvider.getUser().getDistrict());
+			}
+			
 			cbDistrict.setReadOnly(true);
 			;
 
 			List<CommunityReferenceDto> districts = FacadeProvider.getCommunityFacade()
-					.getAllActiveByDistrict(currentUser.getUser().getDistrict().getUuid());
+					.getAllActiveByDistrict(userProvider.getUser().getDistrict().getUuid());
 			cbCommunity.clear();
 			cbCommunity.setReadOnly(false);
 			;
@@ -487,21 +553,21 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				optionsValues = formElement.getOptions().stream()
 						.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption)); // .collect(Collectors.toList());
-				
 
 				if (userLocale != null) {
 					if (translationsOpt != null) {
 						translationsOpt.stream().filter(t -> t.getLanguageCode().equals(userLocale.toString()))
-					    .findFirst().ifPresent(filteredTranslations -> filteredTranslations.getTranslations().stream()
-					        .filter(cd -> cd.getElementId().equals(formElement.getId())).findFirst()
-					        .ifPresent(optionsList -> {
-					            if (optionsList.getOptions() != null) {
-					                userOptTranslations = optionsList.getOptions().stream()
-					                    .filter(c -> c != null && c.getCaption() != null).collect(
-					                        Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption)
-					                    );
-					            }
-					        }));
+								.findFirst()
+								.ifPresent(filteredTranslations -> filteredTranslations.getTranslations().stream()
+										.filter(cd -> cd.getElementId().equals(formElement.getId())).findFirst()
+										.ifPresent(optionsList -> {
+											if (optionsList.getOptions() != null) {
+												userOptTranslations = optionsList.getOptions().stream()
+														.filter(c -> c != null && c.getCaption() != null)
+														.collect(Collectors.toMap(MapperUtil::getKey,
+																MapperUtil::getCaption));
+											}
+										}));
 					}
 				}
 
@@ -510,7 +576,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					// get18nOptCaption(formElement.getId(), optionsValues));
 				} else {
 					campaignFormElementOptions.setOptionsListValues(userOptTranslations);
-
 				}
 
 			} else {
@@ -575,8 +640,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 				labx.getElement().setProperty("innerHTML", get18nCaption(formElement.getId(),
 						get18nCaption(formElement.getId(), formElement.getCaption())));
 				labx.setId(formElement.getId());
-				vertical.setColspan(labx, 3);
-				vertical.add(labx);
+				
+VerticalLayout labelLayout = new VerticalLayout();
+				
+				labelLayout.add(labx);
+				vertical.setColspan(labelLayout, 3);
+				vertical.add(labelLayout);
 				if (dependingOnId != null && dependingOnValues != null) {
 					// needed
 					setVisibilityDependency(labx, dependingOnId, dependingOnValues, type);
@@ -643,95 +712,94 @@ public class CampaignFormBuilder extends VerticalLayout {
 //											errormsg == null ? caption + ": " + Validations.onlyDecimalNumbersAllowed : errormsg, caption) ));
 
 						numberField.addValueChangeListener(e -> {
-							
+
 							String inputValue = e.getValue() != null ? e.getValue().toString() : "";
 
-							
 							if (e.getValue() != null && e.getValue().toString().length() == 3) {
 								String result = inputValue.substring(0, 1);
-								System.out.println(result + " resultrrrr lento " + e.getValue().toString().length() + "ttt11111111111" +inputValue+ " tttttttttttttttttt" + result.length() );
+								System.out.println(result + " resultrrrr lento " + e.getValue().toString().length()
+										+ "ttt11111111111" + inputValue + " tttttttttttttttttt" + result.length());
 
-					         // Checking the finl length of the trimmd val
-					            int length = result.length();
-					            if (length == 1 && VaadinService.getCurrentRequest().getWrappedSession()
+								// Checking the finl length of the trimmd val
+								int length = result.length();
+								if (length == 1 && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
-					            	
-					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber").toString();
-					            	
-					            	int ccodeCheckLength = cCodeLengthCheck.length();
-					            	if(ccodeCheckLength == 6) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
-												.getAttribute("Clusternumber") + "000" + result;
-					            	}else if(ccodeCheckLength == 7) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
-												.getAttribute("Clusternumber") + "00" + result;
-					            	}
-					            	
-					                // Prefix "00" for single-digit numbers
-					            	
-									System.out.println(result + " resultrrrr lento ttt222222222222tttttttttttttttttt" + result.length() );
 
-					            }
-					        
-					            numberField.setValue(Double.parseDouble(result));
-							
+									String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+
+									int ccodeCheckLength = cCodeLengthCheck.length();
+									if (ccodeCheckLength == 6) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "000" + result;
+									} else if (ccodeCheckLength == 7) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "00" + result;
+									}
+
+									// Prefix "00" for single-digit numbers
+
+									System.out.println(result + " resultrrrr lento ttt222222222222tttttttttttttttttt"
+											+ result.length());
+
+								}
+
+								numberField.setValue(Double.parseDouble(result));
+
 							}
 							if (e.getValue() != null && e.getValue().toString().length() == 4) {
-								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
-								
+								String result = inputValue.substring(0, e.getValue().toString().length() - 2);
+
 //								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
 
-					            int length = result.length();
-					            if (length == 2  && VaadinService.getCurrentRequest().getWrappedSession()
+								int length = result.length();
+								if (length == 2 && VaadinService.getCurrentRequest().getWrappedSession()
 										.getAttribute("Clusternumber") != null) {
-					                // Prefix "0" for single-digit numbers
-					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+									// Prefix "0" for single-digit numbers
+									String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
 											.getAttribute("Clusternumber").toString();
-					            	
-					            	int ccodeCheckLength = cCodeLengthCheck.length();
-					            	if(ccodeCheckLength == 6) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+
+									int ccodeCheckLength = cCodeLengthCheck.length();
+									if (ccodeCheckLength == 6) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
 												.getAttribute("Clusternumber") + "00" + result;
-					            	}else if(ccodeCheckLength == 7) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
+									} else if (ccodeCheckLength == 7) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
 												.getAttribute("Clusternumber") + "0" + result;
-					            	}
+									}
 //					            	result  =VaadinService.getCurrentRequest().getWrappedSession()
 //											.getAttribute("Clusternumber") + "0" + result;
 //									System.out.println(result + " resultrrrr lento ttttttttttttttttttttt" + result.length() );
 
-					            }
+								}
 
-					            numberField.setValue(Double.parseDouble(result));
-							
+								numberField.setValue(Double.parseDouble(result));
+
 							}
 							if (e.getValue() != null && e.getValue().toString().length() == 5) {
 //								System.out.println(e.getValue() + "lento ttttttttttttttttttttt" + e.getValue().toString().length() );
-								String result = inputValue.substring(0,  e.getValue().toString().length() - 2);
-								
-//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
-								
-								
-//					            String trimmedValue = inputValue.replaceFirst("^0+(?!$)", "");
-					         // Check the length of the trimmed value
-					            int length = result.length();
-					            if (length == 3  && VaadinService.getCurrentRequest().getWrappedSession()
-										.getAttribute("Clusternumber") != null) {
-					                // Prefix "00" for single-digit numbers
-					            	
-					            	String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
-											.getAttribute("Clusternumber").toString();
-					            	
-					            	int ccodeCheckLength = cCodeLengthCheck.length();
-					            	if(ccodeCheckLength == 6) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
-												.getAttribute("Clusternumber") + "0" + result;
-					            	}else if(ccodeCheckLength == 7) {
-					            		result  =VaadinService.getCurrentRequest().getWrappedSession()
-												.getAttribute("Clusternumber") + result;
-					            	}
+								String result = inputValue.substring(0, e.getValue().toString().length() - 2);
 
+//								System.out.println(result + " result lento ttttttttttttttttttttt" + result.length() );
+
+//					            String trimmedValue = inputValue.replaceFirst("^0+(?!$)", "");
+								// Check the length of the trimmed value
+								int length = result.length();
+								if (length == 3 && VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("Clusternumber") != null) {
+									// Prefix "00" for single-digit numbers
+
+									String cCodeLengthCheck = VaadinService.getCurrentRequest().getWrappedSession()
+											.getAttribute("Clusternumber").toString();
+
+									int ccodeCheckLength = cCodeLengthCheck.length();
+									if (ccodeCheckLength == 6) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + "0" + result;
+									} else if (ccodeCheckLength == 7) {
+										result = VaadinService.getCurrentRequest().getWrappedSession()
+												.getAttribute("Clusternumber") + result;
+									}
 
 									numberField.setValue(Double.parseDouble(result));
 
@@ -910,16 +978,62 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
+					//Note: carrying out the option sorting only i the dropdown
+					//to avoid getting a null pointer fro other input types with the 
+					//option method because making all the checks global would require including the order value in other 
+					//input types that are not dropdown 
+					
+				// get the order valuie, do a null check incase order wouldnt be specified 
+					if (formElement.getOptions().stream().collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder)) != null){
+						//pop the map with the order based off the key 
+						optionsOrder = formElement.getOptions().stream()
+								.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder));
+					};
+					
+					if (userOptTranslations.size() == 0) {
+						campaignFormElementOptions.setOptionsListValues(optionsValues);
 
+//<<<<<<< HEAD
+					} else {
+						campaignFormElementOptions.setOptionsListValues(userOptTranslations);
+					}
+					//Trying toGetting order when using translation(not adequately tes)
+					if (optionsOrder != null) {
+						if (userOptTranslations.size() == 0) {
+							campaignFormElementOptions.setOptionsListOrder(optionsOrder);
+							} else {
+							campaignFormElementOptions.setOptionsListOrder(optionsOrder);
+						}
+					
+					}
+					
+					
+					final HashMap<String, String> dataOrder = (HashMap<String, String>) campaignFormElementOptions.getOptionsListOrder();
 
+					
+
+//=======
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
-//					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-for(String dtr : data.keySet()) {
-	System.out.println("_______________________________________"+dtr);
-}
-					select.setItems(data.keySet());
+
+					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
+					
+					if(dataOrder != null ) {
+						Comparator<String> orderComparator = (key1, key2) -> {
+						    String order1 = getOrderValue(dataOrder, key1);
+						    String order2 = getOrderValue(dataOrder, key2);
+						    return Integer.compare(Integer.parseInt(order1), Integer.parseInt(order2));
+						};
+
+						sortedKeys.sort(orderComparator);
+					}
+
+
+					
+
+					select.setItems(sortedKeys);
 
 					select.setRequiredIndicatorVisible(formElement.isImportant());
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
@@ -1030,6 +1144,15 @@ for(String dtr : data.keySet()) {
 
 		setId("campaignFormLayout");
 		setSizeFull();
+	}
+
+
+	private String getOrderValue(Map<String, String> data, String key) {
+	    String orderValue = data.get(key);
+	    if (orderValue != null) {
+	        return orderValue;
+	    }
+		return orderValue; 
 	}
 
 	public <T extends Component> void setFieldValue(T field, CampaignFormElementType type, Object value,
@@ -1541,8 +1664,9 @@ for(String dtr : data.keySet()) {
 			}
 
 			if (((AbstractField) formField).isRequiredIndicatorVisible()) {
-				System.out.println(((AbstractField) formField).getValue() + "++++++++++" +((AbstractField) formField).getId());
-				
+				System.out.println(
+						((AbstractField) formField).getValue() + "++++++++++" + ((AbstractField) formField).getId());
+
 				if (((AbstractField) formField).getValue() == null || ((AbstractField) formField).getValue() == "") {
 					hasErrorFormValues(6);
 					formField.getElement().setProperty("invalid", true);
@@ -1600,7 +1724,7 @@ for(String dtr : data.keySet()) {
 		invalidForm = true;
 
 	}
-	
+
 	public void hasErrorFormValuesReset() {
 		invalidForm = false;
 	}

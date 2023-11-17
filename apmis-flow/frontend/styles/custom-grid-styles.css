@@ -1,0 +1,5 @@
+[part~="cell"].lateData {
+    background: rgb(255, 240, 227) !important ;
+    color: black;
+    /*color: rgb(13, 105, 56) !important;*/
+}

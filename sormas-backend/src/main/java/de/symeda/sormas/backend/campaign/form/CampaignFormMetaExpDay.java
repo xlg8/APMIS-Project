@@ -4,6 +4,12 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import com.google.type.Date;
+
+import de.symeda.sormas.backend.campaign.Campaign;
 
 @Entity(name = "campaignformmetawithexp")
 public class CampaignFormMetaExpDay implements Serializable{// extends AbstractDomainObject {
@@ -15,11 +21,17 @@ public class CampaignFormMetaExpDay implements Serializable{// extends AbstractD
 	public static final String FORM_ID = "formId";
 	public static final String CAMPAIGN = "campaignId";
 	public static final String EXPIRE_DAY = "expiryDay"; 
+	public static final String EXPIRE_DATE = "endDate"; 
+
 
 	private String formId;
 	private String campaignId;
 	private int expiryDay;
-
+	private Date expiryDate;
+	
+	@ManyToOne
+	@JoinColumn(name = "uuid")
+	private Campaign campaigns;
 
 	
 	
@@ -28,6 +40,14 @@ public class CampaignFormMetaExpDay implements Serializable{// extends AbstractD
 		this.formId = formId;
 		this.campaignId = campaignId;
 		this.expiryDay = expiryDay;
+	}
+	
+	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay, Date expiryDate) {
+		super();
+		this.formId = formId;
+		this.campaignId = campaignId;
+		this.expiryDay = expiryDay;
+		this.expiryDate = expiryDate;
 	}
 
 	public CampaignFormMetaExpDay() {
@@ -60,6 +80,14 @@ public class CampaignFormMetaExpDay implements Serializable{// extends AbstractD
 
 	public void setExpiryDay(int expiryDay) {
 		this.expiryDay = expiryDay;
+	}
+
+	public Date getExpiryDate() {
+		return expiryDate;
+	}
+
+	public void setExpiryDate(Date expiryDate) {
+		this.expiryDate = expiryDate;
 	}
 
 	

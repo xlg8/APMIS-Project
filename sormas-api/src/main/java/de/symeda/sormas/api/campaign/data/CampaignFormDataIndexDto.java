@@ -16,6 +16,7 @@
 package de.symeda.sormas.api.campaign.data;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -48,15 +49,15 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String ANALYSIS_FIELD_D = "analysis_d";
 	public static final String CAMPAIGN_ID = "campaign_id";
 	public static final String ERROR_REPORT = "error_status";
-	
+
 	public static final String ANALYSIS_FIELD_A_ = "analysis_a_";
 	public static final String ANALYSIS_FIELD_B_ = "analysis_b_";
 	public static final String ANALYSIS_FIELD_C_ = "analysis_c_";
 	public static final String ANALYSIS_FIELD_D_ = "analysis_d_";
-	
+
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
-	
+
 	public static final String PERSON_TITLE = "personTitle";
 
 	private static final long serialVersionUID = -6672198324526771162L;
@@ -83,35 +84,20 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Long analysis_d;
 	private Long campaign_id;
 	private String error_status;
-	
+
 	private Integer analysis_a_;
 	private Integer analysis_b_;
 	private Integer analysis_c_;
 	private Integer analysis_d_;
-	
+
 	private String source;
 	private String creatingUser;
-	
+
 	private String personTitle;
-	
-	public CampaignFormDataIndexDto(
-		String uuid,
-		String campaign,
-		String form,
-		Object formValues,
-		String area,
-		Long rcode,
-		String region,
-		Long pcode,
-		String district,
-		Long dcode,
-		String community,
-		Integer clusternumber,
-		Long ccode,
-		Date formDate,
-		String formType,
-		String source,
-		String creatingUser) {
+
+	public CampaignFormDataIndexDto(String uuid, String campaign, String form, Object formValues, String area,
+			Long rcode, String region, Long pcode, String district, Long dcode, String community, Integer clusternumber,
+			Long ccode, Date formDate, String formType, String source, String creatingUser) {
 		this.uuid = uuid;
 		this.campaign = campaign;
 		this.form = form;
@@ -130,9 +116,22 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.source = source;
 		this.creatingUser = creatingUser;
 	}
-	
-	
-			//FLW Contructor
+
+	public CampaignFormDataIndexDto(String form, String uuid, Long rcode, String campaign, String creatingUser,
+			String area, String region, String district, Long analysis_a, Long analysis_b) {
+		this.form = form;
+		this.uuid = uuid;
+		this.rcode = rcode;
+		this.campaign = campaign;
+		this.creatingUser = creatingUser;
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.analysis_a = analysis_a;
+		this.analysis_b = analysis_b;
+	}
+
+	// FLW Contructor
 	public CampaignFormDataIndexDto(String area, String region, String district, Integer clusternumber, Long ccode,
 			String source, String creatingUser, String personTitle, String error_status) {
 		this.area = area;
@@ -140,119 +139,81 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.district = district;
 		this.clusternumber = clusternumber;
 		this.ccode = ccode;
-		this.source = source; //taskiaNumber
+		this.source = source; // taskiaNumber
 		this.creatingUser = creatingUser;
 		this.personTitle = personTitle;
 		this.error_status = "Error: Duplicate Tazkira number";
 	}
 
+	public CampaignFormDataIndexDto(String area, String region, String district, String community, Integer clusternumer,
+			// Long clusternumber_,
+			Long ccode, Long analysis_a, Long analysis_b, Long analysis_c, Long analysis_d
 
+	) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.clusternumber = clusternumer;
+		// this.clusternumber_ = clusternumber_;
+		this.ccode = ccode;
+		this.analysis_a = analysis_a;
+		this.analysis_b = analysis_b;
+		this.analysis_c = analysis_c;
+		this.analysis_d = analysis_d;
 
-	public CampaignFormDataIndexDto(
-			String area,
-			String region,
-			String district,
-			String community,
-			Integer clusternumer,
-			//Long clusternumber_,
-			Long ccode,
-			Long analysis_a,
-			Long analysis_b,
-			Long analysis_c,
-			Long analysis_d
-			
-			) {
-			this.area = area;
-			this.region = region;
-			this.district = district;
-			this.community = community;
-			this.clusternumber = clusternumer;
-			//this.clusternumber_ = clusternumber_;
-			this.ccode = ccode;
-			this.analysis_a = analysis_a;
-			this.analysis_b = analysis_b;
-			this.analysis_c = analysis_c;
-			this.analysis_d = analysis_d;
-			
-		}
-	
-	public CampaignFormDataIndexDto(
-			String area,
-			String region,
-			String district,
-			String community,
-			Integer clusternumer,
-			//Long clusternumber_,
-			Long ccode,
-			Long analysis_a,
-			Long analysis_b,
-			Long analysis_c,
-			Long analysis_d,
+	}
+
+	public CampaignFormDataIndexDto(String area, String region, String district, String community, Integer clusternumer,
+			// Long clusternumber_,
+			Long ccode, Long analysis_a, Long analysis_b, Long analysis_c, Long analysis_d,
 //			Long campaign_id,
-			 String error_status
-			) {
-			this.area = area;
-			this.region = region;
-			this.district = district;
-			this.community = community;
-			this.clusternumber = clusternumer;
-			//this.clusternumber_ = clusternumber_;
-			this.ccode = ccode;
-			this.analysis_a = analysis_a;
-			this.analysis_b = analysis_b;
-			this.analysis_c = analysis_c;
-			this.analysis_d = analysis_d;
+			String error_status) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.clusternumber = clusternumer;
+		// this.clusternumber_ = clusternumber_;
+		this.ccode = ccode;
+		this.analysis_a = analysis_a;
+		this.analysis_b = analysis_b;
+		this.analysis_c = analysis_c;
+		this.analysis_d = analysis_d;
 //			this.campaign_id = campaign_id;
-			this.error_status = error_status;
-		}
+		this.error_status = error_status;
+	}
+
+	public CampaignFormDataIndexDto(String area, String region, String district, String community, Integer clusternumer,
+			// Long clusternumber_,
+			Long ccode, Integer analysis_a_, Integer analysis_b_, Integer analysis_c_, Integer analysis_d_) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.clusternumber = clusternumer;
+		// this.clusternumber_ = clusternumber_;
+		this.ccode = ccode;
+		this.analysis_a_ = analysis_a_;
+		this.analysis_b_ = analysis_b_;
+		this.analysis_c_ = analysis_c_;
+		this.analysis_d_ = analysis_d_;
+	}
+
+	public CampaignFormDataIndexDto(String uuid, String campaign, String form, Object formValues, String area,
+			String region, String district, String community, Date formDate) {
+		this.uuid = uuid;
+		this.campaign = campaign;
+		this.form = form;
+		this.formValues = (List<CampaignFormDataEntry>) formValues;
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.formDate = formDate;
+	}
+
 	
-	public CampaignFormDataIndexDto(
-			String area,
-			String region,
-			String district,
-			String community,
-			Integer clusternumer,
-			//Long clusternumber_,
-			Long ccode,
-			Integer analysis_a_,
-			Integer analysis_b_,
-			Integer analysis_c_,
-			Integer analysis_d_
-			) {
-			this.area = area;
-			this.region = region;
-			this.district = district;
-			this.community = community;
-			this.clusternumber = clusternumer;
-			//this.clusternumber_ = clusternumber_;
-			this.ccode = ccode;
-			this.analysis_a_ = analysis_a_;
-			this.analysis_b_ = analysis_b_;
-			this.analysis_c_ = analysis_c_;
-			this.analysis_d_ = analysis_d_;
-		}
-	
-	public CampaignFormDataIndexDto(
-			String uuid,
-			String campaign,
-			String form,
-			Object formValues,
-			String area,
-			String region,
-			String district,
-			String community,
-			Date formDate
-			) {
-			this.uuid = uuid;
-			this.campaign = campaign;
-			this.form = form;
-			this.formValues = (List<CampaignFormDataEntry>) formValues;
-			this.area = area;
-			this.region = region;
-			this.district = district;
-			this.community = community;
-			this.formDate = formDate;
-		}
 
 	public String getUuid() {
 		return uuid;
@@ -317,8 +278,6 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setCommunity(String community) {
 		this.community = community;
 	}
-	
-	
 
 	public Integer getClusternumber() {
 		return clusternumber;
@@ -327,8 +286,6 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setClusternumber(Integer clusternumber) {
 		this.clusternumber = clusternumber;
 	}
-	
-	
 
 	public Long getClusternumber_() {
 		return clusternumber_;
@@ -379,7 +336,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	}
 
 	public Long getCcode() {
-		return ccode;//Integer.parseInt(ccode+"");
+		return ccode;// Integer.parseInt(ccode+"");
 	}
 
 	public void setCcode(Long ccode) {
@@ -433,8 +390,6 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setCreatingUser(String creatingUser) {
 		this.creatingUser = creatingUser;
 	}
-	
-	
 
 	public Integer getAnalysis_a_() {
 		return analysis_a_;
@@ -483,14 +438,13 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setCampaign_id(Long campaign_id) {
 		this.campaign_id = campaign_id;
 	}
-	
+
 	public String getPersonTitle() {
 		return personTitle;
 	}
-	
+
 	public void setPersonTitle(String personTitle) {
 		this.personTitle = personTitle;
 	}
 
-	
 }

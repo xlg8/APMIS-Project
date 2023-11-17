@@ -31,10 +31,19 @@ public class DistrictReferenceDto extends InfrastructureDataReferenceDto impleme
 		super(uuid);
 	}
 
+	public DistrictReferenceDto(String uuid, String caption) {
+		setUuid(uuid);
+		setCaption(caption);
+	}
+	
 	public DistrictReferenceDto(String uuid, String caption, Long externalId) {
 		super(uuid, caption, externalId);
 	}
 
+//	public DistrictReferenceDto(String uuid, String caption, Long externalId,  Integer number, String ps_af, String fa_af) {
+//		super(uuid, caption, externalId, number,  ps_af, fa_af);
+//	}
+	
 	@Override
 	public int keyCompareTo(StatisticsGroupingKey o) {
 

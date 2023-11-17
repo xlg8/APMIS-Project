@@ -120,8 +120,8 @@ public class FormBuilderLayout extends VerticalLayout {
 		binder.forField(formCategory).asRequired("Form Category is Required").bind(CampaignFormMetaDto::getFormCategory,
 				CampaignFormMetaDto::setFormCategory);
 
-		binder.forField(modality).asRequired("Modality is Required").bind(CampaignFormMetaDto::getFormModality,
-				CampaignFormMetaDto::setFormModality);
+		binder.forField(modality).asRequired("Modality is Required").bind(CampaignFormMetaDto::getModality,
+				CampaignFormMetaDto::setModality);
 
 		binder.forField(daysExpired).asRequired("Days Expired is Required").bind(CampaignFormMetaDto::getDaysExpired,
 				CampaignFormMetaDto::setDaysExpired);

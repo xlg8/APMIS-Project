@@ -3,6 +3,8 @@ package com.cinoteck.application.utils.authentication;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.UI;
+//import com.vaadin.flow.component.UI;
+//import com.vaadin.flow.server.Page;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
@@ -14,10 +16,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.router.Router;
+import com.vaadin.flow.server.VaadinServletService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+import com.vaadin.server.Page;
 
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
@@ -61,9 +68,33 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginForm.setI18n(createLoginI18n());
 		loginForm.addLoginListener(this::login);
 		loginForm.addForgotPasswordListener(event -> {
-			UI.getCurrent().navigate("http://afghanistan-apmis.com/forgot-password");
-//			getUI().ifPresent(ui -> ui.navigate("https://afghanistan-apmis.com/forgot-password"));
+			 com.vaadin.flow.component.page.Page page = UI.getCurrent().getPage();
+			    page.executeJs("window.location.href = 'http://afghanistan-apmis.com/forgot-password'");
+			});
+		
+//		Router router = RouteConfiguration.forSessionScope().getRouter();
+//
+//		String url = VaadinServletService.getCurrentServletRequest().getRequestURI();
+//		boolean isStagingInUrl = url.contains("localhost");
+		
+		UI.getCurrent().getPage().executeJs("return window.location.href;").then(String.class, url -> {
+		    if (url != null) {
+		        boolean isStagingInUrl = url.contains("staging");
+		        boolean isTestInUrl = url.contains("test");
+
+
+		        if (isStagingInUrl || isTestInUrl) {
+				    // The string "staging" is found in the URL
+					loginForm.setForgotPasswordButtonVisible(false);
+				} else {
+				    // The string "staging" is not found in the URL
+					loginForm.setForgotPasswordButtonVisible(true);
+
+				}
+
+		    }
 		});
+		
 
 		VerticalLayout loginInformation = new VerticalLayout();
 

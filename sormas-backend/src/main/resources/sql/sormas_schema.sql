@@ -9114,6 +9114,520 @@ SET round = 'CRC'
 WHERE round = 'Case Respond';
 
 INSERT INTO schema_version (version_number, comment) VALUES (451, 'Updating Campaign Round from Case Respond to CRC'); 
-    
+
+ALTER TABLE public.campaignformmetawithexp ADD enddate date NULL;
+ALTER TABLE public.campaignformmetawithexp ALTER COLUMN expiryday TYPE int8 USING expiryday::int8;
+	
+CREATE MATERIALIZED VIEW public.lateformdataportion
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  WHERE c.formdate > c2.enddate
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+
+CREATE MATERIALIZED VIEW public.lateformdatatotal
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+INSERT INTO schema_version (version_number, comment) VALUES (452, 'Creating latedate report roption and total view ');
+
+
+ALTER TABLE public.areas ADD fa_af varchar(100) NULL;
+ALTER TABLE public.areas ADD ps_af varchar(100) NULL;
+
+
+ALTER TABLE public.region ADD fa_af varchar(100) NULL;
+ALTER TABLE public.region ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.district ADD fa_af varchar(100) NULL;
+ALTER TABLE public.district ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.community ADD fa_af varchar(100) NULL;
+ALTER TABLE public.community ADD ps_af varchar(100) NULL;
+
+ 
+INSERT INTO schema_version (version_number, comment) VALUES (453, 'Adding the admin units translation to local languages in Configuration page'); 
+
+CREATE OR REPLACE FUNCTION public.function_copy()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    INSERT INTO user_account(id,username,email)
+        VALUES(new.id,new.username,new.useremail)
+ON CONFLICT DO NOTHING;
+           RETURN new;
+END;
+$function$
+;
+
+INSERT INTO schema_version (version_number, comment) VALUES (454, 'Updating username conflict issue '); 
+
+update region set fa_af = 'کابل', ps_af = 'کابل' where externalid = 1;
+update region set fa_af = 'کاپیسا', ps_af = 'کاپیسا' where externalid = 2;
+update region set fa_af = 'پروان', ps_af = 'پروان' where externalid = 3;
+update region set fa_af = 'وردک', ps_af = 'وردک' where externalid = 4;
+update region set fa_af = 'لوگر', ps_af = 'لوګر' where externalid = 5;
+update region set fa_af = 'ننگرهار', ps_af = 'ننګرهار' where externalid = 6;
+update region set fa_af = 'لغمان', ps_af = 'لغمان' where externalid = 7;
+update region set fa_af = 'پنجشیر', ps_af = 'پنجشیر' where externalid = 8;
+update region set fa_af = 'بغلان', ps_af = 'بغلان' where externalid = 9;
+update region set fa_af = 'بامیان', ps_af = 'بامیان' where externalid = 10;
+update region set fa_af = 'غزنی', ps_af = 'غزني' where externalid = 11;
+update region set fa_af = 'پکتیا', ps_af = 'پکتیا' where externalid = 12;
+update region set fa_af = 'کنر', ps_af = 'کنر' where externalid = 13;
+update region set fa_af = 'نورستان', ps_af = 'نورستان' where externalid = 14;
+update region set fa_af = 'بدخشان', ps_af = 'بدخشان' where externalid = 15;
+update region set fa_af = 'تخار', ps_af = 'تخار' where externalid = 16;
+update region set fa_af = 'قندوز', ps_af = 'قندوز' where externalid = 17;
+update region set fa_af = 'بلخ', ps_af = 'بلخ' where externalid = 18;
+update region set fa_af = 'سمنگان', ps_af = 'سمنګان' where externalid = 19;
+update region set fa_af = 'سرپل', ps_af = 'سرپل' where externalid = 20;
+update region set fa_af = 'غور', ps_af = 'غور' where externalid = 21;
+update region set fa_af = 'دایکندی', ps_af = 'دایکندی' where externalid = 22;
+update region set fa_af = 'ارزگان', ps_af = 'اروزګان' where externalid = 23;
+update region set fa_af = 'زابل', ps_af = 'زابل' where externalid = 24;
+update region set fa_af = 'پکتیکا', ps_af = 'پکتیکا' where externalid = 25;
+update region set fa_af = 'خوست', ps_af = 'خوست' where externalid = 26;
+update region set fa_af = 'جوزجان', ps_af = 'جوزجان' where externalid = 27;
+update region set fa_af = 'فاریاب', ps_af = 'فاریاب' where externalid = 28;
+update region set fa_af = 'بادغیس', ps_af = 'بادغیس' where externalid = 29;
+update region set fa_af = 'هرات', ps_af = 'هرات' where externalid = 30;
+update region set fa_af = 'فراه', ps_af = 'فراه' where externalid = 31;
+update region set fa_af = 'هلمند', ps_af = 'هلمند' where externalid = 32;
+update region set fa_af = 'قندهار', ps_af = 'کندهار' where externalid = 33;
+update region set fa_af = 'نیمروز', ps_af = 'نیمروز' where externalid = 34;
+
+update district set fa_af = 'کابل', ps_af = 'کابل' where externalid = 101;
+update district set fa_af = 'دِه‌ سبز', ps_af = 'دِه‌ سبز' where externalid = 102;
+update district set fa_af = 'شکردره', ps_af = 'شکردره' where externalid = 103;
+update district set fa_af = 'پَغمان', ps_af = 'پَغمان' where externalid = 104;
+update district set fa_af = 'چهارآسیاب', ps_af = 'چهارآسیاب' where externalid = 105;
+update district set fa_af = 'موسهی', ps_af = 'موسهی' where externalid = 106;
+update district set fa_af = 'بگرامی', ps_af = 'بگرامی' where externalid = 107;
+update district set fa_af = 'قره‌باغ', ps_af = 'قره‌باغ' where externalid = 108;
+update district set fa_af = 'کَلَکان', ps_af = 'کَلَکان' where externalid = 109;
+update district set fa_af = 'میربچه‌کوت', ps_af = 'میربچه‌کوت' where externalid = 110;
+update district set fa_af = 'گُلدره', ps_af = 'گُلدره' where externalid = 111;
+update district set fa_af = 'خاکِ جبار', ps_af = 'خاکِ جبار' where externalid = 112;
+update district set fa_af = 'سُروبی', ps_af = 'سُروبی' where externalid = 113;
+update district set fa_af = 'اِستالِف', ps_af = 'اِستالِف' where externalid = 114;
+update district set fa_af = 'فَرزه', ps_af = 'فَرزه' where externalid = 115;
+update district set fa_af = 'محمود راقی', ps_af = 'محمود راقی' where externalid = 201;
+update district set fa_af = 'نجراب', ps_af = 'نجراب' where externalid = 202;
+update district set fa_af = 'کوه بند', ps_af = 'کوه بند' where externalid = 203;
+update district set fa_af = 'حصه دوم کوهستان', ps_af = 'حصه دوم کوهستان' where externalid = 204;
+update district set fa_af = 'تگاب', ps_af = 'تګاب' where externalid = 205;
+update district set fa_af = 'آله سائی', ps_af = 'آله سائی' where externalid = 206;
+update district set fa_af = 'حصه اول کوهستان', ps_af = 'حصه اول کوهستان' where externalid = 207;
+update district set fa_af = 'چهاریکار', ps_af = 'چهاریکار' where externalid = 301;
+update district set fa_af = 'جبل سراج', ps_af = 'جبل سراج' where externalid = 302;
+update district set fa_af = 'شینواری', ps_af = 'شینواری' where externalid = 303;
+update district set fa_af = 'بگرام', ps_af = 'بګرام' where externalid = 304;
+update district set fa_af = 'سیدخیل', ps_af = 'سیدخیل' where externalid = 305;
+update district set fa_af = 'سالنگ', ps_af = 'سالنګ' where externalid = 306;
+update district set fa_af = 'غوربند', ps_af = 'غوربند' where externalid = 307;
+update district set fa_af = 'کوه صافی', ps_af = 'کوهی ساپی' where externalid = 308;
+update district set fa_af = 'شیخ علی', ps_af = 'شیخ علی' where externalid = 309;
+update district set fa_af = 'سرخ پارسا', ps_af = 'سرخ پارسا' where externalid = 310;
+update district set fa_af = 'میدان شهر', ps_af = 'میدان شهر' where externalid = 401;
+update district set fa_af = 'جلریز', ps_af = 'جلریز' where externalid = 402;
+update district set fa_af = 'نرخ', ps_af = 'نرخ' where externalid = 403;
+update district set fa_af = 'حصه اول بهسود', ps_af = 'حصه اول بهسود' where externalid = 404;
+update district set fa_af = 'دایمیرداد', ps_af = 'دایمیرداد' where externalid = 405;
+update district set fa_af = 'چک', ps_af = 'چک' where externalid = 406;
+update district set fa_af = 'سیدآباد', ps_af = 'سیداباد' where externalid = 407;
+update district set fa_af = 'مرکز بهسود', ps_af = 'مرکز بهسود' where externalid = 408;
+update district set fa_af = 'جغتو', ps_af = 'جغتو' where externalid = 409;
+update district set fa_af = 'پل علم', ps_af = 'پل علم' where externalid = 501;
+update district set fa_af = 'خوشی', ps_af = 'خوشی' where externalid = 502;
+update district set fa_af = 'محمد آغه', ps_af = 'محمد آغه' where externalid = 503;
+update district set fa_af = 'بره کی برک', ps_af = 'بره کی برک' where externalid = 504;
+update district set fa_af = 'چرخ', ps_af = 'چرخ' where externalid = 505;
+update district set fa_af = 'خروار', ps_af = 'خروار' where externalid = 506;
+update district set fa_af = 'ازره', ps_af = 'ازره' where externalid = 507;
+update district set fa_af = 'جلال‌آباد', ps_af = 'جلال‌آباد' where externalid = 601;
+update district set fa_af = 'بهسود', ps_af = 'بهسود' where externalid = 602;
+update district set fa_af = 'سرخرود', ps_af = 'سرخرود' where externalid = 603;
+update district set fa_af = 'خوگیانی', ps_af = 'خوږياڼي' where externalid = 604;
+update district set fa_af = 'چپرهار', ps_af = 'چپرهار' where externalid = 605;
+update district set fa_af = 'رودات', ps_af = 'رودات' where externalid = 606;
+update district set fa_af = 'کامه', ps_af = 'کامه' where externalid = 607;
+update district set fa_af = 'کوزکونر', ps_af = 'کوزکونړ' where externalid = 608;
+update district set fa_af = 'دره نور', ps_af = 'دره نور' where externalid = 609;
+update district set fa_af = 'حصارک', ps_af = 'حصارک' where externalid = 610;
+update district set fa_af = 'شیرزاد', ps_af = 'شیرزاد' where externalid = 611;
+update district set fa_af = 'پچيراواگام', ps_af = 'پچيراواګام' where externalid = 612;
+update district set fa_af = 'ده باله', ps_af = 'ده باله' where externalid = 613;
+update district set fa_af = 'کوت', ps_af = 'کوټ' where externalid = 614;
+update district set fa_af = 'بتی کوت', ps_af = 'بټی کوټ' where externalid = 615;
+update district set fa_af = 'گوشته', ps_af = 'ګوشته' where externalid = 616;
+update district set fa_af = 'اچين', ps_af = 'اچين' where externalid = 617;
+update district set fa_af = 'شينوار', ps_af = 'شينوار' where externalid = 618;
+update district set fa_af = 'مهمندره', ps_af = 'مهمندره' where externalid = 619;
+update district set fa_af = 'لعلپوره', ps_af = 'لعلپوره' where externalid = 620;
+update district set fa_af = 'نازیان', ps_af = 'نازیان' where externalid = 621;
+update district set fa_af = 'دور بابا', ps_af = 'دور بابا' where externalid = 622;
+update district set fa_af = 'مهترلام', ps_af = 'مهترلام' where externalid = 701;
+update district set fa_af = 'علیشنگ', ps_af = 'علیشنګ' where externalid = 702;
+update district set fa_af = 'قرغی', ps_af = 'قرغۍ' where externalid = 703;
+update district set fa_af = 'الینگار', ps_af = 'الینګار' where externalid = 704;
+update district set fa_af = 'دولت شاه', ps_af = 'دولت شاه' where externalid = 705;
+update district set fa_af = 'بازارک', ps_af = 'بازارک' where externalid = 801;
+update district set fa_af = 'شُتل', ps_af = 'شُتل' where externalid = 802;
+update district set fa_af = 'روخه', ps_af = 'روخه' where externalid = 803;
+update district set fa_af = 'دره', ps_af = 'دره' where externalid = 804;
+update district set fa_af = 'حصه اول (خینج)', ps_af = 'حصه اول (خینج)' where externalid = 805;
+update district set fa_af = 'عنابه', ps_af = 'عنابه' where externalid = 806;
+update district set fa_af = 'پریان', ps_af = 'پریان' where externalid = 807;
+update district set fa_af = 'پلخمری', ps_af = 'پلخمری' where externalid = 901;
+update district set fa_af = 'بغلان جدید', ps_af = 'بغلان جدید' where externalid = 902;
+update district set fa_af = 'دهنه غوری', ps_af = 'دهنه غوری' where externalid = 903;
+update district set fa_af = 'دوشی', ps_af = 'دوشی' where externalid = 904;
+update district set fa_af = 'نهرین', ps_af = 'نهرین' where externalid = 905;
+update district set fa_af = 'تاله برفک', ps_af = 'تاله برفک' where externalid = 906;
+update district set fa_af = 'خنجان', ps_af = 'خنجان' where externalid = 907;
+update district set fa_af = 'اندراب', ps_af = 'اندراب' where externalid = 908;
+update district set fa_af = 'خواجه هجران', ps_af = 'خواجه هجران' where externalid = 909;
+update district set fa_af = 'برکه', ps_af = 'برکه' where externalid = 910;
+update district set fa_af = 'پلحصار', ps_af = 'پلحصار' where externalid = 911;
+update district set fa_af = 'ده صلاح', ps_af = 'ده صلاح' where externalid = 912;
+update district set fa_af = 'خوست', ps_af = 'خوست' where externalid = 913;
+update district set fa_af = 'گذرگاه نور', ps_af = 'گذرگاه نور' where externalid = 914;
+update district set fa_af = 'فرنگ', ps_af = 'فرنگ' where externalid = 915;
+update district set fa_af = 'بامیان', ps_af = 'بامیان' where externalid = 1001;
+update district set fa_af = 'سیغان', ps_af = 'سیغان' where externalid = 1002;
+update district set fa_af = 'یکاولنگ', ps_af = 'یکاولنګ' where externalid = 1003;
+update district set fa_af = 'پنجاب', ps_af = 'پنجاب' where externalid = 1004;
+update district set fa_af = 'شیبر', ps_af = 'شیبر' where externalid = 1005;
+update district set fa_af = 'کهمرد', ps_af = 'کهمرد' where externalid = 1006;
+update district set fa_af = 'ورس', ps_af = 'ورس' where externalid = 1007;
+update district set fa_af = 'غزني', ps_af = 'غزني' where externalid = 1101;
+update district set fa_af = 'خواجه عمري', ps_af = 'خواجه عمري' where externalid = 1102;
+update district set fa_af = 'ولي محمد شهید', ps_af = 'ولي محمد شهید' where externalid = 1103;
+update district set fa_af = 'واغظ', ps_af = 'واغظ' where externalid = 1104;
+update district set fa_af = 'اندر', ps_af = 'اندړ' where externalid = 1105;
+update district set fa_af = 'ده یک', ps_af = 'ده یک' where externalid = 1106;
+update district set fa_af = 'زنخان', ps_af = 'زنخان' where externalid = 1107;
+update district set fa_af = 'راشیدان', ps_af = 'راشیدان' where externalid = 1108;
+update district set fa_af = 'جغتو', ps_af = 'جغتو' where externalid = 1109;
+update district set fa_af = 'قره باغ', ps_af = 'قره باغ' where externalid = 1110;
+update district set fa_af = 'گیرو', ps_af = 'ګیرو' where externalid = 1111;
+update district set fa_af = 'ناور', ps_af = 'ناور' where externalid = 1112;
+update district set fa_af = 'جاغوري', ps_af = 'جاغوري' where externalid = 1113;
+update district set fa_af = 'مقر', ps_af = 'مقر' where externalid = 1114;
+update district set fa_af = 'اب بند', ps_af = 'اب بند' where externalid = 1115;
+update district set fa_af = 'اجیرستان', ps_af = 'اجیرستان' where externalid = 1116;
+update district set fa_af = 'مالیستان', ps_af = 'مالیستان' where externalid = 1117;
+update district set fa_af = 'گیلان', ps_af = 'ګیلان' where externalid = 1118;
+update district set fa_af = 'ناوه', ps_af = 'ناوه' where externalid = 1119;
+update district set fa_af = 'گردیز', ps_af = 'ګردیز' where externalid = 1201;
+update district set fa_af = 'سید کرم', ps_af = 'سید کرم' where externalid = 1202;
+update district set fa_af = 'احمد ابا', ps_af = 'احمد ابا' where externalid = 1203;
+update district set fa_af = 'زرمت', ps_af = 'زرمت' where externalid = 1204;
+update district set fa_af = 'شواک', ps_af = 'شواک' where externalid = 1205;
+update district set fa_af = 'زدران', ps_af = 'ځدراڼ' where externalid = 1206;
+update district set fa_af = 'لجه منگل', ps_af = 'لجه منګل' where externalid = 1207;
+update district set fa_af = 'ځاځي اریوب', ps_af = 'ځاځي اریوب' where externalid = 1208;
+update district set fa_af = 'جاني خیل', ps_af = 'جاني خیل' where externalid = 1209;
+update district set fa_af = 'چمکنی', ps_af = 'څمکني' where externalid = 1210;
+update district set fa_af = 'دنده پتان', ps_af = 'ډنډه پټان' where externalid = 1211;
+update district set fa_af = 'اسعدآباد', ps_af = 'اسعدآباد' where externalid = 1301;
+update district set fa_af = 'وتپور', ps_af = 'وټپور' where externalid = 1302;
+update district set fa_af = 'نرنگ', ps_af = 'نرنګ' where externalid = 1303;
+update district set fa_af = 'سرکانی', ps_af = 'سرکانی' where externalid = 1304;
+update district set fa_af = 'مروره', ps_af = 'مروره' where externalid = 1305;
+update district set fa_af = 'شیگل و شلتن', ps_af = 'شیګل و شلټن' where externalid = 1306;
+update district set fa_af = 'دره پیچ', ps_af = 'دره پیچ' where externalid = 1307;
+update district set fa_af = 'خاص کنر', ps_af = 'خاص کنر' where externalid = 1308;
+update district set fa_af = 'چوکی', ps_af = 'چوکی' where externalid = 1309;
+update district set fa_af = 'دانگام', ps_af = 'دانګام' where externalid = 1310;
+update district set fa_af = 'برکنر', ps_af = 'برکنر' where externalid = 1311;
+update district set fa_af = 'غازی آباد', ps_af = 'غازی آباد' where externalid = 1312;
+update district set fa_af = 'چپه دره', ps_af = 'چپه دره' where externalid = 1313;
+update district set fa_af = 'نورگل', ps_af = 'نورګل' where externalid = 1314;
+update district set fa_af = 'ناری', ps_af = 'ناری' where externalid = 1315;
+update district set fa_af = 'پارون', ps_af = 'پارون' where externalid = 1401;
+update district set fa_af = 'مندول', ps_af = 'منډول' where externalid = 1402;
+update district set fa_af = 'دوآب', ps_af = 'دوآب' where externalid = 1403;
+update district set fa_af = 'نورگرام', ps_af = 'نورګرام' where externalid = 1404;
+update district set fa_af = 'واما', ps_af = 'واما' where externalid = 1405;
+update district set fa_af = 'وانت وائیگل', ps_af = 'وانټ وائیګل' where externalid = 1406;
+update district set fa_af = 'کامدیش', ps_af = 'کامدیش' where externalid = 1407;
+update district set fa_af = 'برگیمتال', ps_af = 'برګیمټال' where externalid = 1408;
+update district set fa_af = 'فیض آباد', ps_af = 'فیض آباد' where externalid = 1501;
+update district set fa_af = 'یفتل سفلی', ps_af = 'یفتل سفلی' where externalid = 1502;
+update district set fa_af = 'ارگو', ps_af = 'ارگو' where externalid = 1503;
+update district set fa_af = 'ارغنجخواه', ps_af = 'ارغنجخواه' where externalid = 1504;
+update district set fa_af = 'کوهستان', ps_af = 'کوهستان' where externalid = 1505;
+update district set fa_af = 'راغستان', ps_af = 'راغستان' where externalid = 1506;
+update district set fa_af = 'یاوان', ps_af = 'یاوان' where externalid = 1507;
+update district set fa_af = 'شهر بزرگ', ps_af = 'شهر بزرگ' where externalid = 1508;
+update district set fa_af = 'تیشکان', ps_af = 'تیشکان' where externalid = 1509;
+update district set fa_af = 'درایم', ps_af = 'درایم' where externalid = 1510;
+update district set fa_af = 'خاش', ps_af = 'خاش' where externalid = 1511;
+update district set fa_af = 'بهارک', ps_af = 'بهارک' where externalid = 1512;
+update district set fa_af = 'شهدا', ps_af = 'شهدا' where externalid = 1513;
+update district set fa_af = 'شغنان', ps_af = 'شغنان' where externalid = 1514;
+update district set fa_af = 'دروازه بالا', ps_af = 'دروازه بالا' where externalid = 1515;
+update district set fa_af = 'کوف', ps_af = 'کوف' where externalid = 1516;
+update district set fa_af = 'خواهان', ps_af = 'خواهان' where externalid = 1517;
+update district set fa_af = 'کشم', ps_af = 'کشم' where externalid = 1518;
+update district set fa_af = 'تگاب', ps_af = 'تگاب' where externalid = 1519;
+update district set fa_af = 'یمگان', ps_af = 'یمگان' where externalid = 1520;
+update district set fa_af = 'جرم', ps_af = 'جرم' where externalid = 1521;
+update district set fa_af = 'وردوج', ps_af = 'وردوج' where externalid = 1522;
+update district set fa_af = 'اشکاشم', ps_af = 'اشکاشم' where externalid = 1523;
+update district set fa_af = 'درواز', ps_af = 'درواز' where externalid = 1524;
+update district set fa_af = 'شکی', ps_af = 'شکی' where externalid = 1525;
+update district set fa_af = 'کران و منجان', ps_af = 'کران و منجان' where externalid = 1526;
+update district set fa_af = 'زیباک', ps_af = 'زیباک' where externalid = 1527;
+update district set fa_af = 'واخان', ps_af = 'واخان' where externalid = 1528;
+update district set fa_af = 'تالقان', ps_af = 'تالقان' where externalid = 1601;
+update district set fa_af = 'هزار سمیچ', ps_af = 'هزار سمیچ' where externalid = 1602;
+update district set fa_af = 'بهارک', ps_af = 'بهارک' where externalid = 1603;
+update district set fa_af = 'بنگی', ps_af = 'بنگی' where externalid = 1604;
+update district set fa_af = 'چال', ps_af = 'چال' where externalid = 1605;
+update district set fa_af = 'نمک اب', ps_af = 'نمک اب' where externalid = 1606;
+update district set fa_af = 'فرخار', ps_af = 'فرخار' where externalid = 1607;
+update district set fa_af = 'کلفگان', ps_af = 'کلفگان' where externalid = 1608;
+update district set fa_af = 'روستاق', ps_af = 'روستاق' where externalid = 1609;
+update district set fa_af = 'چا اب', ps_af = 'چا اب' where externalid = 1610;
+update district set fa_af = 'ینگی قلعه', ps_af = 'ینگی قلعه' where externalid = 1611;
+update district set fa_af = 'خواجه بهاالدین', ps_af = 'خواجه بهاالدین' where externalid = 1612;
+update district set fa_af = 'دشت قلعه', ps_af = 'دشت قلعه' where externalid = 1613;
+update district set fa_af = 'خواجه غار', ps_af = 'خواجه غار' where externalid = 1614;
+update district set fa_af = 'اشکاشم', ps_af = 'اشکاشم' where externalid = 1615;
+update district set fa_af = 'ورسیج', ps_af = 'ورسیج' where externalid = 1616;
+update district set fa_af = 'درقد', ps_af = 'درقد' where externalid = 1617;
+update district set fa_af = 'مرکز کندز', ps_af = 'مرکز کندز' where externalid = 1701;
+update district set fa_af = 'امام صاحب', ps_af = 'امام صاحب' where externalid = 1702;
+update district set fa_af = 'قلعه ذال', ps_af = 'قلعه ذال' where externalid = 1703;
+update district set fa_af = 'چهاردره', ps_af = 'چهاردره' where externalid = 1704;
+update district set fa_af = 'علی اباد', ps_af = 'علی اباد' where externalid = 1705;
+update district set fa_af = 'خان اباد', ps_af = 'خان اباد' where externalid = 1706;
+update district set fa_af = 'دشت ارچی', ps_af = 'دشت ارچی' where externalid = 1707;
+update district set fa_af = 'مزار شریف', ps_af = 'مزار شریف' where externalid = 1801;
+update district set fa_af = 'نهر شاهی', ps_af = 'نهر شاهی' where externalid = 1802;
+update district set fa_af = 'شورتیپه', ps_af = 'شورتیپه' where externalid = 1803;
+update district set fa_af = 'دولت آباد', ps_af = 'دولت آباد' where externalid = 1804;
+update district set fa_af = 'بلخ', ps_af = 'بلخ' where externalid = 1805;
+update district set fa_af = 'دهدادی', ps_af = 'دهدادی' where externalid = 1806;
+update district set fa_af = 'چارکینت', ps_af = 'چارکینت' where externalid = 1807;
+update district set fa_af = 'مارمل', ps_af = 'مارمل' where externalid = 1808;
+update district set fa_af = 'خلم', ps_af = 'خلم' where externalid = 1809;
+update district set fa_af = 'کلدار', ps_af = 'کلدار' where externalid = 1810;
+update district set fa_af = 'حیرتان', ps_af = 'حیرتان' where externalid = 1811;
+update district set fa_af = 'چاربولک', ps_af = 'چاربولک' where externalid = 1812;
+update district set fa_af = 'چمتال', ps_af = 'چمتال' where externalid = 1813;
+update district set fa_af = 'شولکره', ps_af = 'شولکره' where externalid = 1814;
+update district set fa_af = 'کشنده', ps_af = 'کشنده' where externalid = 1815;
+update district set fa_af = 'زارع', ps_af = 'زارع' where externalid = 1816;
+update district set fa_af = 'ایبک', ps_af = 'ایبک' where externalid = 1901;
+update district set fa_af = 'حضرت سلطان', ps_af = 'حضرت سلطان' where externalid = 1902;
+update district set fa_af = 'فیروز نخشیر', ps_af = 'فیروز نخشیر' where externalid = 1903;
+update district set fa_af = 'دره صوف پایین', ps_af = 'دره صوف پایین' where externalid = 1904;
+update district set fa_af = 'دره صوف بالا', ps_af = 'دره صوف بالا' where externalid = 1905;
+update district set fa_af = 'خرم سارباغ', ps_af = 'خرم سارباغ' where externalid = 1906;
+update district set fa_af = 'روی دوآب', ps_af = 'روی دوآب' where externalid = 1907;
+update district set fa_af = 'سرپل', ps_af = 'سرپل' where externalid = 2001;
+update district set fa_af = 'صیاد', ps_af = 'صیاد' where externalid = 2002;
+update district set fa_af = 'کوهستانات', ps_af = 'کوهستانات' where externalid = 2003;
+update district set fa_af = 'سوزمه قلعه', ps_af = 'سوزمه قلعه' where externalid = 2004;
+update district set fa_af = 'گوسفندی', ps_af = 'گوسفندی' where externalid = 2005;
+update district set fa_af = 'بلخاب', ps_af = 'بلخاب' where externalid = 2006;
+update district set fa_af = 'سانچارک', ps_af = 'سانچارک' where externalid = 2007;
+update district set fa_af = 'چغچران', ps_af = 'چغچران' where externalid = 2101;
+update district set fa_af = 'چارسده', ps_af = 'چارسده' where externalid = 2102;
+update district set fa_af = 'دولینه', ps_af = 'دولینه' where externalid = 2103;
+update district set fa_af = 'دولت یار', ps_af = 'دولت یار' where externalid = 2104;
+update district set fa_af = 'شهرک', ps_af = 'شهرک' where externalid = 2105;
+update district set fa_af = 'تیوره', ps_af = 'تیوره' where externalid = 2106;
+update district set fa_af = 'پسابند', ps_af = 'پسابند' where externalid = 2107;
+update district set fa_af = 'لعل و سرجنگل', ps_af = 'لعل و سرجنګل' where externalid = 2108;
+update district set fa_af = 'تولک', ps_af = 'تولک' where externalid = 2109;
+update district set fa_af = 'ساغر', ps_af = 'ساغر' where externalid = 2110;
+update district set fa_af = 'نیلی', ps_af = 'نیلی' where externalid = 2201;
+update district set fa_af = 'اشترلی', ps_af = 'اشترلۍ' where externalid = 2202;
+update district set fa_af = 'پاتو', ps_af = 'پاتو' where externalid = 2203;
+update district set fa_af = 'کیتی', ps_af = 'کیتی' where externalid = 2204;
+update district set fa_af = 'گیزاب خِدیر', ps_af = 'ګیزاب خِدیر' where externalid = 2205;
+update district set fa_af = 'شهرستان', ps_af = 'شهرستان' where externalid = 2206;
+update district set fa_af = 'سنگ تخت', ps_af = 'سنګ تخت' where externalid = 2207;
+update district set fa_af = 'کجران', ps_af = 'کجران' where externalid = 2208;
+update district set fa_af = 'میرامور', ps_af = 'میرامور' where externalid = 2209;
+update district set fa_af = 'ترینکوت', ps_af = 'ترینکوټ' where externalid = 2301;
+update district set fa_af = 'چوره', ps_af = 'چوره' where externalid = 2302;
+update district set fa_af = 'شهید حساس', ps_af = 'شهید حساس' where externalid = 2303;
+update district set fa_af = 'دهراوود', ps_af = 'دهراوود' where externalid = 2304;
+update district set fa_af = 'خاص ارزگان', ps_af = 'خاص اروزګان' where externalid = 2305;
+
+update district set fa_af = 'قلات', ps_af = 'قلات' where externalid = 2401;
+update district set fa_af = 'ارغنداب', ps_af = 'ارغنداب' where externalid = 2402;
+update district set fa_af = 'میزان', ps_af = 'میزان' where externalid = 2403;
+update district set fa_af = 'ترنک و جلدک', ps_af = 'ترنک و جلدک' where externalid = 2404;
+update district set fa_af = 'شینکی', ps_af = 'شینکۍ' where externalid = 2405;
+update district set fa_af = 'شاه جوی', ps_af = 'شاه جوی' where externalid = 2406;
+update district set fa_af = 'کاکر', ps_af = 'کاکړ' where externalid = 2407;
+update district set fa_af = 'دایچوپان', ps_af = 'دایچوپان' where externalid = 2408;
+update district set fa_af = 'اتغر', ps_af = 'اتغر' where externalid = 2409;
+update district set fa_af = 'شملزائی', ps_af = 'شملزائي' where externalid = 2410;
+update district set fa_af = 'نوبهار', ps_af = 'نوبهار' where externalid = 2411;
+update district set fa_af = 'شرنه', ps_af = 'شرنه' where externalid = 2501;
+update district set fa_af = 'متا خان', ps_af = 'مټا خان' where externalid = 2502;
+update district set fa_af = 'یوسف خیل', ps_af = 'یوسف خیل' where externalid = 2503;
+update district set fa_af = 'سروضه', ps_af = 'سروضه' where externalid = 2504;
+update district set fa_af = 'زرغون شار', ps_af = 'زرغون شار' where externalid = 2505;
+update district set fa_af = 'یحی خیل', ps_af = 'یحی خیل' where externalid = 2506;
+update district set fa_af = 'اومنه', ps_af = 'اومنه' where externalid = 2507;
+update district set fa_af = 'گومل', ps_af = 'ګومل' where externalid = 2508;
+update district set fa_af = 'سروبی', ps_af = 'سروبی' where externalid = 2509;
+update district set fa_af = 'اورگون', ps_af = 'اورګون' where externalid = 2510;
+update district set fa_af = 'نکه', ps_af = 'نکه' where externalid = 2511;
+update district set fa_af = 'جاني خیل', ps_af = 'جاني خیل' where externalid = 2512;
+update district set fa_af = 'وازیخوا', ps_af = 'وازیخوا' where externalid = 2513;
+update district set fa_af = 'اورممی', ps_af = 'اوړممۍ' where externalid = 2514;
+update district set fa_af = 'برمل', ps_af = 'برمل' where externalid = 2515;
+update district set fa_af = 'گیان', ps_af = 'ګیان' where externalid = 2516;
+update district set fa_af = 'زیروک', ps_af = 'زیروک' where externalid = 2517;
+update district set fa_af = 'دیله خوشامند', ps_af = 'ډیله خوشامند' where externalid = 2518;
+update district set fa_af = 'تروی', ps_af = 'تروې' where externalid = 2519;
+update district set fa_af = 'متون', ps_af = 'متون' where externalid = 2601;
+update district set fa_af = 'صبری', ps_af = 'صبري' where externalid = 2602;
+update district set fa_af = 'موسی خیل', ps_af = 'موسی خیل' where externalid = 2603;
+update district set fa_af = 'نادرشاه کوت', ps_af = 'نادرشاه کوټ' where externalid = 2604;
+update district set fa_af = 'مندوزی', ps_af = 'مندوزي' where externalid = 2605;
+update district set fa_af = 'تني', ps_af = 'تڼي' where externalid = 2606;
+update district set fa_af = 'گربز', ps_af = 'ګربز' where externalid = 2607;
+update district set fa_af = 'تریزی', ps_af = 'تریزي' where externalid = 2608;
+update district set fa_af = 'قلندر', ps_af = 'قلندر' where externalid = 2609;
+update district set fa_af = 'شمل', ps_af = 'شمل' where externalid = 2610;
+update district set fa_af = 'سپیره', ps_af = 'سپیره' where externalid = 2611;
+update district set fa_af = 'باک', ps_af = 'باک' where externalid = 2612;
+update district set fa_af = 'ځاځي میدان', ps_af = 'ځاځي میدان' where externalid = 2613;
+update district set fa_af = 'شبرغان', ps_af = 'شبرغان' where externalid = 2701;
+update district set fa_af = 'منگجک', ps_af = 'منگجک' where externalid = 2702;
+update district set fa_af = 'خواجه دوکوه', ps_af = 'خواجه دوکوه' where externalid = 2703;
+update district set fa_af = 'قوش تیپه', ps_af = 'قوش تیپه' where externalid = 2704;
+update district set fa_af = 'فیض آباد', ps_af = 'فیض آباد' where externalid = 2705;
+update district set fa_af = 'خان آقا', ps_af = 'خان آقا' where externalid = 2706;
+update district set fa_af = 'آقچه', ps_af = 'آقچه' where externalid = 2707;
+update district set fa_af = 'مردیان', ps_af = 'مردیان' where externalid = 2708;
+update district set fa_af = 'قرقین', ps_af = 'قرقین' where externalid = 2709;
+update district set fa_af = 'خماب', ps_af = 'خماب' where externalid = 2710;
+update district set fa_af = 'درزاب', ps_af = 'درزاب' where externalid = 2711;
+update district set fa_af = 'میمنه', ps_af = 'میمنه' where externalid = 2801;
+update district set fa_af = 'خوجه سبز پوش', ps_af = 'خوجه سبز پوش' where externalid = 2802;
+update district set fa_af = 'پشتونکوت', ps_af = 'پشتونکوت' where externalid = 2803;
+update district set fa_af = 'شرین تگاب', ps_af = 'شرین تگاب' where externalid = 2804;
+update district set fa_af = 'المار', ps_af = 'المار' where externalid = 2805;
+update district set fa_af = 'قیصار', ps_af = 'قیصار' where externalid = 2806;
+update district set fa_af = 'کوهستان', ps_af = 'کوهستان' where externalid = 2807;
+update district set fa_af = 'گرزیوان', ps_af = 'گرزیوان' where externalid = 2808;
+update district set fa_af = 'بلچراغ', ps_af = 'بلچراغ' where externalid = 2809;
+update district set fa_af = 'دولت آباد فاریاب', ps_af = 'دولت آباد فاریاب' where externalid = 2810;
+update district set fa_af = 'اندخوی', ps_af = 'اندخوی' where externalid = 2811;
+update district set fa_af = 'قرمقول', ps_af = 'قرمقول' where externalid = 2812;
+update district set fa_af = 'خان چار باغ', ps_af = 'خان چار باغ' where externalid = 2813;
+update district set fa_af = 'قرغان', ps_af = 'قرغان' where externalid = 2814;
+update district set fa_af = 'قلعه نو', ps_af = 'قلعه نو' where externalid = 2901;
+update district set fa_af = 'مقر', ps_af = 'مقر' where externalid = 2902;
+update district set fa_af = 'آب کمری', ps_af = 'آب کمری' where externalid = 2903;
+update district set fa_af = 'قادس', ps_af = 'قادس' where externalid = 2904;
+update district set fa_af = 'جوند', ps_af = 'جوند' where externalid = 2905;
+update district set fa_af = 'مرغاب', ps_af = 'مرغاب' where externalid = 2906;
+update district set fa_af = 'غورماچ', ps_af = 'غورماچ' where externalid = 2907;
+update district set fa_af = 'شهر هرات', ps_af = 'شهر هرات' where externalid = 3001;
+update district set fa_af = 'انجیل', ps_af = 'انجیل' where externalid = 3002;
+update district set fa_af = 'کشک رباط سنگی', ps_af = 'کشک رباط سنگی' where externalid = 3003;
+update district set fa_af = 'زنده جان', ps_af = 'زنده جان' where externalid = 3004;
+update district set fa_af = 'گذره', ps_af = 'گذره' where externalid = 3005;
+update district set fa_af = 'پشتون زرغون', ps_af = 'پشتون زرغون' where externalid = 3006;
+update district set fa_af = 'کرخ', ps_af = 'کرخ' where externalid = 3007;
+update district set fa_af = 'گلران', ps_af = 'گلران' where externalid = 3008;
+update district set fa_af = 'غوریان', ps_af = 'غوریان' where externalid = 3009;
+update district set fa_af = 'ادرسکن', ps_af = 'ادرسکن' where externalid = 3010;
+update district set fa_af = 'فارسی', ps_af = 'فارسی' where externalid = 3011;
+update district set fa_af = 'اوبه', ps_af = 'اوبه' where externalid = 3012;
+update district set fa_af = 'کشک کهنه', ps_af = 'کشک کهنه' where externalid = 3013;
+update district set fa_af = 'کهسان', ps_af = 'کهسان' where externalid = 3014;
+update district set fa_af = 'شیندند', ps_af = 'شیندند' where externalid = 3015;
+update district set fa_af = 'چشت شریف', ps_af = 'چشت شریف' where externalid = 3016;
+update district set fa_af = 'شهر فراه', ps_af = 'شهر فراه' where externalid = 3101;
+update district set fa_af = 'بکواه', ps_af = 'بکواه' where externalid = 3102;
+update district set fa_af = 'بالابلوک', ps_af = 'بالابلوک' where externalid = 3103;
+update district set fa_af = 'خاک سفید', ps_af = 'خاک سفید' where externalid = 3104;
+update district set fa_af = 'پشت رود', ps_af = 'پشت رود' where externalid = 3105;
+update district set fa_af = 'قلعه کاه', ps_af = 'قلعه کاه' where externalid = 3106;
+update district set fa_af = 'شیبکوه', ps_af = 'شیبکوه' where externalid = 3107;
+update district set fa_af = 'لاش جوین', ps_af = 'لاش جوین' where externalid = 3108;
+update district set fa_af = 'گلستان', ps_af = 'گلستان' where externalid = 3109;
+update district set fa_af = 'پرچمن', ps_af = 'پرچمن' where externalid = 3110;
+update district set fa_af = 'انار دره', ps_af = 'انار دره' where externalid = 3111;
+update district set fa_af = 'لشکرگاه', ps_af = 'لشکرګاه' where externalid = 3201;
+update district set fa_af = 'نهر سراج', ps_af = 'نهر سراج' where externalid = 3202;
+update district set fa_af = 'ناد علي', ps_af = 'ناد علي' where externalid = 3203;
+update district set fa_af = 'ناوه/بارکزائي', ps_af = 'ناوه/بارکزائي' where externalid = 3204;
+update district set fa_af = 'سنگین', ps_af = 'سنګین' where externalid = 3205;
+update district set fa_af = 'موسی قلعه', ps_af = 'موسی قلعه' where externalid = 3206;
+update district set fa_af = 'نوزاد', ps_af = 'نوزاد' where externalid = 3207;
+update district set fa_af = 'واشیر', ps_af = 'واشیر' where externalid = 3208;
+update district set fa_af = 'گرمسیر', ps_af = 'ګرمسیر' where externalid = 3209;
+update district set fa_af = 'کجکی', ps_af = 'کجکی' where externalid = 3210;
+update district set fa_af = 'باغران', ps_af = 'باغران' where externalid = 3211;
+update district set fa_af = 'ریگ/خان شین', ps_af = 'ریګ/خان شین' where externalid = 3212;
+update district set fa_af = 'دیشو', ps_af = 'دیشو' where externalid = 3213;
+update district set fa_af = 'کندهار', ps_af = 'کندهار' where externalid = 3301;
+update district set fa_af = 'ارغنداب', ps_af = 'ارغنداب' where externalid = 3302;
+update district set fa_af = 'ژری', ps_af = 'ژړۍ' where externalid = 3303;
+update district set fa_af = 'پنجوائي', ps_af = 'پنجوائي' where externalid = 3304;
+update district set fa_af = 'دامان/تخته پل', ps_af = 'دامان/تخته پل' where externalid = 3305;
+update district set fa_af = 'شاه ولیکوت', ps_af = 'شاه ولیکوټ' where externalid = 3306;
+update district set fa_af = 'خاکریز', ps_af = 'خاکریز' where externalid = 3307;
+update district set fa_af = 'میوند', ps_af = 'میوند' where externalid = 3308;
+update district set fa_af = 'ریگستان', ps_af = 'ریګستان' where externalid = 3309;
+update district set fa_af = 'شورابک', ps_af = 'شورابک' where externalid = 3310;
+update district set fa_af = 'سپین بولدک', ps_af = 'سپین بولدک' where externalid = 3311;
+update district set fa_af = 'ارغستان', ps_af = 'ارغستان' where externalid = 3312;
+update district set fa_af = 'میانشین', ps_af = 'میانشین' where externalid = 3313;
+update district set fa_af = 'نیش', ps_af = 'نیش' where externalid = 3314;
+update district set fa_af = 'غورک', ps_af = 'غورک' where externalid = 3315;
+update district set fa_af = 'معروف', ps_af = 'معروف' where externalid = 3316;
+update district set fa_af = 'زرنج', ps_af = 'زرنج' where externalid = 3401;
+update district set fa_af = 'کنگ', ps_af = 'کنګ' where externalid = 3402;
+update district set fa_af = 'چهار برجک', ps_af = 'چهار برجک' where externalid = 3403;
+update district set fa_af = 'چخانسور', ps_af = 'چخانسور' where externalid = 3404;
+update district set fa_af = 'خاش رود', ps_af = 'خاش رود' where externalid = 3405;
+
+
+update areas set fa_af = 'شمال شرق', ps_af = 'شمال ختیځ' where externalid = 1;
+update areas set fa_af = 'شمال', ps_af = 'شمال' where externalid = 2;
+update areas set fa_af = 'غرب', ps_af = 'لویدیځ' where externalid = 3;
+update areas set fa_af = 'مرکز', ps_af = 'مرکز' where externalid = 5;
+update areas set fa_af = 'شرق', ps_af = 'شرق' where externalid = 6;
+update areas set fa_af = 'جنوب شرق', ps_af = 'سویل ختیځ' where externalid = 7;
+update areas set fa_af = 'جنوب', ps_af = 'سویل' where externalid = 8;
+update areas set fa_af = 'بدخشان', ps_af = 'بدخشان' where externalid = 12;
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (455, 'Transalation for Infrastructure data '); 
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

@@ -3,58 +3,66 @@ package de.symeda.sormas.api.campaign.form;
 import java.io.Serializable;
 import java.util.Date;
 
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.utils.IgnoreForUrl;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 
 public class CampaignFormCriteria extends BaseCriteria implements Serializable {
-
-//	public static final String CAMPAIGN_FORM_META_ELEMENTS = "campaignFormElements";
-//	public static final String FORM_PHASE = "formPhase";
-//	public static final String FORM_NAME = "formName";
-//	public static final String FORM_TYPE = "formType";
-//	public static final String FORM_CATEGORY = "formCategory";
-//	public static final String MODALITY = "modality";
-
-	private CampaignFormElement campaignFormElements;	
-	private CampaignFormMetaReferenceDto formCategory;
-	private CampaignFormMetaReferenceDto formPhase;
-	private Date formDate;
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4206918019308278802L;
+	private String formCategory;
+	private String modality;
+	private String formPhase;
+	private Date startDate;
+	private Date endDate;
 	private String formName;
 	private String formType;
 	
-	public CampaignFormElement getCampaignFormElements() {
-		return campaignFormElements;
+	public String getModality() {
+		return modality;
 	}
-	
-	public CampaignFormCriteria setCampaignFormElements(CampaignFormElement campaignFormElements) {
-		this.campaignFormElements = campaignFormElements;
+
+	public CampaignFormCriteria setModality(String modality) {
+		this.modality = modality;
 		return this;
 	}
-	
-	public CampaignFormMetaReferenceDto getFormCategory() {
+
+	public String getFormCategory() {
 		return formCategory;
 	}
 	
-	public CampaignFormCriteria setFormCategory(CampaignFormMetaReferenceDto formCategory) {
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public CampaignFormCriteria setStartDate(Date startDate) {
+		this.startDate = startDate;
+		return this;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public CampaignFormCriteria setEndDate(Date endDate) {
+		this.endDate = endDate;
+		return this;
+	}
+
+	public CampaignFormCriteria setFormCategory(String formCategory) {
 		this.formCategory = formCategory;
 		return this;
 	}
 	
-	public CampaignFormMetaReferenceDto getFormPhase() {
+	public String getFormPhase() {
 		return formPhase;
 	}
 	
-	public CampaignFormCriteria setFormPhase(CampaignFormMetaReferenceDto formPhase) {
+	public CampaignFormCriteria setFormPhase(String formPhase) {
 		this.formPhase = formPhase;
-		return this;
-	}
-	
-	public Date getFormDate() {
-		return formDate;
-	}
-	
-	public CampaignFormCriteria setFormDate(Date formDate) {
-		this.formDate = formDate;
 		return this;
 	}
 	

@@ -33,12 +33,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+//import java.lang;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.primitives.Bytes;
 
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.HasUuid;
@@ -147,7 +149,7 @@ public final class DataHelper {
 
 		return (type.isPrimitive() && type != void.class) || type.isEnum() || type == Double.class
 				|| type == Float.class || type == Long.class || type == Integer.class || type == Short.class
-				|| type == Character.class || type == Byte.class || type == Boolean.class || type == String.class
+				|| type == Character.class || type == Bytes.class || type == Boolean.class || type == String.class
 				|| type == Date.class || type.isAssignableFrom(DiseaseVariant.class);
 	}
 

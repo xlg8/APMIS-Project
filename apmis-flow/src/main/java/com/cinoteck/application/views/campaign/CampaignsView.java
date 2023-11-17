@@ -277,6 +277,7 @@ public class CampaignsView extends VerticalLayout {
 		} else {
 			filterToggleLayout.add(filterDisplayToggle, filterLayout);
 		}
+		filterToggleLayout.getStyle().set("margin-right", "0.5rem");
 
 		filterToggleLayout.setClassName("row pl-3");
 		campaignsFilterLayout.add(filterToggleLayout);

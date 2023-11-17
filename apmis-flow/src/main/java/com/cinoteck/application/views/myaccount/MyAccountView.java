@@ -42,6 +42,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 //import com.vaadin.ui.themes.ValoTheme;
+import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
@@ -100,8 +101,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 
-		Div userentry = new Div();
-
+		VerticalLayout userentry = new VerticalLayout();
+//		userentry.setMargin(2);
+		userentry.getStyle().set("margin-right", "0.5rem");
+		
 		H3 infooo = new H3(I18nProperties.getCaption(Captions.User_userName));
 		infooo.getStyle().set("color", "green");
 		infooo.getStyle().set("font-size", "20px");
@@ -323,7 +326,7 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 				FacadeProvider.getUserFacade().saveUser(currentUserToSave);
 				I18nProperties.setUserLanguage(languagee.getValue());
 				I18nProperties.getUserLanguage();
-				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
+//				Notification.show(I18nProperties.getString(Strings.languageSetingSavedSuccess)+ languagee.getValue());
 			
 				String userLanguage = userProvider.getUser().getLanguage().toString();
 
@@ -337,11 +340,13 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 					
 					languageSwitcher.switchLanguage(Locale.ENGLISH);			
 				}
-
+				
+				VaadinSession.getCurrent().close();
 			} else {
 
 				Notification.show(I18nProperties.getString(Strings.choosePreferredLanguage) + languagee.isInvalid());
 			}
+			
 
 		});
 		actionss.getStyle().set("margin", "20px");
