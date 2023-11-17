@@ -192,13 +192,24 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme
 
 		Button myButton = new Button();
-
+		
 	
 			if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
-				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), DashboardView.class,
-						VaadinIcon.GRID_BIG_O, "navitem"));
+				
+				  AppNavItem dashboardNavItem = new AppNavItem(
+				            I18nProperties.getCaption(Captions.mainMenuDashboard),
+				            DashboardView.class,
+				            VaadinIcon.GRID_BIG_O,
+				            "navitem"
+				        );
+				  
+				  if (userProvider.getUser().getLanguage().toString().equals("Pashto") || userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			            dashboardNavItem.getElement().getStyle().set("display", "math");
+			        }
+				  
+				nav.addItem(dashboardNavItem);
 			}
-
+			
 
 //		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
 //				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "navitem"));

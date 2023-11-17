@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -29,7 +30,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +45,7 @@ import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
@@ -629,6 +630,53 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.toString(), entity.getFormType(),
 				entity.getFormCategory(), entity.getDaysExpired());
 	}
+	
+	@Override
+	public Date formExpiryDate(CampaignFormDataCriteria criteria) {
+		// TODO Auto-generated method stub
+		boolean filterIsNull = false;
+		if(criteria != null) {
+			filterIsNull = criteria.getCampaign() == null;
+		}
+		
+		String joiner = "";
+		
+		if (!filterIsNull && criteria != null) {
+			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto form = criteria.getCampaignFormMeta();
+			
+
+			//@formatter:off
+			final String campaignFilter = campaign != null ? "campwitex.campaignid = '"+campaign.getUuid()+"'" : "";
+			final String formFilter = form != null ? " AND  campwitex.formid = '"+form.getUuid()+"'" : "";
+			
+			joiner = "where "+campaignFilter + formFilter;
+			
+//			System.out.println(campaignFilter+" ===================== "+joiner);
+		}
+		
+		
+		String queryBuilder = "SELECT \n"
+				+ "campwitex.enddate as endDate \n"
+				+ "FROM campaignformmetawithexp campwitex\r\n"
+				+ "LEFT OUTER JOIN campaigns campaignG ON campwitex.campaignid = campaignG.uuid "
+				+ joiner;
+		
+		System.out.println(" ===================== "+queryBuilder);
+			
+		
+		try {
+			return (Date) em.createNativeQuery(queryBuilder).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		    // Handle the case when no result is found
+		}
+		
+		
+		
+	}
+
+
 
 	@LocalBean
 	@Stateless

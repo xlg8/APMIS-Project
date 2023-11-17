@@ -1,6 +1,9 @@
 package com.cinoteck.application.views.campaigndata;
 
+import java.beans.Transient;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.button.Button;
@@ -16,6 +19,8 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+
+import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
@@ -62,7 +67,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
 		System.out.print(campaignFormMetaDto.isDistrictentry() + "district daa entry uuuuuuuuuuuuuuuuuu");
 		
-		
+	
 		if (campaignFormMetaDto.isDistrictentry()) {
 
 			campaignFormBuilder.cbCommunity.setVisible(false);
@@ -175,5 +180,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		// dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
+	
+
 
 }

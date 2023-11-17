@@ -198,7 +198,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.User));
 		exporter.setFileName(
-				"APMIS_Provinces" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Provinces_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -415,6 +415,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevancelayout.add(countRowItems);
 		vlayout.setWidthFull();
 		vlayout.add(displayFilters, layout, relevancelayout);
+		vlayout.getStyle().set("margin-right", "0.5rem");
+
 		add(vlayout);
 
 		dropdownBulkOperations.getStyle().set("margin-top", "5px");

@@ -732,7 +732,8 @@ public class UserForm extends FormLayout {
 	}
 
 	public void validateAndSaveNew() {
-
+		boolean isErrored = false;
+		
 		if (binder.validate().isOk()) {
 			System.out.println(binder.getBean().getUserEmail() != null
 					+ " validateAndSaveNew++++++++++++++++++++++++++++++++++++ " + binder.getBean().getUserEmail());
@@ -744,14 +745,15 @@ public class UserForm extends FormLayout {
 
 				if (binderEmailValidation == null) {
 
-					fireEvent(new SaveEvent(this, binder.getBean()));
+//					isErrored = false;
+//					fireEvent(new SaveEvent(this, binder.getBean()));
 
 				} else {
 
 					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
 							&& !binder.getBean().getUserName().isEmpty()) {
 //email has not changed
-						fireEvent(new SaveEvent(this, binder.getBean()));
+//						fireEvent(new SaveEvent(this, binder.getBean()));
 					} else {
 
 						Notification notification = new Notification();
@@ -771,6 +773,7 @@ public class UserForm extends FormLayout {
 
 						notification.add(layout);
 						notification.open();
+						isErrored = true;
 						return;
 
 					}
@@ -796,9 +799,14 @@ public class UserForm extends FormLayout {
 
 				notification.add(layout);
 				notification.open();
+				isErrored = true;
 				return;
 			} else {
-				fireEvent(new SaveEvent(this, binder.getBean()));
+				if(!isErrored ) {
+					
+					fireEvent(new SaveEvent(this, binder.getBean()));
+
+				}
 			}
 		}
 	}

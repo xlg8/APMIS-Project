@@ -73,7 +73,7 @@ public class PopulationDataCriteria extends BaseCriteria implements Cloneable {
 	public AgeGroup getAgeGroup() {
 		return ageGroup;
 	}
-
+	
 	public boolean isDistrictIsNull() {
 		return districtIsNull;
 	}

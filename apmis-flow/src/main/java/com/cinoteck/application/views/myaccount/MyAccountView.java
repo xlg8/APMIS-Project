@@ -101,8 +101,10 @@ public class MyAccountView extends VerticalLayout implements RouterLayout {
 
 		UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
 
-		Div userentry = new Div();
-
+		VerticalLayout userentry = new VerticalLayout();
+//		userentry.setMargin(2);
+		userentry.getStyle().set("margin-right", "0.5rem");
+		
 		H3 infooo = new H3(I18nProperties.getCaption(Captions.User_userName));
 		infooo.getStyle().set("color", "green");
 		infooo.getStyle().set("font-size", "20px");

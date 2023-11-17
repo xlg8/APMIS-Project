@@ -127,8 +127,9 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		exporter.setAutoAttachExportButtons(false);
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
-		exporter.setFileName(
-				"Aggregate Report" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime()));
+		String exportFileName = "Aggregate_Report_"+ campaignz.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+
+		exporter.setFileName(exportFileName);
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);

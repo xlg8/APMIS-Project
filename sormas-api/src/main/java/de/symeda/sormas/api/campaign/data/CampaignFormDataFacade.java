@@ -67,6 +67,9 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
 
 	List<CampaignFormDataIndexDto> getByCompletionAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
+
+	List<CampaignFormDataIndexDto> getByTimelinessAnalysis(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
+
 	
 	String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess frm);
 	
@@ -132,4 +135,9 @@ public interface CampaignFormDataFacade {
 
 	int getFlwDuplicateErrorAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties);
+
+	String getByTimelinessAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties, FormAccess frms);
+	
+
 }

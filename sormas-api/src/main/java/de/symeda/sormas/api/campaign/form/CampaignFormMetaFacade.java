@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -61,4 +62,6 @@ public interface CampaignFormMetaFacade {
 
 	long count(CampaignFormCriteria campaignFormCriteria);
 //	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
+	
+	Date formExpiryDate(CampaignFormDataCriteria criteria);
 }

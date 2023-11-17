@@ -48,6 +48,19 @@ public class CampaignFormElementOptions {
 	public static void setOptionsListValues(Map<String, String> optionsListValues) {
 		CampaignFormElementOptions.optionsListValues = optionsListValues;
 	}
+	
+	// List Methods constraints
+	public static Map<String, String> optionsListOrder;
+
+	
+
+	public static Map<String, String> getOptionsListOrder() {
+		return optionsListOrder;
+	}
+
+	public static void setOptionsListOrder(Map<String, String> optionsListOrder) {
+		CampaignFormElementOptions.optionsListOrder = optionsListOrder;
+	}
 
 
 
