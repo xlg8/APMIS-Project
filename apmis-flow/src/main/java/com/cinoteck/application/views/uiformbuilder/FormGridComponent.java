@@ -240,9 +240,7 @@ public class FormGridComponent extends VerticalLayout {
 			if (campaignFormMetaDto == null) {
 				campaignFormMetaDto = new CampaignFormMetaDto();
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-			} else {
-				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-			}
+			} 
 
 			grid.setHeight("auto !important");
 		});
@@ -268,8 +266,6 @@ public class FormGridComponent extends VerticalLayout {
 			options.setVisible(true);
 			styles.setVisible(true);
 			errorMessage.setVisible(true);
-
-			grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 		});
 
 		cancel.addClickListener(e -> {
@@ -381,10 +377,12 @@ public class FormGridComponent extends VerticalLayout {
 					campaignFormMetaDto = new CampaignFormMetaDto();
 					elementList.add(newForm);
 					campaignFormMetaDto.setCampaignFormElements(elementList);
+				} else {					
+//					campaignFormMetaDto.getCampaignFormElements().add(newForm);
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 				}
 
-				campaignFormMetaDto.getCampaignFormElements().add(newForm);
-				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+
 				getGridData();
 				Notification.show("New Form Element Saved");
 			} else {
