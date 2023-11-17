@@ -9113,7 +9113,72 @@ UPDATE public.campaigns
 SET round = 'CRC'
 WHERE round = 'Case Respond';
 
+<<<<<<< HEAD
 INSERT INTO schema_version (version_number, comment) VALUES (451, 'Updating Campaign Round from Case Respond to CRC'); 
-    
+
+
+CREATE MATERIALIZED VIEW public.lateformdataportion
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  WHERE c.formdate > c2.enddate
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+
+CREATE MATERIALIZED VIEW public.lateformdatatotal
+TABLESPACE pg_default
+AS SELECT count(*) AS count,
+    c2.formid,
+    c2.campaignid,
+    c.district_id
+   FROM campaignformdata c
+     LEFT JOIN campaignformmeta ON c.campaignformmeta_id = campaignformmeta.id
+     LEFT JOIN campaigns ON c.campaign_id = campaigns.id
+     LEFT JOIN campaignformmetawithexp c2 ON campaigns.uuid::text = c2.campaignid::text
+  GROUP BY c2.formid, c2.campaignid, c.district_id
+WITH DATA;
+
+INSERT INTO schema_version (version_number, comment) VALUES (452, 'Creating latedate report roption and total view ');
+
+
+ALTER TABLE public.areas ADD fa_af varchar(100) NULL;
+ALTER TABLE public.areas ADD ps_af varchar(100) NULL;
+
+
+ALTER TABLE public.region ADD fa_af varchar(100) NULL;
+ALTER TABLE public.region ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.district ADD fa_af varchar(100) NULL;
+ALTER TABLE public.district ADD ps_af varchar(100) NULL;
+
+ALTER TABLE public.community ADD fa_af varchar(100) NULL;
+ALTER TABLE public.community ADD ps_af varchar(100) NULL;
+
+ 
+INSERT INTO schema_version (version_number, comment) VALUES (453, 'Adding the admin units translation to local languages in Configuration page'); 
+
+CREATE OR REPLACE FUNCTION public.function_copy()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    INSERT INTO user_account(id,username,email)
+        VALUES(new.id,new.username,new.useremail)
+ON CONFLICT DO NOTHING;
+           RETURN new;
+END;
+$function$
+;
+
+INSERT INTO schema_version (version_number, comment) VALUES (454, 'Updating username conflict issue '); 
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

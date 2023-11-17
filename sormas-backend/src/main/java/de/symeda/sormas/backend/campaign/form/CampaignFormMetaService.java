@@ -15,12 +15,16 @@ import javax.persistence.criteria.Root;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserType;
+import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.AdoServiceWithUserFilter;
+import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.user.User;
 
 @Stateless
@@ -31,9 +35,60 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		super(CampaignFormMeta.class);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Predicate createUserFilter(CriteriaBuilder cb, CriteriaQuery cq, From<?, CampaignFormMeta> from) {
 		return null;
+	}
+
+	public Predicate buildCriteriaFilter(CampaignFormCriteria campaignFormCriteria, CriteriaBuilder cb,
+			Root<CampaignFormMeta> from) {
+		Predicate filter = null;
+		if (campaignFormCriteria.getFormCategory() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(from.get(CampaignFormMeta.FORM_CATEGORY), campaignFormCriteria.getFormCategory()));
+		}
+//		if (campaignFormCriteria.getFormCategory() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(from.get(CampaignFormMeta.FORM_CATEGORY), campaignFormCriteria.getFormCategory()));
+//		}
+//		if (campaignFormCriteria.getFormCategory() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(from.get(CampaignFormMeta.MODALITY), campaignFormCriteria.getModality()));
+//		}
+		if (campaignFormCriteria.getModality() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(from.get(CampaignFormMeta.MODALITY), campaignFormCriteria.getModality()));
+		}
+		if (campaignFormCriteria.getFormPhase() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(from.get(CampaignFormMeta.FORM_TYPE), campaignFormCriteria.getFormPhase()));
+		}
+//		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb.between(from.get(CampaignFormMeta.CREATION_DATE),
+//					campaignFormCriteria.getStartDate(), campaignFormCriteria.getEndDate()));
+//		}
+//		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
+//			filter = CriteriaBuilderHelper.and(cb, filter, cb.between(from.get(CampaignFormMeta.CHANGE_DATE),
+//					campaignFormCriteria.getStartDate(), campaignFormCriteria.getEndDate()));
+//		}
+		if (campaignFormCriteria.getFormName() != null) {
+			String[] textFilters = (campaignFormCriteria.getFormName().split("\\s+"));
+			for (String textFilter : textFilters) {
+				if (DataHelper.isNullOrEmpty(textFilter)) {
+					continue;
+				}
+
+				Predicate likeFilters = cb
+						.or(CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_NAME), textFilter),
+//						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_CATEGORY), textFilter),
+//						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),
+//						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),
+								CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.UUID), textFilter));
+				filter = CriteriaBuilderHelper.and(cb, filter, likeFilters);
+			}
+		}
+		return filter;
 	}
 
 	public List<CampaignFormMeta> getAllAfter(Date since, User user) {
@@ -59,7 +114,7 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		List<CampaignFormMeta> resultList = em.createQuery(cq).getResultList();
 		return resultList;
 	}
-	
+
 	public List<CampaignFormMeta> getAllFormElements(User user) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -91,7 +146,9 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		Join<Campaign, CampaignFormMeta> campaignFormMetaJoin = campaignRoot.join(Campaign.CAMPAIGN_FORM_METAS);
 
 		Predicate filter = cb.equal(campaignRoot.get(Campaign.UUID), uuid);
-		//Predicate typefilter = cb.notEqual(campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE), "intra-campaign"); //
+		// Predicate typefilter =
+		// cb.notEqual(campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+		// "intra-campaign"); //
 
 		cq = cq.where(filter);
 		cq.multiselect(campaignFormMetaJoin.get(CampaignFormMeta.UUID),
@@ -115,7 +172,7 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 
 		return em.createQuery(cq).getResultList();
 	}
-	
+
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPostCampaign(String uuid) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormMetaReferenceDto> cq = cb.createQuery(CampaignFormMetaReferenceDto.class);
@@ -128,6 +185,8 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		cq = cq.where(filter, typefilter, filterxx);
 		cq.multiselect(campaignFormMetaJoin.get(CampaignFormMeta.UUID),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME));
+		
+		System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" + SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultList();
 	}
@@ -145,12 +204,14 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		// TODO: post campaign implementations
 		cq = cq.where(filter);
 		cq.multiselect(campaignFormMetaJoin.get(CampaignFormMeta.UUID),
-				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_CATEGORY),  campaignFormMetaJoin.get(CampaignFormMeta.DAYSTOEXPIRE));
-		 System.out.println("SSSSSSSSS44SSSSSSSSSS"+SQLExtractor.from(em.createQuery(cq)));
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_CATEGORY),
+				campaignFormMetaJoin.get(CampaignFormMeta.DAYSTOEXPIRE));
+		System.out.println("SSSSSSSSS44SSSSSSSSSS" + SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
 	}
-	
-	
+
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundandForm(String round,
 			String uuid, Set<FormAccess> userFormAccess) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -159,8 +220,7 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 		Join<Campaign, CampaignFormMeta> campaignFormMetaJoin = campaignRoot.join(Campaign.CAMPAIGN_FORM_METAS);
 		Predicate filterc = cb.equal(campaignRoot.get(Campaign.UUID), uuid);
 		Predicate filterx = cb.equal(campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE), round);
-		
-		
+
 		Predicate filter = cb.and(filterc, filterx);
 		// TODO: post campaign implementations
 		cq = cq.where(filter);

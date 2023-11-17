@@ -2,6 +2,7 @@ package com.cinoteck.application.views.reports;
 
 import java.util.List;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.icon.Icon;
@@ -23,6 +24,8 @@ public class CompletionAnalysisFilter extends VerticalLayout {
 	private ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>();
 	private ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>();
 	private Button resetButton;
+	
+	private UserProvider userProvider = new UserProvider();
 
 	List<CampaignReferenceDto> campaigns;
 
@@ -39,26 +42,58 @@ public class CompletionAnalysisFilter extends VerticalLayout {
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-		regionFilter.addValueChangeListener(e -> {
-			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {	
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+		}
+
+		regionFilter.addValueChangeListener(e -> {			
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReferencePashto());
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {	
+				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReferenceDari());
+			} else {
+				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+			}
 		});
 
-		
 		provinceFilter.setLabel(I18nProperties.getCaption(Captions.region));
 		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
-		provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {	
+			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReferenceDari());
+		} else {
+			provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		}
 		provinceFilter.addValueChangeListener(e -> {
-			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReferencePashto());
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {			
+				districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReferenceDari());
+			} else {
+				districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+			}
 		});
 		
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
-		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
+			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReferenceDari());
+		} else {
+			districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		}
 		
 		resetButton =  new Button(I18nProperties.getCaption(Captions.actionResetFilters));
-		
-		
+
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.showFilters), new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e->{
 			if(filterLayout.isVisible() == false) {

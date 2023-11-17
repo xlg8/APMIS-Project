@@ -195,7 +195,7 @@ public class ClusterView extends VerticalLayout {
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
 		exporter.setFileName(
-				"APMIS_Clusters" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+				"APMIS_Clusters_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
@@ -291,7 +291,16 @@ public class ClusterView extends VerticalLayout {
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.getStyle().set("width", "145px !important");
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+//		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+		}
+		
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 			criteria.area(currentUser.getUser().getArea());
@@ -356,7 +365,13 @@ public class ClusterView extends VerticalLayout {
 
 		regionFilter.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {					
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				} else {
+					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				}	
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
 				refreshGridData();
@@ -371,8 +386,14 @@ public class ClusterView extends VerticalLayout {
 
 		provinceFilter.addValueChangeListener(e -> {
 			if (provinceFilter.getValue() != null) {
-				districtFilter
-						.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+				
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+				}
 //			filteredDataProvider.setFilter(criteria);
 				RegionReferenceDto province = e.getValue();
 				criteria.region(province);
@@ -442,15 +463,15 @@ public class ClusterView extends VerticalLayout {
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
 			layout.add(addNew);
 		}
-		Button exportCluster = new Button("Export");
+		Button exportCluster = new Button(I18nProperties.getCaption(Captions.export));
 		exportCluster.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		exportCluster.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 
 		});
-
-		Button importCluster = new Button("Import");
+		
+		Button importCluster = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importCluster.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 
 		importCluster.addClickListener(e -> {
@@ -470,6 +491,8 @@ public class ClusterView extends VerticalLayout {
 		relevancelayout.add(relevanceStatusFilter, countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
+		vlayout.getStyle().set("margin-right", "0.5rem");
+
 		add(vlayout);
 
 		dropdownBulkOperations.getStyle().set("margin-top", "5px");

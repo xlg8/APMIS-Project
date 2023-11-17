@@ -133,7 +133,7 @@ public class LoginFormInput extends VerticalLayout {
 		resetPassword.getStyle().set("color", "white");
 		
 		
-		VerticalLayout fieldsLayout = new VerticalLayout(username, password, loginButton, resetPassword);
+		VerticalLayout fieldsLayout = new VerticalLayout(username, password, loginButton);
 		fieldsLayout.setAlignItems(Alignment.CENTER);
 		add(fieldsLayout);
 

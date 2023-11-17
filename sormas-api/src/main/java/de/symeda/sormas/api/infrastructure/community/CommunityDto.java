@@ -37,6 +37,8 @@ public class CommunityDto extends EntityDto {
 	public static final String I18N_PREFIX = "Community";
 
 	public static final String NAME = "name";
+	public static final String FA_AF = "fa_af";
+	public static final String PS_AF = "ps_af";
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String REGION = "region";
 	public static final String DISTRICT = "district";
@@ -52,6 +54,10 @@ public class CommunityDto extends EntityDto {
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String name;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
+	private String fa_af;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
+	private String ps_af;
 	private Float growthRate;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
@@ -90,6 +96,36 @@ public class CommunityDto extends EntityDto {
 		this.externalId = externalId;
 		this.clusterNumber = clusterNumber;
 	}
+	
+	public CommunityDto(
+			Date creationDate,
+			Date changeDate,
+			String uuid,
+			boolean archived,
+			String name,
+			String fa_af,
+			String ps_af,
+			Float growthRate,
+			String regionUuid,
+			String regionName,
+			Long regionExternalId,
+			String districtUuid,
+			String districtName,
+			Long districtExternalId,
+			Long externalId,
+			Integer clusterNumber) {
+
+			super(creationDate, changeDate, uuid);
+			this.archived = archived;
+			this.name = name;
+			this.fa_af = fa_af;
+			this.ps_af = ps_af;
+			this.growthRate = growthRate;
+			this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);
+			this.district = new DistrictReferenceDto(districtUuid, districtName, districtExternalId);
+			this.externalId = externalId;
+			this.clusterNumber = clusterNumber;
+		}
 
 	public CommunityDto() {
 		super();
@@ -101,6 +137,22 @@ public class CommunityDto extends EntityDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getFa_af() {
+		return fa_af;
+	}
+
+	public void setFa_af(String fa_af) {
+		this.fa_af = fa_af;
+	}
+
+	public String getPs_af() {
+		return ps_af;
+	}
+
+	public void setPs_af(String ps_af) {
+		this.ps_af = ps_af;
 	}
 
 	@ImportIgnore

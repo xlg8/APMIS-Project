@@ -14,10 +14,18 @@ public interface AreaFacade extends GeoLocationFacade<AreaDto, AreaDto, AreaRefe
 
 	List<AreaReferenceDto> getAllActiveAsReference();
 	
+	List<AreaReferenceDto> getAllActiveAsReferencePashto();
+	
+	List<AreaReferenceDto> getAllActiveAsReferenceDari();
+	
 	List<AreaReferenceDto> getAllActiveAndSelectedAsReference(String campaignUuid);
 
-	List<AreaDto> getAllActiveAsReferenceAndPopulation(CampaignDto campaignDto);
+	List<AreaDto> getAllActiveAsReferenceAndPopulation(CampaignDto campaignDto); 
 
+	List<AreaDto> getAllActiveAsReferenceAndPopulationPashto(CampaignDto campaignDto); 
+	
+	List<AreaDto> getAllActiveAsReferenceAndPopulationsDari(CampaignDto campaignDto);
+	
 	List<AreaDto> getAllActiveAsReferenceAndPopulation();
 
 	boolean isUsedInOtherInfrastructureData(Collection<String> areaUuids);

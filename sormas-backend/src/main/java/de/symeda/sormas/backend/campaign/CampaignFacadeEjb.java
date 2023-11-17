@@ -1,5 +1,6 @@
 package de.symeda.sormas.backend.campaign;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -233,40 +234,54 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	private void saveCampaignFormExp(CampaignDto dto) {
 		try {
 			for (CampaignFormMetaExpiryDto data : dto.getCampaignFormMetaExpiryDto()) {
-			
 
 				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
 						+ CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN + ", "
 						+ CampaignFormMetaExpDay.EXPIRE_DAY + ")" + " values (" + "'" + data.getFormId().getUuid()
 						+ "'," + "'" + data.getCampaignId().getUuid() + "'," + data.getExpiryDay() + ")"
-								+ "ON CONFLICT ("+CampaignFormMetaExpDay.FORM_ID+", "+CampaignFormMetaExpDay.CAMPAIGN+") DO UPDATE\n"
-								+ "SET "+CampaignFormMetaExpDay.EXPIRE_DAY+" = EXCLUDED."+CampaignFormMetaExpDay.EXPIRE_DAY+";"
-								+ ";";
-				
-			
+						+ "ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN
+						+ ") DO UPDATE\n" + "SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED."
+						+ CampaignFormMetaExpDay.EXPIRE_DAY + ";" ;
+				System.out.println(" trying tio ru  q]sqkkkf : " + sqlQuery);
+
 				int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
 				System.out.println(" =========done: " + dsc);
 			}
 		} catch (Exception e) {
 			System.err.println(e.getStackTrace());
+		}finally {
+			String sqlQuery = "UPDATE " + CampaignFormMetaExpDay.TABLE_NAME + " AS campaignExpiry \n"
+					+ "SET " + CampaignFormMetaExpDay.EXPIRE_DATE + " = " 
+					+ Campaign.START_DATE + " + " + CampaignFormMetaExpDay.EXPIRE_DAY +  " * interval '1 day'\n"
+					+ "FROM " + Campaign.TABLE_NAME + " AS camapigns  \n"
+					+ " WHERE "+ CampaignFormMetaExpDay.CAMPAIGN + " = " +  Campaign.UUID + ";";
+			System.out.println(" vvvvvvvvvv+++++++++==+++++========: " + sqlQuery);
+			em.createNativeQuery(sqlQuery).executeUpdate();
 		}
 
 	}
-	
+
 	@Override
 	public int getCampaignFormExp(String formUuuid, String campaignUuid) {
 		int dsc = 0;
 		try {
-				String sqlQuery = "select "+ CampaignFormMetaExpDay.EXPIRE_DAY + " from " + CampaignFormMetaExpDay.TABLE_NAME
-						 +" where " +CampaignFormMetaExpDay.FORM_ID+"= '"+formUuuid+"' and "+CampaignFormMetaExpDay.CAMPAIGN+" = '"+campaignUuid+"';";
-				dsc = (int) em.createNativeQuery(sqlQuery).getSingleResult();
-				System.out.println(" =========retriving...: " + dsc);
-		 } catch (NoResultException e) {
-	           
-	     }			
+			String sqlQuery = "select " + CampaignFormMetaExpDay.EXPIRE_DAY + " from "
+					+ CampaignFormMetaExpDay.TABLE_NAME + " where " + CampaignFormMetaExpDay.FORM_ID + "= '" + formUuuid
+					+ "' and " + CampaignFormMetaExpDay.CAMPAIGN + " = '" + campaignUuid + "';";
+
+			BigInteger result = (BigInteger) em.createNativeQuery(sqlQuery).getSingleResult();
+
+			// Convert the BigInteger to int
+			dsc = result.intValue();
+
+//				dsc = (int) em.createNativeQuery(sqlQuery).getSingleResult();
+			System.out.println(" =========retriving...: " + dsc);
+		} catch (NoResultException e) {
+
+		}
 		return dsc;
 	}
-	
+
 	@Override
 	public CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto) {
 		campaignLogDto.setCreatingUser(userServiceEBJ.getCurrentUser());
@@ -552,10 +567,11 @@ public class CampaignFacadeEjb implements CampaignFacade {
 					throw new ValidationRuntimeException(
 							I18nProperties.getValidationError(Validations.campaignDashboardChartValueNull,
 									CampaignDashboardElement.DIAGRAM_ID, campaignDto.getName()));
-				} else if (!campaignDiagramDefinitionFacade.exists(diagramId)) {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(
-							Validations.campaignDashboardChartIdDoesNotExist, diagramId, campaignDto.getName()));
 				}
+//				else if (!campaignDiagramDefinitionFacade.exists(diagramId)) {
+//					throw new ValidationRuntimeException(I18nProperties.getValidationError(
+//							Validations.campaignDashboardChartIdDoesNotExist, diagramId, campaignDto.getName()));
+//				}
 
 				if (cde.getTabId() == null) {
 					throw new ValidationRuntimeException(
