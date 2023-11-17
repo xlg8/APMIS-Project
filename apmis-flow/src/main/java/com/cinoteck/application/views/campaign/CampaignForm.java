@@ -673,7 +673,7 @@ public class CampaignForm extends VerticalLayout {
 
 		treeGrid.addSelectionListener(event -> {
 
-			if (!isMultiSelectItemLock) {
+			if (isMultiSelectItemLock) {
 				areass.clear();
 				region.clear();
 				districts.clear();

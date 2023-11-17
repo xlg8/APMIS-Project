@@ -1192,7 +1192,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	
 			List<Area> areas = areaService.getAll();
 			areas.forEach(areaItem -> {
-				Integer population = populationDataFacadeEjb.getAreaPopulation(areaItem.getUuid(),
+				Integer population = populationDataFacadeEjb.getAreaPopulationSelected(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				if (population == 0) {
 					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
@@ -1226,7 +1226,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if (grouping == CampaignJurisdictionLevel.AREA) {
 			List<Area> areas = areaService.getAll();
 			areas.forEach(areaItem -> {
-				Integer population = populationDataFacadeEjb.getAreaPopulation(areaItem.getUuid(),
+				Integer population = populationDataFacadeEjb.getAreaPopulationSelected(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 			//	////System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> "+population);
 				if (population == 0) {
@@ -1250,7 +1250,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				criteria.region(regionReferenceDto);
 				criteria.ageGroup(diagramSeriesTotal.getPopulationGroup());
 				criteria.setCampaign(campaignDiagramCriteria.getCampaign());
-				List<PopulationDataDto> populationDataDto = populationDataFacadeEjb.getPopulationData(criteria);
+				List<PopulationDataDto> populationDataDto = populationDataFacadeEjb.getPopulationDataSelected(criteria);
 				Integer populationSum = 0;
 				if (!populationDataDto.isEmpty()) {
 					populationSum = populationDataDto.stream().mapToInt(e -> e.getPopulation()).sum();
@@ -1282,7 +1282,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				criteria.region(region);
 				criteria.ageGroup(diagramSeriesTotal.getPopulationGroup());
 				criteria.setCampaign(campaignDiagramCriteria.getCampaign());
-				List<PopulationDataDto> populationDataDtoList = populationDataFacadeEjb.getPopulationData(criteria);
+				List<PopulationDataDto> populationDataDtoList = populationDataFacadeEjb.getPopulationDataSelected(criteria);
 				Integer populationSum = 0;
 				if (!populationDataDtoList.isEmpty()) {
 					populationSum = populationDataDtoList.stream().mapToInt(e -> e.getPopulation()).sum();
@@ -1320,7 +1320,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			areas.add(areaService.getByUuid(area.getUuid()));
 			areas.forEach(areaItem -> {
 			
-				Integer	population = populationDataFacadeEjb.getAreaPopulationByUuid(areaItem.getUuid(),
+				Integer	population = populationDataFacadeEjb.getAreaPopulationByUuidSelect(areaItem.getUuid(),
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				if (population == 0) {
 					resultData.add(new CampaignDiagramDataDto(areaItem.getName(), 0, areaItem.getUuid(),
@@ -1335,7 +1335,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			//System.out.println(resultData.size());
 		}else if (grouping == CampaignJurisdictionLevel.AREA && area == null) {
 			populationx = 0;
-			populationx = populationDataFacadeEjb.getAreaPopulationParent("notneeded",
+			populationx = populationDataFacadeEjb.getAreaPopulationParentSelect("notneeded",
 						diagramSeriesTotal.getPopulationGroup(), campaignDiagramCriteria);
 				
 		System.out.println(diagramSeriesTotal.getPopulationGroup()+">>>>>>>>>>>>>>>YEAH - population = "+populationx);
@@ -1360,7 +1360,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				criteria.region(regionReferenceDto);
 				criteria.ageGroup(diagramSeriesTotal.getPopulationGroup());
 				criteria.setCampaign(campaignDiagramCriteria.getCampaign());
-				List<PopulationDataDto> populationDataDto = populationDataFacadeEjb.getPopulationData(criteria);
+				List<PopulationDataDto> populationDataDto = populationDataFacadeEjb.getPopulationDataSelected(criteria);
 				Integer populationSum = 0;
 				if (!populationDataDto.isEmpty()) {
 					populationSum = populationDataDto.stream().mapToInt(e -> e.getPopulation()).sum();
@@ -1386,7 +1386,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				criteria.region(region);
 				criteria.ageGroup(diagramSeriesTotal.getPopulationGroup());
 				criteria.setCampaign(campaignDiagramCriteria.getCampaign());
-				List<PopulationDataDto> populationDataDtoList = populationDataFacadeEjb.getPopulationData(criteria);
+				List<PopulationDataDto> populationDataDtoList = populationDataFacadeEjb.getPopulationDataSelected(criteria);
 				Integer populationSum = 0;
 				if (!populationDataDtoList.isEmpty()) {
 					populationSum = populationDataDtoList.stream().mapToInt(e -> e.getPopulation()).sum();

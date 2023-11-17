@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -62,6 +63,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.VaadinService;
+
+import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -81,6 +84,8 @@ import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.PopulationDataCriteria;
+import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -101,10 +106,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private Map<String, String> userTranslations = new HashMap<String, String>();
 	private Map<String, String> userOptTranslations = new HashMap<String, String>();
 	Map<String, Component> fields;
-	private Map<String, String> optionsValues = new HashMap<String, String>();
+	private Map<String, String> optionsValues = new LinkedHashMap<String, String>();
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
+	private PopulationDataCriteria popCriteria;
+	private List<PopulationDataDto> popDto;
 
 	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
@@ -199,7 +206,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 		formDate.getStyle().set("-webkit-text-fill-color", "green !important");
 
 		//
-
+		popCriteria = new PopulationDataCriteria();
+//		popCriteria.setCampaign(campaignReferenceDto);
+		popDto = FacadeProvider.getPopulationDataFacade().getPopulationDataWithCriteria(campaignReferenceDto.getUuid());
+		System.out.println("++++++++++++++++++++++++++++++++"+popDto.size());
+		
 		cbArea.setRequired(true);
 		cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		cbArea.setId("my-disabled-textfield");
@@ -226,47 +237,41 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid())
+						.stream().filter(ex -> popDto.stream().anyMatch(dto -> dto.getRegion().getUuid().equals(ex.getUuid()))).collect(Collectors.toList());
+						
+				
 				cbRegion.clear();
 				cbRegion.setReadOnly(false);
-				;
 				cbRegion.setItems(provinces);
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			} else {
 				cbRegion.clear();
 				cbRegion.setReadOnly(true);
-				;
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			}
 
 		});
 
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid())
+						.stream().filter(ex -> popDto.stream().anyMatch(dto -> dto.getDistrict().getUuid().equals(ex.getUuid()))).collect(Collectors.toList());
 				cbDistrict.setReadOnly(false);
-				;
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			} else {
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			}
 
 		});
@@ -509,7 +514,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 
 			} else {
-				optionsValues = new HashMap<String, String>();
+				optionsValues = new LinkedHashMap<String, String>();
 			}
 
 			if (formElement.getConstraints() != null) {
@@ -910,9 +915,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
-					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-
-					select.setItems(sortedKeys);
+//					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
+for(String dtr : data.keySet()) {
+	System.out.println("_______________________________________"+dtr);
+}
+					select.setItems(data.keySet());
 
 					select.setRequiredIndicatorVisible(formElement.isImportant());
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
