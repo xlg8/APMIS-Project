@@ -1,8 +1,10 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
@@ -17,6 +19,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -26,12 +29,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.ui.OptionGroup;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -69,7 +74,6 @@ public class UserAnalysisGridView extends VerticalLayout {
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	Button exportReport = new Button();
 
-
 //    Paragraph countRowItems;
 	public UserAnalysisGridView(CommunityCriteriaNew criteria, FormAccess formAccess) {
 		this.criteria = new CommunityCriteriaNew();
@@ -98,13 +102,28 @@ public class UserAnalysisGridView extends VerticalLayout {
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
+		} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
+		} else {
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+		}
 
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
 			if (selectedArea != null) {
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
-				provinceFilter.setItems(provinces);
+				if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+					provinceFilter.setItems(provinces);
+				} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+					provinceFilter.setItems(provinces);
+				} else {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
+					provinceFilter.setItems(provinces);
+				}
+
 				criteria.area(selectedArea);
 				criteria.region(null);
 				refreshGridData(formAccess);
@@ -122,8 +141,17 @@ public class UserAnalysisGridView extends VerticalLayout {
 		provinceFilter.addValueChangeListener(e -> {
 			RegionReferenceDto selectedRegion = e.getValue();
 			if (selectedRegion != null) {
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
-				districtFilter.setItems(districts);
+				if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+					districtFilter.setItems(districts);
+				} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+					districtFilter.setItems(districts);
+				} else {
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
+					districtFilter.setItems(districts);
+				}
+
 				criteria.region(selectedRegion);
 				refreshGridData(formAccess);
 			} else {
@@ -191,7 +219,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 			refreshGridData(formAccess);
 //            updateText(formAccess);
 		});
-		
+
 		exportReport.setIcon(new Icon(VaadinIcon.UPLOAD));
 		exportReport.setText(I18nProperties.getCaption(Captions.export));
 		exportReport.addClickListener(e -> {
@@ -215,7 +243,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		layout.add(displayFilters, filterLayout);
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(regionFilter, provinceFilter, districtFilter, errorStatusFilter,exportReport, anchor);
+		filterLayout.add(regionFilter, provinceFilter, districtFilter, errorStatusFilter, exportReport, anchor);
 		countAndButtons.add(layout);
 		add(countAndButtons);
 	}
@@ -249,6 +277,34 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+		ComponentRenderer<Span, CommunityUserReportModelDto> cCodeRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getcCode()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		ComponentRenderer<Span, CommunityUserReportModelDto> clusterNumberRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getClusterNumber()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
 		grid.addColumn(CommunityUserReportModelDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
 				.setSortProperty("region").setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
@@ -262,14 +318,32 @@ public class UserAnalysisGridView extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.formAccess)).setSortProperty("formAccess")
 				.setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formAccess));
-		grid.addColumn(CommunityUserReportModelDto::getClusterNumberr)
-				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr")
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-		grid.addColumn(CommunityUserReportModelDto::getcCode)
-				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+
+		if (currentUser.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortProperty("clusterNumberr").setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			grid.addColumn(cCodeRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setSortProperty("ccode").setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		} else if (currentUser.getUser().getLanguage().toString().equals("Dari")) {
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortProperty("clusterNumberr").setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			grid.addColumn(cCodeRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setSortProperty("ccode").setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		} else {
+			grid.addColumn(CommunityUserReportModelDto::getClusterNumberr)
+					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumberr")
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			grid.addColumn(CommunityUserReportModelDto::getcCode)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		}
+
 		grid.addColumn(CommunityUserReportModelDto::getUsername)
 				.setHeader(I18nProperties.getCaption(Captions.Login_username)).setSortProperty("username")
 				.setSortable(true).setResizable(true)
@@ -277,9 +351,9 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.addColumn(CommunityUserReportModelDto::getMessage).setHeader(I18nProperties.getCaption(Captions.message))
 				.setSortProperty("message").setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.message));
-		
+
 		int numberOfRows = FacadeProvider.getCommunityFacade().getAllActiveCommunitytoRerenceCount(null, null, null,
-		null, formAccess);
+				null, formAccess);
 
 		DataProvider<CommunityUserReportModelDto, CommunityCriteriaNew> dataProvider = DataProvider
 				.fromFilteringCallbacks(
@@ -304,7 +378,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		grid.setDataProvider(dataProvider);
 		grid.setPageSize(250);
 		grid.setVisible(true);
-		
+
 		GridExporter<CommunityUserReportModelDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 

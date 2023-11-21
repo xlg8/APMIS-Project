@@ -1,8 +1,10 @@
 package com.cinoteck.application.views.reports;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
@@ -13,12 +15,14 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
@@ -26,6 +30,7 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
+import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -64,7 +69,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
 	private UserProvider userProvider = new UserProvider();
-	
+
 	private void refreshGridData(FormAccess formAccess) {
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
@@ -119,7 +124,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 
 		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
@@ -130,17 +135,17 @@ public class CompletionAnalysisView extends VerticalLayout {
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.addValueChangeListener(e -> {
 			AreaReferenceDto selectedArea = e.getValue();
-			if (selectedArea != null) {				
+			if (selectedArea != null) {
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
 					provinceFilter.setItems(provinces);
 				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
 					provinceFilter.setItems(provinces);
-				} else {		
+				} else {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(selectedArea.getUuid());
 					provinceFilter.setItems(provinces);
-				}	
+				}
 				criteria.campaign(campaign.getValue());
 				criteria.area(selectedArea);
 
@@ -168,7 +173,7 @@ public class CompletionAnalysisView extends VerticalLayout {
 				} else {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(selectedRegion.getUuid());
 					districtFilter.setItems(districts);
-				}					
+				}
 				criteria.region(selectedRegion);
 				refreshGridData(formAccess);
 			} else {
@@ -274,35 +279,170 @@ public class CompletionAnalysisView extends VerticalLayout {
 
 //		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
-				.setSortProperty("region").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
-				.setSortProperty("province").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
-				.setSortProperty("district").setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getCcode)
-				.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
-				.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber")
-				.setSortable(true).setResizable(true);
+		ComponentRenderer<Span, CampaignFormDataIndexDto> cCodeRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
 
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring)).setSortProperty("supervisor")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit").setSortable(true)
-				.setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
-				.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
-				.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori")
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignFormDataIndexDto::getError_status).setHeader(I18nProperties.getCaption("Error Status"))
-				.setSortProperty("errorfilter").setSortable(true).setResizable(true);
+			String value = String.valueOf(arabicFormat.format(input.getCcode()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
 
-		grid.setVisible(true);
+		ComponentRenderer<Span, CampaignFormDataIndexDto> clusterNumberRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getClusternumber()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		ComponentRenderer<Span, CampaignFormDataIndexDto> icmSupervisor = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getAnalysis_a()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		ComponentRenderer<Span, CampaignFormDataIndexDto> icmRevisit = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getAnalysis_b()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		ComponentRenderer<Span, CampaignFormDataIndexDto> icmHouseholds = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getAnalysis_c()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		ComponentRenderer<Span, CampaignFormDataIndexDto> icmTeamMonitoring = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getAnalysis_d()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortProperty("region").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortProperty("province").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getDistrict)
+					.setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(cCodeRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setSortProperty("ccode").setSortable(true).setResizable(true);
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortProperty("clusterNumber").setSortable(true).setResizable(true);
+			grid.addColumn(icmSupervisor).setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring))
+					.setSortProperty("supervisor").setSortable(true).setResizable(true);
+			grid.addColumn(icmRevisit).setHeader(I18nProperties.getCaption(Captions.icmRevisits))
+					.setSortProperty("revisit").setSortable(true).setResizable(true);
+			grid.addColumn(icmHouseholds).setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring))
+					.setSortProperty("household").setSortable(true).setResizable(true);
+			grid.addColumn(icmTeamMonitoring).setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring))
+					.setSortProperty("teammonitori").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getError_status)
+					.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter")
+					.setSortable(true).setResizable(true);
+			grid.setVisible(true);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortProperty("region").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortProperty("province").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getDistrict)
+					.setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(cCodeRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setSortProperty("ccode").setSortable(true).setResizable(true);
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortProperty("clusterNumber").setSortable(true).setResizable(true);
+			grid.addColumn(icmSupervisor).setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring))
+					.setSortProperty("supervisor").setSortable(true).setResizable(true);
+			grid.addColumn(icmRevisit).setHeader(I18nProperties.getCaption(Captions.icmRevisits))
+					.setSortProperty("revisit").setSortable(true).setResizable(true);
+			grid.addColumn(icmHouseholds).setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring))
+					.setSortProperty("household").setSortable(true).setResizable(true);
+			grid.addColumn(icmTeamMonitoring).setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring))
+					.setSortProperty("teammonitori").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getError_status)
+					.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter")
+					.setSortable(true).setResizable(true);
+			grid.setVisible(true);
+		} else {
+			grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortProperty("region").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortProperty("province").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getDistrict)
+					.setHeader(I18nProperties.getCaption(Captions.district)).setSortProperty("district")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getCcode)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortProperty("ccode")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getClusternumber)
+					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
+					.setHeader(I18nProperties.getCaption(Captions.icmSupervisorMonitoring))
+					.setSortProperty("supervisor").setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
+					.setHeader(I18nProperties.getCaption(Captions.icmRevisits)).setSortProperty("revisit")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getAnalysis_c)
+					.setHeader(I18nProperties.getCaption(Captions.icmHouseholdMonitoring)).setSortProperty("household")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getAnalysis_d)
+					.setHeader(I18nProperties.getCaption(Captions.icmTeamMonitoring)).setSortProperty("teammonitori")
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignFormDataIndexDto::getError_status)
+					.setHeader(I18nProperties.getCaption("Error Status")).setSortProperty("errorfilter")
+					.setSortable(true).setResizable(true);
+			grid.setVisible(true);
+		}
+
 		String numberOfRows = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(criteria, null,
 				null, null, null);
 		criteria.campaign(lastStarted);
@@ -323,8 +463,9 @@ public class CompletionAnalysisView extends VerticalLayout {
 		exporter.setAutoAttachExportButtons(false);
 
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
-		
-		String exportFileName = "Completion_Analysis_"+ campaign.getValue().toString() + "_" + new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+
+		String exportFileName = "Completion_Analysis_" + campaign.getValue().toString() + "_"
+				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 
 		exporter.setFileName(exportFileName);
 
