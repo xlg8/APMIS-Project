@@ -108,19 +108,22 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 	@Override
 	public List<DistrictReferenceDto> getAllActiveAsReference() {
-		return service.getAllActive(District.NAME, true).stream().map(f -> toReferenceDto(f)).collect(Collectors.toList());
+		return service.getAllActive(District.NAME, true).stream().map(f -> toReferenceDto(f))
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<DistrictReferenceDto> getAllActiveAsReferencePashto() {
-		return service.getAllActive(District.PS_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+		return service.getAllActive(District.PS_AF, true).stream().filter(d -> d.getPs_af() != null)
+				.map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<DistrictReferenceDto> getAllActiveAsReferenceDari() {
-		return service.getAllActive(District.FA_AF, true).stream().map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+		return service.getAllActive(District.FA_AF, true).stream().filter(d -> d.getFa_af() != null)
+				.map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<DistrictReferenceDto> getAllActiveByArea(String areaUuid) {
 
@@ -132,19 +135,22 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	public List<DistrictReferenceDto> getAllActiveByRegion(String regionUuid) {
 
 		Region region = regionService.getByUuid(regionUuid);
-		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(f -> toReferenceDto(f)).collect(Collectors.toList());
+		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(f -> toReferenceDto(f))
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<DistrictReferenceDto> getAllActiveByRegionPashto(String regionUuid) {
 		Region region = regionService.getByUuid(regionUuid);
-		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+		return region.getDistricts().stream().filter(d -> !d.isArchived() && d.getPs_af() != null).map(DistrictFacadeEjb::toReferenceDtoP)
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<DistrictReferenceDto> getAllActiveByRegionDari(String regionUuid) {
 		Region region = regionService.getByUuid(regionUuid);
-		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(DistrictFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+		return region.getDistricts().stream().filter(d -> !d.isArchived() && d.getFa_af() != null).map(DistrictFacadeEjb::toReferenceDtoD)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -170,19 +176,10 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		Join<District, Region> region = root.join(District.REGION, JoinType.LEFT);
 
-		cq.multiselect(
-			root.get(District.CREATION_DATE),
-			root.get(District.CHANGE_DATE),
-			root.get(District.UUID),
-			root.get(District.ARCHIVED),
-			root.get(District.NAME),
-			root.get(District.EPID_CODE),
-			root.get(District.RISK),
-			root.get(District.GROWTH_RATE),
-			region.get(Region.UUID),
-			region.get(Region.NAME),
-			region.get(Region.EXTERNAL_ID),
-			root.get(District.EXTERNAL_ID));
+		cq.multiselect(root.get(District.CREATION_DATE), root.get(District.CHANGE_DATE), root.get(District.UUID),
+				root.get(District.ARCHIVED), root.get(District.NAME), root.get(District.EPID_CODE),
+				root.get(District.RISK), root.get(District.GROWTH_RATE), region.get(Region.UUID),
+				region.get(Region.NAME), region.get(Region.EXTERNAL_ID), root.get(District.EXTERNAL_ID));
 	}
 
 	@Override
@@ -191,9 +188,10 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	}
 
 	@Override
-	public List<DistrictIndexDto> getIndexList(DistrictCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
-		
-	//	System.out.println("++++++++++++++++++: from"+ first +"  --  "+max);
+	public List<DistrictIndexDto> getIndexList(DistrictCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
+
+		// System.out.println("++++++++++++++++++: from"+ first +" -- "+max);
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<District> cq = cb.createQuery(District.class);
@@ -202,27 +200,29 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		Predicate filter = null;
 		if (criteria != null) {
-			
+
 //			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
 
 			filter = service.buildCriteriaFilter(criteria, cb, district);
-		}else {
+		} else {
 //			System.out.println(criteria.getRelevanceStatus() + "relevamce status in Ejbbbbbbbb ");
 		}
-		
-		Predicate filterx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
-		Predicate filterxx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)), cb.equal(district.get(District.ARCHIVED), true), cb.isNotNull(district.get(District.ARCHIVED)));
+
+		Predicate filterx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)),
+				cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
+		Predicate filterxx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)),
+				cb.equal(district.get(District.ARCHIVED), true), cb.isNotNull(district.get(District.ARCHIVED)));
 
 		if (filter != null) {
-			if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+			if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
 				cq.where(filter, filterxx);
 
-			}else {
+			} else {
 				cq.where(filter, filterx);
 
 			}
 //			cq.where(filter, filterx);
-		}else {
+		} else {
 			cq.where(filterx);
 		}
 
@@ -238,7 +238,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 				case District.EXTERNAL_ID:
 					expression = district.get(sortProperty.propertyName);
 					break;
-					
+
 				case District.REGION:
 				case DistrictIndexDto.REGION_EXTERNALID:
 				case DistrictIndexDto.AREA_EXTERNAL_ID:
@@ -256,14 +256,14 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		}
 
 		cq.select(district);
-		
-		System.out.println("+++++++++++++++ resultData - "+ SQLExtractor.from(em.createQuery(cq)));
-		
-		
+
+		System.out.println("+++++++++++++++ resultData - " + SQLExtractor.from(em.createQuery(cq)));
+
 		return QueryHelper.getResultList(em, cq, first, max, this::toIndexDto);
 	}
 
-	public Page<DistrictIndexDto> getIndexPage(DistrictCriteria districtCriteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
+	public Page<DistrictIndexDto> getIndexPage(DistrictCriteria districtCriteria, Integer offset, Integer size,
+			List<SortProperty> sortProperties) {
 		List<DistrictIndexDto> districtIndexList = getIndexList(districtCriteria, offset, size, sortProperties);
 		long totalElementCount = count(districtCriteria);
 		return new Page<>(districtIndexList, offset, size, totalElementCount);
@@ -280,11 +280,11 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		if (criteria != null) {
 			filter = service.buildCriteriaFilter(criteria, cb, root);
-			
+
 		}
-		
-		Predicate filterx = cb.and(cb.isNotNull(root.get(District.EXTERNAL_ID)), cb.equal(root.get(District.ARCHIVED), false), cb.isNotNull(root.get(District.ARCHIVED)));
-		
+
+		Predicate filterx = cb.and(cb.isNotNull(root.get(District.EXTERNAL_ID)),
+				cb.equal(root.get(District.ARCHIVED), false), cb.isNotNull(root.get(District.ARCHIVED)));
 
 		if (filter != null) {
 			cq.where(filter);
@@ -293,7 +293,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		}
 
 		cq.select(cb.count(root));
-		
+
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -346,11 +346,13 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		Root<District> root = cq.from(District.class);
 		Join<District, Region> regionJoin = root.join(District.REGION, JoinType.LEFT);
 
-		Predicate filter = root.get(District.UUID).in(districts.stream().map(ReferenceDto::getUuid).collect(Collectors.toList()));
+		Predicate filter = root.get(District.UUID)
+				.in(districts.stream().map(ReferenceDto::getUuid).collect(Collectors.toList()));
 		cq.where(filter);
 		cq.multiselect(root.get(District.UUID), regionJoin.get(Region.UUID));
 
-		return em.createQuery(cq).getResultList().stream().collect(Collectors.toMap(e -> (String) e[0], e -> (String) e[1]));
+		return em.createQuery(cq).getResultList().stream()
+				.collect(Collectors.toMap(e -> (String) e[0], e -> (String) e[1]));
 	}
 
 	@Override
@@ -377,7 +379,8 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 					DistrictDto dtoToMerge = getDistrictByUuid(uuid);
 					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
 				} else {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.importDistrictAlreadyExists));
+					throw new ValidationRuntimeException(
+							I18nProperties.getValidationError(Validations.importDistrictAlreadyExists));
 				}
 			}
 		}
@@ -388,30 +391,27 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	}
 
 	@Override
-	public List<DistrictReferenceDto> getByName(String name, RegionReferenceDto regionRef, boolean includeArchivedEntities) {
+	public List<DistrictReferenceDto> getByName(String name, RegionReferenceDto regionRef,
+			boolean includeArchivedEntities) {
 
-		return service.getByName(name, regionService.getByReferenceDto(regionRef), includeArchivedEntities)
-			.stream()
-			.map(DistrictFacadeEjb::toReferenceDto)
-			.collect(Collectors.toList());
+		return service.getByName(name, regionService.getByReferenceDto(regionRef), includeArchivedEntities).stream()
+				.map(DistrictFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
-	
+
 	@Override
-	public List<DistrictReferenceDto> getByExternalID(Long ext_id, RegionReferenceDto regionRef, boolean includeArchivedEntities) {
-	//	System.out.println("++++REGION IN USE TO QUERY DISTRICT b "+regionService.getByReferenceDto(regionRef));
+	public List<DistrictReferenceDto> getByExternalID(Long ext_id, RegionReferenceDto regionRef,
+			boolean includeArchivedEntities) {
+		// System.out.println("++++REGION IN USE TO QUERY DISTRICT b
+		// "+regionService.getByReferenceDto(regionRef));
 		return service.getByExternalId(ext_id, regionService.getByReferenceDto(regionRef), includeArchivedEntities, 0)
-			.stream()
-			.map(DistrictFacadeEjb::toReferenceDto)
-			.collect(Collectors.toList());
+				.stream().map(DistrictFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<DistrictReferenceDto> getByExternalId(Long externalId, boolean includeArchivedEntities) {
 
-		return service.getByExternalId(externalId, includeArchivedEntities)
-			.stream()
-			.map(DistrictFacadeEjb::toReferenceDto)
-			.collect(Collectors.toList());
+		return service.getByExternalId(externalId, includeArchivedEntities).stream()
+				.map(DistrictFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
 	@Override
@@ -436,8 +436,8 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	public boolean isUsedInOtherInfrastructureData(Collection<String> districtUuids) {
 
 		return service.isUsedInInfrastructureData(districtUuids, Community.DISTRICT, Community.class)
-			|| service.isUsedInInfrastructureData(districtUuids, Facility.DISTRICT, Facility.class)
-			|| service.isUsedInInfrastructureData(districtUuids, PointOfEntry.DISTRICT, PointOfEntry.class);
+				|| service.isUsedInInfrastructureData(districtUuids, Facility.DISTRICT, Facility.class)
+				|| service.isUsedInInfrastructureData(districtUuids, PointOfEntry.DISTRICT, PointOfEntry.class);
 	}
 
 	@Override
@@ -461,10 +461,11 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 			return null;
 		}
 
-		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
+		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.toString(),
+				entity.getExternalId());
 		return dto;
 	}
-	
+
 	public static DistrictReferenceDto toReferenceDtoP(District entity) {
 
 		if (entity == null) {
@@ -474,7 +475,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		DistrictReferenceDto dto = new DistrictReferenceDto(entity.getUuid(), entity.getPs_af());
 		return dto;
 	}
-	
+
 	public static DistrictReferenceDto toReferenceDtoD(District entity) {
 
 		if (entity == null) {
@@ -506,14 +507,15 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 		return dto;
 	}
-	
+
 	public static Set<DistrictReferenceDto> toReferenceDto(HashSet<District> districts) {
 		Set<DistrictReferenceDto> dtos = new HashSet<DistrictReferenceDto>();
-		for(District district : districts) {	
-			DistrictReferenceDto districtDto = new DistrictReferenceDto(district.getUuid(), district.toString(), district.getExternalId());	
+		for (District district : districts) {
+			DistrictReferenceDto districtDto = new DistrictReferenceDto(district.getUuid(), district.toString(),
+					district.getExternalId());
 			dtos.add(districtDto);
 		}
-		
+
 		return dtos;
 	}
 
@@ -532,13 +534,14 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		dto.setEpidCode(entity.getEpidCode());
 		dto.setRisk(entity.getRisk());
 		dto.setGrowthRate(entity.getGrowthRate());
-	//	dto.setPopulation(populationDataFacade.getDistrictPopulation(dto.getUuid()));
-	//	System.out.println("_______________________________________: "+entity.getUuid());
+		// dto.setPopulation(populationDataFacade.getDistrictPopulation(dto.getUuid()));
+		// System.out.println("_______________________________________:
+		// "+entity.getUuid());
 		dto.setAreaexternalId(entity.getRegion().getArea().getExternalId());
 		dto.setAreaname(entity.getRegion().getArea().getName());
 		dto.setRegionexternalId(entity.getRegion().getExternalId());
 		dto.setRegion(RegionFacadeEjb.toReferenceDto(entity.getRegion()));
-		
+
 		dto.setExternalId(entity.getExternalId());
 
 		return dto;
@@ -567,7 +570,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 	private String getFullEpidCodeForDistrict(District district) {
 		return (district.getRegion().getEpidCode() != null ? district.getRegion().getEpidCode() : "") + "-"
-			+ (district.getEpidCode() != null ? district.getEpidCode() : "");
+				+ (district.getEpidCode() != null ? district.getEpidCode() : "");
 	}
 
 	@LocalBean
@@ -578,152 +581,156 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		}
 
 		@Inject
-		protected DistrictFacadeEjbLocal(DistrictService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
+		protected DistrictFacadeEjbLocal(DistrictService service,
+				FeatureConfigurationFacadeEjbLocal featureConfiguration) {
 			super(service, featureConfiguration);
 		}
 	}
-	
+
 	@Override
 	public List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long regionId, CampaignDto campaignDt) {
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn, p.selected from district a\n"
-				+ "left outer join populationdata p on a.id = p.district_id\n"
-				+ "left outer join region ar on ar.id = "+regionId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
+				+ "left outer join populationdata p on a.id = p.district_id\n" + "left outer join region ar on ar.id = "
+				+ regionId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = " + regionId
+				+ " and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
-		
-		System.out.println("::::::"+queryStringBuilder);
+
+		System.out.println("::::::" + queryStringBuilder);
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
-		
+
 		List<DistrictDto> resultData = new ArrayList<>();
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
-		//System.out.println("starting....");
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
+		// System.out.println("starting....");
+
 		resultData.addAll(resultList.stream()
-				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString(), (String) result[5].toString())).collect(Collectors.toList()));
-		
-		//System.out.println("ending...." +resultData.size());
-	
-	
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData;
-  }
-  
+				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString(), (String) result[5].toString()))
+				.collect(Collectors.toList()));
+
+		// System.out.println("ending...." +resultData.size());
+
+		// System.out.println("resultData - "+ resultData.toString());
+		// //SQLExtractor.from(seriesDataQuery));
+		return resultData;
+	}
+
 	@Override
 	public List<DistrictDto> getAllActiveAsReferenceAndPopulationPashto(Long regionId, CampaignDto campaignDt) {
 		String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn, p.selected from district a\n"
-				+ "left outer join populationdata p on a.id = p.district_id\n"
-				+ "left outer join region ar on ar.id = "+regionId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
+				+ "left outer join populationdata p on a.id = p.district_id\n" + "left outer join region ar on ar.id = "
+				+ regionId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = " + regionId
+				+ " and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
-		
-		System.out.println("::::::"+queryStringBuilder);
-		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+
+		System.out.println("::::::" + queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 		List<DistrictDto> resultData = new ArrayList<>();
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		List<Object[]> resultList = seriesDataQuery.getResultList();
 
 		resultData.addAll(resultList.stream()
-				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString(), (String) result[5].toString())).collect(Collectors.toList()));
-		
-	return resultData;
-  }
-	
+				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString(), (String) result[5].toString()))
+				.collect(Collectors.toList()));
+
+		return resultData;
+	}
+
 	@Override
 	public List<DistrictDto> getAllActiveAsReferenceAndPopulationDari(Long regionId, CampaignDto campaignDt) {
 		String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn, p.selected from district a\n"
-				+ "left outer join populationdata p on a.id = p.district_id\n"
-				+ "left outer join region ar on ar.id = "+regionId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = "+regionId+" and ca.uuid = '"+campaignDt.getUuid()+"'\n"
+				+ "left outer join populationdata p on a.id = p.district_id\n" + "left outer join region ar on ar.id = "
+				+ regionId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.region_id = " + regionId
+				+ " and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, ar.uuid, a.uuid, p.selected";
-		
-		System.out.println("::::::"+queryStringBuilder);
-		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+
+		System.out.println("::::::" + queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 		List<DistrictDto> resultData = new ArrayList<>();
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		List<Object[]> resultList = seriesDataQuery.getResultList();
 
 		resultData.addAll(resultList.stream()
-				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString(), (String) result[5].toString())).collect(Collectors.toList()));
-		
-	return resultData;
-  }
-	
+				.map((result) -> new DistrictDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString(), (String) result[5].toString()))
+				.collect(Collectors.toList()));
+
+		return resultData;
+	}
+
 	public List<DistrictIndexDto> getAllDistricts() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<District> cq = cb.createQuery(District.class);
 		Root<District> district = cq.from(District.class);
 		Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
 		Join<Region, Area> area = region.join(Region.AREA, JoinType.LEFT);
-		
+
 		Predicate filter = cb.equal(region.get(Region.ARCHIVED), false);
 		cq.where(filter);
-		cq.select(district); 
+		cq.select(district);
 		List<District> regions = em.createQuery(cq).getResultList();
 		List<DistrictIndexDto> dtos = new ArrayList();
-		
+
 		for (District reg : regions) {
 			if (!reg.equals(null)) {
 				dtos.add(this.toIndexDto(reg));
 			}
 		}
 		return dtos;
-    
+
 	}
 
 	@Override
 	public boolean isDistrictAllowed(String campaignUUID, String uuid) {
-		
-		String selectBuilder = "select count(*) \n"
-				+ "from district d\n"
+
+		String selectBuilder = "select count(*) \n" + "from district d\n"
 				+ "inner join populationdata p on d.id = p.district_id\n"
-				+ "inner join campaigns c on p.campaign_id = c.id\n"
-				+ "where c.uuid = '"+campaignUUID+"' and p.selected = true and d.archived = false and d.uuid = '"+uuid+"';";
-		
+				+ "inner join campaigns c on p.campaign_id = c.id\n" + "where c.uuid = '" + campaignUUID
+				+ "' and p.selected = true and d.archived = false and d.uuid = '" + uuid + "';";
+
 		List<Object> lstf = em.createNativeQuery(selectBuilder).getResultList();
-		
+
 		return lstf.size() > 0;
 	}
 
 	@Override
-	public List<DistrictReferenceDto> getAllActiveByRegionAndSelectedInCampaign(String regionUuid, String campaignUuid) {
-		String selectBuilder = "select distinct d.uuid, d.\"name\", d.externalid\r\n"
-				+ "from district d\r\n"
+	public List<DistrictReferenceDto> getAllActiveByRegionAndSelectedInCampaign(String regionUuid,
+			String campaignUuid) {
+		String selectBuilder = "select distinct d.uuid, d.\"name\", d.externalid\r\n" + "from district d\r\n"
 				+ "inner join region r on r.id = d.region_id\r\n"
 				+ "inner join populationdata p on d.id = p.district_id\r\n"
-				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
-				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and d.archived = false and r.uuid = '"+regionUuid+"' ;";
-		
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n" + "where c.uuid = '" + campaignUuid
+				+ "' and p.selected = true and d.archived = false and r.uuid = '" + regionUuid + "' ;";
+
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
 		List<DistrictReferenceDto> resultData = new ArrayList<>();
-		resultData.addAll(resultList.stream()
-				.map((result) -> new DistrictReferenceDto(
-						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
-						
-						)).collect(Collectors.toList()));
-						
-		
-	
+		resultData.addAll(resultList.stream().map((result) -> new DistrictReferenceDto((String) result[0],
+				(String) result[1], ((BigInteger) result[2]).longValue()
+
+		)).collect(Collectors.toList()));
+
 		return resultData;
 	}
-	
+
 	@Override
 	public String getMapDiagramDistrictHascByUuid(String districtUuid) {
 		System.out.println(districtUuid + "UUID----");
 		try {
-			String selectBuilder = "select d.hasc from district d where d.uuid = '"+districtUuid+"';";
-			
+			String selectBuilder = "select d.hasc from district d where d.uuid = '" + districtUuid + "';";
+
 			Query seriesDataQuery = em.createNativeQuery(selectBuilder);
 			return seriesDataQuery.getSingleResult().toString();
 		} catch (NoResultException e) {
@@ -732,4 +739,3 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	}
 
 }
-

@@ -91,9 +91,17 @@ public class SupportView extends VerticalLayout {
 		text.getStyle().set("padding-top", "30px");
 
 		aboutText.add(text);
-
-		Html html = new Html(
-				"<iframe src='feedbackform/feedbackforminput.html' style='width:100%; height:79vh; border: 0px;'></iframe>");
+		Html html;
+		if(userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			 html = new Html(
+					"<iframe src='feedbackform/feedbackforminputPashto.html' style='width:100%; height:79vh; border: 0px;'></iframe>");
+		} else if(userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			 html = new Html(
+					"<iframe src='feedbackform/feedbackforminputDari.html' style='width:100%; height:79vh; border: 0px;'></iframe>");
+		} else {
+			 html = new Html(
+					"<iframe src='feedbackform/feedbackforminput.html' style='width:100%; height:79vh; border: 0px;'></iframe>");
+		}
 
 		Paragraph versionNum = new Paragraph("APMIS Version Number : APMIS 5.0.0");
 		versionNum.getStyle().set("font-size", "15px");

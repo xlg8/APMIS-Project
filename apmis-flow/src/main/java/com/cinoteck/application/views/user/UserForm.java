@@ -627,11 +627,7 @@ public class UserForm extends FormLayout {
 		this.setColspan(horizontallayout, 2);
 	}
 
-	public void validateAndSaveEdit(UserDto originalUser) {
-		System.out.println(binder.getBean().getUserEmail() != null + " ++++++++++++++++++++++++++++++++++++ "
-				+ binder.getBean().getUserEmail());
-		System.out.println(
-				binder.getBean().getUserEmail() != "" + "__________________________________________________________");
+	public void validateAndSaveEdit(UserDto originalUser, String preceedingUsername) {
 
 		if (binder.validate().isOk()) {
 
@@ -642,24 +638,14 @@ public class UserForm extends FormLayout {
 			if (binder.getBean().getUserEmail() != null || binder.getBean().getUserEmail() != "") {
 
 				UserDto anyEmailFromDb = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
-				System.out.println(
-						(anyEmailFromDb == null) + "__________________________________________________________");
-				System.out.println("__________________________________________________________");
-				System.out.println("__________________________________________________________");
+				
 				if (anyEmailFromDb == null) {
 
 					isErrored = false;
 
 				} else {
 
-					System.out.println((anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim()))
-							+ "__________________________________________________________");
-					System.out.println((!originalUser.getUserName().isEmpty())
-							+ "__________________________________________________________");
-					System.out.println(
-							originalUser.getUserName() + "____________________________xxxxx___________________________"
-									+ originalUser.getUserName().trim());
-
+		
 					if (anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
 							&& !originalUser.getUserName().isEmpty()) {
 
@@ -678,7 +664,7 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email already in the system_.");
+						Paragraph text = new Paragraph("Error : Email already in the system.");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
@@ -693,15 +679,43 @@ public class UserForm extends FormLayout {
 			}
 
 			if (binder.getBean().getUserName() != null || userName != null) {
-				System.out.println(binder.getBean().getUserName() != null
-						+ "_______________________binder.getBean().getUserName() != null________________________");
+
 				UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
 						.getByUserName(binder.getBean().getUserName());
-
-				if (retrieveBinderUserFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
+				
+				
+				if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUser.getUserName().trim())
 						&& !originalUser.getUserName().isEmpty() && !isErrored) {
+					if(preceedingUsername.equals(originalUser.getUserName())) {
+						fireEvent(new SaveEvent(this, binder.getBean()));
 
-					fireEvent(new SaveEvent(this, binder.getBean()));
+					}else {
+						UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
+						if(checkNewusernamefromDB == null) {
+							fireEvent(new SaveEvent(this, binder.getBean()));
+						}else {
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph("Error : Username not unique");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+
+							return;
+						}
+					}
+
 				} else {
 
 					if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {

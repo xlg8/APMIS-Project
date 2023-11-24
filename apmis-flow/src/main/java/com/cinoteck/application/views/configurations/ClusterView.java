@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -49,6 +52,7 @@ import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -127,30 +131,128 @@ public class ClusterView extends VerticalLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+		ComponentRenderer<Span, CommunityDto> areaExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getAreaexternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
+		ComponentRenderer<Span, CommunityDto> regionExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getRegionexternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
+		ComponentRenderer<Span, CommunityDto> districtExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getDistrictexternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
+		ComponentRenderer<Span, CommunityDto> communityExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getExternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
+		if(userProvider.getUser().getLanguage().toString().equals("Pashto" )) {
 		grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
 				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-		grid.addColumn(CommunityDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+		grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 				.setResizable(true).setSortable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
 				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-		grid.addColumn(CommunityDto::getRegionexternalId)
+		grid.addColumn(regionExternalIdRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 		grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
 				.setSortable(true).setResizable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
-		grid.addColumn(CommunityDto::getDistrictexternalId)
+		grid.addColumn(districtExternalIdRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 		grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
 				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-		grid.addColumn(CommunityDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+		grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
 				.setResizable(true).setSortable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		} else if(userProvider.getUser().getLanguage().toString().equals("Dari" )) {
 
-		grid.setVisible(true);
-
+			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+					.setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(regionExternalIdRenderer)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(districtExternalIdRenderer)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		} else {
+			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(CommunityDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+					.setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(CommunityDto::getRegionexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(CommunityDto::getDistrictexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(CommunityDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+					.setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		}
+		
+		grid.setVisible(true);	
 //		if (criteria == null) {
 //			criteria = new CommunityCriteriaNew();
 //			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);

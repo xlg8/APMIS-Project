@@ -3,6 +3,7 @@ package com.cinoteck.application.views.uiformbuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,8 @@ public class FormGridComponent extends VerticalLayout {
 	CampaignFormElement newForm;
 	List<CampaignFormElement> formSet = new ArrayList<>();
 	FormLayout formLayout = new FormLayout();
+
+	List<CampaignFormElement> elementList = new ArrayList<>();
 
 	HorizontalLayout vr3 = new HorizontalLayout();
 	HorizontalLayout vr1 = new HorizontalLayout();
@@ -135,9 +138,8 @@ public class FormGridComponent extends VerticalLayout {
 		vr3.setSpacing(true);
 
 		vrsub.add(vr1, formLayout, vr3);
-
 		grid.addSelectionListener(ee -> {
-			
+
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
 
@@ -149,7 +151,6 @@ public class FormGridComponent extends VerticalLayout {
 
 				formLayout.setVisible(true);
 				vr3.setVisible(true);
-
 				formType.setValue(generateType(formBeenEdited.getType()));
 				formType.setVisible(true);
 
@@ -210,10 +211,10 @@ public class FormGridComponent extends VerticalLayout {
 					errorMessage.setValue(formBeenEdited.getExpression());
 					errorMessage.setVisible(true);
 				}
-				
+
 				save.setText("Update");
-			} 
-			
+			}
+
 		});
 
 		plus.addClickListener(e -> {
@@ -239,8 +240,6 @@ public class FormGridComponent extends VerticalLayout {
 
 			if (campaignFormMetaDto == null) {
 				campaignFormMetaDto = new CampaignFormMetaDto();
-				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-			} else {
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
 
@@ -268,8 +267,6 @@ public class FormGridComponent extends VerticalLayout {
 			options.setVisible(true);
 			styles.setVisible(true);
 			errorMessage.setVisible(true);
-
-			grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 		});
 
 		cancel.addClickListener(e -> {
@@ -301,15 +298,15 @@ public class FormGridComponent extends VerticalLayout {
 			vr3.setVisible(false);
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
-				
+
 				CampaignFormElement newForm = new CampaignFormElement();
-				List<CampaignFormElement> elementList = new ArrayList<>();
+
 				if (!formType.getValue().toString().isEmpty()) {
 
 					newForm.setType(formType.getValue().toString());
 				}
 
-				if (!formId.getValue().isEmpty()) {
+				if (!formId.getValue().toString().isEmpty()) {
 
 					newForm.setId(formId.getValue());
 				}
@@ -376,19 +373,14 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setErrormessage(errorMessage.getValue());
 				}
 
-				if (campaignFormMetaDto == null) {
-					
-					campaignFormMetaDto = new CampaignFormMetaDto();
-					elementList.add(newForm);
-					campaignFormMetaDto.setCampaignFormElements(elementList);
-				}
-
-				campaignFormMetaDto.getCampaignFormElements().add(newForm);
+				elementList.add(newForm);
+				campaignFormMetaDto.setCampaignFormElements(elementList);
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+
 				getGridData();
 				Notification.show("New Form Element Saved");
 			} else {
-								
+
 				if (formBeenEdited != null) {
 
 					CampaignFormElement newForm = new CampaignFormElement();
@@ -470,11 +462,18 @@ public class FormGridComponent extends VerticalLayout {
 						campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
 					}
 
-					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
-					campaignFormMetaDto.getCampaignFormElements().add(newForm);
+					List<CampaignFormElement> using = new LinkedList<>();
+					using = campaignFormMetaDto.getCampaignFormElements();
+					int index = using.indexOf(formBeenEdited);
+					
+					using.add(index+1, newForm);
+					
+					System.out.println(index + "hhgfdsgh");
+//					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);					
+					campaignFormMetaDto.setCampaignFormElements(using);
 					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 					getGridData();
-					
+
 					Notification.show("Form Element Updated");
 				} else {
 					Notification.show("Select an Form Element to edit Please");
@@ -545,10 +544,10 @@ public class FormGridComponent extends VerticalLayout {
 
 	void configureGrid() {
 
-		grid.setSelectionMode(SelectionMode.SINGLE);
-		grid.setMultiSort(true, MultiSortPriority.APPEND);
-		grid.setSizeFull();
-		grid.setColumnReorderingAllowed(true);
+//		grid.setSelectionMode(SelectionMode.SINGLE);
+//		grid.setMultiSort(true, MultiSortPriority.APPEND);
+//		grid.setSizeFull();
+//		grid.setColumnReorderingAllowed(true);
 
 		grid.addColumn(CampaignFormElement::getId).setHeader("Id").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
@@ -580,8 +579,8 @@ public class FormGridComponent extends VerticalLayout {
 		ListDataProvider<CampaignFormElement> dataprovider = DataProvider.fromStream(existingElements.stream());
 
 		dataView = grid.setItems(dataprovider);
-		grid.setVisible(true);
-		grid.setAllRowsVisible(true);
+//		grid.setVisible(true);
+//		grid.setAllRowsVisible(true);
 	}
 
 	public void valueChange() {

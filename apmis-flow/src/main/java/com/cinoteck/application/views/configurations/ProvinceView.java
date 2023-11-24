@@ -1,9 +1,11 @@
 package com.cinoteck.application.views.configurations;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +30,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -122,17 +125,43 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+		ComponentRenderer<Span, RegionIndexDto> areaExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getAreaexternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+				
+		ComponentRenderer<Span, RegionIndexDto> regionExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getExternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			grid.addColumn(RegionIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(RegionIndexDto::getAreaexternalId)
+			grid.addColumn(areaExternalIdRenderer)
 					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 			grid.addColumn(RegionIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.region))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-			grid.addColumn(RegionIndexDto::getExternalId)
+			grid.addColumn(regionExternalIdRenderer)
 					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
 					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 			
@@ -143,13 +172,13 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			grid.addColumn(RegionIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.area))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(RegionIndexDto::getAreaexternalId)
+			grid.addColumn(areaExternalIdRenderer)
 					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 			grid.addColumn(RegionIndexDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.region))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-			grid.addColumn(RegionIndexDto::getExternalId)
+			grid.addColumn(regionExternalIdRenderer)
 					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setSortable(true)
 					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 			
