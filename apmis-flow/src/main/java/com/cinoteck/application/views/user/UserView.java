@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
 import com.cinoteck.application.views.user.UserForm.UserRoleCustomComparator;
@@ -56,8 +57,11 @@ import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.server.Page;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -89,7 +93,7 @@ import de.symeda.sormas.api.user.UserType;
 
 @PageTitle("APMIS-User Management")
 @Route(value = "user", layout = MainLayout.class)
-public class UserView extends VerticalLayout {
+public class UserView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	HorizontalLayout mainContainer = new HorizontalLayout();
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
@@ -728,7 +732,8 @@ public class UserView extends VerticalLayout {
 		grid.setVisible(false);
 		setFiltersVisible(false);
 		addClassName("editing");
-		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr));
+		String initialUserName = userr.getUserName();
+		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr, initialUserName));
 
 	}
 
@@ -1023,4 +1028,16 @@ public class UserView extends VerticalLayout {
 		}
 	}
 
+	
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+
+		UserProvider usrP = new UserProvider();
+		System.out.println("trying ti use camp data " + usrP.getUser().getUserRoles());
+
+		if (!userProvider.hasUserRight(UserRight.USER_VIEW)) {
+			event.rerouteTo(AboutView.class);
+		}
+
+	}
 }

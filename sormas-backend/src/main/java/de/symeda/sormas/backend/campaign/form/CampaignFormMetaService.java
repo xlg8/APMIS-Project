@@ -43,27 +43,23 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 
 	public Predicate buildCriteriaFilter(CampaignFormCriteria campaignFormCriteria, CriteriaBuilder cb,
 			Root<CampaignFormMeta> from) {
+		
 		Predicate filter = null;
 		if (campaignFormCriteria.getFormCategory() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.get(CampaignFormMeta.FORM_CATEGORY), campaignFormCriteria.getFormCategory()));
 		}
-//		if (campaignFormCriteria.getFormCategory() != null) {
-//			filter = CriteriaBuilderHelper.and(cb, filter,
-//					cb.equal(from.get(CampaignFormMeta.FORM_CATEGORY), campaignFormCriteria.getFormCategory()));
-//		}
-//		if (campaignFormCriteria.getFormCategory() != null) {
-//			filter = CriteriaBuilderHelper.and(cb, filter,
-//					cb.equal(from.get(CampaignFormMeta.MODALITY), campaignFormCriteria.getModality()));
-//		}
+
 		if (campaignFormCriteria.getModality() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.get(CampaignFormMeta.MODALITY), campaignFormCriteria.getModality()));
 		}
+		
 		if (campaignFormCriteria.getFormPhase() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.get(CampaignFormMeta.FORM_TYPE), campaignFormCriteria.getFormPhase()));
 		}
+				
 //		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
 //			filter = CriteriaBuilderHelper.and(cb, filter, cb.between(from.get(CampaignFormMeta.CREATION_DATE),
 //					campaignFormCriteria.getStartDate(), campaignFormCriteria.getEndDate()));

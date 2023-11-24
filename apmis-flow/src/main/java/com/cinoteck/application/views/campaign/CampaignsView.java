@@ -2,6 +2,8 @@ package com.cinoteck.application.views.campaign;
 
 import java.util.Date;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -58,6 +60,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -141,16 +144,72 @@ public class CampaignsView extends VerticalLayout {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			return dateFormat.format(timestamp);
 		});
+
+		TextRenderer<CampaignIndexDto> startDateRendererPashto = new TextRenderer<>(dto -> {
+			DateFormat pashtoDateFormat = DateFormat.getDateInstance(DateFormat.FULL, new Locale("ps", "AF"));
+			String formattedDate = pashtoDateFormat.format(dto.getStartDate());
+			return formattedDate;
+		});
+
+		TextRenderer<CampaignIndexDto> endDateRendererPashto = new TextRenderer<>(dto -> {
+			DateFormat pashtoDateFormat = DateFormat.getDateInstance(DateFormat.FULL, new Locale("ps", "AF"));
+			String formattedDate = pashtoDateFormat.format(dto.getEndDate());
+			return formattedDate;
+		});
+
+		TextRenderer<CampaignIndexDto> startDateRendererDari = new TextRenderer<>(dto -> {
+			DateFormat pashtoDateFormat = DateFormat.getDateInstance(DateFormat.FULL, new Locale("fa", "AF"));
+			String formattedDate = pashtoDateFormat.format(dto.getStartDate());
+			return formattedDate;
+		});
+		
+		TextRenderer<CampaignIndexDto> endDateRendererDari = new TextRenderer<>(dto -> {
+			DateFormat pashtoDateFormat = DateFormat.getDateInstance(DateFormat.FULL, new Locale("fa", "AF"));
+			String formattedDate = pashtoDateFormat.format(dto.getStartDate());
+			return formattedDate;
+		});
+
+		ComponentRenderer<Span, CampaignIndexDto> campaignYearRender = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(Integer.parseInt(input.getCampaignYear())));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
 		grid.addColumn(CampaignIndexDto.NAME).setHeader(I18nProperties.getCaption(Captions.name)).setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignIndexDto.CAMPAIGN_STATUS).setHeader(I18nProperties.getCaption(Captions.campaignStatus))
 				.setSortable(true).setResizable(true);
-		grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
-				.setSortable(true).setResizable(true);
-		grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
-				.setSortable(true).setResizable(true);
-		grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear))
-				.setSortable(true).setResizable(true);
+
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(startDateRendererPashto).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(endDateRendererPashto).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(campaignYearRender).setHeader(I18nProperties.getCaption(Captions.campaignYear))
+					.setSortable(true).setResizable(true);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			grid.addColumn(startDateRendererDari).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(endDateRendererDari).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(campaignYearRender).setHeader(I18nProperties.getCaption(Captions.campaignYear))
+					.setSortable(true).setResizable(true);
+		} else {
+			grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+					.setSortable(true).setResizable(true);
+			grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear))
+					.setSortable(true).setResizable(true);
+		}
+
 		grid.addColumn(CampaignIndexDto.ARCHIVE).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
 				.setSortable(true).setResizable(true);
 
@@ -304,13 +363,12 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addRoundChangeListener(this::roundChange);
 		formLayout.addDiscardListener(this::discardForm);
 
-
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
 		closeIcon.addClickListener(event -> {
-			 dialog.removeAll();
+			dialog.removeAll();
 			dialog.close();
 //			UI.getCurrent().getPage().reload();
 		});
@@ -351,17 +409,17 @@ public class CampaignsView extends VerticalLayout {
 		formLayout.addDuplicateListener(this::duplicateCampaign);
 		formLayout.addRoundChangeListener(this::roundChange);
 		formLayout.addDiscardListener(this::discardForm);
-		System.out.println(  "ROUND VALUE BAWSED OFF the form selected " + formLayout.round.getValue() );
-		if(formLayout.round.getValue() ==  "Case Respond" ) {
-			formLayout.round.setValue("CRC");	
+		System.out.println("ROUND VALUE BAWSED OFF the form selected " + formLayout.round.getValue());
+		if (formLayout.round.getValue() == "Case Respond") {
+			formLayout.round.setValue("CRC");
 //		System.out.println( round.getValue() + "ROUND VALUE BAWSED OFF BINDER ");
-	}
+		}
 		Div header = new Div();
 		header.addClassName("dialog-headers");
 		Icon closeIcon = new Icon(VaadinIcon.CLOSE);
 		closeIcon.addClassName("close-icon-dialog");
 		closeIcon.addClickListener(event -> {
-			 dialog.removeAll();
+			dialog.removeAll();
 			dialog.close();
 //			UI.getCurrent().getPage().reload();
 		});
@@ -412,7 +470,8 @@ public class CampaignsView extends VerticalLayout {
 
 	private void roundChange(CampaignForm.RoundChangeEvent event) {
 
-		if (event.getSource().round.getValue() == CampaignRounds.TRAINING || event.getSource().round.getValue() == "Training") {
+		if (event.getSource().round.getValue() == CampaignRounds.TRAINING
+				|| event.getSource().round.getValue() == "Training") {
 			System.out.println("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 			event.getSource().campaignName.setValue(event.getSource().campaignName.getValue() + " {T}");
 		}
