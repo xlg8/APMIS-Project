@@ -664,7 +664,7 @@ public class UserForm extends FormLayout {
 							notification.close();
 						});
 
-						Paragraph text = new Paragraph("Error : Email already in the system_.");
+						Paragraph text = new Paragraph("Error : Email already in the system.");
 
 						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 						layout.setAlignItems(Alignment.CENTER);
