@@ -728,7 +728,8 @@ public class UserView extends VerticalLayout {
 		grid.setVisible(false);
 		setFiltersVisible(false);
 		addClassName("editing");
-		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr));
+		String initialUserName = userr.getUserName();
+		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr, initialUserName));
 
 	}
 
