@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -63,6 +64,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.VaadinService;
+
+import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -82,6 +85,10 @@ import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+
+import de.symeda.sormas.api.infrastructure.PopulationDataCriteria;
+import de.symeda.sormas.api.infrastructure.PopulationDataDto;
+
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -105,12 +112,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private Map<String, String> userTranslations = new HashMap<String, String>();
 	private Map<String, String> userOptTranslations = new HashMap<String, String>();
 	Map<String, Component> fields;
+
 	private Map<String, String> optionsValues = new HashMap<String, String>();
 	private Map<String, String> optionsOrder = new HashMap<String, String>();
 
 	private List<String> constraints;
 	private List<CampaignFormTranslations> translationsOpt;
 	private CampaignReferenceDto campaignReferenceDto;
+	private PopulationDataCriteria popCriteria;
+	private List<PopulationDataDto> popDto;
 
 	private boolean campaignFormMetaDto;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
@@ -205,7 +215,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 		formDate.getStyle().set("-webkit-text-fill-color", "green !important");
 
 		//
-
+		popCriteria = new PopulationDataCriteria();
+//		popCriteria.setCampaign(campaignReferenceDto);
+		popDto = FacadeProvider.getPopulationDataFacade().getPopulationDataWithCriteria(campaignReferenceDto.getUuid());
+		System.out.println("++++++++++++++++++++++++++++++++"+popDto.size());
+		
 		cbArea.setRequired(true);
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
@@ -239,6 +253,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		// listeners logic
 		cbArea.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
+
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
 				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
@@ -247,32 +262,28 @@ public class CampaignFormBuilder extends VerticalLayout {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 
 				}
+				
 				cbRegion.clear();
 				cbRegion.setReadOnly(false);
-				;
 				cbRegion.setItems(provinces);
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			} else {
 				cbRegion.clear();
 				cbRegion.setReadOnly(true);
-				;
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			}
 
 		});
 
 		cbRegion.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
+
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
 				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
@@ -285,14 +296,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 				cbDistrict.setItems(districts);
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			} else {
 				cbDistrict.clear();
 				cbDistrict.setReadOnly(true);
-				;
 				cbCommunity.clear();
 				cbCommunity.setReadOnly(true);
-				;
 			}
 
 		});
@@ -571,7 +579,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 
 			} else {
-				optionsValues = new HashMap<String, String>();
+				optionsValues = new LinkedHashMap<String, String>();
 			}
 
 			if (formElement.getConstraints() != null) {
@@ -1009,6 +1017,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
+
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
 					
 					if(dataOrder != null ) {
@@ -1030,11 +1039,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
 
-//<<<<<<< HEAD
-//				
-//					
-//=======
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
+
 					select.addValueChangeListener(ee -> {
 					});
 

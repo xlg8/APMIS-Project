@@ -302,13 +302,13 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		CriteriaQuery<CampaignFormMeta> cq = cb.createQuery(CampaignFormMeta.class);
 		Root<CampaignFormMeta> campaignFormMeta = cq.from(CampaignFormMeta.class);
 
-		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
-				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
-				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
-				campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY),
-				campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE),
-				campaignFormMeta.get(CampaignFormMeta.CREATION_DATE),
-				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
+//		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
+//				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
+//				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
+//				campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY),
+//				campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE),
+//				campaignFormMeta.get(CampaignFormMeta.CREATION_DATE),
+//				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
 		// TODO: We'll need a user filter for users at some point, to make sure that
 		// users can edit their own details,
 		// but not those of others
@@ -321,10 +321,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 
 		if (filter != null) {
-			/*
-			 * No preemptive distinct because this does collide with ORDER BY
-			 * User.location.address (which is not part of the SELECT clause). UserType
-			 */
 			cq.where(filter);
 		}
 
@@ -657,14 +653,23 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		
 		
 		String queryBuilder = "SELECT \n"
-				+ "campwitex.enddate as  endDate \n"
+				+ "campwitex.enddate as endDate \n"
 				+ "FROM campaignformmetawithexp campwitex\r\n"
 				+ "LEFT OUTER JOIN campaigns campaignG ON campwitex.campaignid = campaignG.uuid "
 				+ joiner;
 		
-	
+		System.out.println(" ===================== "+queryBuilder);
+			
 		
-		return (Date) em.createNativeQuery(queryBuilder).getSingleResult();
+		try {
+			return (Date) em.createNativeQuery(queryBuilder).getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		    // Handle the case when no result is found
+		}
+		
+		
+		
 	}
 
 

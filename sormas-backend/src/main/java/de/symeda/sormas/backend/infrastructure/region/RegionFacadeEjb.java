@@ -117,80 +117,84 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		return getAllActiveByPredicate((cb, root) -> {
 			if (serverCountry != null) {
 				Path<Object> countryUuid = root.join(Region.COUNTRY, JoinType.LEFT).get(Country.UUID);
-				return CriteriaBuilderHelper.or(cb, cb.isNull(countryUuid), cb.equal(countryUuid, serverCountry.getUuid()));
+				return CriteriaBuilderHelper.or(cb, cb.isNull(countryUuid),
+						cb.equal(countryUuid, serverCountry.getUuid()));
 			}
 
 			return null;
 		});
 	}
-	
 
 	@Override
 	public List<RegionDto> getAllActiveAsReferenceAndPopulationPashto(Long areaId, String campaignDt) {
 		String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
-				+ "left outer join populationdata p on a.id = p.region_id\n"
-				+ "left outer join areas ar on ar.id = "+areaId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+" and ca.uuid = '"+campaignDt+"'\n"
-				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
+				+ "left outer join populationdata p on a.id = p.region_id\n" + "left outer join areas ar on ar.id = "
+				+ areaId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = " + areaId + " and ca.uuid = '"
+				+ campaignDt + "'\n" + "group by a.\"name\", a.id, ar.uuid, a.uuid";
 
-		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 		List<RegionDto> resultData = new ArrayList<>();
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		List<Object[]> resultList = seriesDataQuery.getResultList();
 		resultData.addAll(resultList.stream()
-				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString()))
+				.collect(Collectors.toList()));
 
-	return resultData;
+		return resultData;
 	}
-	
+
 	@Override
 	public List<RegionDto> getAllActiveAsReferenceAndPopulationDari(Long areaId, String campaignDt) {
 		String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
-				+ "left outer join populationdata p on a.id = p.region_id\n"
-				+ "left outer join areas ar on ar.id = "+areaId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+" and ca.uuid = '"+campaignDt+"'\n"
-				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
+				+ "left outer join populationdata p on a.id = p.region_id\n" + "left outer join areas ar on ar.id = "
+				+ areaId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = " + areaId + " and ca.uuid = '"
+				+ campaignDt + "'\n" + "group by a.\"name\", a.id, ar.uuid, a.uuid";
 
-		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);		
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 		List<RegionDto> resultData = new ArrayList<>();
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		List<Object[]> resultList = seriesDataQuery.getResultList();
 		resultData.addAll(resultList.stream()
-				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString()))
+				.collect(Collectors.toList()));
 
-	return resultData;
+		return resultData;
 	}
-	
+
 	@Override
 	public List<RegionDto> getAllActiveAsReferenceAndPopulation(Long areaId, String campaignDt) {
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, ar.uuid as umid, a.uuid as uimn from region a\n"
-				+ "left outer join populationdata p on a.id = p.region_id\n"
-				+ "left outer join areas ar on ar.id = "+areaId+"\n"
-				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = "+areaId+" and ca.uuid = '"+campaignDt+"'\n"
-				+ "group by a.\"name\", a.id, ar.uuid, a.uuid";
-		
-		
+				+ "left outer join populationdata p on a.id = p.region_id\n" + "left outer join areas ar on ar.id = "
+				+ areaId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and a.area_id = " + areaId + " and ca.uuid = '"
+				+ campaignDt + "'\n" + "group by a.\"name\", a.id, ar.uuid, a.uuid";
+
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
-		
+
 		List<RegionDto> resultData = new ArrayList<>();
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
-		//System.out.println("starting....");
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
+		// System.out.println("starting....");
+
 		resultData.addAll(resultList.stream()
-				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), (String) result[4].toString())).collect(Collectors.toList()));
-		
-		//System.out.println("ending...." +resultData.size());
-	
-	
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData;
+				.map((result) -> new RegionDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						(String) result[4].toString()))
+				.collect(Collectors.toList()));
+
+		// System.out.println("ending...." +resultData.size());
+
+		// System.out.println("resultData - "+ resultData.toString());
+		// //SQLExtractor.from(seriesDataQuery));
+		return resultData;
 	}
 
 	@Override
@@ -202,34 +206,39 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	public List<RegionReferenceDto> getAllActiveByArea(String areaUuid) {
 		return getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.AREA).get(Area.UUID), areaUuid));
 	}
-	
+
 	@Override
 	public List<RegionReferenceDto> getAllActiveByAreaPashto(String areaUuid) {
 		Area area = areaService.getByUuid(areaUuid);
-		return area.getRegions().stream().filter(d -> !d.isArchived()).map(RegionFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getPs_af() != null).map(RegionFacadeEjb::toReferenceDtoP)
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<RegionReferenceDto> getAllActiveByAreaDari(String areaUuid) {
 		Area area = areaService.getByUuid(areaUuid);
-		return area.getRegions().stream().filter(d -> !d.isArchived()).map(RegionFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getFa_af() != null).map(RegionFacadeEjb::toReferenceDtoD)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveAsReference() {
-		return service.getAllActive(Region.NAME, true).stream().map(f -> toReferenceDto(f)).collect(Collectors.toList());
+		return service.getAllActive(Region.NAME, true).stream().map(f -> toReferenceDto(f))
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<RegionReferenceDto> getAllActiveAsReferencePashto() {
-		return service.getAllActive(Region.PS_AF, true).stream().map(RegionFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+		return service.getAllActive(Region.PS_AF, true).stream().filter(r -> r.getPs_af() != null)
+				.map(RegionFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveAsReferenceDari() {
-		return service.getAllActive(Region.FA_AF, true).stream().map(RegionFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+		return service.getAllActive(Region.FA_AF, true).stream().filter(r -> r.getFa_af() != null)
+				.map(RegionFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<RegionDto> getAllAfter(Date date) {
 
@@ -254,23 +263,15 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		Join<Region, Country> country = root.join(Region.COUNTRY, JoinType.LEFT);
 		Join<Region, Area> area = root.join(Region.AREA, JoinType.LEFT);
 
-		cq.multiselect(
-			root.get(Region.CREATION_DATE),
-			root.get(Region.CHANGE_DATE),
-			root.get(Region.UUID),
-			root.get(Region.ARCHIVED),
-			root.get(Region.NAME),
-			root.get(Region.EPID_CODE),
-			root.get(Region.GROWTH_RATE),
-			root.get(Region.EXTERNAL_ID),
-			country.get(Country.UUID),
-			country.get(Country.DEFAULT_NAME),
-			country.get(Country.ISO_CODE),
-			area.get(Area.UUID)); //AreaIndex
+		cq.multiselect(root.get(Region.CREATION_DATE), root.get(Region.CHANGE_DATE), root.get(Region.UUID),
+				root.get(Region.ARCHIVED), root.get(Region.NAME), root.get(Region.EPID_CODE),
+				root.get(Region.GROWTH_RATE), root.get(Region.EXTERNAL_ID), country.get(Country.UUID),
+				country.get(Country.DEFAULT_NAME), country.get(Country.ISO_CODE), area.get(Area.UUID)); // AreaIndex
 	}
 
 	@Override
-	public List<RegionIndexDto> getIndexList(RegionCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
+	public List<RegionIndexDto> getIndexList(RegionCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
@@ -301,7 +302,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 				case RegionIndexDto.REGION_EXTERNAL_ID:
 					expression = area.get(Area.NAME);
 					break;
-				
+
 				case RegionIndexDto.COUNTRY:
 					expression = country.get(Country.DEFAULT_NAME);
 					break;
@@ -320,7 +321,8 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		return QueryHelper.getResultList(em, cq, first, max, this::toIndexDto);
 	}
 
-	public Page<RegionIndexDto> getIndexPage(RegionCriteria regionCriteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
+	public Page<RegionIndexDto> getIndexPage(RegionCriteria regionCriteria, Integer offset, Integer size,
+			List<SortProperty> sortProperties) {
 		List<RegionIndexDto> regionIndexList = getIndexList(regionCriteria, offset, size, sortProperties);
 		long totalElementCount = count(regionCriteria);
 		return new Page<>(regionIndexList, offset, size, totalElementCount);
@@ -394,8 +396,8 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	public boolean isUsedInOtherInfrastructureData(Collection<String> regionUuids) {
 
 		return service.isUsedInInfrastructureData(regionUuids, District.REGION, District.class)
-			|| service.isUsedInInfrastructureData(regionUuids, Facility.REGION, Facility.class)
-			|| service.isUsedInInfrastructureData(regionUuids, PointOfEntry.REGION, PointOfEntry.class);
+				|| service.isUsedInInfrastructureData(regionUuids, Facility.REGION, Facility.class)
+				|| service.isUsedInInfrastructureData(regionUuids, PointOfEntry.REGION, PointOfEntry.class);
 	}
 
 	public static RegionReferenceDto toReferenceDto(Region entity) {
@@ -405,7 +407,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		}
 		return new RegionReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
 	}
-	
+
 	public static RegionReferenceDto toReferenceDtoP(Region entity) {
 
 		if (entity == null) {
@@ -413,7 +415,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		}
 		return new RegionReferenceDto(entity.getUuid(), entity.getPs_af());
 	}
-	
+
 	public static RegionReferenceDto toReferenceDtoD(Region entity) {
 
 		if (entity == null) {
@@ -455,7 +457,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		dto.setFa_af(entity.getFa_af());
 		dto.setPs_af(entity.getPs_af());
 		dto.setEpidCode(entity.getEpidCode());
-	//	dto.setPopulation(populationDataFacade.getRegionPopulation(dto.getUuid()));
+		// dto.setPopulation(populationDataFacade.getRegionPopulation(dto.getUuid()));
 		dto.setGrowthRate(entity.getGrowthRate());
 		dto.setExternalId(entity.getExternalId());
 		if (entity.getArea() != null) {
@@ -491,7 +493,8 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 					RegionDto dtoToMerge = getByUuid(region.getUuid());
 					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
 				} else {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.importRegionAlreadyExists));
+					throw new ValidationRuntimeException(
+							I18nProperties.getValidationError(Validations.importRegionAlreadyExists));
 				}
 			}
 		}
@@ -503,41 +506,43 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 	@Override
 	public List<RegionReferenceDto> getReferencesByName(String name, boolean includeArchivedEntities) {
-		return service.getByName(name, includeArchivedEntities).stream().map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return service.getByName(name, includeArchivedEntities).stream().map(RegionFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
 
 	public List<RegionDto> getByName(String name, boolean includeArchivedEntities) {
 		return service.getByName(name, includeArchivedEntities).stream().map(this::toDto).collect(Collectors.toList());
 	}
-	
+
 	public List<RegionDto> getByExternalId(Long ext_id, boolean includeArchivedEntities, int notUsed) {
-		return service.getByExternalId(ext_id, includeArchivedEntities, 0).stream().map(this::toDto).collect(Collectors.toList());
+		return service.getByExternalId(ext_id, includeArchivedEntities, 0).stream().map(this::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RegionReferenceDto> getByExternalId(Long externalId, boolean includeArchivedEntities) {
-		return service.getByExternalId(externalId, includeArchivedEntities)
-			.stream()
-			.map(RegionFacadeEjb::toReferenceDto)
-			.collect(Collectors.toList());
+		return service.getByExternalId(externalId, includeArchivedEntities).stream()
+				.map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
-	private List<RegionReferenceDto> getAllActiveByPredicate(BiFunction<CriteriaBuilder, Root<Region>, Predicate> buildPredicate) {
+	private List<RegionReferenceDto> getAllActiveByPredicate(
+			BiFunction<CriteriaBuilder, Root<Region>, Predicate> buildPredicate) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
 		Root<Region> root = cq.from(Region.class);
 
-		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll "+ SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
 		Predicate basicFilter = service.createBasicFilter(cb, root);
 		cq.where(CriteriaBuilderHelper.and(cb, basicFilter, buildPredicate.apply(cb, root)));
 
 		cq.orderBy(cb.asc(root.get(Region.NAME)));
 
-		
-		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
-	
-	private List<RegionReferenceDto> getAllActiveByPredicatePashto(BiFunction<CriteriaBuilder, Root<Region>, Predicate> buildPredicate) {
+
+	private List<RegionReferenceDto> getAllActiveByPredicatePashto(
+			BiFunction<CriteriaBuilder, Root<Region>, Predicate> buildPredicate) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
 		Root<Region> root = cq.from(Region.class);
@@ -547,8 +552,9 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 		cq.orderBy(cb.asc(root.get(Region.PS_AF)));
 
-		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll "+ SQLExtractor.from(em.createQuery(cq)));
-		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
+		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
 
 	private Region fillOrBuildEntity(@NotNull RegionDto source, Region target, boolean checkChangeDate) {
@@ -581,26 +587,27 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 	public static Set<RegionReferenceDto> toReferenceDto(HashSet<Region> regions) {
 		Set<RegionReferenceDto> dtos = new HashSet<RegionReferenceDto>();
-		for(Region region : regions) {	
-			RegionReferenceDto regionDto = new RegionReferenceDto(region.getUuid(), region.toString(), region.getExternalId());	
+		for (Region region : regions) {
+			RegionReferenceDto regionDto = new RegionReferenceDto(region.getUuid(), region.toString(),
+					region.getExternalId());
 			dtos.add(regionDto);
-		}	
+		}
 		return dtos;
 	}
-	
+
 	@Override
 	public List<RegionIndexDto> getAllRegions() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
 		Root<Region> region = cq.from(Region.class);
 		Join<Region, Area> area = region.join(Region.AREA, JoinType.LEFT);
-		
+
 		Predicate filter = cb.equal(region.get(Region.ARCHIVED), false);
 		cq.where(filter);
-		cq.select(region); 
+		cq.select(region);
 		List<Region> regions = em.createQuery(cq).getResultList();
 		List<RegionIndexDto> dtos = new ArrayList();
-		
+
 		for (Region reg : regions) {
 			if (!reg.equals(null)) {
 				dtos.add(this.toIndexDto(reg));
@@ -611,28 +618,22 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveByAreaAndSelectedInCampaign(String areaUuid, String campaignUuid) {
-		String selectBuilder = "select distinct r.uuid, r.\"name\", r.externalid\r\n"
-				+ "from region r\r\n"
-				+ "inner join areas a on a.id = r.area_id\r\n"
-				+ "inner join populationdata p on r.id = p.region_id\r\n"
-				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
-				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and r.archived = false and a.uuid = '"+areaUuid+"' ;";
-		
+		String selectBuilder = "select distinct r.uuid, r.\"name\", r.externalid\r\n" + "from region r\r\n"
+				+ "inner join areas a on a.id = r.area_id\r\n" + "inner join populationdata p on r.id = p.region_id\r\n"
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n" + "where c.uuid = '" + campaignUuid
+				+ "' and p.selected = true and r.archived = false and a.uuid = '" + areaUuid + "' ;";
+
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
 		List<RegionReferenceDto> resultData = new ArrayList<>();
-		resultData.addAll(resultList.stream()
-				.map((result) -> new RegionReferenceDto(
-						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
-						
-						)).collect(Collectors.toList()));
-						
-		
-	
+		resultData.addAll(resultList.stream().map((result) -> new RegionReferenceDto((String) result[0],
+				(String) result[1], ((BigInteger) result[2]).longValue()
+
+		)).collect(Collectors.toList()));
+
 		return resultData;
 	}
 

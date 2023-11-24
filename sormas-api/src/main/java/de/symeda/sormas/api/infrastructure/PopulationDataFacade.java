@@ -52,4 +52,6 @@ public interface PopulationDataFacade {
 		boolean groupByAgeGroup);
 
 	List<PopulationDataDto> getPopulationDataImportChecker(PopulationDataCriteria criteria);
+
+	List<PopulationDataDto> getPopulationDataWithCriteria(String criteria);
 }

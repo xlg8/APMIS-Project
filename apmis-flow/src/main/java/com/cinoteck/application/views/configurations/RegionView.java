@@ -23,6 +23,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -59,11 +60,13 @@ import de.symeda.sormas.api.user.UserRight;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -137,12 +140,25 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
+		ComponentRenderer<Span, AreaDto> areaExternalIdRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getExternalId()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 
 			grid.addColumn(AreaDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
 					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(AreaDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 					.setResizable(true).setSortable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
@@ -150,7 +166,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			grid.addColumn(AreaDto::getFa_af).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
 					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(AreaDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 					.setResizable(true).setSortable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		} else {

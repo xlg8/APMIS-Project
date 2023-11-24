@@ -5,9 +5,11 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.AREA;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.DISTRICT;
 import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,7 +23,9 @@ import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -32,6 +36,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -47,6 +52,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -119,6 +125,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 	String firstSubtabId = null;
 
+	NumberFormat arabicFormat = NumberFormat.getInstance();
+
 	public DashboardView() {
 		if (I18nProperties.getUserLanguage() == null) {
 
@@ -136,9 +144,9 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		if (VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack") != null) {
 
 			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("mtabtrack")
-					+ "  Pluto is active");
-			System.out.println(VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack")
-					+ " Elon is active");
+					+ " MainTab Active");
+			System.out.println(
+					VaadinService.getCurrentRequest().getWrappedSession().getAttribute("stabtrack") + " SubTab Active");
 		}
 
 		dataProvider = new CampaignDashboardDataProvider();
@@ -167,9 +175,23 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 //		
 //		campaingYears.clear();
 //		campaingYears.addAll(setDeduplicated);
-//
-		Set<String> setDeduplicated = new HashSet<>(campaingYears);
+
+		 Set<String> setDeduplicated = new HashSet<>(campaingYears);
 		campaignYear.setItems(setDeduplicated);
+		campaignYear.setItemLabelGenerator(item -> {
+			
+			switch (userProvider.getUser().getLanguage().toString()) {
+			case "Pashto":
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			case "Dari":
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			default:
+				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			}
+		});
 
 		campaignYear.getStyle().set("padding-top", "0px");
 		campaignYear.setClassName("col-sm-6, col-xs-6");
@@ -246,7 +268,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			region.setItems(regionsx);
 		} else {
 			regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
-			region.setItems(regions);			
+			region.setItems(regions);
 		}
 
 		region.setClearButtonVisible(true);
@@ -259,7 +281,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		province.setLabel(I18nProperties.getCaption(Captions.region));
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			provincesx = FacadeProvider.getRegionFacade().getAllActiveAsReferencePashto();
 			province.setItems(provincesx);
@@ -378,8 +400,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		region.addValueChangeListener(e -> {
 			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
-			
-			if (e.getValue() != null) {	
+
+			if (e.getValue() != null) {
 				dataProvider.setArea(e.getValue());
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					provincesx = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
@@ -390,7 +412,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 				} else {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 					province.setItems(provinces);
-				}				
+				}
 				province.setEnabled(true);
 				groupby.setValue(campaignJurisdictionLevel.REGION);
 			} else {
@@ -414,7 +436,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			if (e.getValue() != null) {
 				changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
 				groupby.setValue(campaignJurisdictionLevel.REGION);
-				dataProvider.setRegion(e.getValue());								
+				dataProvider.setRegion(e.getValue());
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					districtsx = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
 					district.setItems(districtsx);
@@ -424,10 +446,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 				} else {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 					district.setItems(districts);
-				}				
+				}
 				district.setEnabled(true);
 				groupby.setValue(campaignJurisdictionLevel.DISTRICT);
-				
+
 			} else {
 				changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
 				dataProvider.setRegion(e.getValue());
@@ -703,6 +725,33 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			return campaignPhase.toString();
 		}
 	}
+
+//	private ItemLabelGenerator<String> getLabel() {
+//	  String finalString = "";
+//	    NumberFormat arabicFormat = NumberFormat.getInstance();
+//
+//	    for (String string : campaingYears) {
+//	        switch (userProvider.getUser().getLanguage().toString()) {
+//	            case "Pashto":
+//	                arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
+//	                break;
+//	            case "Dari":
+//	                arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
+//	                break;
+//	            default:
+//	                arabicFormat = NumberFormat.getInstance(new Locale("en"));
+//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
+//	                break;
+//	        }
+//
+//	        // If you only want to process the first element and then return, you can break here
+//	        // break;
+//	    }
+//
+//	    return finalString;
+//	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {

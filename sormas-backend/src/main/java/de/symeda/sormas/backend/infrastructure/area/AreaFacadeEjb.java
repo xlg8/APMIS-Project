@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,10 +61,10 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 
 	@EJB
 	private RegionService regionService;
-	
+
 	@EJB
 	private AreaService areaService;
-	
+
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
 
@@ -77,62 +78,62 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 
 	@Override
 	public List<AreaReferenceDto> getAllActiveAndSelectedAsReference(String campaignUuid) {
-		
-		String selectBuilder = "select distinct a.uuid, a.\"name\", a.externalid\r\n"
-				+ "from areas a\r\n"
+
+		String selectBuilder = "select distinct a.uuid, a.\"name\", a.externalid\r\n" + "from areas a\r\n"
 				+ "inner join region r on a.id = r.area_id\r\n"
 				+ "inner join populationdata p on r.id = p.region_id\r\n"
-				+ "inner join campaigns c on p.campaign_id = c.id\r\n"
-				+ "where c.uuid = '"+campaignUuid+"' and p.selected = true and a.archived = false;";
-		
+				+ "inner join campaigns c on p.campaign_id = c.id\r\n" + "where c.uuid = '" + campaignUuid
+				+ "' and p.selected = true and a.archived = false;";
+
 		Query seriesDataQuery = em.createNativeQuery(selectBuilder);
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
 		List<AreaReferenceDto> resultData = new ArrayList<>();
-		resultData.addAll(resultList.stream()
-				.map((result) -> new AreaReferenceDto(
-						(String) result[0], (String) result[1], ((BigInteger) result[2]).longValue()
-						
-						)).collect(Collectors.toList()));
-						
-		
-	
+		resultData.addAll(resultList.stream().map((result) -> new AreaReferenceDto((String) result[0],
+				(String) result[1], ((BigInteger) result[2]).longValue()
+
+		)).collect(Collectors.toList()));
+
 		return resultData;
 		//
-		
-		//return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+
+		// return service.getAllActive(Area.NAME,
+		// true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<AreaReferenceDto> getAllActiveAsReference() {
-		return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return service.getAllActive(Area.NAME, true).stream().map(AreaFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<AreaReferenceDto> getAllActiveAsReferencePashto() {
-		return service.getAllActive(Area.PS_AF, true).stream().map(AreaFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
+		return service.getAllActive(Area.PS_AF, true).stream().filter(area -> area.getPs_af() != null)
+				.map(AreaFacadeEjb::toReferenceDtoP).collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<AreaReferenceDto> getAllActiveAsReferenceDari() {
-		return service.getAllActive(Area.FA_AF, true).stream().map(AreaFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
+		return service.getAllActive(Area.FA_AF, true).stream().filter(area -> area.getFa_af() != null)
+				.map(AreaFacadeEjb::toReferenceDtoD).collect(Collectors.toList());
 	}
 
 	@Override
 	public AreaDto getByUuid(String uuid) {
 		return toDto(service.getByUuid(uuid));
 	}
-	
+
 //	@Override
 //	public AreaDto getByUuid(String uuid) {
 //		return toDto(service.getByUuid(uuid));
 //	}
 
 	@Override
-	public List<AreaDto> getIndexList(AreaCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
+	public List<AreaDto> getIndexList(AreaCriteria criteria, Integer first, Integer max,
+			List<SortProperty> sortProperties) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Area> cq = cb.createQuery(Area.class);
 		Root<Area> areaRoot = cq.from(Area.class);
@@ -199,7 +200,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 					AreaDto dtoToMerge = getByUuid(area.getUuid());
 					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
 				} else {
-					throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.importAreaAlreadyExists));
+					throw new ValidationRuntimeException(
+							I18nProperties.getValidationError(Validations.importAreaAlreadyExists));
 				}
 			}
 		}
@@ -216,17 +218,20 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 
 	@Override
 	public List<AreaReferenceDto> getByName(String name, boolean includeArchived) {
-		return service.getByName(name, includeArchived).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return service.getByName(name, includeArchived).stream().map(AreaFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
-	
+
 	@Override
 	public List<AreaReferenceDto> getByExternalID(Long ext_id, boolean includeArchived) {
-		return service.getByExternalID(ext_id, includeArchived).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return service.getByExternalID(ext_id, includeArchived).stream().map(AreaFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<AreaDto> getAllAfter(Date date) {
-		return service.getAll((cb, root) -> service.createChangeDateFilter(cb, root, date)).stream().map(this::toDto).collect(Collectors.toList());
+		return service.getAll((cb, root) -> service.createChangeDateFilter(cb, root, date)).stream().map(this::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -252,7 +257,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 	@Override
 	public List<AreaReferenceDto> getByExternalId(Long externalId, boolean includeArchivedEntities) {
 
-		return service.getByExternalId(externalId, includeArchivedEntities).stream().map(AreaFacadeEjb::toReferenceDto).collect(Collectors.toList());
+		return service.getByExternalId(externalId, includeArchivedEntities).stream().map(AreaFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
 	}
 
 	public AreaDto toDto(Area source) {
@@ -277,21 +283,21 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		}
 		return new AreaReferenceDto(entity.getUuid(), entity.toString());
 	}
-	
+
 	public static AreaReferenceDto toReferenceDtox(Area entity) {
 		if (entity == null) {
 			return null;
 		}
 		return new AreaReferenceDto(entity.getUuid(), entity.toString(), entity.getExternalId());
 	}
-	
+
 	public static AreaReferenceDto toReferenceDtoP(Area entity) {
 		if (entity == null) {
 			return null;
 		}
 		return new AreaReferenceDto(entity.getUuid(), entity.getPs_af());
 	}
-	
+
 	public static AreaReferenceDto toReferenceDtoD(Area entity) {
 		if (entity == null) {
 			return null;
@@ -317,120 +323,120 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		}
 	}
 
-
 	public static Set<AreaReferenceDto> toReferenceDto(HashSet<Area> areas) {
 		Set<AreaReferenceDto> dtos = new HashSet<AreaReferenceDto>();
-		for(Area area : areas) {	
-			AreaReferenceDto areaDto = new AreaReferenceDto(area.getUuid(), area.toString(), area.getExternalId());	
+		for (Area area : areas) {
+			AreaReferenceDto areaDto = new AreaReferenceDto(area.getUuid(), area.toString(), area.getExternalId());
 			dtos.add(areaDto);
 		}
-		
+
 		return dtos;
 	}
-	
+
 	@Override
 	public AreaReferenceDto getAreaReferenceByUuid(String uuid) {
 		return toReferenceDto(areaService.getByUuid(uuid));
 	}
-	
+
 	@Override
 	public List<AreaDto> getAllActiveAsReferenceAndPopulation() {
-		
-		
+
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\r\n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4'\n"
-				+ "group by a.\"name\", a.id, a.uuid ";
-		
-		
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4'\n" + "group by a.\"name\", a.id, a.uuid ";
+
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
-		
+
 		List<AreaDto> resultData = new ArrayList<>();
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
 //		System.out.println("starting....");
-		
+
 		resultData.addAll(resultList.stream()
-				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(), ((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue())).collect(Collectors.toList()));
+				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						((BigInteger) result[4]).longValue()))
+				.collect(Collectors.toList()));
 
 //		System.out.println("ending...." +resultData.size());
-	
-	
-	//System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
-	return resultData;
+
+		// System.out.println("resultData - "+ resultData.toString());
+		// //SQLExtractor.from(seriesDataQuery));
+		return resultData;
 	}
 
 	@Override
 	public List<AreaDto> getAllActiveAsReferenceAndPopulation(CampaignDto campaignDt) {
 		List<AreaDto> resultData = new ArrayList<>();
-			String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
-					+ "left outer join region r on r.area_id = a.id\n"
-					+ "left outer join populationdata p on r.id = p.region_id\n"
-					+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-					+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid()
-					+ "'\n" + "group by a.\"name\", a.id, a.uuid ";
+		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
+				+ "left outer join region r on r.area_id = a.id\n"
+				+ "left outer join populationdata p on r.id = p.region_id\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "group by a.\"name\", a.id, a.uuid ";
 
-			
 //			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
-			Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
-			@SuppressWarnings("unchecked")
-			List<Object[]> resultList = seriesDataQuery.getResultList();
-			resultData.addAll(resultList.stream()
-					.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
-							((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue()))
-					.collect(Collectors.toList()));
-		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						((BigInteger) result[4]).longValue()))
+				.collect(Collectors.toList()));
+
 		return resultData;
 
 	}
-	
+
 	@Override
 	public List<AreaDto> getAllActiveAsReferenceAndPopulationPashto(CampaignDto campaignDt) {
 		List<AreaDto> resultData = new ArrayList<>();
-			String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
-					+ "left outer join region r on r.area_id = a.id\n"
-					+ "left outer join populationdata p on r.id = p.region_id\n"
-					+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-					+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid()
-					+ "'\n" + "group by a.\"name\", a.id, a.uuid ";
-			
-			Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
+		String queryStringBuilder = "select a.\"ps_af\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
+				+ "left outer join region r on r.area_id = a.id\n"
+				+ "left outer join populationdata p on r.id = p.region_id\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "group by a.\"name\", a.id, a.uuid ";
 
-			@SuppressWarnings("unchecked")
-			List<Object[]> resultList = seriesDataQuery.getResultList();
-			resultData.addAll(resultList.stream()
-					.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
-							((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue()))
-					.collect(Collectors.toList()));
-		
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						((BigInteger) result[4]).longValue()))
+				.collect(Collectors.toList()));
+
 		return resultData;
 
 	}
-	
+
 	@Override
 	public List<AreaDto> getAllActiveAsReferenceAndPopulationsDari(CampaignDto campaignDt) {
 		List<AreaDto> resultData = new ArrayList<>();
-			String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
-					+ "left outer join region r on r.area_id = a.id\n"
-					+ "left outer join populationdata p on r.id = p.region_id\n"
-					+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-					+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid()
-					+ "'\n" + "group by a.\"name\", a.id, a.uuid ";
+		String queryStringBuilder = "select a.\"fa_af\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
+				+ "left outer join region r on r.area_id = a.id\n"
+				+ "left outer join populationdata p on r.id = p.region_id\n"
+				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
+				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "group by a.\"name\", a.id, a.uuid ";
 
-			Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
+		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
-			@SuppressWarnings("unchecked")
-			List<Object[]> resultList = seriesDataQuery.getResultList();
-			resultData.addAll(resultList.stream()
-					.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
-							((BigInteger) result[2]).longValue(), (String) result[3].toString(), ((BigInteger) result[4]).longValue()))
-					.collect(Collectors.toList()));
-		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		resultData.addAll(resultList.stream()
+				.map((result) -> new AreaDto((String) result[0].toString(), ((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(), (String) result[3].toString(),
+						((BigInteger) result[4]).longValue()))
+				.collect(Collectors.toList()));
+
 		return resultData;
 
 	}

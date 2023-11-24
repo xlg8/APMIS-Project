@@ -695,12 +695,12 @@ vaadin-checkbox.custom-checkbox-class:checked {
 	   background-color: green !important;
 	
 }
-
+/*
 .uibuilderview {
 	margin-left: 20px;
 	margin-right: 20px;
 }
-
+*/
 .dialog-headers{
 	display : flex;
 	width : 100%;
