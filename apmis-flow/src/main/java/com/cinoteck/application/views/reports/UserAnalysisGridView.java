@@ -299,7 +299,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
 			}
 
-			String value = String.valueOf(arabicFormat.format(input.getClusterNumber()));
+			String value = String.valueOf(arabicFormat.format(input.getClusterNumberr()));
 			Span label = new Span(value);
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;

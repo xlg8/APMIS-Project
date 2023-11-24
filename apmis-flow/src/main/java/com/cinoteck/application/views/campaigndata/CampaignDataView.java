@@ -292,9 +292,7 @@ public class CampaignDataView extends VerticalLayout {
 														// && userProvider.getUser().getArea() != null)) {
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 				AreaReferenceDto singleArea = userProvider.getUser().getArea();
-				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());
-				System.out.println("ggaggasgak     " + hgsghsag.getFa_af() + "     ytwuhgsjfgshgsjfs     "
-						+ hgsghsag.getPs_af() + "    ajagjaja    " + hgsghsag.getFa_af());
+				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());			
 				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(hgsghsag.getUuid(), hgsghsag.getFa_af());
 				regionCombo.setValue(singleAreatw0);
 			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {

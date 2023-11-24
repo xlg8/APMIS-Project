@@ -65,24 +65,23 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		this.formPhase = formPhase;
 		return this;
 	}
-	
-//	@IgnoreForUrl
-	public String getFormName() {
-		return formName;
-	}
-	
-	public CampaignFormCriteria setFormName(String formName) {
-		this.formName = formName;
-		return this;
-	}
-	
-//	@IgnoreForUrl
+
 	public String getFormType() {
 		return formType;
 	}
 	
 	public CampaignFormCriteria setFormType(String formType) {
 		this.formType = formType;
+		return this;
+	}
+	
+	@IgnoreForUrl
+	public String getFormName() {
+		return formName;
+	}
+	
+	public CampaignFormCriteria setFormName(String formName) {
+		this.formName = formName;
 		return this;
 	}
 	
