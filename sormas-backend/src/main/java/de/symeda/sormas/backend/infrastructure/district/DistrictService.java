@@ -17,7 +17,9 @@
  *******************************************************************************/
 package de.symeda.sormas.backend.infrastructure.district;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
@@ -34,8 +36,10 @@ import javax.persistence.criteria.Root;
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.backend.common.AbstractInfrastructureAdoService;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
@@ -227,5 +231,21 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 					cb.equal(area.get(Area.UUID), this.getCurrentUser().getArea().getUuid()));
 		}
 		return filter;
+	}
+	
+	public Set<District> getByReferenceDto(Set<DistrictReferenceDto> district) {
+		Set<District> districts = new HashSet<District>();
+		for (DistrictReferenceDto com : district) {
+			if (com != null && com.getUuid() != null) {
+				District result = getByUuid(com.getUuid());
+				if (result == null) {
+					logger.warn("Could not find entity for " + com.getClass().getSimpleName() + " with uuid "
+							+ com.getUuid());
+				}
+				districts.add(result);
+			}
+		}
+
+		return districts;
 	}
 }

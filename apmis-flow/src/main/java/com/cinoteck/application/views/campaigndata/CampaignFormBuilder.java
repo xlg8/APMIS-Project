@@ -984,11 +984,20 @@ VerticalLayout labelLayout = new VerticalLayout();
 					//input types that are not dropdown 
 					
 				// get the order valuie, do a null check incase order wouldnt be specified 
-					if (formElement.getOptions().stream().collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder)) != null){
+					boolean isNotSorted = false;
+					try{
+						if (formElement.getOptions().stream().collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder)) != null){
+							optionsOrder.clear();
 						//pop the map with the order based off the key 
 						optionsOrder = formElement.getOptions().stream()
 								.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getOrder));
-					};
+						};
+					} catch(NullPointerException ex) {
+						optionsOrder.clear();
+						optionsOrder = formElement.getOptions().stream()
+								.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption));
+						isNotSorted = true;
+					}
 					
 					if (userOptTranslations.size() == 0) {
 						campaignFormElementOptions.setOptionsListValues(optionsValues);
@@ -1019,17 +1028,17 @@ VerticalLayout labelLayout = new VerticalLayout();
 
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
-					
-					if(dataOrder != null ) {
-						Comparator<String> orderComparator = (key1, key2) -> {
-						    String order1 = getOrderValue(dataOrder, key1);
-						    String order2 = getOrderValue(dataOrder, key2);
-						    return Integer.compare(Integer.parseInt(order1), Integer.parseInt(order2));
-						};
+					if(!isNotSorted) {
+						if (dataOrder != null) {
+							Comparator<String> orderComparator = (key1, key2) -> {
+								String order1 = getOrderValue(dataOrder, key1);
+								String order2 = getOrderValue(dataOrder, key2);
+								return Integer.compare(Integer.parseInt(order1), Integer.parseInt(order2));
+							};
 
-						sortedKeys.sort(orderComparator);
+							sortedKeys.sort(orderComparator);
+						}
 					}
-
 
 					
 
@@ -1332,18 +1341,20 @@ VerticalLayout labelLayout = new VerticalLayout();
 			;
 			break;
 		case DROPDOWN:
-
+			
+			
 			final HashMap<String, String> data_ = (HashMap<String, String>) options;
+		//	System.out.println(data_+ " : @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ : "+value);
 
-			if (value != null) {
-
-				if (value.equals(true)) {
-					((ComboBox) field).setEnabled(true);
-				} else if (value.equals(false)) {
-					((ComboBox) field).setEnabled(false);
-				}
-			}
-			;
+//			if (value != null) {
+//
+//				if (value.equals(true)) {
+//					((ComboBox) field).setEnabled(true);
+//				} else if (value.equals(false)) {
+//					((ComboBox) field).setEnabled(false);
+//				}
+//			}
+//			;
 
 			if (defaultvalue != null) {
 				// String dxz = options.get(defaultvalue);
@@ -1351,11 +1362,13 @@ VerticalLayout labelLayout = new VerticalLayout();
 			}
 			;
 
-			if (value != null && (data_.get(value) != null)) {
+			if (value != null && data_ != null) {
+				if(data_.get(value) != null) {
+			
 				// String dxz = options.get(value);
 				((ComboBox) field).setValue(value);
-			}
-			;
+				}
+			};
 
 			break;
 		default:
@@ -1819,7 +1832,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 		formElements.stream().filter(element -> element.getExpression() != null).forEach(e -> {
 			try {
 				final Expression expression = expressionParser.parseExpression(e.getExpression());
-				// System.out.println("------: "+expression.getExpressionString());
+				 System.out.println("------: "+expression.getExpressionString());
 				final Class<?> valueType = expression.getValueType(context);
 				final Object value = expression.getValue(context, valueType);
 				// final Object valx = Precision.round((double) value, 3);
@@ -1841,9 +1854,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 						} else {
 
 							Boolean isErrored = value.toString().endsWith(".0");
-							// System.out.println(e.getCaption() +" : "+value+" = naija bet: Success vs
-							// Mathew " + isErrored);
-
+							
 							setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
 									value.toString().endsWith(".0") ? value.toString().replace(".0", "") : value, null,
 									null, isErrored,
@@ -1863,6 +1874,8 @@ VerticalLayout labelLayout = new VerticalLayout();
 								e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() : null);
 						// return;
 					} else if (valueType.isAssignableFrom(Boolean.class)) {
+						
+						 System.out.println(e.getCaption() +" : "+value+" = = = = " );
 						setFieldValue(getFields().get(e.getId()), CampaignFormElementType.fromString(e.getType()),
 								value, null, null, false,
 								e.getErrormessage() != null ? e.getCaption() + " : " + e.getErrormessage() : null);

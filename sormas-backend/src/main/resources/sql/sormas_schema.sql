@@ -9627,7 +9627,26 @@ update areas set fa_af = 'جنوب', ps_af = 'سویل' where externalid = 8;
 update areas set fa_af = 'بدخشان', ps_af = 'بدخشان' where externalid = 12;
 
 
+ALTER MATERIALIZED VIEW public.lateformdataportion RENAME COLUMN campaignid TO campaignuuid;
+ALTER MATERIALIZED VIEW public.lateformdataportion RENAME COLUMN formid TO formmetauuid;
+
+ALTER MATERIALIZED VIEW public.lateformdatatotal RENAME COLUMN formid TO formmetauuid;
+ALTER MATERIALIZED VIEW public.lateformdatatotal RENAME COLUMN campaignid TO campaignuuid;
+
 INSERT INTO schema_version (version_number, comment) VALUES (455, 'Transalation for Infrastructure data '); 
+
+
+--add users_district table to allow assigning of multiple district to users optionally
+CREATE TABLE users_district (
+users_id bigint NOT NULL,
+districts_id bigint NOT NULL
+);
+
+ALTER TABLE users_district OWNER TO sormas_user;
+
+INSERT INTO schema_version (version_number, comment) VALUES (456, 'configuring multiple district for users');
+
+
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

@@ -117,6 +117,7 @@ public class User extends AbstractDomainObject {
 	private Area area;
 	private Region region;
 	private District district;
+	private Set<District> districts;
 	// community of community informant
 	private Set<Community> community;
 	// facility of hospital informant
@@ -340,6 +341,15 @@ public class User extends AbstractDomainObject {
 	}
 
 	@ManyToMany(cascade = {})
+	public Set<District> getDistricts() {
+		return districts;
+	}
+
+	public void setDistricts(Set<District> districts) {
+		this.districts = districts;
+	}
+	
+	@ManyToMany(cascade = {})
 	public Set<Community> getCommunity() {
 		return community;
 	}
@@ -431,4 +441,5 @@ public class User extends AbstractDomainObject {
 		}
 		return caption;
 	}
+
 }
