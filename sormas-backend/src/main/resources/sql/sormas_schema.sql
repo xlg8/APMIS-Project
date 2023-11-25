@@ -9644,8 +9644,11 @@ districts_id bigint NOT NULL
 
 ALTER TABLE users_district OWNER TO sormas_user;
 
-INSERT INTO schema_version (version_number, comment) VALUES (456, 'configuring multiple district for users');
+UPDATE campaignformmeta SET formcategory = replace(formcategory, '-', '_');
 
+ALTER TABLE public.campaignformmeta ADD CONSTRAINT campaignformmeta_checkk CHECK (((formcategory)::text ~ '^[A-Z]+(?:_[A-Z]+)*$'::text));
+
+INSERT INTO schema_version (version_number, comment) VALUES (456, 'configuring multiple district for users and fix for formmeta contraint on formcat');
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
