@@ -350,7 +350,7 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 //		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysis(criteria, query.getOffset(), query.getLimit(),
+						.getByTimelinessAnalysis(criteria, query.getOffset(), query.getLimit(),
 								query.getSortOrders().stream()
 										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
 												sortOrder.getDirection() == SortDirection.ASCENDING))
