@@ -2,6 +2,7 @@ package de.symeda.sormas.rest;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -18,7 +19,9 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignAggregateDataDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.report.CampaignDataExtractDto;
 
 @Path("/apmisrestserver")
@@ -175,5 +178,24 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 			throw new RuntimeException("Error converting data to CSV", e);
 		}
 	}
+	
+	@GET
+	@Path("/campaignformdata")
+	public List<CampaignFormDataDto> getAllCampaignFormDataWithoutTime() {
+		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData();
+	}
+	
+	@GET
+	@Path("/campaigsndata")
+	public List<CampaignDto> getAllCampaignData() {
+		return FacadeProvider.getCampaignFacade().getAllActive();
+	}
+	
+	@GET
+	@Path("/populationdata")
+	public List<PopulationDataDto> getAllPopulationData() {
+		return FacadeProvider.getPopulationDataFacade().getAllPopulationData();
+	}
+
 
 }

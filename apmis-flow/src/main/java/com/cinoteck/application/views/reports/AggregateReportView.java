@@ -102,7 +102,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		setSizeFull();
 		grid.setColumnReorderingAllowed(true);
-		
+
 //		ComponentRenderer<Span, CampaignStatisticsDto> areaTRanslationRenderer = new ComponentRenderer<>(input -> {
 //			String value = input.getArea();
 //			
@@ -110,7 +110,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 //			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 //			return label;
 //		});
-		
+
 		ComponentRenderer<Span, CampaignStatisticsDto> formCountRender = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -124,16 +124,16 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		grid.addColumn(CampaignStatisticsDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaign))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Campaign));
 		grid.addColumn(CampaignStatisticsDto.FORM).setHeader(I18nProperties.getCaption(Captions.formname))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formname));
-		grid.addColumn(CampaignStatisticsDto.AREA).setHeader(I18nProperties.getCaption(Captions.area))
-		.setSortable(true).setResizable(true).setAutoWidth(true)
-		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		grid.addColumn(CampaignStatisticsDto.AREA).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
+				.setResizable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
 		grid.addColumn(CampaignStatisticsDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region)).setVisible(false);
@@ -144,17 +144,15 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 				.setSortable(true).setResizable(true).setAutoWidth(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community)).setVisible(false);
 
-		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {			
-			grid.addColumn(formCountRender).setHeader(I18nProperties.getCaption(Captions.formCount))
-					.setSortable(true).setResizable(true)
-					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(formCountRender).setHeader(I18nProperties.getCaption(Captions.formCount)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
 			grid.setVisible(true);
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-			grid.addColumn(formCountRender).setHeader(I18nProperties.getCaption(Captions.formCount))
-					.setSortable(true).setResizable(true)
-					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
+			grid.addColumn(formCountRender).setHeader(I18nProperties.getCaption(Captions.formCount)).setSortable(true)
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
 			grid.setVisible(true);
-		} else {			
+		} else {
 			grid.addColumn(CampaignStatisticsDto.FORM_COUNT).setHeader(I18nProperties.getCaption(Captions.formCount))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.formCount));
@@ -394,6 +392,28 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			reloadData();
 		});
 
+		if (userProvider.getUser().getArea() != null) {
+			regionCombo.setValue(userProvider.getUser().getArea());
+			criteria.setArea(userProvider.getUser().getArea());
+			regionCombo.setEnabled(false);
+			generateProvinceComboItems(userProvider);
+		}
+
+		if (userProvider.getUser().getRegion() != null) {
+			provinceCombo.setValue(userProvider.getUser().getRegion());
+			criteria.setRegion(userProvider.getUser().getRegion());
+			provinceCombo.setEnabled(false);
+			generateDistrictComboItems(userProvider);
+		}
+
+		if (userProvider.getUser().getDistrict() != null) {
+			districtCombo.setValue(userProvider.getUser().getDistrict());
+			criteria.setDistrict(userProvider.getUser().getDistrict());
+			reloadData();
+			districtCombo.setEnabled(false);
+//			generateDistrictComboItems();
+		}
+
 		groupBy.setItems(
 
 				I18nProperties.getCaption(Captions.Campaign_area), I18nProperties.getCaption(Captions.Campaign_region),
@@ -544,57 +564,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		add(filterBlock);
 	}
 
-//	private Consumer<CampaignFormMetaReferenceDto> createFormMetaChangedCallback() {
-//		return formMetaReference -> {
-//			grid.removeAllColumns();
-//			grid.addColumns();
-//			if (formMetaReference != null) {
-//				CampaignFormMetaDto formMeta = FacadeProvider.getCampaignFormMetaFacade()
-//						.getCampaignFormMetaByUuid(formMetaReference.getUuid());
-//				Language userLanguage = UserProvider.getCurrent().getUser().getLanguage();
-//				CampaignFormTranslations translations = null;
-//				if (userLanguage != null) {
-//					translations = formMeta.getCampaignFormTranslations().stream()
-//							.filter(t -> t.getLanguageCode().equals(userLanguage.getLocale().toString())).findFirst()
-//							.orElse(null);
-//				}
-////				final boolean onlyImportantFormElements = importanceFilterSwitcher.isImportantSelected();
-//				final List<CampaignFormElement> campaignFormElements = formMeta.getCampaignFormElements();
-//				for (CampaignFormElement element : campaignFormElements) {
-//					if (element.isImportant()) {// || !onlyImportantFormElements) {
-//						String type = element.getType();
-//						if (type != null) {
-//							CampaignFormElementType campaignFormElementType = CampaignFormElementType.fromString(type);
-//							if (campaignFormElementType == CampaignFormElementType.NUMBER
-//									|| campaignFormElementType == CampaignFormElementType.DECIMAL
-//									|| campaignFormElementType == CampaignFormElementType.RANGE
-//									|| campaignFormElementType == CampaignFormElementType.RADIOBASIC
-//									|| campaignFormElementType == CampaignFormElementType.CHECKBOX
-//									|| campaignFormElementType == CampaignFormElementType.CHECKBOXBASIC
-//									|| campaignFormElementType == CampaignFormElementType.RADIO
-//									|| campaignFormElementType == CampaignFormElementType.YES_NO) {
-//								String caption = null;
-//								if (translations != null) {
-//									caption = translations.getTranslations().stream()
-//											.filter(t -> t.getElementId().equals(element.getId()))
-//											.map(TranslationElement::getCaption).findFirst().orElse(null);
-//								}
-//								if (caption == null) {
-//									caption = element.getCaption();
-//								}
-//
-//								if (caption != null) {
-//									addCustomColumn(element.getId(), caption);
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//			setColumnsVisibility(criteria.getGroupingLevel());
-//		};
-//	}
-
 	public void addCustomColumn(String property, String caption) {
 		Column<CampaignStatisticsDto> newColumn = grid.addColumn(
 				e -> e.getStatisticsData().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null));
@@ -605,18 +574,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		newColumn.setTooltipGenerator(e -> newColumn.getHeaderText());
 
 	}
-
-//	public void addCustomColumnx(String property, String caption) {
-//	    Column<CampaignStatisticsDto> newColumn = grid.addColumn(dto -> dto.getStatisticsData()
-//	            .stream()
-//	            .filter(v -> v.getId().equals(property))
-//	            .findFirst()
-//	            .map(StatisticsData::getValue)
-//	            .orElse(null))
-//	        .setSortable(false)
-//	        .setHeader(caption)
-//	        .setKey(property);
-//	}
 
 	public void setColumnsVisibility(CampaignJurisdictionLevel groupingLevel) {
 		setAreaColumnVisible(CampaignJurisdictionLevel.AREA.equals(groupingLevel)
@@ -687,4 +644,46 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		this.formMetaChangedCallback = formMetaChangedCallback;
 		campaignFormCombo.addValueChangeListener(e -> formMetaChangedCallback.accept(e.getValue()));
 	}
+
+	public void generateProvinceComboItems(UserProvider user) {
+		provinceCombo.clear();
+
+		criteria.setArea(regionCombo.getValue());
+		reloadData();
+		if (user.getUser().getLanguage().toString().equals("Pashto")) {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(regionCombo.getValue().getUuid());
+			provinceCombo.setItems(provinces);
+		} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(regionCombo.getValue().getUuid());
+			provinceCombo.setItems(provinces);
+		} else {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(regionCombo.getValue().getUuid());
+			provinceCombo.setItems(provinces);
+		}
+		provinceCombo.setEnabled(true);
+
+	}
+
+	public void generateDistrictComboItems(UserProvider user) {
+
+		System.out.println("================1111111111111");
+		districtCombo.clear();
+
+		criteria.setRegion(provinceCombo.getValue());
+		reloadData();
+		if (user.getUser().getLanguage().toString().equals("Pashto")) {
+			districts = FacadeProvider.getDistrictFacade()
+					.getAllActiveByRegionPashto(provinceCombo.getValue().getUuid());
+			districtCombo.setItems(districts);
+		} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(provinceCombo.getValue().getUuid());
+			districtCombo.setItems(districts);
+		} else {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(provinceCombo.getValue().getUuid());
+			districtCombo.setItems(districts);
+		}
+		districtCombo.setEnabled(true);
+
+	}
+
 }

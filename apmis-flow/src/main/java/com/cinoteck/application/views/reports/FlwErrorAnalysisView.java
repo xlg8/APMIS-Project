@@ -192,6 +192,9 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 			}
 		});
 		
+		
+		configureFiltersByUserRoles();
+		
 		errorFilter.setLabel("Error Status");
 		errorFilter.setPlaceholder("Error Status");
 		errorFilter.setItems("Error Report", "None Error Report");
@@ -326,6 +329,75 @@ public class FlwErrorAnalysisView extends VerticalLayout  {
 		anchor.getElement().insertChild(0, icon.getElement());
 		add(grid);
 
+	}
+	
+
+public void generateProvinceComboItems(UserProvider user) {
+	provinceFilter.clear();
+
+	criteria.setArea(regionFilter.getValue());
+	refreshGridData();
+	if (user.getUser().getLanguage().toString().equals("Pashto")) {
+		provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(regionFilter.getValue().getUuid());
+		provinceFilter.setItems(provinces);
+	} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+		provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(regionFilter.getValue().getUuid());
+		provinceFilter.setItems(provinces);
+	} else {
+		provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(regionFilter.getValue().getUuid());
+		provinceFilter.setItems(provinces);
+	}
+	provinceFilter.setEnabled(true);
+		
+}
+
+
+public void generateDistrictComboItems(UserProvider user) {
+	
+	
+	System.out.println("================1111111111111");
+	districtFilter.clear();
+	
+	criteria.setRegion(provinceFilter.getValue());
+	refreshGridData();
+	if (user.getUser().getLanguage().toString().equals("Pashto")) {
+		districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(provinceFilter.getValue().getUuid());
+		districtFilter.setItems(districts);
+	} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+		districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(provinceFilter.getValue().getUuid());
+		districtFilter.setItems(districts);
+	} else {
+		districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(provinceFilter.getValue().getUuid());
+		districtFilter.setItems(districts);
+	}
+	districtFilter.setEnabled(true);
+	
+	
+}
+	
+	
+	public void configureFiltersByUserRoles() {
+		if (userProvider.getUser().getArea() != null) {
+			regionFilter.setValue(userProvider.getUser().getArea());
+			criteria.setArea(userProvider.getUser().getArea());
+			regionFilter.setEnabled(false);
+			generateProvinceComboItems(userProvider);
+		}
+
+		if (userProvider.getUser().getRegion() != null) {
+			provinceFilter.setValue(userProvider.getUser().getRegion());
+			criteria.setRegion(userProvider.getUser().getRegion());
+			provinceFilter.setEnabled(false);
+			generateDistrictComboItems(userProvider);
+		}
+
+		if (userProvider.getUser().getDistrict() != null) {
+			districtFilter.setValue(userProvider.getUser().getDistrict());
+			criteria.setDistrict(userProvider.getUser().getDistrict());
+			refreshGridData();
+			districtFilter.setEnabled(false);
+//		generateDistrictComboItems();
+		}
 	}
 
 }
