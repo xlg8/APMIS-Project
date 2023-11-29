@@ -741,22 +741,91 @@ if(!isDistrictMulti) {
 				}
 			}
 
-			if (binder.getBean().getUserName() != null || userName != null) {
+			
+		if (binder.getBean().getUserName().contains(" ")){
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username cannot contain white space");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+				isErrored = true;
+				return;
+			} else {
+				
+				
+		if (binder.getBean().getUserName() != null || userName != null) {
 
 				UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
 						.getByUserName(binder.getBean().getUserName());
-				
-				
-				if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUser.getUserName().trim())
-						&& !originalUser.getUserName().isEmpty() && !isErrored) {
-					if(preceedingUsername.equals(originalUser.getUserName())) {
+				String originalUserx = originalUser == null ? binder.getBean().getUserName() : originalUser.getUserName().trim();
+				if(retrieveBinderUserFromDb == null) {
+					if (binder.getBean().getUserName().contains(" ")){
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Username cannot contain white space");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						isErrored = true;
+						return;
+					} else if(!preceedingUsername.equals(originalUserx)) {
+						System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+						fireEvent(new SaveEvent(this, binder.getBean()));
+
+					} else {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Unknow error surrounding the supplied username");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						isErrored = true;
+						return;
+					}
+				} else if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUserx)
+						&& !originalUserx.isEmpty() && !isErrored) {
+					if(preceedingUsername.equals(originalUserx)) {
 						fireEvent(new SaveEvent(this, binder.getBean()));
 
 					}else {
 						UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
 						if(checkNewusernamefromDB == null) {
 							fireEvent(new SaveEvent(this, binder.getBean()));
-						}else {
+						} else {
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
@@ -805,6 +874,7 @@ if(!isDistrictMulti) {
 					}
 				}
 			}
+		}
 		}
 	}
 
@@ -870,6 +940,26 @@ if(!isDistrictMulti) {
 				});
 
 				Paragraph text = new Paragraph("Error : Username not unique");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+				isErrored = true;
+				return;
+			} else if (binder.getBean().getUserName().contains(" ")){
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username cannot contain white space");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 				layout.setAlignItems(Alignment.CENTER);
