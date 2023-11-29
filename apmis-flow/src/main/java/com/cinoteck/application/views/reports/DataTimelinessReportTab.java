@@ -241,6 +241,9 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 
 			}
 		});
+		
+		
+		configureFiltersByUserRoles(formAccess);
 
 //		errorFilter.setClearButtonVisible(true);
 //		errorFilter.setLabel("Error Status");
@@ -383,5 +386,76 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		add(grid);
 
 	}
+	
+	
+
+	
+	public void generateProvinceComboItems(UserProvider user, FormAccess formAccess) {
+		provinceFilter.clear();
+
+		criteria.setArea(regionFilter.getValue());
+		refreshGridData(formAccess);
+		if (user.getUser().getLanguage().toString().equals("Pashto")) {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(regionFilter.getValue().getUuid());
+			provinceFilter.setItems(provinces);
+		} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(regionFilter.getValue().getUuid());
+			provinceFilter.setItems(provinces);
+		} else {
+			provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(regionFilter.getValue().getUuid());
+			provinceFilter.setItems(provinces);
+		}
+		provinceFilter.setEnabled(true);
+			
+	}
+
+
+	public void generateDistrictComboItems(UserProvider user, FormAccess formAccess) {
+		
+		
+		System.out.println("================1111111111111");
+		districtFilter.clear();
+		
+		criteria.region(provinceFilter.getValue());
+		refreshGridData(formAccess);
+		if (user.getUser().getLanguage().toString().equals("Pashto")) {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(provinceFilter.getValue().getUuid());
+			districtFilter.setItems(districts);
+		} else if (user.getUser().getLanguage().toString().equals("Dari")) {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(provinceFilter.getValue().getUuid());
+			districtFilter.setItems(districts);
+		} else {
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(provinceFilter.getValue().getUuid());
+			districtFilter.setItems(districts);
+		}
+		districtFilter.setEnabled(true);
+		
+		
+	}
+		
+		
+		public void configureFiltersByUserRoles( FormAccess formAccess) {
+			if (userProvider.getUser().getArea() != null) {
+				regionFilter.setValue(userProvider.getUser().getArea());
+				criteria.setArea(userProvider.getUser().getArea());
+				regionFilter.setEnabled(false);
+				generateProvinceComboItems(userProvider, formAccess);
+			}
+
+			if (userProvider.getUser().getRegion() != null) {
+				provinceFilter.setValue(userProvider.getUser().getRegion());
+				criteria.region(userProvider.getUser().getRegion());
+				provinceFilter.setEnabled(false);
+				generateDistrictComboItems(userProvider, formAccess);
+			}
+
+			if (userProvider.getUser().getDistrict() != null) {
+				districtFilter.setValue(userProvider.getUser().getDistrict());
+				criteria.district(userProvider.getUser().getDistrict());
+				refreshGridData(formAccess);
+				districtFilter.setEnabled(false);
+//			generateDistrictComboItems();
+			}
+		}
 
 }
