@@ -1632,6 +1632,12 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 	
 	@Override
+	public List<CampaignFormDataDto> getAllActiveData() {
+	
+		return campaignFormDataService.getAllActiveData().stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+	}
+	
+	@Override
 	public List<CampaignFormDataDto> getAllActiveRef() {
 		if (userService.getCurrentUser() == null) {
 			return Collections.emptyList();
@@ -3522,6 +3528,12 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	@Stateless
 	public static class CampaignFormDataFacadeEjbLocal extends CampaignFormDataFacadeEjb {
 	}
+
+
+
+
+
+	
 
 
 

@@ -237,6 +237,33 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 				.collect(Collectors.toList());
 	}
 	
+	@Override
+	public List<PopulationDataDto> getAllPopulationData() {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<PopulationData> cq = cb.createQuery(PopulationData.class);
+		Root<PopulationData> root = cq.from(PopulationData.class);
+		// System.out.println("DEBUGGER ----- "+ criteria.getCampaign()!= null);
+
+//		Predicate filter = service.buildCriteriaFilter( cb, root);
+//		if (criteria.getCampaign() != null) {
+//			Predicate filter_ = CriteriaBuilderHelper.and(cb, filter,
+//					cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID),
+//							criteria.getCampaign().getUuid()));
+//			Predicate filterx = CriteriaBuilderHelper.and(cb, filter_);
+//
+//			cq.where(filterx);
+//		} else {
+//			cq.where(filter);
+//		}
+
+		 System.out.println("zzzzzzDEBUGGER 5678ijhyuio"+SQLExtractor.from(em.createQuery(cq)));
+
+		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
+				.collect(Collectors.toList());
+//		return null;
+	}
+	
 	
 
 	@Override

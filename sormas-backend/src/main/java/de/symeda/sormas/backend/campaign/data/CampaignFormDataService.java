@@ -37,6 +37,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.vladmihalcea.hibernate.type.util.SQLExtractor;
+
 import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
@@ -259,6 +261,26 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 
 		cq.where(filter);
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CREATION_DATE)));
+
+		return em.createQuery(cq).getResultList();
+	}
+	
+	public List<CampaignFormData> getAllActiveData() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
+		Root<CampaignFormData> from = cq.from(getElementClass());
+
+		Predicate filter = cb.and();
+
+//		if (getCurrentUser() != null) {
+//			Predicate userFilter = createUserFilter(cb, cq, from);
+			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
+//		}
+
+		cq.where(filter);
+		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CREATION_DATE)));
+		
+		System.out.println( "ttttttttttttttttttttttttttyyyy "+ SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultList();
 	}

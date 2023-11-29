@@ -176,10 +176,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 //		campaingYears.clear();
 //		campaingYears.addAll(setDeduplicated);
 
-		 Set<String> setDeduplicated = new HashSet<>(campaingYears);
+		Set<String> setDeduplicated = new HashSet<>(campaingYears);
 		campaignYear.setItems(setDeduplicated);
 		campaignYear.setItemLabelGenerator(item -> {
-			
+
 			switch (userProvider.getUser().getLanguage().toString()) {
 			case "Pashto":
 				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
@@ -295,6 +295,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		province.getStyle().set("padding-top", "0px");
 		province.setClassName("col-sm-6, col-xs-6");
+		province.setClassName("col-sm-6, col-xs-6");
+
 		// province.setEnabled(false);
 
 		district.setLabel(I18nProperties.getCaption(Captions.district));
@@ -398,6 +400,8 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 
 		});
 
+		configureFilterByUserRoles();
+
 		region.addValueChangeListener(e -> {
 			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
 
@@ -419,16 +423,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 				groupby.setValue(campaignJurisdictionLevel.AREA);
 
 			}
-
-//			if(province.getValue() != null  ) {
-//				province.clear();
-//			}
-//			
-//			if( district.getValue() != null  ) {
-//				
-//				district.clear();
-//			}
-
 		});
 
 		province.setClearButtonVisible(true);
@@ -726,32 +720,93 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		}
 	}
 
-//	private ItemLabelGenerator<String> getLabel() {
-//	  String finalString = "";
-//	    NumberFormat arabicFormat = NumberFormat.getInstance();
-//
-//	    for (String string : campaingYears) {
-//	        switch (userProvider.getUser().getLanguage().toString()) {
-//	            case "Pashto":
-//	                arabicFormat = NumberFormat.getInstance(new Locale("ps"));
-//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
-//	                break;
-//	            case "Dari":
-//	                arabicFormat = NumberFormat.getInstance(new Locale("fa"));
-//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
-//	                break;
-//	            default:
-//	                arabicFormat = NumberFormat.getInstance(new Locale("en"));
-//	                finalString = String.valueOf(arabicFormat.format(Long.parseLong(string)));
-//	                break;
-//	        }
-//
-//	        // If you only want to process the first element and then return, you can break here
-//	        // break;
-//	    }
-//
-//	    return finalString;
-//	}
+	public void generateProvinceComboItems() {
+		province.clear();
+		changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
+
+		if (region.getValue() != null) {
+			dataProvider.setArea(region.getValue());
+			if (userProvider.getUser().getLanguage() != null) {
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provincesx = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(region.getValue().getUuid());
+					province.setItems(provincesx);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provincesx = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(region.getValue().getUuid());
+					province.setItems(provincesx);
+				} else {
+					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(region.getValue().getUuid());
+					province.setItems(provinces);
+				}
+			} else {
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(region.getValue().getUuid());
+				province.setItems(provinces);
+			}
+			province.setEnabled(true);
+			groupby.setValue(campaignJurisdictionLevel.REGION);
+		} else {
+			groupby.setValue(campaignJurisdictionLevel.AREA);
+
+		}
+
+	}
+
+	public void generateDistrictComboItems() {
+
+		System.out.println("================1111111111111");
+		district.clear();
+
+		if (province.getValue() != null) {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.REGION);
+			groupby.setValue(campaignJurisdictionLevel.REGION);
+			dataProvider.setRegion(province.getValue());
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				districtsx = FacadeProvider.getDistrictFacade()
+						.getAllActiveByRegionPashto(province.getValue().getUuid());
+				district.setItems(districtsx);
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				districtsx = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(province.getValue().getUuid());
+				district.setItems(districtsx);
+			} else {
+				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(province.getValue().getUuid());
+				district.setItems(districts);
+			}
+			district.setEnabled(true);
+			groupby.setValue(campaignJurisdictionLevel.DISTRICT);
+
+		} else {
+			changeCampaignJuridictionLevel(campaignJurisdictionLevel.AREA);
+			dataProvider.setRegion(province.getValue());
+			if (district.getValue() != null) {
+				district.clear();
+				district.setEnabled(false);
+			}
+			groupby.setValue(campaignJurisdictionLevel.AREA);
+		}
+
+	}
+
+	public void configureFilterByUserRoles() {
+		if (userProvider.getUser().getArea() != null) {
+			region.setValue(userProvider.getUser().getArea());
+			dataProvider.setArea(userProvider.getUser().getArea());
+			region.setEnabled(false);
+			generateProvinceComboItems();
+		}
+
+		if (userProvider.getUser().getRegion() != null) {
+			province.setValue(userProvider.getUser().getRegion());
+			dataProvider.setRegion(userProvider.getUser().getRegion());
+			province.setEnabled(false);
+			generateDistrictComboItems();
+		}
+
+		if (userProvider.getUser().getDistrict() != null) {
+			district.setValue(userProvider.getUser().getDistrict());
+			dataProvider.setDistrict(userProvider.getUser().getDistrict());
+			district.setEnabled(false);
+//		generateDistrictComboItems();
+		}
+	}
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
