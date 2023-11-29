@@ -35,6 +35,8 @@ public interface PopulationDataFacade {
 	void savePopulationData(@Valid List<PopulationDataDto> populationDataList) throws ValidationRuntimeException;
 
 	List<PopulationDataDto> getPopulationData(PopulationDataCriteria criteria);
+	
+	List<PopulationDataDto> getAllPopulationData();
 
 	List<Object[]> getPopulationDataForExport(String campaignUuid);
 	
