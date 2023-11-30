@@ -204,7 +204,11 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveByArea(String areaUuid) {
-		return getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.AREA).get(Area.UUID), areaUuid));
+		Area area = areaService.getByUuid(areaUuid);
+		
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getName() != null).map(RegionFacadeEjb::toReferenceDto)
+				.collect(Collectors.toList());
+//				getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.AREA).get(Area.UUID), areaUuid));
 	}
 
 	@Override

@@ -104,6 +104,8 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataDto> getAllActiveAfter(Date date);
 	
 	List<CampaignFormDataDto> getAllActive();
+	
+	List<CampaignFormDataDto> getAllActiveData();
 	List<CampaignFormDataDto> getAllActiveRef();
 
 	void overwriteCampaignFormData(CampaignFormDataDto existingData, CampaignFormDataDto newData);

@@ -139,8 +139,10 @@ public class CampaignDataView extends VerticalLayout {
 
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
-	NumberFormat arabicFormat = NumberFormat.getInstance();
-	
+	Column<CampaignFormDataIndexDto> clusterNumberColumn;
+
+	Column<CampaignFormDataIndexDto> ccodeColumn;
+
 	public CampaignDataView() {
 
 		if (I18nProperties.getUserLanguage() == null) {
@@ -482,20 +484,6 @@ public class CampaignDataView extends VerticalLayout {
 				.collect(Collectors.toList());
 
 		campaignYear.setItems(camYearList);
-		campaignYear.setItemLabelGenerator(item -> {
-
-			switch (userProvider.getUser().getLanguage().toString()) {
-			case "Pashto":
-				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
-			case "Dari":
-				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
-			default:
-				arabicFormat = NumberFormat.getInstance(new Locale("en"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
-			}
-		});
 		campaignYear.setValue(lastStarted.getCampaignYear());
 
 		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
@@ -657,6 +645,7 @@ public class CampaignDataView extends VerticalLayout {
 
 			}
 			updateRowCount();
+			configureColumnStyles(criteria);
 
 		});
 
@@ -1181,10 +1170,10 @@ public class CampaignDataView extends VerticalLayout {
 			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(clusterNumberRender).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
-					.setSortable(true).setResizable(true).setAutoWidth(true)
-					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			grid.addColumn(cCodeRender).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
+			clusterNumberColumn =  grid.addColumn(clusterNumberRender).setKey("clusterNumber")
+					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true)
+					.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			ccodeColumn = grid.addColumn(cCodeRender).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 			TextRenderer<CampaignFormDataIndexDto> formDateRenderer = new TextRenderer<>(dto -> {
@@ -1228,11 +1217,12 @@ public class CampaignDataView extends VerticalLayout {
 			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(clusterNumberRender).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
-					.setSortable(true).setResizable(true).setAutoWidth(true)
-					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			grid.addColumn(cCodeRender).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
-					.setSortable(true).setResizable(true).setAutoWidth(true)
+			clusterNumberColumn = grid.addColumn(clusterNumberRender).setKey("clusterNumber")
+					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true)
+					.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			ccodeColumn = grid.addColumn(cCodeRender)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true)
+					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 			TextRenderer<CampaignFormDataIndexDto> formDateRenderer = new TextRenderer<>(dto -> {
 				Date timestamp = dto.getFormDate();
@@ -1282,13 +1272,14 @@ public class CampaignDataView extends VerticalLayout {
 			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER)
+			clusterNumberColumn = grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER)
 					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true)
 					.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			grid.addColumn(CampaignFormDataIndexDto.CCODE)
+			ccodeColumn = grid.addColumn(CampaignFormDataIndexDto.CCODE)
 					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true)
 					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+
 			TextRenderer<CampaignFormDataIndexDto> formDateRenderer = new TextRenderer<>(dto -> {
 				Date timestamp = dto.getFormDate();
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -1315,22 +1306,6 @@ public class CampaignDataView extends VerticalLayout {
 
 		dataProvider = DataProvider.fromFilteringCallbacks(this::fetchCampaignFormData, this::countCampaignFormData);
 		grid.setDataProvider(dataProvider);
-
-//		grid.asSingleSelect().addValueChangeListener(e -> {
-//
-//			// editCampaignFormData(e.getValue());
-//			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-//					.getCampaignFormDataByUuid(e.getValue().getUuid());
-//
-////			CampaignFormMetaDto formDatax = FacadeProvider.getCampaignFormMetaFacade()
-////			.getCampaignFormMetaByUuid(e.getValue().getUuid());
-////			boolean fff = formDatax.isDistrictentry();
-//			CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-//					campaignz.getValue(), true, formData.getUuid(), grid, false);
-//
-//		});
-
-//		grid.setSelectionMode(SelectionMode.SINGLE);
 
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			boolean isPublished = FacadeProvider.getCampaignFacade().isPublished(campaignz.getValue().getUuid());
@@ -1371,25 +1346,11 @@ public class CampaignDataView extends VerticalLayout {
 			});
 		}
 
-//		if (grid.getSelectionModel() == SelectionMode.SINGLE) {
-//			System.out.println("3333333333333333333333");
-//
-//			grid.asSingleSelect().addValueChangeListener(e -> {
-//				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
-//						.getCampaignFormDataByUuid(e.getValue().getUuid());
-//
-//				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-//						campaignz.getValue(), true, formData.getUuid(), grid, false);
-//			});
-//		}
-
-//		
-
 		exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exportFileName = campaignz.getValue().toString() + "_"
-//				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
+				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 		exporter.setFileName(exportFileName);
 
@@ -1421,6 +1382,30 @@ public class CampaignDataView extends VerticalLayout {
 				return "";
 			}
 		});
+
+		CampaignFormMetaDto formData = FacadeProvider.getCampaignFormMetaFacade()
+				.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
+
+		boolean isDistictLevelData = formData.isDistrictentry();
+//		newColumn.setId("districtEntry");
+//		System.out.println( newColumn.getId()  + "****************************888888888888888888888"  + newColumn.getKey() ) ;
+
+		grid.getColumnByKey("clusternumber").setClassNameGenerator((v) -> {
+			if (isDistictLevelData) {
+//				System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDISTRICT LEVEL DAATA  ");
+				clusterNumberColumn.setVisible(false);
+				ccodeColumn.setVisible(false);
+				return "isDistictLevelData";
+
+			} else {
+
+//				System.out.println("NORT DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDISTRICT LEVEL DAATA  ");
+				clusterNumberColumn.setVisible(true);
+				ccodeColumn.setVisible(true);
+				return "";
+			}
+		});
+
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {
