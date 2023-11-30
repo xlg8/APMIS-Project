@@ -146,9 +146,7 @@ public class UserForm extends FormLayout {
 	ConfirmDialog _dialog = new ConfirmDialog();
 
 	Map<String, Component> map = new HashMap<>();
-
 	RegexpValidator patternValidator = new RegexpValidator("^[A-Za-z]+$", "Only letters are allowed");
-
 	EmailValidator emailVal = new EmailValidator(I18nProperties.getCaption(Captions.notaValidEmail));
 
 	String initialLastNameValue = "";
@@ -160,12 +158,13 @@ public class UserForm extends FormLayout {
 	Set<FormAccess> intraCampformAccessesList = new LinkedHashSet<FormAccess>();
 	Set<FormAccess> postCampformAccessesList = new LinkedHashSet<FormAccess>();
 	private final UserProvider userProvider = new UserProvider();
-
+	H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
+	H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
+	
 	boolean editmode = false;
 	UserDto user;
-
 //	Button resetUserPassword = new Button();
-
+	
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user, boolean editmode) {
 
@@ -199,13 +198,13 @@ public class UserForm extends FormLayout {
 	@SuppressWarnings("unchecked")
 	public void configureFields(UserDto user) {
 
-		H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
-
+		pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 		this.setColspan(pInfo, 2);
 
-		H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
+		userData = new H2(I18nProperties.getString(Strings.headingUserData));
 		this.setColspan(userData, 2);
 
+		firstName = new TextField(I18nProperties.getCaption(Captions.firstName));
 		binder.forField(firstName).asRequired(I18nProperties.getCaption(Captions.firstNameRequired))
 				.bind(UserDto::getFirstName, UserDto::setFirstName);
 

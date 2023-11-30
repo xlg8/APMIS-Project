@@ -139,6 +139,8 @@ public class CampaignDataView extends VerticalLayout {
 
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
+	NumberFormat arabicFormat = NumberFormat.getInstance();
+	
 	public CampaignDataView() {
 
 		if (I18nProperties.getUserLanguage() == null) {
@@ -292,7 +294,7 @@ public class CampaignDataView extends VerticalLayout {
 														// && userProvider.getUser().getArea() != null)) {
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 				AreaReferenceDto singleArea = userProvider.getUser().getArea();
-				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());			
+				AreaDto hgsghsag = FacadeProvider.getAreaFacade().getByUuid(singleArea.getUuid());
 				AreaReferenceDto singleAreatw0 = new AreaReferenceDto(hgsghsag.getUuid(), hgsghsag.getFa_af());
 				regionCombo.setValue(singleAreatw0);
 			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
@@ -480,6 +482,20 @@ public class CampaignDataView extends VerticalLayout {
 				.collect(Collectors.toList());
 
 		campaignYear.setItems(camYearList);
+		campaignYear.setItemLabelGenerator(item -> {
+
+			switch (userProvider.getUser().getLanguage().toString()) {
+			case "Pashto":
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			case "Dari":
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			default:
+				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+			}
+		});
 		campaignYear.setValue(lastStarted.getCampaignYear());
 
 		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
@@ -586,12 +602,12 @@ public class CampaignDataView extends VerticalLayout {
 //
 //				grid.setSelectionMode(SelectionMode.NONE);
 //				grid.getElement().executeJs("this.getDataProvider().refreshAll()");
-				System.out.println(grid.getColumns().size()+ ": pagesize7777777777777777777777");
+			System.out.println(grid.getColumns().size() + ": pagesize7777777777777777777777");
 //						+ grid.getElement().executeJs("this.getDataProvider().refreshAll()"));
 //				removeColumnsSelectionn();
 //			}
 			remove(grid);
-			//grid.removeAllColumns();
+			// grid.removeAllColumns();
 			configureGrid(criteria);
 //			reload();
 			updateRowCount();
@@ -1045,7 +1061,7 @@ public class CampaignDataView extends VerticalLayout {
 	}
 
 	public void reload() {
-		
+
 		criteria.campaign(campaignz.getValue());
 		criteria.setFormType(campaignPhase.getValue().toString());
 		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
@@ -1053,7 +1069,7 @@ public class CampaignDataView extends VerticalLayout {
 		criteria.region(provinceCombo.getValue());
 		criteria.district(districtCombo.getValue());
 		criteria.community(clusterCombo.getValue());
-		
+
 		grid.getDataProvider().refreshAll();
 	}
 
@@ -1373,7 +1389,7 @@ public class CampaignDataView extends VerticalLayout {
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exportFileName = campaignz.getValue().toString() + "_"
-				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
+//				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 		exporter.setFileName(exportFileName);
 

@@ -130,7 +130,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	List<DistrictReferenceDto> districts;
 	List<CommunityReferenceDto> communities;
 	Binder<CampaignFormDataDto> binder = new BeanValidationBinder<>(CampaignFormDataDto.class);
-//	private UserProvider currentUser = new UserProvider();
+	private UserProvider currentUser = new UserProvider();
 
 	private ExpressionProcessor expressionProcessor;
 
@@ -641,7 +641,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						get18nCaption(formElement.getId(), formElement.getCaption())));
 				labx.setId(formElement.getId());
 				
-VerticalLayout labelLayout = new VerticalLayout();
+				VerticalLayout labelLayout = new VerticalLayout();
 				
 				labelLayout.add(labx);
 				vertical.setColspan(labelLayout, 3);
@@ -656,15 +656,38 @@ VerticalLayout labelLayout = new VerticalLayout();
 
 				if (type == CampaignFormElementType.YES_NO) {
 
-					HashMap<Boolean, String> map = new HashMap<>();
-					map.put(true, I18nProperties.getCaption(Captions.actionYes));
-					map.put(false, I18nProperties.getCaption(Captions.actionNo));
+//					HashMap<Boolean, String> map = new HashMap<>();
+//					map.put(true, I18nProperties.getCaption(Captions.actionYes));
+//					map.put(false, I18nProperties.getCaption(Captions.actionNo));
 
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
+					
+					HashMap<Boolean, String> map = new HashMap<>();
+					map.put(true, "Yes");
+					map.put(false, "No");
 
-					toggle.setItemLabelGenerator(item -> map.get(item));
+					HashMap<Boolean, String> mapPashto = new HashMap<>();
+					mapPashto.put(true, "هو");
+					mapPashto.put(false, "نه");
+					
+					HashMap<Boolean, String> mapDari = new HashMap<>();
+					mapDari.put(true, "هو");
+					mapDari.put(false, "خیر");
+
+					toggle.setItemLabelGenerator(item -> {
+						switch (currentUser.getUser().getLanguage().toString()) {
+						case "Pashto":
+							return mapPashto.get(item);
+						case "Dari":
+							return mapDari.get(item);
+						default:
+							return map.get(item);
+						}
+					});
+					
+//					toggle.setItemLabelGenerator(item -> map.get(item));
 					toggle.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
