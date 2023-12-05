@@ -3,7 +3,9 @@ package de.symeda.sormas.api.campaign.form;
 import java.io.Serializable;
 import java.util.Date;
 
+import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.IgnoreForUrl;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 
@@ -13,9 +15,9 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4206918019308278802L;
-	private String formCategory;
+	private FormAccess formCategory;
 	private String modality;
-	private String formPhase;
+//	private String formPhase;
 	private Date startDate;
 	private Date endDate;
 	private String formName;
@@ -30,8 +32,13 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return this;
 	}
 
-	public String getFormCategory() {
+	public FormAccess getFormCategory() {
 		return formCategory;
+	}
+	
+	public CampaignFormCriteria setFormCategory(FormAccess formCategory) {
+		this.formCategory = formCategory;
+		return this;
 	}
 	
 	public Date getStartDate() {
@@ -52,19 +59,14 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return this;
 	}
 
-	public CampaignFormCriteria setFormCategory(String formCategory) {
-		this.formCategory = formCategory;
-		return this;
-	}
-	
-	public String getFormPhase() {
-		return formPhase;
-	}
-	
-	public CampaignFormCriteria setFormPhase(String formPhase) {
-		this.formPhase = formPhase;
-		return this;
-	}
+//	public String getFormPhase() {
+//		return formPhase;
+//	}
+//	
+//	public CampaignFormCriteria setFormPhase(String formPhase) {
+//		this.formPhase = formPhase;
+//		return this;
+//	}
 
 	public String getFormType() {
 		return formType;

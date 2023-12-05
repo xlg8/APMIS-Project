@@ -23,10 +23,12 @@ import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
@@ -51,8 +53,9 @@ public class FormBuilderView extends VerticalLayout {
 
 	Button hideFilters;
 	TextField search;
-	ComboBox<CampaignPhase> formPhase;
+	ComboBox<CampaignPhase> formType;
 	ComboBox<FormAccess> formAccess;
+	ComboBox<Modality> modality;
 	Button newForm;
 
 	CampaignFormMetaDto campaignFormMetaDto;
@@ -84,26 +87,34 @@ public class FormBuilderView extends VerticalLayout {
 
 		hr.getStyle().set("margin-left", "10px");
 		hr.setAlignItems(Alignment.END);
-		hr.add(hideFilters, search, formPhase, formAccess, newForm);
+		hr.add(hideFilters, search, formType, formAccess, modality, newForm);
 		add(hr, grid);
 	}
 
 	public void configureView() {
 
 		hideFilters = new Button("Hide Filters");
+		
 		search = new TextField("Search");
-		formPhase = new ComboBox<>("Campaign Phase");
-		formPhase.setItems(CampaignPhase.values());
+		search.setClearButtonVisible(true);
+		formType = new ComboBox<>("Campaign Phase");
+		formType.setItems(CampaignPhase.values());
+		formType.setClearButtonVisible(true);
 		formAccess = new ComboBox<>("Form Access");
 		formAccess.setItems(FormAccess.values());
+		formAccess.setClearButtonVisible(true);
+		modality = new ComboBox<>("Modality");
+		modality.setItems(Modality.values());
+		modality.setClearButtonVisible(true);
+		
 		newForm = new Button("New Forms");
-
 		newForm.addClickListener(e -> {
 
 			campaignFormMetaDto = new CampaignFormMetaDto();
 			newForm(campaignFormMetaDto);
 		});
 
+		search.setValueChangeMode(ValueChangeMode.EAGER);
 		search.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -111,19 +122,67 @@ public class FormBuilderView extends VerticalLayout {
 				filterDataProvider.setFilter(criteria);
 
 				filterDataProvider.refreshAll();
-			}
-		});
-
-		formPhase.addValueChangeListener(e -> {
-			
-			if (e.getValue() != null) {
-				CampaignPhase campaignPhase = e.getValue();
-				criteria.setFormPhase(campaignPhase.toString());
+			} else {
+				
+				criteria.setFormName(null);
 				filterDataProvider.setFilter(criteria);
 
 				filterDataProvider.refreshAll();
 			}
 		});
+
+		formType.addValueChangeListener(e -> {
+			System.out.println(CampaignPhase.PRE + " hghgshgsdhgsdhgshsgsnsd");
+			if (e.getValue() != null) {
+
+				criteria.setFormType(e.getValue().toString().toLowerCase());
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			} else {
+				
+				criteria.setFormType(null);
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			}
+		});
+
+		formAccess.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+
+				FormAccess formAccess = e.getValue();
+				criteria.setFormCategory(formAccess);
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			} else  {
+				
+				criteria.setFormCategory(null);
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			}
+		});
+
+		modality.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				
+				criteria.setModality(e.getValue().toString());
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			} else {
+				
+				criteria.setModality(null);
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			}
+		});
+
 	}
 
 	public void configureGrid() {
@@ -148,15 +207,15 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.FORM_NAME).setHeader("Form Name").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_CATEGORY).setHeader("Form Category").setSortable(true)
 				.setResizable(true);
-		grid.addColumn(CampaignFormMetaDto.FORM_TYPE).setHeader("Campaign Phase").setSortable(true)
-		.setResizable(true);
-		grid.addColumn(CampaignFormMetaDto::getModality).setHeader("Modality").setSortable(true)
-		.setResizable(true);
+		grid.addColumn(CampaignFormMetaDto.FORM_TYPE).setHeader("Campaign Phase").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormMetaDto::getModality).setHeader("Modality").setSortable(true).setResizable(true);
 		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
-		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);		
+		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
 				.setResizable(true);
-
+		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Data Entry").setSortable(true)
+		.setResizable(true);
+		
 //		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
 //				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
 
@@ -208,7 +267,7 @@ public class FormBuilderView extends VerticalLayout {
 	}
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
-//		FormBuilderLayout forLayout = event.getSource();
+//		FormBuilderLayout forLayout = event.gete();
 
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
