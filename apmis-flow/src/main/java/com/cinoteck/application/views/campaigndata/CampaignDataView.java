@@ -779,8 +779,8 @@ public class CampaignDataView extends VerticalLayout {
 
 			reload();
 			if (formMetaReference != null) {
-				grid.removeAllColumns();
-				configureGrid(criteria);
+				remove(grid);
+						configureGrid(criteria);
 
 				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
 				final boolean onlyImportantFormElements = e.getValue() == CampaignFormElementImportance.IMPORTANT;
