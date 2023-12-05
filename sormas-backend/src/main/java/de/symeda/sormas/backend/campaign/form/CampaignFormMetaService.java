@@ -55,9 +55,9 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 					cb.equal(from.get(CampaignFormMeta.MODALITY), campaignFormCriteria.getModality()));
 		}
 		
-		if (campaignFormCriteria.getFormPhase() != null) {
+		if (campaignFormCriteria.getFormType() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.get(CampaignFormMeta.FORM_TYPE), campaignFormCriteria.getFormPhase()));
+					cb.equal(from.get(CampaignFormMeta.FORM_TYPE), campaignFormCriteria.getFormType()));
 		}
 				
 //		if (campaignFormCriteria.getStartDate() != null || campaignFormCriteria.getEndDate() != null) {
@@ -76,7 +76,7 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 				}
 
 				Predicate likeFilters = cb
-						.or(CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_NAME), textFilter),
+						.or(CriteriaBuilderHelper.unaccentedIlikeCustom(cb, from.get(CampaignFormMeta.FORM_NAME), textFilter),
 //						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_CATEGORY), textFilter),
 //						CriteriaBuilderHelper.ilike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),
 //						CriteriaBuilderHelper.unaccentedIlike(cb, from.get(CampaignFormMeta.FORM_TYPE), textFilter),

@@ -220,6 +220,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		popDto = FacadeProvider.getPopulationDataFacade().getPopulationDataWithCriteria(campaignReferenceDto.getUuid());
 		System.out.println("++++++++++++++++++++++++++++++++"+popDto.size());
 		
+		cbArea = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 		cbArea.setRequired(true);
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			cbArea.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
@@ -232,17 +233,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 		cbArea.setId("my-disabled-textfield");
 		cbArea.getStyle().set("-webkit-text-fill-color", "green !important");
 
+		cbRegion = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		cbRegion.setReadOnly(true);
 		;
 		cbRegion.setRequired(true);
 		cbRegion.setId("my-disabled-textfield");
 		cbRegion.getStyle().set("-webkit-text-fill-color", "green !important");
 
+		cbDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 		cbDistrict.setReadOnly(true);
 		cbDistrict.setRequired(true);
 		cbDistrict.setId("my-disabled-textfield");
 		cbDistrict.getStyle().set("-webkit-text-fill-color", "green !important");
 
+		cbCommunity = new ComboBox<>(I18nProperties.getCaption(Captions.community));
 		cbCommunity.setReadOnly(true);
 		cbCommunity.setRequired(true);
 		cbCommunity.setId("my-disabled-textfield");

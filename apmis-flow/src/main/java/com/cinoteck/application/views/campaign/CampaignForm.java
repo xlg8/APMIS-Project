@@ -85,6 +85,9 @@ import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.user.UserRight;
+import de.symeda.sormas.api.user.UserRole;
+import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
 
 @PageTitle("APMIS-Edit Campaign")
@@ -187,9 +190,14 @@ public class CampaignForm extends VerticalLayout {
 
 		addClassName("campaign-form");
 		configureFields(formData);
-
+		publishUnvisibleForEOC();
 	}
 
+	public void publishUnvisibleForEOC() {
+		if(userProvider.getUser().getUsertype().equals(UserType.EOC_USER)) {
+			publishUnpublishCampaign.setVisible(false);
+		}			
+	}
 	public LocalDate convertToLocalDateViaMilisecond(Date dateToConvert) {
 		return Instant.ofEpochMilli(dateToConvert.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
 	}

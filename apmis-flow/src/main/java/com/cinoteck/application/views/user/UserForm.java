@@ -124,6 +124,8 @@ public class UserForm extends FormLayout {
 	private boolean active = true;
 
 	Checkbox commusr = new Checkbox(I18nProperties.getCaption(Captions.User_commonUser));
+//	commusr.addClassName();
+//	commusr.getStyle().set("display", "inline-flex");
 	private boolean isCommonUser = false;
 	MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>(
 			I18nProperties.getCaption(Captions.User_userRoles));
@@ -229,7 +231,7 @@ public class UserForm extends FormLayout {
 		activeCheck.setValue(active);
 		binder.forField(activeCheck).bind(UserDto::isActive, UserDto::setActive);
 
-		commusr.setLabel("Common User ? ");
+//		commusr.setLabel("Common User ? ");
 
 		binder.forField(commusr).bind(UserDto::isCommomUser, UserDto::setCommomUser);
 
