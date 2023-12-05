@@ -281,17 +281,21 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		return nav;
 
 	}
-
+	
 	private void rtlswitcher() {
-		if (userProvider.getUser().getLanguage() != null) {
+			if (userProvider.getUser().getLanguage() != null) {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
-				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);	
+				nav.getStyle().set("width", "fit-content");
+				nav.getStyle().set("text-align", "justify"); 
 			} else if (userLanguage.equals("Dari")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+				nav.getStyle().set("width", "fit-content");
+				nav.getStyle().set("text-align", "justify");
 			} else {
 
 				UI.getCurrent().setDirection(Direction.LEFT_TO_RIGHT);
