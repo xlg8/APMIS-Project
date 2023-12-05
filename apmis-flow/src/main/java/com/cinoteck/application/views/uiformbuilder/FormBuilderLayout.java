@@ -106,7 +106,7 @@ public class FormBuilderLayout extends VerticalLayout {
 		districtEntry = new ComboBox<Boolean>("District Entry");
 		districtEntry.setItems(true, false);
 		languageCode = new ComboBox<String>("Language Code");
-		languageCode.setItems("en_AF", "fa_AF", "ps_AF");
+		languageCode.setItems("en", "fa_AF", "ps_AF");
 
 		binder.forField(formName).asRequired("Form Name is Required").bind(CampaignFormMetaDto::getFormName,
 				CampaignFormMetaDto::setFormName);
