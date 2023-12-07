@@ -23,6 +23,8 @@ import android.content.Context;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.FragmentActivity;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import de.symeda.sormas.api.utils.ValidationException;
@@ -64,6 +66,7 @@ public class CampaignFormMetaDialog extends FormDialog {
     @Override
     protected void initializeContentView(ViewDataBinding rootBinding, ViewDataBinding buttonPanelBinding) {
         List<CampaignFormMeta> allFormsForCampaign = campaign.getCampaignFormMetas();
+        Collections.sort(allFormsForCampaign, Comparator.comparing(CampaignFormMeta::getFormName));
         contentBinding.campaignFormMeta.initializeSpinner(DataUtils.toItems(allFormsForCampaign));
     }
 
