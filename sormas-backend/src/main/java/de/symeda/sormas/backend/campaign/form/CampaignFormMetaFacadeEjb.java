@@ -653,7 +653,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		
 		
 		String queryBuilder = "SELECT \n"
-				+ "campwitex.expiryday as endDate \n"
+				+ "campwitex.enddate as endDate \n"
 				+ "FROM campaignformmetawithexp campwitex\r\n"
 				+ "LEFT OUTER JOIN campaigns campaignG ON campwitex.campaignid = campaignG.uuid "
 				+ joiner;
