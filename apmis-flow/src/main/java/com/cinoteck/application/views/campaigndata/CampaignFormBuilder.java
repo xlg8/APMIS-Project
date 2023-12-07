@@ -1832,7 +1832,7 @@ VerticalLayout labelLayout = new VerticalLayout();
 		formElements.stream().filter(element -> element.getExpression() != null).forEach(e -> {
 			try {
 				final Expression expression = expressionParser.parseExpression(e.getExpression());
-				 System.out.println("------: "+expression.getExpressionString());
+				// System.out.println("------: "+expression.getExpressionString());
 				final Class<?> valueType = expression.getValueType(context);
 				final Object value = expression.getValue(context, valueType);
 				// final Object valx = Precision.round((double) value, 3);

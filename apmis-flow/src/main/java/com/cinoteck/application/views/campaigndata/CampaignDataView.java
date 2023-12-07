@@ -573,6 +573,7 @@ public class CampaignDataView extends VerticalLayout {
 			campaignFormCombo.clear();
 			newForm.clear();
 			importFormData.clear();
+			System.out.println(e.getValue().toString().toLowerCase() +"ZZZZZZZZz+++++++++++++++");
 			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
 							campaignz.getValue().getUuid());
@@ -779,7 +780,7 @@ public class CampaignDataView extends VerticalLayout {
 
 			reload();
 			if (formMetaReference != null) {
-				grid.removeAllColumns();
+				remove(grid);
 				configureGrid(criteria);
 
 				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
@@ -1382,7 +1383,11 @@ public class CampaignDataView extends VerticalLayout {
 				return "";
 			}
 		});
-
+if(campaignFormCombo.getValue() != null) {
+	
+	System.out.println( campaignFormCombo.getValue()  + "************___");
+	System.out.println( campaignFormCombo.getValue().getUuid()  + "************________getUuid()");
+	
 		CampaignFormMetaDto formData = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
 
@@ -1406,6 +1411,7 @@ public class CampaignDataView extends VerticalLayout {
 			}
 		});
 
+	}
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {
