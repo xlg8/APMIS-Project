@@ -56,6 +56,7 @@ import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictFacade;
@@ -736,6 +737,17 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		} catch (NoResultException e) {
 			return "";
 		}
+	}
+	
+	public static Set<DistrictReferenceDto> toReferenceDto(Set<District> district) { //save
+		
+		Set<DistrictReferenceDto> dtos = new HashSet<DistrictReferenceDto>();
+		for(District com : district) {	
+			DistrictReferenceDto dto = new DistrictReferenceDto(com.getUuid(), com.toString(), com.getExternalId());	
+			dtos.add(dto);
+		}
+		
+		return dtos;
 	}
 
 }

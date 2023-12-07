@@ -29,9 +29,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRight;
@@ -186,7 +188,11 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
             if (campaign != null) {
                 if(campaign.getCampaignFormMetas() != null){
                     List<Item> forms = campaignFormMetasToItems(campaign.getCampaignFormMetas());
-                    forms.stream().filter(ee -> ee.getValue() != null).collect(Collectors.toList());
+
+
+                    forms.stream().filter(ee -> ee.getValue() != null)
+                            .sorted(Comparator.comparing(item -> ((CampaignFormMeta)item.getValue()).getFormName()))
+                            .collect(Collectors.toList());
                     filterBinding.campaignFormFilter.initializeSpinner(forms);
                     setSubHeadingTitle(campaign != null ? campaign.getName() : I18nProperties.getCaption(Captions.all));
                     if (getNewMenu() != null) {
@@ -252,10 +258,22 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
         for (CampaignFormMeta campaignFormMeta : campaignFormMetas) {
             if(campaignFormMeta != null) {
                 listOut.add(new Item<>(campaignFormMeta.getFormName(), campaignFormMeta));
+
             }
         }
-        listOut.stream().filter(ee -> ee.getValue() != null).collect(Collectors.toList());
+//        listOut.stream().filter(ee -> ee.getValue() != null).sorted(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption)).collect(Collectors.toList());
+//        listOut.sort(Comparator.comparing(Item::getKey));
+//        listOut.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+// Sorting the list alphabetically based on the form names
+        listOut = listOut.stream()
+                .filter(ee -> ee.getValue() != null)
+                .sorted(Comparator.comparing(item -> ((CampaignFormMeta)item.getValue()).getFormName()))
+                .collect(Collectors.toList());
+
         return listOut;
+
+
+//        return listOut;
     }
 
     private void setSetSubHeadingTitleForCampaign(Campaign campaign) {

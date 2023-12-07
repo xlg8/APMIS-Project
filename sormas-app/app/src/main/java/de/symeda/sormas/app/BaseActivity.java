@@ -852,7 +852,9 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			@Override
 			public void onClick(DialogInterface dialogInterface, int i){
 				finishAffinity();
+				((SormasApplication) getActiveActivity().getApplication()).closeApp(getActiveActivity());
 				System.exit(0);
+
 			}
 
 		});

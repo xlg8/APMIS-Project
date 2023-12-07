@@ -143,12 +143,14 @@ public class CampaignDataView extends VerticalLayout {
 	private DataProvider<CampaignFormDataIndexDto, CampaignFormDataCriteria> dataProvider;
 
 	NumberFormat arabicFormat = NumberFormat.getInstance();
-	
+
 	Column<CampaignFormDataIndexDto> clusterNumberColumn;
 
 	Column<CampaignFormDataIndexDto> ccodeColumn;
-	
+
 	Column<CampaignFormDataIndexDto> formNameColumn;
+	
+	Column<CampaignFormDataIndexDto> clusterNameColumn;
 
 	public CampaignDataView() {
 
@@ -525,12 +527,10 @@ public class CampaignDataView extends VerticalLayout {
 		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 				.getAllCampaignFormMetasAsReferencesByRoundandCampaign(
 						campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-		
+
 		campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 		campaignFormCombo.setItems(campaignForms);
 
-
-		
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		if (campaignForms.size() > 0) {
 			campaignFormCombo.setValue(campaignForms.get(0));
@@ -600,18 +600,17 @@ public class CampaignDataView extends VerticalLayout {
 			campaignFormCombo.clear();
 			newForm.clear();
 			importFormData.clear();
+			System.out.println(e.getValue().toString().toLowerCase() +"ZZZZZZZZz+++++++++++++++");
 			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
 							campaignz.getValue().getUuid());
-			
-			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 
+			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 
 			campaignFormCombo.setItems(campaignFormReferences_);
 			campaignFormCombo.setValue(campaignFormReferences_.get(0));
 			newForm.setItems(campaignFormReferences_);
 			importFormData.setItems(campaignFormReferences_);
-
 
 			remove(grid);
 			// grid.removeAllColumns();
@@ -634,11 +633,8 @@ public class CampaignDataView extends VerticalLayout {
 				anchor.setHref(exporter.getCsvStreamResource());
 				importanceSwitcher.setReadOnly(false);
 
-
 				reload();
-
-
-
+				configureColumnStyles(criteria);
 			} else {
 
 				importanceSwitcher.clear();
@@ -652,11 +648,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		regionCombo.setClearButtonVisible(true);
 		regionCombo.addValueChangeListener(e -> {
-//<<<<<<< HEAD
-//			if (e.getValue() != null) {
-//				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-//				provinceCombo.setItems(provinces);
-//=======
+
 			if (e.getValue() != null) {
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
@@ -668,7 +660,6 @@ public class CampaignDataView extends VerticalLayout {
 					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 					provinceCombo.setItems(provinces);
 				}
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 				provinceCombo.setEnabled(true);
 			} else {
 				if (provinceCombo.getValue() != null) {
@@ -684,10 +675,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		provinceCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-//<<<<<<< HEAD
-//				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-//				districtCombo.setItems(districts);
-//=======
+
 
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
@@ -699,7 +687,6 @@ public class CampaignDataView extends VerticalLayout {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
 					districtCombo.setItems(districts);
 				}
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 				districtCombo.setEnabled(true);
 			} else {
 				if (districtCombo.getValue() != null) {
@@ -781,6 +768,7 @@ public class CampaignDataView extends VerticalLayout {
 			reload();
 			if (formMetaReference != null) {
 				remove(grid);
+
 				configureGrid(criteria);
 
 				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
@@ -1168,14 +1156,15 @@ public class CampaignDataView extends VerticalLayout {
 			grid.addColumn(dCodeRender).setHeader(I18nProperties.getCaption(Captions.District_externalID))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
+			clusterNameColumn = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			clusterNumberColumn =  grid.addColumn(clusterNumberRender).setKey("clusterNumber")
+			clusterNumberColumn = grid.addColumn(clusterNumberRender).setKey("clusterNumber")
 					.setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true).setResizable(true)
 					.setAutoWidth(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			ccodeColumn = grid.addColumn(cCodeRender).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
-					.setSortable(true).setResizable(true).setAutoWidth(true)
+			ccodeColumn = grid.addColumn(cCodeRender)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setSortable(true)
+					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 			TextRenderer<CampaignFormDataIndexDto> formDateRenderer = new TextRenderer<>(dto -> {
 				Date timestamp = dto.getFormDate();
@@ -1197,7 +1186,7 @@ public class CampaignDataView extends VerticalLayout {
 
 			grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
 					.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getCampaign());
-			formNameColumn =	grid.addColumn(CampaignFormDataIndexDto.FORM)
+			formNameColumn = grid.addColumn(CampaignFormDataIndexDto.FORM)
 					.setHeader(I18nProperties.getCaption(Captions.campaignCampaignForm)).setSortable(true)
 					.setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getForm());
 			grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area))
@@ -1215,7 +1204,7 @@ public class CampaignDataView extends VerticalLayout {
 			grid.addColumn(dCodeRender).setHeader(I18nProperties.getCaption(Captions.District_externalID))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
+			clusterNameColumn = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
 			clusterNumberColumn = grid.addColumn(clusterNumberRender).setKey("clusterNumber")
@@ -1270,7 +1259,7 @@ public class CampaignDataView extends VerticalLayout {
 					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setSortable(true)
 					.setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-			grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
+			clusterNameColumn = grid.addColumn(CampaignFormDataIndexDto.COMMUNITY).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
 			clusterNumberColumn = grid.addColumn(CampaignFormDataIndexDto.COMMUNITYNUMBER)
@@ -1364,10 +1353,10 @@ public class CampaignDataView extends VerticalLayout {
 		icon.getStyle().set("margin-right", "8px");
 		icon.getStyle().set("font-size", "10px");
 		anchor.getElement().insertChild(0, icon.getElement());
-		
+
 //		GridSortOrder<CampaignFormDataIndexDto> sortOrder = new GridSortOrder<>(grid.getColumns().get(0), SortDirection.ASCENDING);
 //		grid.sort(Collections.singletonList(sortOrder));
-		
+
 //		grid.setSortOrder(formNameColumn, SortDirection.ASCENDING);
 
 		add(grid);
@@ -1388,30 +1377,26 @@ public class CampaignDataView extends VerticalLayout {
 				return "";
 			}
 		});
+		if (campaignFormCombo.getValue() != null) {
 
-		CampaignFormMetaDto formData = FacadeProvider.getCampaignFormMetaFacade()
-				.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
+			CampaignFormMetaDto formData = FacadeProvider.getCampaignFormMetaFacade()
+					.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
 
-		boolean isDistictLevelData = formData.isDistrictentry();
-//		newColumn.setId("districtEntry");
-//		System.out.println( newColumn.getId()  + "****************************888888888888888888888"  + newColumn.getKey() ) ;
+			boolean isDistictLevelData = formData.isDistrictentry();
 
-		grid.getColumnByKey("clusternumber").setClassNameGenerator((v) -> {
-			if (isDistictLevelData) {
-//				System.out.println("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDISTRICT LEVEL DAATA  ");
-				clusterNumberColumn.setVisible(false);
-				ccodeColumn.setVisible(false);
-				return "isDistictLevelData";
+				if (isDistictLevelData) {
+					clusterNameColumn.setVisible(false);
+					clusterNumberColumn.setVisible(false);
+					ccodeColumn.setVisible(false);
 
-			} else {
+				} else {
+					clusterNameColumn.setVisible(true);
+					clusterNumberColumn.setVisible(true);
+					ccodeColumn.setVisible(true);
+				}
+		}
 
-//				System.out.println("NORT DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDISTRICT LEVEL DAATA  ");
-				clusterNumberColumn.setVisible(true);
-				ccodeColumn.setVisible(true);
-				return "";
-			}
-		});
-
+	
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {

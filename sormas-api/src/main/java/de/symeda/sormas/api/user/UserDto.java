@@ -116,6 +116,10 @@ public class UserDto extends EntityDto {
 	private AreaReferenceDto area;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
+	
+	private Set<DistrictReferenceDto> districts;
+	
+	
 	// community of community informant
 	private Set<CommunityReferenceDto> community;
 	// facility of informant
@@ -382,6 +386,14 @@ public class UserDto extends EntityDto {
 
 	public void setCommomUser(boolean commomUser) {
 		this.commomUser = commomUser;
+	}
+
+	public Set<DistrictReferenceDto> getDistricts() {
+		return districts;
+	}
+
+	public void setDistricts(Set<DistrictReferenceDto> districts) {
+		this.districts = districts;
 	}
 	
 	

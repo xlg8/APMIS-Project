@@ -88,6 +88,7 @@ public class UserReportModelDto extends EntityDto {
 	private AreaReferenceDto area;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
+	private Set<DistrictReferenceDto> districts;
 
 	private Set<CommunityReferenceDto> community;
 	
@@ -230,7 +231,14 @@ public class UserReportModelDto extends EntityDto {
 		this.community = community;
 	}
 	
-	
+	public Set<DistrictReferenceDto> getDistricts() {
+		return districts;
+	}
+
+	public void setDistricts(Set<DistrictReferenceDto> districts) {
+		this.districts = districts;
+	}
+
 	public String getClusterNumber() {
 		List<String> stre = new ArrayList<>();
 		

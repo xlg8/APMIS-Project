@@ -103,7 +103,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 	}
 
 	public User getByUserName(String userName) {
-		System.out.println("+++++++_+__+_+ " + userName);
+	//	System.out.println("+++++++_+__+_+ " + userName);
 		User entity = new User();
 		if (userName != null) {
 			CriteriaBuilder cb = em.getCriteriaBuilder();

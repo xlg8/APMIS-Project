@@ -186,7 +186,7 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 	}
 	
 	@GET
-	@Path("/campaigsndata")
+	@Path("/campaignsdata")
 	public List<CampaignDto> getAllCampaignData() {
 		return FacadeProvider.getCampaignFacade().getAllActive();
 	}
