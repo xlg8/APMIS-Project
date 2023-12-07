@@ -19,6 +19,7 @@ import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_BIG;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -165,7 +166,9 @@ public class Campaign extends PseudonymizableAdo {
 				}
 			}
 		}
-		campaignFormMetas.stream().filter(ee -> ee.getFormName() != null).collect(Collectors.toList());
+		campaignFormMetas.stream().filter(ee -> ee.getFormName() != null)
+				.sorted(Comparator.comparing(item -> (item.getFormName())))
+				.collect(Collectors.toList());
 		return campaignFormMetas;
 	}
 

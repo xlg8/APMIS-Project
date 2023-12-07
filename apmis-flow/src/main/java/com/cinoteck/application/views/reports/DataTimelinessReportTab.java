@@ -3,6 +3,7 @@ package com.cinoteck.application.views.reports;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,9 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 				campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetasAsReferencesByCampaign(
 								campaign.getValue().getUuid());
+				
+				campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
 				campaignFormCombo.setItems(campaignForms);
 				
 				criteria.campaign(selectedCAmpaign);
@@ -137,6 +141,8 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetasAsReferencesByCampaign(
 						campaign.getValue().getUuid());
+		campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
 		campaignFormCombo.setItems(campaignForms);
 //		
 		

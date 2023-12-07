@@ -109,6 +109,10 @@ public class CriteriaBuilderHelper {
 	public static Predicate unaccentedIlike(CriteriaBuilder cb, Expression<String> valueExpression, String pattern) {
 		return unaccentedIlike(cb, valueExpression, cb.literal(pattern + "%")); //("%" + pattern + "%"));
 	}
+	
+	public static Predicate unaccentedIlikeCustom(CriteriaBuilder cb, Expression<String> valueExpression, String pattern) {
+		return unaccentedIlike(cb, valueExpression, cb.literal("%" + pattern + "%"));
+	}
 
 	public static Predicate unaccentedIlikePrecise(CriteriaBuilder cb, Expression<String> valueExpression, String value) {
 		return unaccentedIlike(cb, valueExpression, cb.literal(value));
