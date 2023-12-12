@@ -561,8 +561,16 @@ public class CampaignForm extends VerticalLayout {
 
 				isSingleSelectClickItemLock = true;
 				if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
+					
+					Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
+					
+					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");	
+					
+					System.out.println( ee.getItem().getUuid() + "DISTRICTUUID" +"CAMPAIGNUUID" +  campaignDto.getUuid() + AgeGroup.AGE_5_10.toString());
 					createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
-							campaignDto, ee.getItem());
+							campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10);
 
 				}
 
@@ -1001,7 +1009,7 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	private void createDialogBasic(String Uuid, Long selectedPopData, String name_, CampaignDto campaignDto_,
-			CampaignTreeGridDto campaignTreeGridDto) {
+			CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10) {
 		Dialog dialog = new Dialog();
 
 		dialog.removeAll();
@@ -1014,7 +1022,10 @@ public class CampaignForm extends VerticalLayout {
 		dialog.getFooter().add(saveButton);
 
 		VerticalLayout dialogLayout = createDialogLayout(name_, selectedPopData, saveButton, Uuid, campaignDto_, dialog,
-				campaignTreeGridDto);
+				campaignTreeGridDto, age0_4, age5_10);
+		
+		
+		
 		dialog.add(dialogLayout);
 
 		add(dialog);
@@ -1025,25 +1036,47 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	private static VerticalLayout createDialogLayout(String name_, Long selectedPopData, Button saveButton, String Uuid,
-			CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto) {
+			CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10) {
+		
+//		System.out.println(age5_10 + "POPULATION DATA SET " + age0_4);
 
 		TextField district = new TextField(I18nProperties.getCaption(Captions.district));
 		district.setValue(name_);
 		district.setReadOnly(true);
+		
+//		System.out.println(name_ + "name" + selectedPopData +"selectedPopData" );
 
-		IntegerField popData = new IntegerField(I18nProperties.getCaption(Captions.District_population));
-		if (selectedPopData != null) {
-			popData.setValue(Integer.parseInt(selectedPopData.toString()));
+		IntegerField popData0_4 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
+		
+		IntegerField popDataAge5_10 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
+		
+		popData0_4.setWidthFull();
+		popDataAge5_10.setWidthFull();
+		
+		
+		
+		if (age0_4 != null || age5_10 != null) {
+			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
+			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
 		} else {
-			popData.setValue(null);
+			popData0_4.setValue(null);
+			popDataAge5_10.setValue(null);
 		}
 		saveButton.addClickListener(e -> {
 
-			List<PopulationDataDto> popDataDto = FacadeProvider.getPopulationDataFacade()
+			List<PopulationDataDto> popDataDto0_4 = FacadeProvider.getPopulationDataFacade()
 					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_0_4);
+			
+			List<PopulationDataDto> popDataDto5_10 = FacadeProvider.getPopulationDataFacade()
+					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_5_10);
+			
+//			System.out.println(popDataDto  +  "popdata dto " + popDataDto5_10);
 			// new ArrayList<>();
-			popDataDto.get(0).setPopulation(popData.getValue());
-			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto);
+			popDataDto0_4.get(0).setPopulation(popData0_4.getValue());
+			popDataDto5_10.get(0).setPopulation(popDataAge5_10.getValue());
+			
+			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto0_4);
+			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto5_10);
 			dialog.close();
 
 			treeGrid.getDataProvider().refreshAll();// .refreshItem(campaignTreeGridDto); //add , true to regresh
@@ -1052,7 +1085,7 @@ public class CampaignForm extends VerticalLayout {
 
 		});
 
-		VerticalLayout dialogLayout = new VerticalLayout(district, popData);
+		VerticalLayout dialogLayout = new VerticalLayout(district, popData0_4, popDataAge5_10);
 		dialogLayout.setPadding(false);
 		dialogLayout.setSpacing(false);
 		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);

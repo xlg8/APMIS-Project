@@ -422,7 +422,7 @@ public class ClusterDataImporter extends DataImporter {
 
 				return ImportLineResult.SUCCESS;
 			} catch (ValidationRuntimeException e) {
-				writeImportError(values, e.getMessage());
+				writeImportError(values, values + " already exists.");
 				return ImportLineResult.ERROR;
 			}
 		} else {
