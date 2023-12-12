@@ -30,6 +30,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -46,9 +47,8 @@ import de.symeda.sormas.api.user.UserDto;
 
 public class FormGridComponent extends VerticalLayout {
 
-//	static Logger log = Logger.getLogger(FormGridComponent.class);
 	protected static final Logger logger = LogManager.getLogger(FormGridComponent.class);
-	
+
 	private final org.slf4j.Logger loggers = LoggerFactory.getLogger(getClass());
 
 	ComboBox<CampaignFormElementType> formType = new ComboBox<CampaignFormElementType>("Type");
@@ -62,8 +62,10 @@ public class FormGridComponent extends VerticalLayout {
 //	MultiSelectComboBox<String> styles = new MultiSelectComboBox<>("Styles");
 	TextField styles = new TextField("Styles");
 	ComboBox<String> constraints = new ComboBox<>("Constraints");
-	NumberField min = new NumberField("Min");
-	NumberField max = new NumberField("Max");
+//	NumberField min = new NumberField("Min");
+//	NumberField max = new NumberField("Max");
+	TextField min = new TextField("Min");
+	TextField max = new TextField("Max");
 	TextField defaultValues = new TextField("Default Values");
 	TextField errorMessage = new TextField("Error Message");
 
@@ -128,8 +130,8 @@ public class FormGridComponent extends VerticalLayout {
 		formType.setItems(CampaignFormElementType.values());
 		constraints.setItems("Expression", "Range");
 		important.setItems(true, false);
-//		styles.setItems("inline", "row", "first", "col-1", "col-2", "col-3", "col-4", "col-5", "col-6", "col-7",
-//				"col-8", "col-9", "col-10", "col-11", "col-12");
+		styles.setHelperText("Examples of all styles: inline, row, first, col-1, col-2, col-3, col-4, "
+				+ "col-5, col-6, col-7, col-8, col-9, col-10, col-11, col-12 add them in a comma seperated format");
 	}
 
 	VerticalLayout editForm() {
@@ -156,10 +158,10 @@ public class FormGridComponent extends VerticalLayout {
 		vrsub.add(vr1, formLayout, vr3);
 		grid.addSelectionListener(ee -> {
 
+			clearFields();
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
-
-				clearFields();
+				
 				CampaignFormElement selectedCamp = ee.getFirstSelectedItem().get();
 				formBeenEdited = selectedCamp;
 				boolean isSingleSelection = size == 1;
@@ -202,36 +204,63 @@ public class FormGridComponent extends VerticalLayout {
 				}
 
 				if (formBeenEdited.getDependingOnValues() != null) {
-					dependingOnValues.setValue(Arrays.toString(formBeenEdited.getDependingOnValues()));
+//					dependingOnValues.setValue(Arrays.toString(formBeenEdited.getDependingOnValues()));
+					dependingOnValues.setValue(Arrays.toString(formBeenEdited.getDependingOnValues()).substring(1,
+							Arrays.toString(formBeenEdited.getDependingOnValues()).length() - 1));
 					dependingOnValues.setVisible(true);
 				}
 
 				if (formBeenEdited.getStyles() != null) {
-					styles.setValue(Arrays.toString(formBeenEdited.getStyles()));
+					styles.setValue(Arrays.toString(formBeenEdited.getStyles()).substring(1,
+							Arrays.toString(formBeenEdited.getStyles()).length() - 1));
 					styles.setVisible(true);
 				}
 
 				if (formBeenEdited.getConstraints() != null) {
-					constraints.setValue(Arrays.toString(formBeenEdited.getConstraints()));
-					constraints.setVisible(true);
+					if (formBeenEdited.getConstraints()[0].toLowerCase().equals("expression")) {
+						constraints.setValue(Arrays.toString(new String[] { "Expression" }));
+						constraints.setVisible(true);
+						max.setVisible(false);
+						min.setVisible(false);
+					} else {
+						constraints.setValue(Arrays.toString(new String[] { "Range" }));
+						constraints.setVisible(true);
+						logger.debug(formBeenEdited.getConstraints()[0].substring(4,
+								formBeenEdited.getConstraints()[0].length()) + " maxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+						logger.debug(formBeenEdited.getConstraints()[1].substring(4,
+								formBeenEdited.getConstraints()[1].length()) + " minnnnnnnnnnnnnnnnnnn");
+	
+//						min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1].substring(4,
+//								formBeenEdited.getConstraints()[1].length())));
+						min.setValue(formBeenEdited.getConstraints()[1].substring(4,
+								formBeenEdited.getConstraints()[1].length()));
+						min.setVisible(true);
+						logger.debug(min.getValue() + " minnnnn value");
+//						max.setValue(Double.parseDouble(formBeenEdited.getConstraints()[0].substring(4,
+//						formBeenEdited.getConstraints()[0].length())));
+						max.setValue(formBeenEdited.getConstraints()[0].substring(4,
+								formBeenEdited.getConstraints()[0].length()));
+						max.setVisible(true);
+						logger.debug(min.getValue() + " Maxxxxxxxxxxxxxxx value");
+					}
 				}
 
-				if (formBeenEdited.getMin() != null) {
-					min.setValue(Double.parseDouble(formBeenEdited.getMin()));
-					min.setVisible(true);
-				}
-
-				if (formBeenEdited.getMax() != null) {
-					max.setValue(Double.parseDouble(formBeenEdited.getMax()));
-					max.setVisible(true);
-				}
+//				if (formBeenEdited.getMin() != null) {
+//					min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[0]));
+//					min.setVisible(true);
+//				}
+//
+//				if (formBeenEdited.getMax() != null) {
+//					max.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1]));
+//					max.setVisible(true);
+//				}
 
 				if (formBeenEdited.getExpression() != null) {
 					errorMessage.setValue(formBeenEdited.getExpression());
 					errorMessage.setVisible(true);
 				}
 
-				if (formBeenEdited.getExpression() != null) {
+				if (formBeenEdited.getDefaultvalue() != null) {
 					defaultValues.setValue(formBeenEdited.getDefaultvalue());
 					defaultValues.setVisible(true);
 				}
@@ -276,7 +305,7 @@ public class FormGridComponent extends VerticalLayout {
 
 			caption.setVisible(true);
 			important.setVisible(true);
-			options.setVisible(true);
+//			options.setVisible(true);
 			styles.setVisible(true);
 			errorMessage.setVisible(true);
 			defaultValues.setVisible(true);
@@ -352,13 +381,14 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setConstraints(constraints.getValue().split(","));
 					} else {
 
-						if (min.getValue() != null && max.getValue() != null && min.getValue() < max.getValue()) {
+						if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
 
-							String valueOfMinMAx = min.getValue() + " " + max.getValue();
+							String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
 							newForm.setConstraints(valueOfMinMAx.split(" "));
 						} else {
 
 							Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+							return;
 						}
 					}
 
@@ -367,8 +397,10 @@ public class FormGridComponent extends VerticalLayout {
 				if (!styles.getValue().isEmpty()) {
 
 					newForm.setStyles(styles.getValue().split(","));
+					if (newForm.getStyles() == null) {
+						newForm.setStyles(new String[0]);
+					}
 				}
-
 				if (!expression.getValue().isEmpty()) {
 
 					newForm.setExpression(expression.getValue());
@@ -394,9 +426,19 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setDefaultvalue(defaultValues.getValue());
 				}
 
-				elementList.add(newForm);
-				campaignFormMetaDto.setCampaignFormElements(elementList);
-				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+				if (campaignFormMetaDto.getCampaignFormElements() == null) {
+					elementList.add(newForm);
+					campaignFormMetaDto.setCampaignFormElements(elementList);
+					logger.debug("Campaignformelement is empty here at the moment");
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+				} else {
+					elementList = new ArrayList<>();
+					elementList.addAll(campaignFormMetaDto.getCampaignFormElements());
+					elementList.add(newForm);
+					campaignFormMetaDto.setCampaignFormElements(elementList);
+					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+					logger.debug("Campaignformelement is not empty here");
+				}
 
 				getGridData();
 				Notification.show("New Form Element Saved");
@@ -446,9 +488,9 @@ public class FormGridComponent extends VerticalLayout {
 							newForm.setConstraints(constraints.getValue().split(","));
 						} else {
 
-							if (min.getValue() != null && max.getValue() != null && min.getValue() < max.getValue()) {
+							if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
 
-								String valueOfMinMAx = min.getValue() + " " + max.getValue();
+								String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
 								newForm.setConstraints(valueOfMinMAx.split(" "));
 							} else {
 
@@ -580,23 +622,40 @@ public class FormGridComponent extends VerticalLayout {
 //		grid.setSizeFull();
 //		grid.setColumnReorderingAllowed(true);
 
-		ComponentRenderer<Span, CampaignFormElement> constraintRenderer = new ComponentRenderer<>(ijnput -> {
-			String value = Arrays.toString(ijnput.getConstraints());
-			Span label = new Span(value);
+		ComponentRenderer<Span, CampaignFormElement> constraintRenderer = new ComponentRenderer<>(input -> {
+			String value = Arrays.toString(input.getConstraints());
+//			Span label = new Span(value);
+			Span label = new Span();
+			if (input.getConstraints() == null) {
+				label = new Span("");
+			} else {
+				label = new Span(value);
+			}
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
 
-		ComponentRenderer<Span, CampaignFormElement> styleRenderer = new ComponentRenderer<>(ijnput -> {
-			String value = Arrays.toString(ijnput.getStyles());
-			Span label = new Span(value);
+		ComponentRenderer<Span, CampaignFormElement> styleRenderer = new ComponentRenderer<>(input -> {
+			String value = Arrays.toString(input.getStyles());
+			Span label = new Span();
+			if (input.getStyles() == null) {
+				label = new Span("");
+			} else {
+				label = new Span(value);
+			}
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
 
-		ComponentRenderer<Span, CampaignFormElement> dependingOnValuesRenderer = new ComponentRenderer<>(ijnput -> {
-			String value = Arrays.toString(ijnput.getDependingOnValues());
-			Span label = new Span(value);
+		ComponentRenderer<Span, CampaignFormElement> dependingOnValuesRenderer = new ComponentRenderer<>(input -> {
+			String value = Arrays.toString(input.getDependingOnValues());
+//			Span label = new Span(value);
+			Span label = new Span();
+			if (input.getDependingOnValues() == null) {
+				label = new Span("");
+			} else {
+				label = new Span(value);
+			}
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
@@ -660,15 +719,15 @@ public class FormGridComponent extends VerticalLayout {
 
 		formType.setValue(CampaignFormElementType.LABEL);
 		formId.setValue("");
+		expression.setValue("");
 		caption.setValue("");
 		options.setValue("");
 		important.setValue(false);
-		constraints.clear();
-		min.setValue(null);
-		max.setValue(null);
+		constraints.setValue("Expression");
+		min.clear(); 
+		max.clear();
 		dependingOn.setValue("");
 		dependingOnValues.clear();
-//		styles.setValue(Collections.emptySet());
 		styles.setValue("");
 		errorMessage.setValue("");
 		defaultValues.setValue("");
@@ -700,6 +759,20 @@ public class FormGridComponent extends VerticalLayout {
 				expression.setVisible(true);
 				dependingOn.setVisible(true);
 				dependingOnValues.setVisible(true);
+			} else if (e.getValue().toString().toLowerCase().equals("dropdown")) {
+
+				caption.setVisible(true);
+				important.setVisible(true);
+				options.setVisible(true);
+				expression.setVisible(false);
+				dependingOn.setVisible(false);
+				dependingOnValues.setVisible(false);
+				min.setVisible(false);
+				max.setVisible(false);
+				styles.setVisible(false);
+				constraints.setVisible(false);
+				errorMessage.setVisible(false);
+				defaultValues.setVisible(false);
 			} else {
 
 				caption.setVisible(false);
@@ -710,11 +783,6 @@ public class FormGridComponent extends VerticalLayout {
 				defaultValues.setVisible(false);
 				constraints.setVisible(false);
 			}
-
-			if (!e.getValue().toString().trim().isEmpty()) {
-//				jsonData.put("type", e.getValue().toString());
-			}
-
 		});
 
 //		formId.addValueChangeListener(e -> {
@@ -759,19 +827,19 @@ public class FormGridComponent extends VerticalLayout {
 ////				jsonDa/ta.put("styles", e.getValue().toString());
 //			}
 //		});
-//
-//		constraints.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null && e.getValue().toString().toLowerCase().equals("expression")) {
-////				jsonData.put("constraints", "expression");
-//				min.setVisible(false);
-//				max.setVisible(false);
-//			} else {
-//				min.setVisible(true);
-//				max.setVisible(true);
-//			}
-//		});
-//
+
+		constraints.addValueChangeListener(e -> {
+//			logger.debug(e.getValue().toString().toLowerCase().substring(0, e.getValue().toString().toLowerCase().length()) + "  constranitsssssssss");
+			if (e.getValue().toString().toLowerCase().substring(0, e.getValue().toString().toLowerCase().length())
+					.equals("expression")) {
+				min.setVisible(false);
+				max.setVisible(false);
+			} else {
+				min.setVisible(true);
+				max.setVisible(true);
+			}
+		});
+
 //		min.addValueChangeListener(e -> {
 //
 //			if (e.getValue() != null) {

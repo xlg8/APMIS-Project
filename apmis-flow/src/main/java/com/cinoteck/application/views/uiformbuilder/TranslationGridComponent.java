@@ -60,6 +60,8 @@ public class TranslationGridComponent extends VerticalLayout {
 	private boolean isNewForm = false;
 	ListDataProvider<CampaignFormTranslations> outerDataprovider;
 
+	CampaignFormTranslations identifyer = new CampaignFormTranslations();
+
 	public TranslationGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 		this.campaignFormMetaDto = campaignFormMetaDto;
 
@@ -151,6 +153,7 @@ public class TranslationGridComponent extends VerticalLayout {
 			grid.setColumnReorderingAllowed(true);
 			grid.setAllRowsVisible(true);
 
+			identifyer = eee.getFirstSelectedItem().get();
 			plus.setId("sub");
 			del.setId("sub");
 			cancel.setId("sub");
@@ -295,7 +298,7 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					elementId.setValue("");
 					caption.setValue("");
-					
+
 					save.setText("Save");
 					grid.setItems(dataprovider);
 				}
@@ -306,26 +309,29 @@ public class TranslationGridComponent extends VerticalLayout {
 
 			if (((Button) e.getSource()).getId().get().equals("main")) {
 
-				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
+//				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
 				List<CampaignFormTranslations> campaignFormTranslationsList = new ArrayList<>();
-				List<TranslationElement> translationSet = new ArrayList<>();
+//				List<TranslationElement> translationSet = new ArrayList<>();
 				if (languageCode.getValue() != null) {
 
 					System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
 					campaignFormTranslations.setLanguageCode(languageCode.getValue());
-					campaignFormTranslations.setTranslations(translationSet);
-					
-					if (campaignFormMetaDto == null) {
+//					campaignFormTranslations.setTranslations(translationSet);
+
+					if (campaignFormMetaDto.getCampaignFormTranslations() == null) {
 
 						campaignFormMetaDto = new CampaignFormMetaDto();
 						campaignFormTranslationsList.add(campaignFormTranslations);
 						campaignFormMetaDto.setCampaignFormTranslations(campaignFormTranslationsList);
+						outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+					} else {
+
+						campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
+						outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 					}
 
-					campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
-					outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 //					getGridData();
-					
+
 					vr1.setVisible(true);
 					mainLayout.setVisible(false);
 					vr3.setVisible(false);
@@ -342,9 +348,25 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					if (elementId.getValue() != null && caption.getValue() != null) {
 
-					}
-				}
+						newTranslation.setElementId(elementId.getValue());
+						newTranslation.setCaption(caption.getValue());
+						translationSet.add(newTranslation);
+						campaignFormTranslations.setTranslations(translationSet);
 
+						if (campaignFormMetaDto.getCampaignFormTranslations() == null) {
+
+							campaignFormMetaDto = new CampaignFormMetaDto();
+							campaignFormTranslationsList.add(campaignFormTranslations);
+							campaignFormMetaDto.setCampaignFormTranslations(campaignFormTranslationsList);
+							outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+						} else {
+
+							campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
+							outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+						}
+					}
+
+				}
 			}
 		});
 
