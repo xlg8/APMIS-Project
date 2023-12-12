@@ -200,7 +200,8 @@ public class ClusterDataImporter extends DataImporter {
 								return ImportLineResult.ERROR;
 							} else {
 								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+										new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | CCode exists on the system");
+								
 								return ImportLineResult.ERROR;
 							}
 
@@ -231,7 +232,7 @@ public class ClusterDataImporter extends DataImporter {
 
 			if (CLUSTER_NAME.equalsIgnoreCase(entityProperties[i])) {
 				
-				System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111");
+//				System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111");
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
 					clusterName = null;
@@ -240,7 +241,7 @@ public class ClusterDataImporter extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					System.out.println("22222222222222222222222222222222222222222222222222222222222222222222222222222");
+//					System.out.println("22222222222222222222222222222222222222222222222222222222222222222222222222222");
 
 					String clusterName_ = values[i];
 
@@ -255,7 +256,7 @@ public class ClusterDataImporter extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						
-						System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+//						System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
 
 						DistrictReferenceDto regrefDto = new DistrictReferenceDto();
 						List<CommunityReferenceDto> clusterNameList = FacadeProvider.getCommunityFacade()
@@ -266,7 +267,7 @@ public class ClusterDataImporter extends DataImporter {
 
 						} else {
 							
-							System.out.println("444444444444444444444444444444444444444444444444444444444");
+//							System.out.println("444444444444444444444444444444444444444444444444444444444");
 
 							if (isOverWrite) {
 								clusterName = clusterName_;
@@ -274,7 +275,7 @@ public class ClusterDataImporter extends DataImporter {
 
 							} else {
 								
-								System.out.println("55555555555555555555555555555555555555555555555555");
+//								System.out.println("55555555555555555555555555555555555555555555555555");
 
 								if (clusterNameList.size() >= 0) {
 									System.out.println("6666666666666666666666666666666666666666666666666666");
@@ -301,13 +302,12 @@ public class ClusterDataImporter extends DataImporter {
 										
 										clusterNames.add(caption);
 										
-										System.out.println(clusterNames + " Cluster Name   Liat"  + caption );
-										System.out.println(clusterNames.size() + "Size  of Clusters Name List");
+//										System.out.println(clusterNames + " Cluster Name   Liat"  + caption );
+//										System.out/.println(clusterNames.size() + "Size  of Clusters Name List");
 									
 									}	
 									if (clusterNames.contains(values[i])) {
 										
-										System.out.println("E DON ENTER WAHALA O ");
 
 										writeImportError(values,
 												new ImportErrorException(values[i], entityProperties[i]).getMessage()
@@ -316,7 +316,7 @@ public class ClusterDataImporter extends DataImporter {
 										return ImportLineResult.ERROR;
 									} else {
 										
-										System.out.println("Successssssfulllll   " + clusterName_ + "yyy"+ clusterName + values[i]);
+//										System.out.println("Successssssfulllll   " + clusterName_ + "yyy"+ clusterName + values[i]);
 										clusterName = clusterName_;
 										
 //										return ImportLineResult.SUCCESS;

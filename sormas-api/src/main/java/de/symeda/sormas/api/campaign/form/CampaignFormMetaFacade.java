@@ -35,7 +35,9 @@ public interface CampaignFormMetaFacade {
 	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round); 
 	
-	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round, String campaignUUID);
+	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round, String campaignUUID);	
+	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round, String campaignUUID);	
+	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round, String campaignUUID);
 
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(String round, String campaignUUID, Set<FormAccess> userFormAccess);
 
@@ -64,4 +66,8 @@ public interface CampaignFormMetaFacade {
 //	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
 	
 	Date formExpiryDate(CampaignFormDataCriteria criteria);
+
+	
+
+	
 }

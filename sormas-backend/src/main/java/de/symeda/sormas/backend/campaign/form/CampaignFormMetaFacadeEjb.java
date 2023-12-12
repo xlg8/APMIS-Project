@@ -223,6 +223,16 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			String campaignUUID) {
 		return service.getCampaignFormMetasAsReferencesByCampaignandRound(round, campaignUUID);
 	}
+	@Override
+	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round,
+			String campaignUUID) {
+		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(round, campaignUUID);
+	}
+	@Override
+	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round,
+			String campaignUUID) {
+		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndDari(round, campaignUUID);
+	}
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(String round,
