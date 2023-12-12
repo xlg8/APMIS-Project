@@ -62,14 +62,12 @@ import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
 
-
-@TypeDefs({
-	@TypeDef(name = "json", typeClass = JsonBinaryType.class),
-	@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
+@TypeDefs({ @TypeDef(name = "json", typeClass = JsonBinaryType.class),
+		@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) })
 @MappedSuperclass
 public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoService<ADO> {
 
-	// protected to be used by implementations 
+	// protected to be used by implementations
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final Class<ADO> elementClass;
@@ -151,11 +149,11 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
 		Root<ADO> from = cq.from(getElementClass());
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
-		System.out.println("DEBUGGER 5678ijhyuio __________________vvyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER 5678ijhyuio __________________vvyt________________________ "
+				+ SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
 	}
-	
-	
+
 	@Override
 	public List<Campaign> getAllCampaignByStartDate() {
 
@@ -163,10 +161,11 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
 		Root<ADO> from = cq.from(getElementClass());
 		cq.orderBy(cb.desc(from.get(CampaignIndexDto.START_DATE)));
-		System.out.println("DEBUGGER 5678ijhyuio __________________vvrgyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER 5678ijhyuio __________________vvrgyt________________________ "
+				+ SQLExtractor.from(em.createQuery(cq)));
 		return (List<Campaign>) em.createQuery(cq).getResultList();
 	}
-	
+
 //	@Override
 //	public List<ADO> getByRoundAndExpiryDate(String round) {
 //		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -213,11 +212,7 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 //		return em.createQuery(cq).getResultList();
 //		
 //	}
-	
-	
-	
-	
-	
+
 	@Override
 	public List<ADO> getByRound(String round) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -225,14 +220,15 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		Root<ADO> from = cq.from(getElementClass());
 		cq.where(cb.equal(from.get("formType"), round));
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
-		
-		System.out.println(getElementClass() + "DEBUGGER 5678ijhyuio __________________vvrvvvgyt________________________ "+SQLExtractor.from(em.createQuery(cq)));
 
+//		System.out
+//				.println(getElementClass() + "DEBUGGER 5678ijhyuio __________________vvrvvvgyt________________________ "
+//						+ SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultList();
-		
+
 	}
-	
+
 	@Override
 	public List<ADO> getByRoundAndCampaign(String round, String uuid) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -240,14 +236,12 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		Root<ADO> from = cq.from(getElementClass());
 		cq.where(cb.equal(from.get("formType"), round));
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
-		
-		System.out.println("DEBUGGER 5678ijhyuio"+SQLExtractor.from(em.createQuery(cq)));
+
+//		System.out.println("DEBUGGER 5678ijhyuio" + SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultList();
-		
+
 	}
-	
-	
 
 	public List<ADO> getAll(BiFunction<CriteriaBuilder, Root<ADO>, Predicate> filterBuilder) {
 
@@ -310,7 +304,10 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 	}
 
 	public Predicate recentDateFilter(CriteriaBuilder cb, Date date, Path<Date> datePath, int amountOfDays) {
-		return date != null ? cb.between(datePath, DateHelper.subtractDays(date, amountOfDays), DateHelper.addDays(date, amountOfDays)) : null;
+		return date != null
+				? cb.between(datePath, DateHelper.subtractDays(date, amountOfDays),
+						DateHelper.addDays(date, amountOfDays))
+				: null;
 	}
 
 	@Override
@@ -323,7 +320,8 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		if (dto != null && dto.getUuid() != null) {
 			ADO result = getByUuid(dto.getUuid());
 			if (result == null) {
-				logger.warn("Could not find entity for " + dto.getClass().getSimpleName() + " with uuid " + dto.getUuid());
+				logger.warn(
+						"Could not find entity for " + dto.getClass().getSimpleName() + " with uuid " + dto.getUuid());
 			}
 			return result;
 		} else {
@@ -343,14 +341,19 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		CriteriaQuery<ADO> cq = cb.createQuery(getElementClass());
 		Root<ADO> from = cq.from(getElementClass());
 		cq.where(cb.equal(from.get(AbstractDomainObject.UUID), uuidParam));
-		//System.out.println("             eewwwwwwwwwwwwwwwwwwwwwww"+SQLExtractor.from(em.createQuery(cq)));
+//		System.out.println("eewwwwwwwwwwwwwwwwwwwwwww" + SQLExtractor.from(em.createQuery(cq)));
 
 		TypedQuery<ADO> q = em.createQuery(cq).setParameter(uuidParam, uuid);
-		
+
 		return q.getResultList().stream().findFirst().orElse(null);
 	}
 
-	@Override
+//	@Override
+//	public Integer getFormMetaID() {
+//		
+//	}
+
+	@Override 
 	public Boolean exists(@NotNull String uuid) {
 
 		return exists((cb, root) -> cb.equal(root.get(AbstractDomainObject.UUID), uuid));
@@ -362,7 +365,8 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		if (ado.getId() == null) {
 			em.persist(ado);
 		} else if (!em.contains(ado)) {
-			throw new EntityExistsException("Das Entity ist nicht attacht: " + getElementClass().getSimpleName() + "#" + ado.getUuid());
+			throw new EntityExistsException(
+					"Das Entity ist nicht attacht: " + getElementClass().getSimpleName() + "#" + ado.getUuid());
 		}
 		em.flush();
 	}
@@ -374,7 +378,8 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 
 	@Override
 	public void delete(ADO deleteme) {
-		em.remove(em.contains(deleteme) ? deleteme : em.merge(deleteme)); // todo: investigate why the entity might be detached (example: AdditionalTest)
+		em.remove(em.contains(deleteme) ? deleteme : em.merge(deleteme)); // todo: investigate why the entity might be
+																			// detached (example: AdditionalTest)
 		em.flush();
 	}
 
@@ -417,7 +422,8 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<ADO> from = cq.from(getElementClass());
 
-		cq.where(from.get(AbstractDomainObject.UUID).in(references.stream().map(ReferenceDto::getUuid).collect(Collectors.toList())));
+		cq.where(from.get(AbstractDomainObject.UUID)
+				.in(references.stream().map(ReferenceDto::getUuid).collect(Collectors.toList())));
 		cq.select(from.get(AbstractDomainObject.ID));
 		return em.createQuery(cq).getResultList();
 	}

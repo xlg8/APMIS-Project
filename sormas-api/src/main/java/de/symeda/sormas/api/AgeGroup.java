@@ -5,7 +5,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 public enum AgeGroup {
 
 	AGE_0_4,
-	AGE_5_9,
+	AGE_5_10,
 	AGE_10_14,
 	AGE_15_19,
 	AGE_20_24,
