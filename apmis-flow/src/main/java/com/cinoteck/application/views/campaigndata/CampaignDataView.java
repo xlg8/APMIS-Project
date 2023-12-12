@@ -578,12 +578,19 @@ public class CampaignDataView extends VerticalLayout {
 			campaignFormCombo.clear();
 			newForm.clear();
 			importFormData.clear();
+//<<<<<<< HEAD
+////			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+////					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
+////							campaignz.getValue().getUuid());
+////
+////			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+//			configureFormNameTranslations();
+//=======
+//			System.out.println(e.getValue().toString().toLowerCase() +"ZZZZZZZZz+++++++++++++++");
 //			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 //					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
 //							campaignz.getValue().getUuid());
-//
-//			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-			configureFormNameTranslations();
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 //			campaignFormCombo.setItems(campaignFormReferences_);
 			campaignFormCombo.setValue(campaignForms.get(0));
@@ -653,6 +660,10 @@ public class CampaignDataView extends VerticalLayout {
 
 		provinceCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
+//<<<<<<< HEAD
+//=======
+//
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
@@ -745,6 +756,10 @@ public class CampaignDataView extends VerticalLayout {
 			reload();
 			if (formMetaReference != null) {
 				remove(grid);
+//<<<<<<< HEAD
+//=======
+//
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 				configureGrid(criteria);
 
 				final boolean allAndImportantFormElements = e.getValue() == CampaignFormElementImportance.ALL;
@@ -1369,7 +1384,10 @@ public class CampaignDataView extends VerticalLayout {
 				return "";
 			}
 		});
-		System.out.println("is district level " + campaignFormCombo.getValue());
+//<<<<<<< HEAD
+//		System.out.println("is district level " + campaignFormCombo.getValue());
+//=======
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 		if (campaignFormCombo.getValue() != null) {
 
 			CampaignFormMetaDto formData = FacadeProvider.getCampaignFormMetaFacade()
@@ -1389,6 +1407,7 @@ public class CampaignDataView extends VerticalLayout {
 			}
 		}
 
+	
 	}
 
 	private String clusterNumberLabelGenerator(CommunityReferenceDto communityReferenceDto) {

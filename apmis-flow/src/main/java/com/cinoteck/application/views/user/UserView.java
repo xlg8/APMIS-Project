@@ -701,7 +701,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		userForm.addSaveListener(this::saveUser);
 		userForm.addDeleteListener(this::deleteContact);
 		userForm.addCloseListener(e -> {
-			UI.getCurrent().getPage().reload();
+//			UI.getCurrent().getPage().reload();
 			closeEditor();
 		});
 
@@ -742,6 +742,11 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		isNewUser = true;
 		UserDto user = new UserDto();
+		
+		mainContainer.remove(userForm);
+		configureForm(user);
+		mainContainer.add(userForm);
+		
 		// configureForm(user); //this make sure the userform dialog is a new container
 		userForm.createPassword.setVisible(false);
 		userForm.setUser(user);
@@ -765,6 +770,12 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	}
 
 	private void closeEditor() {
+		UserDto userr = new UserDto();
+		mainContainer.remove(userForm);
+		configureForm(userr);
+		mainContainer.add(userForm);
+		
+		
 		userForm.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);

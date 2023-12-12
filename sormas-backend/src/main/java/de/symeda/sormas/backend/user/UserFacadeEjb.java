@@ -167,22 +167,17 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
-		
-		if(source.getCommunity() != null){
-		target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
+		if (source.getDistricts() != null) {
+			target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));
 		}
-//		target.setHealthFacility(FacilityFacadeEjb.toReferenceDto(source.getHealthFacility()));
-//		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
-//		target.setLaboratory(FacilityFacadeEjb.toReferenceDto(source.getLaboratory()));
-//		target.setPointOfEntry(PointOfEntryFacadeEjb.toReferenceDto(source.getPointOfEntry()));
-		//target.setLimitedDisease(source.getLimitedDisease());
-		target.setLanguage(source.getLanguage());
-	//	target.setHasConsentedToGdpr(source.isHasConsentedToGdpr());
+		if (source.getCommunity() != null) {
+			target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
+		}
 
-//		source.getUserRoles().size();
+		target.setLanguage(source.getLanguage());
+
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
 
-//		source.getFormAccess().size();
 		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 
 		target.setUsertype(source.getUsertype());
@@ -233,6 +228,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
+		target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));
 		target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
 //		//System.out.println(source.getDistrict()+" :@@@@@@@@@@@@@@@@@@@@@@@@@@ area: "+ source.getArea() +" ##########@@@@@@@@@@@@@@@"+source.getCommunity());
 //		target.setAssociatedOfficer(toReferenceDto(source.getAssociatedOfficer()));
@@ -744,6 +740,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
+		target.setDistricts(districtService.getByReferenceDto(source.getDistricts()));
 		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
 		// //System.out.println(source.getDistrict()+"
 		// :@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+source.getCommunity());

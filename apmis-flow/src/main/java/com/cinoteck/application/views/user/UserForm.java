@@ -84,6 +84,7 @@ public class UserForm extends FormLayout {
 	 */
 	private static final long serialVersionUID = 6918900346481904170L;
 
+	private boolean isDistrictMulti = false;
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class);
 
 	List<AreaReferenceDto> regions;
@@ -102,11 +103,11 @@ public class UserForm extends FormLayout {
 	TextField userPosition = new TextField(I18nProperties.getCaption(Captions.User_userPosition));
 	TextField userOrganisation = new TextField(I18nProperties.getCaption(Captions.User_userOrganisation));
 
-	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>(I18nProperties.getCaption(Captions.area));
-	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>(I18nProperties.getCaption(Captions.region));
-	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>(
-			I18nProperties.getCaption(Captions.community));
+//	ComboBox<AreaReferenceDto> userRegion = new ComboBox<>(I18nProperties.getCaption(Captions.area));
+//	ComboBox<RegionReferenceDto> userProvince = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+//	ComboBox<DistrictReferenceDto> userDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+//	MultiSelectComboBox<CommunityReferenceDto> userCommunity = new MultiSelectComboBox<>(
+//			I18nProperties.getCaption(Captions.community));
 
 	ComboBox<AreaReferenceDto> region = new ComboBox<>(I18nProperties.getCaption(Captions.area));
 	ComboBox<RegionReferenceDto> province = new ComboBox<>(I18nProperties.getCaption(Captions.region));
@@ -136,7 +137,8 @@ public class UserForm extends FormLayout {
 	CheckboxGroup<FormAccess> postCampformAccess = new CheckboxGroup<>();
 
 	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
-
+	
+	CheckboxGroup districtMulti = new CheckboxGroup<>();
 	CheckboxGroup clusterNo = new CheckboxGroup<>();
 
 	Button save = new Button(I18nProperties.getCaption(Captions.actionSave));
@@ -254,16 +256,67 @@ public class UserForm extends FormLayout {
 
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
+		binder.forField(userRoles).withValidator(new UserRolesValidator())
+		.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+		.bind(UserDto::getUserRoles, UserDto::setUserRoles);
+		
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
+		
+		binder.forField(districtMulti);
+		
+		binder.bind(districtMulti, UserDto::getDistricts, UserDto::setDistricts);
+		districtMulti.setVisible(true);
 
 		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
 			
+		
+
+		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+				.bind(UserDto::getUserName, UserDto::setUserName);
+
+		// TODO: Change implemenation to only add assignable roles sormas style.
+//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
+		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+		roles.remove(UserRole.BAG_USER);
+
+		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+		roles.remove(UserRole.BAG_USER);
+
+		// Sorting the user roles usng comprtor
+		Collections.sort(rolesz, new UserRoleCustomComparator());
+
+		// then i'm converting back to a set for facade to handle save properly.
+		Set<UserRole> sortedUserRoles = new TreeSet<>(rolesz);
+		
+		userRoles.setItems(sortedUserRoles);
+		
+		
+
+		this.setColspan(userRoles, 1);
+		userRoles.addValueChangeListener(e -> {
+				updateFieldsByUserRole(e.getValue());
+				validateUserRoles();
+			});
+		
+//		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
+
+		ComboBox<UserType> userTypes = new ComboBox<UserType>();
+
+		userTypes.setItems(UserType.values());
+
+	
+		language.setItemLabelGenerator(Language::toString);
+		language.setItems(Language.getAssignableLanguages());
+
+		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
+				.bind(UserDto::getLanguage, UserDto::setLanguage);
+
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			region.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
@@ -277,6 +330,8 @@ public class UserForm extends FormLayout {
 		region.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
+				districtMulti.setVisible(false);
+				clusterNo.setVisible(false);
 				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
 
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -293,8 +348,67 @@ public class UserForm extends FormLayout {
 		province.setItemLabelGenerator(RegionReferenceDto::getCaption);
 		province.addValueChangeListener(e -> {
 
-			if (e.getValue() != null) {
+			if (e.getValue() != null && userRoles.getValue() != null) {
+				
+				final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(userRoles.getValue());
+				System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT)+" +++___________111"+userRoles.getValue());
+				if(jurisdictionLevel == JurisdictionLevel.DISTRICT) {
+					
+					districtMulti.setVisible(true);
+					district.setVisible(false);
+					clusterNo.setVisible(false);
+					this.setColspan(districtMulti, 2);
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+
+					districtMulti.setLabel(I18nProperties.getCaption(Captions.district));
+
+						for (DistrictReferenceDto item : districts) {
+							System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT)+" +++___________222: "+item.getCaption());
+							
+							if (item.getCaption() == null) {
+
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
+
+								Paragraph text = new Paragraph("District cannot be empty, please contact support");
+
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
+
+								notification.add(layout);
+								notification.open();
+							}
+
+//							item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
+						}
+//						Collections.sort(items, CommunityReferenceDto.clusternumber);
+
+						districtMulti.setItems(districts);
+						district.setItems(districts);
+						isDistrictMulti = true;
+						districtMulti.getChildren().forEach(checkbox -> {
+//				            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
+							checkbox.getElement().getClassList().add("custom-checkbox-class");
+
+						});
+//			            
+					
+					
+					
+				} else {
+					
+					
+					
+					
 				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				System.out.println(" +++___________333333: ");
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 					district.setItems(
 							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
@@ -304,12 +418,14 @@ public class UserForm extends FormLayout {
 				} else {
 					district.setItems(districts);
 				}
+				}
 			}
+			
 		});
 
 		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
 		district.addValueChangeListener(e -> {
-
+if(!isDistrictMulti) {
 			DistrictReferenceDto districtDto = (DistrictReferenceDto) e.getValue();
 			System.out.println(districtDto + " vvvvvvvddddddDISTRICT CHANGES!!ssssssssssefasdfa:" + e.getValue());
 
@@ -318,16 +434,7 @@ public class UserForm extends FormLayout {
 				this.setColspan(clusterNo, 2);
 				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 
-//				community.setItemLabelGenerator(CommunityReferenceDto::getCaption);
-//				community.setItems(communities);
-
 				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
-
-				// commented out not sure what
-				// UserDto currentUser = FacadeProvider.getUserFacade().getCurrentUser();
-				Set<CommunityReferenceDto> data = Collections.<CommunityReferenceDto>emptySet();
-				// currentUser.setCommunity(data);
-				// FacadeProvider.getUserFacade().saveUser(currentUser);
 
 				if (districtDto != null) {
 
@@ -368,53 +475,37 @@ public class UserForm extends FormLayout {
 //		            
 				}
 			}
+		} else {
+			district.clear();
+			district.setVisible(false);
+			clusterNo.clear();
+			clusterNo.setVisible(false);
+		}
+		}
+);
+
+		
+		commusr.addValueChangeListener(e -> {
+
+			System.out.println((boolean) e.getValue());
+			if ((boolean) e.getValue() == true) {
+				userTypes.setValue(UserType.COMMON_USER);
+				sortedUserRoles.remove(UserRole.ADMIN);
+				sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
+				sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
+				sortedUserRoles.remove(UserRole.BAG_USER);
+				sortedUserRoles.remove(UserRole.REST_USER);
+
+				userRoles.setItems(sortedUserRoles);
+			}
+
+			if ((boolean) e.getValue() == false) {
+				Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+				userRoles.setItems(sortedUserRoless);
+			}
 		});
 
-//		binder.forField(community).bind(UserDto::getCommunity, UserDto::setCommunity);
-//		street.setPlaceholder(I18nProperties.getCaption(Captions.enterStreetHere));
-//		houseNumber.setPlaceholder(I18nProperties.getCaption(Captions.enterHouseNumberHere));
-//		additionalInformation.setPlaceholder(I18nProperties.getCaption(Captions.enterAdditionalInformationHere));
-//		postalCode.setPlaceholder(I18nProperties.getCaption(Captions.enterPostalCodeHere));
-//		city.setPlaceholder(I18nProperties.getCaption(Captions.enterCityHere));
-//
-//		areaType.setLabel(I18nProperties.getCaption(Captions.Location_areaType));
-//		areaType.setItems(AreaType.values());
-//		binder.forField(street).bind(UserDto::getAddress, UserDto::setAddress);
-
-		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
-				.bind(UserDto::getUserName, UserDto::setUserName);
-
-		// TODO: Change implemenation to only add assignable roles sormas style.
-//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-		roles.remove(UserRole.BAG_USER);
-
-		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
-		roles.remove(UserRole.BAG_USER);
-
-		// Sorting the user roles usng comprtor
-		Collections.sort(rolesz, new UserRoleCustomComparator());
-
-		// then i'm converting back to a set for facade to handle save properly.
-		Set<UserRole> sortedUserRoles = new TreeSet<>(rolesz);
-		userRoles.setItems(sortedUserRoles);
-
-		// TODO: Change implemenation to only add assignable roles sormas style.
-//		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
-
-		binder.forField(userRoles).withValidator(new UserRolesValidator())
-				.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
-				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
-
-		this.setColspan(userRoles, 1);
-		userRoles.addValueChangeListener(e -> {
-			updateFieldsByUserRole(e.getValue());
-			validateUserRoles();
-		});
-
-//		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-//		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
-//		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
@@ -471,41 +562,8 @@ public class UserForm extends FormLayout {
 		}
 //		commusr.setValue(isCommonUser);
 
-		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
-
-		ComboBox<UserType> userTypes = new ComboBox<UserType>();
-
-		userTypes.setItems(UserType.values());
-
-		commusr.addValueChangeListener(e -> {
-
-			UserProvider currentUser = new UserProvider();
-
-			System.out.println((boolean) e.getValue());
-			if ((boolean) e.getValue() == true) {
-				userTypes.setValue(UserType.COMMON_USER);
-				sortedUserRoles.remove(UserRole.ADMIN);
-				sortedUserRoles.remove(UserRole.COMMUNITY_INFORMANT);
-				sortedUserRoles.remove(UserRole.AREA_ADMIN_SUPERVISOR);
-				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
-				sortedUserRoles.remove(UserRole.BAG_USER);
-				sortedUserRoles.remove(UserRole.REST_USER);
-
-				userRoles.setItems(sortedUserRoles);
-			}
-
-			if ((boolean) e.getValue() == false) {
-				Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
-				userRoles.setItems(sortedUserRoless);
-			}
-		});
-
-		language.setItemLabelGenerator(Language::toString);
-		language.setItems(Language.getAssignableLanguages());
-
-		binder.forField(language).asRequired(I18nProperties.getString(Strings.languageRequired))
-				.bind(UserDto::getLanguage, UserDto::setLanguage);
-
+		
+		
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
@@ -519,8 +577,13 @@ public class UserForm extends FormLayout {
 		formAccessParentLayout.setSpacing(false);
 		HorizontalLayout allFieldLayout = new HorizontalLayout(formAccessParentLayout, otherFormField);
 		this.setColspan(allFieldLayout, 2);
+		
+		
+		
+		
+		
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, userData, userName,
-				activeCheck, commusr, userRoles, allFieldLayout, clusterNo);
+				activeCheck, commusr, userRoles, allFieldLayout, districtMulti, clusterNo);
 
 		createButtonsLayout();
 	}
@@ -679,22 +742,91 @@ public class UserForm extends FormLayout {
 				}
 			}
 
-			if (binder.getBean().getUserName() != null || userName != null) {
+			
+		if (binder.getBean().getUserName().contains(" ")){
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username cannot contain white space");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+				isErrored = true;
+				return;
+			} else {
+				
+				
+		if (binder.getBean().getUserName() != null || userName != null) {
 
 				UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
 						.getByUserName(binder.getBean().getUserName());
-				
-				
-				if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUser.getUserName().trim())
-						&& !originalUser.getUserName().isEmpty() && !isErrored) {
-					if(preceedingUsername.equals(originalUser.getUserName())) {
+				String originalUserx = originalUser == null ? binder.getBean().getUserName() : originalUser.getUserName().trim();
+				if(retrieveBinderUserFromDb == null) {
+					if (binder.getBean().getUserName().contains(" ")){
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Username cannot contain white space");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						isErrored = true;
+						return;
+					} else if(!preceedingUsername.equals(originalUserx)) {
+						System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+						fireEvent(new SaveEvent(this, binder.getBean()));
+
+					} else {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Error : Unknow error surrounding the supplied username");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+						isErrored = true;
+						return;
+					}
+				} else if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUserx)
+						&& !originalUserx.isEmpty() && !isErrored) {
+					if(preceedingUsername.equals(originalUserx)) {
 						fireEvent(new SaveEvent(this, binder.getBean()));
 
 					}else {
 						UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
 						if(checkNewusernamefromDB == null) {
 							fireEvent(new SaveEvent(this, binder.getBean()));
-						}else {
+						} else {
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
@@ -743,6 +875,7 @@ public class UserForm extends FormLayout {
 					}
 				}
 			}
+		}
 		}
 	}
 
@@ -808,6 +941,26 @@ public class UserForm extends FormLayout {
 				});
 
 				Paragraph text = new Paragraph("Error : Username not unique");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+				isErrored = true;
+				return;
+			} else if (binder.getBean().getUserName().contains(" ")){
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Error : Username cannot contain white space");
 
 				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 				layout.setAlignItems(Alignment.CENTER);
@@ -974,37 +1127,64 @@ public class UserForm extends FormLayout {
 
 	// TODO: This algorithm can be written better for good time and space complexity
 	protected void updateFieldsByUserRole(Set<UserRole> userRoles) {
-
 		final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(userRoles);
 		final boolean useCommunity = jurisdictionLevel == JurisdictionLevel.COMMUNITY;
+		final boolean useDistrictOnly = jurisdictionLevel == JurisdictionLevel.DISTRICT;
 		final boolean useDistrict = jurisdictionLevel == JurisdictionLevel.DISTRICT || useCommunity;
 		final boolean useRegion = jurisdictionLevel == JurisdictionLevel.REGION || useDistrict;
 		final boolean useArea = jurisdictionLevel == JurisdictionLevel.AREA || useRegion;
-
 		if (useCommunity) {
-//			community.setVisible(true);
+			clusterNo.setVisible(true);
 			district.setVisible(true);
+			districtMulti.clear();
+			districtMulti.setVisible(false);
+			province.setVisible(true);
+			region.setVisible(true);
+		} else if (useDistrictOnly) {
+			clusterNo.clear();
+			clusterNo.setVisible(false);
+//			district.clear();
+			district.setVisible(false);
+			districtMulti.setVisible(true);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useDistrict) {
-//			community.setVisible(false);
-			district.setVisible(true);
+			clusterNo.clear();
+			clusterNo.setVisible(false);
+			district.clear();
+			district.setVisible(false);
+			districtMulti.setVisible(true);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useRegion) {
-//			community.setVisible(false);
+			clusterNo.clear();
+			clusterNo.setVisible(false);
+			district.clear();
 			district.setVisible(false);
+			districtMulti.clear();
+			districtMulti.setVisible(false);
 			province.setVisible(true);
 			region.setVisible(true);
 		} else if (useArea) {
-//			community.setVisible(false);
+			clusterNo.clear();
+			clusterNo.setVisible(false);
+			district.clear();
 			district.setVisible(false);
+			districtMulti.clear();
+			districtMulti.setVisible(false);
+			province.clear();
 			province.setVisible(false);
 			region.setVisible(true);
 		} else {
+			clusterNo.clear();
 			clusterNo.setVisible(false);
+			district.clear();
 			district.setVisible(false);
+			districtMulti.clear();
+			districtMulti.setVisible(false);
+			province.clear();
 			province.setVisible(false);
+			region.clear();
 			region.setVisible(false);
 		}
 

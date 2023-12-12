@@ -75,7 +75,7 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 	CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
 
 	private void refreshGridData(FormAccess formAccess) {
-//		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
+
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
 						.getByTimelinessAnalysis(criteria, query.getOffset(), query.getLimit(),
@@ -353,10 +353,9 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 				.setResizable(true);
 	
 		grid.setVisible(true);
-		String numberOfRows = FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCount(criteria, null,
+		String numberOfRows = FacadeProvider.getCampaignFormDataFacade().getByTimelinessAnalysisCount(criteria, null,
 				null, null, null);
 		criteria.campaign(lastStarted);
-//		int numberOfRows = FacadeProvider.getCampaignFormDataFacade().prepareAllCompletionAnalysis();
 		dataProvider = DataProvider.fromFilteringCallbacks(
 				query -> FacadeProvider.getCampaignFormDataFacade()
 						.getByTimelinessAnalysis(criteria, query.getOffset(), query.getLimit(),

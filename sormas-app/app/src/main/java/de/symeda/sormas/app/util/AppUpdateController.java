@@ -179,17 +179,17 @@ public class AppUpdateController {
 
 	private ConfirmationDialog buildDownloadAppDialog() {
 		dismissExistingDialog();
-
+			boolean xallowDismiss = false;
 		int headingResId = R.string.heading_app_update_required;
 		int subHeadingResId = R.string.message_update_app_required;
 		int positiveButtonTextResId = R.string.action_download;
-		int negativeButtonTextResId = allowDismiss ? R.string.action_download_later : R.string.action_close_app;
+		int negativeButtonTextResId = xallowDismiss ? R.string.action_download_later : R.string.action_close_app;
 
 		final ConfirmationDialog downloadAppDialog =
 			new ConfirmationDialog(activity, headingResId, subHeadingResId, positiveButtonTextResId, negativeButtonTextResId);
 		downloadAppDialog.setCancelable(false);
 		downloadAppDialog.setPositiveCallback(() -> downloadNewAppVersion());
-		if (allowDismiss) {
+		if (xallowDismiss) {
 			downloadAppDialog.setNegativeCallback(dismissCallback);
 		} else {
 			downloadAppDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
@@ -242,17 +242,17 @@ public class AppUpdateController {
 
 	private ConfirmationDialog buildInstallFailedDialog() {
 		dismissExistingDialog();
-
+		boolean xallowDismiss = false;
 		int headingResId = R.string.heading_install_app_failed;
 		int subHeadingResId = R.string.message_install_app_failed;
 		int positiveButtonTextResId = R.string.action_redownload_app;
-		int negativeButtonTextResId = allowDismiss ? R.string.action_redownload_app_later : R.string.action_close_app;
+		int negativeButtonTextResId = xallowDismiss ? R.string.action_redownload_app_later : R.string.action_close_app;
 
 		final ConfirmationDialog installFailedDialog =
 			new ConfirmationDialog(activity, headingResId, subHeadingResId, positiveButtonTextResId, negativeButtonTextResId);
 		installFailedDialog.setCancelable(false);
 		installFailedDialog.setPositiveCallback(() -> downloadNewAppVersion());
-		if (allowDismiss) {
+		if (xallowDismiss) {
 			installFailedDialog.setNegativeCallback(dismissCallback);
 		} else {
 			installFailedDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
