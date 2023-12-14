@@ -194,10 +194,11 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	public void publishUnvisibleForEOC() {
-		if(userProvider.getUser().getUsertype().equals(UserType.EOC_USER)) {
+		if (userProvider.getUser().getUsertype().equals(UserType.EOC_USER)) {
 			publishUnpublishCampaign.setVisible(false);
-		}			
+		}
 	}
+
 	public LocalDate convertToLocalDateViaMilisecond(Date dateToConvert) {
 		return Instant.ofEpochMilli(dateToConvert.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
 	}
@@ -378,23 +379,73 @@ public class CampaignForm extends VerticalLayout {
 
 		VerticalLayout tab1 = new VerticalLayout();
 
-		comp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.emptyList()
-						: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
-				campaignDto, PRE_CAMPAIGN);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			comp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.emptyList()
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade()
+							.getAllCampaignFormMetasAsReferencesByRoundPashto(PRE_CAMPAIGN),
+					campaignDto, PRE_CAMPAIGN);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			comp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.emptyList()
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade()
+							.getAllCampaignFormMetasAsReferencesByRoundDari(PRE_CAMPAIGN),
+					campaignDto, PRE_CAMPAIGN);
+		} else {
+			comp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.emptyList()
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
+					campaignDto, PRE_CAMPAIGN);
+		}
 
-		compp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-						: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
-				campaignDto, INTRA_CAMPAIGN);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			compp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundPashto(
+							INTRA_CAMPAIGN),
+					campaignDto, INTRA_CAMPAIGN);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			compp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundDari(
+							INTRA_CAMPAIGN),
+					campaignDto, INTRA_CAMPAIGN);
+		} else {
+			compp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade()
+							.getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
+					campaignDto, INTRA_CAMPAIGN);
+		}
 
-		comppp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
-						: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
-				campaignDto, POST_CAMPAIGN);
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			comppp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundPashto(
+							POST_CAMPAIGN),
+					campaignDto, POST_CAMPAIGN);
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			comppp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade()
+							.getAllCampaignFormMetasAsReferencesByRoundDari(POST_CAMPAIGN),
+					campaignDto, POST_CAMPAIGN);
+		} else {
+			comppp = new CampaignFormGridComponent(
+					this.campaignDto == null ? Collections.EMPTY_LIST
+							: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
+					FacadeProvider.getCampaignFormMetaFacade()
+							.getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
+					campaignDto, POST_CAMPAIGN);
+		}
 
 		comp1 = new CampaignDashboardGridElementComponent(
 				this.campaignDto == null ? Collections.EMPTY_LIST
@@ -561,14 +612,17 @@ public class CampaignForm extends VerticalLayout {
 
 				isSingleSelectClickItemLock = true;
 				if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
-					
+
 					Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
-							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
-					
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+									"AGE_0_4");
+
 					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
-							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");	
-					
-					System.out.println( ee.getItem().getUuid() + "DISTRICTUUID" +"CAMPAIGNUUID" +  campaignDto.getUuid() + AgeGroup.AGE_5_10.toString());
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+									"AGE_5_10");
+
+					System.out.println(ee.getItem().getUuid() + "DISTRICTUUID" + "CAMPAIGNUUID" + campaignDto.getUuid()
+							+ AgeGroup.AGE_5_10.toString());
 					createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
 							campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10);
 
@@ -716,7 +770,7 @@ public class CampaignForm extends VerticalLayout {
 
 			});
 
-			treeGrid.addSelectionListener(event -> {	
+			treeGrid.addSelectionListener(event -> {
 				if (isMultiSelectItemLock) {
 
 					areass.clear();
@@ -1023,9 +1077,7 @@ public class CampaignForm extends VerticalLayout {
 
 		VerticalLayout dialogLayout = createDialogLayout(name_, selectedPopData, saveButton, Uuid, campaignDto_, dialog,
 				campaignTreeGridDto, age0_4, age5_10);
-		
-		
-		
+
 		dialog.add(dialogLayout);
 
 		add(dialog);
@@ -1036,25 +1088,26 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	private static VerticalLayout createDialogLayout(String name_, Long selectedPopData, Button saveButton, String Uuid,
-			CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10) {
-		
+			CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto, Integer age0_4,
+			Integer age5_10) {
+
 //		System.out.println(age5_10 + "POPULATION DATA SET " + age0_4);
 
 		TextField district = new TextField(I18nProperties.getCaption(Captions.district));
 		district.setValue(name_);
 		district.setReadOnly(true);
-		
+
 //		System.out.println(name_ + "name" + selectedPopData +"selectedPopData" );
 
-		IntegerField popData0_4 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
-		
-		IntegerField popDataAge5_10 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
-		
+		IntegerField popData0_4 = new IntegerField(
+				I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
+
+		IntegerField popDataAge5_10 = new IntegerField(
+				I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
+
 		popData0_4.setWidthFull();
 		popDataAge5_10.setWidthFull();
-		
-		
-		
+
 		if (age0_4 != null || age5_10 != null) {
 			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
 			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
@@ -1066,15 +1119,15 @@ public class CampaignForm extends VerticalLayout {
 
 			List<PopulationDataDto> popDataDto0_4 = FacadeProvider.getPopulationDataFacade()
 					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_0_4);
-			
+
 			List<PopulationDataDto> popDataDto5_10 = FacadeProvider.getPopulationDataFacade()
 					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_5_10);
-			
+
 //			System.out.println(popDataDto  +  "popdata dto " + popDataDto5_10);
 			// new ArrayList<>();
 			popDataDto0_4.get(0).setPopulation(popData0_4.getValue());
 			popDataDto5_10.get(0).setPopulation(popDataAge5_10.getValue());
-			
+
 			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto0_4);
 			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto5_10);
 			dialog.close();

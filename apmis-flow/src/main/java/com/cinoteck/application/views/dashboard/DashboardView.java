@@ -158,7 +158,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 
 		for (CampaignReferenceDto cmfdto : campaigns) {
-			campaingYears.add(cmfdto.getCampaignYear().trim());
+			campaingYears.add(cmfdto.getCampaignYear());
 
 		}
 
