@@ -33,16 +33,10 @@ public interface CampaignFormMetaFacade {
 
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferences();
 	
-	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round);  
-	
-	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundPashto(String round); 
-	
-	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundDari(String round);
+	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round); 
 	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round, String campaignUUID);	
-	
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round, String campaignUUID);
-	
+	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round, String campaignUUID);	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round, String campaignUUID);
 
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(String round, String campaignUUID, Set<FormAccess> userFormAccess);
@@ -51,11 +45,7 @@ public interface CampaignFormMetaFacade {
 	
 	CampaignFormMetaReferenceDto getCampaignFormMetaReferenceByUuid(String campaignFormUuid);
 
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid); 
-	
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid);
-	
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid);
+	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid);
 	
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignIntraCamapaign(String uuid);
 

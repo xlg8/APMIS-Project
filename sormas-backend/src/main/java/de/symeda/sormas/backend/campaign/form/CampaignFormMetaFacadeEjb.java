@@ -100,8 +100,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		target.setFormId(source.getFormId());
 		target.setFormType(source.getFormType().toString().toLowerCase());
 		target.setFormName(source.getFormName());
-		target.setFormname_ps_af(source.getFormname_ps_af());
-		target.setFormname_fa_af(source.getFormname_fa_af());
 		target.setModality(source.getModality().toString());
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
@@ -122,16 +120,16 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		DtoHelper.fillDto(target, source);
 
 		target.setFormId(source.getFormId());
-		target.setFormType((source.getFormType().toLowerCase().equals(CampaignPhase.PRE.toString().toLowerCase()))
-				? CampaignPhase.PRE
-				: (source.getFormType().toLowerCase().equals(CampaignPhase.INTRA.toString().toLowerCase()))
-						? CampaignPhase.INTRA
-						: CampaignPhase.POST);
+		target.setFormType(
+				(source.getFormType().toLowerCase().equals(CampaignPhase.PRE.toString().toLowerCase())) ? CampaignPhase.PRE
+						: (source.getFormType().toLowerCase().equals(CampaignPhase.INTRA.toString().toLowerCase()))
+								? CampaignPhase.INTRA
+								: CampaignPhase.POST);
 		target.setFormName(source.getFormName());
-		if (source.getModality() != null)
-			target.setModality(source.getModality().equals(Modality.S2S.toString()) ? Modality.S2S
-					: source.getModality().equals(Modality.HF2HF.toString()) ? Modality.HF2HF
-							: source.getModality().equals(Modality.M2M.toString()) ? Modality.M2M : Modality.H2H);
+		if(source.getModality() != null)
+		target.setModality(source.getModality().equals(Modality.S2S.toString()) ? Modality.S2S
+				: source.getModality().equals(Modality.HF2HF.toString()) ? Modality.HF2HF
+						: source.getModality().equals(Modality.M2M.toString()) ? Modality.M2M : Modality.H2H);
 		target.setFormCategory(source.getFormCategory());
 		target.setLanguageCode(source.getLanguageCode());
 		target.setCampaignFormElements(source.getCampaignFormElements());
@@ -177,21 +175,9 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
 	}
 
-	@Override 
+	@Override
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid) {
 		return service.getCampaignFormMetasAsReferencesByCampaign(uuid);
-	}
-	
-	@Override
-	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid) {
-		return service.getCampaignFormMetasAsReferencesByCampaignPashto(uuid).stream().filter(e -> e.getFormname_ps_af() != null)
-				.collect(Collectors.toList());
-	}
-	
-	@Override
-	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid) {
-		return service.getCampaignFormMetasAsReferencesByCampaignDari(uuid).stream().filter(e -> e.getFormname_fa_af() != null)
-				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -207,24 +193,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	@Override
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round) {
 		return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
-//				.sorted(Comparator.comparing(ReferenceDto::toString))
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundPashto(String round) {
-		return service.getByRound(round).stream().filter(e -> e.getFormname_ps_af() != null)
-				.map(CampaignFormMetaFacadeEjb::toReferenceDtoPashto)
-//				.sorted(Comparator.comparing(ReferenceDto::toString))
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundDari(String round) {
-		return service.getByRound(round).stream().filter(e -> e.getFormname_fa_af() != null)
-				.map(CampaignFormMetaFacadeEjb::toReferenceDtoDari)
-//				.sorted(Comparator.comparing(ReferenceDto::toString))
-				.collect(Collectors.toList());
+				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
 	}
 
 //	@Override
@@ -254,19 +223,15 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			String campaignUUID) {
 		return service.getCampaignFormMetasAsReferencesByCampaignandRound(round, campaignUUID);
 	}
-
 	@Override
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round,
 			String campaignUUID) {
-		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(round, campaignUUID).stream()
-				.filter(e -> e.getFormname_ps_af() != null).collect(Collectors.toList());
+		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(round, campaignUUID);
 	}
-
 	@Override
-	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(
-			String round, String campaignUUID) {
-		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndDari(round, campaignUUID).stream()
-				.filter(e -> e.getFormname_fa_af() != null).collect(Collectors.toList());
+	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round,
+			String campaignUUID) {
+		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndDari(round, campaignUUID);
 	}
 
 	@Override
@@ -361,7 +326,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		Predicate filter = null;
 
 		if (campaignFormCriteria != null) {
-			System.out.println("DEBUGGER: 45fffffffiiilibraryii = " + campaignFormCriteria);
+			 System.out.println("DEBUGGER: 45fffffffiiilibraryii = "+ campaignFormCriteria);
 			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
 		}
 
@@ -384,7 +349,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 					System.out.println("DEBUGGER: gfgdgjhgfgddgfghhjhg");
 					expression = campaignFormMeta.get(sortProperty.propertyName);
 					break;
-				case CampaignFormMeta.FORM_NAME:
+				case CampaignFormMeta.FORM_NAME:				
 					System.out.println("DEBUGGER: firsthvshgshvshgd");
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_NAME);
 //					order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
@@ -396,7 +361,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				case CampaignFormMeta.FORM_CATEGORY:
 					System.out.println("DEBUGGER: jfhgsghsghsjgsfhgsghshgs");
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
-					break;
+					break;		
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
@@ -671,38 +636,21 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.toString(), entity.getFormType(),
 				entity.getFormCategory(), entity.getDaysExpired());
 	}
-
-	public static CampaignFormMetaReferenceDto toReferenceDtoPashto(CampaignFormMeta entity) {
-		if (entity == null) {
-			return null;
-		}
-
-		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_ps_af(), entity.getFormType(),
-				entity.getFormCategory(), entity.getDaysExpired());
-	}
-
-	public static CampaignFormMetaReferenceDto toReferenceDtoDari(CampaignFormMeta entity) {
-		if (entity == null) {
-			return null;
-		}
-
-		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_fa_af(), entity.getFormType(),
-				entity.getFormCategory(), entity.getDaysExpired());
-	}
-
+	
 	@Override
 	public Date formExpiryDate(CampaignFormDataCriteria criteria) {
 		// TODO Auto-generated method stub
 		boolean filterIsNull = false;
-		if (criteria != null) {
+		if(criteria != null) {
 			filterIsNull = criteria.getCampaign() == null;
 		}
-
+		
 		String joiner = "";
-
+		
 		if (!filterIsNull && criteria != null) {
 			final CampaignReferenceDto campaign = criteria.getCampaign();
 			final CampaignFormMetaReferenceDto form = criteria.getCampaignFormMeta();
+			
 
 			//@formatter:off
 			final String campaignFilter = campaign != null ? "campwitex.campaignid = '"+campaign.getUuid()+"'" : "";
