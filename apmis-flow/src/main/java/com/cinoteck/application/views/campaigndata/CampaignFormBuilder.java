@@ -851,6 +851,22 @@ public class CampaignFormBuilder extends VerticalLayout {
 						});
 
 					}
+					
+					if (fieldId.equalsIgnoreCase("PopulationGroup_5_10")) {
+
+						numberField.addValueChangeListener(e -> {
+							if (VaadinService.getCurrentRequest().getWrappedSession()
+									.getAttribute("populationdata") != null) {
+
+								final String des = VaadinService.getCurrentRequest().getWrappedSession()
+										.getAttribute("populationdata").toString();
+								numberField.setValue(Double.parseDouble(des));
+								numberField.setReadOnly(true);
+							}
+
+						});
+
+					}
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed

@@ -290,11 +290,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);	
-				nav.getStyle().set("width", "fit-content");
+				nav.getStyle().set("width", "auto");
 				nav.getStyle().set("text-align", "justify"); 
 			} else if (userLanguage.equals("Dari")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
-				nav.getStyle().set("width", "fit-content");
+				nav.getStyle().set("width", "auto");
 				nav.getStyle().set("text-align", "justify");
 			} else {
 

@@ -3,6 +3,7 @@ package com.cinoteck.application.views.reports;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
@@ -286,10 +287,18 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.getStyle().set("width", "145px !important");
 		campaignFormCombo.setClearButtonVisible(true);
 
-		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-				.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
-
-		campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = new ArrayList<>();
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+					.getCampaignFormMetasAsReferencesByCampaignPashto(campaignz.getValue().getUuid());
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+					.getCampaignFormMetasAsReferencesByCampaignDari(campaignz.getValue().getUuid());
+		} else {
+			campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
+					.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
+			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+		}
 
 		campaignFormCombo.setItems(campaignFormReferences_);
 		campaignFormCombo.addValueChangeListener(event -> {
@@ -623,7 +632,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.clear();
 		if (criteria.getCampaign() != null) {
 			if (UserProvider.getCurrent().hasUserType(UserType.EOC_USER)) {
-				
+
 				List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid());
 
@@ -642,7 +651,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 			campaignFormCombo.setItems(campaignFormReferences_);
-			}
+		}
 	}
 
 	public void setFormMetaChangedCallback(Consumer<CampaignFormMetaReferenceDto> formMetaChangedCallback) {

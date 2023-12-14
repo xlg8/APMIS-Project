@@ -81,21 +81,7 @@ public class ImportPopulationDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
-//
-//		campaignFilter.setId(CampaignDto.NAME);
-//		campaignFilter.setRequired(true);
-//		campaignFilter.setItems(FacadeProvider.getCampaignFacade().getAllActiveCampaignsAsReference());
-//		campaignFilter.setValue(FacadeProvider.getCampaignFacade().getReferenceByUuid(camapigndto.getUuid()));
-//		campaignFilter.setEnabled(false);
-////
-//		Label lblCollectionDateInfo = new Label(I18nProperties.getString(Strings.infoPopulationCollectionDate));
+
 
 		H3 step1 = new H3();
 		step1.add("Step 1: Download the Import Template");
