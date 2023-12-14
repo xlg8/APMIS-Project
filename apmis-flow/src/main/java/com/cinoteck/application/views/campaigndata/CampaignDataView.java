@@ -1221,6 +1221,8 @@ public class CampaignDataView extends VerticalLayout {
 					.setHeader(I18nProperties.getCaption(Captions.Campaign_creatingUser)).setSortable(true)
 					.setResizable(true).setAutoWidth(true).setTooltipGenerator(
 							e -> I18nProperties.getCaption(Captions.Campaign_creatingUser) + e.getSource());
+			
+			
 		} else {
 
 			grid.addColumn(CampaignFormDataIndexDto.CAMPAIGN).setHeader(I18nProperties.getCaption(Captions.Campaigns))
@@ -1347,6 +1349,8 @@ public class CampaignDataView extends VerticalLayout {
 
 		add(grid);
 	}
+	
+	
 	
 
 	
