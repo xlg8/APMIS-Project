@@ -53,9 +53,9 @@ public interface CampaignFormMetaFacade {
 
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid); 
 	
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid);
-	
-	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid);
+//	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid);
+//	
+//	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid);
 	
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignIntraCamapaign(String uuid);
 

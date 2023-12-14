@@ -182,17 +182,17 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return service.getCampaignFormMetasAsReferencesByCampaign(uuid);
 	}
 	
-	@Override
-	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid) {
-		return service.getCampaignFormMetasAsReferencesByCampaignPashto(uuid).stream().filter(e -> e.getFormname_ps_af() != null)
-				.collect(Collectors.toList());
-	}
-	
-	@Override
-	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid) {
-		return service.getCampaignFormMetasAsReferencesByCampaignDari(uuid).stream().filter(e -> e.getFormname_fa_af() != null)
-				.collect(Collectors.toList());
-	}
+//	@Override
+//	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignPashto(String uuid) {
+//		return service.getCampaignFormMetasAsReferencesByCampaignPashto(uuid).stream().filter(e -> e.getFormname_ps_af() != null)
+//				.collect(Collectors.toList());
+//	}
+//	
+//	@Override
+//	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignDari(String uuid) {
+//		return service.getCampaignFormMetasAsReferencesByCampaignDari(uuid).stream().filter(e -> e.getFormname_fa_af() != null)
+//				.collect(Collectors.toList());
+//	}
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignIntraCamapaign(String uuid) {
@@ -259,14 +259,14 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round,
 			String campaignUUID) {
 		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(round, campaignUUID).stream()
-				.filter(e -> e.getFormname_ps_af() != null).collect(Collectors.toList());
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(
 			String round, String campaignUUID) {
 		return service.getCampaignFormMetasAsReferencesByCampaignandRoundAndDari(round, campaignUUID).stream()
-				.filter(e -> e.getFormname_fa_af() != null).collect(Collectors.toList());
+				.collect(Collectors.toList());
 	}
 
 	@Override
