@@ -255,7 +255,7 @@ public class ClusterDataImporter extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						
-						System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+						//System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
 
 						DistrictReferenceDto regrefDto = new DistrictReferenceDto();
 						List<CommunityReferenceDto> clusterNameList = FacadeProvider.getCommunityFacade()
@@ -266,7 +266,7 @@ public class ClusterDataImporter extends DataImporter {
 
 						} else {
 							
-							System.out.println("444444444444444444444444444444444444444444444444444444444");
+						//	System.out.println("444444444444444444444444444444444444444444444444444444444");
 
 							if (isOverWrite) {
 								clusterName = clusterName_;
@@ -274,10 +274,10 @@ public class ClusterDataImporter extends DataImporter {
 
 							} else {
 								
-								System.out.println("55555555555555555555555555555555555555555555555555");
+							//	System.out.println("55555555555555555555555555555555555555555555555555");
 
 								if (clusterNameList.size() >= 0) {
-									System.out.println("6666666666666666666666666666666666666666666666666666");
+								//	System.out.println("6666666666666666666666666666666666666666666666666666");
 
 									List<DistrictReferenceDto> existingDistricts = FacadeProvider.getDistrictFacade()
 											.getByExternalId(district_xt_id, false);
