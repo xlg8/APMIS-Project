@@ -427,7 +427,6 @@ System.out.println("YESSSS");
 			importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL_AGE_0_4", Integer.class, separator));
 			importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL_AGE_5_10", Integer.class, separator));
 
-		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "MALE_" + ageGroup.name(), Integer.class, separator));
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "FEMALE_" + ageGroup.name(), Integer.class, separator));
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "OTHER_" + ageGroup.name(), Integer.class, separator));
 		//} External ID of

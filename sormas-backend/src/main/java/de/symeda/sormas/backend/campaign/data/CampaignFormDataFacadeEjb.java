@@ -447,7 +447,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
-				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME_DARI),
 				criteria.getCampaignFormMeta() != null ? root.get(CampaignFormData.FORM_VALUES)
 						: cb.nullLiteral(String.class),
 				areaJoin.get(Area.FA_AF), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.FA_AF),
@@ -544,7 +544,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
-				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME_PASHTO),
 				criteria.getCampaignFormMeta() != null ? root.get(CampaignFormData.FORM_VALUES)
 						: cb.nullLiteral(String.class),
 				areaJoin.get(Area.PS_AF), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.PS_AF),
@@ -617,6 +617,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
 		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
 			// SQLExtractor.from(em.createQuery(cq)));
+		
+		 System.out.println("ttDEBUGGER r567ujhgty8ijyu8dfrf this query " +
+					 SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}

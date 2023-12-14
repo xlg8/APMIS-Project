@@ -276,6 +276,21 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			joiner = "and " +areaFilter + regionFilter + districtFilter;// +campaignFilter;
 			
 			System.out.println(" ===================== "+joiner);
+		}else if(filterIsNull) {
+			
+			if(criteria.getErrorStatusEnum() != null) {
+				final ErrorStatusEnum errorStatus =  criteria.getErrorStatusEnum();	
+				
+				if(errorStatus == ErrorStatusEnum.ERROR_REPORT) {
+					joiner =  " and users_attached  LIKE '%,%'" ;
+				}else {
+					joiner =  " and users_attached  NOT LIKE '%,%'" ;
+				}
+				}
+			
+			System.out.println(" ==========joiner 2 =========== "+joiner);
+			
+			
 		}
 		
 		if(criteria.getErrorStatusEnum() != null) {
@@ -287,6 +302,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 				joiner =  joiner + " and users_attached  NOT LIKE '%,%'" ;
 			}
 			}
+		
+		
 		
 		String orderby = "";
 		
@@ -433,18 +450,26 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			//final String campaignFilter = campaign != null ? " AND campaignfo0_x.uuid = '"+campaign+"'" : "";
 			joiner = "and " +areaFilter + regionFilter + districtFilter;// +campaignFilter;
 			
-			System.out.println(" ===================== "+joiner);
+			System.out.println(" ===================== "+joiner + areaFilter +  regionFilter + districtFilter + "vvv");
 		
 		
 		if(criteria.getErrorStatusEnum() != null) {
 			final ErrorStatusEnum errorStatus =  criteria.getErrorStatusEnum();	
+			if(areaFilter !=  "" || regionFilter != "" || districtFilter != "") {
+				if(errorStatus == ErrorStatusEnum.ERROR_REPORT) {
+					joiner =  joiner + " and users_attached  LIKE '%,%'" ;
+				}else {
+					joiner =  joiner + " and users_attached  NOT LIKE '%,%'" ;
+				}
+				}else {
+					if(errorStatus == ErrorStatusEnum.ERROR_REPORT) {
+						joiner =  " and users_attached  LIKE '%,%'" ;
+					}else {
+						joiner =  " and users_attached  NOT LIKE '%,%'" ;
+					}
+				}
+			}
 			
-			if(errorStatus == ErrorStatusEnum.ERROR_REPORT) {
-				joiner =  joiner + " and users_attached  LIKE '%,%'" ;
-			}else {
-				joiner =  joiner + " and users_attached  NOT LIKE '%,%'" ;
-			}
-			}
 		}
 		String orderby = "";
 		

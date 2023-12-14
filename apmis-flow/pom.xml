@@ -111,12 +111,57 @@
 			<version>${project.version}</version>
 		</dependency>
 
-		<dependency>
+		<!--dependency>
 			<groupId>org.vaadin.addons.flowingcode</groupId>
 			<artifactId>grid-exporter-addon</artifactId>
 			<version>1.4.1</version>
+		</dependency-->
+		<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.30</version>
+</dependency>
+<dependency>
+			<groupId>org.vaadin.addons.flowingcode</groupId>
+			<artifactId>grid-helpers</artifactId>
+			<version>1.1.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+		
+				<dependency>
+		  <groupId>com.opencsv</groupId>
+		  <artifactId>opencsv</artifactId>
+		  <version>5.6</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.docx4j</groupId>
+		    <artifactId>docx4j-JAXB-Internal</artifactId>
+		    <version>8.3.8</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.docx4j</groupId>
+		    <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
+		    <version>8.3.8</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.docx4j</groupId>
+		    <artifactId>docx4j-JAXB-MOXy</artifactId>
+		    <version>8.3.8</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.docx4j</groupId>
+		    <artifactId>docx4j-export-fo</artifactId>
+		    <version>8.3.8</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

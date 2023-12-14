@@ -720,3 +720,7 @@ vaadin-checkbox.custom-checkbox-class:checked {
 .toggle-button-group[invalid] {
     background-color: #ffe5e5;
 }
+
+tfoot#footer {
+      display: none;
+    }
