@@ -3,9 +3,7 @@ package com.cinoteck.application.views.reports;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -281,6 +279,16 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignz.setClearButtonVisible(true);
 		criteria.setCampaign(lastStarted);
 
+//		if(userProvider.getUser().getUsertype() == UserType.EOC_USER) {
+//			campaignPhase.setItems(CampaignPhase.INTRA, CampaignPhase.POST);
+//			campaignPhase.setValue(CampaignPhase.INTRA);
+//		}else {
+//			campaignPhase.setItems(CampaignPhase.values());
+//			campaignPhase.setValue(CampaignPhase.PRE);
+//		}
+
+//		criteria.campaign(lastStarted);
+
 		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
 		campaignFormCombo.getStyle().set("padding-top", "0px !important");
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
@@ -289,8 +297,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
-
-		campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 
 		campaignFormCombo.setItems(campaignFormReferences_);
 		campaignFormCombo.addValueChangeListener(event -> {
@@ -494,8 +500,6 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 						.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(e.getValue().getUuid());
 
 				campaignFormCombo.clear();
-				campaignFormReferences_byCampUUIDx.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-
 				campaignFormCombo.setItems(campaignFormReferences_byCampUUIDx);
 
 			} else {
@@ -624,25 +628,15 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.clear();
 		if (criteria.getCampaign() != null) {
 			if (UserProvider.getCurrent().hasUserType(UserType.EOC_USER)) {
-
-				List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid());
-
-				campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-				campaignFormCombo.setItems(campaignFormReferences_);
+				campaignFormCombo.setItems(FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid()));
 			} else {
-				List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid());
-
-				campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-				campaignFormCombo.setItems(campaignFormReferences_);
+				campaignFormCombo.setItems(FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetasAsReferencesByCampaign(criteria.getCampaign().getUuid()));
 			}
 		} else {
-			List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-					.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid());
-
-			campaignFormReferences_.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-			campaignFormCombo.setItems(campaignFormReferences_);
+			campaignFormCombo
+					.setItems(FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferences());
 		}
 	}
 
