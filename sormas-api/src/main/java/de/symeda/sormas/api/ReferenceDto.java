@@ -39,26 +39,26 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 	private String dateExpired;
 	private String ps_af;
 	private String fa_af;
-	private String formname_ps_af;
-	private String formname_fa_af;
+//	private String formname_ps_af;
+//	private String formname_fa_af;
 	
 //	private Long externalId;
 
-	public String getFormname_ps_af() {
-		return formname_ps_af;
-	}
-
-	public void setFormname_ps_af(String formname_ps_af) {
-		this.formname_ps_af = formname_ps_af;
-	}
-
-	public String getFormname_fa_af() {
-		return formname_fa_af;
-	}
-
-	public void setFormname_fa_af(String formname_fa_af) {
-		this.formname_fa_af = formname_fa_af;
-	}
+//	public String getFormname_ps_af() {
+//		return formname_ps_af;
+//	}
+//
+//	public void setFormname_ps_af(String formname_ps_af) {
+//		this.formname_ps_af = formname_ps_af;
+//	}
+//
+//	public String getFormname_fa_af() {
+//		return formname_fa_af;
+//	}
+//
+//	public void setFormname_fa_af(String formname_fa_af) {
+//		this.formname_fa_af = formname_fa_af;
+//	}
 
 	public ReferenceDto() {
 
@@ -99,18 +99,18 @@ public abstract class ReferenceDto implements Serializable, HasUuid, Comparable<
 		this.fa_af = fa_af;
 	}
 	
-	public ReferenceDto(@Pattern(regexp = "^[0-9a-zA-Z-]*$", message = "uuidPatternNotMatching") String uuid,
-			String caption, String formType, String dateExpired, String ps_af, String fa_af, String formnameps_af, String formname_fa_af) {
-		super();
-		this.uuid = uuid;
-		this.caption = caption;
-		this.formType = formType;
-		this.dateExpired = dateExpired;
-		this.ps_af = ps_af;
-		this.fa_af = fa_af;
-		this.formname_ps_af = formname_ps_af;
-		this.formname_fa_af = formname_fa_af;
-	}
+//	public ReferenceDto(@Pattern(regexp = "^[0-9a-zA-Z-]*$", message = "uuidPatternNotMatching") String uuid,
+//			String caption, String formType, String dateExpired, String ps_af, String fa_af, String formnameps_af, String formname_fa_af) {
+//		super();
+//		this.uuid = uuid;
+//		this.caption = caption;
+//		this.formType = formType;
+//		this.dateExpired = dateExpired;
+//		this.ps_af = ps_af;
+//		this.fa_af = fa_af;
+////		this.formname_ps_af = formname_ps_af;
+////		this.formname_fa_af = formname_fa_af;
+//	}
 
 	/*	public ReferenceDto(String uuid, String caption, Long externalId) {
 		this.uuid = uuid;
