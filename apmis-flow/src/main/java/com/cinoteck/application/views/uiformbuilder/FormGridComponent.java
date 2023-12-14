@@ -481,24 +481,24 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setOptions(option);
 					}
 
-					if (constraints.getValue() != null) {
-
-						if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
-
-							newForm.setConstraints(constraints.getValue().split(","));
-						} else {
-
-							if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
-
-								String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
-								newForm.setConstraints(valueOfMinMAx.split(" "));
-							} else {
-
-								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
-							}
-						}
-
-					}
+//					if (constraints.getValue() != null) {
+//
+//						if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
+//
+//							newForm.setConstraints(constraints.getValue().split(","));
+//						} else {
+//
+//							if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
+//
+//								String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
+//								newForm.setConstraints(valueOfMinMAx.split(" "));
+//							} else {
+//
+//								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+//							}
+//						}
+//
+//					}
 
 					if (!styles.getValue().isEmpty()) {
 
