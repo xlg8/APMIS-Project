@@ -48,6 +48,9 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	public static final String CAMPAIGN_FORM_ELEMENTS = "campaignFormElements";
 	public static final String CAMPAIGN_FORM_TRANSLATIONS = "campaignFormTranslations";
 	public static final String DAYSTOEXPIRE = "daysExpired";
+	public static final String FORM_NAME_PASHTO = "formname_ps_af"; 
+	public static final String FORM_NAME_DARI = "formname_fa_af"; 
+
 
 	private String formId;
 	private String formType;
@@ -60,6 +63,8 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	private String modality;	
 
 	private String formName;
+	private String formname_ps_af;
+	private String formname_fa_af;
 	private String languageCode;
 	private List<CampaignFormElement> campaignFormElements;
 //	private List<CampaignFormElement> campaignFormElementsList;
@@ -114,6 +119,25 @@ public class CampaignFormMeta extends AbstractDomainObject {
 
 	public void setFormName(String formName) {
 		this.formName = formName;
+	}
+
+	
+	@Column
+	public String getFormname_ps_af() {
+		return formname_ps_af;
+	}
+
+	public void setFormname_ps_af(String formname_ps_af) {
+		this.formname_ps_af = formname_ps_af;
+	}
+
+	@Column
+	public String getFormname_fa_af() {
+		return formname_fa_af;
+	}
+
+	public void setFormname_fa_af(String formname_fa_af) {
+		this.formname_fa_af = formname_fa_af;
 	}
 
 	@Column

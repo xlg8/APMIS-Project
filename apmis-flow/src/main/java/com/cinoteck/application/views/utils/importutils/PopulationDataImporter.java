@@ -316,7 +316,6 @@ public class PopulationDataImporter extends DataImporter {
 							}
 						}
 					} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
-//						System.out.println("++++++++++++++++Error found++++++++++++++++ ");
 						
 						return e;
 					}
@@ -374,6 +373,8 @@ public class PopulationDataImporter extends DataImporter {
 		try {
 			if (entityPropertyPath.equalsIgnoreCase("TOTAL")) {
 				insertPopulationIntoPopulationData(populationData, value);
+				
+				System.out.println(populationData +  "header string " +  value);
 			} else if (entityPropertyPath.matches(TOTAL_HEADER_PATTERN)) {
 				try {
 					populationData.setSex(Sex.valueOf(entityPropertyPaths[0].substring(0, entityPropertyPaths[0].indexOf("_"))));
@@ -387,6 +388,8 @@ public class PopulationDataImporter extends DataImporter {
 				if (!sexString.equals("TOTAL")) {
 					try {
 						populationData.setSex(Sex.valueOf(sexString));
+						
+						System.out.println(sexString +  "header niot totsl string " );
 					} catch (IllegalArgumentException e) {
 						throw new InvalidColumnException(entityProperty);
 					}
@@ -394,8 +397,12 @@ public class PopulationDataImporter extends DataImporter {
 
 				// Age group
 				String ageGroupString = entityPropertyPath.substring(entityPropertyPath.indexOf("_") + 1, entityPropertyPaths[0].length());
+				
+				//
 				try {
 					populationData.setAgeGroup(AgeGroup.valueOf(ageGroupString));
+					
+					System.out.println(ageGroupString +  "Agegroup string ");
 				} catch (IllegalArgumentException e) {
 					throw new InvalidColumnException(entityProperty);
 				}

@@ -60,6 +60,8 @@ public class TranslationGridComponent extends VerticalLayout {
 	private boolean isNewForm = false;
 	ListDataProvider<CampaignFormTranslations> outerDataprovider;
 
+	CampaignFormTranslations identifyer = new CampaignFormTranslations();
+
 	public TranslationGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 		this.campaignFormMetaDto = campaignFormMetaDto;
 
@@ -151,6 +153,7 @@ public class TranslationGridComponent extends VerticalLayout {
 			grid.setColumnReorderingAllowed(true);
 			grid.setAllRowsVisible(true);
 
+
 			plus.setId("sub");
 			del.setId("sub");
 			cancel.setId("sub");
@@ -172,8 +175,28 @@ public class TranslationGridComponent extends VerticalLayout {
 			grid.setVisible(true);
 			back.setVisible(true);
 
-			List<TranslationElement> allTranslations = eee.getFirstSelectedItem().get().getTranslations().stream()
-					.collect(Collectors.toList());
+			List<TranslationElement> allTranslations = new ArrayList<>();
+
+			// Assuming eee and getFirstSelectedItem() can be null
+			if (eee != null && eee.getFirstSelectedItem().isPresent()) {
+			    // Assuming getTranslations() can be null
+			    List<TranslationElement> translations = eee.getFirstSelectedItem().get().getTranslations();
+				identifyer = eee.getFirstSelectedItem().get();
+			    
+			    if (translations != null) {
+			        allTranslations = translations.stream()
+			                .collect(Collectors.toList());
+			    } 
+//			    else {
+//			        // Handle the case where getTranslations() returns null
+//			    }
+			} 
+//			else {
+//			    // Handle the case where eee or getFirstSelectedItem() is null
+//			}
+
+//			List<TranslationElement> allTranslations = eee.getFirstSelectedItem().get().getTranslations().stream()
+//					.collect(Collectors.toList());
 			allTranslations = allTranslations == null ? new ArrayList<>() : allTranslations;
 			dataprovider = DataProvider.fromStream(allTranslations.stream());
 			dataView = grid.setItems(dataprovider);
@@ -252,15 +275,16 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					elementId.setValue("");
 					caption.setValue("");
+					newTranslation = new TranslationElement();					
 
-					newTranslation = new TranslationElement();
-
-					if (campaignFormMetaDto == null) {
-						campaignFormMetaDto = new CampaignFormMetaDto();
+					if (campaignFormMetaDto.getCampaignFormTranslations() == null) {
+//						List<TranslationElement> translationElementHold = new ArrayList<>();
+//						for (CampaignFormTranslations campaignFormTranslationslooper : campaignFormTranslationsList) {						
+//							translationElementHold.addAll(campaignFormTranslationslooper.getTranslations());
+//						}
+//						campaignFormMetaDto = new CampaignFormMetaDto();
 						grid.setItems(dataprovider);
-					} else {
-						grid.setItems(dataprovider);
-					}
+					} 				
 				}
 			}
 			grid.setHeight("auto !important");
@@ -295,7 +319,7 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					elementId.setValue("");
 					caption.setValue("");
-					
+
 					save.setText("Save");
 					grid.setItems(dataprovider);
 				}
@@ -306,26 +330,29 @@ public class TranslationGridComponent extends VerticalLayout {
 
 			if (((Button) e.getSource()).getId().get().equals("main")) {
 
-				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
+//				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
 				List<CampaignFormTranslations> campaignFormTranslationsList = new ArrayList<>();
-				List<TranslationElement> translationSet = new ArrayList<>();
+//				List<TranslationElement> translationSet = new ArrayList<>();
 				if (languageCode.getValue() != null) {
 
 					System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
 					campaignFormTranslations.setLanguageCode(languageCode.getValue());
-					campaignFormTranslations.setTranslations(translationSet);
-					
-					if (campaignFormMetaDto == null) {
+//					campaignFormTranslations.setTranslations(translationSet);
+
+					if (campaignFormMetaDto.getCampaignFormTranslations() == null) {
 
 						campaignFormMetaDto = new CampaignFormMetaDto();
 						campaignFormTranslationsList.add(campaignFormTranslations);
 						campaignFormMetaDto.setCampaignFormTranslations(campaignFormTranslationsList);
+						outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+					} else {
+
+						campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
+						outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 					}
 
-					campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
-					outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 //					getGridData();
-					
+
 					vr1.setVisible(true);
 					mainLayout.setVisible(false);
 					vr3.setVisible(false);
@@ -340,11 +367,40 @@ public class TranslationGridComponent extends VerticalLayout {
 					formLayout.setVisible(false);
 					vr3.setVisible(false);
 
-					if (elementId.getValue() != null && caption.getValue() != null) {
+					if (campaignFormTranslations.getTranslations() == null) {
 
+						if (elementId.getValue() != null && caption.getValue() != null) {
+							TranslationElement newTranslations = new TranslationElement();
+							newTranslations.setElementId(elementId.getValue());
+							newTranslations.setCaption(caption.getValue());
+							translationSet = new ArrayList<>();
+							translationSet.add(newTranslations);
+							campaignFormTranslations.setTranslations(translationSet);
+
+							campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
+//							campaignFormTranslationsList.add(campaignFormTranslations);
+							campaignFormMetaDto.setCampaignFormTranslations(campaignFormTranslationsList);
+							outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
+						} else {
+							Notification.show("Fill in Transaltion elementid and Caption");
+						}
+					} else {						
+						
+						campaignFormTranslationsList = campaignFormMetaDto.getCampaignFormTranslations();
+						List<String> langCodeHolder = new ArrayList<>();
+						List<TranslationElement> translationElementHolder = new ArrayList<>();
+						for (CampaignFormTranslations campaignFormTranslationslooper : campaignFormTranslationsList) {
+							langCodeHolder.add(campaignFormTranslationslooper.getLanguageCode());
+							translationElementHolder.addAll(campaignFormTranslationslooper.getTranslations());
+						}
+						
+						if(langCodeHolder.get(0).equals(identifyer)) {
+							
+						} else if(langCodeHolder.get(0).equals(identifyer)) {
+							
+						}
 					}
 				}
-
 			}
 		});
 

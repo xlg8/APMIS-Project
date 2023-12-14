@@ -943,8 +943,8 @@ public abstract class DataImporter {
 
 		Set<ConstraintViolation<T>> constraintViolations = validator.validate(object);
 		if (constraintViolations.size() > 0) {
-			System.out.print(
-					"ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOORRRRRR");
+//			System.out.print(
+//					"ERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOORRRRRR");
 			return ImportLineResultDto
 					.errorResult(ConstrainValidationHelper.getPropertyErrors(constraintViolations).entrySet().stream()
 							.map(e -> String.join(".", e.getKey().get(e.getKey().size() - 1)) + ": " + e.getValue())

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,6 +44,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	private CampaignFormMetaReferenceDto formBeenEdited;
 	private String campaignPhase;
 	List<CampaignFormMetaReferenceDto> allElements;
+	private UserProvider userProvider = new UserProvider();
 
 	public CampaignFormGridComponent(List<CampaignFormMetaReferenceDto> savedCampaignFormMetas,
 			List<CampaignFormMetaReferenceDto> allCampaignFormMetas, CampaignDto capaingDto, String campaignPhase) {
@@ -54,17 +56,17 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaReferenceDto::getCaption)
 				.setHeader(I18nProperties.getCaption(Captions.formname));
 		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
-				.setHeader(I18nProperties.getCaption(Captions.expiry)+" (default)");
+				.setHeader(I18nProperties.getCaption(Captions.expiry) + " (default)");
 		grid.addColumn(this::getDaysExpiredEditable)
-		.setHeader(I18nProperties.getCaption(Captions.expiry) +" custom days (may not update until saved)");
-		
+				.setHeader(I18nProperties.getCaption(Captions.expiry) + " custom days (may not update until saved)");
+
 		grid.setItems(savedCampaignFormMetas);
 		addClassName("list-view");
 		setSizeFull();
 		add(getContent());
-		
+
 	}
-	
+
 	private int getDaysExpiredEditable(CampaignFormMetaReferenceDto item) {
 		return FacadeProvider.getCampaignFacade().getCampaignFormExp(item.getUuid(), capaingDto.getUuid());
 	}
@@ -106,13 +108,13 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		IntegerField daysExpire = new IntegerField();
 		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
-		
+
 		if (capaingDto != null && capaingDto.getStartDate() != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
-		} else if(capaingDto != null && capaingDto.getStartDate() == null) {
-			
+		} else if (capaingDto != null && capaingDto.getStartDate() == null) {
+
 		}
-		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) +" ("+ datd +")");
+		daysExpire.setHelperText(I18nProperties.getString(Strings.max60DaysFromStartDate) + " (" + datd + ")");
 		daysExpire.setMin(1);
 		daysExpire.setMax(60);
 		daysExpire.setStepButtonsVisible(true);
@@ -197,14 +199,14 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 			if (((Button) e.getSource()).getText().equals("Add")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-				CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(), daysExpire.getValue());
-				
+				CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
+						daysExpire.getValue());
+
 //				Set<CampaignFormMetaReferenceDto> formSet = new HashSet<>();
-				
-				
+
 				newCampForm.setCaption(forms.getValue().toString());
 				newCampForm.setDaysExpired(daysExpire.getValue());
-			
+
 //				if (capaingDto == null) {
 //					capaingDto = new CampaignDto();
 //					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo22222");
@@ -213,7 +215,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 //					System.out.println(capaingDto.getCampaignFormMetas() + "dtooooooooooooooooooooooooooooo211111");
 //
 //				}
-				
+
 				capaingDto.getCampaignFormMetas().add(newCampForm);
 				capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp);
 				// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
@@ -233,15 +235,17 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					capaingDto.getCampaignFormMetas().remove(formBeenEdited);
 					capaingDto.getCampaignFormMetas().add(newCampForm);
 					List<CampaignFormMetaExpiryDto> camFormExp_ = new ArrayList<>();
-					
-					camFormExp_ = capaingDto.getCampaignFormMetaExpiryDto().stream().filter(ew -> ew.getFormId() == formBeenEdited).collect(Collectors.toList());
-					CampaignFormMetaExpiryDto camFormExp_i = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(), daysExpire.getValue());
-					
-					if(camFormExp_.size() > 0)
-					capaingDto.getCampaignFormMetaExpiryDto().remove(camFormExp_.get(0));
-					
+
+					camFormExp_ = capaingDto.getCampaignFormMetaExpiryDto().stream()
+							.filter(ew -> ew.getFormId() == formBeenEdited).collect(Collectors.toList());
+					CampaignFormMetaExpiryDto camFormExp_i = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
+							daysExpire.getValue());
+
+					if (camFormExp_.size() > 0)
+						capaingDto.getCampaignFormMetaExpiryDto().remove(camFormExp_.get(0));
+
 					capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp_i);
-					
+
 					// FacadeProvider.getCampaignFacade().saveCampaign(capdto);
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 					getSavedElements();
@@ -264,9 +268,9 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		return vert;
 	}
-	
-	 public List<CampaignFormMetaReferenceDto> getSavedElements() {
-	         return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
-	    }
-	 
+
+	public List<CampaignFormMetaReferenceDto> getSavedElements() {
+		return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
+	}
+
 }

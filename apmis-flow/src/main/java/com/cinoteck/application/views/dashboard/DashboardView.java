@@ -158,7 +158,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
 
 		for (CampaignReferenceDto cmfdto : campaigns) {
-			campaingYears.add(cmfdto.getCampaignYear().trim());
+			campaingYears.add(cmfdto.getCampaignYear());
 
 		}
 
@@ -183,14 +183,16 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			switch (userProvider.getUser().getLanguage().toString()) {
 			case "Pashto":
 				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
 			case "Dari":
 				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
 			default:
 				arabicFormat = NumberFormat.getInstance(new Locale("en"));
-				return String.valueOf(arabicFormat.format(Long.parseLong(item)));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
 			}
+
+
 		});
 
 		campaignYear.getStyle().set("padding-top", "0px");

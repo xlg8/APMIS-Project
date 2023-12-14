@@ -344,7 +344,10 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\r\n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4'\n" + "group by a.\"name\", a.id, a.uuid ";
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10')\n" 
+				+ "group by a.\"name\", a.id, a.uuid ";
+		
+		
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
@@ -375,7 +378,7 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, a.uuid ";
 
 //			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
@@ -400,7 +403,7 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, a.uuid ";
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
@@ -424,7 +427,7 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and p.agegroup = 'AGE_0_4' and ca.uuid = '" + campaignDt.getUuid() + "'\n"
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
 				+ "group by a.\"name\", a.id, a.uuid ";
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);

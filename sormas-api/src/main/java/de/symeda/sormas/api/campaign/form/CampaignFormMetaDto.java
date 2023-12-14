@@ -31,11 +31,17 @@ public class CampaignFormMetaDto extends EntityDto {
 	public static final String DISTRICTENTRY = "districtentry";
 	public static final String FORM_TYPE = "formType";
 	public static final String MODALITY = "modality";
+	public static final String FORM_NAME_PASHTO = "formname_ps_af"; 
+	public static final String FORM_NAME_DARI = "formname_fa_af"; 
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String formId;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String formName;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
+	private String formname_ps_af;
+	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
+	private String formname_fa_af;
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String languageCode;	
 	@Valid
@@ -54,6 +60,22 @@ public class CampaignFormMetaDto extends EntityDto {
 	private int daysExpired;
 
 	private boolean districtentry = false;
+
+	public String getFormname_ps_af() {
+		return formname_ps_af;
+	}
+
+	public void setFormname_ps_af(String formname_ps_af) {
+		this.formname_ps_af = formname_ps_af;
+	}
+
+	public String getFormname_fa_af() {
+		return formname_fa_af;
+	}
+
+	public void setFormname_fa_af(String formname_fa_af) {
+		this.formname_fa_af = formname_fa_af;
+	}
 
 	public static CampaignFormMetaDto build() {
 		CampaignFormMetaDto campaignMeta = new CampaignFormMetaDto();
