@@ -138,8 +138,23 @@ public class CampaignStatisticsService {
 	}
 
 	private String buildSelectExpression(CampaignStatisticsCriteria criteria) {
-		StringBuilder selectBuilder = new StringBuilder().append(buildSelectField(Campaign.TABLE_NAME, Campaign.NAME))
-				.append(", ").append(buildSelectField(CampaignFormMeta.TABLE_NAME, CampaignFormMeta.FORM_NAME));
+		StringBuilder selectBuilder;
+		if(criteria.getLanguage() != null) {
+			if(criteria.getLanguage().equalsIgnoreCase("pashto")) {
+				 selectBuilder = new StringBuilder().append(buildSelectField(Campaign.TABLE_NAME, Campaign.NAME))
+						.append(", ").append(buildSelectField(CampaignFormMeta.TABLE_NAME, CampaignFormMeta.FORM_NAME_PASHTO));	
+			}else if(criteria.getLanguage().equalsIgnoreCase("dari")) {
+				 selectBuilder = new StringBuilder().append(buildSelectField(Campaign.TABLE_NAME, Campaign.NAME))
+						.append(", ").append(buildSelectField(CampaignFormMeta.TABLE_NAME, CampaignFormMeta.FORM_NAME_DARI));	
+			}else {
+				 selectBuilder = new StringBuilder().append(buildSelectField(Campaign.TABLE_NAME, Campaign.NAME))
+						.append(", ").append(buildSelectField(CampaignFormMeta.TABLE_NAME, CampaignFormMeta.FORM_NAME));
+			}
+		}else {
+			selectBuilder = new StringBuilder().append(buildSelectField(Campaign.TABLE_NAME, Campaign.NAME))
+					.append(", ").append(buildSelectField(CampaignFormMeta.TABLE_NAME, CampaignFormMeta.FORM_NAME));
+		}
+		
 
 		CampaignJurisdictionLevel groupingLevel = criteria.getGroupingLevel();
 		if (shouldIncludeNone(groupingLevel)) {
@@ -268,10 +283,27 @@ public class CampaignStatisticsService {
 	}
 
 	private String buildGroupByExpression(CampaignStatisticsCriteria criteria) {
+			
 		CampaignJurisdictionLevel groupingLevel = criteria.getGroupingLevel();
 		StringBuilder groupByFilter = new StringBuilder(" GROUP BY ");
-		groupByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
-				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);
+		
+		if(criteria.getLanguage() != null) {
+			if(criteria.getLanguage().equalsIgnoreCase("pashto")) {
+				groupByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME_PASHTO);	
+			}else if(criteria.getLanguage().equalsIgnoreCase("dari")) {
+				groupByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME_DARI);	
+			}else {
+				groupByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);		
+			}
+			
+		}else {
+			groupByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+			.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);	
+		}
+		
 		if (shouldIncludeArea(groupingLevel)) {
 			groupByFilter.append(", ").append(Area.TABLE_NAME).append(".").append(Area.NAME);
 		}
@@ -291,8 +323,25 @@ public class CampaignStatisticsService {
 	private String buildOrderByExpression(CampaignStatisticsCriteria criteria) {
 		CampaignJurisdictionLevel groupingLevel = criteria.getGroupingLevel();
 		StringBuilder orderByFilter = new StringBuilder(" ORDER BY ");
-		orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
-				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);
+//		orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+//				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);
+		
+		if(criteria.getLanguage() != null) {
+			if(criteria.getLanguage().equalsIgnoreCase("pashto")) {
+				orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME_PASHTO);	
+			}else if(criteria.getLanguage().equalsIgnoreCase("dari")) {
+				orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME_DARI);	
+			}else {
+				orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+				.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);		
+			}
+			
+		}else {
+			orderByFilter.append(Campaign.TABLE_NAME).append(".").append(Campaign.NAME).append(", ")
+			.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_NAME);	
+		}
 		if (shouldIncludeArea(groupingLevel)) {
 			orderByFilter.append(", ").append(Area.TABLE_NAME).append(".").append(Area.NAME);
 		}

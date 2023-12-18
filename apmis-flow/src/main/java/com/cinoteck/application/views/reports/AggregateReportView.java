@@ -87,17 +87,20 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	String userLanguage = "";
 
 	public AggregateReportView() {
 		setSpacing(false);
 		criteria = new CampaignStatisticsCriteria();
 		criteria.setGroupingLevel(CampaignJurisdictionLevel.AREA);
+		criteria.setLanguage(userProvider.getUser().getLanguage().toString());
 		addFilter();
 		configureGrid(criteria);
 	}
 
 	public void configureGrid(CampaignStatisticsCriteria criteria) {
 		this.criteria = criteria;
+		criteria.setLanguage(userProvider.getUser().getLanguage().toString());
 		grid.setSelectionMode(SelectionMode.NONE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		setSizeFull();
@@ -187,6 +190,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 	}
 
 	public void addFilter() {
+		userLanguage = userProvider.getUser().getLanguage().toString();
 		UserProvider user = new UserProvider();
 		AreaReferenceDto userArea = user.getUser().getArea();
 		RegionReferenceDto userRegion = user.getUser().getRegion();
@@ -296,7 +300,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		campaignFormCombo.setClearButtonVisible(true);
 
 		List<CampaignFormMetaReferenceDto> campaignFormReferences_ = FacadeProvider.getCampaignFormMetaFacade()
-				.getCampaignFormMetasAsReferencesByCampaign(campaignz.getValue().getUuid());
+				.getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(campaignz.getValue().getUuid(), userLanguage);
 
 		campaignFormCombo.setItems(campaignFormReferences_);
 		campaignFormCombo.addValueChangeListener(event -> {
@@ -491,13 +495,15 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			campaignz.setItems(allCampaigns_);
 			campaignz.setValue(allCampaigns_.get(0));
 		});
+		
+		System.out.println("User Language Aggregate Report ! " + userLanguage);
 
 		campaignz.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				criteria.setCampaign(e.getValue());
 				reloadData();
 				List<CampaignFormMetaReferenceDto> campaignFormReferences_byCampUUIDx = FacadeProvider
-						.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaign(e.getValue().getUuid());
+						.getCampaignFormMetaFacade().getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(e.getValue().getUuid(), userLanguage);
 
 				campaignFormCombo.clear();
 				campaignFormCombo.setItems(campaignFormReferences_byCampUUIDx);
@@ -630,9 +636,13 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 			if (UserProvider.getCurrent().hasUserType(UserType.EOC_USER)) {
 				campaignFormCombo.setItems(FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaAsReferencesByCampaignPostCamapaign(criteria.getCampaign().getUuid()));
+				
+				
 			} else {
 				campaignFormCombo.setItems(FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetasAsReferencesByCampaign(criteria.getCampaign().getUuid()));
+						.getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(criteria.getCampaign().getUuid(), userLanguage));
+				
+				
 			}
 		} else {
 			campaignFormCombo

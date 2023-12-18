@@ -176,6 +176,8 @@ public class CampaignForm extends VerticalLayout {
 	private static final String DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME = "default_population_data.csv";
 
 	private UserProvider userProvider = new UserProvider();
+	
+	private String userLanguage = "";
 
 	public CampaignForm(CampaignDto formData) {
 		super();
@@ -375,39 +377,43 @@ public class CampaignForm extends VerticalLayout {
 
 		TabSheet tabsheet = new TabSheet();
 		layout.add(tabsheet);
+		
+		userLanguage = userProvider.getUser().getLanguage().toString();
+		
+		System.out.println(userLanguage + "User language in campaugn data ");
 
 		VerticalLayout tab1 = new VerticalLayout();
 
 		comp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(PRE_CAMPAIGN),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(PRE_CAMPAIGN, userLanguage),
 				campaignDto, PRE_CAMPAIGN);
 
 		compp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
+				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(INTRA_CAMPAIGN),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(INTRA_CAMPAIGN, userLanguage),
 				campaignDto, INTRA_CAMPAIGN);
 
 		comppp = new CampaignFormGridComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
+				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRound(POST_CAMPAIGN),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(POST_CAMPAIGN, userLanguage),
 				campaignDto, POST_CAMPAIGN);
 
 		comp1 = new CampaignDashboardGridElementComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
+				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignDashboardElements(PRE_CAMPAIGN)),
 				getListDashboardFromType(PRE_CAMPAIGN), campaignDto, PRE_CAMPAIGN);
 
 		compp2 = new CampaignDashboardGridElementComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
+				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignDashboardElements(INTRA_CAMPAIGN)),
 				getListDashboardFromType(INTRA_CAMPAIGN), campaignDto, INTRA_CAMPAIGN);
 
 		comppp2 = new CampaignDashboardGridElementComponent(
-				this.campaignDto == null ? Collections.EMPTY_LIST
+				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN)),
 				getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 
