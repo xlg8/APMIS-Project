@@ -362,7 +362,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		dialog = new Dialog();
 		// TODO make this check the sesssion and invalidate it... it terms of Spring..
 		// let use another method
-		confirmButton = new Button(I18nProperties.getCaption(Captions.actionAccept), event -> {
+		confirmButton = new Button(I18nProperties.getCaption(Captions.logoutnow), event -> {
 			UI.getCurrent().getSession().close();
 			accessControl.signOut(intendedRoute);
 
