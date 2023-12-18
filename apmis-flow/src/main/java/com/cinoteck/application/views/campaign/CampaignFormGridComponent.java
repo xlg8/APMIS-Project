@@ -211,7 +211,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		saveButton.addClickListener(e -> {
 			
-			System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
+//			System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
 
 			if (((Button) e.getSource()).getText().equalsIgnoreCase("Add") || ((Button) e.getSource()).getText().equalsIgnoreCase("Add?")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
@@ -257,7 +257,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					Notification.show(I18nProperties.getString(Strings.campaignUpdated));
 				} else {
 					
-					System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
+//					System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
 					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
 					CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
 							daysExpire.getValue());

@@ -157,7 +157,7 @@ public class CampaignFormDataImporter extends DataImporter {
 
 				if (!areaExists) {
 					System.out.println(area_xt_id + " does not exist in the list.");
-					writeImportError(values, I18nProperties.getCaption(Captions.areaNotExistInCampaignImportError) + "111111");
+					writeImportError(values, I18nProperties.getCaption(Captions.areaNotExistInCampaignImportError) );
 					return ImportLineResult.ERROR;
 				}
 
@@ -165,7 +165,7 @@ public class CampaignFormDataImporter extends DataImporter {
 
 			System.out.println(" cheking area " + areaExists);
 			if (P_CODE.equalsIgnoreCase(entityProperties[i]) && areaExists) {
-				System.out.println("there is rcode -------------------------------------------");
+//				System.out.println("there is rcode -------------------------------------------");
 
 				List<RegionReferenceDto> selectedAreaInCampaignxy = FacadeProvider.getRegionFacade()
 						.getAllActiveByAreaAndSelectedInCampaign(selectedAreaUUid, campaignDto.getUuid());
@@ -193,7 +193,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //					System.out.println(
 //							regionExists + "  does the region existtttttttttttttttttttttttttttttttttttttttttttttt");
 //					System.out.println(area_xt_id + " does not exist in the list.");
-					writeImportError(values, I18nProperties.getCaption(Captions.regionNotExistInCampaignImportError) + "2222222");
+					writeImportError(values, I18nProperties.getCaption(Captions.regionNotExistInCampaignImportError) );
 					return ImportLineResult.ERROR;
 				}
 			}
@@ -231,13 +231,13 @@ public class CampaignFormDataImporter extends DataImporter {
 //					System.out.println(
 //							districtExists + "  does the district existtttttttttttttttttttttttttttttttttttttttttttttt");
 //					System.out.println(district_xt_id + " does not exist in the list.");
-					writeImportError(values, I18nProperties.getCaption("District is not selected for this campaign") + "333333");
+					writeImportError(values, I18nProperties.getCaption("District is not selected for this campaign") );
 					return ImportLineResult.ERROR;
 				} else {
 					try {
 						insertImportRowIntoData(campaignFormData, values, entityProperties);
 						campaignFormData.setCampaign(campaignReferenceDto);
-						System.out.println(campaignReferenceDto + "Campaign Reference !!!111111111111111111");
+//						System.out.println(campaignReferenceDto + "Campaign Reference !!!111111111111111111");
 
 						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
 								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
@@ -247,7 +247,7 @@ public class CampaignFormDataImporter extends DataImporter {
 
 						FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(campaignFormData);
 					} catch (ImportErrorException | InvalidColumnException | ValidationRuntimeException e) {
-						writeImportError(values, e.getLocalizedMessage() + "444444");
+						writeImportError(values, e.getLocalizedMessage() );
 						return ImportLineResult.ERROR;
 					}
 					return ImportLineResult.SUCCESS;
@@ -339,20 +339,20 @@ public class CampaignFormDataImporter extends DataImporter {
 						}
 					}
 				} catch (InvocationTargetException | IllegalAccessException e) {
-					System.out.println("111111111111111111111111111111Error");
+					System.out.println("InvocationTargetExceptionError");
 					
 					throw new ImportErrorException(
 							I18nProperties.getValidationError(Validations.importErrorInColumn, propertyPath));
 				} catch (IntrospectionException e) {
-					System.out.println("111111111111111111111111111111Error" + "22222222222222");
+					System.out.println("IntrospectionExceptionError" + "22222222222222");
 
 					// skip unknown fields
 				} catch (ImportErrorException e) {
-					System.out.println("111111111111111111111111111111Error" + "33333333333333333333");
+					System.out.println("ImportErrorExceptionError" + "33333333333333333333");
 
 					throw e;
 				} catch (Exception e) {
-					System.out.println("111111111111111111111111111111Error" + "44444444444444444444");
+//					System.out.println("Exception Error" + "44444444444444444444");
 
 					LOGGER.error("Unexpected error when trying to import campaign form data: " + e.getMessage(), e);
 					throw new ImportErrorException(
@@ -360,7 +360,7 @@ public class CampaignFormDataImporter extends DataImporter {
 				}
 			} else {
 				
-				System.out.println("-------ELSE KICKED ");
+//				System.out.println("-------ELSE KICKED ");
 
 				CampaignFormDataEntry formEntry = new CampaignFormDataEntry(propertyPath, entry[i]);
 

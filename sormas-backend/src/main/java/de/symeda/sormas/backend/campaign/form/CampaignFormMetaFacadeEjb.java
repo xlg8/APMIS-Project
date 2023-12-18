@@ -673,10 +673,10 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	
 	public static CampaignFormMetaReferenceDto toReferenceDtoPashto(CampaignFormMeta entity) {
 		if (entity == null) {
-			System.out.println("entity is null yyyyyyyyyyyyyyyyyyyyy" + entity);
+//			System.out.println("entity is null yyyyyyyyyyyyyyyyyyyyy" + entity);
 			return null;
 		}
-		System.out.println(entity.getUuid() + "entity is NOT   null yyyyyy" + entity.getFormname_ps_af() + "yyyyyyyyyyyyyyy" + entity);
+//		System.out.println(entity.getUuid() + "entity is NOT   null yyyyyy" + entity.getFormname_ps_af() + "yyyyyyyyyyyyyyy" + entity);
 
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_ps_af().toString(), entity.getFormType(),
 				entity.getFormCategory(), entity.getDaysExpired());

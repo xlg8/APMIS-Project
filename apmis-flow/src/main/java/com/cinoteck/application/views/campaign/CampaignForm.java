@@ -380,7 +380,7 @@ public class CampaignForm extends VerticalLayout {
 		
 		userLanguage = userProvider.getUser().getLanguage().toString();
 		
-		System.out.println(userLanguage + "User language in campaugn data ");
+//		System.out.println(userLanguage + "User language in campaugn data ");
 
 		VerticalLayout tab1 = new VerticalLayout();
 
