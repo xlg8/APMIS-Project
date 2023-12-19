@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.cinoteck.application.UserProvider;
-import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;

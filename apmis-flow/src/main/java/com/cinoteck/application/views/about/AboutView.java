@@ -7,7 +7,7 @@ import java.util.List;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.utils.SessionTimeout;
-import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;

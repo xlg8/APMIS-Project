@@ -2,7 +2,7 @@ package com.cinoteck.application.views.configurations;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
-import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.opencsv.CSVWriter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlComponent;

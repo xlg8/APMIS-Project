@@ -21,7 +21,7 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
 import com.cinoteck.application.views.user.UserForm.UserRoleCustomComparator;
-import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
-import com.flowingcode.vaadin.addons.gridexporter.GridExporter;
+import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;

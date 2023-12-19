@@ -135,7 +135,7 @@ public interface Captions {
 	String done="done";
 	String downloadCsv="downloadCsv";
 	String log="log";
-	
+	String logoutnow = "logoutnow";
 	
 	
 	
