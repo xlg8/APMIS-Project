@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -13,7 +11,6 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 
 public class ExpressionProcessorUtils {
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private ExpressionProcessorUtils() {
 	}
