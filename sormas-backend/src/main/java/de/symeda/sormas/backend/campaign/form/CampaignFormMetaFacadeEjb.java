@@ -126,6 +126,8 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 								? CampaignPhase.INTRA
 								: CampaignPhase.POST);
 		target.setFormName(source.getFormName());
+		target.setFormname_ps_af(source.getFormname_ps_af());
+		target.setFormname_fa_af(source.getFormname_fa_af());
 		if(source.getModality() != null)
 		target.setModality(source.getModality().equals(Modality.S2S.toString()) ? Modality.S2S
 				: source.getModality().equals(Modality.HF2HF.toString()) ? Modality.HF2HF
@@ -257,7 +259,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	public CampaignFormMetaDto getCampaignFormMetaByUuid(String campaignFormUuid) {
 		return toDto(service.getByUuid(campaignFormUuid));
 	}
-
+	
 	@Override
 	public CampaignFormMetaReferenceDto getCampaignFormMetaReferenceByUuid(String campaignFormUuid) {
 		return toReferenceDto(service.getByUuid(campaignFormUuid));

@@ -49,8 +49,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
 
-	private final UserProvider usr  = new UserProvider();
-	
+	private final UserProvider usr = new UserProvider();
 
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto,
 			CampaignReferenceDto campaignReferenceDto, boolean openData, String uuidForm,
@@ -61,30 +60,49 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		campaignFormMetaDto = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
 
-		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
-				campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-				campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
+		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormname_ps_af(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormname_fa_af(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		} else {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		}
 
 		System.out.print(campaignFormMetaDto.isDistrictentry() + "district daa entry uuuuuuuuuuuuuuuuuu");
-		
-	
+
 		if (campaignFormMetaDto.isDistrictentry()) {
 
 			campaignFormBuilder.cbCommunity.setVisible(false);
 //			campaignFormBuilder.checkDistrictEntry = true;
 
-		}else {
+		} else {
 			campaignFormBuilder.cbCommunity.setVisible(true);
 //			campaignFormBuilder.checkDistrictEntry = true;
 		}
-		
-		
+
 		dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		dialog.setCloseOnOutsideClick(false);
-		dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
 		
+		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_ps_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_fa_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		}
+		
+
 		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
@@ -161,7 +179,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				CampaignFormBuilder campaignFormBuilderx;
 				campaignFormBuilderx = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
 						campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
+						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm,
+						campaignFormMetaDtox);
 				dialog.add(campaignFormBuilderx);
 				dialog.setSizeFull();
 				dialog.setCloseOnOutsideClick(false);
@@ -180,7 +199,5 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		// dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
-	
-
 
 }
