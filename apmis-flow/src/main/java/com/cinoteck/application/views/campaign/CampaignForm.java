@@ -1059,15 +1059,29 @@ public class CampaignForm extends VerticalLayout {
 		popData0_4.setWidthFull();
 		popDataAge5_10.setWidthFull();
 		
-		
-		
-		if (age0_4 != null || age5_10 != null) {
-			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
-			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
+		if (age0_4 != null) {
+			popData0_4.setValue(age0_4);
 		} else {
 			popData0_4.setValue(null);
+		}
+		
+		if (age5_10 != null) {
+			popDataAge5_10.setValue(age5_10);
+		} else {
 			popDataAge5_10.setValue(null);
 		}
+		
+//		if (age0_4 != null) {
+//			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
+////			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
+//		}
+//		if (age5_10 != null) {
+////			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
+//			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
+//		} else {
+//			popData0_4.setValue(null);
+//			popDataAge5_10.setValue(null);
+//		}
 		saveButton.addClickListener(e -> {
 
 			List<PopulationDataDto> popDataDto0_4 = FacadeProvider.getPopulationDataFacade()

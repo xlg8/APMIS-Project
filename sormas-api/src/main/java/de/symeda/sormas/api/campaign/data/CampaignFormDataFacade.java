@@ -141,5 +141,7 @@ public interface CampaignFormDataFacade {
 	String getByTimelinessAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms);
 	
+	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
+	
 
 }

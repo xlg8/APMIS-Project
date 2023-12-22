@@ -12,6 +12,7 @@ public interface Captions {
 
 	// New added by Yahaya, end by the next big space
 	String about = "about";
+	String userActivitySummary = "userActivitySummary";
 	String archived = "archived";
 	String active = "active";
 
