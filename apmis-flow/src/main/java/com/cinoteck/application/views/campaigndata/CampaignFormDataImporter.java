@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -84,6 +85,7 @@ public class CampaignFormDataImporter extends DataImporter {
 	private static final String R_CODE = "RCode";
 	private static final String P_CODE = "PCode";
 	private static final String D_CODE = "DCode";
+	private static final String C_CODE = "CCode";
 	String selectedAreaUUid = "";
 	String selectedRegionUUid = "";
 	String selectedDistrictUUid = "";
@@ -120,23 +122,23 @@ public class CampaignFormDataImporter extends DataImporter {
 			return ImportLineResult.ERROR;
 		}
 		CampaignFormDataDto campaignFormData = CampaignFormDataDto.build();
+		logger.debug("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------------------------------------");
 		campaignFormData.setCreatingUser(userFacade.getCurrentUserAsReference());
 		campaignFormData.setSource("IMPORT");
-
-		AreaReferenceDto area = null;
 
 		Long area_xt_id = null;
 		Long region_xt_id = null;
 		Long district_xt_id = null;
 
 		for (int i = 0; i < entityProperties.length; i++) {
-			System.out.println(
+			logger.debug(
 					entityProperties + "entity propertiesssss" + entityProperties[1] + entityProperties[i].toString());
 			if (R_CODE.equalsIgnoreCase(entityProperties[i])) {
+				areaExists = false;
 
 				List<AreaReferenceDto> selectedAreaInCampaignx = FacadeProvider.getAreaFacade()
 						.getAllActiveAndSelectedAsReference(campaignDto.getUuid());
-//				System.out.println("selectedAreaInCampaignx -------------------------------------------" +selectedAreaInCampaignx);
+//				logger.debug("selectedAreaInCampaignx -------------------------------------------" +selectedAreaInCampaignx);
 				area_xt_id = Long.parseLong(values[i]);
 				for (AreaReferenceDto areaExId : selectedAreaInCampaignx) {
 					AreaDto selectedAreasFromDto = FacadeProvider.getAreaFacade().getByUuid(areaExId.getUuid());
@@ -144,28 +146,29 @@ public class CampaignFormDataImporter extends DataImporter {
 					externalIdList.add(selectedAreaId);
 					if (selectedAreaId.equals(area_xt_id)) {
 						selectedAreaUUid = areaExId.getUuid();
+						campaignFormData.setArea(areaExId);
 					}
 				}
 
 				for (Long item : externalIdList) {
 					if (item.equals(area_xt_id)) {
 						areaExists = true;
-
+						logger.debug("selectedAreaInCampaignx ----------------------------");
 						break;
 					}
 				}
 
 				if (!areaExists) {
-					System.out.println(area_xt_id + " does not exist in the list.");
+					logger.debug(area_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption(Captions.areaNotExistInCampaignImportError));
 					return ImportLineResult.ERROR;
 				}
 
 			}
 
-			System.out.println(" cheking area " + areaExists);
+			logger.debug(" cheking area " + areaExists);
 			if (P_CODE.equalsIgnoreCase(entityProperties[i]) && areaExists) {
-				System.out.println("there is rcode -------------------------------------------");
+				logger.debug("there is rcode -------------------------------------------");
 
 				List<RegionReferenceDto> selectedAreaInCampaignxy = FacadeProvider.getRegionFacade()
 						.getAllActiveByAreaAndSelectedInCampaign(selectedAreaUUid, campaignDto.getUuid());
@@ -176,6 +179,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					regionexternalIdList.add(selectedRegionId);
 					if (selectedRegionId.equals(region_xt_id)) {
 						selectedRegionUUid = regExId.getUuid();
+						campaignFormData.setRegion(regExId);
 					}
 
 				}
@@ -187,24 +191,24 @@ public class CampaignFormDataImporter extends DataImporter {
 					}
 				}
 
-				System.out.println(region_xt_id + "selected provinces  -------------------------------------------"
+				logger.debug(region_xt_id + "selected provinces  -------------------------------------------"
 						+ selectedAreaInCampaignxy);
 				if (!regionExists) {
-					System.out.println(
+					logger.debug(
 							regionExists + "  does the region existtttttttttttttttttttttttttttttttttttttttttttttt");
-					System.out.println(area_xt_id + " does not exist in the list.");
+					logger.debug(area_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption(Captions.regionNotExistInCampaignImportError));
 					return ImportLineResult.ERROR;
 				}
 			}
 			
 			if (D_CODE.equalsIgnoreCase(entityProperties[i]) && regionExists) {
-				System.out.println("there is dcode -------------------------------------------" + regionExists);
+				logger.debug("there is dcode -------------------------------------------" + regionExists);
 
 				List<DistrictReferenceDto> selectedDistrictInCampaignxy = FacadeProvider.getDistrictFacade()
 						.getAllActiveByRegionAndSelectedInCampaign(selectedRegionUUid, campaignDto.getUuid());
 				
-				System.out.println( "selected district list  -------------------------------------------" + selectedDistrictInCampaignxy);
+				logger.debug( "selected district list  -------------------------------------------" + selectedDistrictInCampaignxy);
 				district_xt_id = Long.parseLong(values[i]);
 				
 				for (DistrictReferenceDto districtExId : selectedDistrictInCampaignxy) {
@@ -214,6 +218,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					
 					if (selectedDistrictId.equals(district_xt_id)) {
 						selectedDistrictUUid = districtExId.getUuid();
+						campaignFormData.setDistrict(districtExId);
 					}
 
 				}
@@ -225,31 +230,64 @@ public class CampaignFormDataImporter extends DataImporter {
 					}
 				}
 
-				System.out.println(region_xt_id + "selected districts  -------------------------------------------"
+				logger.debug(region_xt_id + "selected districts  -------------------------------------------"
 						+ selectedDistrictInCampaignxy);
 				if (!districtExists) {
-					System.out.println(
+					logger.debug(
 							districtExists + "  does the district existtttttttttttttttttttttttttttttttttttttttttttttt");
-					System.out.println(district_xt_id + " does not exist in the list.");
+					logger.debug(district_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption("District is not selected for this campaign"));
 					return ImportLineResult.ERROR;
+				} 
+			}
+			
+			if (C_CODE.equalsIgnoreCase(entityProperties[i]) && districtExists) {
+			try {
+				List<CommunityReferenceDto> community = FacadeProvider.getCommunityFacade()
+						.getByExternalID(Long.parseLong(values[i]), campaignFormData.getDistrict(), true);
+				if (community.isEmpty()) {
+					throw new ImportErrorException(I18nProperties.getValidationError(
+							Validations.importEntryDoesNotExistDbOrDistrict, values[i], entityProperties[i]));
+				} else if (community.size() > 1) {
+					throw new ImportErrorException(I18nProperties.getValidationError(
+							Validations.importCommunityNotUnique, values[i], entityProperties[i]));
 				} else {
+					campaignFormData.setCommunity(community.get(0));
+
+
 					try {
-						insertImportRowIntoData(campaignFormData, values, entityProperties);
+						campaignFormData = insertImportRowIntoData(campaignFormData, values, entityProperties);
+						
 						campaignFormData.setCampaign(campaignReferenceDto);
 
-						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
-								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
-										.campaignFormMeta(campaignFormData.getCampaignFormMeta())
-										.community((CommunityReferenceDto) campaignFormData.getCommunity())
-										.formDate(campaignFormData.getFormDate()));
-
+//						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
+//								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
+//										.campaignFormMeta(campaignFormData.getCampaignFormMeta())
+//										.community((CommunityReferenceDto) campaignFormData.getCommunity())
+//										.formDate(campaignFormData.getFormDate()));
+						logger.debug("1111111"+campaignFormData.getDistrict());
+						logger.debug("1111112"+campaignFormData.getRegion());
+						logger.debug("1111113"+campaignFormData.getCommunity());
+						logger.debug("1111114"+campaignFormData.getFormDate());
+						logger.debug("1111115"+campaignFormData.getArea());
+						logger.debug("1111116"+campaignFormData.getCampaignFormMeta());
+						logger.debug("1111116"+campaignFormData.getCampaign());
+						
 						FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(campaignFormData);
 					} catch (ImportErrorException | InvalidColumnException | ValidationRuntimeException e) {
+						logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddd: "+e.getMessage());
 						writeImportError(values, e.getLocalizedMessage());
 						return ImportLineResult.ERROR;
 					}
 					return ImportLineResult.SUCCESS;
+				
+				
+				
+				}
+			} catch(ImportErrorException e) {
+				logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddddddd: "+e.getMessage());
+				writeImportError(values, e.getLocalizedMessage());
+				return ImportLineResult.ERROR;
 				}
 			}
 		}
@@ -271,10 +309,10 @@ public class CampaignFormDataImporter extends DataImporter {
 		return true;
 	}
 
-	private void insertImportRowIntoData(CampaignFormDataDto campaignFormData, String[] entry, String[] entryHeaderPath)
+	private CampaignFormDataDto insertImportRowIntoData(CampaignFormDataDto campaignFormData, String[] entry, String[] entryHeaderPath)
 			throws InvalidColumnException, ImportErrorException {
 
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		CampaignFormMetaDto campaignMetaDto = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormMetaUuid);
@@ -285,7 +323,7 @@ public class CampaignFormDataImporter extends DataImporter {
 		for (int i = 0; i < entry.length; i++) {
 			final String propertyPath = entryHeaderPath[i];
 			if (formDataDtoFields.contains(propertyPath)) {
-				System.out.println("---------" + propertyPath + "@@@@@@@@@@@@@");
+				logger.debug("---------" + propertyPath + "@@@@@@@@@@@@@");
 
 				try {
 					PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyPath,
@@ -293,7 +331,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					Class<?> propertyType = propertyDescriptor.getPropertyType();
 					if (!executeDefaultInvoke(propertyDescriptor, campaignFormData, entry[i],
 							new String[] { propertyPath })) {
-						System.out.println("---ccccc-----" + propertyType + "@@@@@@@@@@@@@");
+						logger.debug("---ccccc-----" + propertyType + "@@@@@@@@@@@@@");
 
 						final UserDto currentUserDto = userFacade.getByUuid(currentUser.getUuid());
 						final JurisdictionLevel jurisdictionLevel = UserRole
@@ -333,18 +371,24 @@ public class CampaignFormDataImporter extends DataImporter {
 								throw new ImportErrorException(I18nProperties.getValidationError(
 										Validations.importCommunityNotUnique, entry[i], propertyPath));
 							} else {
+								campaignFormData.setCommunity(community.get(0));
 								propertyDescriptor.getWriteMethod().invoke(campaignFormData, community.get(0));
 							}
 						}
 					}
 				} catch (InvocationTargetException | IllegalAccessException e) {
+					logger.debug("---ccccc---aaaa--"+e.getMessage());
 					throw new ImportErrorException(
+							
 							I18nProperties.getValidationError(Validations.importErrorInColumn, propertyPath));
 				} catch (IntrospectionException e) {
+					logger.debug("---ccccc-----bbbb"+e.getMessage());
 					// skip unknown fields
 				} catch (ImportErrorException e) {
+					logger.debug("---ccccc-----cccc"+e.getMessage());
 					throw e;
 				} catch (Exception e) {
+					logger.debug("---ccccc-----dddddd"+e.getMessage());
 					LOGGER.error("Unexpected error when trying to import campaign form data: " + e.getMessage(), e);
 					throw new ImportErrorException(
 							I18nProperties.getValidationError(Validations.importUnexpectedError));
@@ -402,11 +446,13 @@ public class CampaignFormDataImporter extends DataImporter {
 		if (constraintErrors.isError()) {
 			throw new ImportErrorException(constraintErrors.getMessage());
 		}
+		
+		return campaignFormData;
 	}
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
-			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException {
+			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException{//, ParseException {
 
 		final boolean invokingSuccessful = super.executeDefaultInvoke(pd, element, entry, entryHeaderPath);
 		final Class<?> propertyType = pd.getPropertyType();
@@ -420,6 +466,7 @@ public class CampaignFormDataImporter extends DataImporter {
 								buildEntityProperty(entryHeaderPath)));
 			}
 		}
+		logger.debug("xxxxxxxxxxxxxxxinvokingSuccessful "+invokingSuccessful);
 		return invokingSuccessful;
 	}
 

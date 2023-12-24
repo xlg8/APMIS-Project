@@ -19,39 +19,24 @@ import static de.symeda.sormas.ui.utils.LayoutUtil.fluidRowLocs;
 import static de.symeda.sormas.ui.utils.LayoutUtil.loc;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-import javax.persistence.NoResultException;
 
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinService;
-import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.v7.data.Validator;
-import com.vaadin.v7.data.Validator.EmptyValueException;
-import com.vaadin.v7.data.Validator.InvalidValueException;
 import com.vaadin.v7.data.util.converter.Converter;
 import com.vaadin.v7.ui.ComboBox;
 import com.vaadin.v7.ui.DateField;
-import com.vaadin.v7.ui.TextField;
-
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
-import de.symeda.sormas.api.feature.FeatureType;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -60,11 +45,12 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.ui.ControllerProvider;
 import de.symeda.sormas.ui.UserProvider;
-import de.symeda.sormas.ui.ViewModelProviders;
 import de.symeda.sormas.ui.campaign.expressions.ExpressionProcessor;
 import de.symeda.sormas.ui.utils.AbstractEditForm;
-import de.symeda.sormas.ui.utils.CssStyles;
 import de.symeda.sormas.ui.utils.FieldHelper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataDto> {
 
@@ -74,7 +60,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 
 	private DateField dates;
 
-
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public AreaReferenceDto getArea() {
 		return area;
@@ -213,7 +199,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 			cbCommunity.addItems(items);
 		}
 		
-		System.out.println("+++++++++++++++++++++++++++ "+cbCampaign.getValue());
+		logger.debug("+++++++++++++++++++++++++++ "+cbCampaign.getValue());
 	}
 
 //	@SuppressWarnings("deprecation")
@@ -263,11 +249,11 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 
 				CampaignReferenceDto campaignReferenceDto = (CampaignReferenceDto) cbCampaign.getValue();
 
-				System.out.println(district.getUuid()+"11111111-------- "+campaignReferenceDto.getUuid()+" ----!!!!!!!!!!!!!!!!!!!!!!: "+AgeGroup.AGE_0_4);
+				logger.debug(district.getUuid()+"11111111-------- "+campaignReferenceDto.getUuid()+" ----!!!!!!!!!!!!!!!!!!!!!!: "+AgeGroup.AGE_0_4);
 
 				Integer comdto = FacadeProvider.getPopulationDataFacade().getDistrictPopulationByType(district.getUuid(), campaignReferenceDto.getUuid(),  AgeGroup.AGE_0_4);
 				
-				System.out.println(" ========================== "+campaignReferenceDto.getUuid());
+				logger.debug(" ========================== "+campaignReferenceDto.getUuid());
 			
 				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("populationdata", comdto);
 			
@@ -284,8 +270,8 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 				CampaignFormMetaDto campaignForm = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaByUuid(super.getValue().getCampaignFormMeta().getUuid());
 
-				System.out.println("=============================1111: "+campaignForm.getUuid());
-				System.out.println("=============================2222: "+campaignForm.isDistrictentry());
+				logger.debug("=============================1111: "+campaignForm.getUuid());
+				logger.debug("=============================2222: "+campaignForm.isDistrictentry());
 
 				// Select the first item in the cbCommunity
 				if(campaignForm.isDistrictentry()) {
@@ -312,7 +298,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 			}
 
 		});
-		System.out.println(Page.getCurrent().getLocation());
+//		logger.debug(Page.getCurrent().getLocation());
 		URI location = Page.getCurrent().getLocation();
 		String uri = location.toString();
 		if (uri.contains(",")) {
@@ -339,7 +325,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
 //					
-//					System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session>>>>>>"+comdto.getClusterNumber());
+//					logger.debug(comdto.getExternalId() + "?comdto.getExternalId() going to session>>>>>>"+comdto.getClusterNumber());
 //					
 
 					if (!formuuid.equals("nul")) {
@@ -399,11 +385,11 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 
 				CampaignReferenceDto campaignReferenceDto = (CampaignReferenceDto) cbCampaign.getValue();
 
-				System.out.println(district.getUuid()+"11111111-------- "+campaignReferenceDto.getUuid()+" ----!!!!!!!!!!!!!!!!!!!!!!: "+AgeGroup.AGE_0_4);
+				logger.debug(district.getUuid()+"11111111-------- "+campaignReferenceDto.getUuid()+" ----!!!!!!!!!!!!!!!!!!!!!!: "+AgeGroup.AGE_0_4);
 
 				Integer comdto = FacadeProvider.getPopulationDataFacade().getDistrictPopulationByType(district.getUuid(), campaignReferenceDto.getUuid(),  AgeGroup.AGE_0_4);
 				
-				System.out.println(" ========================== "+campaignReferenceDto.getUuid());
+				logger.debug(" ========================== "+campaignReferenceDto.getUuid());
 			
 				VaadinService.getCurrentRequest().getWrappedSession().setAttribute("populationdata", comdto);
 			
@@ -420,8 +406,8 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 				CampaignFormMetaDto campaignForm = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaByUuid(super.getValue().getCampaignFormMeta().getUuid());
 
-				System.out.println("=============================1111: "+campaignForm.getUuid());
-				System.out.println("=============================2222: "+campaignForm.isDistrictentry());
+				logger.debug("=============================1111: "+campaignForm.getUuid());
+				logger.debug("=============================2222: "+campaignForm.isDistrictentry());
 
 				// Select the first item in the cbCommunity
 				if(campaignForm.isDistrictentry()) {
@@ -448,7 +434,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 			}
 
 		});
-		System.out.println(Page.getCurrent().getLocation());
+//		logger.debug(Page.getCurrent().getLocation());
 		URI location = Page.getCurrent().getLocation();
 		String uri = location.toString();
 		if (uri.contains(",")) {
@@ -475,7 +461,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
 					VaadinService.getCurrentRequest().getWrappedSession().setAttribute("Clusternumber", comdto.getExternalId());
 //					
-//					System.out.println(comdto.getExternalId() + "?comdto.getExternalId() going to session>>>>>>"+comdto.getClusterNumber());
+//					logger.debug(comdto.getExternalId() + "?comdto.getExternalId() going to session>>>>>>"+comdto.getClusterNumber());
 //					
 
 					if (!formuuid.equals("nul")) {
@@ -539,7 +525,7 @@ public class CampaignFormDataEditForm extends AbstractEditForm<CampaignFormDataD
 			throw new RuntimeException("Campaign form builder has not been initialized");
 		}
 		//validateFieldsCommit
-	//	System.out.println("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{"+isCommitClicked);
+	//	logger.debug("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{"+isCommitClicked);
 		
 		if(isCommitClicked != null) {
 			if(isCommitClicked) {
