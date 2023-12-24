@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -46,6 +47,7 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
@@ -65,6 +67,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	public Anchor downloadErrorReportButton;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	CampaignDto campaignDto = new CampaignDto();
+	UserProvider usr = new UserProvider();;
 
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
@@ -185,6 +188,15 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
+			}finally {
+				
+				ImportProgressLayout lay = null;
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Campaign Data Import");
+				userActivitySummaryDto.setAction("User Imported : " + campaignForm.getCaption() + " with " + lay.successfulImportsCount );
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
 
 		});

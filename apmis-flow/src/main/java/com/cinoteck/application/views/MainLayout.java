@@ -264,8 +264,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 		
-//		nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"), UserActivitySummary.class,
-//				VaadinIcon.CHART_LINE, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"), UserActivitySummary.class,
+				VaadinIcon.CHART_LINE, "navitem"));
 
 		
 

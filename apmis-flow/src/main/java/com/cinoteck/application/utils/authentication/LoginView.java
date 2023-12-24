@@ -151,7 +151,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-				System.out.println("Kickkkkkkkkkkkkkkkkkkkkkkedddddddddddd111111111111111");
 			} else {
 
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
@@ -165,7 +164,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				userActivitySummaryDto.setAction("User Logged In");
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-				System.out.println("Kickkkkkkkkkkkkkkkkkkkkkkedddddddddddd2222222222222222222");
 
 			}
 

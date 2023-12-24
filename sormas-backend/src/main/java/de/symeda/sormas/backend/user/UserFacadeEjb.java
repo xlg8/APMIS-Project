@@ -965,9 +965,9 @@ public class UserFacadeEjb implements UserFacade {
 		// TODO Auto-generated method stub
 		final String joinBuilder = 
 				
-				"select action_module , action_logged,  us.username \n"
+				"select u.action_logged, action_module, us.username, u.creationdate \n"
 				+ "from usersactivity u \n"
-						+ "LEFT JOIN users us ON u.creatinguser_id = us.id \n"
+				+ "left outer join users us ON u.creatinguser_id = us.id \n"
 				+ "where u.action_module ilike '" + module + "'";
 	
 	System.out.println("=====seriesDataQuery======== "+joinBuilder);
@@ -987,8 +987,9 @@ public class UserFacadeEjb implements UserFacade {
 	        .map((result) -> new UserActivitySummaryDto(
 	        		(String) result[0].toString(),
 	        		(String) result[1].toString(),
-//	        		(Date) result[2],
-	        		(String) result[2].toString()
+//	        		
+	        		(String) result[2].toString(),
+	        		(Date) result[3]
 	        		)).collect(Collectors.toList()));
 	
 	

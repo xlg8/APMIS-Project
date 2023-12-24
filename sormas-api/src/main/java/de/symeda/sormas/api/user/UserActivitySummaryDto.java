@@ -24,7 +24,7 @@ public class UserActivitySummaryDto extends EntityDto {/**
 	public static final String ACTION = "action";
 	public static final String ACTION_DATE = "actionDate";
 	public static final String ACTION_logged = "action_logged";
-	public static final String CREATIONdATE = "creationdate";
+
 
 
 	
@@ -41,19 +41,9 @@ public class UserActivitySummaryDto extends EntityDto {/**
 		
 	}
 	
-public UserActivitySummaryDto(String actionModule, String action_logged,  String creatingUser_string) {
-	super();
-
-	this.actionModule = actionModule;
-	this.action_logged = action_logged;
-//	this.creationdate = creationdate;
-	this.creatingUser_string = creatingUser_string;
-
-	}
-	
-	public UserActivitySummaryDto(String action, Date actionDate, String actionModule, String creatingUser_string) {
+	public UserActivitySummaryDto(String action_logged, String actionModule, String creatingUser_string ,  Date actionDate) {
 		super();
-		this.action = action;
+		this.action_logged = action_logged;
 		this.actionDate = actionDate;
 		this.actionModule = actionModule;
 		this.creatingUser_string = creatingUser_string;

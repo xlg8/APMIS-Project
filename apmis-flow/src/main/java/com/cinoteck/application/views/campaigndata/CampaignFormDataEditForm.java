@@ -34,6 +34,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.FacadeProvider;
@@ -48,6 +49,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
+	
+
 
 	private final UserProvider usr  = new UserProvider();
 	
@@ -146,6 +149,15 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
 		saveButton.addClickListener(e -> {
 			if (campaignFormBuilder.saveFormValues()) {
+				
+				if (openData) {
+					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+					userActivitySummaryDto.setActionModule("Campaign Data");
+					userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in " + campaignReferenceDto.getCaption() );
+					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				}
+				
 				dialog.close();
 				grid.getDataProvider().refreshAll();
 			}

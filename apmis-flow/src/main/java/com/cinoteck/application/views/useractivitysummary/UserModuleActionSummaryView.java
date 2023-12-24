@@ -21,7 +21,7 @@ import de.symeda.sormas.api.user.UserActivitySummaryDto;
 
 @SuppressWarnings("serial")
 @Route(layout = UserActivitySummary.class)
-public class LoginReportView extends VerticalLayout implements RouterLayout {
+public class UserModuleActionSummaryView extends VerticalLayout implements RouterLayout {
 
 	/**
 	 * 
@@ -29,7 +29,7 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 	private static final long serialVersionUID = 6692702413655392041L;
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
 
-	public LoginReportView() {
+	public UserModuleActionSummaryView() {
 		setSizeFull();
 		setHeightFull();
 		confiureLoginActivityGrid();
@@ -52,7 +52,7 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(true).setResizable(true);
 		
-		List<UserActivitySummaryDto> dataProvider = FacadeProvider.getUserFacade().getUsersActivityByModule("login");
+		List<UserActivitySummaryDto> dataProvider = FacadeProvider.getUserFacade().getUsersActivityByModule("users");
 
 		grid.setItems(dataProvider);
 		

@@ -21,7 +21,7 @@ import de.symeda.sormas.api.user.UserActivitySummaryDto;
 
 @SuppressWarnings("serial")
 @Route(layout = UserActivitySummary.class)
-public class LoginReportView extends VerticalLayout implements RouterLayout {
+public class PopulationDataImportActivityView extends VerticalLayout implements RouterLayout {
 
 	/**
 	 * 
@@ -29,13 +29,13 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 	private static final long serialVersionUID = 6692702413655392041L;
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
 
-	public LoginReportView() {
+	public PopulationDataImportActivityView() {
 		setSizeFull();
 		setHeightFull();
-		confiureLoginActivityGrid();
+		confiureDataImportActivityGrid();
 	}
 
-	public void confiureLoginActivityGrid() {
+	public void confiureDataImportActivityGrid() {
 		grid.setSelectionMode(SelectionMode.NONE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -52,7 +52,7 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(true).setResizable(true);
 		
-		List<UserActivitySummaryDto> dataProvider = FacadeProvider.getUserFacade().getUsersActivityByModule("login");
+		List<UserActivitySummaryDto> dataProvider = FacadeProvider.getUserFacade().getUsersActivityByModule("Population Data Import");
 
 		grid.setItems(dataProvider);
 		
