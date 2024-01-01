@@ -3,17 +3,25 @@ package com.cinoteck.application.views.uiformbuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 
@@ -44,6 +52,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.UserRole;
 
 public class FormGridComponent extends VerticalLayout {
 
@@ -84,6 +93,7 @@ public class FormGridComponent extends VerticalLayout {
 	private GridListDataView<CampaignFormElement> dataView;
 
 	private boolean isNewForm = false;
+	ObjectMapper objectMapper = new ObjectMapper();
 
 	public FormGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 
@@ -123,11 +133,19 @@ public class FormGridComponent extends VerticalLayout {
 
 	private void configureFields() {
 
+		Set<CampaignFormElementType> formTypeAll = new TreeSet<>(Arrays.asList(CampaignFormElementType.values()));
+		formTypeAll.remove(CampaignFormElementType.CHECKBOX);
+		formTypeAll.remove(CampaignFormElementType.CHECKBOXBASIC);
+		formTypeAll.remove(CampaignFormElementType.COMMENT);
+		formTypeAll.remove(CampaignFormElementType.DECIMAL);
+		formTypeAll.remove(CampaignFormElementType.ARRAY);
+		formTypeAll.remove(CampaignFormElementType.RADIO);
+		formTypeAll.remove(CampaignFormElementType.RADIOBASIC);
 		options.setHelperText("Enter options keys in a comma seperated format like so Urban, Urban, Rural, Rural");
 		expression.setHelperText("Please enter expression value with care");
 		formId.setHelperText("Append \"-readonly\" at the end of the Id value. If you want it to be Read Only");
 		dependingOnValues.setItems("Yes", "No");
-		formType.setItems(CampaignFormElementType.values());
+		formType.setItems(formTypeAll);
 		constraints.setItems("Expression", "Range");
 		important.setItems(true, false);
 		styles.setHelperText("Examples of all styles: inline, row, first, col-1, col-2, col-3, col-4, "
@@ -161,7 +179,7 @@ public class FormGridComponent extends VerticalLayout {
 			clearFields();
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
-				
+
 				CampaignFormElement selectedCamp = ee.getFirstSelectedItem().get();
 				formBeenEdited = selectedCamp;
 				boolean isSingleSelection = size == 1;
@@ -189,7 +207,21 @@ public class FormGridComponent extends VerticalLayout {
 				important.setVisible(true);
 
 				if (formBeenEdited.getOptions() != null) {
-					options.setValue(formBeenEdited.getOptions().toString());
+					List<String> option = new ArrayList<>();
+					String value = "";
+					for (MapperUtil values : formBeenEdited.getOptions()) {
+						MapperUtil mapperUtil = new MapperUtil();
+						mapperUtil.setKey(values.getKey());
+						mapperUtil.setCaption(values.getCaption());
+						mapperUtil.setOrder(values.getOrder());
+						option.add(mapperUtil.toString());
+
+						System.out.println(mapperUtil.toString() + " hvhvdshdbjsdjbdbdbhvdbfdb");
+					}
+
+					value = String.valueOf(option);
+					
+					options.setValue(value);
 					options.setVisible(true);
 				}
 
@@ -216,20 +248,41 @@ public class FormGridComponent extends VerticalLayout {
 					styles.setVisible(true);
 				}
 
+//				if (formBeenEdited.getConstraints() != null) {
+//					if (formBeenEdited.getConstraints()[0].toLowerCase().equals("expression")) {
+//						constraints.setValue(Arrays.toString(new String[] { "Expression" }));
+//						constraints.setVisible(true);
+//						max.setVisible(false);
+//						min.setVisible(false);
+//					} else {
+//						constraints.setValue(Arrays.toString(new String[] { "Range" }));
+//						constraints.setVisible(true);
+//
+////						min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1].substring(4,
+////								formBeenEdited.getConstraints()[1].length())));
+//						min.setValue(formBeenEdited.getConstraints()[0].substring(4,
+//								formBeenEdited.getConstraints()[1].length()));
+//						min.setVisible(true);
+//						logger.debug(min.getValue() + " minnnnn value");
+////						max.setValue(Double.parseDouble(formBeenEdited.getConstraints()[0].substring(4,
+////						formBeenEdited.getConstraints()[0].length())));
+//						max.setValue(formBeenEdited.getConstraints()[1].substring(4,
+//								formBeenEdited.getConstraints()[0].length()));
+//						max.setVisible(true);
+//						logger.debug(min.getValue() + " Maxxxxxxxxxxxxxxx value");
+//					}
+//				}
+
 				if (formBeenEdited.getConstraints() != null) {
 					if (formBeenEdited.getConstraints()[0].toLowerCase().equals("expression")) {
-						constraints.setValue(Arrays.toString(new String[] { "Expression" }));
+						constraints.setValue("Expression");
 						constraints.setVisible(true);
 						max.setVisible(false);
 						min.setVisible(false);
 					} else {
-						constraints.setValue(Arrays.toString(new String[] { "Range" }));
-						constraints.setVisible(true);;
-						logger.debug(formBeenEdited.getConstraints()[0].substring(4,
-								formBeenEdited.getConstraints()[0].length()) + " maxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-						logger.debug(formBeenEdited.getConstraints()[1].substring(4,
-								formBeenEdited.getConstraints()[1].length()) + " minnnnnnnnnnnnnnnnnnn");
-	
+						constraints.setValue("Range");
+						constraints.setVisible(true);
+
 //						min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1].substring(4,
 //								formBeenEdited.getConstraints()[1].length())));
 						min.setValue(formBeenEdited.getConstraints()[0].substring(4,
@@ -244,16 +297,6 @@ public class FormGridComponent extends VerticalLayout {
 						logger.debug(min.getValue() + " Maxxxxxxxxxxxxxxx value");
 					}
 				}
-
-//				if (formBeenEdited.getMin() != null) {
-//					min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[0]));
-//					min.setVisible(true);
-//				}
-//
-//				if (formBeenEdited.getMax() != null) {
-//					max.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1]));
-//					max.setVisible(true);
-//				}
 
 				if (formBeenEdited.getExpression() != null) {
 					errorMessage.setValue(formBeenEdited.getExpression());
@@ -270,7 +313,9 @@ public class FormGridComponent extends VerticalLayout {
 
 		});
 
-		plus.addClickListener(e -> {
+		plus.addClickListener(e ->
+
+		{
 
 			save.setText("Save");
 
@@ -312,8 +357,6 @@ public class FormGridComponent extends VerticalLayout {
 		});
 
 		cancel.addClickListener(e -> {
-
-//			CampaignFormElement newform = new CampaignFormElement();
 
 			vr1.setVisible(true);
 			formLayout.setVisible(false);
@@ -360,30 +403,69 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setImportant(important.getValue());
 				}
 
+//				[[key:DC, caption:DC, order:0], [key:CS, caption:CS, order:1], [key:VSM, caption:Vaccinator/SM, order:2]]
+//				[[key:bike, caption:bike, order:0], [key:bicycle, caption:bicycle, order:1], [key:car, caption:car, order:2]]
 				if (!options.getValue().isEmpty()) {
-
 					List<MapperUtil> option = new ArrayList<>();
-					for (String values : options.getValue().split(",")) {
+
+					Pattern pattern = Pattern.compile("\\[([^\\]]+)\\]");
+					Matcher matcher = pattern.matcher(options.getValue());
+
+					while (matcher.find()) {
+						String keyValuePairs = matcher.group(1);
+
+						String[] pairs = keyValuePairs.split(", ");
 
 						MapperUtil mapperUtil = new MapperUtil();
-						mapperUtil.setKey(values);
-						mapperUtil.setCaption(values);
+
+						for (String pair : pairs) {
+							String[] parts = pair.split(":");
+							String key = parts[0];
+							String value = parts[1];
+							System.out.println(key + " firstttttttttttttttttttttttttttt");
+							System.out.println(value + " firstttttttttttttttttttttttttttt1");
+							
+							key = key.trim();
+							value = value.trim();
+							System.out.println(key + " trimmeddddddddddddddddd");
+							System.out.println(value + " trimmeddddddddddddddddd1");
+
+							key = key.replaceAll("\\[", "");
+							value = value.replaceAll("^\"|\"$", "");
+							System.out.println(key + " sterilised");
+							System.out.println(value + " sterilised1");
+
+							switch (key) {
+							case "key":
+								mapperUtil.setKey(value);
+								break;
+							case "caption":
+								mapperUtil.setCaption(value);
+								break;
+							case "order":
+								mapperUtil.setOrder(value);
+								System.out.println(key + " lasttttttttttttttt");
+								System.out.println(value + " lasttttttttttttttt1");
+								break;
+							}
+						}
+						System.out.println(mapperUtil.toString() + " everythinggggggggggggggggggggg");
 						option.add(mapperUtil);
 					}
-
 					newForm.setOptions(option);
 				}
 
 				if (constraints.getValue() != null) {
 
-					if (constraints.getValue().toString().equalsIgnoreCase("expression")) {
+					if (constraints.getValue().toString().toLowerCase().equals("expression")) {
 
 						newForm.setConstraints(constraints.getValue().split(","));
 					} else {
 
-						if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
+						if (min.getValue() != null && max.getValue() != null
+								&& Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
 
-							String valueOfMinMAx = "max="+min.getValue() + " min=" + max.getValue();
+							String valueOfMinMAx = "max=" + min.getValue() + " min=" + max.getValue();
 							newForm.setConstraints(valueOfMinMAx.split(" "));
 						} else {
 
@@ -467,17 +549,54 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setImportant(important.getValue());
 					}
 
+//					[[key:DC, caption:DC, order:2], [key:CS, caption:CS, order:1], [key:VSM, caption:Vaccinator/SM, order:1]]
 					if (!options.getValue().isEmpty()) {
-
 						List<MapperUtil> option = new ArrayList<>();
-						for (String values : options.getValue().split(",")) {
+
+						Pattern pattern = Pattern.compile("\\[([^\\]]+)\\]");
+						Matcher matcher = pattern.matcher(options.getValue());
+
+						while (matcher.find()) {
+							String keyValuePairs = matcher.group(1);
+
+							String[] pairs = keyValuePairs.split(", ");
 
 							MapperUtil mapperUtil = new MapperUtil();
-							mapperUtil.setKey(values);
-							mapperUtil.setCaption(values);
+
+							for (String pair : pairs) {
+								String[] parts = pair.split(":");
+								String key = parts[0];
+								String value = parts[1];
+								System.out.println(key + " firstttttttttttttttttttttttttttt");
+								System.out.println(value + " firstttttttttttttttttttttttttttt1");
+								
+								key = key.trim();
+								value = value.trim();
+								System.out.println(key + " trimmeddddddddddddddddd");
+								System.out.println(value + " trimmeddddddddddddddddd1");
+
+								key = key.replaceAll("\\[", "");
+								value = value.replaceAll("^\"|\"$", "");
+								System.out.println(key + " sterilised");
+								System.out.println(value + " sterilised1");
+
+								switch (key) {
+								case "key":
+									mapperUtil.setKey(value);
+									break;
+								case "caption":
+									mapperUtil.setCaption(value);
+									break;
+								case "order":
+									mapperUtil.setOrder(value);
+									System.out.println(key + " lasttttttttttttttt");
+									System.out.println(value + " lasttttttttttttttt1");
+									break;
+								}
+							}
+							System.out.println(mapperUtil.toString() + " everythinggggggggggggggggggggg");
 							option.add(mapperUtil);
 						}
-
 						newForm.setOptions(option);
 					}
 
@@ -488,15 +607,17 @@ public class FormGridComponent extends VerticalLayout {
 							newForm.setConstraints(constraints.getValue().split(","));
 						} else {
 
-							if (min.getValue() != null && 
-									max.getValue() != null && 
-									Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
+							if (!min.getValue().isEmpty() && !max.getValue().isEmpty()) {
+								if (min.getValue() != null && max.getValue() != null
+										&& Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
 
-								String valueOfMinMAx = "max="+min.getValue() + " min=" + max.getValue();
-								newForm.setConstraints(valueOfMinMAx.split(" "));
-							} else {
+									String valueOfMinMAx = "max=" + min.getValue() + " min=" + max.getValue();
+									newForm.setConstraints(valueOfMinMAx.split(" "));
+								} else {
 
-								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+									Notification
+											.show("Minimium must be smaller than Maximium and both must not be empty");
+								}
 							}
 						}
 
@@ -532,22 +653,18 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setDefaultvalue(defaultValues.getValue());
 					}
 
-					if (campaignFormMetaDto.getCampaignFormElements() == null) {
-
-						campaignFormMetaDto.setCampaignFormElements(new ArrayList<>());
-					}
-
 					List<CampaignFormElement> using = new LinkedList<>();
 					using = campaignFormMetaDto.getCampaignFormElements();
 					int index = using.indexOf(formBeenEdited);
-
-					using.set(index, newForm);
-
-//					campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);					
+					
+					System.out.println(index + " indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+					using.set(index, newForm);					
 					campaignFormMetaDto.setCampaignFormElements(using);
 					grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-					getGridData();
-
+							
+					
+					
+//					getGridData();
 					Notification.show("Form Element Updated");
 				} else {
 					Notification.show("Select an Form Element to edit Please");
@@ -651,36 +768,34 @@ public class FormGridComponent extends VerticalLayout {
 
 		ComponentRenderer<Span, CampaignFormElement> dependingOnValuesRenderer = new ComponentRenderer<>(input -> {
 			String value = Arrays.toString(input.getDependingOnValues());
-//			Span label = new Span(value);
 			Span label = new Span();
+
 			if (input.getDependingOnValues() == null) {
 				label = new Span("");
 			} else {
 				label = new Span(value);
 			}
+
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
 
-		ComponentRenderer<Span, CampaignFormElement> optionsRenderer = new ComponentRenderer<>(ijnput -> {
-
+		ComponentRenderer<Span, CampaignFormElement> optionsRenderer = new ComponentRenderer<>(input -> {
 			List<String> option = new ArrayList<>();
 			Span label = new Span("");
 
-			if (ijnput.getOptions() != null) {
-
-				for (MapperUtil values : ijnput.getOptions()) {
-
+			if (input.getOptions() != null) {
+				for (MapperUtil values : input.getOptions()) {
 					MapperUtil mapperUtil = new MapperUtil();
 					mapperUtil.setKey(values.getKey());
 					mapperUtil.setCaption(values.getCaption());
+					mapperUtil.setOrder(values.getOrder());
 					option.add(mapperUtil.toString());
 				}
 
 				String value = String.valueOf(option);
 				label = new Span(value);
 			}
-
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
@@ -726,7 +841,7 @@ public class FormGridComponent extends VerticalLayout {
 		options.setValue("");
 		important.setValue(false);
 		constraints.setValue("Expression");
-		min.clear(); 
+		min.clear();
 		max.clear();
 		dependingOn.setValue("");
 		dependingOnValues.clear();
@@ -787,51 +902,7 @@ public class FormGridComponent extends VerticalLayout {
 			}
 		});
 
-//		formId.addValueChangeListener(e -> {
-//
-//			if (!e.getValue().toString().trim().isEmpty()) {
-////				jsonData.put("id", e.getValue().toString());
-//			}
-//		});
-//
-//		caption.addValueChangeListener(e -> {
-//
-//			if (!e.getValue().toString().trim().isEmpty()) {
-////				jsonData.put("caption", e.getValue().toString());
-//			}
-//		});
-//
-//		important.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null) {
-////				jsonData.put("important", "true");
-//			}
-//		});
-//
-//		dependingOn.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null) {
-//
-////				jsonData.put("dependingOn", e.getValue());
-//			}
-//		});
-//
-//		dependingOnValues.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null) {
-////				jsonData.put("dependingOnValues", e.getValue().toLowerCase());
-//			}
-//		});
-//
-//		styles.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null) {
-////				jsonDa/ta.put("styles", e.getValue().toString());
-//			}
-//		});
-
 		constraints.addValueChangeListener(e -> {
-//			logger.debug(e.getValue().toString().toLowerCase().substring(0, e.getValue().toString().toLowerCase().length()) + "  constranitsssssssss");
 			if (e.getValue().toString().toLowerCase().substring(0, e.getValue().toString().toLowerCase().length())
 					.equals("expression")) {
 				min.setVisible(false);
@@ -842,33 +913,6 @@ public class FormGridComponent extends VerticalLayout {
 			}
 		});
 
-//		min.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-////				jsonData.put("constraints", "[min=" + e.getValue().toString() + ", ");
-//			}
-//		});
-//
-//		max.addValueChangeListener(e -> {
-//
-//			if (e.getValue() != null) {
-//
-////				String minValue = jsonData.get("constraints");
-////				if (minValue != null) {
-////
-//////					jsonData.put("constraints", minValue + "max=" + e.getValue().toString() + "]");
-////				}
-//			}
-//
-//		});
-//
-//		errorMessage.addValueChangeListener(e -> {
-//
-//			if (e.getValue().toString().trim() != null) {
-//
-////				jsonData.put("errormessage", e.getValue().toString());
-//			}
-//		});
 	}
 
 	public List<CampaignFormElement> getGridData() {

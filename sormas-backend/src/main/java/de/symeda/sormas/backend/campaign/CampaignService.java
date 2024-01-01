@@ -78,7 +78,7 @@ public class CampaignService extends AbstractCoreAdoService<Campaign> {
 			} else if (campaignCriteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
 				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(Campaign.ARCHIVED), true));
 			}
-		}
+		}	
 		return filter;
 	}
 

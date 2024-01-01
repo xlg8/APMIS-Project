@@ -33,6 +33,7 @@ public class CampaignFormMetaDto extends EntityDto {
 	public static final String MODALITY = "modality";
 	public static final String FORM_NAME_PASHTO = "formname_ps_af"; 
 	public static final String FORM_NAME_DARI = "formname_fa_af"; 
+	public static final String ARCHIVED = "archived";
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String formId;
@@ -60,6 +61,15 @@ public class CampaignFormMetaDto extends EntityDto {
 	private int daysExpired;
 
 	private boolean districtentry = false;
+	private boolean archived = false;
+
+	public boolean getArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
 
 	public String getFormname_ps_af() {
 		return formname_ps_af;

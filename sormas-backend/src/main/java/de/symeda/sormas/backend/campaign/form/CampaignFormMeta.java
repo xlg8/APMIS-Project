@@ -50,7 +50,7 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	public static final String DAYSTOEXPIRE = "daysExpired";
 	public static final String FORM_NAME_PASHTO = "formname_ps_af"; 
 	public static final String FORM_NAME_DARI = "formname_fa_af"; 
-
+	public static final String ARCHIVED = "archived";
 
 	private String formId;
 	private String formType;
@@ -74,7 +74,17 @@ public class CampaignFormMeta extends AbstractDomainObject {
 //	private List<CampaignFormTranslations> campaignFormTranslationsList;
 //	private String campaignFormTranslations;
 //	private List<CampaignFormTranslations> campaignFormTranslationsList;
+	private boolean archived = false;
 
+	@Column
+	public boolean getArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
 	@Column
 	public String getFormId() {
 		return formId;

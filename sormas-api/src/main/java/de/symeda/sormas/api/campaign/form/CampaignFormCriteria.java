@@ -3,7 +3,9 @@ package de.symeda.sormas.api.campaign.form;
 import java.io.Serializable;
 import java.util.Date;
 
+import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.Modality;
+import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.IgnoreForUrl;
@@ -22,6 +24,7 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 	private Date endDate;
 	private String formName;
 	private String formType;
+	private EntityRelevanceStatus relevanceStatus;
 	
 	public String getModality() {
 		return modality;
@@ -85,6 +88,15 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 	public CampaignFormCriteria setFormName(String formName) {
 		this.formName = formName;
 		return this;
+	}
+	
+	public CampaignFormCriteria relevanceStatus(EntityRelevanceStatus relevanceStatus) {
+		this.relevanceStatus = relevanceStatus;
+		return this;
+	}
+
+	public EntityRelevanceStatus getRelevanceStatus() {
+		return relevanceStatus;
 	}
 	
 }
