@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -84,6 +85,7 @@ public class CampaignFormDataImporter extends DataImporter {
 	private static final String R_CODE = "RCode";
 	private static final String P_CODE = "PCode";
 	private static final String D_CODE = "DCode";
+	private static final String C_CODE = "CCode";
 	String selectedAreaUUid = "";
 	String selectedRegionUUid = "";
 	String selectedDistrictUUid = "";
@@ -120,23 +122,23 @@ public class CampaignFormDataImporter extends DataImporter {
 			return ImportLineResult.ERROR;
 		}
 		CampaignFormDataDto campaignFormData = CampaignFormDataDto.build();
+		logger.debug("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------------------------------------");
 		campaignFormData.setCreatingUser(userFacade.getCurrentUserAsReference());
 		campaignFormData.setSource("IMPORT");
-
-		AreaReferenceDto area = null;
 
 		Long area_xt_id = null;
 		Long region_xt_id = null;
 		Long district_xt_id = null;
 
 		for (int i = 0; i < entityProperties.length; i++) {
-			System.out.println(
+			logger.debug(
 					entityProperties + "entity propertiesssss" + entityProperties[1] + entityProperties[i].toString());
 			if (R_CODE.equalsIgnoreCase(entityProperties[i])) {
+				areaExists = false;
 
 				List<AreaReferenceDto> selectedAreaInCampaignx = FacadeProvider.getAreaFacade()
 						.getAllActiveAndSelectedAsReference(campaignDto.getUuid());
-//				System.out.println("selectedAreaInCampaignx -------------------------------------------" +selectedAreaInCampaignx);
+//				logger.debug("selectedAreaInCampaignx -------------------------------------------" +selectedAreaInCampaignx);
 				area_xt_id = Long.parseLong(values[i]);
 				for (AreaReferenceDto areaExId : selectedAreaInCampaignx) {
 					AreaDto selectedAreasFromDto = FacadeProvider.getAreaFacade().getByUuid(areaExId.getUuid());
@@ -144,28 +146,29 @@ public class CampaignFormDataImporter extends DataImporter {
 					externalIdList.add(selectedAreaId);
 					if (selectedAreaId.equals(area_xt_id)) {
 						selectedAreaUUid = areaExId.getUuid();
+						campaignFormData.setArea(areaExId);
 					}
 				}
 
 				for (Long item : externalIdList) {
 					if (item.equals(area_xt_id)) {
 						areaExists = true;
-
+						logger.debug("selectedAreaInCampaignx ----------------------------");
 						break;
 					}
 				}
 
 				if (!areaExists) {
-					System.out.println(area_xt_id + " does not exist in the list.");
+					logger.debug(area_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption(Captions.areaNotExistInCampaignImportError));
 					return ImportLineResult.ERROR;
 				}
 
 			}
 
-			System.out.println(" cheking area " + areaExists);
+			logger.debug(" cheking area " + areaExists);
 			if (P_CODE.equalsIgnoreCase(entityProperties[i]) && areaExists) {
-				System.out.println("there is rcode -------------------------------------------");
+				logger.debug("there is rcode -------------------------------------------");
 
 				List<RegionReferenceDto> selectedAreaInCampaignxy = FacadeProvider.getRegionFacade()
 						.getAllActiveByAreaAndSelectedInCampaign(selectedAreaUUid, campaignDto.getUuid());
@@ -176,6 +179,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					regionexternalIdList.add(selectedRegionId);
 					if (selectedRegionId.equals(region_xt_id)) {
 						selectedRegionUUid = regExId.getUuid();
+						campaignFormData.setRegion(regExId);
 					}
 
 				}
@@ -187,24 +191,24 @@ public class CampaignFormDataImporter extends DataImporter {
 					}
 				}
 
-				System.out.println(region_xt_id + "selected provinces  -------------------------------------------"
+				logger.debug(region_xt_id + "selected provinces  -------------------------------------------"
 						+ selectedAreaInCampaignxy);
 				if (!regionExists) {
-					System.out.println(
+					logger.debug(
 							regionExists + "  does the region existtttttttttttttttttttttttttttttttttttttttttttttt");
-					System.out.println(area_xt_id + " does not exist in the list.");
+					logger.debug(area_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption(Captions.regionNotExistInCampaignImportError));
 					return ImportLineResult.ERROR;
 				}
 			}
 			
 			if (D_CODE.equalsIgnoreCase(entityProperties[i]) && regionExists) {
-				System.out.println("there is dcode -------------------------------------------" + regionExists);
+				logger.debug("there is dcode -------------------------------------------" + regionExists);
 
 				List<DistrictReferenceDto> selectedDistrictInCampaignxy = FacadeProvider.getDistrictFacade()
 						.getAllActiveByRegionAndSelectedInCampaign(selectedRegionUUid, campaignDto.getUuid());
 				
-				System.out.println( "selected district list  -------------------------------------------" + selectedDistrictInCampaignxy);
+				logger.debug( "selected district list  -------------------------------------------" + selectedDistrictInCampaignxy);
 				district_xt_id = Long.parseLong(values[i]);
 				
 				for (DistrictReferenceDto districtExId : selectedDistrictInCampaignxy) {
@@ -214,6 +218,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					
 					if (selectedDistrictId.equals(district_xt_id)) {
 						selectedDistrictUUid = districtExId.getUuid();
+						campaignFormData.setDistrict(districtExId);
 					}
 
 				}
@@ -225,31 +230,64 @@ public class CampaignFormDataImporter extends DataImporter {
 					}
 				}
 
-				System.out.println(region_xt_id + "selected districts  -------------------------------------------"
+				logger.debug(region_xt_id + "selected districts  -------------------------------------------"
 						+ selectedDistrictInCampaignxy);
 				if (!districtExists) {
-					System.out.println(
+					logger.debug(
 							districtExists + "  does the district existtttttttttttttttttttttttttttttttttttttttttttttt");
-					System.out.println(district_xt_id + " does not exist in the list.");
+					logger.debug(district_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption("District is not selected for this campaign"));
 					return ImportLineResult.ERROR;
+				} 
+			}
+			
+			if (C_CODE.equalsIgnoreCase(entityProperties[i]) && districtExists) {
+			try {
+				List<CommunityReferenceDto> community = FacadeProvider.getCommunityFacade()
+						.getByExternalID(Long.parseLong(values[i]), campaignFormData.getDistrict(), true);
+				if (community.isEmpty()) {
+					throw new ImportErrorException(I18nProperties.getValidationError(
+							Validations.importEntryDoesNotExistDbOrDistrict, values[i], entityProperties[i]));
+				} else if (community.size() > 1) {
+					throw new ImportErrorException(I18nProperties.getValidationError(
+							Validations.importCommunityNotUnique, values[i], entityProperties[i]));
 				} else {
+					campaignFormData.setCommunity(community.get(0));
+
+
 					try {
-						insertImportRowIntoData(campaignFormData, values, entityProperties);
+						campaignFormData = insertImportRowIntoData(campaignFormData, values, entityProperties);
+						
 						campaignFormData.setCampaign(campaignReferenceDto);
 
-						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
-								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
-										.campaignFormMeta(campaignFormData.getCampaignFormMeta())
-										.community((CommunityReferenceDto) campaignFormData.getCommunity())
-										.formDate(campaignFormData.getFormDate()));
-
+//						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
+//								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
+//										.campaignFormMeta(campaignFormData.getCampaignFormMeta())
+//										.community((CommunityReferenceDto) campaignFormData.getCommunity())
+//										.formDate(campaignFormData.getFormDate()));
+						logger.debug("1111111"+campaignFormData.getDistrict());
+						logger.debug("1111112"+campaignFormData.getRegion());
+						logger.debug("1111113"+campaignFormData.getCommunity());
+						logger.debug("1111114"+campaignFormData.getFormDate());
+						logger.debug("1111115"+campaignFormData.getArea());
+						logger.debug("1111116"+campaignFormData.getCampaignFormMeta());
+						logger.debug("1111116"+campaignFormData.getCampaign());
+						
 						FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(campaignFormData);
 					} catch (ImportErrorException | InvalidColumnException | ValidationRuntimeException e) {
+						logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddd: "+e.getMessage());
 						writeImportError(values, e.getLocalizedMessage());
 						return ImportLineResult.ERROR;
 					}
 					return ImportLineResult.SUCCESS;
+				
+				
+				
+				}
+			} catch(ImportErrorException e) {
+				logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddddddd: "+e.getMessage());
+				writeImportError(values, e.getLocalizedMessage());
+				return ImportLineResult.ERROR;
 				}
 			}
 		}
@@ -271,10 +309,10 @@ public class CampaignFormDataImporter extends DataImporter {
 		return true;
 	}
 
-	private void insertImportRowIntoData(CampaignFormDataDto campaignFormData, String[] entry, String[] entryHeaderPath)
+	private CampaignFormDataDto insertImportRowIntoData(CampaignFormDataDto campaignFormData, String[] entry, String[] entryHeaderPath)
 			throws InvalidColumnException, ImportErrorException {
 
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		CampaignFormMetaDto campaignMetaDto = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormMetaUuid);
@@ -285,7 +323,7 @@ public class CampaignFormDataImporter extends DataImporter {
 		for (int i = 0; i < entry.length; i++) {
 			final String propertyPath = entryHeaderPath[i];
 			if (formDataDtoFields.contains(propertyPath)) {
-				System.out.println("---------" + propertyPath + "@@@@@@@@@@@@@");
+				logger.debug("---------" + propertyPath + "@@@@@@@@@@@@@");
 
 				try {
 					PropertyDescriptor propertyDescriptor = new PropertyDescriptor(propertyPath,
@@ -293,7 +331,7 @@ public class CampaignFormDataImporter extends DataImporter {
 					Class<?> propertyType = propertyDescriptor.getPropertyType();
 					if (!executeDefaultInvoke(propertyDescriptor, campaignFormData, entry[i],
 							new String[] { propertyPath })) {
-						System.out.println("---ccccc-----" + propertyType + "@@@@@@@@@@@@@");
+						logger.debug("---ccccc-----" + propertyType + "@@@@@@@@@@@@@");
 
 						final UserDto currentUserDto = userFacade.getByUuid(currentUser.getUuid());
 						final JurisdictionLevel jurisdictionLevel = UserRole
@@ -333,18 +371,24 @@ public class CampaignFormDataImporter extends DataImporter {
 								throw new ImportErrorException(I18nProperties.getValidationError(
 										Validations.importCommunityNotUnique, entry[i], propertyPath));
 							} else {
+								campaignFormData.setCommunity(community.get(0));
 								propertyDescriptor.getWriteMethod().invoke(campaignFormData, community.get(0));
 							}
 						}
 					}
 				} catch (InvocationTargetException | IllegalAccessException e) {
+					logger.debug("---ccccc---aaaa--"+e.getMessage());
 					throw new ImportErrorException(
+							
 							I18nProperties.getValidationError(Validations.importErrorInColumn, propertyPath));
 				} catch (IntrospectionException e) {
+					logger.debug("---ccccc-----bbbb"+e.getMessage());
 					// skip unknown fields
 				} catch (ImportErrorException e) {
+					logger.debug("---ccccc-----cccc"+e.getMessage());
 					throw e;
 				} catch (Exception e) {
+					logger.debug("---ccccc-----dddddd"+e.getMessage());
 					LOGGER.error("Unexpected error when trying to import campaign form data: " + e.getMessage(), e);
 					throw new ImportErrorException(
 							I18nProperties.getValidationError(Validations.importUnexpectedError));
@@ -402,11 +446,13 @@ public class CampaignFormDataImporter extends DataImporter {
 		if (constraintErrors.isError()) {
 			throw new ImportErrorException(constraintErrors.getMessage());
 		}
+		
+		return campaignFormData;
 	}
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
-			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException {
+			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException{//, ParseException {
 
 		final boolean invokingSuccessful = super.executeDefaultInvoke(pd, element, entry, entryHeaderPath);
 		final Class<?> propertyType = pd.getPropertyType();
@@ -420,6 +466,7 @@ public class CampaignFormDataImporter extends DataImporter {
 								buildEntityProperty(entryHeaderPath)));
 			}
 		}
+		logger.debug("xxxxxxxxxxxxxxxinvokingSuccessful "+invokingSuccessful);
 		return invokingSuccessful;
 	}
 
@@ -557,12 +604,12 @@ public class CampaignFormDataImporter extends DataImporter {
 //		CommunityReferenceDto community = null;
 //		CampaignReferenceDto campaigns_ = null;
 //		
-//		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
+//		logger.debug("++++++++++++++++++===============: "+entityProperties.length);
 //
 //		// Retrieve the region and district from the database or throw an error if more or less than one entry have been retrieved
 //		for (int i = 0; i < entityProperties.length; i++) {
 //			
-//			System.out.println(entityProperties[i]+" :++++++++++++++++++===============: "+i);
+//			logger.debug(entityProperties[i]+" :++++++++++++++++++===============: "+i);
 //			if (PopulationDataDto.REGION.equalsIgnoreCase(entityProperties[i])) {
 //				List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade().getByExternalId(Long.parseLong(values[i]), false);
 //				if (regions.size() != 1) {
@@ -590,7 +637,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //					community = null;
 //				} else {
 //					
-//					System.out.println("++++++++++++++++++===============");
+//					logger.debug("++++++++++++++++++===============");
 //					
 //					List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade().getByName(values[i], district, false);
 //					if (communities.size() != 1) {
@@ -611,13 +658,13 @@ public class CampaignFormDataImporter extends DataImporter {
 //					List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade().getByExternalId(Long.parseLong(values[i]), false);
 //					if (communities.size() != 1) {
 //						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//						System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//						logger.debug(new ImportErrorException(values[i], entityProperties[i]).getMessage());
 //						return ImportLineResult.ERROR;
 //					}
 //					community = communities.get(0);
 //				} else {
 //					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//					System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+//					logger.debug(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
 //					return ImportLineResult.ERROR;
 //				}
 //					}
@@ -632,7 +679,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //					
 //					if( values[i].toString().length() > 28 &&  values[i].toString().contains("-")) {
 //						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-//						System.out.println("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
+//						logger.debug("checking campagin on record "+campaigns_.getUuid().equals(campaignReferenceDto.getUuid()));
 //								
 //						//check if data matched campaign
 //						if(!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
@@ -645,13 +692,13 @@ public class CampaignFormDataImporter extends DataImporter {
 //						
 //						if (campaigns_ == null) {
 //							writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//							System.out.println("~~~~~~~~~~~~~~~~~~~````"+new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//							logger.debug("~~~~~~~~~~~~~~~~~~~````"+new ImportErrorException(values[i], entityProperties[i]).getMessage());
 //							return ImportLineResult.ERROR;
 //						}
 //						
 //					} else {
 //						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//						System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+//						logger.debug("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
 //						return ImportLineResult.ERROR;
 //					}
 //					}
@@ -669,7 +716,7 @@ public class CampaignFormDataImporter extends DataImporter {
 ////				
 ////			} else {
 ////				writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-////				System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" campaginttttttttttttttttt 1111"+values[i]);
+////				logger.debug(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" campaginttttttttttttttttt 1111"+values[i]);
 ////				return ImportLineResult.ERROR;
 ////			}
 ////				}
@@ -712,13 +759,13 @@ public class CampaignFormDataImporter extends DataImporter {
 //		List<PopulationDataDto> modifiedPopulationDataList = new ArrayList<PopulationDataDto>();
 //		
 //		
-//		System.out.println("+++++++++:+ " + criteria.getAgeGroup());
-//		System.out.println("+++++++++:+ " + criteria.getRegion());
-//		System.out.println("+++++++++:+ " + criteria.getDistrict());
-//		System.out.println("+++++++++:+ " + criteria.getCampaign());
-//		System.out.println("+++++++++:+ " + criteria.getSex());
-//		System.out.println("+++++++++:+ " + criteria.getDistrict());
-//		System.out.println("+++++++++:+ " + existingPopulationDataList.size());
+//		logger.debug("+++++++++:+ " + criteria.getAgeGroup());
+//		logger.debug("+++++++++:+ " + criteria.getRegion());
+//		logger.debug("+++++++++:+ " + criteria.getDistrict());
+//		logger.debug("+++++++++:+ " + criteria.getCampaign());
+//		logger.debug("+++++++++:+ " + criteria.getSex());
+//		logger.debug("+++++++++:+ " + criteria.getDistrict());
+//		logger.debug("+++++++++:+ " + existingPopulationDataList.size());
 //		
 //		
 //
@@ -727,17 +774,17 @@ public class CampaignFormDataImporter extends DataImporter {
 //				
 //				@Override
 //				public Exception apply(ImportCellData cellData) {
-//					System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
+//					logger.debug("++++++++++++++++111111111111111111111111++++++++++++++++ ");
 //					
 //					try {
 //						if (PopulationDataDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
 //							|| PopulationDataDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
 //							|| PopulationDataDto.CAMPAIGN.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) //Property type  not allowed
 //							|| PopulationDataDto.COMMUNITY_EXTID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-//							System.out.println("+++++++++++++ignoring......");
+//							logger.debug("+++++++++++++ignoring......");
 //							// Ignore the region, district and community columns
 //						} else if (RegionDto.GROWTH_RATE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-//							System.out.println("+++++++++++++----------");
+//							logger.debug("+++++++++++++----------");
 //							// Update the growth rate of the region or district
 ////							if (!DataHelper.isNullOrEmpty(cellData.value)) {
 ////								Float growthRate = Float.parseFloat(cellData.value);
@@ -761,7 +808,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //							PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
 //							newPopulationData.setCampaign(finalCampaign);
 //							insertCellValueIntoData(newPopulationData, cellData.getValue(), cellData.getEntityPropertyPath());
-//							System.out.println(newPopulationData.getAgeGroup() +"   :+++++++++++++: "+existingPopulationDataList.size());
+//							logger.debug(newPopulationData.getAgeGroup() +"   :+++++++++++++: "+existingPopulationDataList.size());
 //							
 //							Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList.stream()
 //								.filter( 
@@ -777,16 +824,16 @@ public class CampaignFormDataImporter extends DataImporter {
 ////								}
 ////							}
 ////							
-////							System.out.println(isExisted+" :++++++++++++++++++: "+existingPopulationData.isPresent());
+////							logger.debug(isExisted+" :++++++++++++++++++: "+existingPopulationData.isPresent());
 //							//TODO check if should overwrite
 //							// Check whether this population data set already exists in the database; if yes, override it
 //							if (existingPopulationData.isPresent()) {
-//								System.out.println("++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
+//								logger.debug("++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
 //								existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
 //								existingPopulationData.get().setCollectionDate(collectionDate);
 //								modifiedPopulationDataList.add(existingPopulationData.get());
 //							} else {
-//								System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
+//								logger.debug("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
 //								
 //								newPopulationData.setRegion(finalRegion);
 //								newPopulationData.setDistrict(finalDistrict);
@@ -796,7 +843,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //							}
 //						}
 //					} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
-//						System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+//						logger.debug("++++++++++++++++Error found++++++++++++++++ ");
 //						
 //						return e;
 //					}
@@ -807,7 +854,7 @@ public class CampaignFormDataImporter extends DataImporter {
 //
 //		// Validate and save the population data object into the database if the import has no errors
 //		if (!populationDataHasImportError) {
-//			System.out.println("++++++++++++++++0000000000000000NO Errror 000000000000000000000++++++++++++++++ " + modifiedPopulationDataList.size());
+//			logger.debug("++++++++++++++++0000000000000000NO Errror 000000000000000000000++++++++++++++++ " + modifiedPopulationDataList.size());
 //			
 //			try {
 //				FacadeProvider.getPopulationDataFacade().savePopulationData(modifiedPopulationDataList);

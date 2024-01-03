@@ -353,13 +353,13 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Predicate filter_ = cb
 				.and(cb.equal(root.join(PopulationData.CAMPAIGN, JoinType.LEFT).get(Campaign.UUID), campUuid));
 		Predicate filterx = CriteriaBuilderHelper.and(cb, filter_, cb.equal(root.get(PopulationData.SELECTED), true));
-		Predicate filterxx = CriteriaBuilderHelper.and(cb, filterx,
-				cb.equal(root.get(PopulationData.AGE_GROUP), AgeGroup.AGE_0_4));
-		Predicate filterxxx = CriteriaBuilderHelper.and(cb, filterxx,
-				cb.equal(root.get(PopulationData.AGE_GROUP), AgeGroup.AGE_5_10));
+//		Predicate filterxx = CriteriaBuilderHelper.and(cb, filterx,
+//				cb.equal(root.get(PopulationData.AGE_GROUP), AgeGroup.AGE_0_4));
+//		Predicate filterxxx = CriteriaBuilderHelper.and(cb, filterxx,
+//				cb.equal(root.get(PopulationData.AGE_GROUP), AgeGroup.AGE_5_10));
 
 		
-			cq.where(filterxx);
+			cq.where(filterx);
 
 //
 		System.out.println(campUuid + "DEBUGGER 5678ijhyuio  getPopulationDataWithCriteria  "
