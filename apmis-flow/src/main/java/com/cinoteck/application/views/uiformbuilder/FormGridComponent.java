@@ -141,6 +141,7 @@ public class FormGridComponent extends VerticalLayout {
 		formTypeAll.remove(CampaignFormElementType.ARRAY);
 		formTypeAll.remove(CampaignFormElementType.RADIO);
 		formTypeAll.remove(CampaignFormElementType.RADIOBASIC);
+		caption.setHelperText("Enter the Label size by wrapping your Label with a <h1> to <h6> tag");
 		options.setHelperText("Enter options keys in a comma seperated format like so Urban, Urban, Rural, Rural");
 		expression.setHelperText("Please enter expression value with care");
 		formId.setHelperText("Append \"-readonly\" at the end of the Id value. If you want it to be Read Only");
