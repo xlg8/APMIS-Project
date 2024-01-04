@@ -289,6 +289,35 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
+	public List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser) {
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
+		Root<CampaignFormData> root = cq.from(CampaignFormData.class);
+		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
+		Join<CampaignFormData, CampaignFormMeta> campaignFormMetaJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
+				JoinType.LEFT);
+		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
+		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
+		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
+		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+
+		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
+				root.get(CampaignFormData.FORM_VALUES),
+				areaJoin.get(Area.NAME), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.NAME),
+				regionJoin.get(Region.EXTERNAL_ID), districtJoin.get(District.NAME),
+				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
+				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
+				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+		
+		cq.where(cb.and(cb.equal(userJoin.get(User.USER_NAME), creatingUser)));
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
 	public boolean isArchived(String campaignFormDataUuid) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -426,10 +455,10 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
-	
+
 	@Override
-	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first, Integer max,
-			List<SortProperty> sortProperties) {
+	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
+			Integer max, List<SortProperty> sortProperties) {
 
 		// System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl---
 		// "+criteria.getCampaign());
@@ -525,8 +554,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
-	public List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first, Integer max,
-			List<SortProperty> sortProperties) {
+	public List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first,
+			Integer max, List<SortProperty> sortProperties) {
 
 		// System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl---
 		// "+criteria.getCampaign());
@@ -617,24 +646,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
 		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
 			// SQLExtractor.from(em.createQuery(cq)));
-		
-		 System.out.println("ttDEBUGGER r567ujhgty8ijyu8dfrf this query " +
-					 SQLExtractor.from(em.createQuery(cq)));
+
+		System.out.println("ttDEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
-	
+
 	@Override
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
-		
-		int isLocked = isUpdateTrakerLocked("completionanalysisview_e"); 
-		if(isLocked == 0){
+
+		int isLocked = isUpdateTrakerLocked("completionanalysisview_e");
+		if (isLocked == 0) {
 			updateTrakerTableCoreTimeStamp("campaignformdata");
-			//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
-			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
+			// Logic to check if campaign data has recently been changed, if yes... the
+			// analytics will run again ro provide refreshed data
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata",
+					"completionanalysisview_e");
 			if (isAnalyticsOld) {
-				try{
+				try {
 					updateTrakerTable("completionanalysisview_e", true);
 					int noUse = prepareAllCompletionAnalysis();
 				} finally {
@@ -642,8 +672,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				}
 			}
 		}
-		
-		String error_statusFilter ="";
+
+		String error_statusFilter = "";
 		boolean filterIsNull = criteria.getCampaign() == null;
 
 		String joiner = "";
@@ -654,7 +684,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
 			final String error_status = criteria.getError_status();
-
 
 			//@formatter:off
 			
@@ -3277,44 +3306,45 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	public void checkLastAnalytics() {
-		//completionanalysisview_e
+		// completionanalysisview_e
 		int isLocked = isUpdateTrakerLocked("camapaigndata_main");
-		if(isLocked == 0){
-		updateTrakerTableCoreTimeStamp("campaignformdata");
-		
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "camapaigndata_main");
-		
-		if (isAnalyticsOld) {
-			final String jpqlQueries = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_main;";
-			final String jpqlQueries_ = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_admin;";
+		if (isLocked == 0) {
+			updateTrakerTableCoreTimeStamp("campaignformdata");
 
-			try {
-				updateTrakerTable("camapaigndata_main", true);
-				em.createNativeQuery(jpqlQueries).executeUpdate();
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "camapaigndata_main");
 
-			} catch (Exception e) {
-				System.err.println(e.getStackTrace());
-			} finally {
-				updateTrakerTable("camapaigndata_main", false);
+			if (isAnalyticsOld) {
+				final String jpqlQueries = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_main;";
+				final String jpqlQueries_ = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_admin;";
 
 				try {
-					updateTrakerTable("camapaigndata_admin", true);
-					em.createNativeQuery(jpqlQueries_).executeUpdate();
+					updateTrakerTable("camapaigndata_main", true);
+					em.createNativeQuery(jpqlQueries).executeUpdate();
 
 				} catch (Exception e) {
 					System.err.println(e.getStackTrace());
 				} finally {
-					updateTrakerTable("camapaigndata_admin", false);
-				}
-			}
+					updateTrakerTable("camapaigndata_main", false);
 
-		}
+					try {
+						updateTrakerTable("camapaigndata_admin", true);
+						em.createNativeQuery(jpqlQueries_).executeUpdate();
+
+					} catch (Exception e) {
+						System.err.println(e.getStackTrace());
+					} finally {
+						updateTrakerTable("camapaigndata_admin", false);
+					}
+				}
+
+			}
 		}
 	}
-	
+
 	private int isUpdateTrakerLocked(String tableToCheck) {
 		// get the total size of the analysis
-		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '"+tableToCheck+"' and isLocked = true;";
+		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '" + tableToCheck
+				+ "' and isLocked = true;";
 
 		return Integer.parseInt(em.createNativeQuery(joinBuilder).getSingleResult().toString());
 
@@ -3322,17 +3352,15 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 	private void updateTrakerTable(String tabled, boolean isLocked_) {
 		// get the total size of the analysis
-		System.out.println("111111111111111111updateTrakerTable(    :"+tabled);
+		System.out.println("111111111111111111updateTrakerTable(    :" + tabled);
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
-				+ "    VALUES ('" + tabled + "', NOW(), "+isLocked_+")\n" + "    ON CONFLICT (table_name)\n"
-				+ "    DO UPDATE SET last_updated = NOW(), isLocked = "+isLocked_+";";
+				+ "    VALUES ('" + tabled + "', NOW(), " + isLocked_ + ")\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW(), isLocked = " + isLocked_ + ";";
 
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
 
-	
-	
 	private void updateTrakerTableCoreTimeStamp(String coretabled) {
 		// get the total size of the analysis
 		final String joinBuilder = "update tracktableupdates set last_updated = (select lastupdated from campaignformdata ORDER BY lastupdated DESC limit 1) "
@@ -3341,22 +3369,22 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
-	
-	
+
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysisAdmin(CampaignFormDataCriteria criteria, Integer first,
 			Integer max, List<SortProperty> sortProperties, FormAccess frm) {
-		
+
 		int isLocked = isUpdateTrakerLocked("completionanalysisview_e");
-		System.out.println(" =========ADMINNN===--------------------: "+isLocked);
+		System.out.println(" =========ADMINNN===--------------------: " + isLocked);
 		if (isLocked == 1) {
-			//RESET TO LAST TIME CAMPAIGN FORM WAS SUBMITTED
+			// RESET TO LAST TIME CAMPAIGN FORM WAS SUBMITTED
 			updateTrakerTableCoreTimeStamp("campaignformdata");
-			
-			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
-			System.out.println(" =========ADMINNN===--------------------: "+isAnalyticsOld);
+
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata",
+					"completionanalysisview_e");
+			System.out.println(" =========ADMINNN===--------------------: " + isAnalyticsOld);
 			if (isAnalyticsOld) {
-				try{
+				try {
 					updateTrakerTable("completionanalysisview_e", true);
 					int noUse = prepareAllCompletionAnalysis();
 				} finally {

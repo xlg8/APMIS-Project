@@ -51,6 +51,8 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataDto> getByUuids(List<String> uuids);
 
 	CampaignFormDataDto getCampaignFormDataByUuid(String campaignFormDataUuid);
+	
+	List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser);
 
 	void deleteCampaignFormData(String campaignFormDataUuid);
 
