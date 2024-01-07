@@ -70,6 +70,7 @@ public class CampaignFormElement implements Serializable {
 	private boolean warnonerror;
 	private boolean ignoredisable;
 	private String errormessage;
+	private String comment;
 	private String defaultvalue;
 
 	public String getType() {
@@ -189,8 +190,14 @@ public class CampaignFormElement implements Serializable {
 	public void setErrormessage(String errormessage) {
 		this.errormessage = errormessage;
 	}
-	
-	
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
 
 	public boolean isIgnoredisable() {
 		return ignoredisable;
@@ -235,7 +242,7 @@ public class CampaignFormElement implements Serializable {
 
 	@Override
 	public int hashCode() {
-		int result = Objects.hash(type, id, caption, expression, dependingOn, important, warnonerror, errormessage, defaultvalue, ignoredisable);
+		int result = Objects.hash(type, id, caption, expression, dependingOn, important, warnonerror, errormessage, comment, defaultvalue, ignoredisable);
 		result = 31 * result + Arrays.hashCode(styles);
 	//	result = 31 * result + Arrays.hashCode(options);
 		result = 31 * result + Arrays.hashCode(constraints);

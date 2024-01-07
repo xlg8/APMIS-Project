@@ -63,7 +63,7 @@ public interface CampaignFormDataFacade {
 	CampaignFormDataReferenceDto getReferenceByUuid(String uuid);
 
 	List<CampaignFormDataIndexDto> getIndexList(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
-
+  
 	List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
 
 	List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);

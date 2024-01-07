@@ -68,15 +68,13 @@ public class FormGridComponent extends VerticalLayout {
 	TextField expression = new TextField("Expression");
 	TextField dependingOn = new TextField("Depending On");
 	ComboBox<String> dependingOnValues = new ComboBox<>("Depending On Values");
-//	MultiSelectComboBox<String> styles = new MultiSelectComboBox<>("Styles");
 	TextField styles = new TextField("Styles");
 	ComboBox<String> constraints = new ComboBox<>("Constraints");
-//	NumberField min = new NumberField("Min");
-//	NumberField max = new NumberField("Max");
 	TextField min = new TextField("Min");
 	TextField max = new TextField("Max");
 	TextField defaultValues = new TextField("Default Values");
 	TextField errorMessage = new TextField("Error Message");
+	TextField comment = new TextField("Comment");
 
 	CampaignFormMetaDto campaignFormMetaDto;
 	CampaignFormElement formBeenEdited;
@@ -111,6 +109,7 @@ public class FormGridComponent extends VerticalLayout {
 		styles.setVisible(false);
 		constraints.setVisible(false);
 		errorMessage.setVisible(false);
+		comment.setVisible(false);
 		defaultValues.setVisible(false);
 
 		setSizeFull();
@@ -136,7 +135,6 @@ public class FormGridComponent extends VerticalLayout {
 		Set<CampaignFormElementType> formTypeAll = new TreeSet<>(Arrays.asList(CampaignFormElementType.values()));
 		formTypeAll.remove(CampaignFormElementType.CHECKBOX);
 		formTypeAll.remove(CampaignFormElementType.CHECKBOXBASIC);
-		formTypeAll.remove(CampaignFormElementType.COMMENT);
 		formTypeAll.remove(CampaignFormElementType.DECIMAL);
 		formTypeAll.remove(CampaignFormElementType.ARRAY);
 		formTypeAll.remove(CampaignFormElementType.RADIO);
@@ -299,9 +297,14 @@ public class FormGridComponent extends VerticalLayout {
 					}
 				}
 
-				if (formBeenEdited.getExpression() != null) {
-					errorMessage.setValue(formBeenEdited.getExpression());
+				if (formBeenEdited.getErrormessage() != null) {
+					errorMessage.setValue(formBeenEdited.getErrormessage());
 					errorMessage.setVisible(true);
+				}
+				
+				if (formBeenEdited.getComment() != null) {
+					comment.setValue(formBeenEdited.getComment());
+					comment.setVisible(true);
 				}
 
 				if (formBeenEdited.getDefaultvalue() != null) {
@@ -354,6 +357,7 @@ public class FormGridComponent extends VerticalLayout {
 //			options.setVisible(true);
 			styles.setVisible(true);
 			errorMessage.setVisible(true);
+			comment.setVisible(true);
 			defaultValues.setVisible(true);
 		});
 
@@ -368,6 +372,7 @@ public class FormGridComponent extends VerticalLayout {
 			styles.setVisible(false);
 			constraints.setVisible(false);
 			errorMessage.setVisible(false);
+			comment.setVisible(false);
 			defaultValues.setVisible(false);
 
 			clearFields();
@@ -502,6 +507,11 @@ public class FormGridComponent extends VerticalLayout {
 				if (!errorMessage.getValue().isEmpty()) {
 
 					newForm.setErrormessage(errorMessage.getValue());
+				}
+				
+				if (!comment.getValue().isEmpty()) {
+
+					newForm.setComment(comment.getValue());
 				}
 
 				if (!defaultValues.getValue().isEmpty()) {
@@ -649,6 +659,11 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setErrormessage(errorMessage.getValue());
 					}
 
+					if (!comment.getValue().isEmpty()) {
+
+						newForm.setComment(comment.getValue());
+					}
+					
 					if (!defaultValues.getValue().isEmpty()) {
 
 						newForm.setDefaultvalue(defaultValues.getValue());
@@ -674,7 +689,7 @@ public class FormGridComponent extends VerticalLayout {
 		});
 
 		formLayout.add(formType, formId, caption, important, options, expression, dependingOn, dependingOnValues,
-				styles, constraints, min, max, defaultValues, errorMessage);
+				styles, constraints, min, max, defaultValues, errorMessage, comment);
 
 		formLayout.setColspan(formType, 2);
 		formLayout.setColspan(formId, 2);
@@ -689,6 +704,7 @@ public class FormGridComponent extends VerticalLayout {
 		formLayout.setColspan(max, 2);
 		formLayout.setColspan(defaultValues, 2);
 		formLayout.setColspan(errorMessage, 2);
+		formLayout.setColspan(comment, 2);
 
 		return vrsub;
 	}
@@ -805,8 +821,6 @@ public class FormGridComponent extends VerticalLayout {
 		grid.addColumn(CampaignFormElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormElement::getType).setHeader("Type").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormElement::getExpression).setHeader("Expression").setSortable(true).setResizable(true);
-//		grid.addColumn(CampaignFormElement::getMin).setHeader("Min").setSortable(true).setResizable(true);
-//		grid.addColumn(CampaignFormElement::getMax).setHeader("Max").setSortable(true).setResizable(true);
 		grid.addColumn(styleRenderer).setHeader("Styles").setSortable(true).setResizable(true);
 		grid.addColumn(optionsRenderer).setHeader("Options").setSortable(true).setResizable(true);
 		grid.addColumn(constraintRenderer).setHeader("Constraint").setSortable(true).setResizable(true);
@@ -848,6 +862,7 @@ public class FormGridComponent extends VerticalLayout {
 		dependingOnValues.clear();
 		styles.setValue("");
 		errorMessage.setValue("");
+		comment.setValue("");
 		defaultValues.setValue("");
 	}
 
@@ -869,6 +884,7 @@ public class FormGridComponent extends VerticalLayout {
 				styles.setVisible(false);
 				constraints.setVisible(false);
 				errorMessage.setVisible(false);
+				comment.setVisible(false);
 				defaultValues.setVisible(false);
 			} else if (e.getValue().toString().toLowerCase().equals("number")
 					|| e.getValue().toString().toLowerCase().equals("range")) {
@@ -890,6 +906,7 @@ public class FormGridComponent extends VerticalLayout {
 				styles.setVisible(false);
 				constraints.setVisible(false);
 				errorMessage.setVisible(false);
+				comment.setVisible(false);
 				defaultValues.setVisible(false);
 			} else {
 
@@ -898,6 +915,7 @@ public class FormGridComponent extends VerticalLayout {
 				options.setVisible(false);
 				styles.setVisible(false);
 				errorMessage.setVisible(false);
+				comment.setVisible(false);
 				defaultValues.setVisible(false);
 				constraints.setVisible(false);
 			}
