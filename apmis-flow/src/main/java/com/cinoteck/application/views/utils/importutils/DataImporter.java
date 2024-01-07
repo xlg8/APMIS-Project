@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -621,13 +622,14 @@ public abstract class DataImporter {
 	 * file. This method should be called in every subclass whenever data from the
 	 * import file is supposed to be written to the entity in question. Additional
 	 * invokes need to be executed manually in the subclass.
+	 * @throws ParseException 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
-			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException {
+			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException{//, ParseException {
 		Class<?> propertyType = pd.getPropertyType();
 		final EnumCaptionCache enumCaptionCache = new EnumCaptionCache(currentUser.getLanguage());
-
+		System.out.println(entry+ "__________"+propertyType);
 		if (propertyType.isEnum()) {
 			Enum enumValue = null;
 			Class<Enum> enumType = (Class<Enum>) propertyType;
@@ -647,13 +649,22 @@ public abstract class DataImporter {
 		}
 		if (propertyType.isAssignableFrom(Date.class)) {
 			String dateFormat = I18nProperties.getUserLanguage().getDateFormat();
+			System.out.println("|"+entry+"|__dateFormat///////\\\\________");//+DateHelper.parseDateWithException(entry, dateFormat));
 			try {
-				pd.getWriteMethod().invoke(element, DateHelper.parseDateWithException(entry, dateFormat));
-				return true;
-			} catch (ParseException e) {
-				throw new ImportErrorException(I18nProperties.getValidationError(Validations.importInvalidDate,
-						pd.getName(), DateHelper.getAllowedDateFormats(dateFormat)));
-			}
+	            Date convertedDate = convertStringToDate(entry);
+	            System.out.println("Converted date: " + convertedDate);
+	            
+	            pd.getWriteMethod().invoke(element, convertedDate);
+	            System.out.println("Converted date___mmmmm");
+	            return true;	
+	        } catch (ParseException e) {
+	            // Handle the case where the input string does not match the expected format
+	            System.err.println("Error: Input date string does not match the expected format (dd/MM/yyyy)");
+//	            throw new ImportErrorException(I18nProperties.getValidationError(Validations.importInvalidDate,
+//						pd.getName(), DateHelper.getAllowedDateFormats(dateFormat)));
+	        }
+			
+			
 		}
 		if (propertyType.isAssignableFrom(Integer.class)) {
 			pd.getWriteMethod().invoke(element, Integer.parseInt(entry));
@@ -776,6 +787,17 @@ public abstract class DataImporter {
 
 		return false;
 	}
+	
+	  public static Date convertStringToDate(String dateString) throws ParseException {
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	        // Set lenient to false to enforce strict parsing
+	        dateFormat.setLenient(false);
+
+	        // Parse the date string using the specified format
+	        return dateFormat.parse(dateString);
+	    }
+	 
+	 
 
 	/**
 	 * Provides the structure to insert a whole line into the object entity. The
