@@ -18,6 +18,7 @@
 package de.symeda.sormas.backend.user;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
@@ -46,6 +48,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.ValidationException;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.BeanUtils;
 
@@ -53,6 +56,8 @@ import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
+import de.symeda.sormas.api.campaign.CampaignLogDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -60,6 +65,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.UserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.JurisdictionLevel;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserFacade;
@@ -73,6 +79,7 @@ import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.api.utils.PasswordHelper;
 import de.symeda.sormas.api.utils.SortProperty;
+import de.symeda.sormas.backend.campaign.CampaignLog;
 import de.symeda.sormas.backend.caze.Case;
 import de.symeda.sormas.backend.caze.CaseFacadeEjb.CaseFacadeEjbLocal;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
@@ -116,6 +123,10 @@ public class UserFacadeEjb implements UserFacade {
 
 	@EJB
 	private UserService userService;
+	
+	@EJB
+	private UserActivitySummaryService userActivitySummaryService;
+	
 	@EJB
 	private LocationFacadeEjbLocal locationFacade;
 	@EJB
@@ -144,6 +155,9 @@ public class UserFacadeEjb implements UserFacade {
 	private Event<UserUpdateEvent> userUpdateEvent;
 	@Inject
 	private Event<PasswordResetEvent> passwordResetEvent;
+	
+	@EJB
+	private UserFacadeEjb.UserFacadeEjbLocal userServiceEBJ;
 
 	public static UserDto toDto(User source) {
 
@@ -480,6 +494,17 @@ public class UserFacadeEjb implements UserFacade {
 
 		return toDto(user);
 	}
+	
+	@Override
+	public UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto userActivitySummaryDto) {
+		userActivitySummaryDto.setCreatingUser(userServiceEBJ.getCurrentUser());
+		
+		UserActivitySummary userActivitySummary = fromDto(userActivitySummaryDto);
+		
+		userActivitySummary.setCreatingUser(userService.getCurrentUser());
+		userActivitySummaryService.ensurePersisted(userActivitySummary);
+		return toLogDto(userActivitySummary);
+	}
 
 	@Override
 	public List<UserReportModelDto> getIndexListToDto(UserCriteria userCriteria, Integer first, Integer max,
@@ -758,6 +783,19 @@ public class UserFacadeEjb implements UserFacade {
 
 		return target;
 	}
+	
+	
+	public UserActivitySummary fromDto(@NotNull UserActivitySummaryDto source) {
+
+		UserActivitySummary target = new UserActivitySummary();
+
+		target.setCreatingUser(userService.getByUuid(source.getCreatingUser().getUuid()));
+		target.setAction(source.getAction());
+		target.setActionModule(source.getActionModule());
+
+		return target;
+	}
+	
 
 	@Override
 	public boolean isLoginUnique(String uuid, String userName) {
@@ -907,5 +945,57 @@ public class UserFacadeEjb implements UserFacade {
 		user.setPassword(PasswordHelper.encodePassword(pass, user.getSeed()));
 		return "Changed";
 	}
+	
+	
+	public UserActivitySummaryDto toLogDto(UserActivitySummary source) {
+
+		if (source == null) {
+			return null;
+		}
+		UserActivitySummaryDto target = new UserActivitySummaryDto();
+
+		target.setCreatingUser(userServiceEBJ.getByUuid(source.getCreatingUser().getUuid()));
+		target.setAction(source.getAction());
+		target.setActionModule(source.getActionModule());
+		return target;
+	}
+
+	@Override
+	public List<UserActivitySummaryDto> getUsersActivityByModule(String module) {
+		// TODO Auto-generated method stub
+		final String joinBuilder = 
+				
+				"select u.action_logged, action_module, us.username, u.creationdate \n"
+				+ "from usersactivity u \n"
+				+ "left outer join users us ON u.creatinguser_id = us.id \n"
+				+ "where u.action_module ilike '" + module + "'";
+	
+	System.out.println("=====seriesDataQuery======== "+joinBuilder);
+		
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		
+		List<UserActivitySummaryDto> resultData = new ArrayList<>();
+		
+		
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList(); 
+		
+	System.out.println("starting....");
+		
+	resultData.addAll(resultList.stream()
+	        .map((result) -> new UserActivitySummaryDto(
+	        		(String) result[0].toString(),
+	        		(String) result[1].toString(),
+//	        		
+	        		(String) result[2].toString(),
+	        		(Date) result[3]
+	        		)).collect(Collectors.toList()));
+	
+	
+	return resultData;	}
+	
+	
+	
 
 }

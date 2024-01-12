@@ -67,6 +67,9 @@ public class ProvinceDataImporter extends DataImporter {
 	private UI currentUI;
 
 	private boolean isOverWrite;
+	private boolean isOverWriteEnabledCode;
+	List<RegionDto> provinceNameList = new ArrayList<>();
+	List<RegionReferenceDto> provinces = new ArrayList<>();
 
 	private boolean stopProcessNow;
 
@@ -129,23 +132,23 @@ public class ProvinceDataImporter extends DataImporter {
 										+ " | This cannot be empty or have white space or too short (less than 2 letters).");
 						return ImportLineResult.ERROR;
 					} else {
-						List<RegionDto> provinceNameList = FacadeProvider.getRegionFacade().getByName(provinceName_, true);
+						provinceNameList = FacadeProvider.getRegionFacade().getByName(provinceName_, true);
 
 						if (provinceNameList.size() < 1) {
 							provinceName = provinceName_;
 
 						} else {
-							if(isOverWrite){
-								
-								provinceName = provinceName_;
-								return ImportLineResult.SUCCESS;
-
-							}else {
+//							if(isOverWrite){
+//								
+//								provinceName = provinceName_;
+//								return ImportLineResult.SUCCESS;
+//
+//							}else {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
 												+ " | Region Name Exists ");
 								return ImportLineResult.ERROR;
-							}
+//							}
 						}
 
 					}
@@ -168,14 +171,16 @@ public class ProvinceDataImporter extends DataImporter {
 
 				} else {
 					
-					List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade()
+					provinces = FacadeProvider.getRegionFacade()
 							.getByExternalId(Long.parseLong(values[i]), true);
 					
 					if (provinces.size() > 0) {
 						if (isOverWrite) {
+							System.out.println(isOverWrite + "overrrrrrideeeeeeeeeeeeeeeee");
 							try {
 								Long externalIdValue = Long.parseLong(values[i]);
 								provinceExternalId = externalIdValue;
+								isOverWriteEnabledCode = true;
 							} catch (NumberFormatException e) {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | " +e.getMessage());
@@ -258,36 +263,90 @@ public class ProvinceDataImporter extends DataImporter {
 			newUserLine.setExternalId(extd);
 			newUserLine.setName(finalRProvincename);
 
-			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
-					new Function<ImportCellData, Exception>() {
+			
+			if(isOverWrite && isOverWriteEnabledCode) {
+				
+				System.out.println("isOverWrite && isOverWriteEnabledCode" +  "cell data value ");
+				RegionDto newUserLine_ = FacadeProvider.getRegionFacade().getByUuid(provinces.get(0).getUuid());
+				newUserLine_.setArea(finalArea);
+				newUserLine_.setExternalId(extd);
+				newUserLine_.setName(finalRProvincename);
+				 boolean isSameData = checkSameInstances(provinces, provinceNameList);
+				 if(isSameData) {
+					 return ImportLineResult.SUCCESS;
+				 }
+				 boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+							new Function<ImportCellData, Exception>() {
 
-						@Override
-						public Exception apply(ImportCellData cellData) {
-							try {
+								@Override
+								public Exception apply(ImportCellData cellData) {
+									try {
+										if (RegionDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											newUserLine_.setName(cellData.getValue());
+											System.out.println(cellData.getValue() +  "cell data value ");
+										}
+										if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+											System.out.println(cellData.getValue() +  "cell data value ");
+										}
+										newUserLinetoSave.add(newUserLine_);
 
-								newUserLinetoSave.add(newUserLine);
+									} catch (NumberFormatException e) {
+										return e;
+//									
+								}
+									return null;
+								}
+							});
+				 if (!usersDataHasImportError && !stopProcessNow) {
 
-							} catch (NumberFormatException e) {
-								return e;
-//							
+						try {
+							FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
+
+							return ImportLineResult.SUCCESS;
+						} catch (ValidationRuntimeException e) {
+							writeImportError(values, e.getMessage());
+							return ImportLineResult.ERROR;
 						}
-							return null;
-						}
-					});
+					} else {
+						return ImportLineResult.ERROR;
+					}
+				 
+				 
+			}else {
+				boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+						new Function<ImportCellData, Exception>() {
 
-			if (!usersDataHasImportError && !stopProcessNow) {
+							@Override
+							public Exception apply(ImportCellData cellData) {
+								try {
 
-				try {
-					FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
+									newUserLinetoSave.add(newUserLine);
 
-					return ImportLineResult.SUCCESS;
-				} catch (ValidationRuntimeException e) {
-					writeImportError(values, e.getMessage());
+								} catch (NumberFormatException e) {
+									return e;
+//								
+							}
+								return null;
+							}
+						});
+
+				if (!usersDataHasImportError && !stopProcessNow) {
+
+					try {
+						FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
+
+						return ImportLineResult.SUCCESS;
+					} catch (ValidationRuntimeException e) {
+						writeImportError(values, e.getMessage());
+						return ImportLineResult.ERROR;
+					}
+				} else {
 					return ImportLineResult.ERROR;
 				}
-			} else {
-				return ImportLineResult.ERROR;
 			}
+//			return ImportLineResult.SUCCESS;
+		
 		
 	}
 	
@@ -295,6 +354,19 @@ public class ProvinceDataImporter extends DataImporter {
 		stopProcessNow = stop;
 	}
 	
+//	@Override
+	 public static boolean checkSameInstances(List<RegionReferenceDto> list1, List<RegionDto> list2) {
+	        if (list1.size() != list2.size()) {
+	            return false;
+	        }
+
+	        for (RegionReferenceDto model : list1) {
+	            if (!list2.contains(model)) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
 	
 
 	@Override

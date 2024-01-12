@@ -119,6 +119,8 @@ public interface CampaignFormDataFacade {
 	String getByClusterDropDown(CommunityReferenceDto community, CampaignFormMetaDto campaignForm, CampaignDto campaign);
 	
 	void deleteCampaignData(List<String> uuids);
+	
+	void verifyCampaignData(List<String> uuids);
 
 	List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria, List<SortProperty> sortProperties, FormAccess frms);
 
@@ -140,6 +142,8 @@ public interface CampaignFormDataFacade {
 
 	String getByTimelinessAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms);
+	
+	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
 	
 
 }

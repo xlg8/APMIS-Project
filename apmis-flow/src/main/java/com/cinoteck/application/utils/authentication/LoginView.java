@@ -2,6 +2,7 @@ package com.cinoteck.application.utils.authentication;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.IdleNotification;
+import com.google.api.client.util.DateTime;
 import com.vaadin.flow.component.UI;
 //import com.vaadin.flow.component.UI;
 //import com.vaadin.flow.server.Page;
@@ -26,9 +27,12 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.server.Page;
 
+import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -141,6 +145,12 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Login");
+				userActivitySummaryDto.setAction("User Logged In");
+				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			} else {
 
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
@@ -148,6 +158,12 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				} else {
 					getUI().get().navigate("/dashboard");
 				}
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Login");
+				userActivitySummaryDto.setAction("User Logged In");
+				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 
 			}
 

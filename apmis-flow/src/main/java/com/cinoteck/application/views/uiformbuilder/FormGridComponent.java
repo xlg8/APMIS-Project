@@ -224,7 +224,7 @@ public class FormGridComponent extends VerticalLayout {
 						min.setVisible(false);
 					} else {
 						constraints.setValue(Arrays.toString(new String[] { "Range" }));
-						constraints.setVisible(true);
+						constraints.setVisible(true);;
 						logger.debug(formBeenEdited.getConstraints()[0].substring(4,
 								formBeenEdited.getConstraints()[0].length()) + " maxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 						logger.debug(formBeenEdited.getConstraints()[1].substring(4,
@@ -232,13 +232,13 @@ public class FormGridComponent extends VerticalLayout {
 	
 //						min.setValue(Double.parseDouble(formBeenEdited.getConstraints()[1].substring(4,
 //								formBeenEdited.getConstraints()[1].length())));
-						min.setValue(formBeenEdited.getConstraints()[1].substring(4,
+						min.setValue(formBeenEdited.getConstraints()[0].substring(4,
 								formBeenEdited.getConstraints()[1].length()));
 						min.setVisible(true);
 						logger.debug(min.getValue() + " minnnnn value");
 //						max.setValue(Double.parseDouble(formBeenEdited.getConstraints()[0].substring(4,
 //						formBeenEdited.getConstraints()[0].length())));
-						max.setValue(formBeenEdited.getConstraints()[0].substring(4,
+						max.setValue(formBeenEdited.getConstraints()[1].substring(4,
 								formBeenEdited.getConstraints()[0].length()));
 						max.setVisible(true);
 						logger.debug(min.getValue() + " Maxxxxxxxxxxxxxxx value");
@@ -376,14 +376,14 @@ public class FormGridComponent extends VerticalLayout {
 
 				if (constraints.getValue() != null) {
 
-					if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
+					if (constraints.getValue().toString().equalsIgnoreCase("expression")) {
 
 						newForm.setConstraints(constraints.getValue().split(","));
 					} else {
 
 						if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
 
-							String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
+							String valueOfMinMAx = "max="+min.getValue() + " min=" + max.getValue();
 							newForm.setConstraints(valueOfMinMAx.split(" "));
 						} else {
 
@@ -481,24 +481,26 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setOptions(option);
 					}
 
-//					if (constraints.getValue() != null) {
-//
-//						if (constraints.getValue().toString().equalsIgnoreCase("Expression")) {
-//
-//							newForm.setConstraints(constraints.getValue().split(","));
-//						} else {
-//
-//							if (min.getValue() != null && max.getValue() != null && Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
-//
-//								String valueOfMinMAx = "[max="+min.getValue() + ", min=" + max.getValue()+"]";
-//								newForm.setConstraints(valueOfMinMAx.split(" "));
-//							} else {
-//
-//								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
-//							}
-//						}
-//
-//					}
+					if (constraints.getValue() != null) {
+
+						if (constraints.getValue().toString().equalsIgnoreCase("expression")) {
+
+							newForm.setConstraints(constraints.getValue().split(","));
+						} else {
+
+							if (min.getValue() != null && 
+									max.getValue() != null && 
+									Integer.parseInt(min.getValue()) < Integer.parseInt(max.getValue())) {
+
+								String valueOfMinMAx = "max="+min.getValue() + " min=" + max.getValue();
+								newForm.setConstraints(valueOfMinMAx.split(" "));
+							} else {
+
+								Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+							}
+						}
+
+					}
 
 					if (!styles.getValue().isEmpty()) {
 

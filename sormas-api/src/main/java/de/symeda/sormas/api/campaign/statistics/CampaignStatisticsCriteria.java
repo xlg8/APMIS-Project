@@ -19,6 +19,8 @@ public class CampaignStatisticsCriteria extends BaseCriteria implements Serializ
 	public static final String REGION = "region";
 	public static final String DISTRICT = "district";
 //	public static final String COMMUNITY = "community";
+	public static final String LANGUAGE = "language";
+
 
 	private CampaignReferenceDto campaign;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
@@ -26,6 +28,7 @@ public class CampaignStatisticsCriteria extends BaseCriteria implements Serializ
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
 //	private CommunityReferenceDto community; 
+	private String language;
 	
 	private CampaignJurisdictionLevel groupingLevel;
 
@@ -84,4 +87,14 @@ public class CampaignStatisticsCriteria extends BaseCriteria implements Serializ
 	public void setGroupingLevel(CampaignJurisdictionLevel groupingLevel) {
 		this.groupingLevel = groupingLevel;
 	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+	
+	
 }

@@ -54,6 +54,7 @@
 		<class>de.symeda.sormas.backend.campaign.Campaign</class>
 		<class>de.symeda.sormas.backend.campaign.statistics.TrackTableUpdates</class>
 		<class>de.symeda.sormas.backend.campaign.CampaignLog</class>
+		<class>de.symeda.sormas.backend.user.UserActivitySummary</class>
 		<class>de.symeda.sormas.backend.campaign.form.CampaignFormMeta</class>
 		<class>de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay</class>
 		<class>de.symeda.sormas.backend.infrastructure.area.Area</class>

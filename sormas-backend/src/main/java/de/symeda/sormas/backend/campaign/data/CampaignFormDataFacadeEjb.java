@@ -348,6 +348,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+		
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
@@ -371,6 +372,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
+				
+			System.out.println(sortProperty.propertyName + "sortinpropertynaem ");
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormDataIndexDto.UUID:
@@ -413,23 +416,36 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
 					break;
+					
+				case CampaignFormDataIndexDto.FORM_VALUES:
+					System.out.println("formvaluee eee");
+					expression = root.get(sortProperty.propertyName);
+					break;
 				default:
-					throw new IllegalArgumentException(sortProperty.propertyName);
+					
+					System.out.println("defaulttttttt");
+
+					expression = root.get(CampaignFormData.FORM_VALUES + "->> '" + sortProperty.propertyName + "'");
+					break;
+//					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
 				order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
 			}
 			cq.orderBy(order);
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
-		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
-			// SQLExtractor.from(em.createQuery(cq)));
+		} 
+		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
+			 SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
 	
+	
+
 	@Override
-	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first, Integer max,
-			List<SortProperty> sortProperties) {
+	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
+			Integer max, List<SortProperty> sortProperties) {
 
 		// System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl---
 		// "+criteria.getCampaign());
@@ -525,8 +541,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
-	public List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first, Integer max,
-			List<SortProperty> sortProperties) {
+	public List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first,
+			Integer max, List<SortProperty> sortProperties) {
 
 		// System.out.println((criteria == null) +" ---poiuhgfghj==__==kjhghyujkl---
 		// "+criteria.getCampaign());
@@ -617,24 +633,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
 		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
 			// SQLExtractor.from(em.createQuery(cq)));
-		
-		 System.out.println("ttDEBUGGER r567ujhgty8ijyu8dfrf this query " +
-					 SQLExtractor.from(em.createQuery(cq)));
+
+		System.out.println("ttDEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
-	
+
 	@Override
 	public String getByCompletionAnalysisCount(CampaignFormDataCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties, FormAccess frms) {
-		
-		int isLocked = isUpdateTrakerLocked("completionanalysisview_e"); 
-		if(isLocked == 0){
+
+		int isLocked = isUpdateTrakerLocked("completionanalysisview_e");
+		if (isLocked == 0) {
 			updateTrakerTableCoreTimeStamp("campaignformdata");
-			//Logic to check if campaign data has recently been changed, if yes... the analytics will run again ro provide refreshed data
-			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
+			// Logic to check if campaign data has recently been changed, if yes... the
+			// analytics will run again ro provide refreshed data
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata",
+					"completionanalysisview_e");
 			if (isAnalyticsOld) {
-				try{
+				try {
 					updateTrakerTable("completionanalysisview_e", true);
 					int noUse = prepareAllCompletionAnalysis();
 				} finally {
@@ -642,8 +659,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				}
 			}
 		}
-		
-		String error_statusFilter ="";
+
+		String error_statusFilter = "";
 		boolean filterIsNull = criteria.getCampaign() == null;
 
 		String joiner = "";
@@ -654,7 +671,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
 			final String error_status = criteria.getError_status();
-
 
 			//@formatter:off
 			
@@ -945,12 +961,20 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
 //			final String error_status = criteria.getError_status();
-
+			
 
 			//@formatter:off
 			
 			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
-			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+			String getFormNameByLanguage = "";
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				getFormNameByLanguage = " AND formmeta.formname_ps_af = '";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				getFormNameByLanguage = " AND formmeta.formname_fa_af = '";
+			}else {
+				getFormNameByLanguage =" AND formmeta.formname = '";
+			}
+			final String campaignFormFilter = form != null ? getFormNameByLanguage +form.getCaption()+"'" : "";
 //			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
 
 			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
@@ -961,11 +985,28 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			
 		} 
 		
+	
+		String formNameByUserLanguageJoiner = "";
+		
+		if(criteria.getUserLanguage() != null) {
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				formNameByUserLanguageJoiner = 	"formmeta.formname_ps_af";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				formNameByUserLanguageJoiner = 	"formmeta.formname_fa_af";
+			}else {
+				formNameByUserLanguageJoiner = 	"formmeta.formname";
+
+			}
+		}else {
+			formNameByUserLanguageJoiner = 	"formmeta.formname";
+		}
+		
 
 		
 		
 		final String joinBuilder = "WITH cte AS ( " 
-				+ "SELECT dst.count, dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name, formmeta.formname, areas.\"name\", region.\"name\", district.name,\r\n"
+				+ "SELECT dst.count, dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name, \n" 
+				+  formNameByUserLanguageJoiner + ", areas.name, region.name, district.name,\r\n"
 				+ "    trunc(cast((( SELECT lp.count\r\n"
 				+ "           FROM lateformdataportion lp\r\n"
 				+ "         WHERE lp.district_id = dst.district_id\r\n"
@@ -986,6 +1027,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ joiner +" ) select count(*) from cte ;";
 		
 		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== ");
+		
+
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -1014,7 +1057,16 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			//@formatter:off
 			
 			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
-			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+			
+			String getFormNameByLanguage = "";
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				getFormNameByLanguage = " AND formmeta.formname_ps_af = '";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				getFormNameByLanguage = " AND formmeta.formname_fa_af = '";
+			}else {
+				getFormNameByLanguage =" AND formmeta.formname = '";
+			}
+			final String campaignFormFilter = form != null ? getFormNameByLanguage +form.getCaption()+"'" : "";
 //			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
 
 			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
@@ -1090,11 +1142,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			}
 		}
 		
+String formNameByUserLanguageJoiner = "";
+		
+if(criteria.getUserLanguage() != null) {
+	if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+		formNameByUserLanguageJoiner = 	"formmeta.formname_ps_af";
+	}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+		formNameByUserLanguageJoiner = 	"formmeta.formname_fa_af";
+	}else {
+		formNameByUserLanguageJoiner = 	"formmeta.formname";
 
+	}
+}else {
+	formNameByUserLanguageJoiner = 	"formmeta.formname";
+}
 		
 		
 		
-		final String joinBuilder = "SELECT dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name as capaignname, formmeta.formname, areas.\"name\" as areaname, region.\"name\" as regionname, district.name as districtname, dst.count, \r\n"
+		final String joinBuilder = "SELECT dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name as capaignname, \n" 
+				+ formNameByUserLanguageJoiner + ", areas.name as areaname, region.name as regionname, district.name as districtname, dst.count, \r\n"
 				+ "    trunc(cast((( SELECT lp.count\r\n"
 				+ "           FROM lateformdataportion lp\r\n"
 				+ "         WHERE lp.district_id = dst.district_id\r\n"
@@ -1147,7 +1213,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	//	//System.out.println("ending...." +resultData.size());
 	
 	
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+//	System.out.println("resultData - " + SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
@@ -2658,6 +2724,28 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		}
 		
 	}
+	
+	@Override
+	public void verifyCampaignData(List<String> uuids) {
+		
+		for(String uuidx : uuids) {
+//			System.out.println( uuidx + "Each uuid ");
+			System.err.println(uuidx + " verification kicke from backend per uuid");
+
+				campaignFormDataService.verify(uuidx);
+//				
+//				String selectUpdateBuilder = "update campaignformdata set isverified = case when isverified = false then true else true end where uuid = ' \n"
+//						+ uuidx +"';";
+//				
+//				
+				
+		}
+		
+	}
+	
+	
+
+	
 
 	@Override
 	public List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV() {
@@ -3277,44 +3365,45 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	public void checkLastAnalytics() {
-		//completionanalysisview_e
+		// completionanalysisview_e
 		int isLocked = isUpdateTrakerLocked("camapaigndata_main");
-		if(isLocked == 0){
-		updateTrakerTableCoreTimeStamp("campaignformdata");
-		
-		boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "camapaigndata_main");
-		
-		if (isAnalyticsOld) {
-			final String jpqlQueries = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_main;";
-			final String jpqlQueries_ = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_admin;";
+		if (isLocked == 0) {
+			updateTrakerTableCoreTimeStamp("campaignformdata");
 
-			try {
-				updateTrakerTable("camapaigndata_main", true);
-				em.createNativeQuery(jpqlQueries).executeUpdate();
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "camapaigndata_main");
 
-			} catch (Exception e) {
-				System.err.println(e.getStackTrace());
-			} finally {
-				updateTrakerTable("camapaigndata_main", false);
+			if (isAnalyticsOld) {
+				final String jpqlQueries = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_main;";
+				final String jpqlQueries_ = "REFRESH MATERIALIZED VIEW CONCURRENTLY camapaigndata_admin;";
 
 				try {
-					updateTrakerTable("camapaigndata_admin", true);
-					em.createNativeQuery(jpqlQueries_).executeUpdate();
+					updateTrakerTable("camapaigndata_main", true);
+					em.createNativeQuery(jpqlQueries).executeUpdate();
 
 				} catch (Exception e) {
 					System.err.println(e.getStackTrace());
 				} finally {
-					updateTrakerTable("camapaigndata_admin", false);
-				}
-			}
+					updateTrakerTable("camapaigndata_main", false);
 
-		}
+					try {
+						updateTrakerTable("camapaigndata_admin", true);
+						em.createNativeQuery(jpqlQueries_).executeUpdate();
+
+					} catch (Exception e) {
+						System.err.println(e.getStackTrace());
+					} finally {
+						updateTrakerTable("camapaigndata_admin", false);
+					}
+				}
+
+			}
 		}
 	}
-	
+
 	private int isUpdateTrakerLocked(String tableToCheck) {
 		// get the total size of the analysis
-		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '"+tableToCheck+"' and isLocked = true;";
+		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '" + tableToCheck
+				+ "' and isLocked = true;";
 
 		return Integer.parseInt(em.createNativeQuery(joinBuilder).getSingleResult().toString());
 
@@ -3322,17 +3411,15 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 	private void updateTrakerTable(String tabled, boolean isLocked_) {
 		// get the total size of the analysis
-		System.out.println("111111111111111111updateTrakerTable(    :"+tabled);
+		System.out.println("111111111111111111updateTrakerTable(    :" + tabled);
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
-				+ "    VALUES ('" + tabled + "', NOW(), "+isLocked_+")\n" + "    ON CONFLICT (table_name)\n"
-				+ "    DO UPDATE SET last_updated = NOW(), isLocked = "+isLocked_+";";
+				+ "    VALUES ('" + tabled + "', NOW(), " + isLocked_ + ")\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW(), isLocked = " + isLocked_ + ";";
 
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
 
-	
-	
 	private void updateTrakerTableCoreTimeStamp(String coretabled) {
 		// get the total size of the analysis
 		final String joinBuilder = "update tracktableupdates set last_updated = (select lastupdated from campaignformdata ORDER BY lastupdated DESC limit 1) "
@@ -3341,22 +3428,22 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
-	
-	
+
 	@Override
 	public List<CampaignFormDataIndexDto> getByCompletionAnalysisAdmin(CampaignFormDataCriteria criteria, Integer first,
 			Integer max, List<SortProperty> sortProperties, FormAccess frm) {
-		
+
 		int isLocked = isUpdateTrakerLocked("completionanalysisview_e");
-		System.out.println(" =========ADMINNN===--------------------: "+isLocked);
+		System.out.println(" =========ADMINNN===--------------------: " + isLocked);
 		if (isLocked == 1) {
-			//RESET TO LAST TIME CAMPAIGN FORM WAS SUBMITTED
+			// RESET TO LAST TIME CAMPAIGN FORM WAS SUBMITTED
 			updateTrakerTableCoreTimeStamp("campaignformdata");
-			
-			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata", "completionanalysisview_e");
-			System.out.println(" =========ADMINNN===--------------------: "+isAnalyticsOld);
+
+			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("campaignformdata",
+					"completionanalysisview_e");
+			System.out.println(" =========ADMINNN===--------------------: " + isAnalyticsOld);
 			if (isAnalyticsOld) {
-				try{
+				try {
 					updateTrakerTable("completionanalysisview_e", true);
 					int noUse = prepareAllCompletionAnalysis();
 				} finally {
@@ -3523,6 +3610,34 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
+	
+	public List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username) {
+		
+		final String fetchUserTypeByUsername = "select usertype from users where username ilike '" + username + "';";
+		
+		Query seriesDataQuery =  em.createNativeQuery(fetchUserTypeByUsername);
+		
+List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+		
+
+@SuppressWarnings("unchecked")
+List<String> resultList = seriesDataQuery.getResultList(); // Change the type to List<String>
+
+resultData.addAll(resultList.stream()
+        .map(result -> new CampaignFormDataIndexDto(result))
+        .collect(Collectors.toList()));
+
+		
+//		@SuppressWarnings("unchecked")
+//		List<String[]> resultList = seriesDataQuery.getResultList(); 
+//	
+//		
+//		 resultData.addAll(resultList.stream()
+//		            .map(result -> new CampaignFormDataIndexDto((String) result[0].toString()))
+//		            .collect(Collectors.toList()));
+		
+		return resultData;
+	}
 	
 	
 	

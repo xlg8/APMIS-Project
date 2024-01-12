@@ -9651,5 +9651,39 @@ ALTER TABLE public.campaignformmeta ADD CONSTRAINT campaignformmeta_checkk CHECK
 INSERT INTO schema_version (version_number, comment) VALUES (456, 'configuring multiple district for users and fix for formmeta contraint on formcat');
 
 
+
+alter table campaignformdata add column isVerified boolean not null default false
+
+CREATE OR REPLACE FUNCTION public.verify_data_byphase_after()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    UPDATE campaignFormData
+    SET isverified = CASE
+        WHEN EXISTS (
+            SELECT 1 FROM campaignformmeta 
+            WHERE campaignFormData.campaignformmeta_id = campaignformmeta.id  
+              AND campaignformmeta.formtype = 'post-campaign'
+        )
+        THEN false
+        ELSE true
+    END
+    WHERE campaignFormData.id = NEW.id;
+
+    RETURN NEW;
+END;
+$function$
+;
+
+
+create trigger verify_data_trigger after
+insert
+    on
+    public.campaignformdata for each row execute function verify_data_byphase_after()
+
+INSERT INTO schema_version (version_number, comment) VALUES (457, 'Admin WHO_User should be able to approve/verify PCM data rows for publication #602');
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
