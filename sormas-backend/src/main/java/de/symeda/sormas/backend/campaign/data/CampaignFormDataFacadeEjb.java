@@ -348,6 +348,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+		
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
@@ -371,6 +372,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
+				
+			System.out.println(sortProperty.propertyName + "sortinpropertynaem ");
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormDataIndexDto.UUID:
@@ -413,19 +416,32 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
 					break;
+					
+				case CampaignFormDataIndexDto.FORM_VALUES:
+					System.out.println("formvaluee eee");
+					expression = root.get(sortProperty.propertyName);
+					break;
 				default:
-					throw new IllegalArgumentException(sortProperty.propertyName);
+					
+					System.out.println("defaulttttttt");
+
+					expression = root.get(CampaignFormData.FORM_VALUES + "->> '" + sortProperty.propertyName + "'");
+					break;
+//					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
 				order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
 			}
 			cq.orderBy(order);
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
-		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
-			// SQLExtractor.from(em.createQuery(cq)));
+		} 
+		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
+			 SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
+	
+	
 
 	@Override
 	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
@@ -2708,6 +2724,28 @@ if(criteria.getUserLanguage() != null) {
 		}
 		
 	}
+	
+	@Override
+	public void verifyCampaignData(List<String> uuids) {
+		
+		for(String uuidx : uuids) {
+//			System.out.println( uuidx + "Each uuid ");
+			System.err.println(uuidx + " verification kicke from backend per uuid");
+
+				campaignFormDataService.verify(uuidx);
+//				
+//				String selectUpdateBuilder = "update campaignformdata set isverified = case when isverified = false then true else true end where uuid = ' \n"
+//						+ uuidx +"';";
+//				
+//				
+				
+		}
+		
+	}
+	
+	
+
+	
 
 	@Override
 	public List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV() {

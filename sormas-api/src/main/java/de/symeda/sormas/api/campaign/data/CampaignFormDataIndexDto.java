@@ -42,6 +42,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String COMMUNITYNUMBER_ = "clusternumber_";
 	public static final String CCODE = "ccode";
 	public static final String FORM_DATE = "formDate";
+	public static final String FORM_VALUES = "formValues";
 	public static final String FORM_TYPE = "formType";
 	public static final String ANALYSIS_FIELD_A = "analysis_a";
 	public static final String ANALYSIS_FIELD_B = "analysis_b";

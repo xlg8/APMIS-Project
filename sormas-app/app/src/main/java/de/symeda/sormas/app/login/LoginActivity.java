@@ -57,6 +57,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 
 	private ActivityLoginLayoutBinding binding;
 
+
 	private ProgressDialog progressDialog = null;
 
 	@Override
@@ -78,6 +79,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 		boolean hasDefaultUser =
 			!DataHelper.isNullOrEmpty(SormasProperties.getUserNameDefault()) && !DataHelper.isNullOrEmpty(SormasProperties.getUserPasswordDefault());
 		binding.btnLoginDefaultUser.setVisibility(hasDefaultUser ? View.VISIBLE : View.GONE);
+
 	}
 
 	@Override
@@ -150,6 +152,8 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 
 		login(view);
 	}
+
+
 
 	/**
 	 * Called by onClick

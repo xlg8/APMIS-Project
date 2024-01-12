@@ -43,6 +43,7 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 
 public class ImportPopulationDataDialog extends Dialog {
@@ -218,6 +219,14 @@ public class ImportPopulationDataDialog extends Dialog {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
 					I18nProperties.getString(Strings.messageImportFailed));
+			}
+finally {
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Population Data Import");
+				userActivitySummaryDto.setAction("User Attempted Population Import to " +  camapigndto.getName());
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
 			
 			

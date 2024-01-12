@@ -90,7 +90,7 @@ public class CampaignFormDataDto extends EntityDto {
 		campaignFormData.setDistrict(district);
 		campaignFormData.setCommunity(community);
 		campaignFormData.setFormDate(new Date());
-		campaignFormData.setFormType("");
+		campaignFormData.setFormType(campaignFormMeta.getFormType());
 		//campaignFormData.setFormCategory(campaignFormMeta.getFormCategory() != null ? campaignFormMeta.getFormCategory().toString() : null);
 		//campaignFormData.setFormLat(formLat);
 		//campaignFormData.

@@ -39,9 +39,9 @@ public class ImportActivitySummary extends VerticalLayout implements RouterLayou
 
 
 	private Tabs createTabs() {
-		tabComponentMap.put(new Tab(I18nProperties.getCaption("Data Import Log")),new CampaignDataImportActivityView());
-		tabComponentMap.put(new Tab("Users Summary"), new PopulationDataImportActivityView());
-		tabComponentMap.put(new Tab(I18nProperties.getCaption("Data Edit Summary")), new UsersImportActivityView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption("Campaign Data Import Log")),new CampaignDataImportActivityView());
+		tabComponentMap.put(new Tab("Population Data Import Log"), new PopulationDataImportActivityView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption("Users Import Log")), new UsersImportActivityView());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 

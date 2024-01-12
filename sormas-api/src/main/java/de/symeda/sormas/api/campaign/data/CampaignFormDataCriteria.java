@@ -39,6 +39,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String FORM_PHASE = "formPhase"; 
 	public static final String ERROR_STATUS = "error_status";
 	public static final String USER_LANGUAGE = "userLanguage";
+	public static final String USER_TYPE = "usertype";
 	//for filter
 	
 
@@ -55,6 +56,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private CampaignFormMetaReferenceDto formPhase; 
 	private String error_status;
 	private String userLanguage;
+	private String usertype;
 	// for filter
 
 	
@@ -188,6 +190,14 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public void setUserLanguage(String userLanguage) {
 		this.userLanguage = userLanguage;
+	}
+
+	public String getUsertype() {
+		return usertype;
+	}
+
+	public void setUsertype(String usertype) {
+		this.usertype = usertype;
 	}
 	
 	

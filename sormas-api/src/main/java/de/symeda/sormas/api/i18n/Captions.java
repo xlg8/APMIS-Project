@@ -192,6 +192,7 @@ public interface Captions {
 	String actionDearchive = "actionDearchive";
 	String actionUnpublish = "Unpublish";
 	String actionDelete = "actionDelete";
+	String actionVerify = "actionVerify";
 	String actionPublish = "Publish";
 	String actionDeselectAll = "actionDeselectAll";
 	String actionDeselectAndContinue = "actionDeselectAndContinue";

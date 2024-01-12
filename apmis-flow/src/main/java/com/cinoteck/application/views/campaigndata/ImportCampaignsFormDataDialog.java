@@ -190,11 +190,9 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 						+ I18nProperties.getString(Strings.messageImportFailed));
 			}finally {
 				
-				ImportProgressLayout lay = null;
-				
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Campaign Data Import");
-				userActivitySummaryDto.setAction("User Imported : " + campaignForm.getCaption() + " with " + lay.successfulImportsCount );
+				userActivitySummaryDto.setAction("User Attempted "+ campaignForm.getCaption() + " Import in " +  campaignDto.getName());
 				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
