@@ -85,7 +85,7 @@ public class CampaignFormDataEntry implements Serializable, JsonDataEntry {
 		}
 		DateFormat dfx = new SimpleDateFormat("yyyy/MM/dd");
 		
-		System.out.println((NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11)) + "ccccccccccccccc11111111ccccccccccc" + value);
+//		System.out.println((NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11)) + "ccccccccccccccc11111111ccccccccccc" + value);
 //		if((NumberUtils.isDigits(value.toString()) && (value.toString().length() > 11))) {
 //			System.out.println(dfx.format(new Date(Long.parseLong(value.toString()))) + "ccccccccccccccc111111222222222222222211ccccccccccc");
 //		

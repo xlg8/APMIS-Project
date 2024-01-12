@@ -69,6 +69,9 @@ public class DistrictDataImporter extends DataImporter {
 	private UI currentUI;
 
 	private boolean isOverWrite;
+	private boolean isOverWriteEnabledCode;
+	List<DistrictReferenceDto> districtNameList = new ArrayList<>();
+	List<DistrictReferenceDto> districts = new ArrayList<>();
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -132,24 +135,24 @@ public class DistrictDataImporter extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						RegionReferenceDto regrefDto = new RegionReferenceDto();
-						List<DistrictReferenceDto> districtNameList = FacadeProvider.getDistrictFacade()
+						districtNameList = FacadeProvider.getDistrictFacade()
 								.getByName(districtName_, regrefDto, true);
 
 						if (districtNameList.size() < 1) {
 							districtName = districtName_;
 
 						} else {
-							if (isOverWrite) {
-
-								districtName = districtName_;
+//							if (isOverWrite) {
+//
+//								districtName = districtName_;
 								//return ImportLineResult.SUCCESS;
 
-							} else {
+//							} else {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
 												+ " | District Name Exists ");
 								return ImportLineResult.ERROR;
-							}
+//							}
 						}
 
 					}
@@ -216,12 +219,23 @@ public class DistrictDataImporter extends DataImporter {
 					try {
 							Long externalIdValue = Long.parseLong(values[i]);
 						
-							List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
+							districts = FacadeProvider.getDistrictFacade()
 									.getByExternalId(externalIdValue, false);
 							
 							if (districts.size() > 0) {
-								if (isOverWrite && districts.size() == 1) {										
-										districtExtId = externalIdValue;
+								if (isOverWrite && districts.size() == 1) {
+										try {
+//											Long externalIdValue = Long.parseLong(values[i]);
+											districtExtId = externalIdValue;
+											isOverWriteEnabledCode = true;
+										} catch (NumberFormatException e) {
+											writeImportError(values,
+													new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | " +e.getMessage());
+											return ImportLineResult.ERROR;
+										}
+								
+						
+								
 									} else if (districts.size() > 1) {
 										writeImportError(values,
 												new ImportErrorException(values[i], entityProperties[i]).getMessage() +" | Possible duplicate already on this system");
@@ -247,7 +261,11 @@ public class DistrictDataImporter extends DataImporter {
 			}
 			}
 		}
-		
+//		if(isOverWrite) {
+//			
+//		}else {
+//			
+//		}
 		if (province_xt_id != null && province != null && districtName != "" && districtExtId != null) {}else {
 			writeImportError(values, " | Somthing went wrong: Required data not supplied");
 			return ImportLineResult.ERROR;
@@ -268,6 +286,77 @@ public class DistrictDataImporter extends DataImporter {
 			newUserLine.setRegion(finalRegion);
 			newUserLine.setExternalId(districtid);
 			newUserLine.setRisk(rixk);
+			
+			if(isOverWrite && isOverWriteEnabledCode) {
+				DistrictDto newUserLine_ = FacadeProvider.getDistrictFacade().getByUuid(districts.get(0).getUuid());
+;
+				newUserLine_.setName(finalDistrictname);
+				newUserLine_.setRegion(finalRegion);
+				newUserLine_.setExternalId(districtid);
+				newUserLine_.setRisk(rixk);
+				
+				
+				 boolean isSameData = checkSameInstances(districts, districtNameList);
+				 if(isSameData) {
+					 return ImportLineResult.SUCCESS;
+				 }
+				 
+				 
+				 boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+							new Function<ImportCellData, Exception>() {
+
+								@Override
+								public Exception apply(ImportCellData cellData) {
+									System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
+
+									try {
+
+										if (DistrictDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											newUserLine_.setName(cellData.getValue());
+										}
+										if (DistrictDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+										}
+										
+										if (DistrictDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											Long externalId = Long.parseLong(cellData.getValue());
+											List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
+													.getByExternalId(externalId, false);
+											RegionReferenceDto areaReferenceDto = areasz.get(0);
+											newUserLine_.setRegion(areaReferenceDto);
+//											newUserLine.setArea(cellData.getValue());
+										}
+										if (DistrictDto.RISK.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+											newUserLine_.setRisk(cellData.getValue());
+										}
+
+										newUserLinetoSave.add(newUserLine_);
+
+									} catch (NumberFormatException e) {
+										System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+
+										return e;
+									}
+
+									return null;
+								}
+							});
+				 
+					if (!usersDataHasImportError) {
+
+						try {
+							FacadeProvider.getDistrictFacade().save(newUserLinetoSave.get(0), true);
+
+							return ImportLineResult.SUCCESS;
+						} catch (ValidationRuntimeException e) {
+							writeImportError(values, e.getMessage());
+							return ImportLineResult.ERROR;
+						}
+					} else {
+						return ImportLineResult.ERROR;
+					}
+				
+			}else {
 
 			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
@@ -321,8 +410,22 @@ public class DistrictDataImporter extends DataImporter {
 			} else {
 				return ImportLineResult.ERROR;
 			}
+	}
 		
 	}
+	
+	 public static boolean checkSameInstances(List<DistrictReferenceDto> list1, List<DistrictReferenceDto> list2) {
+	        if (list1.size() != list2.size()) {
+	            return false;
+	        }
+
+	        for (DistrictReferenceDto model : list1) {
+	            if (!list2.contains(model)) {
+	                return false;
+	            }
+	        }
+	        return true;
+	    }
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,

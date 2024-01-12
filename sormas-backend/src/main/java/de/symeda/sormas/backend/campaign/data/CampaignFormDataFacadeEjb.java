@@ -377,6 +377,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+		
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
@@ -400,6 +401,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
+				
+			System.out.println(sortProperty.propertyName + "sortinpropertynaem ");
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormDataIndexDto.UUID:
@@ -442,19 +445,35 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
 					break;
+					
+				case CampaignFormDataIndexDto.FORM_VALUES:
+					System.out.println("formvaluee eee");
+					expression = root.get(sortProperty.propertyName);
+					break;
 				default:
-					throw new IllegalArgumentException(sortProperty.propertyName);
+					
+					System.out.println("defaulttttttt");
+
+					expression = root.get(CampaignFormData.FORM_VALUES + "->> '" + sortProperty.propertyName + "'");
+					break;
+//					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
 				order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
 			}
 			cq.orderBy(order);
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
-		} // System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
-			// SQLExtractor.from(em.createQuery(cq)));
+		} 
+		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
+			 SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
+<<<<<<< HEAD
+=======
+	
+	
+>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 	@Override
 	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
@@ -974,12 +993,20 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
 //			final String error_status = criteria.getError_status();
-
+			
 
 			//@formatter:off
 			
 			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
-			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+			String getFormNameByLanguage = "";
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				getFormNameByLanguage = " AND formmeta.formname_ps_af = '";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				getFormNameByLanguage = " AND formmeta.formname_fa_af = '";
+			}else {
+				getFormNameByLanguage =" AND formmeta.formname = '";
+			}
+			final String campaignFormFilter = form != null ? getFormNameByLanguage +form.getCaption()+"'" : "";
 //			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
 
 			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
@@ -990,11 +1017,28 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			
 		} 
 		
+	
+		String formNameByUserLanguageJoiner = "";
+		
+		if(criteria.getUserLanguage() != null) {
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				formNameByUserLanguageJoiner = 	"formmeta.formname_ps_af";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				formNameByUserLanguageJoiner = 	"formmeta.formname_fa_af";
+			}else {
+				formNameByUserLanguageJoiner = 	"formmeta.formname";
+
+			}
+		}else {
+			formNameByUserLanguageJoiner = 	"formmeta.formname";
+		}
+		
 
 		
 		
 		final String joinBuilder = "WITH cte AS ( " 
-				+ "SELECT dst.count, dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name, formmeta.formname, areas.\"name\", region.\"name\", district.name,\r\n"
+				+ "SELECT dst.count, dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name, \n" 
+				+  formNameByUserLanguageJoiner + ", areas.name, region.name, district.name,\r\n"
 				+ "    trunc(cast((( SELECT lp.count\r\n"
 				+ "           FROM lateformdataportion lp\r\n"
 				+ "         WHERE lp.district_id = dst.district_id\r\n"
@@ -1015,6 +1059,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				+ joiner +" ) select count(*) from cte ;";
 		
 		System.out.println(joinBuilder+" ===========JOINBUILDERRRR========== ");
+		
+
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -1043,7 +1089,16 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			//@formatter:off
 			
 			final String campaignFilter = campaign != null ? "campaigns.name = '"+campaign.getCaption()+"'" : "";
-			final String campaignFormFilter = form != null ? " AND formmeta.formname = '"+form.getCaption()+"'" : "";
+			
+			String getFormNameByLanguage = "";
+			if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+				getFormNameByLanguage = " AND formmeta.formname_ps_af = '";
+			}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+				getFormNameByLanguage = " AND formmeta.formname_fa_af = '";
+			}else {
+				getFormNameByLanguage =" AND formmeta.formname = '";
+			}
+			final String campaignFormFilter = form != null ? getFormNameByLanguage +form.getCaption()+"'" : "";
 //			System.out.println( campaignFormFilter + "AND campaign fromr filter value ======================" + form);
 
 			final String areaFilter = area != null ? " AND areas.name = '"+area.getCaption()+"'" : "";
@@ -1119,11 +1174,25 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			}
 		}
 		
+String formNameByUserLanguageJoiner = "";
+		
+if(criteria.getUserLanguage() != null) {
+	if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+		formNameByUserLanguageJoiner = 	"formmeta.formname_ps_af";
+	}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+		formNameByUserLanguageJoiner = 	"formmeta.formname_fa_af";
+	}else {
+		formNameByUserLanguageJoiner = 	"formmeta.formname";
 
+	}
+}else {
+	formNameByUserLanguageJoiner = 	"formmeta.formname";
+}
 		
 		
 		
-		final String joinBuilder = "SELECT dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name as capaignname, formmeta.formname, areas.\"name\" as areaname, region.\"name\" as regionname, district.name as districtname, dst.count, \r\n"
+		final String joinBuilder = "SELECT dst.formmetauuid, dst.campaignuuid, dst.district_id, campaigns.name as capaignname, \n" 
+				+ formNameByUserLanguageJoiner + ", areas.name as areaname, region.name as regionname, district.name as districtname, dst.count, \r\n"
 				+ "    trunc(cast((( SELECT lp.count\r\n"
 				+ "           FROM lateformdataportion lp\r\n"
 				+ "         WHERE lp.district_id = dst.district_id\r\n"
@@ -1176,7 +1245,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	//	//System.out.println("ending...." +resultData.size());
 	
 	
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+//	System.out.println("resultData - " + SQLExtractor.from(seriesDataQuery));
 	return resultData;
 	}
 	
@@ -2687,6 +2756,28 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		}
 		
 	}
+	
+	@Override
+	public void verifyCampaignData(List<String> uuids) {
+		
+		for(String uuidx : uuids) {
+//			System.out.println( uuidx + "Each uuid ");
+			System.err.println(uuidx + " verification kicke from backend per uuid");
+
+				campaignFormDataService.verify(uuidx);
+//				
+//				String selectUpdateBuilder = "update campaignformdata set isverified = case when isverified = false then true else true end where uuid = ' \n"
+//						+ uuidx +"';";
+//				
+//				
+				
+		}
+		
+	}
+	
+	
+
+	
 
 	@Override
 	public List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV() {
@@ -3551,6 +3642,34 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
+	
+	public List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username) {
+		
+		final String fetchUserTypeByUsername = "select usertype from users where username ilike '" + username + "';";
+		
+		Query seriesDataQuery =  em.createNativeQuery(fetchUserTypeByUsername);
+		
+List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
+		
+
+@SuppressWarnings("unchecked")
+List<String> resultList = seriesDataQuery.getResultList(); // Change the type to List<String>
+
+resultData.addAll(resultList.stream()
+        .map(result -> new CampaignFormDataIndexDto(result))
+        .collect(Collectors.toList()));
+
+		
+//		@SuppressWarnings("unchecked")
+//		List<String[]> resultList = seriesDataQuery.getResultList(); 
+//	
+//		
+//		 resultData.addAll(resultList.stream()
+//		            .map(result -> new CampaignFormDataIndexDto((String) result[0].toString()))
+//		            .collect(Collectors.toList()));
+		
+		return resultData;
+	}
 	
 	
 	

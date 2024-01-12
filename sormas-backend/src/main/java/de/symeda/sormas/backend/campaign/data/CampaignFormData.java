@@ -66,6 +66,8 @@ public class CampaignFormData extends AbstractDomainObject {
 	public static final String LON = "lon";
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
+	public static final String ISVERIFIED = "isverified";
+	
 
 	private static final long serialVersionUID = -8021065433714419288L;
 
@@ -82,6 +84,7 @@ public class CampaignFormData extends AbstractDomainObject {
 	private String source;
 	public Double lat;
 	public Double lon;
+	private boolean isverified;
 	//private CampaignFormMeta formType;
 
 	@AuditedIgnore
@@ -180,6 +183,15 @@ public class CampaignFormData extends AbstractDomainObject {
 	}
 	
 	
+	
+	@Column
+	public boolean isIsverified() {
+		return isverified;
+	}
+
+	public void setIsverified(boolean isverified) {
+		this.isverified = isverified;
+	}
 
 	/*public CampaignFormMeta getFormType() {
 		return formType;

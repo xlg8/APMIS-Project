@@ -35,6 +35,8 @@ public interface CampaignFormMetaFacade {
 	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round); 
 	
+	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(String round, String userLanguage); 
+	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round, String campaignUUID);	
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round, String campaignUUID);	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round, String campaignUUID);
@@ -46,6 +48,8 @@ public interface CampaignFormMetaFacade {
 	CampaignFormMetaReferenceDto getCampaignFormMetaReferenceByUuid(String campaignFormUuid);
 
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid);
+	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(String uuid, String userLanguage);
+
 	
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetaAsReferencesByCampaignIntraCamapaign(String uuid);
 
@@ -67,8 +71,13 @@ public interface CampaignFormMetaFacade {
 	
 	Date formExpiryDate(CampaignFormDataCriteria criteria);	
 	
+<<<<<<< HEAD
 	void dearchiveForms(List<String> userUuids);
 	
 	void archiveForms(List<String> userUuids);
+=======
+	
+
+>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 	
 }

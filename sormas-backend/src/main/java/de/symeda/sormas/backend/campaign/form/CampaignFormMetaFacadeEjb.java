@@ -182,7 +182,15 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaign(String uuid) {
+		
 		return service.getCampaignFormMetasAsReferencesByCampaign(uuid);
+	}
+	
+	@Override
+	public List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(String uuid, String userLanguage) {
+	
+				return service.getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(uuid, userLanguage);
+	
 	}
 
 	@Override
@@ -199,6 +207,23 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRound(String round) {
 		return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
 				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(String round, String userLanguage) {
+		if(userLanguage.equalsIgnoreCase("pashto")) {
+			return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDtoPashto)
+					.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+		}else if(userLanguage.equalsIgnoreCase("dari")) {
+			return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDtoDari)
+					.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+		} else if(userLanguage.equalsIgnoreCase("english")) {
+			return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
+					.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+		}else  {
+			return service.getByRound(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
+					.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
+		}
 	}
 
 //	@Override
@@ -653,6 +678,26 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.toString(), entity.getFormType(),
+				entity.getFormCategory(), entity.getDaysExpired());
+	}
+	
+	public static CampaignFormMetaReferenceDto toReferenceDtoDari(CampaignFormMeta entity) {
+		if (entity == null) {
+			return null;
+		}
+
+		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_fa_af().toString(), entity.getFormType(),
+				entity.getFormCategory(), entity.getDaysExpired());
+	}
+	
+	public static CampaignFormMetaReferenceDto toReferenceDtoPashto(CampaignFormMeta entity) {
+		if (entity == null) {
+//			System.out.println("entity is null yyyyyyyyyyyyyyyyyyyyy" + entity);
+			return null;
+		}
+//		System.out.println(entity.getUuid() + "entity is NOT   null yyyyyy" + entity.getFormname_ps_af() + "yyyyyyyyyyyyyyy" + entity);
+
+		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_ps_af().toString(), entity.getFormType(),
 				entity.getFormCategory(), entity.getDaysExpired());
 	}
 	

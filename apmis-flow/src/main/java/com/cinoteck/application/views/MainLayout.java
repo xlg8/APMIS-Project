@@ -1,6 +1,5 @@
 package com.cinoteck.application.views;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
 import com.cinoteck.application.views.user.UserView;
+import com.cinoteck.application.views.useractivitysummary.UserActivitySummary;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.UI;
@@ -112,7 +112,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
-		
+
 	}
 
 	private void addHeaderContent() {
@@ -157,7 +157,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		UI.getCurrent().add(idleNotification);
 
-
 		addToNavbar(true, toggle, titleLayout);
 	}
 
@@ -174,14 +173,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Header header = new Header(imgApmis);
 
 		Span versionadd = new Span();
-		versionadd.getElement().setProperty("innerHTML",
-				"<p>"+I18nProperties.getCaption(Captions.apmisVersionNumber)+": 4.0.0</p><p>"+I18nProperties.getCaption(Captions.releaseDate)+": 24|Nov|2023</p>");
+		versionadd.getElement().setProperty("innerHTML", "<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber)
+				+ ": 4.0.0</p><p>" + I18nProperties.getCaption(Captions.releaseDate) + ": 24|Nov|2023</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");
 
 		addToDrawer(header, scroller, versionadd);
-
 
 		addToDrawer(createFooter());
 
@@ -192,24 +190,19 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// For documentation, visit https://github.com/vaadin/vcf-nav#readme
 
 		Button myButton = new Button();
-		
-	
-			if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
-				
-				  AppNavItem dashboardNavItem = new AppNavItem(
-				            I18nProperties.getCaption(Captions.mainMenuDashboard),
-				            DashboardView.class,
-				            VaadinIcon.GRID_BIG_O,
-				            "navitem"
-				        );
-				  
-				  if (userProvider.getUser().getLanguage().toString().equals("Pashto") || userProvider.getUser().getLanguage().toString().equals("Dari")) {
-			            dashboardNavItem.getElement().getStyle().set("display", "math");
-			        }
-				  
-				nav.addItem(dashboardNavItem);
+
+		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+
+			AppNavItem dashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
+					DashboardView.class, VaadinIcon.GRID_BIG_O, "navitem");
+
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
+					|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				dashboardNavItem.getElement().getStyle().set("display", "math");
 			}
-			
+
+			nav.addItem(dashboardNavItem);
+		}
 
 //		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
 //				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "navitem"));
@@ -228,21 +221,21 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.hasUserRight(UserRight.CONFIGURATION_ACCESS)) {
 			if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 					|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
-					ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
+						ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
 			}
 
 		}
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-		if	(userProvider.hasUserRight(UserRight.USER_VIEW)){
-			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
-					VaadinIcon.USERS, "navitem"));
+			if (userProvider.hasUserRight(UserRight.USER_VIEW)) {
+				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
+						VaadinIcon.USERS, "navitem"));
 			}
 //			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)
 //					|| permitted(UserRole.ADMIN_SUPERVISOR) || permitted(UserRole.COMMUNITY_INFORMANT))) {
-			
+
 //			}
 		}
 
@@ -253,26 +246,33 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 					VaadinIcon.CHART_LINE, "navitem"));
 		}
 
-		
+
+
 //		if	(userProvider.hasUserRight(UserRight.USER_RIGHTS_MANAGE)) {
 //			nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 //		}
-		
+
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
 		// VaadinIcon.TREE_TABLE, "navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), MyAccountView.class, VaadinIcon.USER, "navitem"));
+		
+		
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), MyAccountView.class,
+				VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.support), SupportView.class,
-				VaadinIcon.CHAT, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.support), SupportView.class, VaadinIcon.CHAT,
+				"navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 		
-		
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+		if	(userProvider.hasUserRight(UserRight.USER_ACTIVITY_SUMMARYVIEW)) {
+		nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"), UserActivitySummary.class,
+				VaadinIcon.CHART_LINE, "navitem"));
+		}
+		}
 
-		
-	
-		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-				"navitem"));	       
+//		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
+//				"navitem"));	       
 
 		if (nav != null) {
 			nav.addClassName("active");
@@ -281,17 +281,17 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		return nav;
 
 	}
-	
+
 	private void rtlswitcher() {
-			if (userProvider.getUser().getLanguage() != null) {
+		if (userProvider.getUser().getLanguage() != null) {
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 
 			String userLanguage = userProvider.getUser().getLanguage().toString();
 			if (userLanguage.equals("Pashto")) {
-				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);	
+				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				nav.getStyle().set("width", "auto");
-				nav.getStyle().set("text-align", "justify"); 
+				nav.getStyle().set("text-align", "justify");
 			} else if (userLanguage.equals("Dari")) {
 				UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 				nav.getStyle().set("width", "auto");
@@ -384,7 +384,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		dialog.add(dialogHolderLayout);
 
 		logoutButton.addClickListener(event -> {
-			
+
 			dialog.add(dialogHolderLayout);
 
 			dialog.setCloseOnEsc(false);
@@ -437,7 +437,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		
+
 		// Store the intended route in the UI instance before navigating to the login
 		// page
 

@@ -37,7 +37,10 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String FORM_DATE = "formDate";
 	public static final String FORM_TYPE = "formType";
 	public static final String FORM_PHASE = "formPhase"; 
-	public static final String ERROR_STATUS = "error_status";//for filter
+	public static final String ERROR_STATUS = "error_status";
+	public static final String USER_LANGUAGE = "userLanguage";
+	public static final String USER_TYPE = "usertype";
+	//for filter
 	
 
 	private static final long serialVersionUID = 8124072093160133408L;
@@ -51,7 +54,10 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private Date formDate;
 	private String formType;
 	private CampaignFormMetaReferenceDto formPhase; 
-	private String error_status;// for filter
+	private String error_status;
+	private String userLanguage;
+	private String usertype;
+	// for filter
 
 	
 
@@ -176,6 +182,22 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public void setError_status(String error_status) {
 		this.error_status = error_status;
+	}
+
+	public String getUserLanguage() {
+		return userLanguage;
+	}
+
+	public void setUserLanguage(String userLanguage) {
+		this.userLanguage = userLanguage;
+	}
+
+	public String getUsertype() {
+		return usertype;
+	}
+
+	public void setUsertype(String usertype) {
+		this.usertype = usertype;
 	}
 	
 	

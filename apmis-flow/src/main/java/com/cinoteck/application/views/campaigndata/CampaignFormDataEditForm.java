@@ -34,8 +34,10 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
+import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.FacadeProvider;
 
 public class CampaignFormDataEditForm extends HorizontalLayout {
@@ -48,6 +50,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
+	
+
 
 	private final UserProvider usr = new UserProvider();
 
@@ -104,6 +108,28 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		
 
 		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
+		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
+		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
+		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
+		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
+		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
+
+		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
+			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+//				dialog.getFooter().add(verifyAndPublishButton);
+			}	
+		}
+		verifyAndPublishButton.addClickListener(e -> {
+			try {
+				
+			}catch(Exception exception){
+				
+			}
+		});
+		
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
 		Icon deleteIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
@@ -161,9 +187,22 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));// , (e) -> dialog.close());
 		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
 		dialog.getFooter().add(saveButton);
+		
+		
+		
+
 
 		saveButton.addClickListener(e -> {
 			if (campaignFormBuilder.saveFormValues()) {
+				
+				if (openData) {
+					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+					userActivitySummaryDto.setActionModule("Campaign Data");
+					userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in " + campaignReferenceDto.getCaption() );
+					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				}
+				
 				dialog.close();
 				grid.getDataProvider().refreshAll();
 			}

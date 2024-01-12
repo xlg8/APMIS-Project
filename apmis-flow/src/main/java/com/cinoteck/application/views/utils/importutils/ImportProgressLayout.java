@@ -60,7 +60,7 @@ public class ImportProgressLayout extends VerticalLayout {
 
 	// Counts
 	private int processedImportsCount;
-	private int successfulImportsCount;
+	public int successfulImportsCount;
 	private int importErrorsCount;
 	private int importSkipsCount;
 	private int importDuplicatesCount;

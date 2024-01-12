@@ -42,6 +42,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String COMMUNITYNUMBER_ = "clusternumber_";
 	public static final String CCODE = "ccode";
 	public static final String FORM_DATE = "formDate";
+	public static final String FORM_VALUES = "formValues";
 	public static final String FORM_TYPE = "formType";
 	public static final String ANALYSIS_FIELD_A = "analysis_a";
 	public static final String ANALYSIS_FIELD_B = "analysis_b";
@@ -57,6 +58,8 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
+	public static final String CREATINGUSER_USERTYPE = "creatingUserType";
+
 
 	public static final String PERSON_TITLE = "personTitle";
 
@@ -92,6 +95,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 
 	private String source;
 	private String creatingUser;
+	private String creatingUserType;
 
 	private String personTitle;
 
@@ -129,6 +133,14 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.district = district;
 		this.analysis_a = analysis_a;
 		this.analysis_b = analysis_b;
+	}
+	
+	public CampaignFormDataIndexDto(
+			String creatingUserType) {
+
+		this.creatingUserType = creatingUserType;
+
+		
 	}
 
 	// FLW Contructor
@@ -446,5 +458,15 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setPersonTitle(String personTitle) {
 		this.personTitle = personTitle;
 	}
+
+	public String getCreatingUserType() {
+		return creatingUserType;
+	}
+
+	public void setCreatingUserType(String creatingUserType) {
+		this.creatingUserType = creatingUserType;
+	}
+	
+	
 
 }

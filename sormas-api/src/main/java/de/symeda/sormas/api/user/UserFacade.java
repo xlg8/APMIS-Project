@@ -104,4 +104,9 @@ public interface UserFacade {
 	void enableUsers(List<String> userUuids);
 
 	void disableUsers(List<String> userUuids);
+
+	UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto campaignLogDto);
+	
+	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
+
 }

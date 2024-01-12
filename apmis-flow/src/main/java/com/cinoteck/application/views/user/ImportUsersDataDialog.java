@@ -45,6 +45,7 @@ import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
@@ -177,6 +178,13 @@ public class ImportUsersDataDialog extends Dialog {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
 					I18nProperties.getString(Strings.messageImportFailed));
+			}finally {
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Users Import");
+				userActivitySummaryDto.setAction("Attempted Users Import");
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
 			
 			

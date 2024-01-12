@@ -282,7 +282,7 @@ public class CampaignFormMeta extends AbstractDomainObject {
 //	}
 
 	public CampaignFormMetaReferenceDto toReference() {
-		return new CampaignFormMetaReferenceDto(getUuid(), formName, formType, formCategory, daysExpired);
+		return new CampaignFormMetaReferenceDto(getUuid(), formName, formname_ps_af, formname_fa_af, formType, formCategory, daysExpired);
 	}
 
 	@Override

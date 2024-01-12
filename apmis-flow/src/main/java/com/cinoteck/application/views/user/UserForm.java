@@ -72,6 +72,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.JurisdictionLevel;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserHelper;
 import de.symeda.sormas.api.user.UserRole;
@@ -973,6 +974,12 @@ if(!isDistrictMulti) {
 				if(!isErrored ) {
 					
 					fireEvent(new SaveEvent(this, binder.getBean()));
+					
+					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+					userActivitySummaryDto.setActionModule("Users");
+					userActivitySummaryDto.setAction("Created User: " + binder.getBean().getUserName() );
+					userActivitySummaryDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 
 				}
 			}

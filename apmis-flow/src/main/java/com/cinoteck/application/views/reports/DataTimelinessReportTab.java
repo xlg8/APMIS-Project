@@ -99,6 +99,8 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 	public DataTimelinessReportTab() {
 
 		this.criteria = new CampaignFormDataCriteria();
+		criteria.setUserLanguage(userProvider.getUser().getLanguage().toString());
+		String userLanguage = userProvider.getUser().getLanguage().toString();
 
 		setHeightFull();
 
@@ -118,8 +120,8 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 			CampaignReferenceDto selectedCAmpaign = e.getValue();
 			if (selectedCAmpaign != null) {
 				campaignForms = FacadeProvider.getCampaignFormMetaFacade()
-						.getCampaignFormMetasAsReferencesByCampaign(
-								campaign.getValue().getUuid());
+						.getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(
+								campaign.getValue().getUuid(), userLanguage);
 				
 				campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 
@@ -139,8 +141,8 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 //		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		campaignFormCombo.setClassName("col-sm-6, col-xs-6");
 		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
-				.getCampaignFormMetasAsReferencesByCampaign(
-						campaign.getValue().getUuid());
+				.getCampaignFormMetasAsReferencesByCampaignAndUserLanguage(
+						campaign.getValue().getUuid(), userLanguage);
 		campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 
 		campaignFormCombo.setItems(campaignForms);
