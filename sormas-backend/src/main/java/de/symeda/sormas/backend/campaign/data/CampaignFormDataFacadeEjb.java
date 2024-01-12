@@ -469,11 +469,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
-<<<<<<< HEAD
-=======
-	
-	
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 	@Override
 	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
