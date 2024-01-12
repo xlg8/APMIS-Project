@@ -43,7 +43,8 @@ public class TranslationGridComponent extends VerticalLayout {
 	 */
 	private static final long serialVersionUID = -1204658853656142982L;
 	ComboBox<String> languageCode = new ComboBox<String>("Tranlation Language Code");
-	TextField elementId = new TextField("Element Id");
+	ComboBox<String> elementId = new ComboBox<String>("Element Id");
+//	TextField elementId = new TextField("Element Id");
 	TextField caption = new TextField("Caption");
 
 	CampaignFormMetaDto campaignFormMetaDto;
@@ -82,6 +83,7 @@ public class TranslationGridComponent extends VerticalLayout {
 		configureFields();
 		add(getContent());
 		configureGrid();
+		congigureElementId();
 	}
 
 	private void configureGrid() {
@@ -478,6 +480,18 @@ public class TranslationGridComponent extends VerticalLayout {
 		formLayout.setColspan(caption, 2);
 
 		return vrsub;
+	}
+	
+	public void congigureElementId() {
+		
+		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
+		List<String> listofthem = new ArrayList<>();
+		
+		for (CampaignFormElement campaignFormElement : listofelements) {
+			listofthem.add(campaignFormElement.getId());
+		}
+		
+		elementId.setItems(listofthem);	
 	}
 
 	public List<CampaignFormTranslations> getGridData() {
