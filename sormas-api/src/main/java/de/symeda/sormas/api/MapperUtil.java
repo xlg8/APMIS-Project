@@ -61,4 +61,12 @@ public class MapperUtil implements Serializable {
 	public int hashCode() {
 		return Objects.hash(key, caption);
 	}
+
+	@Override
+	public String toString() {
+		return "[key:" + key + ", caption:" + caption + ", order:" + order + "]";
+
+	}
+	
+	
 }

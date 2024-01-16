@@ -53,6 +53,7 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
@@ -138,7 +139,7 @@ public class UserForm extends FormLayout {
 	CheckboxGroup<FormAccess> postCampformAccess = new CheckboxGroup<>();
 
 	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
-	
+
 	CheckboxGroup districtMulti = new CheckboxGroup<>();
 	CheckboxGroup clusterNo = new CheckboxGroup<>();
 
@@ -165,11 +166,11 @@ public class UserForm extends FormLayout {
 	private final UserProvider userProvider = new UserProvider();
 	H2 pInfo = new H2(I18nProperties.getString(Strings.headingPersonData));
 	H2 userData = new H2(I18nProperties.getString(Strings.headingUserData));
-	
+
 	boolean editmode = false;
 	UserDto user;
 //	Button resetUserPassword = new Button();
-	
+
 	public UserForm(List<AreaReferenceDto> regions, List<RegionReferenceDto> provinces,
 			List<DistrictReferenceDto> districts, UserDto user, boolean editmode) {
 
@@ -246,8 +247,7 @@ public class UserForm extends FormLayout {
 		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
 		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
 		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
-		binder.forField(formAccess).asRequired("Please Fill Out a FormAccess").bind(UserDto::getFormAccess,
-				UserDto::setFormAccess);
+		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
@@ -258,25 +258,23 @@ public class UserForm extends FormLayout {
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
 		binder.forField(userRoles).withValidator(new UserRolesValidator())
-		.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
-		.bind(UserDto::getUserRoles, UserDto::setUserRoles);
-		
+				.asRequired(I18nProperties.getCaption(Captions.userRoleRequired))
+				.bind(UserDto::getUserRoles, UserDto::setUserRoles);
+
 		binder.forField(region).bind(UserDto::getArea, UserDto::setArea);
 
 		binder.forField(province).bind(UserDto::getRegion, UserDto::setRegion);
 
 		binder.forField(district).bind(UserDto::getDistrict, UserDto::setDistrict);
-		
+
 		binder.forField(districtMulti);
-		
+
 		binder.bind(districtMulti, UserDto::getDistricts, UserDto::setDistricts);
 		districtMulti.setVisible(true);
 
 		binder.forField(clusterNo);
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
-			
-		
 
 		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
 				.bind(UserDto::getUserName, UserDto::setUserName);
@@ -294,24 +292,21 @@ public class UserForm extends FormLayout {
 
 		// then i'm converting back to a set for facade to handle save properly.
 		Set<UserRole> sortedUserRoles = new TreeSet<>(rolesz);
-		
+
 		userRoles.setItems(sortedUserRoles);
-		
-		
 
 		this.setColspan(userRoles, 1);
 		userRoles.addValueChangeListener(e -> {
-				updateFieldsByUserRole(e.getValue());
-				validateUserRoles();
-			});
-		
+			updateFieldsByUserRole(e.getValue());
+			validateUserRoles();
+		});
+
 //		userRoles.addValueChangeListener(e -> updateFieldsByUserRole(e.getValue()));
 
 		ComboBox<UserType> userTypes = new ComboBox<UserType>();
 
 		userTypes.setItems(UserType.values());
 
-	
 		language.setItemLabelGenerator(Language::toString);
 		language.setItems(Language.getAssignableLanguages());
 
@@ -350,11 +345,12 @@ public class UserForm extends FormLayout {
 		province.addValueChangeListener(e -> {
 
 			if (e.getValue() != null && userRoles.getValue() != null) {
-				
+
 				final JurisdictionLevel jurisdictionLevel = UserRole.getJurisdictionLevel(userRoles.getValue());
-				System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT)+" +++___________111"+userRoles.getValue());
-				if(jurisdictionLevel == JurisdictionLevel.DISTRICT) {
-					
+				System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT) + " +++___________111"
+						+ userRoles.getValue());
+				if (jurisdictionLevel == JurisdictionLevel.DISTRICT) {
+
 					districtMulti.setVisible(true);
 					district.setVisible(false);
 					clusterNo.setVisible(false);
@@ -363,86 +359,11 @@ public class UserForm extends FormLayout {
 
 					districtMulti.setLabel(I18nProperties.getCaption(Captions.district));
 
-						for (DistrictReferenceDto item : districts) {
-							System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT)+" +++___________222: "+item.getCaption());
-							
-							if (item.getCaption() == null) {
+					for (DistrictReferenceDto item : districts) {
+						System.out.println((jurisdictionLevel == JurisdictionLevel.DISTRICT) + " +++___________222: "
+								+ item.getCaption());
 
-								Notification notification = new Notification();
-								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-								notification.setPosition(Position.MIDDLE);
-								Button closeButton = new Button(new Icon("lumo", "cross"));
-								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-								closeButton.getElement().setAttribute("aria-label", "Close");
-								closeButton.addClickListener(event -> {
-									notification.close();
-								});
-
-								Paragraph text = new Paragraph("District cannot be empty, please contact support");
-
-								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-								layout.setAlignItems(Alignment.CENTER);
-
-								notification.add(layout);
-								notification.open();
-							}
-
-//							item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
-						}
-//						Collections.sort(items, CommunityReferenceDto.clusternumber);
-
-						districtMulti.setItems(districts);
-						district.setItems(districts);
-						isDistrictMulti = true;
-						districtMulti.getChildren().forEach(checkbox -> {
-//				            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
-							checkbox.getElement().getClassList().add("custom-checkbox-class");
-
-						});
-//			            
-					
-					
-					
-				} else {
-					
-					
-					
-					
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-				System.out.println(" +++___________333333: ");
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					district.setItems(
-							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					district.setItems(
-							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
-				} else {
-					district.setItems(districts);
-				}
-				}
-			}
-			
-		});
-
-		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
-		district.addValueChangeListener(e -> {
-if(!isDistrictMulti) {
-			DistrictReferenceDto districtDto = (DistrictReferenceDto) e.getValue();
-			System.out.println(districtDto + " vvvvvvvddddddDISTRICT CHANGES!!ssssssssssefasdfa:" + e.getValue());
-
-			if (e.getValue() != null) {
-				clusterNo.setVisible(true);
-				this.setColspan(clusterNo, 2);
-				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
-
-				clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
-
-				if (districtDto != null) {
-
-					List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
-							.getAllActiveByDistrict(districtDto.getUuid());
-					for (CommunityReferenceDto item : items) {
-						if (item.getNumber() == null) {
+						if (item.getCaption() == null) {
 
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -454,7 +375,7 @@ if(!isDistrictMulti) {
 								notification.close();
 							});
 
-							Paragraph text = new Paragraph("Cluster Number cannot be empty, please contact support");
+							Paragraph text = new Paragraph("District cannot be empty, please contact support");
 
 							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 							layout.setAlignItems(Alignment.CENTER);
@@ -463,29 +384,99 @@ if(!isDistrictMulti) {
 							notification.open();
 						}
 
-						item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
+//							item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
 					}
-					Collections.sort(items, CommunityReferenceDto.clusternumber);
+//						Collections.sort(items, CommunityReferenceDto.clusternumber);
 
-					clusterNo.setItems(items);
-					clusterNo.getChildren().forEach(checkbox -> {
-//			            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
+					districtMulti.setItems(districts);
+					district.setItems(districts);
+					isDistrictMulti = true;
+					districtMulti.getChildren().forEach(checkbox -> {
+//				            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
 						checkbox.getElement().getClassList().add("custom-checkbox-class");
 
 					});
-//		            
+//			            
+
+				} else {
+
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+					System.out.println(" +++___________333333: ");
+					if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+						district.setItems(
+								FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+					} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+						district.setItems(
+								FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+					} else {
+						district.setItems(districts);
+					}
 				}
 			}
-		} else {
-			district.clear();
-			district.setVisible(false);
-			clusterNo.clear();
-			clusterNo.setVisible(false);
-		}
-		}
-);
 
-		
+		});
+
+		district.setItemLabelGenerator(DistrictReferenceDto::getCaption);
+		district.addValueChangeListener(e -> {
+			if (!isDistrictMulti) {
+				DistrictReferenceDto districtDto = (DistrictReferenceDto) e.getValue();
+				System.out.println(districtDto + " vvvvvvvddddddDISTRICT CHANGES!!ssssssssssefasdfa:" + e.getValue());
+
+				if (e.getValue() != null) {
+					clusterNo.setVisible(true);
+					this.setColspan(clusterNo, 2);
+					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+
+					clusterNo.setLabel(I18nProperties.getCaption(Captions.clusterNumber));
+
+					if (districtDto != null) {
+
+						List<CommunityReferenceDto> items = FacadeProvider.getCommunityFacade()
+								.getAllActiveByDistrict(districtDto.getUuid());
+						for (CommunityReferenceDto item : items) {
+							if (item.getNumber() == null) {
+
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
+
+								Paragraph text = new Paragraph(
+										"Cluster Number cannot be empty, please contact support");
+
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
+
+								notification.add(layout);
+								notification.open();
+							}
+
+							item.setCaption(item.getNumber() != null ? item.getNumber().toString() : null);
+						}
+						Collections.sort(items, CommunityReferenceDto.clusternumber);
+
+						clusterNo.setItems(items);
+						clusterNo.getChildren().forEach(checkbox -> {
+//			            checkbox.getElement().setProperty("id", "checkbox-" + checkbox.getLabel());
+							checkbox.getElement().getClassList().add("custom-checkbox-class");
+
+						});
+//		            
+					}
+				}
+			} else {
+				district.clear();
+				district.setVisible(false);
+				clusterNo.clear();
+				clusterNo.setVisible(false);
+			}
+		});
+
 		commusr.addValueChangeListener(e -> {
 
 			System.out.println((boolean) e.getValue());
@@ -507,7 +498,6 @@ if(!isDistrictMulti) {
 			}
 		});
 
-
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
 		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
 		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
@@ -518,8 +508,10 @@ if(!isDistrictMulti) {
 		intraCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
 		postCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
 
-		binder.forField(formAccess).asRequired(I18nProperties.getCaption(Captions.pleaseFillFormAccess))
-				.bind(UserDto::getFormAccess, UserDto::setFormAccess);
+//		formAccess.addSelectionListener(this::handleSelectionChange);
+//		preCampformAccess.addSelectionListener(this::handleSelectionChange);
+//		intraCampformAccess.addSelectionListener(this::handleSelectionChange);
+//		postCampformAccess.addSelectionListener(this::handleSelectionChange);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel(I18nProperties.getCaption(Captions.User_active));
@@ -563,8 +555,6 @@ if(!isDistrictMulti) {
 		}
 //		commusr.setValue(isCommonUser);
 
-		
-		
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
@@ -578,11 +568,7 @@ if(!isDistrictMulti) {
 		formAccessParentLayout.setSpacing(false);
 		HorizontalLayout allFieldLayout = new HorizontalLayout(formAccessParentLayout, otherFormField);
 		this.setColspan(allFieldLayout, 2);
-		
-		
-		
-		
-		
+
 		add(pInfo, firstName, lastName, userEmail, phone, userPosition, userOrganisation, userData, userName,
 				activeCheck, commusr, userRoles, allFieldLayout, districtMulti, clusterNo);
 
@@ -668,6 +654,23 @@ if(!isDistrictMulti) {
 		}
 	}
 
+	private void handleSelectionChange(SelectionEvent<CheckboxGroup<FormAccess>, FormAccess> event) {
+	
+		if(formAccess.getSelectedItems().size() > 0){
+			formAccess.deselectAll();
+		}
+		if(preCampformAccess.getSelectedItems().size() > 0){
+			preCampformAccess.deselectAll();
+		}
+		if(intraCampformAccess.getSelectedItems().size() > 0){
+			intraCampformAccess.deselectAll();
+		}
+		if(postCampformAccess.getSelectedItems().size() > 0){
+			postCampformAccess.deselectAll();
+		}
+
+	}
+
 	private void createButtonsLayout() {
 		createPassword.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -694,140 +697,53 @@ if(!isDistrictMulti) {
 
 	public void validateAndSaveEdit(UserDto originalUser, String preceedingUsername) {
 
-		if (binder.validate().isOk()) {
+		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
 
-			boolean isErrored = false;
+		System.out.println(
+				formAccesses + "TFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + formAccesses.size());
 
-			// userName
+		if (formAccesses.size() == 0 || formAccesses.size() < 1) {
 
-			if (binder.getBean().getUserEmail() != null || binder.getBean().getUserEmail() != "") {
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(eventx -> {
+				notification.close();
+			});
+			Paragraph text = new Paragraph("Error : Form Access is Required, Please Fill Out a FormAccess to proceed.");
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+			notification.add(layout);
+			notification.open();
 
-				UserDto anyEmailFromDb = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
-				
-				if (anyEmailFromDb == null) {
+		} else {
+			if (binder.validate().isOk()) {
 
-					isErrored = false;
+				boolean isErrored = false;
 
-				} else {
+				// userName
 
-		
-					if (anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
-							&& !originalUser.getUserName().isEmpty()) {
+				if (binder.getBean().getUserEmail() != null || binder.getBean().getUserEmail() != "") {
+
+					UserDto anyEmailFromDb = FacadeProvider.getUserFacade().getByEmail(binder.getBean().getUserEmail());
+
+					if (anyEmailFromDb == null) {
 
 						isErrored = false;
 
 					} else {
 
-						isErrored = true;
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
+						if (anyEmailFromDb.getUserName().trim().equals(originalUser.getUserName().trim())
+								&& !originalUser.getUserName().isEmpty()) {
 
-						Paragraph text = new Paragraph("Error : Email already in the system.");
+							isErrored = false;
 
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
-
-						notification.add(layout);
-						notification.open();
-
-						return;
-
-					}
-				}
-			}
-
-			
-		if (binder.getBean().getUserName().contains(" ")){
-				Notification notification = new Notification();
-				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notification.setPosition(Position.MIDDLE);
-				Button closeButton = new Button(new Icon("lumo", "cross"));
-				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-				closeButton.getElement().setAttribute("aria-label", "Close");
-				closeButton.addClickListener(event -> {
-					notification.close();
-				});
-
-				Paragraph text = new Paragraph("Error : Username cannot contain white space");
-
-				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-				layout.setAlignItems(Alignment.CENTER);
-
-				notification.add(layout);
-				notification.open();
-				isErrored = true;
-				return;
-			} else {
-				
-				
-		if (binder.getBean().getUserName() != null || userName != null) {
-
-				UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
-						.getByUserName(binder.getBean().getUserName());
-				String originalUserx = originalUser == null ? binder.getBean().getUserName() : originalUser.getUserName().trim();
-				if(retrieveBinderUserFromDb == null) {
-					if (binder.getBean().getUserName().contains(" ")){
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
-
-						Paragraph text = new Paragraph("Error : Username cannot contain white space");
-
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
-
-						notification.add(layout);
-						notification.open();
-						isErrored = true;
-						return;
-					} else if(!preceedingUsername.equals(originalUserx)) {
-						System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-						fireEvent(new SaveEvent(this, binder.getBean()));
-
-					} else {
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
-
-						Paragraph text = new Paragraph("Error : Unknow error surrounding the supplied username");
-
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
-
-						notification.add(layout);
-						notification.open();
-						isErrored = true;
-						return;
-					}
-				} else if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUserx)
-						&& !originalUserx.isEmpty() && !isErrored) {
-					if(preceedingUsername.equals(originalUserx)) {
-						fireEvent(new SaveEvent(this, binder.getBean()));
-
-					}else {
-						UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName());
-						if(checkNewusernamefromDB == null) {
-							fireEvent(new SaveEvent(this, binder.getBean()));
 						} else {
+
+							isErrored = true;
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
@@ -838,7 +754,7 @@ if(!isDistrictMulti) {
 								notification.close();
 							});
 
-							Paragraph text = new Paragraph("Error : Username not unique");
+							Paragraph text = new Paragraph("Error : Email already in the system.");
 
 							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 							layout.setAlignItems(Alignment.CENTER);
@@ -847,140 +763,277 @@ if(!isDistrictMulti) {
 							notification.open();
 
 							return;
+
 						}
 					}
+				}
 
+				if (binder.getBean().getUserName().contains(" ")) {
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("Error : Username cannot contain white space");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
+					isErrored = true;
+					return;
 				} else {
 
-					if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+					if (binder.getBean().getUserName() != null || userName != null) {
 
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
+						UserDto retrieveBinderUserFromDb = FacadeProvider.getUserFacade()
+								.getByUserName(binder.getBean().getUserName());
+						String originalUserx = originalUser == null ? binder.getBean().getUserName()
+								: originalUser.getUserName().trim();
+						if (retrieveBinderUserFromDb == null) {
+							if (binder.getBean().getUserName().contains(" ")) {
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
 
-						Paragraph text = new Paragraph("Error : Username not unique");
+								Paragraph text = new Paragraph("Error : Username cannot contain white space");
 
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
 
-						notification.add(layout);
-						notification.open();
+								notification.add(layout);
+								notification.open();
+								isErrored = true;
+								return;
+							} else if (!preceedingUsername.equals(originalUserx)) {
+								System.out
+										.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+								fireEvent(new SaveEvent(this, binder.getBean()));
 
-						return;
+							} else {
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
+
+								Paragraph text = new Paragraph(
+										"Error : Unknow error surrounding the supplied username");
+
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
+
+								notification.add(layout);
+								notification.open();
+								isErrored = true;
+								return;
+							}
+						} else if (retrieveBinderUserFromDb.getUserName().trim().equalsIgnoreCase(originalUserx)
+								&& !originalUserx.isEmpty() && !isErrored) {
+							if (preceedingUsername.equals(originalUserx)) {
+								fireEvent(new SaveEvent(this, binder.getBean()));
+
+							} else {
+								UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
+										.getByUserName(binder.getBean().getUserName());
+								if (checkNewusernamefromDB == null) {
+									fireEvent(new SaveEvent(this, binder.getBean()));
+								} else {
+									Notification notification = new Notification();
+									notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+									notification.setPosition(Position.MIDDLE);
+									Button closeButton = new Button(new Icon("lumo", "cross"));
+									closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+									closeButton.getElement().setAttribute("aria-label", "Close");
+									closeButton.addClickListener(event -> {
+										notification.close();
+									});
+
+									Paragraph text = new Paragraph("Error : Username not unique");
+
+									HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+									layout.setAlignItems(Alignment.CENTER);
+
+									notification.add(layout);
+									notification.open();
+
+									return;
+								}
+							}
+
+						} else {
+
+							if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
+
+								Paragraph text = new Paragraph("Error : Username not unique");
+
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
+
+								notification.add(layout);
+								notification.open();
+
+								return;
+							}
+						}
 					}
 				}
 			}
 		}
-		}
+
 	}
 
 	public void validateAndSaveNew() {
 		boolean isErrored = false;
-		
-		if (binder.validate().isOk()) {
-			System.out.println(binder.getBean().getUserEmail() != null
-					+ " validateAndSaveNew++++++++++++++++++++++++++++++++++++ " + binder.getBean().getUserEmail());
 
-			if (binder.getBean().getUserEmail() != null) {
+		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
+		List<FormAccess> formAccessexs = new ArrayList<>();
+		formAccessexs.addAll(formAccesses);
 
-				UserDto binderEmailValidation = FacadeProvider.getUserFacade()
-						.getByEmail(binder.getBean().getUserEmail());
+		if (formAccessexs.size() == 0 || formAccessexs.size() < 1) {
 
-				if (binderEmailValidation == null) {
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(eventx -> {
+				notification.close();
+			});
+			Paragraph text = new Paragraph("Error : Form Access is Required, Please Fill Out a FormAccess to proceed.");
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+			notification.add(layout);
+			notification.open();
+
+		} else {
+
+			if (binder.validate().isOk()) {
+				System.out.println(binder.getBean().getUserEmail() != null
+						+ " validateAndSaveNew++++++++++++++++++++++++++++++++++++ " + binder.getBean().getUserEmail());
+
+				if (binder.getBean().getUserEmail() != null) {
+
+					UserDto binderEmailValidation = FacadeProvider.getUserFacade()
+							.getByEmail(binder.getBean().getUserEmail());
+
+					if (binderEmailValidation == null) {
 
 //					isErrored = false;
 //					fireEvent(new SaveEvent(this, binder.getBean()));
 
-				} else {
-
-					if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
-							&& !binder.getBean().getUserName().isEmpty()) {
-//email has not changed
-//						fireEvent(new SaveEvent(this, binder.getBean()));
 					} else {
 
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
+						if (binderEmailValidation.getUserName().trim().equals(binder.getBean().getUserName().trim())
+								&& !binder.getBean().getUserName().isEmpty()) {
+//email has not changed
+//						fireEvent(new SaveEvent(this, binder.getBean()));
+						} else {
 
-						Paragraph text = new Paragraph("Error : Email already in the system...");
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
 
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
+							Paragraph text = new Paragraph("Error : Email already in the system...");
 
-						notification.add(layout);
-						notification.open();
-						isErrored = true;
-						return;
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
 
+							notification.add(layout);
+							notification.open();
+							isErrored = true;
+							return;
+
+						}
 					}
 				}
-			}
 
-			if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
+				if (FacadeProvider.getUserFacade().getByUserName(binder.getBean().getUserName()) != null) {
 
-				Notification notification = new Notification();
-				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notification.setPosition(Position.MIDDLE);
-				Button closeButton = new Button(new Icon("lumo", "cross"));
-				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-				closeButton.getElement().setAttribute("aria-label", "Close");
-				closeButton.addClickListener(event -> {
-					notification.close();
-				});
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
 
-				Paragraph text = new Paragraph("Error : Username not unique");
+					Paragraph text = new Paragraph("Error : Username not unique");
 
-				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-				layout.setAlignItems(Alignment.CENTER);
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
 
-				notification.add(layout);
-				notification.open();
-				isErrored = true;
-				return;
-			} else if (binder.getBean().getUserName().contains(" ")){
-				Notification notification = new Notification();
-				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-				notification.setPosition(Position.MIDDLE);
-				Button closeButton = new Button(new Icon("lumo", "cross"));
-				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-				closeButton.getElement().setAttribute("aria-label", "Close");
-				closeButton.addClickListener(event -> {
-					notification.close();
-				});
+					notification.add(layout);
+					notification.open();
+					isErrored = true;
+					return;
+				} else if (binder.getBean().getUserName().contains(" ")) {
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
 
-				Paragraph text = new Paragraph("Error : Username cannot contain white space");
+					Paragraph text = new Paragraph("Error : Username cannot contain white space");
 
-				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-				layout.setAlignItems(Alignment.CENTER);
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
 
-				notification.add(layout);
-				notification.open();
-				isErrored = true;
-				return;
-			} else {
-				if(!isErrored ) {
-					
-					fireEvent(new SaveEvent(this, binder.getBean()));
-					
-					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-					userActivitySummaryDto.setActionModule("Users");
-					userActivitySummaryDto.setAction("Created User: " + binder.getBean().getUserName() );
-					userActivitySummaryDto.setCreatingUser_string(userProvider.getUser().getUserName());
-					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+					notification.add(layout);
+					notification.open();
+					isErrored = true;
+					return;
+				} else {
+					if (!isErrored) {
 
+						fireEvent(new SaveEvent(this, binder.getBean()));
+
+						UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+						userActivitySummaryDto.setActionModule("Users");
+						userActivitySummaryDto.setAction("Created User: " + binder.getBean().getUserName());
+						userActivitySummaryDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+
+					}
 				}
 			}
 		}

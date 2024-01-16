@@ -30,6 +30,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,6 +75,7 @@ import de.symeda.sormas.backend.location.Location;
 import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
+import de.symeda.sormas.backend.user.event.UserUpdateEvent;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
@@ -126,6 +129,8 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 								? CampaignPhase.INTRA
 								: CampaignPhase.POST);
 		target.setFormName(source.getFormName());
+		target.setFormname_ps_af(source.getFormname_ps_af());
+		target.setFormname_fa_af(source.getFormname_fa_af());
 		if(source.getModality() != null)
 		target.setModality(source.getModality().equals(Modality.S2S.toString()) ? Modality.S2S
 				: source.getModality().equals(Modality.HF2HF.toString()) ? Modality.HF2HF
@@ -282,7 +287,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	public CampaignFormMetaDto getCampaignFormMetaByUuid(String campaignFormUuid) {
 		return toDto(service.getByUuid(campaignFormUuid));
 	}
-
+	
 	@Override
 	public CampaignFormMetaReferenceDto getCampaignFormMetaReferenceByUuid(String campaignFormUuid) {
 		return toReferenceDto(service.getByUuid(campaignFormUuid));
@@ -340,13 +345,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 //		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
 //				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
 //				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
-//				campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY),
-//				campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE),
-//				campaignFormMeta.get(CampaignFormMeta.CREATION_DATE),
 //				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
-		// TODO: We'll need a user filter for users at some point, to make sure that
-		// users can edit their own details,
-		// but not those of others
 
 		Predicate filter = null;
 
@@ -365,28 +364,22 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormMeta.UUID:
-//				case CampaignFormMeta.FORM_ID:
 				case CampaignFormMeta.MODALITY:
-//				case CampaignFormMeta.FORM_NAME:
-//				case CampaignFormMeta.DAYSTOEXPIRE:
-//				case CampaignFormMeta.DISTRICTENTRY:
-//				case CampaignFormMeta.FORM_TYPE:
-					System.out.println("DEBUGGER: gfgdgjhgfgddgfghhjhg");
 					expression = campaignFormMeta.get(sortProperty.propertyName);
 					break;
 				case CampaignFormMeta.FORM_NAME:				
-					System.out.println("DEBUGGER: firsthvshgshvshgd");
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_NAME);
 //					order.add(sortProperty.ascending ? cb.asc(expression) : cb.desc(expression));
 					break;
-				case CampaignFormMeta.FORM_TYPE:
-					System.out.println("DEBUGGER: 456ddddddt67ujhgtyuikjhu");
+				case CampaignFormMeta.FORM_TYPE:	
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_TYPE);
 					break;
 				case CampaignFormMeta.FORM_CATEGORY:
-					System.out.println("DEBUGGER: jfhgsghsghsjgsfhgsghshgs");
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
-					break;		
+					break;	
+				case CampaignFormMeta.ARCHIVED:				
+					expression = campaignFormMeta.get(CampaignFormMeta.ARCHIVED);
+					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
@@ -421,6 +414,32 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return em.createQuery(cq).getSingleResult();
 	}
 
+	@Override
+	public void dearchiveForms(List<String> userUuids) {
+		updateActiveState(userUuids, false);
+	}
+	
+	@Override
+	public void archiveForms(List<String> userUuids) {
+		updateActiveState(userUuids, true);
+	}
+
+	private void updateActiveState(List<String> userUuids, boolean active) {
+
+		List<CampaignFormMeta> metaDatas = service.getByUuids(userUuids);
+		for (CampaignFormMeta metaData : metaDatas) {
+			CampaignFormMeta oldmetaData;
+			try {
+				oldmetaData = (CampaignFormMeta) BeanUtils.cloneBean(metaData);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid bean access", e);
+			}
+
+			metaData.setArchived(active);
+			service.ensurePersisted(metaData);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> getAllUuids() {

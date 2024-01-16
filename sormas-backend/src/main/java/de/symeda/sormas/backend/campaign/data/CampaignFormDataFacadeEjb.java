@@ -289,6 +289,35 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	}
 
 	@Override
+	public List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser) {
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
+		Root<CampaignFormData> root = cq.from(CampaignFormData.class);
+		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
+		Join<CampaignFormData, CampaignFormMeta> campaignFormMetaJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
+				JoinType.LEFT);
+		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
+		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
+		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
+		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+
+		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
+				root.get(CampaignFormData.FORM_VALUES),
+				areaJoin.get(Area.NAME), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.NAME),
+				regionJoin.get(Region.EXTERNAL_ID), districtJoin.get(District.NAME),
+				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
+				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
+				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+		
+		cq.where(cb.and(cb.equal(userJoin.get(User.USER_NAME), creatingUser)));
+		return em.createQuery(cq).getResultList();
+	}
+
+	@Override
 	public boolean isArchived(String campaignFormDataUuid) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -440,8 +469,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
-	
-	
 
 	@Override
 	public List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first,
@@ -2727,19 +2754,29 @@ if(criteria.getUserLanguage() != null) {
 	
 	@Override
 	public void verifyCampaignData(List<String> uuids) {
-		
-		for(String uuidx : uuids) {
-//			System.out.println( uuidx + "Each uuid ");
-			System.err.println(uuidx + " verification kicke from backend per uuid");
-
-				campaignFormDataService.verify(uuidx);
-//				
-//				String selectUpdateBuilder = "update campaignformdata set isverified = case when isverified = false then true else true end where uuid = ' \n"
-//						+ uuidx +"';";
-//				
-//				
-				
+				for(String uuidx : uuids) {
+				campaignFormDataService.verify(uuidx);				
 		}
+		
+	}
+	
+	@Override
+	public boolean getVerifiedStatus(String uuid) {
+
+				
+				CriteriaBuilder cb = em.getCriteriaBuilder();
+				CriteriaQuery<Boolean> cq = cb.createQuery(Boolean.class);
+				Root<CampaignFormData> from = cq.from(CampaignFormData.class);
+
+				cq.where(cb.equal(from.get(CampaignFormData.UUID), uuid)
+//						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
+						);
+				cq.select(from.get(CampaignFormData.ISVERIFIED));
+				boolean count = em.createQuery(cq).getSingleResult();
+				
+				
+				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+				return count;
 		
 	}
 	

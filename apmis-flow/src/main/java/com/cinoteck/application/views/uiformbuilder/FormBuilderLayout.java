@@ -25,8 +25,10 @@ import com.vaadin.flow.shared.Registration;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.campaign.CampaignPhase;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 
 public class FormBuilderLayout extends VerticalLayout {
@@ -140,18 +142,18 @@ public class FormBuilderLayout extends VerticalLayout {
 		final HorizontalLayout hr = new HorizontalLayout();
 		hr.setWidthFull();
 
-		TabSheet sheet = new TabSheet();		
-		
+		TabSheet sheet = new TabSheet();
+
 		VerticalLayout tab1 = new VerticalLayout(formGridComponent);
 		VerticalLayout tab2 = new VerticalLayout(translationGridComponent);
-		
+
 		sheet.add("Form Elements", tab1);
 		sheet.add("Form Translations", tab2);
-		
+
 		sheet.setSizeFull();
-		
+
 		hr.add(sheet);
-		
+
 		add(formLayout);
 		add(hr);
 
