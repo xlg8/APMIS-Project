@@ -146,6 +146,8 @@ public interface CampaignFormDataFacade {
 			List<SortProperty> sortProperties, FormAccess frms);
 	
 	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
+
+	boolean getVerifiedStatus(String uuid);
 	
 
 }

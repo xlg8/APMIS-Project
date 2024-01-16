@@ -1,8 +1,11 @@
 package com.cinoteck.application.views.campaigndata;
 
 import java.beans.Transient;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -54,6 +57,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
 
 	private final UserProvider usr = new UserProvider();
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto,
 			CampaignReferenceDto campaignReferenceDto, boolean openData, String uuidForm,
@@ -107,28 +111,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		}
 		
 
-		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		
-		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
-		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
-		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
-		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
-		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
-		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
-
-		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
-			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
-//				dialog.getFooter().add(verifyAndPublishButton);
-			}	
-		}
-		verifyAndPublishButton.addClickListener(e -> {
-			try {
-				
-			}catch(Exception exception){
-				
-			}
-		});
 		
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
@@ -207,6 +190,40 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				grid.getDataProvider().refreshAll();
 			}
 			// showConfirmationDialog();
+		});
+		
+System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
+		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+//		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
+		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
+//		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
+//		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
+
+		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
+			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+				if(! FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+					dialog.getFooter().add(verifyAndPublishButton);
+					}
+			}	
+		}
+		
+		verifyAndPublishButton.addClickListener(e -> {
+			try {
+				List<String> uuidList =new ArrayList<>();
+				uuidList.add(uuidForm);
+				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList);
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Verify CampaignData ");
+
+				
+			}catch(Exception exception){
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Verify CampaignData ");
+			}finally {
+				Notification.show("Data verified and published successfully");
+				verifyAndPublishButton.setVisible(false);
+			}
 		});
 
 		saveAndContinueButton.addClickListener(e -> {

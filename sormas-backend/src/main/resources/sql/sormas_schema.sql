@@ -9652,7 +9652,7 @@ INSERT INTO schema_version (version_number, comment) VALUES (456, 'configuring m
 
 
 
-alter table campaignformdata add column isVerified boolean not null default false
+alter table campaignformdata add column isVerified boolean not null default false;
 
 CREATE OR REPLACE FUNCTION public.verify_data_byphase_after()
  RETURNS trigger
@@ -9680,15 +9680,30 @@ $function$
 create trigger verify_data_trigger after
 insert
     on
-    public.campaignformdata for each row execute function verify_data_byphase_after()
+    public.campaignformdata for each row execute function verify_data_byphase_after();
 
 INSERT INTO schema_version (version_number, comment) VALUES (457, 'Admin WHO_User should be able to approve/verify PCM data rows for publication #602');
 
 
-ALTER TABLE public.campaignformmeta ADD archived bool NULL
+ALTER TABLE public.campaignformmeta ADD archived bool NULL;
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (458, 'Form Builder Requirement Archiving feactionality add');
+
+
+CREATE TABLE public.usersactivity (
+	changedate timestamp NULL,
+	creationdate timestamp NULL,
+	uuid varchar NULL,
+	deleted bool NULL,
+	action_logged varchar NULL,
+	lastupdated timestamp NULL,
+	action_module varchar NULL,
+	creatinguser_id int8 NULL,
+	id int8 NULL
+);
+
+INSERT INTO schema_version (version_number, comment) VALUES (459, 'User Activity Summary Table');
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
