@@ -51,6 +51,8 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataDto> getByUuids(List<String> uuids);
 
 	CampaignFormDataDto getCampaignFormDataByUuid(String campaignFormDataUuid);
+	
+	List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser);
 
 	void deleteCampaignFormData(String campaignFormDataUuid);
 
@@ -61,7 +63,7 @@ public interface CampaignFormDataFacade {
 	CampaignFormDataReferenceDto getReferenceByUuid(String uuid);
 
 	List<CampaignFormDataIndexDto> getIndexList(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
-
+  
 	List<CampaignFormDataIndexDto> getIndexListPashto(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
 
 	List<CampaignFormDataIndexDto> getIndexListDari(CampaignFormDataCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
@@ -144,6 +146,8 @@ public interface CampaignFormDataFacade {
 			List<SortProperty> sortProperties, FormAccess frms);
 	
 	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
+
+	boolean getVerifiedStatus(String uuid);
 	
 
 }

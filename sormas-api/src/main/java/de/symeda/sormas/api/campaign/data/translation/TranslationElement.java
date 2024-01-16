@@ -9,9 +9,12 @@ import java.util.Objects;
 
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import de.symeda.sormas.api.MapperUtil;
 import de.symeda.sormas.api.i18n.Validations;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TranslationElement implements Serializable {
 
 	@Size(max = CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)

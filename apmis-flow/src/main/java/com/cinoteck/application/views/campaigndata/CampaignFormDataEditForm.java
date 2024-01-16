@@ -1,8 +1,11 @@
 package com.cinoteck.application.views.campaigndata;
 
 import java.beans.Transient;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -53,8 +56,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	
 
 
-	private final UserProvider usr  = new UserProvider();
-	
+	private final UserProvider usr = new UserProvider();
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public CampaignFormDataEditForm(CampaignFormMetaReferenceDto campaignFormMetaReferenceDto,
 			CampaignReferenceDto campaignReferenceDto, boolean openData, String uuidForm,
@@ -65,52 +68,50 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		campaignFormMetaDto = FacadeProvider.getCampaignFormMetaFacade()
 				.getCampaignFormMetaByUuid(campaignFormMetaReferenceDto.getUuid());
 
-		campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
-				campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-				campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
+		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormname_ps_af(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormname_fa_af(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		} else {
+			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
+					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm,
+					campaignFormMetaDtox);
+		}
 
 		System.out.print(campaignFormMetaDto.isDistrictentry() + "district daa entry uuuuuuuuuuuuuuuuuu");
-		
-	
+
 		if (campaignFormMetaDto.isDistrictentry()) {
 
 			campaignFormBuilder.cbCommunity.setVisible(false);
 //			campaignFormBuilder.checkDistrictEntry = true;
 
-		}else {
+		} else {
 			campaignFormBuilder.cbCommunity.setVisible(true);
 //			campaignFormBuilder.checkDistrictEntry = true;
 		}
-		
-		
+
 		dialog = new Dialog();
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		dialog.setCloseOnOutsideClick(false);
-		dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
 		
-		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		
-		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
-		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
-		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
-		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
-		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
-		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
-
-		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
-			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
-//				dialog.getFooter().add(verifyAndPublishButton);
-			}	
+		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_ps_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_fa_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else {
+			dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
 		}
-		verifyAndPublishButton.addClickListener(e -> {
-			try {
-				
-			}catch(Exception exception){
-				
-			}
-		});
+		
+
+		
 		
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
@@ -190,6 +191,40 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			}
 			// showConfirmationDialog();
 		});
+		
+System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
+		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+//		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
+		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
+//		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
+//		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
+
+		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
+			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+				if(! FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+					dialog.getFooter().add(verifyAndPublishButton);
+					}
+			}	
+		}
+		
+		verifyAndPublishButton.addClickListener(e -> {
+			try {
+				List<String> uuidList =new ArrayList<>();
+				uuidList.add(uuidForm);
+				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList);
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Verify CampaignData ");
+
+				
+			}catch(Exception exception){
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Verify CampaignData ");
+			}finally {
+				Notification.show("Data verified and published successfully");
+				verifyAndPublishButton.setVisible(false);
+			}
+		});
 
 		saveAndContinueButton.addClickListener(e -> {
 			if (campaignFormBuilder.saveFormValues()) {
@@ -200,7 +235,8 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				CampaignFormBuilder campaignFormBuilderx;
 				campaignFormBuilderx = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
 						campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm, campaignFormMetaDtox);
+						campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm,
+						campaignFormMetaDtox);
 				dialog.add(campaignFormBuilderx);
 				dialog.setSizeFull();
 				dialog.setCloseOnOutsideClick(false);
@@ -219,7 +255,5 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		// dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
-	
-
 
 }
