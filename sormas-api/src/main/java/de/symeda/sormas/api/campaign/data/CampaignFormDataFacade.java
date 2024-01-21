@@ -122,8 +122,8 @@ public interface CampaignFormDataFacade {
 	
 	void deleteCampaignData(List<String> uuids);
 	
-	void verifyCampaignData(List<String> uuids);
-
+	void verifyCampaignData(List<String> uuids, boolean isUnVerifying);
+	
 	List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria, List<SortProperty> sortProperties, FormAccess frms);
 
 	List<JsonDictionaryReportModelDto> getByJsonFormDefinitonToCSV();
