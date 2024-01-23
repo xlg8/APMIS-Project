@@ -9706,5 +9706,20 @@ CREATE TABLE public.usersactivity (
 INSERT INTO schema_version (version_number, comment) VALUES (459, 'User Activity Summary Table');
 
 
+
+CREATE TABLE apmis_info (
+    identifier VARCHAR,
+    value VARCHAR
+);
+
+GRANT TRUNCATE, REFERENCES, SELECT, TRIGGER, INSERT, UPDATE, DELETE ON TABLE public.apmis_info TO sormas_user;
+
+
+INSERT INTO apmis_info (identifier, value)
+VALUES ('release_date', ''), ('webapp_version', '') ;
+
+INSERT INTO schema_version (version_number, comment) VALUES (460, 'Providing WebApp Version Number and Release Date By Database');
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

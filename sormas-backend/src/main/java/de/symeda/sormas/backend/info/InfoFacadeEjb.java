@@ -32,6 +32,8 @@ import java.util.Random;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import de.symeda.sormas.api.immunization.ImmunizationDto;
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -99,6 +101,7 @@ import de.symeda.sormas.api.utils.Required;
 import de.symeda.sormas.api.utils.SensitiveData;
 import de.symeda.sormas.api.visit.VisitDto;
 import de.symeda.sormas.backend.common.ConfigFacadeEjb.ConfigFacadeEjbLocal;
+import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.XssfHelper;
 
 @Stateless(name = "InfoFacade")
@@ -106,6 +109,9 @@ public class InfoFacadeEjb implements InfoFacade {
 
 	@EJB
 	private ConfigFacadeEjbLocal configFacade;
+	
+	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
+	private EntityManager em;
 
 	@Override
 	public String generateDataDictionary() throws IOException {
@@ -429,6 +435,23 @@ public class InfoFacadeEjb implements InfoFacade {
 			return I18nProperties.getEnumCaption(this);
 		}
 	}
+	
+	@Override
+	public String getApmisReleaseDate() {
+		
+		final String joinBuilder = "select ai.value from apmis_info ai where ai.identifier ilike 'release_date'";
+		return em.createNativeQuery(joinBuilder).getSingleResult().toString();
+		
+	}
+	
+	
+	@Override
+	public String getWebAppVersionNumber() {
+		
+		final String joinBuilder = "select ai.value from apmis_info ai where ai.identifier ilike 'webapp_version'";
+		return em.createNativeQuery(joinBuilder).getSingleResult().toString();
+		
+	}
 
 	private int createEnumTable(XSSFSheet sheet, int startRow, Class<Enum<?>> enumType) {
 
@@ -485,6 +508,8 @@ public class InfoFacadeEjb implements InfoFacade {
 
 		return rowNumber;
 	}
+	
+	
 
 	private <T> String getSimpleDtoName(Class<T> dto) {
 		return dto.getSimpleName().replaceAll("Dto", "");
