@@ -564,7 +564,8 @@ public class CampaignForm extends VerticalLayout {
 			}
 
 			treeGrid.addItemClickListener(ee -> { // .addItemDoubleClickListener(ee -> {
-
+				System.out.println("treeGrid.addItemClickListener kicked in");
+				
 				isSingleSelectClickItemLock = true;
 				if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
 					
@@ -577,33 +578,38 @@ public class CampaignForm extends VerticalLayout {
 					System.out.println( ee.getItem().getUuid() + "DISTRICTUUID" +"CAMPAIGNUUID" +  campaignDto.getUuid() + AgeGroup.AGE_5_10.toString());
 					createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
 							campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10);
-
 				}
-
 			});
 
 			treeGrid.asMultiSelect().addSelectionListener(eventx -> {
 				isMultiSelectItemLock = true;
+				//debug
+				System.out.println(" in multiselection checking if this is district grid clicked for edit");
 
-				System.out.println("isMultiSelectItemLock ===1111 ");
-
-				if (!isSingleSelectClickItemLock) {
+				if (isSingleSelectClickItemLock) {
+					//debug
+					System.out.println("treeGrid.addItemClickListener at work... multiselection bypassed ");
+					System.out.println("isSelectItemLocked");
+				//	isMultiSelectItemLock = false;
 					isSelectItemLock = false;
-
-					System.out.println("isSelectItemLock === ");
-
 					return;
+				} else {
+					
+					//debug
+					System.out.println(" in multiselection passed, not district edit "+isMultiSelectItemLock);
 				}
 
 				if (!isSelectItemLock) {
 					isSelectItemLock = true;
-
-					System.out.println("isSelectItemLock ===XXXXXX ");
+					//debug
+					System.out.println("isSelectItemLock ===XXXXXX "+eventx.getAddedSelection().size());
 
 					for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
-
+						System.out.println((camTrGrid.getIsClicked() != null) + " : ===XXXXXX 111111 : "+eventx.getAddedSelection().size());
 						if (camTrGrid.getIsClicked() != null) {
+							System.out.println("===XXXXXX 111111_2 : "+eventx.getAddedSelection().size());
 							if (camTrGrid.getIsClicked() == 777L) {
+								System.out.println("===XXXXXX camTrGrid.getIsClicked() == 777L "+(camTrGrid.getIsClicked() == 777L));
 								treeGrid.deselect(camTrGrid);
 								// deselect its children
 								treeGrid.getTreeData().getChildren(camTrGrid)
@@ -624,6 +630,7 @@ public class CampaignForm extends VerticalLayout {
 								camTrGrid.setIsClicked(7L);
 
 							} else {
+								System.out.println("===XXXXXX else {"+eventx.getAddedSelection().size());
 								camTrGrid.setIsClicked(777L);
 								treeGrid.select(camTrGrid);
 
@@ -722,66 +729,69 @@ public class CampaignForm extends VerticalLayout {
 
 			});
 
-			treeGrid.addSelectionListener(event -> {	
-				if (isMultiSelectItemLock) {
-
-					areass.clear();
-					region.clear();
-					districts.clear();
-					community.clear();
-					popopulationDataDtoSet.clear();
-
-					for (int i = 0; i < event.getAllSelectedItems().size(); i++) {
-
-						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
-								.getLevelAssessed() == "area") {
-							AreaReferenceDto selectedArea = FacadeProvider.getAreaFacade().getAreaReferenceByUuid(
-									((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
-							areass.add(selectedArea);
-						}
-						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
-								.getLevelAssessed() == "region") {
-							RegionReferenceDto selectedRegion = FacadeProvider.getRegionFacade()
-									.getRegionReferenceByUuid(
-											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
-							region.add(selectedRegion);
-						}
-						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
-								.getLevelAssessed() == "district") {
-							DistrictReferenceDto selectedDistrict = FacadeProvider.getDistrictFacade()
-									.getDistrictReferenceByUuid(
-											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
-							districts.add(selectedDistrict);
-						}
-
-						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
-								.getLevelAssessed() == "district") {
-
-							PopulationDataDto popopulationDataDto = new PopulationDataDto();
-
-							popopulationDataDto.setCampaign(
-									FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
-							popopulationDataDto
-									.setDistrict(FacadeProvider.getDistrictFacade().getDistrictReferenceByUuid(
-											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
-													.getUuid()));
-							popopulationDataDtoSet.add(popopulationDataDto);
-						}
-
-					}
-
-					if (campaignDto != null) {
-						campaignDto.setAreas((Set<AreaReferenceDto>) areass);
-						campaignDto.setRegion((Set<RegionReferenceDto>) region);
-						campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
-						campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
-						campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
-
-					}
-				}
-
-				System.out.println("isSelectItemLock ===666666666666 ");
-			});
+//			treeGrid.addSelectionListener(event -> {	
+//				if (!isMultiSelectItemLock) {
+//					System.out.println("treeGrid.addSelectionListener kicked and runing ");
+//					areass.clear();
+//					region.clear();
+//					districts.clear();
+//					community.clear();
+//					popopulationDataDtoSet.clear();
+//
+//					for (int i = 0; i < event.getAllSelectedItems().size(); i++) {
+//
+//						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
+//								.getLevelAssessed() == "area") {
+//							AreaReferenceDto selectedArea = FacadeProvider.getAreaFacade().getAreaReferenceByUuid(
+//									((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
+//							areass.add(selectedArea);
+//						}
+//						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
+//								.getLevelAssessed() == "region") {
+//							RegionReferenceDto selectedRegion = FacadeProvider.getRegionFacade()
+//									.getRegionReferenceByUuid(
+//											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
+//							region.add(selectedRegion);
+//						}
+//						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
+//								.getLevelAssessed() == "district") {
+//							DistrictReferenceDto selectedDistrict = FacadeProvider.getDistrictFacade()
+//									.getDistrictReferenceByUuid(
+//											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i]).getUuid());
+//							districts.add(selectedDistrict);
+//						}
+//
+//						if (((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
+//								.getLevelAssessed() == "district") {
+//
+//							PopulationDataDto popopulationDataDto = new PopulationDataDto();
+//
+//							popopulationDataDto.setCampaign(
+//									FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
+//							popopulationDataDto
+//									.setDistrict(FacadeProvider.getDistrictFacade().getDistrictReferenceByUuid(
+//											((CampaignTreeGridDto) event.getAllSelectedItems().toArray()[i])
+//													.getUuid()));
+//							popopulationDataDtoSet.add(popopulationDataDto);
+//						}
+//
+//					}
+//
+//					if (campaignDto != null) {
+//						campaignDto.setAreas((Set<AreaReferenceDto>) areass);
+//						campaignDto.setRegion((Set<RegionReferenceDto>) region);
+//						campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
+//						campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
+//						campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
+//
+//					}
+//					
+//				}else {
+//					System.out.println("treeGrid.addSelectionListener ignored by multipleselection... this method has alsready been taken care of over there ");
+//				}
+//
+//				
+//			});
 
 			parentTab4.add(treeGrid);
 		} else {

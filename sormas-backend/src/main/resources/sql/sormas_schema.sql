@@ -8838,7 +8838,8 @@ AS SELECT campaignformmeta.uuid AS formuuid,
     jsondata.value ->> 'id'::text AS fieldid,
     jsonmeta.value ->> 'caption'::text AS fieldcaption,
         CASE
-            WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR (jsonmeta.value ->> 'type'::text) = 'range'::text THEN sum(cast_number(jsondata.value ->> 'value'::text, 0::numeric))
+            WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR (jsonmeta.value ->> 'type'::text) = 'range'::text 
+            	THEN sum(cast_number(jsondata.value ->> 'value'::text, 0::numeric))
             WHEN (jsonmeta.value ->> 'type'::text) = 'text'::text THEN sum(
             CASE
                 WHEN (jsondata.value ->> 'value'::text) = ''::text THEN 0
@@ -9705,6 +9706,93 @@ CREATE TABLE public.usersactivity (
 
 INSERT INTO schema_version (version_number, comment) VALUES (459, 'User Activity Summary Table');
 
+
+--yes-no dashboard patch #583
+
+DROP MATERIALIZED VIEW IF EXISTS public.camapaigndata_main;
+
+
+CREATE MATERIALIZED VIEW public.camapaigndata_main
+TABLESPACE pg_default
+AS SELECT subquery.formuuid,
+    subquery.formid,
+    subquery.fieldid,
+    subquery.fieldcaption,
+    sum(subquery.sumvalue) AS sumvalue,
+    subquery.area,
+    subquery.region,
+    subquery.district,
+    subquery.areas_uuid,
+    subquery.region_uuid,
+    subquery.district_uuid,
+    subquery.campaigns_uuid
+   FROM ( SELECT campaignformmeta.uuid AS formuuid,
+            campaignformmeta.formid,
+                CASE
+                    WHEN (jsonmeta.value ->> 'type'::text) = 'yes-no'::text THEN concat(jsondata.value ->> 'id'::text,
+                    CASE
+                        WHEN (jsondata.value ->> 'value'::text) = 'YES'::text OR (jsondata.value ->> 'value'::text) = 'Yes'::text OR (jsondata.value ->> 'value'::text) = true::text THEN '_true'::text
+                        WHEN (jsondata.value ->> 'value'::text) = 'No'::text OR (jsondata.value ->> 'value'::text) = 'NO'::text OR (jsondata.value ->> 'value'::text) = false::text THEN '_false'::text
+                        ELSE ''::text
+                    END)
+                    ELSE jsondata.value ->> 'id'::text
+                END AS fieldid,
+            jsonmeta.value ->> 'caption'::text AS fieldcaption,
+            jsonmeta.value ->> 'type'::text AS type,
+                CASE
+                    WHEN (jsonmeta.value ->> 'type'::text) = 'yes-no'::text THEN sum(
+                    CASE
+                        WHEN (jsondata.value ->> 'value'::text) = 'YES'::text OR (jsondata.value ->> 'value'::text) = 'Yes'::text OR (jsondata.value ->> 'value'::text) = true::text THEN 1
+                        ELSE
+                        CASE
+                            WHEN (jsondata.value ->> 'value'::text) = 'No'::text OR (jsondata.value ->> 'value'::text) = 'NO'::text OR (jsondata.value ->> 'value'::text) = false::text THEN 1
+                            ELSE NULL::integer
+                        END
+                    END)::numeric
+                    WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR (jsonmeta.value ->> 'type'::text) = 'range'::text THEN sum(cast_number(jsondata.value ->> 'value'::text, 0::numeric))
+                    WHEN (jsonmeta.value ->> 'type'::text) = 'text'::text THEN sum(
+                    CASE
+                        WHEN (jsondata.value ->> 'value'::text) = ''::text THEN 0
+                        ELSE 1
+                    END)::numeric
+                    ELSE NULL::numeric
+                END AS sumvalue,
+            areas.name AS area,
+            region.name AS region,
+            district.name AS district,
+            areas.uuid AS areas_uuid,
+            region.uuid AS region_uuid,
+            district.uuid AS district_uuid,
+            campaigns.uuid AS campaigns_uuid
+           FROM campaignformdata
+             LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id
+             LEFT JOIN region ON campaignformdata.region_id = region.id
+             LEFT JOIN areas ON campaignformdata.area_id = areas.id
+             LEFT JOIN district ON campaignformdata.district_id = district.id
+             LEFT JOIN community ON campaignformdata.community_id = community.id
+             LEFT JOIN campaigns ON campaignformdata.campaign_id = campaigns.id
+             LEFT JOIN populationdata pop ON campaignformdata.district_id = pop.district_id AND campaignformdata.campaign_id = pop.campaign_id
+             CROSS JOIN LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value)
+             CROSS JOIN LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)
+          WHERE (jsondata.value ->> 'value'::text) IS NOT NULL AND (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) AND campaignformdata.archived = false AND campaigns.archived = false AND (jsonmeta.value ->> 'caption'::text) IS NOT NULL AND (jsondata.value ->> 'value'::text) <> '0'::text AND (jsondata.value ->> 'value'::text) <> ''::text AND pop.selected = true
+          GROUP BY campaigns.uuid, campaignformmeta.uuid, campaignformmeta.formid, (
+                CASE
+                    WHEN (jsonmeta.value ->> 'type'::text) = 'yes-no'::text THEN concat(jsondata.value ->> 'id'::text,
+                    CASE
+                        WHEN (jsondata.value ->> 'value'::text) = 'YES'::text OR (jsondata.value ->> 'value'::text) = 'Yes'::text OR (jsondata.value ->> 'value'::text) = true::text THEN '_true'::text
+                        WHEN (jsondata.value ->> 'value'::text) = 'No'::text OR (jsondata.value ->> 'value'::text) = 'NO'::text OR (jsondata.value ->> 'value'::text) = false::text THEN '_false'::text
+                        ELSE ''::text
+                    END)
+                    ELSE jsondata.value ->> 'id'::text
+                END), (jsonmeta.value ->> 'caption'::text), (jsonmeta.value ->> 'type'::text), areas.name, region.name, district.name, areas.uuid, region.uuid, district.uuid) subquery
+  GROUP BY subquery.formuuid, subquery.formid, subquery.fieldid, subquery.fieldcaption, subquery.type, subquery.area, subquery.region, subquery.district, subquery.areas_uuid, subquery.region_uuid, subquery.district_uuid, subquery.campaigns_uuid
+WITH DATA;
+
+-- View indexes:
+CREATE UNIQUE INDEX camapaigndata_main_fieldid_idx ON public.camapaigndata_main USING btree (fieldid, formuuid, campaigns_uuid, district_uuid);
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (460, 'Adding yes-no to dashboard logic');
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
