@@ -9718,14 +9718,14 @@ GRANT TRUNCATE, REFERENCES, SELECT, TRIGGER, INSERT, UPDATE, DELETE ON TABLE pub
 INSERT INTO apmis_info (identifier, value)
 VALUES ('release_date', ''), ('webapp_version', '') ;
 
-INSERT INTO schema_version (version_number, comment) VALUES (460, 'Providing WebApp Version Number and Release Date By Database');
+INSERT INTO schema_version (version_number, comment) VALUES (461, 'Providing WebApp Version Number and Release Date By Database');
 
 
 UPDATE campaignformdata
 SET isVerified = true
 WHERE formtype = 'intra-campaign' OR formtype = 'pre-campaign';
 
-INSERT INTO schema_version (version_number, comment) VALUES (461, 'Automatically Verifying Old Intra and Pre Campaign Data');
+INSERT INTO schema_version (version_number, comment) VALUES (462, 'Automatically Verifying Old Intra and Pre Campaign Data');
 
 
 
