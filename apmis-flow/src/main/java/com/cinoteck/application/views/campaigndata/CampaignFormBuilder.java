@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,7 @@ import com.google.common.collect.Sets;
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -63,6 +65,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
@@ -741,7 +744,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				vertical.add(labelLayout);
 				if (dependingOnId != null && dependingOnValues != null) {
 					// needed
-					setVisibilityDependency(labx, dependingOnId, dependingOnValues, type);
+					setVisibilityDependency(labx, dependingOnId, dependingOnValues, type, false);
 				}
 			} else {
 				CampaignFormElementOptions constrainsVal = new CampaignFormElementOptions();
@@ -781,7 +784,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					});
 
 //					toggle.setItemLabelGenerator(item -> map.get(item));
-					toggle.setRequiredIndicatorVisible(formElement.isImportant());
+					
 					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(toggle);
@@ -789,7 +792,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						toggle.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.TEXT) {
@@ -800,14 +806,17 @@ public class CampaignFormBuilder extends VerticalLayout {
 					textField.setPrefixComponent(VaadinIcon.PENCIL.create());
 					textField.setId(formElement.getId());
 					textField.setSizeFull();
-					textField.setRequiredIndicatorVisible(formElement.isImportant());
+					//
 					setFieldValue(textField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(textField);
 					fields.put(formElement.getId(), textField);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(textField, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(textField, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						textField.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.NUMBER) {
@@ -815,7 +824,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					numberField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					numberField.setId(formElement.getId());
 					numberField.setSizeFull();
-					numberField.setRequiredIndicatorVisible(formElement.isImportant());
+					
 					setFieldValue(numberField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(numberField);
 					fields.put(formElement.getId(), numberField);
@@ -959,7 +968,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(numberField, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(numberField, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						numberField.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.RANGE) {
@@ -969,7 +981,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					integerField.setId(formElement.getId());
 					integerField.setStepButtonsVisible(true);
 					integerField.setSizeFull();
-					integerField.setRequiredIndicatorVisible(formElement.isImportant());
+					
 					setFieldValue(integerField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(integerField);
@@ -1029,7 +1041,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(integerField, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(integerField, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						integerField.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.DECIMAL) {
@@ -1039,7 +1054,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					bigDecimalField.setValue(new BigDecimal("948205817.472950487"));
 					bigDecimalField.setId(formElement.getId());
 					bigDecimalField.setSizeFull();
-					bigDecimalField.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(bigDecimalField, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(bigDecimalField);
@@ -1047,7 +1061,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(bigDecimalField, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(bigDecimalField, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						bigDecimalField.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.TEXTBOX) {
@@ -1056,14 +1073,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 					textArea.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					textArea.setId(formElement.getId());
 					textArea.setSizeFull();
-					textArea.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(textArea, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(textArea);
 					fields.put(formElement.getId(), textArea);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(textArea, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(textArea, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						textArea.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.RADIO) {
@@ -1076,14 +1095,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 					radioGroup.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					radioGroup.setId(formElement.getId());
 					radioGroup.setSizeFull();
-					radioGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(radioGroup, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(radioGroup);
 					fields.put(formElement.getId(), radioGroup);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(radioGroup, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(radioGroup, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						radioGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.RADIOBASIC) {
@@ -1098,7 +1119,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					radioGroupVert.setId(formElement.getId());
 					radioGroupVert.setSizeFull();
-					radioGroupVert.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(radioGroupVert, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(radioGroupVert);
@@ -1106,7 +1126,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(radioGroupVert, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(radioGroupVert, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						radioGroupVert.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.DROPDOWN) {
@@ -1174,7 +1197,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					select.setItems(sortedKeys);
 
-					select.setRequiredIndicatorVisible(formElement.isImportant());
 					select.setItemLabelGenerator(itm -> data.get(itm.toString().trim()));
 					select.setClearButtonVisible(true);
 
@@ -1188,7 +1210,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(select, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(select, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						select.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.CHECKBOX) {
@@ -1202,7 +1227,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					checkboxGroup.setId(formElement.getId());
 					checkboxGroup.setSizeFull();
-					checkboxGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(checkboxGroup, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(checkboxGroup);
@@ -1210,7 +1234,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						checkboxGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.CHECKBOXBASIC) {
@@ -1225,7 +1252,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
 					checkboxGroup.setId(formElement.getId());
 					checkboxGroup.setSizeFull();
-					checkboxGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(checkboxGroup, type, value, optionsValues, formElement.getDefaultvalue(), false,
 							null);
 					vertical.add(checkboxGroup);
@@ -1233,7 +1259,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(checkboxGroup, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						checkboxGroup.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				} else if (type == CampaignFormElementType.DATE) {
@@ -1246,14 +1275,16 @@ public class CampaignFormBuilder extends VerticalLayout {
 					datePicker.setSizeFull();
 					datePicker.setPlaceholder("DD-MM-YYYY");
 					datePicker.setId(formElement.getId());
-					datePicker.setRequiredIndicatorVisible(formElement.isImportant());
 					setFieldValue(datePicker, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(datePicker);
 					fields.put(formElement.getId(), datePicker);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						setVisibilityDependency(datePicker, dependingOnId, dependingOnValues, type);
+						setVisibilityDependency(datePicker, dependingOnId, dependingOnValues, type,
+								formElement.isImportant());
+					} else {
+						datePicker.setRequiredIndicatorVisible(formElement.isImportant());
 					}
 
 				}
@@ -1643,7 +1674,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	}
 
 	private void setVisibilityDependency(Component component, String dependingOnId, Object[] dependingOnValues,
-			CampaignFormElementType typex) {
+			CampaignFormElementType typex, boolean isRequiredField) {
 		Component dependingOnField = fields.get(dependingOnId);
 		List<Object> dependingOnValuesList = Arrays.asList(dependingOnValues);
 
@@ -1655,9 +1686,17 @@ public class CampaignFormBuilder extends VerticalLayout {
 		if (dependingOnValuesList.stream().anyMatch(v -> v.toString().contains("!"))) {
 
 			// hide on default
-			component.setVisible(dependingOnValuesList.stream().anyMatch(
-					v -> fieldValueMatchesDependingOnValuesNOTValuer(dependingOnField, dependingOnValuesList, typex)));
+			boolean hideNt = dependingOnValuesList.stream().anyMatch(
+					v -> fieldValueMatchesDependingOnValuesNOTValuer(dependingOnField, dependingOnValuesList, typex));
 
+			if (hideNt) {
+				component.setVisible(hideNt);
+				// getElement().setProperty("required", requiredIndicatorVisible);
+				component.getElement().setProperty("required", isRequiredField);
+			} else {
+				component.setVisible(hideNt);
+				component.getElement().setProperty("required", false);
+			}
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
 				boolean visible = fieldValueMatchesDependingOnValuesNOTValuer(dependingOnField, dependingOnValuesList,
@@ -1666,24 +1705,63 @@ public class CampaignFormBuilder extends VerticalLayout {
 				component.setVisible(visible);
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
-						((AbstractField) component).setValue(null);
+						
+						if (typex == CampaignFormElementType.TEXT) {
+							((TextField) component).setValue(" ");
+							((TextField) component).setValue("");
+						} else {
+
+							((AbstractField) component).setValue(null);
+						}
+
+						((AbstractField) component).setRequiredIndicatorVisible(false);
+						
+						
+						component.setVisible(visible);
+					} else {
+						component.setVisible(visible);
+						((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
+						component.getElement().setProperty("required", isRequiredField);
 					}
 				}
 			});
 		} else {
 
 			// hide on default
-			component.setVisible(dependingOnValuesList.stream()
-					.anyMatch(v -> fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex)));
+			boolean hide = dependingOnValuesList.stream()
+					.anyMatch(v -> fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex));
+			//component.setVisible(hide);
+
+//			if (hide) {
+//				// getElement().setProperty("required", requiredIndicatorVisible);
+//				component.getElement().setProperty("required", isRequiredField);
+//			} else {
+//				component.getElement().setProperty("required", false);
+//			}
 
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
 				boolean visible = fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex);
 
-				component.setVisible(visible);
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
-						((AbstractField) component).setValue(null);
+						
+						((AbstractField) component).setRequiredIndicatorVisible(false);
+						
+						if (typex == CampaignFormElementType.TEXT) {
+							((TextField) component).setValue(" ");
+							((TextField) component).setValue("");
+						} else {
+
+							((AbstractField) component).setValue(null);
+						}
+						
+						component.setVisible(visible);
+
+					} else {
+						component.setVisible(visible);
+						((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
+						component.getElement().setProperty("required", isRequiredField);
 					}
 				}
 			});
@@ -1923,7 +2001,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				Map<Object, Object> lotMap = new HashMap<>();
 				int index = 0;
 				if (lotchecker.size() > 0) {
-					logger.debug( lotchecker.size() + " backend size");
+					logger.debug(lotchecker.size() + " backend size");
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
 						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
 
@@ -1945,7 +2023,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						logger.debug(lotMaps.size() + " size");
 					}
 				}
-				
+
 				boolean saveChecker = true;
 				logger.debug(formsLotNoFromDB.size() + " lot sizeeeeeeeee");
 				logger.debug(formsClusterNoFromDB.size() + " cluster sizeeeeeeeeeee");
@@ -1970,11 +2048,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 					logger.debug(lotMap.size() + " map size");
 					for (Map.Entry<Object, Object> entry : lotMap.entrySet()) {
 						if (entry.getKey().equals(lotNo.getValue())) {
-;
-							logger.debug("db value of lot number " + entry.getKey() + " entered value " + lotNo.getValue());
-							logger.debug("db value of cluster lot number " + entry.getValue() + " entered value " + lotClusterNo.getValue());
+							;
+							logger.debug(
+									"db value of lot number " + entry.getKey() + " entered value " + lotNo.getValue());
+							logger.debug("db value of cluster lot number " + entry.getValue() + " entered value "
+									+ lotClusterNo.getValue());
 							if (entry.getValue().equals(lotClusterNo.getValue())) {
-								logger.debug("xxxxxx db value of cluster lot number " + entry.getValue() + " entered value " + lotClusterNo.getValue());
+								logger.debug("xxxxxx db value of cluster lot number " + entry.getValue()
+										+ " entered value " + lotClusterNo.getValue());
 								saveChecker = false;
 								break;
 							}

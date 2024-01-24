@@ -575,7 +575,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		UserProvider usrProv  = new UserProvider();
 		I18nProperties.setUserLanguage(usrProv.getUser().getLanguage());
 		String value = usrdto.getUserRoles().toString();
-		System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
+		//System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
 		return value.replace("[", "").replace("]", "")
 				.replace("null,", "").replace("null", "");
 	}
