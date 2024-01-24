@@ -118,9 +118,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
 
-	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
-			.collect(Collectors.toList());
-
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
 
@@ -573,6 +570,15 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		vlayout.setWidth("98%");
 		add(layout, vlayout);
 	}
+	
+	private String rolesConf(UserDto usrdto) {
+		UserProvider usrProv  = new UserProvider();
+		I18nProperties.setUserLanguage(usrProv.getUser().getLanguage());
+		String value = usrdto.getUserRoles().toString();
+		System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
+		return value.replace("[", "").replace("]", "")
+				.replace("null,", "").replace("null", "");
+	}
 
 	private void configureGrid() {
 
@@ -602,7 +608,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.User_active)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer)
+		Column<UserDto> userRolesColumn = grid.addColumn(this::rolesConf)
 				.setHeader(I18nProperties.getCaption(Captions.User_userRoles)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
 		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName)
