@@ -2753,9 +2753,18 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
-	public void verifyCampaignData(List<String> uuids) {
+	public void verifyCampaignData(List<String> uuids, boolean isUnVerifyingAction) {
 				for(String uuidx : uuids) {
-				campaignFormDataService.verify(uuidx);				
+					
+					if(isUnVerifyingAction) {
+						System.out.println("unverifyyyyyyyyyyyyyyy");
+						campaignFormDataService.unVerifyData(uuidx);
+					}else {
+						System.out.println("verifyyyyyyyyyyyyyyy");
+
+						campaignFormDataService.verify(uuidx);
+					}
+								
 		}
 		
 	}

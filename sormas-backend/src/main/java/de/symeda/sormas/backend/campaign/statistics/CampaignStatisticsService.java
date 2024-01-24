@@ -108,11 +108,16 @@ public class CampaignStatisticsService {
 			queryBuilder.append(buildJsonWhereExpression());
 			queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression())
 					.append(buildOrderByExpression(criteria));
+			
+			System.out.println("DEBUGGER r567ujhgty8ijyu8dfrfxxx   " + whereExpression.toString());
 		} else {
 
 			if (!whereExpression.isEmpty()) {
 				queryBuilder.append(" WHERE ");
 				queryBuilder.append(whereExpression);
+				
+				System.out.println("DEBUGGER r567ujhgty8ijyu8dfrfxxxrrr   " + whereExpression.toString());
+
 			}
 			queryBuilder.append(buildGroupByExpression(criteria)).append(buildOrderByExpression(criteria));
 		}
@@ -120,21 +125,7 @@ public class CampaignStatisticsService {
 
 		return queryBuilder.toString();
 
-		//////
-//		String joinExpression = new StringBuilder().append(buildJoinExpression()).append(buildJsonJoinExpression()).toString();
-//		StringBuilder queryBuilder = new StringBuilder();
-//		queryBuilder.append(selectExpression).append(joinExpression);
-//		queryBuilder.append(" WHERE ");
-//		String whereExpression = buildWhereExpression(criteria);
-//		if (!whereExpression.isEmpty()) {
-//			queryBuilder.append(whereExpression).append(" AND ");
-//		}
-//		queryBuilder.append(buildJsonWhereExpression());
-//		
-//		queryBuilder.append(buildGroupByExpression(criteria)).append(buildJsonGroupByExpression()).append(buildOrderByExpression(criteria));
-//		
-//		
-//		return queryBuilder.toString();
+
 	}
 
 	private String buildSelectExpression(CampaignStatisticsCriteria criteria) {
@@ -228,7 +219,8 @@ public class CampaignStatisticsService {
 					.append(Campaign.PUBLISHED).append(" = true").append(") OR (")
 
 					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
-					.append(" != 'post-campaign'").append("))");
+					.append(" != 'post-campaign'").append("))").append(" AND ").append(CampaignFormData.TABLE_NAME).append(".")
+					.append(CampaignFormData.ISVERIFIED).append(" = true");
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {

@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.campaign.CampaignForm;
+import com.cinoteck.application.views.campaign.CampaignForm.CampaignFormEvent;
+import com.cinoteck.application.views.campaign.CampaignForm.PublishUnpublishEvent;
+import com.vaadin.flow.component.ComponentEvent;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -22,7 +27,9 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.shared.Registration;
 
+import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
@@ -53,8 +60,9 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
-	
-
+	Button verifyAndPublishButton;
+	Button unVerifyAndUnPublishButton;
+	boolean dataPublishNotificationCheck = false;
 
 	private final UserProvider usr = new UserProvider();
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -101,18 +109,17 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		dialog.add(campaignFormBuilder);
 		dialog.setSizeFull();
 		dialog.setCloseOnOutsideClick(false);
-		
-		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
-			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_ps_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
-		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
-			dialog.setHeaderTitle(campaignFormMetaDto.getFormname_fa_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
-		} else {
-			dialog.setHeaderTitle(campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
-		}
-		
 
-		
-		
+		if (usr.getUser().getLanguage().toString().equals("Pashto")) {
+			dialog.setHeaderTitle(
+					campaignFormMetaDto.getFormname_ps_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else if (usr.getUser().getLanguage().toString().equals("Dari")) {
+			dialog.setHeaderTitle(
+					campaignFormMetaDto.getFormname_fa_af() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		} else {
+			dialog.setHeaderTitle(
+					campaignFormMetaDto.getFormName() + " | " + campaignFormBuilder.cbCampaign.getValue());
+		}
 
 		Button deleteButton = new Button(I18nProperties.getCaption(Captions.actionDelete));
 		Icon deleteIcon = new Icon(VaadinIcon.EXCLAMATION_CIRCLE);
@@ -170,59 +177,82 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));// , (e) -> dialog.close());
 		saveButton.setIcon(new Icon(VaadinIcon.CHECK));
 		dialog.getFooter().add(saveButton);
-		
-		
-		
-
 
 		saveButton.addClickListener(e -> {
 			if (campaignFormBuilder.saveFormValues()) {
-				
+
 				if (openData) {
 					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 					userActivitySummaryDto.setActionModule("Campaign Data");
-					userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in " + campaignReferenceDto.getCaption() );
+					userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in "
+							+ campaignReferenceDto.getCaption());
 					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
 					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 				}
-				
+
 				dialog.close();
 				grid.getDataProvider().refreshAll();
 			}
 			// showConfirmationDialog();
 		});
-		
-System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		
-		Button verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
-		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
-//		verifyAndPublishButtonIcon.getStyle().set("color", "orange !important");
-		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
-//		verifyAndPublishButton.getStyle().set("border", "1px solid orange");
-//		verifyAndPublishButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-		System.out.println(campaignFormMetaDto.getFormType() + "Fror Tpoe " + campaignFormMetaReferenceDto.getFormType() );
 
-		if(usr.getUser().getUsertype() == UserType.WHO_USER) {
-			if(campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
-				if(! FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+		verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
+		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
+
+		unVerifyAndUnPublishButton = new Button(I18nProperties.getCaption("Un-Verify & Un-Publish"));
+		Icon unVerifyAndUnPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+		unVerifyAndUnPublishButton.setIcon(unVerifyAndUnPublishButtonIcon);
+
+		if (usr.getUser().getUsertype() == UserType.WHO_USER) {
+			if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+
+				if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
 					dialog.getFooter().add(verifyAndPublishButton);
-					}
-			}	
+					// data is not verified
+
+					dataPublishNotificationCheck = false;
+				} else {
+					dialog.getFooter().add(unVerifyAndUnPublishButton);
+
+				}
+
+			}
 		}
-		
+
 		verifyAndPublishButton.addClickListener(e -> {
 			try {
-				List<String> uuidList =new ArrayList<>();
+				List<String> uuidList = new ArrayList<>();
 				uuidList.add(uuidForm);
-				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList);
-				logger.debug(" ============xxxxxxxxxxxxx============== " + "Verify CampaignData ");
+				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList, false);
 
-				
-			}catch(Exception exception){
+			} catch (Exception exception) {
 				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Verify CampaignData ");
-			}finally {
+			} finally {
+
 				Notification.show("Data verified and published successfully");
 				verifyAndPublishButton.setVisible(false);
+				grid.getDataProvider().refreshAll();
+			}
+		});
+
+		unVerifyAndUnPublishButton.addClickListener(e -> {
+			try {
+				List<String> uuidList = new ArrayList<>();
+				uuidList.add(uuidForm);
+				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList, true);
+
+			} catch (Exception exception) {
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Un-Verify CampaignData ");
+			} finally {
+
+				Notification.show("Data un-verified and un-published successfully");
+				unVerifyAndUnPublishButton.setVisible(false);
+				grid.getDataProvider().refreshAll();
+//					dialog.getFooter().add(verifyAndPublishButton);
+
 			}
 		});
 
@@ -255,5 +285,9 @@ System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		// dialog.getElement().setAttribute("theme", "my-custom-dialog");
 		dialog.open();
 	}
+
+//	public void parseViewInstance(CampaignDataView campaignDataView) {
+//		campaignDataView.reload();
+//	}
 
 }
