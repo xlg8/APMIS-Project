@@ -9721,5 +9721,13 @@ VALUES ('release_date', ''), ('webapp_version', '') ;
 INSERT INTO schema_version (version_number, comment) VALUES (460, 'Providing WebApp Version Number and Release Date By Database');
 
 
+UPDATE campaignformdata
+SET isVerified = true
+WHERE formtype = 'intra-campaign' OR formtype = 'pre-campaign';
+
+INSERT INTO schema_version (version_number, comment) VALUES (461, 'Automatically Verifying Old Intra and Pre Campaign Data');
+
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
