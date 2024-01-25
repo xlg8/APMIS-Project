@@ -175,8 +175,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Header header = new Header(imgApmis);
 
 		Span versionadd = new Span();
+		
+		String releaseDate = FacadeProvider.getInfoFacade().getApmisReleaseDate();
+		
+		String webAppVersionNumber = FacadeProvider.getInfoFacade().getWebAppVersionNumber();
+
 		versionadd.getElement().setProperty("innerHTML", "<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber)
-				+ ": 4.0.0</p><p>" + I18nProperties.getCaption(Captions.releaseDate) + ": 24|Nov|2023</p>");
+				+ ": " + webAppVersionNumber + "</p> <p>" + I18nProperties.getCaption(Captions.releaseDate) + ": " + releaseDate + "</p>" );
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");

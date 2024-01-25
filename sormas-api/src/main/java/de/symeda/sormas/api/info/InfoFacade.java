@@ -23,4 +23,10 @@ import javax.ejb.Remote;
 public interface InfoFacade {
 
 	String generateDataDictionary() throws IOException;
+	
+	String getApmisReleaseDate();
+	
+	String getWebAppVersionNumber();
+	
+	
 }

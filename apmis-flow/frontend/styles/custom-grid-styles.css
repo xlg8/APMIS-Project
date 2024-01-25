@@ -10,4 +10,13 @@
  /*  color: rgb(13, 105, 56) !important;*/
 }
 
+.full-width-column {
+    transition: width 0.3s;
+}
+
+/* Adjust width when column is hovered */
+.full-width-column:hover {
+    width: 100%;
+}
+
 

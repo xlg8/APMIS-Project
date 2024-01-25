@@ -40,6 +40,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String ERROR_STATUS = "error_status";
 	public static final String USER_LANGUAGE = "userLanguage";
 	public static final String USER_TYPE = "usertype";
+	public static final String ISVERIFIED = "isVerified";
 	//for filter
 	
 
@@ -57,6 +58,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private String error_status;
 	private String userLanguage;
 	private String usertype;
+	private Boolean isVerified;
 	// for filter
 
 	
@@ -198,6 +200,14 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public void setUsertype(String usertype) {
 		this.usertype = usertype;
+	}
+
+	public Boolean getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(Boolean isVerified) {
+		this.isVerified = isVerified;
 	}
 	
 	

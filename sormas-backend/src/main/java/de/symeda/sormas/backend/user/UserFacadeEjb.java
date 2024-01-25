@@ -605,7 +605,7 @@ public class UserFacadeEjb implements UserFacade {
 	@Override
 	public List<UserDto> getIndexList(UserCriteria userCriteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
-		System.out.println(max+" ------ "+first);
+	//	System.out.println(max+" ------ "+first);
 		
 //		if(max > 500000) {
 //			max = 50;

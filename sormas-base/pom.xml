@@ -634,7 +634,7 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.geotools</groupId>
+				<groupId>org.geotools-l</groupId>
 				<artifactId>gt-shapefile</artifactId>
 				<version>24.1</version>
 			</dependency>
@@ -1341,5 +1341,6 @@
 		<module>../sormas-ui</module>
 		<module>./dependencies/serverlibs.pom</module>
 		<module>../sormas-cargoserver</module>
+		<module>../apmis-flow</module>
 	</modules>
 </project>

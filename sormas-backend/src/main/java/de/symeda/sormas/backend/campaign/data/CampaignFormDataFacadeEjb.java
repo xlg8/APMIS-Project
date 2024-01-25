@@ -2753,20 +2753,39 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
-	public void verifyCampaignData(List<String> uuids) {
-		
-		for(String uuidx : uuids) {
-//			System.out.println( uuidx + "Each uuid ");
-			System.err.println(uuidx + " verification kicke from backend per uuid");
+	public void verifyCampaignData(List<String> uuids, boolean isUnVerifyingAction) {
+				for(String uuidx : uuids) {
+					
+					if(isUnVerifyingAction) {
+						System.out.println("unverifyyyyyyyyyyyyyyy");
+						campaignFormDataService.unVerifyData(uuidx);
+					}else {
+						System.out.println("verifyyyyyyyyyyyyyyy");
 
-				campaignFormDataService.verify(uuidx);
-//				
-//				String selectUpdateBuilder = "update campaignformdata set isverified = case when isverified = false then true else true end where uuid = ' \n"
-//						+ uuidx +"';";
-//				
-//				
-				
+						campaignFormDataService.verify(uuidx);
+					}
+								
 		}
+		
+	}
+	
+	@Override
+	public boolean getVerifiedStatus(String uuid) {
+
+				
+				CriteriaBuilder cb = em.getCriteriaBuilder();
+				CriteriaQuery<Boolean> cq = cb.createQuery(Boolean.class);
+				Root<CampaignFormData> from = cq.from(CampaignFormData.class);
+
+				cq.where(cb.equal(from.get(CampaignFormData.UUID), uuid)
+//						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
+						);
+				cq.select(from.get(CampaignFormData.ISVERIFIED));
+				boolean count = em.createQuery(cq).getSingleResult();
+				
+				
+				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+				return count;
 		
 	}
 	

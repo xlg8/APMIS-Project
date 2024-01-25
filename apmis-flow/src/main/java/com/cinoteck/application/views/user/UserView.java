@@ -26,6 +26,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -48,6 +49,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -115,9 +117,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	UserCriteria criteria;
 	UserProvider userProvider = new UserProvider();
 	private Grid<UserDto> grid = new Grid<>(UserDto.class, false);
-
-	List<UserDto> usersData = FacadeProvider.getUserFacade().getIndexList(null, null, null, null).stream()
-			.collect(Collectors.toList());
 
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
@@ -571,6 +570,15 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		vlayout.setWidth("98%");
 		add(layout, vlayout);
 	}
+	
+	private String rolesConf(UserDto usrdto) {
+		UserProvider usrProv  = new UserProvider();
+		I18nProperties.setUserLanguage(usrProv.getUser().getLanguage());
+		String value = usrdto.getUserRoles().toString();
+		//System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
+		return value.replace("[", "").replace("]", "")
+				.replace("null,", "").replace("null", "");
+	}
 
 	private void configureGrid() {
 
@@ -600,7 +608,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		Column<UserDto> activeColumn = grid.addColumn(activeRenderer)
 				.setHeader(I18nProperties.getCaption(Captions.User_active)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
-		Column<UserDto> userRolesColumn = grid.addColumn(userRolesRenderer)
+		Column<UserDto> userRolesColumn = grid.addColumn(this::rolesConf)
 				.setHeader(I18nProperties.getCaption(Captions.User_userRoles)).setSortable(true).setAutoWidth(true)
 				.setResizable(true);
 		Column<UserDto> usernameColumn = grid.addColumn(UserDto::getUserName)
@@ -625,7 +633,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		GridExporter<UserDto> exporter = GridExporter.createFor(grid);
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.mainMenuUsers));
-		exporter.setFileName("APMIS_Users_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
+		exporter.setFileName(
+				"APMIS_Users_" + new SimpleDateFormat("ddMMyyyy").format(Calendar.getInstance().getTime()));
 
 		exporter.setExportValue(activeColumn, p -> p.isActive() ? "Yes" : "No");
 		exporter.setExportValue(userRolesColumn, p -> {
@@ -734,7 +743,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		addClassName("editing");
 		String initialUserName = userr.getUserName();
 		userForm.save.addClickListener(event -> userForm.validateAndSaveEdit(userr, initialUserName));
-
 	}
 
 	// new user... dialog with no data in it
@@ -742,11 +750,11 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		isNewUser = true;
 		UserDto user = new UserDto();
-		
+
 		mainContainer.remove(userForm);
 		configureForm(user);
 		mainContainer.add(userForm);
-		
+
 		// configureForm(user); //this make sure the userform dialog is a new container
 		userForm.createPassword.setVisible(false);
 		userForm.setUser(user);
@@ -774,8 +782,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		mainContainer.remove(userForm);
 		configureForm(userr);
 		mainContainer.add(userForm);
-		
-		
+
 		userForm.setVisible(false);
 		setFiltersVisible(true);
 		grid.setVisible(true);
@@ -806,23 +813,69 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		UserDto dto = new UserDto();
 		UserProvider userProvider = new UserProvider();
 
-		if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
-				&& event.getSource().commusr.getValue() == true) {
-			event.getContact().setUsertype(UserType.COMMON_USER);
-		} else if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
-				&& event.getSource().commusr.getValue() == false) {
+//		List<FormAccess> formAccesses = new ArrayList<>(event.getSource().formAccess.getValue());
+//		List<FormAccess> preFormAccesses = new ArrayList<>(event.getSource().preCampformAccess.getValue());
+//		List<FormAccess> intraFormAccesses = new ArrayList<>(event.getSource().intraCampformAccess.getValue());
+//		List<FormAccess> postFormAccesses = new ArrayList<>(event.getSource().postCampformAccess.getValue());
+//
+//
+//
+//		List<FormAccess> formAccessexs = new ArrayList<>();
+//		formAccessexs.addAll(formAccesses);
+//		formAccessexs.addAll(preFormAccesses);
+//		formAccessexs.addAll(intraFormAccesses);
+//		formAccessexs.addAll(postFormAccesses);
+//
+//		System.out.println(formAccessexs.size() + "bfkbskbksbdvkbsdkbvksdbvksdbkvbsdvkjsbkjl");
+//		
+//		if(formAccessexs.size() == 0 ||  formAccessexs.size() < 1) {
+//			Notification notification = Notification.show("Form Access is Required, Please Fill Out a FormAccess");
+//			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//			notification.setPosition(Notification.Position.MIDDLE);
+//			
+//			notification.open();
+			
+//			Notification notification = new Notification();
+//			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//			notification.setPosition(Position.MIDDLE);
+//			Button closeButton = new Button(new Icon("lumo", "cross"));
+//			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+//			closeButton.getElement().setAttribute("aria-label", "Close");
+//			closeButton.addClickListener(eventx -> {
+//				notification.close();
+//			});
+//			
+//			Paragraph text = new Paragraph("Error : Form Access is Required, Please Fill Out a FormAccess to proceed.");
+//
+//			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+//			layout.setAlignItems(Alignment.CENTER);
+//
+//			notification.add(layout);
+//			notification.open();
+//
+//			return;
+			
+//		}else {
+			if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
+					&& event.getSource().commusr.getValue() == true) {
+				event.getContact().setUsertype(UserType.COMMON_USER);
+			} else if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
+					&& event.getSource().commusr.getValue() == false) {
 
-			event.getContact().setUsertype(userProvider.getUser().getUsertype());
-		}
-		System.out.println(event.getContact().getUsertype() + "event user type" + event.getSource().commusr.getValue());
-		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
+				event.getContact().setUsertype(userProvider.getUser().getUsertype());
+			}
+			System.out.println(event.getContact().getUsertype() + "event user type" + event.getSource().commusr.getValue());
+			dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
 
-		if (isNewUser) {
-			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
-		}
-		grid.getDataProvider().refreshAll();
-		closeEditor();
-		;
+			if (isNewUser) {
+				makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
+			}
+			grid.getDataProvider().refreshAll();
+			closeEditor();
+//		}
+
+	
+	
 	}
 
 	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
@@ -1028,7 +1081,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		}
 	}
 
-	
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 
