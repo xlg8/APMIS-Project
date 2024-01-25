@@ -9685,7 +9685,7 @@ insert
 INSERT INTO schema_version (version_number, comment) VALUES (457, 'Admin WHO_User should be able to approve/verify PCM data rows for publication #602');
 
 
-ALTER TABLE public.campaignformmeta ADD archived bool NULL
+ALTER TABLE public.campaignformmeta ADD archived bool default false
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (458, 'Form Builder Requirement Archiving feactionality add');

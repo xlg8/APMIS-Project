@@ -134,6 +134,8 @@ public class User extends AbstractDomainObject {
 	private Language language;
 
 	private boolean hasConsentedToGdpr;
+	
+	private boolean message = false;
 
 	@Column(nullable = false, length = CHARACTER_LIMIT_DEFAULT)
 	public String getUserName() {
@@ -310,6 +312,14 @@ public class User extends AbstractDomainObject {
 
 	public void setAssociatedOfficer(User associatedOfficer) {
 		this.associatedOfficer = associatedOfficer;
+	}	
+	
+	public boolean isMessage() {
+		return message;
+	}
+
+	public void setMessage(boolean message) {
+		this.message = message;
 	}
 
 	@Override
