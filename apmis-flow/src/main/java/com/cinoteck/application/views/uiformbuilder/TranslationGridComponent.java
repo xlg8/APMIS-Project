@@ -481,17 +481,19 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		return vrsub;
 	}
-	
+
 	public void congigureElementId() {
-		
+
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
-		
-		for (CampaignFormElement campaignFormElement : listofelements) {
-			listofthem.add(campaignFormElement.getId());
+
+		if (campaignFormMetaDto.getCampaignFormElements() != null) {
+			for (CampaignFormElement campaignFormElement : listofelements) {
+				listofthem.add(campaignFormElement.getId());
+			}
 		}
-		
-		elementId.setItems(listofthem);	
+
+		elementId.setItems(listofthem);
 	}
 
 	public List<CampaignFormTranslations> getGridData() {

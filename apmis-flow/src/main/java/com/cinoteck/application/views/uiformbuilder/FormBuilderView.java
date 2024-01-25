@@ -98,8 +98,8 @@ public class FormBuilderView extends VerticalLayout {
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		filterDataProvider.setFilter(criteria);
-
 		filterDataProvider.refreshAll();
+		
 		configureView();
 		configureGrid();
 		setHeightFull();
@@ -420,7 +420,6 @@ public class FormBuilderView extends VerticalLayout {
 	}
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
-
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
 
