@@ -2,17 +2,25 @@ package de.symeda.sormas.rest;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opencsv.CSVWriter;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -23,12 +31,14 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.report.CampaignDataExtractDto;
+//import de.symeda.sormas.backend.campaign.data.CampaignFormData;
 
 @Path("/apmisrestserver")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 //@Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 @RolesAllowed({ "USER", "REST_USER", })
 public class ApmisCampaignResource {// extends EntityDtoResource {
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@GET
 	@Path("/campaigns")
@@ -66,7 +76,7 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 				.getCampaignFormDataExtractApi(campaign_uuid, form_uuid);
 		return lstdto;
 	}
-	
+
 	@GET
 	@Path("/pivotAnalysis/json")
 	public List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi() {
@@ -86,7 +96,7 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 
 		return Response.ok(csv).header("Content-Disposition", "attachment; filename=Extractdata.csv").build();
 	}
-	
+
 	@GET
 	@Path("/all/csv")
 	@Produces("text/csv")
@@ -97,7 +107,7 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 
 		return Response.ok(csv).header("Content-Disposition", "attachment; filename=Extractdata.csv").build();
 	}
-	
+
 	@GET
 	@Path("/all/json")
 	public List<CampaignDataExtractDto> getCampaignFormData() {
@@ -105,7 +115,7 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 				.getCampaignFormDataExtractApi(null, null);
 		return lstdto;
 	}
-	
+
 	private String toExtractCsv(List<CampaignDataExtractDto> data) {
 
 		StringWriter stringWriter = new StringWriter();
@@ -116,14 +126,16 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 			// String formUuid, String formId, String formField, String formCaption, String
 			// area,String region, String district, Long sumValue
 
-			String[] header = { "Year", "Campaign", "Region", "Province", "District", "Cluster", "ClusterNumber", "Form", "FieldId", "Value" };
+			String[] header = { "Year", "Campaign", "Region", "Province", "District", "Cluster", "ClusterNumber",
+					"Form", "FieldId", "Value" };
 			writer.writeNext(header);
 
 			// Add the data rows
 			for (CampaignDataExtractDto formData : data) {
-				String[] row = {formData.getCampaignyear(), formData.getCampaign(), formData.getArea(), formData.getRegion(), formData.getDistrict(), formData.getCummunity(), 
-						formData.getClusternumber()+"", formData.getFormname(), formData.getKey(), formData.getValue()
-						};
+				String[] row = { formData.getCampaignyear(), formData.getCampaign(), formData.getArea(),
+						formData.getRegion(), formData.getDistrict(), formData.getCummunity(),
+						formData.getClusternumber() + "", formData.getFormname(), formData.getKey(),
+						formData.getValue() };
 				writer.writeNext(row);
 			}
 
@@ -178,24 +190,28 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 			throw new RuntimeException("Error converting data to CSV", e);
 		}
 	}
-	
+
 	@GET
 	@Path("/campaignformdata")
-	public List<CampaignFormDataDto> getAllCampaignFormDataWithoutTime() {
-		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData();
+	public List<CampaignFormDataDto> getAllCampaignFormDataWithoutTime(@QueryParam("fetchDataFromIndex") Integer first,
+			@QueryParam("dataFetchSize") Integer max) {
+
+		logger.debug(max + " <--max first -> " + first);
+
+		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData(first, max);
+
 	}
-	
+
 	@GET
 	@Path("/campaignsdata")
 	public List<CampaignDto> getAllCampaignData() {
 		return FacadeProvider.getCampaignFacade().getAllActive();
 	}
-	
+
 	@GET
 	@Path("/populationdata")
 	public List<PopulationDataDto> getAllPopulationData() {
 		return FacadeProvider.getPopulationDataFacade().getAllPopulationData();
 	}
-
 
 }

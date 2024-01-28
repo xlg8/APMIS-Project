@@ -20,15 +20,18 @@
 
 package de.symeda.sormas.backend.campaign.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
@@ -316,7 +319,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActiveData() {
+	public List<CampaignFormData> getAllActiveData(Integer first, Integer max) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
 		Root<CampaignFormData> from = cq.from(getElementClass());
@@ -329,11 +332,19 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 //		}
 
 		cq.where(filter);
-		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CREATION_DATE)));
+		cq.orderBy(cb.asc(from.get(AbstractDomainObject.ID)));
 
-		System.out.println("ttttttttttttttttttttttttttyyyy " + SQLExtractor.from(em.createQuery(cq)));
+		TypedQuery<CampaignFormData> query = em.createQuery(cq);
 
-		return em.createQuery(cq).getResultList();
+		// Set the first result and max results
+		query.setFirstResult(first != null && first <= max ? first : 0);
+		query.setMaxResults(max != null ? max : Integer.MAX_VALUE);
+
+		logger.debug("ttttttttttttttttttttttttttyyyy " + first + "<-----firsy max ----->" + max
+				+ SQLExtractor.from(em.createQuery(cq)));
+		return query.getResultList();
+
+//		return em.createQuery(cq).getResultList();
 	}
 
 	public List<CampaignFormData> getByCampaignFormMeta_id(Long meta_id) {
