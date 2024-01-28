@@ -225,7 +225,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setAlignItems(Alignment.END);
-
+		I18nProperties.setDefaultLanguage(userProvider.getUser().getLanguage());
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 

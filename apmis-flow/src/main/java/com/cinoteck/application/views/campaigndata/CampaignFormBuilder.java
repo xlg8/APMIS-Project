@@ -1691,11 +1691,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			if (hideNt) {
 				component.setVisible(hideNt);
-				// getElement().setProperty("required", requiredIndicatorVisible);
-				component.getElement().setProperty("required", isRequiredField);
+				((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
 			} else {
 				component.setVisible(hideNt);
-				component.getElement().setProperty("required", false);
+				((TextField) component).setValue(" ");
+				((TextField) component).setValue("");
+				((AbstractField) component).setRequiredIndicatorVisible(false);
 			}
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
@@ -1703,6 +1704,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						typex);
 
 				component.setVisible(visible);
+				
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
 						
@@ -1721,7 +1723,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					} else {
 						component.setVisible(visible);
 						((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
-						component.getElement().setProperty("required", isRequiredField);
 					}
 				}
 			});
@@ -1738,6 +1739,22 @@ public class CampaignFormBuilder extends VerticalLayout {
 //			} else {
 //				component.getElement().setProperty("required", false);
 //			}
+			
+			if (hide) {
+				component.setVisible(hide);
+				((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
+			} else {
+				
+				if (typex == CampaignFormElementType.TEXT) {
+					((TextField) component).setValue(" ");
+					((TextField) component).setValue("");
+				} else {
+
+					((AbstractField) component).setValue(null);
+				}
+				((AbstractField) component).setRequiredIndicatorVisible(false);
+				component.setVisible(hide);
+			}
 
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
