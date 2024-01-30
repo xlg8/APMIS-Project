@@ -163,4 +163,6 @@ public interface CampaignFormDataFacade {
 
 	boolean getVerifiedStatus(String uuid);
 
+	Integer getAllActiveDataTotalRowCount();
+
 }

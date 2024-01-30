@@ -1731,6 +1731,14 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
+	public Integer getAllActiveDataTotalRowCount() {
+		StringBuilder selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata  where archived = false");
+		BigInteger inte = (BigInteger) em.createNativeQuery(selectBuilder.toString()).getSingleResult();
+		return (int) inte.longValue();
+		
+		}
+	
+	@Override
 	public List<CampaignFormDataDto> getAllActiveRef() {
 		if (userService.getCurrentUser() == null) {
 			return Collections.emptyList();

@@ -195,10 +195,14 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 	@Path("/campaignformdata")
 	public List<CampaignFormDataDto> getAllCampaignFormDataWithoutTime(@QueryParam("fetchDataFromIndex") Integer first,
 			@QueryParam("dataFetchSize") Integer max) {
-
-		logger.debug(max + " <--max first -> " + first);
-
 		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData(first, max);
+
+	}
+	
+	@GET
+	@Path("/campaignformdatacount")
+	public Integer getCountAllCampaignFormDataWithoutTime() {
+		return FacadeProvider.getCampaignFormDataFacade().getAllActiveDataTotalRowCount();
 
 	}
 

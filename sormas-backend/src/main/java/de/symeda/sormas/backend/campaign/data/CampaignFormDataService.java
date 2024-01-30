@@ -74,6 +74,7 @@ import de.symeda.sormas.backend.person.Person;
 import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.JurisdictionHelper;
+import de.symeda.sormas.backend.util.QueryHelper;
 import de.symeda.sormas.utils.CaseJoins;
 
 @Stateless
@@ -319,33 +320,32 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActiveData(Integer first, Integer max) {
-		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		public List<CampaignFormData> getAllActiveData(Integer first, Integer max) {
+			
+			List<CampaignFormData> emptyList = new ArrayList<>();
+			if (max > 1000 || max == null || first == null ||max < 0 || first < 0) {
+				return emptyList;
+			}
+			
+			
+			
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
+			Root<CampaignFormData> from = cq.from(getElementClass());
+	
+			Predicate filter = cb.and();
+	
+			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
 
-		Predicate filter = cb.and();
-
-//		if (getCurrentUser() != null) {
-//			Predicate userFilter = createUserFilter(cb, cq, from);
-		filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
-//		}
-
-		cq.where(filter);
-		cq.orderBy(cb.asc(from.get(AbstractDomainObject.ID)));
-
-		TypedQuery<CampaignFormData> query = em.createQuery(cq);
-
-		// Set the first result and max results
-		query.setFirstResult(first != null && first <= max ? first : 0);
-		query.setMaxResults(max != null ? max : Integer.MAX_VALUE);
-
-		logger.debug("ttttttttttttttttttttttttttyyyy " + first + "<-----firsy max ----->" + max
-				+ SQLExtractor.from(em.createQuery(cq)));
-		return query.getResultList();
-
-//		return em.createQuery(cq).getResultList();
-	}
+	
+			cq.where(filter);
+			cq.orderBy(cb.asc(from.get(AbstractDomainObject.ID)));
+			logger.debug("ttttttttttttttttttttttttttyyyy " + first + "<-----firsy max ----->" + max
+					+ SQLExtractor.from(em.createQuery(cq)));
+			return QueryHelper.getResultList(em, cq, first, max);
+	
+	//		return em.createQuery(cq).getResultList();
+		}
 
 	public List<CampaignFormData> getByCampaignFormMeta_id(Long meta_id) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
