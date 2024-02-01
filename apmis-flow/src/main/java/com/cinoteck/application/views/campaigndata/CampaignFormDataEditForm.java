@@ -209,14 +209,19 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		if (usr.getUser().getUsertype() == UserType.WHO_USER) {
 			if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
 
-				if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
-					dialog.getFooter().add(verifyAndPublishButton);
-					// data is not verified
+				System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
+				if (uuidForm != null) {
+					if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+						dialog.getFooter().add(verifyAndPublishButton);
+						// data is not verified
 
-					dataPublishNotificationCheck = false;
-				} else {
-					dialog.getFooter().add(unVerifyAndUnPublishButton);
+						dataPublishNotificationCheck = false;
+					} else {
+						dialog.getFooter().add(unVerifyAndUnPublishButton);
 
+					}
+				}else {
+					
 				}
 
 			}
