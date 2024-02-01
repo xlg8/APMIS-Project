@@ -49,6 +49,7 @@ android {
         exclude 'META-INF/license.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/spring.*'
+        exclude 'META-INF/DEPENDENCIES'
     }
     dataBinding {
         enabled = true

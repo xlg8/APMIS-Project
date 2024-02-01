@@ -723,4 +723,11 @@ vaadin-checkbox.custom-checkbox-class:checked {
 
 tfoot#footer {
       display: none;
-    }
+}
+
+.formaccesschkbox{
+	font-weight: 400;
+    letter-spacing: 0.5px;
+    font-family: Lato;
+    color: green !important;
+}    
