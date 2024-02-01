@@ -24,6 +24,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -33,6 +34,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
@@ -134,9 +136,9 @@ public class UserForm extends FormLayout {
 			I18nProperties.getCaption(Captions.User_userRoles));
 
 	CheckboxGroup<FormAccess> formAccess = new CheckboxGroup<>();
-	CheckboxGroup<FormAccess> preCampformAccess = new CheckboxGroup<>();
-	CheckboxGroup<FormAccess> intraCampformAccess = new CheckboxGroup<>();
-	CheckboxGroup<FormAccess> postCampformAccess = new CheckboxGroup<>();
+//	CheckboxGroup<FormAccess> preCampformAccess = new CheckboxGroup<>();
+//	CheckboxGroup<FormAccess> intraCampformAccess = new CheckboxGroup<>();
+//	CheckboxGroup<FormAccess> postCampformAccess = new CheckboxGroup<>();
 
 	ComboBox<Language> language = new ComboBox<>(I18nProperties.getCaption(Captions.language));
 
@@ -244,16 +246,16 @@ public class UserForm extends FormLayout {
 //		this.setColspan(userRoles, 1);
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
-		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
-		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
+//		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign + " :"));
+//		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign + " :"));
+//		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign + " :"));
 		binder.forField(formAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
-		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-
-		binder.forField(intraCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
-
-		binder.forField(postCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+//		binder.forField(preCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+//
+//		binder.forField(intraCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
+//
+//		binder.forField(postCampformAccess).bind(UserDto::getFormAccess, UserDto::setFormAccess);
 
 		binder.forField(language).asRequired("Language is Required").bind(UserDto::getLanguage, UserDto::setLanguage);
 
@@ -499,14 +501,14 @@ public class UserForm extends FormLayout {
 		});
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
-		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
-		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
+//		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
+//		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
+//		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
 
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-		preCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-		intraCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-		postCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+//		preCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+//		intraCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
+//		postCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
 
 //		formAccess.addSelectionListener(this::handleSelectionChange);
 //		preCampformAccess.addSelectionListener(this::handleSelectionChange);
@@ -520,50 +522,68 @@ public class UserForm extends FormLayout {
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccessesList.add(FormAccess.ARCHIVE);
-			preCampformAccessesList.add(FormAccess.FLW);
-			preCampformAccessesList.add(FormAccess.TRAINING);
-			intraCampformAccessesList.add(FormAccess.ICM);
-			intraCampformAccessesList.add(FormAccess.ADMIN);
-			intraCampformAccessesList.add(FormAccess.EAG_ICM);
-			intraCampformAccessesList.add(FormAccess.EAG_ADMIN);
-			postCampformAccessesList.add(FormAccess.PCA);
-			postCampformAccessesList.add(FormAccess.FMS);
-			postCampformAccessesList.add(FormAccess.LQAS);
-			postCampformAccessesList.add(FormAccess.EAG_PCA);
-			postCampformAccessesList.add(FormAccess.EAG_FMS);
-			postCampformAccessesList.add(FormAccess.EAG_LQAS);
+			formAccessesList.add(FormAccess.FLW);
+			formAccessesList.add(FormAccess.TRAINING);
+			formAccessesList.add(FormAccess.ICM);
+			formAccessesList.add(FormAccess.ADMIN);
+			formAccessesList.add(FormAccess.EAG_ICM);
+			formAccessesList.add(FormAccess.EAG_ADMIN);
+			formAccessesList.add(FormAccess.PCA);
+			formAccessesList.add(FormAccess.FMS);
+			formAccessesList.add(FormAccess.LQAS);
+			formAccessesList.add(FormAccess.EAG_PCA);
+			formAccessesList.add(FormAccess.EAG_FMS);
+			formAccessesList.add(FormAccess.EAG_LQAS);
 			formAccess.setItems(formAccessesList);
-			preCampformAccess.setItems(preCampformAccessesList);
-			intraCampformAccess.setItems(intraCampformAccessesList);
-			postCampformAccess.setItems(postCampformAccessesList);
+			//preCampformAccess.setItems(preCampformAccessesList);
+		//	intraCampformAccess.setItems(intraCampformAccessesList);
+		//	postCampformAccess.setItems(postCampformAccessesList);
 		} else {
-			preCampformAccessesList.remove(FormAccess.FLW);
-			preCampformAccessesList.remove(FormAccess.TRAINING);
-			postCampformAccessesList.remove(FormAccess.PCA);
-			postCampformAccessesList.remove(FormAccess.LQAS);
-			postCampformAccessesList.remove(FormAccess.FMS);
+			formAccessesList.remove(FormAccess.FLW);
+			formAccessesList.remove(FormAccess.TRAINING);
+			formAccessesList.remove(FormAccess.PCA);
+			formAccessesList.remove(FormAccess.LQAS);
+			formAccessesList.remove(FormAccess.FMS);
 
 			formAccessesList.add(FormAccess.ARCHIVE);
+		//	formAccess.setItems(formAccessesList);
+			//preCampformAccess.setVisible(false);
+			formAccessesList.add(FormAccess.ICM);
+			formAccessesList.add(FormAccess.ADMIN);
+			formAccessesList.add(FormAccess.EAG_ICM);
+			formAccessesList.add(FormAccess.EAG_ADMIN);
+			//intraCampformAccess.setItems(intraCampformAccessesList);
+			//postCampformAccess.setVisible(false);
+			
 			formAccess.setItems(formAccessesList);
-			preCampformAccess.setVisible(false);
-			intraCampformAccessesList.add(FormAccess.ICM);
-			intraCampformAccessesList.add(FormAccess.ADMIN);
-			intraCampformAccessesList.add(FormAccess.EAG_ICM);
-			intraCampformAccessesList.add(FormAccess.EAG_ADMIN);
-			intraCampformAccess.setItems(intraCampformAccessesList);
-			postCampformAccess.setVisible(false);
 		}
 //		commusr.setValue(isCommonUser);
-
+		
+		Div formAccessCheckers = new Div();
+//		Div formAccessPre = new Div();
+//		Div formAccessIntra = new Div();
+//		Div formAccessPost = new Div();
+//		
+//		formAccessesList.add(FormAccess.ARCHIVE);
+//		formAccessesList.remove(FormAccess.FLW);
+//		formAccessesList.remove(FormAccess.TRAINING);
+//		
+//		
+//		formAccessPre.add(formAccessesList.stream().filter(null);
+		formAccessCheckers.add(formAccess);
+		
+		
+		
+		
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
 		district.setWidthFull();
 
 		VerticalLayout otherFormField = new VerticalLayout(language, region, province, district);
-
-		VerticalLayout formAccessParentLayout = new VerticalLayout(formAccess, preCampformAccess, intraCampformAccess,
-				postCampformAccess);
+		formAccess.setId("formaccesschkid");
+		VerticalLayout formAccessParentLayout = new VerticalLayout(formAccess);//, preCampformAccess, intraCampformAccess,
+			//	postCampformAccess);
 		formAccessParentLayout.setPadding(false);
 		formAccessParentLayout.setSpacing(false);
 		HorizontalLayout allFieldLayout = new HorizontalLayout(formAccessParentLayout, otherFormField);
@@ -573,6 +593,35 @@ public class UserForm extends FormLayout {
 				activeCheck, commusr, userRoles, allFieldLayout, districtMulti, clusterNo);
 
 		createButtonsLayout();
+		String checkBoxDivider =
+				"var parentDiv = document.getElementById(\"formaccesschkid\");\n"
+				+ "if (parentDiv) {\n"
+				+ "var children = parentDiv.querySelectorAll(\"vaadin-checkbox\");\n"
+				+ "for (var i = 0; i < children.length; i++) {\n"
+				+ "console.log(children[i]);\n"
+				+ "if (i === 0) {\n"
+				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Pre-Campaign</b><hr>';\n"
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
+				+ "}\n"
+				
+				+ "if (i === 2) {\n"
+				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Intra-Campaign</b><hr>';\n"
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
+				+ "}\n"
+							
+								
+				+ "if (i === 6) {\n"
+				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Post-Campaign</b><hr>';\n"
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
+				+ "}\n"
+				
+				+"}}";
+		
+		
+		
+		UI.getCurrent().getPage().executeJs(checkBoxDivider);
+		
+		
 	}
 
 	public void updatePasswordDialog() {
@@ -656,18 +705,18 @@ public class UserForm extends FormLayout {
 
 	private void handleSelectionChange(SelectionEvent<CheckboxGroup<FormAccess>, FormAccess> event) {
 	
-		if(formAccess.getSelectedItems().size() > 0){
-			formAccess.deselectAll();
-		}
-		if(preCampformAccess.getSelectedItems().size() > 0){
-			preCampformAccess.deselectAll();
-		}
-		if(intraCampformAccess.getSelectedItems().size() > 0){
-			intraCampformAccess.deselectAll();
-		}
-		if(postCampformAccess.getSelectedItems().size() > 0){
-			postCampformAccess.deselectAll();
-		}
+//		if(formAccess.getSelectedItems().size() > 0){
+//			formAccess.deselectAll();
+//		}
+//		if(preCampformAccess.getSelectedItems().size() > 0){
+//			preCampformAccess.deselectAll();
+//		}
+//		if(intraCampformAccess.getSelectedItems().size() > 0){
+//			intraCampformAccess.deselectAll();
+//		}
+//		if(postCampformAccess.getSelectedItems().size() > 0){
+//			postCampformAccess.deselectAll();
+//		}
 
 	}
 

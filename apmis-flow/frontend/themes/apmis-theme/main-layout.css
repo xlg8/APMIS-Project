@@ -28,14 +28,15 @@ vaadin-app-layout {
 	display: none !important;
 }
 
-#tabsheetParent vaadin-tabs{
+#tabsheetParent vaadin-tabs {
 	background: rgb(67, 67, 67) !important;
 }
+
 vaadin-drawer-toggle[slot="navbar"] {
 	color: white;
 }
 
-#formControls{
+#formControls {
 	flex-grow: 0 !important;
 }
 
@@ -184,8 +185,6 @@ vcf-nav-item#navitem:hover, vcf-nav-item#navitem:focus-visible {
 	text-shadow: none !important;
 }
 
-
-
 vaadin-vertical-layout {
 	padding: 0 !important;
 }
@@ -199,7 +198,6 @@ vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a {
 	background: #F08F3E !important;
 	color: white !important;
 }*/
-
 input {
 	font-weight: 300;
 }
@@ -285,8 +283,8 @@ a:active {
 	transition: none;
 }
 
-vaadin-password-field-button{
-	background : none !important;
+vaadin-password-field-button {
+	background: none !important;
 }
 
 a:hover {
@@ -439,7 +437,7 @@ vaadin-text-field#loginUsername .vaadin-field-container vaadin-input-container
 	border: none !important;
 }
 
-html { 
+html {
 	-vcf-nav-child-indent: var(- -lumo-space-m);
 }
 
@@ -470,7 +468,7 @@ vcf-nav-item::part(item) {
 
 #forgotPasswordButton {
 	color: green !important;
-} 
+}
 
 .vieLangiuageSwitcher  vaadin-button {
 	color: #0D6938 !important;
@@ -520,105 +518,101 @@ vaadin-dialog-overlay.dialog-alignment::part(header) {
 }
 
 .wrap-button-label {
-    white-space: normal;
+	white-space: normal;
 }
 
-
-.exportJsonGLoss{
-    padding: 3px 15px;
-    font-weight: 600;
-    border-radius: 5px;
-    height: 2.3em;
-    margin-top: 6px;
-    background: rgb(13, 105, 56) !important;
-    color: white !important;
-    width: 7em;
-	
+.exportJsonGLoss {
+	padding: 3px 15px;
+	font-weight: 600;
+	border-radius: 5px;
+	height: 2.3em;
+	margin-top: 6px;
+	background: rgb(13, 105, 56) !important;
+	color: white !important;
+	width: 7em;
 }
 
-.exportJsonGLoss2{
-    padding: 5px 15px;
-    font-weight: 600;
-    border-radius: 5px;
-    height: 2.3em;
-    margin-top: 6px;
-    background: rgb(13, 105, 56) !important;
-    color: white !important;
-    width: 17%;
-	
+.exportJsonGLoss2 {
+	padding: 5px 15px;
+	font-weight: 600;
+	border-radius: 5px;
+	height: 2.3em;
+	margin-top: 6px;
+	background: rgb(13, 105, 56) !important;
+	color: white !important;
+	width: 17%;
 }
 
 .contact-form {
 	margin-left: 30px;
 	margin-right: 30px;
+}
 
-}
-.exportJsonGLoss{
+.exportJsonGLoss {
 	background: #0D6938 !important;
 	color: white !important;
-    padding: 3px;
-    font-weight: 600;
-    border-radius: 5px;
-    height: 2.2em;
-    margin-top: 6px;
-    padding-left : 15px;
-    padding-right : 15px;
+	padding: 3px;
+	font-weight: 600;
+	border-radius: 5px;
+	height: 2.2em;
+	margin-top: 6px;
+	padding-left: 15px;
+	padding-right: 15px;
 }
-.exportJsonGLoss:hover{
+
+.exportJsonGLoss:hover {
 	background: #0D6938 !important;
 	color: white !important;
-    text-decoration: none;
+	text-decoration: none;
 }
 
 vaadin-horizontal-layout[fcgh-footer] {
-  background-color: green;
+	background-color: green;
 }
 
 .custom-dialog {
-    width: 385px;
-
+	width: 385px;
 }
 
-:host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
-    color: white;
-    background: none!important;
+:host(:not([theme~="tertiary"]):not([theme~="primary"]):not([theme~="error"]):not([theme~="success"]))
+	{
+	color: white;
+	background: none !important;
 }
 
-.backButtonText{
+.backButtonText {
 	color: #0D6938 !important;
 	font-weight: 600;
 }
 
-.backButton{
+.backButton {
 	color: #0D6938 !important;
-	
 }
 
-#backLayout{
+#backLayout {
 	width: none !important;
 	justify-content: flex-start;
 }
 
-#campDatAnchor{
-	    margin-bottom: 7px;
-    height: 32px;
-    border-radius: 4px;
+#campDatAnchor {
+	margin-bottom: 7px;
+	height: 32px;
+	border-radius: 4px;
 }
 
-#exportArea{
-
+#exportArea {
 	width: 100px;
-    margin-bottom: 6px;
+	margin-bottom: 6px;
 }
 
-#exportProvince{
+#exportProvince {
 	width: 100px;
-    margin-bottom: 6px;
+	margin-bottom: 6px;
 }
 
-#exportCluster{
+#exportCluster {
 	width: 100px;
-    margin-bottom: 6px;
+	margin-bottom: 6px;
 }
 
 vaadin-vertical-layout::-webkit-scrollbar {
@@ -631,69 +625,67 @@ vaadin-vertical-layout::-webkit-scrollbar {
 	color: #0D6938 !important;
 }
 
-
-.login-information{
+.login-information {
 	background-color: #0f4502a3;
 }
 
-vaadin-button{
-   cursor: pointer;
-   }
+vaadin-button {
+	cursor: pointer;
+}
+
 vaadin-button:hover {
-  opacity: 0.6;
-  box-shadow: 0 5px 7px 0 rgba(0,0,0,0.24), 0 2px 5px 0 rgba(0,0,0,0.19);
+	opacity: 0.6;
+	box-shadow: 0 5px 7px 0 rgba(0, 0, 0, 0.24), 0 2px 5px 0
+		rgba(0, 0, 0, 0.19);
 }
 
 .v-button {
-   cursor: pointer;
-   }
-   
+	cursor: pointer;
+}
 
 a:hover {
-    color: white!important;
+	color: white !important;
 }
 
-
-vaadin-dialog-overlay.form{
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
-    outline: 0px solid transparent;
+vaadin-dialog-overlay.form {
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	outline: 0px solid transparent;
 }
-    
-vaadin-checkbox.custom-checkbox-class{
+
+vaadin-checkbox.custom-checkbox-class {
 	border: 1px solid green;
 }
 
-vaadin-checkbox.custom-checkbox-class label{
+vaadin-checkbox.custom-checkbox-class label {
 	margin-bottom: 0px !important;
 }
 
-.login-form-carrier{
+.login-form-carrier {
 	width: 350px !important;
-    display: flex;
-    align-items: center;
-    background: #e8f0fe;
+	display: flex;
+	align-items: center;
+	background: #e8f0fe;
 }
 
-.my-custom-label-style{
-	-webkit-text-fill-color : red !important;
+.my-custom-label-style {
+	-webkit-text-fill-color: red !important;
 }
 
 vaadin-button#lougoutButton:hover {
-	   opacity: 1 !important;
-	  background: rgb(109, 93, 79) !important;
-  box-shadow: none !important;
+	opacity: 1 !important;
+	background: rgb(109, 93, 79) !important;
+	box-shadow: none !important;
 }
 
 vaadin-checkbox.custom-checkbox-class:checked {
-   background-color: aquamarine;
+	background-color: aquamarine;
 }
 
-.selected-row{
-	   background-color: green !important;
-	
+.selected-row {
+	background-color: green !important;
 }
 /*
 .uibuilderview {
@@ -701,31 +693,37 @@ vaadin-checkbox.custom-checkbox-class:checked {
 	margin-right: 20px;
 }
 */
-.dialog-headers{
-	display : flex;
-	width : 100%;
+.dialog-headers {
+	display: flex;
+	width: 100%;
 }
 
-.headingText{
-	margin : 0px;
-	width : 100%;
+.headingText {
+	margin: 0px;
+	width: 100%;
 }
 
-.close-icon-dialog{
+.close-icon-dialog {
 	color: red !important;
-	align-self : center;
-	font-size :  9px
+	align-self: center;
+	font-size: 9px
 }
 
 .toggle-button-group[invalid] {
-    background-color: #ffe5e5;
+	background-color: #ffe5e5;
 }
 
 tfoot#footer {
-      display: none;
-    }
-    
+	display: none;
+}
 
-#formbuildertab vaadin-tabs{
+#formbuildertab vaadin-tabs {
 	background: rgb(67, 67, 67) !important;
+}
+
+.formaccesschkbox {
+	font-weight: 400;
+	letter-spacing: 0.5px;
+	font-family: Lato;
+	color: green !important;
 }

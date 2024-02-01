@@ -290,7 +290,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 
 	@Override
 	public List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser) {
-		
+
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
 		Root<CampaignFormData> root = cq.from(CampaignFormData.class);
@@ -304,15 +304,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
-				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
-				root.get(CampaignFormData.FORM_VALUES),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME), root.get(CampaignFormData.FORM_VALUES),
 				areaJoin.get(Area.NAME), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.NAME),
 				regionJoin.get(Region.EXTERNAL_ID), districtJoin.get(District.NAME),
 				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
 				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
 				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
 				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
-		
+
 		cq.where(cb.and(cb.equal(userJoin.get(User.USER_NAME), creatingUser)));
 		return em.createQuery(cq).getResultList();
 	}
@@ -377,7 +376,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
 		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
-		
 
 		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME),
@@ -401,8 +399,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
-				
-			System.out.println(sortProperty.propertyName + "sortinpropertynaem ");
+
+				System.out.println(sortProperty.propertyName + "sortinpropertynaem ");
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormDataIndexDto.UUID:
@@ -445,13 +443,13 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
 					break;
-					
+
 				case CampaignFormDataIndexDto.FORM_VALUES:
 					System.out.println("formvaluee eee");
 					expression = root.get(sortProperty.propertyName);
 					break;
 				default:
-					
+
 					System.out.println("defaulttttttt");
 
 					expression = root.get(CampaignFormData.FORM_VALUES + "->> '" + sortProperty.propertyName + "'");
@@ -463,9 +461,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 			cq.orderBy(order);
 		} else {
 			cq.orderBy(cb.desc(root.get(CampaignFormData.CHANGE_DATE)));
-		} 
-		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " +
-			 SQLExtractor.from(em.createQuery(cq)));
+		}
+		System.out.println("DEBUGGER r567ujhgty8ijyu8dfrf this query " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max);
 	}
@@ -1728,10 +1725,18 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
-	public List<CampaignFormDataDto> getAllActiveData() {
+	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max) {
 	
-		return campaignFormDataService.getAllActiveData().stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+		return campaignFormDataService.getAllActiveData(first, max).stream().map(c -> convertToDto(c)).collect(Collectors.toList());
 	}
+	
+	@Override
+	public Integer getAllActiveDataTotalRowCount() {
+		StringBuilder selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata  where archived = false");
+		BigInteger inte = (BigInteger) em.createNativeQuery(selectBuilder.toString()).getSingleResult();
+		return (int) inte.longValue();
+		
+		}
 	
 	@Override
 	public List<CampaignFormDataDto> getAllActiveRef() {
