@@ -397,7 +397,7 @@ public class MessagingView extends VerticalLayout {
 			HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
 			post.setEntity(postingString);
 			post.addHeader("Content-type", "application/json");
-			post.addHeader("Authorization", "key=AAAA6WgmWr4:APA91bHs3bQ5tvmXzyNt8xBhxHk6AwSjAFyAfypRl-1aOO2NYnfn9_d5khmLmqWdsbfePdyVDIzTggQTOl03KkHnHWdoXF-q7t1Zmx7jrwzVVvz4QJonxp5qnvhKcWD9_yKeY-IvMPuz");
+			post.addHeader("Authorization", "key=");
 			StringBuilder result = new StringBuilder();
 			CloseableHttpResponse response = client.execute(post);
 
