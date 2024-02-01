@@ -22,7 +22,9 @@ import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
 import com.cinoteck.application.views.user.UserForm.UserRoleCustomComparator;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -269,13 +271,14 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		menuBar.setVisible(false);
 		MenuItem item = menuBar.addItem(I18nProperties.getCaption(Captions.bulkActions));
 		SubMenu subMenu = item.getSubMenu();
-		Checkbox enable = new Checkbox(I18nProperties.getCaption(Captions.actionEnable));
-		Checkbox disable = new Checkbox(I18nProperties.getCaption(Captions.actionDisable));
-		subMenu.addItem(enable);
-		subMenu.addItem(disable);
+
+		subMenu.addItem(I18nProperties.getCaption(Captions.actionEnableUsers), e -> enableUserPopup());
+		subMenu.addItem(I18nProperties.getCaption(Captions.actionDisableUsers), e -> disableUserPopup());
+		subMenu.addItem(I18nProperties.getCaption(Captions.actionBulkEditUserFormFields), e -> handleUserBulkEditDialog(grid.getSelectedItems(), userDto));
+
 		menuBar.getStyle().set("margin-top", "5px");
-		enable.addClickListener(e -> enableUserPopup());
-		disable.addClickListener(e -> disableUserPopup());
+//		enable.addClickListener(e -> enableUserPopup());
+//		disable.addClickListener(e -> disableUserPopup());
 		layout.add(menuBar);
 
 		layout.setPadding(false);
@@ -570,14 +573,42 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		vlayout.setWidth("98%");
 		add(layout, vlayout);
 	}
-	
+
+	public void handleUserBulkEditDialog(Set<UserDto> selectedItems, UserDto userDto) {
+		if(selectedItems.size() == 0 || selectedItems.size() <1) {
+
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
+
+			Paragraph text = new Paragraph("Error : Please Select at least 1 user to proceed with the bulk edit process.");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
+			return;
+		}else {
+			BulkUsersEditDataDialog bulkUsersEditDataDialog = new BulkUsersEditDataDialog(selectedItems, userDto);
+			bulkUsersEditDataDialog.open();
+
+		}
+
+	}
+
 	private String rolesConf(UserDto usrdto) {
-		UserProvider usrProv  = new UserProvider();
+		UserProvider usrProv = new UserProvider();
 		I18nProperties.setUserLanguage(usrProv.getUser().getLanguage());
 		String value = usrdto.getUserRoles().toString();
-		//System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
-		return value.replace("[", "").replace("]", "")
-				.replace("null,", "").replace("null", "");
+		// System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
 	}
 
 	private void configureGrid() {
@@ -813,69 +844,24 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		UserDto dto = new UserDto();
 		UserProvider userProvider = new UserProvider();
 
-//		List<FormAccess> formAccesses = new ArrayList<>(event.getSource().formAccess.getValue());
-//		List<FormAccess> preFormAccesses = new ArrayList<>(event.getSource().preCampformAccess.getValue());
-//		List<FormAccess> intraFormAccesses = new ArrayList<>(event.getSource().intraCampformAccess.getValue());
-//		List<FormAccess> postFormAccesses = new ArrayList<>(event.getSource().postCampformAccess.getValue());
-//
-//
-//
-//		List<FormAccess> formAccessexs = new ArrayList<>();
-//		formAccessexs.addAll(formAccesses);
-//		formAccessexs.addAll(preFormAccesses);
-//		formAccessexs.addAll(intraFormAccesses);
-//		formAccessexs.addAll(postFormAccesses);
-//
-//		System.out.println(formAccessexs.size() + "bfkbskbksbdvkbsdkbvksdbvksdbkvbsdvkjsbkjl");
-//		
-//		if(formAccessexs.size() == 0 ||  formAccessexs.size() < 1) {
-//			Notification notification = Notification.show("Form Access is Required, Please Fill Out a FormAccess");
-//			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-//			notification.setPosition(Notification.Position.MIDDLE);
-//			
-//			notification.open();
-			
-//			Notification notification = new Notification();
-//			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-//			notification.setPosition(Position.MIDDLE);
-//			Button closeButton = new Button(new Icon("lumo", "cross"));
-//			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-//			closeButton.getElement().setAttribute("aria-label", "Close");
-//			closeButton.addClickListener(eventx -> {
-//				notification.close();
-//			});
-//			
-//			Paragraph text = new Paragraph("Error : Form Access is Required, Please Fill Out a FormAccess to proceed.");
-//
-//			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-//			layout.setAlignItems(Alignment.CENTER);
-//
-//			notification.add(layout);
-//			notification.open();
-//
-//			return;
-			
-//		}else {
-			if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
-					&& event.getSource().commusr.getValue() == true) {
-				event.getContact().setUsertype(UserType.COMMON_USER);
-			} else if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
-					&& event.getSource().commusr.getValue() == false) {
+		if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
+				&& event.getSource().commusr.getValue() == true) {
+			event.getContact().setUsertype(UserType.COMMON_USER);
+		} else if ((event.getContact().getUsertype() == null || event.getContact().getUsertype() != null)
+				&& event.getSource().commusr.getValue() == false) {
 
-				event.getContact().setUsertype(userProvider.getUser().getUsertype());
-			}
-			System.out.println(event.getContact().getUsertype() + "event user type" + event.getSource().commusr.getValue());
-			dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
+			event.getContact().setUsertype(userProvider.getUser().getUsertype());
+		}
+		System.out.println(event.getContact().getUsertype() + "event user type" + event.getSource().commusr.getValue());
+		dto = FacadeProvider.getUserFacade().saveUser(event.getContact());
 
-			if (isNewUser) {
-				makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
-			}
-			grid.getDataProvider().refreshAll();
-			closeEditor();
+		if (isNewUser) {
+			makeInitialPassword(dto.getUuid(), dto.getUserEmail(), dto.getUserName());
+		}
+		grid.getDataProvider().refreshAll();
+		closeEditor();
 //		}
 
-	
-	
 	}
 
 	private void resetUserPassWord(UserForm.ResetPasswordEvent event) {
