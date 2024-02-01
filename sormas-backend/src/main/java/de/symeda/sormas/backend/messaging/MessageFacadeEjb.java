@@ -1,5 +1,7 @@
 package de.symeda.sormas.backend.messaging;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,31 +22,26 @@ import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.vladmihalcea.hibernate.type.util.SQLExtractor;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
-import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
-import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
-import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
-import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.Value;
+import com.google.gson.Gson;
+import de.symeda.sormas.api.messaging.FCMDto;
+import de.symeda.sormas.api.messaging.FCMResponseDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
 import de.symeda.sormas.api.messaging.MessageDto;
 import de.symeda.sormas.api.messaging.MessageFacade;
-import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
-import de.symeda.sormas.api.utils.ValidationRuntimeException;
-import de.symeda.sormas.backend.campaign.Campaign;
-import de.symeda.sormas.backend.campaign.data.CampaignFormData;
-import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
-import de.symeda.sormas.backend.common.AbstractDomainObject;
-import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
-import de.symeda.sormas.backend.infrastructure.community.Community;
-import de.symeda.sormas.backend.infrastructure.community.CommunityFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.district.DistrictFacadeEjb;
@@ -52,7 +49,6 @@ import de.symeda.sormas.backend.infrastructure.district.DistrictService;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
-import de.symeda.sormas.backend.location.Location;
 import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
@@ -84,6 +80,9 @@ public class MessageFacadeEjb implements MessageFacade {
 	@EJB
 	private UserService userService;
 
+	@Value("${fcm.secret.key}")
+	private String fcmSecretKey;
+
 	public static MessageDto toDto(Message source) {
 		if (source == null) {
 			return null;
@@ -95,15 +94,9 @@ public class MessageFacadeEjb implements MessageFacade {
 		target.setMessageContent(source.getMessageContent());
 		target.setUserTypes(source.getUsertype());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
-//		if (source.getArea() != null) {
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
-//		}
-//		if (target.getRegion() != null) {
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
-//		}
-//		if (target.getDistrict() != null) {
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
-//		}
 //		if (target.getDistricts() != null) {
 //			target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));	
 //		}		
@@ -117,11 +110,7 @@ public class MessageFacadeEjb implements MessageFacade {
 //			}
 //			target.setCommunitynos(communitynos);
 //		}
-
 		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
-		System.out.println("toDtoooooooooooo from f " + source.getCreatingUser());
-		System.out.println(
-				"toDtooooooooooooooooooooooooooooooooo " + UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
 
 		return target;
 	}
@@ -133,15 +122,9 @@ public class MessageFacadeEjb implements MessageFacade {
 		target.setMessageContent(source.getMessageContent());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
 		target.setUsertype(source.getUserTypes());
-//		if (source.getArea() != null) {
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
-//		}
-//		if (target.getRegion() != null) {
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
-//		}
-//		if (target.getDistrict() != null) {
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
-//		}
 //		if (target.getDistricts() != null) {
 //			target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));	
 //		}		
@@ -217,7 +200,6 @@ public class MessageFacadeEjb implements MessageFacade {
 		}
 		cq.select(messages);
 
-		System.out.println(SQLExtractor.from(em.createQuery(cq)) + " yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
 	}
 
@@ -251,50 +233,17 @@ public class MessageFacadeEjb implements MessageFacade {
 	}
 
 	@Override
-	public List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first, Integer max, Set<UserRole> userRoles) {
-
-//		CriteriaBuilder cb = em.getCriteriaBuilder();
-//		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
-//		Root<Message> messages = cq.from(Message.class);
-//
-//		Join<Message, Area> area = messages.join(Message.AREA, JoinType.LEFT);
-//		Join<Message, Region> region = messages.join(Message.REGION, JoinType.LEFT);
-//		Join<Message, District> district = messages.join(Message.DISTRICT, JoinType.LEFT);
-//
-//		cq.multiselect(messages.get(Message.UUID), messages.get(Message.MESSAGE_CONTENT), area.get(Area.NAME),
-//				area.get(Area.EXTERNAL_ID), region.get(Region.NAME), region.get(Region.EXTERNAL_ID),
-//				district.get(District.NAME), district.get(District.EXTERNAL_ID));
-//
-//		Predicate filter = null;
-//
-//		if (messageCriteria != null) {
-//			filter = messageService.buildCriteriaFilterCustom(messageCriteria, cb, messages, userRoles);
-//		}
-//
-//		if (filter != null) {
-//			cq.where(filter);
-//		}
-//
-//		cq.orderBy(cb.desc(messages.get(Message.CHANGE_DATE)));
-//
-//		cq.select(messages);
-		
-
+	public List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
+			Integer max, Set<UserRole> userRoles) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
 		Root<Message> from = cq.from(Message.class);
 
-		Predicate filter = null; //createDefaultFilter(cb, from);
-//		if (messageCriteria.getArea() != null) {
-//			System.out.println("enteredddd area filter");
-//			filter = from.get(Message.AREA).in(messageCriteria.getArea().getCaption());
-//		}
+		Predicate filter = null;
 
-		if (userRoles.size() > 0) {
-			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
-			Predicate rolesFilter = joinRoles.in(userRoles);
-			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
+		if (messageCriteria != null) {
+			filter = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles);
 		}
 
 		if (filter != null) {
@@ -303,9 +252,7 @@ public class MessageFacadeEjb implements MessageFacade {
 
 		cq.distinct(true).orderBy(cb.asc(from.get(Message.CHANGE_DATE)));
 
-		System.out.println(SQLExtractor.from(em.createQuery(cq)) + " hhhhhhhhhhhhhjkjjjjjjjjjjjjjjjj");
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
-//		return em.createQuery(cq).getResultList();
 	}
 
 }

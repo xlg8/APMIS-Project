@@ -23,6 +23,7 @@ public interface MessageFacade {
 
 	long count(MessageCriteria messageCriteria);
 
-	List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType,
-			Integer first, Integer max, Set<UserRole> userRoles);
+	List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
+			Integer max, Set<UserRole> userRoles);
+
 }

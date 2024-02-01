@@ -45,6 +45,7 @@ public class MessageDto extends EntityDto {
 	public static final String COMMUNITY_NOS = "communitynos";
 	public static final String CREATED_BY = "creatingUser";
 	
+	private String title;
 	private String messageContent;
 	private UserType userTypes;
 	private Set<UserRole> userRoles;
@@ -62,6 +63,14 @@ public class MessageDto extends EntityDto {
 		return messageDto;
 	}
 	
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
 	public String getMessageContent() {
 		return messageContent;
 	}

@@ -1,5 +1,7 @@
 package com.cinoteck.application.messaging;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 import com.cinoteck.application.UserProvider;
@@ -13,6 +15,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -61,14 +64,13 @@ public class UserMessageView extends VerticalLayout implements BeforeEnterObserv
 		dialog.setCloseOnEsc(true);
 		dialog.setCloseOnOutsideClick(false);
 		dialog.setHeaderTitle("Notification");
-		dialog.setWidth("400px");
-		dialog.setHeight("300px");
+		dialog.setWidth("700px");
+		dialog.setHeight("400px");
 		dialog.add(grid);
 		Button closeButton = new Button("Close", e -> dialog.close());
 		dialog.getFooter().add(closeButton);
 
 		dialog.open();
-//		dialog.open();
 		add(dialog);
 	}
 
@@ -82,12 +84,16 @@ public class UserMessageView extends VerticalLayout implements BeforeEnterObserv
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
+		
+		TextRenderer<MessageDto> changeDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getChangeDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			return dateFormat.format(timestamp);
+		});
 
 		grid.addColumn(MessageDto.MESSAGE_CONTENT).setHeader("Message Content").setSortable(true).setResizable(true);
-		grid.addColumn(MessageDto.CHANGE_DATE).setHeader("Sent At").setSortable(true).setResizable(true);
-//		AreaReferenceDto area, RegionReferenceDto region,
-//		DistrictReferenceDto district, UserType userType, Integer first, Integer max, Set<UserRole> userRoles
-//		System.out.println(userProvider.getUser().getArea().getCaption() + "hggjsdhfsdjgds");
+		grid.addColumn(changeDateRenderer).setHeader("Sent at").setSortable(true).setResizable(true);
+
 		ListDataProvider<MessageDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getMessageFacade().getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 5, userProvider.getUser().getUserRoles()).stream());
 
@@ -97,11 +103,11 @@ public class UserMessageView extends VerticalLayout implements BeforeEnterObserv
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
-			if (pageTitle.contains("flow/")) {
-				intendedRoute = pageTitle.split("flow/")[1];
+			if (pageTitle.contains("main/")) {
+				intendedRoute = pageTitle.split("main/")[1];
 				System.out.println(
-						"____LOOOOOOGGGGOOOUUUTt________/////______________////////_____________________________________: "
-								+ String.format("Page title: '%s'", pageTitle.split("flow/")[1]));
+						"____LOOOOOOGGGGOOOUUUTt: "
+								+ String.format("Page title: '%s'", pageTitle.split("main/")[1]));
 
 			}
 		});

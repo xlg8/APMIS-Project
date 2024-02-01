@@ -724,3 +724,8 @@ vaadin-checkbox.custom-checkbox-class:checked {
 tfoot#footer {
       display: none;
     }
+    
+
+#formbuildertab vaadin-tabs{
+	background: rgb(67, 67, 67) !important;
+}

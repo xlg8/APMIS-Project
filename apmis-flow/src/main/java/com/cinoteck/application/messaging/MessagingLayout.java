@@ -19,6 +19,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
@@ -44,6 +45,7 @@ public class MessagingLayout extends VerticalLayout {
 	MessageDto messageDto;
 
 	H3 pushNotificationHeader = new H3("Push Notication Configuration");
+	TextField titleField;
 	public TextArea messageContent;// = new TextArea("Message Content");
 	MultiSelectComboBox<UserRole> userRoles; // = new ComboBox<UserRole>("User roles");
 	ComboBox<UserType> userType; // = new ComboBox<UserType>("User Type");
@@ -86,6 +88,7 @@ public class MessagingLayout extends VerticalLayout {
 
 	public void configureFields() {
 
+		TextField titleField = new TextField("Title");
 		TextArea messageContent = new TextArea("Message Content");
 		MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<UserRole>("User roles");
 		ComboBox<UserType> userType = new ComboBox<UserType>("User Type");
@@ -102,6 +105,7 @@ public class MessagingLayout extends VerticalLayout {
 		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
 		roles.remove(UserRole.POE_INFORMANT);
+		roles.remove(UserRole.ADMIN);
 		List<UserRole> userRoleConfig = new ArrayList<>(roles);
 
 		userRoles.setItems(userRoleConfig);
@@ -116,8 +120,8 @@ public class MessagingLayout extends VerticalLayout {
 		binder.forField(userRoles).asRequired("User Role is Required").bind(MessageDto::getUserRoles,
 				MessageDto::setUserRoles);
 
-		binder.forField(userType).asRequired("User Type is Required").bind(MessageDto::getUserTypes,
-				MessageDto::setUserTypes);		
+//		binder.forField(userType).asRequired("User Type is Required").bind(MessageDto::getUserTypes,
+//				MessageDto::setUserTypes);		
 
 		binder.forField(areaSelector).bind(MessageDto::getArea, MessageDto::setArea);
 
@@ -125,7 +129,7 @@ public class MessagingLayout extends VerticalLayout {
 
 		binder.forField(districtSelector).bind(MessageDto::getDistrict, MessageDto::setDistrict);
 
-		formLayout.add(messageContent, userRoles, userType, areaSelector, regionSelector, districtSelector);
+		formLayout.add(messageContent, userRoles, areaSelector, regionSelector, districtSelector);
 		formLayout.setColspan(pushNotificationHeader, 2);
 
 		final HorizontalLayout hr = new HorizontalLayout();
@@ -135,6 +139,9 @@ public class MessagingLayout extends VerticalLayout {
 		hr.add(discardChanges, saved);
 		add(formLayout, hr);
 
+//		userRoles.addValueChangeListener(e -> {
+//			if(e.getValue().equals(userRoleConfig)) {}
+//		})
 		discardChanges.addClickListener(e -> discardChanges());
 
 		saved.addClickListener(e -> {
@@ -210,7 +217,10 @@ public class MessagingLayout extends VerticalLayout {
 
 		if (binder.validate().isOk()) {
 
-			messageDto = binder.getBean();			
+			messageDto = binder.getBean();	
+//			if(titleField.getValue() != null && !titleField.getValue().isEmpty()) {
+//			messageDto.setTitle(titleField.getValue());
+//			}
 			UserReferenceDto userReferenceDto = new UserReferenceDto(userProvider.getUser().getUuid(), userProvider.getUser().getFirstName(),
 					userProvider.getUser().getLastName(), userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess(), 
 					userProvider.getUser().getUsertype());
