@@ -47,3 +47,4 @@ bin
 .zip
 
 .DS_Store
+/deploy.zip
