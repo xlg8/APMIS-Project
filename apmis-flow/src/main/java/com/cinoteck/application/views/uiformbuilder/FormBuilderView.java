@@ -21,6 +21,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -59,19 +61,21 @@ public class FormBuilderView extends VerticalLayout {
 		 * 
 		 */
 	private static final long serialVersionUID = 1L;
-
-	Button hideFilters;
+	HorizontalLayout filterWithButton;
+	HorizontalLayout filterLayout;
+	Button displayFilters;
 	TextField search;
 	ComboBox<CampaignPhase> formType;
 	ComboBox<FormAccess> formAccess;
 	ComboBox<Modality> modality;
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter;
-	Button newForm;
 
-	Button bulkModeButton = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkModeButton = new Button("Leave Bulk Edit Mode");
-	Button dearchiveForms = new Button("Dearchive");
-	Button archiveForms = new Button("Archive");
+	HorizontalLayout buttonLayout;
+	Button newForm;
+	Button bulkModeButton = new Button("Enter Bulk Edit Mode", new Icon(VaadinIcon.CLIPBOARD_CHECK));
+	Button leaveBulkModeButton = new Button("Leave Bulk Edit Mode", new Icon(VaadinIcon.CLIPBOARD_CHECK));
+	Button dearchiveForms = new Button("Dearchive", new Icon(VaadinIcon.UNLOCK));
+	Button archiveForms = new Button("Archive", new Icon(VaadinIcon.ARCHIVE));
 
 	CampaignFormMetaDto campaignFormMetaDto;
 
@@ -99,22 +103,28 @@ public class FormBuilderView extends VerticalLayout {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		filterDataProvider.setFilter(criteria);
 		filterDataProvider.refreshAll();
-		
+
 		configureView();
 		configureGrid();
 		setHeightFull();
 		setSizeFull();
 
-		hr.getStyle().set("margin-left", "10px");
-		hr.setAlignItems(Alignment.END);
-		hr.add(hideFilters, search, formType, formAccess, modality, relevanceStatusFilter, newForm, bulkModeButton,
-				leaveBulkModeButton, dearchiveForms, archiveForms);
-		add(hr, grid);
+		buttonLayout.getStyle().set("margin-left", "10px");
+		buttonLayout.setAlignItems(Alignment.END);
+		filterWithButton.getStyle().set("margin-left", "10px");
+		filterWithButton.setAlignItems(Alignment.END);
+		displayFilters.getStyle().set("margin-top", "10px");
+		buttonLayout.add(newForm, bulkModeButton, leaveBulkModeButton, dearchiveForms, archiveForms);
+		filterLayout.add(search, formType, formAccess, modality, relevanceStatusFilter);
+		filterWithButton.add(displayFilters, filterLayout);
+		add(buttonLayout, filterWithButton, grid);
 	}
 
 	public void configureView() {
 
-		hideFilters = new Button("Hide Filters");
+		filterWithButton = new HorizontalLayout();
+		filterLayout = new HorizontalLayout();
+		displayFilters = new Button("Hide Filters", new Icon(VaadinIcon.SLIDERS));
 
 		search = new TextField("Search");
 		search.setClearButtonVisible(true);
@@ -127,8 +137,19 @@ public class FormBuilderView extends VerticalLayout {
 		modality = new ComboBox<>("Modality");
 		modality.setItems(Modality.values());
 		modality.setClearButtonVisible(true);
+		
+		displayFilters.addClickListener(e -> {
+			if (filterLayout.isVisible() == false) {
+				filterLayout.setVisible(true);
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
+			} else {
+				filterLayout.setVisible(false);
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
+			}
+		});
 
-		newForm = new Button("New Forms");
+		buttonLayout = new HorizontalLayout();
+		newForm = new Button("New Forms", new Icon(VaadinIcon.PLUS_CIRCLE_O));
 		newForm.addClickListener(e -> {
 
 			campaignFormMetaDto = new CampaignFormMetaDto();
@@ -153,7 +174,6 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		formType.addValueChangeListener(e -> {
-			System.out.println(CampaignPhase.PRE + " hghgshgsdhgsdhgshsgsnsd");
 			if (e.getValue() != null) {
 
 				criteria.setFormType(e.getValue().toString().toLowerCase());
@@ -226,13 +246,13 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		archiveForms.addClickListener(e -> {
-			archiveFormPopup();			
+			archiveFormPopup();
 		});
-		
+
 		dearchiveForms.addClickListener(e -> {
 			dearchiveFormPopup();
 		});
-		
+
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
@@ -243,7 +263,8 @@ public class FormBuilderView extends VerticalLayout {
 
 			if (e.getValue() != null) {
 
-				criteria.relevanceStatus(e.getValue());
+				EntityRelevanceStatus entityRelevanceStatus = e.getValue();
+				criteria.relevanceStatus(entityRelevanceStatus);
 				filterDataProvider.setFilter(criteria);
 
 				filterDataProvider.refreshAll();
@@ -288,13 +309,9 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Data Entry").setSortable(true)
 				.setResizable(true);
 
-//		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
-//				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
-
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
-//		grid.setItems(dataprovider);
 
 		grid.setDataProvider(filterDataProvider);
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
@@ -356,7 +373,7 @@ public class FormBuilderView extends VerticalLayout {
 		confirmationPopup.addConfirmListener(e -> archiveForms(gridListConverted));
 		confirmationPopup.open();
 	}
-	
+
 	private void dearchiveFormPopup() {
 		confirmationPopup.setHeader("Dearchive Forms");
 
@@ -396,7 +413,7 @@ public class FormBuilderView extends VerticalLayout {
 			filterDataProvider.refreshAll();
 		}
 	}
-	
+
 	private void archiveForms(List<CampaignFormMetaDto> selectedItems) {
 
 		if (selectedItems.size() == 0) {

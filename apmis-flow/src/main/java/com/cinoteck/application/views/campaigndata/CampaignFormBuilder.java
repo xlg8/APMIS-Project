@@ -1996,7 +1996,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				Map<Object, Object> lotMap = new HashMap<>();				
 				int index = 0;
-<<<<<<< HEAD
 				int indexy = 0;
 				
 				if (lotchecker.size() > 0) {
@@ -2009,70 +2008,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 						}
 					}
 				}				
-=======
-				if (lotchecker.size() > 0) {
-					logger.debug(lotchecker.size() + " backend size");
-					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
-
-						Map<Object, Object> lotMaps = new HashMap<>();
-						Object x = "";
-						Object y = "";
-						for (CampaignFormDataEntry campaignFormDataEntry : lotOwnSec) {
-							if (campaignFormDataEntry.getId().equals("LotNo")) {
-								formsLotNoFromDB.add(campaignFormDataEntry);
-								x = campaignFormDataEntry.getValue();
-								logger.debug(index++ + " increments");
-							}
-							if (campaignFormDataEntry.getId().equals("LotClusterNo")) {
-								formsClusterNoFromDB.add(campaignFormDataEntry);
-								y = campaignFormDataEntry.getValue();
-							}
-							lotMaps.put(x, y);
-						}
-						logger.debug(lotMaps.size() + " size");
-					}
-				}
-
-				boolean saveChecker = true;
-				logger.debug(formsLotNoFromDB.size() + " lot sizeeeeeeeee");
-				logger.debug(formsClusterNoFromDB.size() + " cluster sizeeeeeeeeeee");
-//				if (formsClusterNoFromDB.size() > 0) {
-//					for (CampaignFormDataEntry campaignFormDataEntry : formsClusterNoFromDB) {
-//
-//						if (campaignFormDataEntry.getValue().equals(lotClusterNo.getValue())) {
-//							int index = 0;
-//							index = formsClusterNoFromDB.indexOf(campaignFormDataEntry);
-//							logger.debug(index + " cluster number is equal here");
-//
-//							if (formsLotNoFromDB.get(index).getValue().equals(lotNo.getValue())) {
-//								logger.debug(index + " lot number is equal here");
-//								saveChecker = false;
-//								break;
-//							}
-//						}
-//					}
-//				}
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 				if (!lotMap.isEmpty()) {
 					for (Map.Entry<Object, Object> entry : lotMap.entrySet()) {
 						if (entry.getKey().equals(lotNo.getValue())) {
-<<<<<<< HEAD
-;
-=======
-							;
-							logger.debug(
-									"db value of lot number " + entry.getKey() + " entered value " + lotNo.getValue());
-							logger.debug("db value of cluster lot number " + entry.getValue() + " entered value "
-									+ lotClusterNo.getValue());
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 							if (entry.getValue().equals(lotClusterNo.getValue())) {
-<<<<<<< HEAD
-=======
-								logger.debug("xxxxxx db value of cluster lot number " + entry.getValue()
-										+ " entered value " + lotClusterNo.getValue());
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 								saveChecker = false;
 								break;
 							}

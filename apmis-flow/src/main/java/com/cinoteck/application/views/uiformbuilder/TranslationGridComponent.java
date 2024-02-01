@@ -95,8 +95,8 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		outerGrid.addColumn(CampaignFormTranslations::getLanguageCode).setHeader("Language Code").setSortable(true)
 				.setResizable(true);
-		outerGrid.addColumn(CampaignFormTranslations::getTranslations).setHeader("Translation Element")
-				.setSortable(true).setResizable(true);
+//		outerGrid.addColumn(CampaignFormTranslations::getTranslations).setHeader("Translation Element")
+//				.setSortable(true).setResizable(true);
 
 		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
 		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
