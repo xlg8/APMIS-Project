@@ -270,7 +270,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
-			nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
+			nav.addItem(new AppNavItem("Form Manager", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
 		}
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
@@ -289,7 +289,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
 //		nav.addItem(new AppNavItem("Notification", UserMessageView.class, VaadinIcon.SERVER,
 //				"navitem"));
-//		}		
+//		}
 
 		if (nav != null) {
 			nav.addClassName("active");

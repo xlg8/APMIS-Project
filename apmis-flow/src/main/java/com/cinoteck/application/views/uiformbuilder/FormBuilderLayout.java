@@ -161,7 +161,7 @@ public class FormBuilderLayout extends VerticalLayout {
 		add(formLayout);
 		add(hr);
 
-		Button discardChanges = new Button("Dicard Changes");
+		Button discardChanges = new Button("Discard Changes");
 		Button saved = new Button("Save");
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(discardChanges, saved);
