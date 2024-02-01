@@ -560,16 +560,7 @@ public class UserForm extends FormLayout {
 //		commusr.setValue(isCommonUser);
 		
 		Div formAccessCheckers = new Div();
-//		Div formAccessPre = new Div();
-//		Div formAccessIntra = new Div();
-//		Div formAccessPost = new Div();
-//		
-//		formAccessesList.add(FormAccess.ARCHIVE);
-//		formAccessesList.remove(FormAccess.FLW);
-//		formAccessesList.remove(FormAccess.TRAINING);
-//		
-//		
-//		formAccessPre.add(formAccessesList.stream().filter(null);
+
 		formAccessCheckers.add(formAccess);
 		
 		

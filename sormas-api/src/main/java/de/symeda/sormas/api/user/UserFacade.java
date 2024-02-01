@@ -108,5 +108,8 @@ public interface UserFacade {
 	UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto campaignLogDto);
 	
 	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
-
+	
+	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses);
+	 
+	public void bulkUpdateUserRoles(List<String> userUuids, UserDto userDto);
 }

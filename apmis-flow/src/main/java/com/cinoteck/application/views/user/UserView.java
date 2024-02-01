@@ -274,7 +274,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		subMenu.addItem(I18nProperties.getCaption(Captions.actionEnableUsers), e -> enableUserPopup());
 		subMenu.addItem(I18nProperties.getCaption(Captions.actionDisableUsers), e -> disableUserPopup());
-		subMenu.addItem(I18nProperties.getCaption(Captions.actionBulkEditUserFormFields), e -> handleUserBulkEditDialog(grid.getSelectedItems(), userDto));
+		subMenu.addItem(I18nProperties.getCaption(Captions.actionBulkEditUserFormFields), e -> handleUserBulkEditDialog(grid.getSelectedItems(), userDto, filterDataProvider));
 
 		menuBar.getStyle().set("margin-top", "5px");
 //		enable.addClickListener(e -> enableUserPopup());
@@ -574,7 +574,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		add(layout, vlayout);
 	}
 
-	public void handleUserBulkEditDialog(Set<UserDto> selectedItems, UserDto userDto) {
+	public void handleUserBulkEditDialog(Set<UserDto> selectedItems, UserDto userDto, ConfigurableFilterDataProvider filterDataProvider) {
 		if(selectedItems.size() == 0 || selectedItems.size() <1) {
 
 			Notification notification = new Notification();
@@ -596,7 +596,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 			notification.open();
 			return;
 		}else {
-			BulkUsersEditDataDialog bulkUsersEditDataDialog = new BulkUsersEditDataDialog(selectedItems, userDto);
+			BulkUsersEditDataDialog bulkUsersEditDataDialog = new BulkUsersEditDataDialog(selectedItems, userDto, filterDataProvider);
 			bulkUsersEditDataDialog.open();
 
 		}

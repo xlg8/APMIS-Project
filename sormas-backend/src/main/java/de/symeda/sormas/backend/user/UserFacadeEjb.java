@@ -994,6 +994,43 @@ public class UserFacadeEjb implements UserFacade {
 	
 	
 	return resultData;	}
+
+
+	@Override
+	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses) {
+		// TODO Auto-generated method stub
+		List<User> users = userService.getByUuids(userUuids);
+		for (User user : users) {
+		
+			user.setFormAccess(accesses);
+			userService.ensurePersisted(user);
+
+//			userUpdateEvent.fire(new UserUpdateEvent(user));
+		}
+		
+	}
+	
+	public void bulkUpdateUserRoles(List<String> userUuids, UserDto userDto) {
+		
+		List<User> users = userService.getByUuids(userUuids);
+		for (User user : users) {
+		
+			user.setUserRoles(new HashSet<UserRole>(userDto.getUserRoles()));
+
+			user.setArea(areaService.getByReferenceDto(userDto.getArea()));
+			user.setRegion(regionService.getByReferenceDto(userDto.getRegion()));
+			user.setDistrict(districtService.getByReferenceDto(userDto.getDistrict()));
+			user.setDistricts(districtService.getByReferenceDto(userDto.getDistricts()));
+			if (userDto.getCommunity() != null) {
+				user.setCommunity(communityService.getByReferenceDto(userDto.getCommunity()));
+
+			}
+			userService.ensurePersisted(user);
+
+//			userUpdateEvent.fire(new UserUpdateEvent(user));
+		}
+		
+	}
 	
 	
 	
