@@ -55,17 +55,29 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 	"USER",
 	"REST_USER" })
 public class CommunityResource {
-	final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+	
 
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
-		
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
 		if(rdto != null) {
 		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
 				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		}
 		return null;
+	}
+	
+	@GET
+	@Path("/allcommunities/{since}")
+	public List<CommunityDto> getAllClusters(@PathParam("since") long since) {
+		
+		
+		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
+				.collect(Collectors.toList());
+		
+		
 	}
 
 	@POST
@@ -78,6 +90,8 @@ public class CommunityResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
 		if(rdto != null) {
 			
 			List<String> lstUuid = new ArrayList<>();
