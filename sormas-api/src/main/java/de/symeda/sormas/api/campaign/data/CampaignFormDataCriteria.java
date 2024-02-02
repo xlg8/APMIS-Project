@@ -24,6 +24,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto; 
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 
 public class CampaignFormDataCriteria extends BaseCriteria implements Serializable {
@@ -59,6 +60,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private String userLanguage;
 	private String usertype;
 	private Boolean isVerified;
+	private UserType usertypeEnum;
 	// for filter
 
 	
@@ -200,6 +202,14 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public void setUsertype(String usertype) {
 		this.usertype = usertype;
+	}
+	
+	public UserType getUsertypeEnum() {
+		return usertypeEnum;
+	}
+
+	public void setUsertypeEnum(UserType usertype) {
+		this.usertypeEnum = usertype;
 	}
 
 	public Boolean getIsVerified() {

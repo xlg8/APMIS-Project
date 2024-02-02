@@ -49,7 +49,7 @@ import de.symeda.sormas.backend.util.ModelConstants;
 
 @Entity(name = "campaignFormData")
 @Audited
-public class CampaignFormData extends AbstractDomainObject {
+public class CampaignFormData extends AbstractDomainObject{
 
 	public static final String TABLE_NAME = "campaignFormData";
 
@@ -67,6 +67,7 @@ public class CampaignFormData extends AbstractDomainObject {
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
 	public static final String ISVERIFIED = "isverified";
+	public static final String ISPUBLISHED = "ispublished";
 	
 
 	private static final long serialVersionUID = -8021065433714419288L;
@@ -85,6 +86,8 @@ public class CampaignFormData extends AbstractDomainObject {
 	public Double lat;
 	public Double lon;
 	private boolean isverified;
+	private boolean ispublished;
+	private User  creatinguser_id;
 	//private CampaignFormMeta formType;
 
 	@AuditedIgnore
@@ -182,8 +185,6 @@ public class CampaignFormData extends AbstractDomainObject {
 		this.archived = archived;
 	}
 	
-	
-	
 	@Column
 	public boolean isIsverified() {
 		return isverified;
@@ -228,6 +229,16 @@ public class CampaignFormData extends AbstractDomainObject {
 	public void setLon(Double longti) {
 		lon = longti;
 	}
+
+	public boolean isIspublished() {
+		return ispublished;
+	}
+
+	public void setIspublished(boolean ispublished) {
+		this.ispublished = ispublished;
+	}
+
+//	
 	
 	
 	

@@ -179,6 +179,7 @@ public class CampaignDataView extends VerticalLayout {
 		setSpacing(false);
 		criteria = new CampaignFormDataCriteria();
 		criteria.setUsertype(userProvider.getUser().getUsertype().toString());
+		criteria.setUsertypeEnum(userProvider.getUser().getUsertype());
 		createCampaignDataFilter();
 
 		configureGrid(criteria);

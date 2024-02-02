@@ -1725,9 +1725,9 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
-	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max) {
+	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
 	
-		return campaignFormDataService.getAllActiveData(first, max).stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+		return campaignFormDataService.getAllActiveData(first, max, includeArchived).stream().map(c -> convertToDto(c)).collect(Collectors.toList());
 	}
 	
 	@Override
@@ -2490,6 +2490,9 @@ if(criteria.getUserLanguage() != null) {
 		}
 
 		cq.select(cb.count(root));
+
+		// resultData.toString());//SQLExtractor.from(seriesDataQuery));
+		System.out.println("Count Queryyy " + SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -2775,6 +2778,23 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
+	public void publishCampaignData(List<String> uuids, boolean isUnPublishingAction) {
+				for(String uuidx : uuids) {
+					
+					if(isUnPublishingAction) {
+						System.out.println("unverifyyyyyyyyyyyyyyy");
+						campaignFormDataService.unPublishData(uuidx);
+					}else {
+						System.out.println("verifyyyyyyyyyyyyyyy");
+
+						campaignFormDataService.publishData(uuidx);
+					}
+								
+		}
+		
+	}
+	
+	@Override
 	public boolean getVerifiedStatus(String uuid) {
 
 				
@@ -2786,10 +2806,32 @@ if(criteria.getUserLanguage() != null) {
 //						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
 						);
 				cq.select(from.get(CampaignFormData.ISVERIFIED));
+				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
 				boolean count = em.createQuery(cq).getSingleResult();
 				
 				
+				
+				return count;
+		
+	}
+	
+	@Override
+	public boolean getPublishedStatus(String uuid) {
+
+				
+				CriteriaBuilder cb = em.getCriteriaBuilder();
+				CriteriaQuery<Boolean> cq = cb.createQuery(Boolean.class);
+				Root<CampaignFormData> from = cq.from(CampaignFormData.class);
+
+				cq.where(cb.equal(from.get(CampaignFormData.UUID), uuid)
+//						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
+						);
+				cq.select(from.get(CampaignFormData.ISPUBLISHED));
 				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+				boolean count = em.createQuery(cq).getSingleResult();
+				
+				
+				
 				return count;
 		
 	}
