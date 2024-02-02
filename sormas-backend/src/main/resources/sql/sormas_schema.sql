@@ -9817,6 +9817,50 @@ WHERE formtype = 'intra-campaign' OR formtype = 'pre-campaign';
 INSERT INTO schema_version (version_number, comment) VALUES (462, 'Automatically Verifying Old Intra and Pre Campaign Data');
 
 
+--add new column to campaign form data table 
+
+ALTER TABLE campaignformdata
+ADD COLUMN ispublished BOOLEAN DEFAULT false;
+--to set all formphases publish status to true (213060 took 19.346s)
+UPDATE campaignformdata
+SET ispublished = true
+WHERE formtype != 'postcampaign';
+
+-- this function to updat published based off the phase of a new form 
+CREATE OR REPLACE FUNCTION public.publish_data_byphase_after()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    UPDATE campaignFormData
+    SET ispublished = CASE
+        WHEN EXISTS (
+            SELECT 1 FROM campaignformmeta 
+            WHERE campaignFormData.campaignformmeta_id = campaignformmeta.id  
+              AND campaignformmeta.formtype = 'post-campaign'
+        )
+        THEN false
+        ELSE true
+    END
+    WHERE campaignFormData.id = NEW.id;
+
+    RETURN NEW;
+END;
+$function$
+;
+
+-- this should run pub func
+create trigger publish_data_trigger after
+insert
+    on
+    public.campaignformdata for each row execute function publish_data_byphase_after();
+
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (463, 'Implementing Standalone function for Campaign Data Publish');
+
+
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
