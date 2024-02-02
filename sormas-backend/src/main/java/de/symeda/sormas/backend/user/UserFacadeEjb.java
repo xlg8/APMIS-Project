@@ -169,6 +169,7 @@ public class UserFacadeEjb implements UserFacade {
 		DtoHelper.fillDto(target, source);
 
 		target.setActive(source.isActive());
+		target.setMessage(source.isMessage());
 		target.setCommomUser(source.getUsertype() == UserType.COMMON_USER);
 		target.setUserName(source.getUserName());
 		target.setFirstName(source.getFirstName());
@@ -753,6 +754,7 @@ public class UserFacadeEjb implements UserFacade {
 				userService::createUser, checkChangeDate);
 
 		target.setActive(source.isActive());
+		target.setMessage(source.isMessage());
 		target.setFirstName(source.getFirstName());
 		target.setLastName(source.getLastName());
 		target.setUserPosition(source.getUserPosition());

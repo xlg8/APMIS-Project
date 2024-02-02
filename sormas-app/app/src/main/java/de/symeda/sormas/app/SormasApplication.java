@@ -15,7 +15,9 @@
 
 package de.symeda.sormas.app;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import android.app.Activity;
@@ -23,6 +25,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
@@ -64,6 +67,14 @@ public class SormasApplication extends Application implements Application.Activi
 
 		TaskNotificationService.startTaskNotificationAlarm(this);
 		FeatureConfigurationService.startFeatureConfigurationService(this);
+
+		FirebaseMessaging.getInstance().subscribeToTopic("allDevices").addOnSuccessListener(new OnSuccessListener<Void>() {
+			@Override
+			public void onSuccess(Void aVoid) {
+				Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_LONG).show();
+				System.out.println("subscribtion is successfull");
+			}
+		});
 
 		super.onCreate();
 

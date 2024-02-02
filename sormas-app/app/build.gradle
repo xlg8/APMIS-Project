@@ -9,13 +9,14 @@ ext.keystoreProperties = loadKeystoreProperties()
 android {
     // https://medium.com/google-developers/picking-your-compilesdkversion-minsdkversion-targetsdkversion-a098a0341ebd
     // ideally: minSdkVersion (lowest possible) <= targetSdkVersion == compileSdkVersion (latest SDK)
-    compileSdkVersion 29
+    compileSdkVersion 33
     // always use the latest
     buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "de.symeda.sormas.app.apmis"
-        minSdkVersion 24
+        applicationId "de.symeda.sormas.app.debug"
+//        applicationId "de.symeda.sormas.app.apmis"
+        minSdkVersion 26
         targetSdkVersion 29
         versionCode buildVersionCode()
         versionName "$sormasVersion"
@@ -137,6 +138,10 @@ dependencies {
     implementation 'io.crowdcode.sormas.lbds:lbds-android-messaging:1.4.6'
     implementation 'com.jakewharton:process-phoenix:2.0.0'
     //implementation 'androidx.constraintlayout:constraintlayout:1.1.1'
+    implementation platform('com.google.firebase:firebase-bom:32.7.1')
+    implementation 'com.google.firebase:firebase-messaging:23.4.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+
 }
 
 apply plugin: "jacoco"

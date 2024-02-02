@@ -160,9 +160,11 @@ public class FormGridComponent extends VerticalLayout {
 		
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
-		for (CampaignFormElement campaignFormElement : listofelements) {
-			listofthem.add(campaignFormElement.getId());
-		}
+		if(campaignFormMetaDto.getCampaignFormElements() != null) {
+			for (CampaignFormElement campaignFormElement : listofelements) {
+				listofthem.add(campaignFormElement.getId());
+			}
+		}		
 		dependingOn.setItems(listofthem);
 	}
 

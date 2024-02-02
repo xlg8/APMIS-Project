@@ -1691,12 +1691,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			if (hideNt) {
 				component.setVisible(hideNt);
-				((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
+				// getElement().setProperty("required", requiredIndicatorVisible);
+				component.getElement().setProperty("required", isRequiredField);
 			} else {
 				component.setVisible(hideNt);
-				((TextField) component).setValue(" ");
-				((TextField) component).setValue("");
-				((AbstractField) component).setRequiredIndicatorVisible(false);
+				component.getElement().setProperty("required", false);
 			}
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
@@ -1704,7 +1703,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 						typex);
 
 				component.setVisible(visible);
-				
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
 						
@@ -1723,6 +1721,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					} else {
 						component.setVisible(visible);
 						((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
+						component.getElement().setProperty("required", isRequiredField);
 					}
 				}
 			});
@@ -1739,22 +1738,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 //			} else {
 //				component.getElement().setProperty("required", false);
 //			}
-			
-			if (hide) {
-				component.setVisible(hide);
-				((AbstractField) component).setRequiredIndicatorVisible(isRequiredField);
-			} else {
-				
-				if (typex == CampaignFormElementType.TEXT) {
-					((TextField) component).setValue(" ");
-					((TextField) component).setValue("");
-				} else {
-
-					((AbstractField) component).setValue(null);
-				}
-				((AbstractField) component).setRequiredIndicatorVisible(false);
-				component.setVisible(hide);
-			}
 
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {
@@ -1991,88 +1974,45 @@ public class CampaignFormBuilder extends VerticalLayout {
 				return true;
 
 			} else {
-
+				boolean saveChecker = true;
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
 
 				CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
-				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
-//				Map<String, String> lotMap = new hash
+				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();				
+				
 				for (CampaignFormDataEntry sdxc : getFormValues()) {
 					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
 					if (sdxc.getId().equalsIgnoreCase("LotNo")) {
-						lotNo = sdxc;
-						logger.debug(lotNo.getValue() + "lotno been adde to list");
+						lotNo = sdxc;					
 					}
 					if (sdxc.getId().equalsIgnoreCase("LotClusterNo")) {
 						lotClusterNo = sdxc;
-						logger.debug(lotClusterNo.getValue() + "lotcluster been adde to list");
 					}
 				}
 
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByCreatingUser(userProvider.getUser().getUserName());
 
-				List<CampaignFormDataEntry> formsClusterNoFromDB = new LinkedList<>();
-				List<CampaignFormDataEntry> formsLotNoFromDB = new LinkedList<>();
-				Map<Object, Object> lotMap = new HashMap<>();
+				Map<Object, Object> lotMap = new HashMap<>();				
 				int index = 0;
+				int indexy = 0;
+				
 				if (lotchecker.size() > 0) {
-					logger.debug(lotchecker.size() + " backend size");
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
-
-						Map<Object, Object> lotMaps = new HashMap<>();
-						Object x = "";
-						Object y = "";
-						for (CampaignFormDataEntry campaignFormDataEntry : lotOwnSec) {
-							if (campaignFormDataEntry.getId().equals("LotNo")) {
-								formsLotNoFromDB.add(campaignFormDataEntry);
-								x = campaignFormDataEntry.getValue();
-								logger.debug(index++ + " increments");
-							}
-							if (campaignFormDataEntry.getId().equals("LotClusterNo")) {
-								formsClusterNoFromDB.add(campaignFormDataEntry);
-								y = campaignFormDataEntry.getValue();
-							}
-							lotMaps.put(x, y);
+						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();					
+						if(lotOwnSec.contains(lotNo) && lotOwnSec.contains(lotClusterNo)) {					
+							index = lotOwnSec.indexOf(lotNo);
+							indexy = lotOwnSec.indexOf(lotClusterNo);
+							lotMap.put(lotOwnSec.get(index).getValue(), lotOwnSec.get(indexy).getValue());
 						}
-						logger.debug(lotMaps.size() + " size");
 					}
-				}
-
-				boolean saveChecker = true;
-				logger.debug(formsLotNoFromDB.size() + " lot sizeeeeeeeee");
-				logger.debug(formsClusterNoFromDB.size() + " cluster sizeeeeeeeeeee");
-//				if (formsClusterNoFromDB.size() > 0) {
-//					for (CampaignFormDataEntry campaignFormDataEntry : formsClusterNoFromDB) {
-//
-//						if (campaignFormDataEntry.getValue().equals(lotClusterNo.getValue())) {
-//							int index = 0;
-//							index = formsClusterNoFromDB.indexOf(campaignFormDataEntry);
-//							logger.debug(index + " cluster number is equal here");
-//
-//							if (formsLotNoFromDB.get(index).getValue().equals(lotNo.getValue())) {
-//								logger.debug(index + " lot number is equal here");
-//								saveChecker = false;
-//								break;
-//							}
-//						}
-//					}
-//				}
+				}				
 
 				if (!lotMap.isEmpty()) {
-					logger.debug(lotMap.size() + " map size");
 					for (Map.Entry<Object, Object> entry : lotMap.entrySet()) {
 						if (entry.getKey().equals(lotNo.getValue())) {
-							;
-							logger.debug(
-									"db value of lot number " + entry.getKey() + " entered value " + lotNo.getValue());
-							logger.debug("db value of cluster lot number " + entry.getValue() + " entered value "
-									+ lotClusterNo.getValue());
 							if (entry.getValue().equals(lotClusterNo.getValue())) {
-								logger.debug("xxxxxx db value of cluster lot number " + entry.getValue()
-										+ " entered value " + lotClusterNo.getValue());
 								saveChecker = false;
 								break;
 							}
@@ -2106,7 +2046,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					});
 
 					Paragraph text = new Paragraph(
-							"Choose another Cluster Lot Number you cannot submit multiple Cluster Lot Number for multiple Submission");
+							"Choose another Cluster Lot Number you cannot submit multiple Cluster Lot Number for same Lot Number");
 
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);

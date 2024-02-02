@@ -11,6 +11,8 @@ import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.messaging.MessagingView;
+import com.cinoteck.application.messaging.UserMessageView;
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.about.AboutView;
@@ -251,16 +253,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 					VaadinIcon.CHART_LINE, "navitem"));
 		}
 
-
-
 //		if	(userProvider.hasUserRight(UserRight.USER_RIGHTS_MANAGE)) {
 //			nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 //		}
 
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
 		// VaadinIcon.TREE_TABLE, "navitem"));
-		
-		
+
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), MyAccountView.class,
 				VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
@@ -268,16 +267,29 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				"navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
-		
-//		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
-//		if	(userProvider.hasUserRight(UserRight.USER_ACTIVITY_SUMMARYVIEW)) {
-//		nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"), UserActivitySummary.class,
-//				VaadinIcon.CHART_LINE, "navitem"));
-//		}
-//		}
 
-//		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-//				"navitem"));	       
+		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
+				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
+			nav.addItem(new AppNavItem("Form Manager", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+			if (userProvider.hasUserRight(UserRight.USER_ACTIVITY_SUMMARYVIEW)) {
+				nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"),
+						UserActivitySummary.class, VaadinIcon.CHART_LINE, "navitem"));
+			}
+		}
+		
+//		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
+//				&& userProvider.hasUserRight(UserRight.PUSH_NOTIFICATION_ACCESS)) {
+//		nav.addItem(new AppNavItem("Push Notification", MessagingView.class, VaadinIcon.SERVER,
+//				"navitem"));	
+//		}
+//		
+//		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
+//		nav.addItem(new AppNavItem("Notification", UserMessageView.class, VaadinIcon.SERVER,
+//				"navitem"));
+//		}
 
 		if (nav != null) {
 			nav.addClassName("active");

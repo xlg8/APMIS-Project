@@ -141,11 +141,15 @@ public class FormBuilderLayout extends VerticalLayout {
 
 		final HorizontalLayout hr = new HorizontalLayout();
 		hr.setWidthFull();
+		
 
 		TabSheet sheet = new TabSheet();
-
+		sheet.addClassName("formbuildertab");
+		sheet.setId("formbuildertab");
 		VerticalLayout tab1 = new VerticalLayout(formGridComponent);
 		VerticalLayout tab2 = new VerticalLayout(translationGridComponent);
+		tab1.getStyle().set("color", "black");
+		tab1.getStyle().set("color", "black");
 
 		sheet.add("Form Elements", tab1);
 		sheet.add("Form Translations", tab2);
@@ -157,7 +161,7 @@ public class FormBuilderLayout extends VerticalLayout {
 		add(formLayout);
 		add(hr);
 
-		Button discardChanges = new Button("Dicard Changes");
+		Button discardChanges = new Button("Discard Changes");
 		Button saved = new Button("Save");
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(discardChanges, saved);

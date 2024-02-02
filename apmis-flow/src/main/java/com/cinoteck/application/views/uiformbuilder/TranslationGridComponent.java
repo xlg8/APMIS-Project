@@ -95,8 +95,8 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		outerGrid.addColumn(CampaignFormTranslations::getLanguageCode).setHeader("Language Code").setSortable(true)
 				.setResizable(true);
-		outerGrid.addColumn(CampaignFormTranslations::getTranslations).setHeader("Translation Element")
-				.setSortable(true).setResizable(true);
+//		outerGrid.addColumn(CampaignFormTranslations::getTranslations).setHeader("Translation Element")
+//				.setSortable(true).setResizable(true);
 
 		grid.addColumn(TranslationElement::getElementId).setHeader("Element Id").setSortable(true).setResizable(true);
 		grid.addColumn(TranslationElement::getCaption).setHeader("Caption").setSortable(true).setResizable(true);
@@ -481,17 +481,19 @@ public class TranslationGridComponent extends VerticalLayout {
 
 		return vrsub;
 	}
-	
+
 	public void congigureElementId() {
-		
+
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
-		
-		for (CampaignFormElement campaignFormElement : listofelements) {
-			listofthem.add(campaignFormElement.getId());
+
+		if (campaignFormMetaDto.getCampaignFormElements() != null) {
+			for (CampaignFormElement campaignFormElement : listofelements) {
+				listofthem.add(campaignFormElement.getId());
+			}
 		}
-		
-		elementId.setItems(listofthem);	
+
+		elementId.setItems(listofthem);
 	}
 
 	public List<CampaignFormTranslations> getGridData() {
