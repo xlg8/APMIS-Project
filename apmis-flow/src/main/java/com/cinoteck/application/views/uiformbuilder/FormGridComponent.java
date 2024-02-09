@@ -88,7 +88,7 @@ public class FormGridComponent extends VerticalLayout {
 
 	private boolean isNewForm = false;
 //	ObjectMapper objectMapper = new ObjectMapper();
-	Dialog dialog = new Dialog();
+	Dialog dialog;// = new Dialog();
 
 	public FormGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 
@@ -1003,6 +1003,7 @@ public class FormGridComponent extends VerticalLayout {
 		});
 
 		expressions.addClickListener(e -> {
+			dialog = new Dialog();
 			dialog.open();
 			expressionPopUp(expression.getValue());
 		});
@@ -1028,6 +1029,7 @@ public class FormGridComponent extends VerticalLayout {
 		H3 inputH3 = new H3("Current input: ");
 		H3 selectionH3 = new H3("Selection: ");
 
+		expressionLayout.remove(ids, expressionEdit);
 		expressionLayout.add(ids, expressionEdit);
 		dialog.add(expressionLayout);
 		dialog.getFooter().add(addExpression);
