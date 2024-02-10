@@ -53,8 +53,8 @@ import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 
-@PageTitle("APMIS-Form-Builder-Wizard")
-@Route(value = "Form-Builder-Wizard", layout = MainLayout.class)
+@PageTitle("APMIS-Form-Manager")
+@Route(value = "form-builder-wizard", layout = MainLayout.class)
 public class FormBuilderView extends VerticalLayout {
 
 	/**

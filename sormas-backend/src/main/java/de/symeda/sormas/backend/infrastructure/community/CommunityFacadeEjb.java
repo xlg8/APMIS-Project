@@ -122,6 +122,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			cq.where(filter);
 		}
 
+		System.out.println("ttttttttttttttttttttttttttyyyy " 
+				+ SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
 	}
 

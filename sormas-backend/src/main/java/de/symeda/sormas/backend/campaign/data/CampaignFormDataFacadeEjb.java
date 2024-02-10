@@ -386,7 +386,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
 				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
 				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
-				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME), root.get(CampaignFormData.ISVERIFIED), root.get(CampaignFormData.ISPUBLISHED));
 
 		Predicate filter = CriteriaBuilderHelper.and(cb,
 				campaignFormDataService.createCriteriaFilter(criteria, cb, root),
@@ -442,6 +442,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					break;
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
+					break;
+					
+				case CampaignFormDataIndexDto.ISVERIFIED:
+					expression = campaignFormMetaJoin.get(CampaignFormData.ISVERIFIED);
+					break;
+					
+				case CampaignFormDataIndexDto.ISPUBLISHED:
+					expression = campaignFormMetaJoin.get(CampaignFormData.ISPUBLISHED);
 					break;
 
 				case CampaignFormDataIndexDto.FORM_VALUES:
@@ -2719,26 +2727,7 @@ if(criteria.getUserLanguage() != null) {
 				+ "  WHERE fe->>'caption' IS NOT NULL \r\n"
 				+ "    AND fe->>'caption' NOT LIKE '%<%'\r\n"
 				+ ") AS subquery;";
-		
-		
-	//	Query seriesDataQuery = em.createNativeQuery(joinBuilder);
-		
-	//	List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
-//		
-//		
-//		@SuppressWarnings("unchecked")
-//		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-//		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CampaignFormDataIndexDto(
-//						
-//						(String) result[0]
-//								
-//								)).collect(Collectors.toList()));
-//	
-//		//System.out.println("ending...." +resultData.size());
-		
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
