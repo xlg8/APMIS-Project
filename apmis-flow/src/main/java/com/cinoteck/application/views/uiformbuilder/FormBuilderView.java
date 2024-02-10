@@ -53,8 +53,9 @@ import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 
+
 @PageTitle("APMIS-Form-Manager")
-@Route(value = "form-builder-wizard", layout = MainLayout.class)
+@Route(value = "Form-Manager-Wizard", layout = MainLayout.class)
 public class FormBuilderView extends VerticalLayout {
 
 	/**
@@ -82,6 +83,7 @@ public class FormBuilderView extends VerticalLayout {
 	UserProvider userProvider = new UserProvider();
 	HorizontalLayout hr = new HorizontalLayout();
 	ConfirmDialog confirmationPopup = new ConfirmDialog();
+	ConfirmDialog confirmationPopups = new ConfirmDialog();
 
 	private FormBuilderDataProvider formBuilderDataProvider = new FormBuilderDataProvider();
 	private ConfigurableFilterDataProvider<CampaignFormMetaDto, Void, CampaignFormCriteria> filterDataProvider;
@@ -137,7 +139,7 @@ public class FormBuilderView extends VerticalLayout {
 		modality = new ComboBox<>("Modality");
 		modality.setItems(Modality.values());
 		modality.setClearButtonVisible(true);
-		
+
 		displayFilters.addClickListener(e -> {
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
@@ -357,45 +359,61 @@ public class FormBuilderView extends VerticalLayout {
 
 	private void archiveFormPopup() {
 
-		confirmationPopup.setHeader("Archive Forms");
+		if (grid.getSelectedItems().size() < 1) {
 
-		confirmationPopup.setText("You are about to Archive " + grid.getSelectedItems().size() + " Forms");
-		confirmationPopup.setCloseOnEsc(false);
-		confirmationPopup.setCancelable(true);
-		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+			Notification notification = Notification.show("Please Select Forms to Archive");
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {			
+			confirmationPopup.setHeader("Archive Forms");
 
-		confirmationPopup.setRejectable(true);
-		confirmationPopup.setRejectText("Cancel");
-		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+			confirmationPopup.setText("You are about to Archive " + grid.getSelectedItems().size() + " Forms");
+			confirmationPopup.setCloseOnEsc(false);
+			confirmationPopup.setCancelable(true);
+			confirmationPopup.addCancelListener(e -> confirmationPopup.close());
 
-		confirmationPopup.setConfirmText("Archive");
-		List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
-		confirmationPopup.addConfirmListener(e -> archiveForms(gridListConverted));
-		confirmationPopup.open();
+			confirmationPopup.setRejectable(true);
+			confirmationPopup.setRejectText("Cancel");
+			confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+
+			confirmationPopup.setConfirmText("Archive");
+			List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
+			confirmationPopup.addConfirmListener(e -> archiveForms(gridListConverted));
+			confirmationPopup.open();
+		}
 	}
 
 	private void dearchiveFormPopup() {
-		confirmationPopup.setHeader("Dearchive Forms");
+		
+		if (grid.getSelectedItems().size() < 1) {
+			
+			Notification notification = Notification.show("Please Select Forms to Dearchive");
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {
+			confirmationPopups.setHeader("Dearchive Forms");
 
-		confirmationPopup.setText("You are about to dearchive " + grid.getSelectedItems().size() + " Forms");
-		confirmationPopup.setCloseOnEsc(false);
-		confirmationPopup.setCancelable(true);
-		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+			confirmationPopups.setText("You are about to dearchive " + grid.getSelectedItems().size() + " Forms");
+			confirmationPopups.setCloseOnEsc(false);
+			confirmationPopups.setCancelable(true);
+			confirmationPopups.addCancelListener(e -> confirmationPopups.close());
 
-		confirmationPopup.setRejectable(true);
-		confirmationPopup.setRejectText("Cancel");
-		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+			confirmationPopups.setRejectable(true);
+			confirmationPopups.setRejectText("Cancel");
+			confirmationPopups.addRejectListener(e -> confirmationPopups.close());
 
-		confirmationPopup.setConfirmText("Dearchive");
-		List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
-		confirmationPopup.addConfirmListener(e -> dearchiveForms(gridListConverted));
-		confirmationPopup.open();
+			confirmationPopups.setConfirmText("Dearchive");
+			List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
+			confirmationPopups.addConfirmListener(e -> dearchiveForms(gridListConverted));
+			confirmationPopups.open();
+		}
 	}
 
 	private void dearchiveForms(List<CampaignFormMetaDto> selectedItems) {
 
-		if (selectedItems.size() == 0) {
-
+		if (selectedItems.size() < 1) {
 			Notification notification = Notification.show("Please Select Form to Dearchive");
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notification.setPosition(Notification.Position.MIDDLE);
@@ -405,18 +423,22 @@ public class FormBuilderView extends VerticalLayout {
 			List<String> uuids = selectedItems.stream().map(CampaignFormMetaDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getCampaignFormMetaFacade().dearchiveForms(uuids);
 
-			Notification notification = Notification.show("All Selected Form have been Dearchive");
+			Notification notification = Notification.show("All Selected Form have been Dearchived");
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			filterDataProvider.refreshAll();
+			leaveBulkModeButton.setVisible(false);
+			archiveForms.setVisible(false);
+			dearchiveForms.setVisible(false);
+			bulkModeButton.setVisible(true);
 		}
 	}
 
 	private void archiveForms(List<CampaignFormMetaDto> selectedItems) {
 
-		if (selectedItems.size() == 0) {
+		if (selectedItems.size() < 1) {
 
 			Notification notification = Notification.show("Please Select Form to Archive");
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -427,12 +449,16 @@ public class FormBuilderView extends VerticalLayout {
 			List<String> uuids = selectedItems.stream().map(CampaignFormMetaDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getCampaignFormMetaFacade().archiveForms(uuids);
 
-			Notification notification = Notification.show("All Selected Form have been Archive");
+			Notification notification = Notification.show("All Selected Form have been Archived");
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			filterDataProvider.refreshAll();
+			leaveBulkModeButton.setVisible(false);
+			archiveForms.setVisible(false);
+			dearchiveForms.setVisible(false);
+			bulkModeButton.setVisible(true);
 		}
 	}
 

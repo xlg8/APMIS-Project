@@ -1,9 +1,10 @@
 package com.cinoteck.application.messaging;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,6 +19,12 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.util.Value;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.google.gson.Gson;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -28,6 +35,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -48,7 +57,7 @@ import de.symeda.sormas.api.messaging.FCMDto;
 import de.symeda.sormas.api.messaging.FCMResponseDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
 import de.symeda.sormas.api.messaging.MessageDto;
-import de.symeda.sormas.api.user.UserDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
@@ -63,19 +72,20 @@ public class MessagingView extends VerticalLayout {
 	private static final long serialVersionUID = -1327683446669581511L;
 
 	Button hideFilters;
+	HorizontalLayout filterLayout;
 	TextField search;
 	ComboBox<UserType> userType;
 	ComboBox<UserRole> userRole;
 	private ComboBox<AreaReferenceDto> areaFilter;
 	private ComboBox<RegionReferenceDto> regionFilter;
 	private ComboBox<DistrictReferenceDto> districtFilter;
+	private ComboBox<FormAccess> formAccessFilter;
 	public MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>();
-	
+
 	List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 	List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
 	List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade().getAllActiveAsReference();
-	List<CommunityReferenceDto> communities;
-	
+
 	Button newMessage;
 	Button bulkModeButton;
 	Button leaveBulkModeButton;
@@ -90,9 +100,14 @@ public class MessagingView extends VerticalLayout {
 
 	public MessagingDataProvider messagingDataProvider = new MessagingDataProvider();
 	public ConfigurableFilterDataProvider<MessageDto, Void, MessageCriteria> filterDataProvider;
-	
+
 	MessageCriteria criteria = new MessageCriteria();
-	
+
+	StringBuilder baseTopic = new StringBuilder();
+	FCMDto fcmDto = new FCMDto();
+	List<FCMDto> fcmDtoListConfiguration = new ArrayList();
+	List<FCMDto> fcmDtoListFormAccess = new ArrayList();
+
 	@Value("${fcm.secret.key}")
 	private String fcmSecretKey;
 
@@ -109,17 +124,29 @@ public class MessagingView extends VerticalLayout {
 		configureGrid();
 		hr.getStyle().set("margin-left", "10px");
 		hr.setAlignItems(Alignment.END);
-		hr.add(hideFilters, search, userRole, areaFilter, regionFilter, districtFilter, community, newMessage);
+		filterLayout.add(search, userRole, formAccessFilter, areaFilter, regionFilter, districtFilter);
+		hr.add(hideFilters, filterLayout, newMessage);
 		add(hr, grid);
 	}
 
 	public void configureView() {
 
-		hideFilters = new Button("Hide Filters");
+		filterLayout = new HorizontalLayout();
+		filterLayout.getStyle().set("margin-top", "10px");
+		hideFilters = new Button("Hide Filters", new Icon(VaadinIcon.SLIDERS));
+		hideFilters.addClickListener(e -> {
+			if (filterLayout.isVisible() == false) {
+				filterLayout.setVisible(true);
+				hideFilters.setText("Hide Filter");
+			} else {
+				filterLayout.setVisible(false);
+				hideFilters.setText("Show Filters");
+			}
+		});
 
 		search = new TextField("Search");
 		search.setClearButtonVisible(true);
-		
+
 		search.setValueChangeMode(ValueChangeMode.EAGER);
 		search.addValueChangeListener(e -> {
 
@@ -150,9 +177,9 @@ public class MessagingView extends VerticalLayout {
 		userRole = new ComboBox<>("User Roles");
 		userRole.setItems(sortedUserRoless);
 		userRole.setClearButtonVisible(true);
-		
+
 		userRole.addValueChangeListener(e -> {
-			
+
 			if (e.getValue() != null) {
 				criteria.userRole(e.getValue());
 				filterDataProvider.setFilter(criteria);
@@ -166,15 +193,32 @@ public class MessagingView extends VerticalLayout {
 				filterDataProvider.refreshAll();
 			}
 		});
-		
+
+		formAccessFilter = new ComboBox<FormAccess>("Form Access");
+		formAccessFilter.setItems(FormAccess.values());
+		formAccessFilter.setClearButtonVisible(true);
+		formAccessFilter.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+				criteria.formAccess(e.getValue());
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			} else {
+
+				criteria.formAccess(null);
+				filterDataProvider.setFilter(criteria);
+
+				filterDataProvider.refreshAll();
+			}
+		});
+
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId("");
 		areaFilter.setWidth("145px");
 
 		areaFilter.setLabel(I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, CaseDataDto.AREA));
 		areaFilter.setPlaceholder(I18nProperties.getCaption(Captions.area));
-		areaFilter.getStyle().set("margin-left", "0.1rem");
-		areaFilter.getStyle().set("padding-top", "0px!important");
 		regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -185,7 +229,7 @@ public class MessagingView extends VerticalLayout {
 			areaFilter.setItems(regions);
 		}
 
-		areaFilter.setClearButtonVisible(true);		
+		areaFilter.setClearButtonVisible(true);
 		areaFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -219,17 +263,15 @@ public class MessagingView extends VerticalLayout {
 //			updateRowCount();
 
 		});
-		
+
 		regionFilter = new ComboBox<RegionReferenceDto>();
 		regionFilter.setId(CaseDataDto.REGION);
 		regionFilter.setWidth(145, Unit.PIXELS);
 		regionFilter.setLabel(
 				I18nProperties.getPrefixCaption(CaseDataDto.I18N_PREFIX, I18nProperties.getCaption(Captions.region)));
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.region));
-		regionFilter.getStyle().set("margin-left", "0.1rem");
-		regionFilter.getStyle().set("padding-top", "0px!important");
 		regionFilter.setClearButtonVisible(true);
-		
+
 		regionFilter.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				RegionReferenceDto region = e.getValue();
@@ -259,17 +301,15 @@ public class MessagingView extends VerticalLayout {
 //			updateRowCount();
 
 		});
-		
+
 		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		districtFilter.setWidth(145, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
 		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.district));
-		districtFilter.getStyle().set("margin-left", "0.1rem");
-		districtFilter.getStyle().set("padding-top", "0px!important");
 		districtFilter.setClearButtonVisible(true);
 		districtFilter.setReadOnly(true);
-		
+
 		districtFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -288,13 +328,13 @@ public class MessagingView extends VerticalLayout {
 
 			}
 		});
-		
-		newMessage = new Button("New Massage");
+
+		newMessage = new Button("New Massage", new Icon(VaadinIcon.PLUS_CIRCLE_O));
+		newMessage.getStyle().set("margin-top", "10px");
 
 		bulkModeButton = new Button("Enter Bulk Edit Mode");
 		bulkModeButton.addClickListener(e -> {
-			
-//			if()
+
 		});
 
 		newMessage.addClickListener(e -> {
@@ -303,14 +343,36 @@ public class MessagingView extends VerticalLayout {
 			newMessage(messageDto);
 		});
 	}
-	
-	private String rolesConf(MessageDto usrdto) {
-		UserProvider usrProv  = new UserProvider();
-		I18nProperties.setUserLanguage(usrProv.getUser().getLanguage());
-		String value = usrdto.getUserRoles().toString();
-		//System.out.println(I18nProperties.getUserLanguage() + "o//: "+value);
-		return value.replace("[", "").replace("]", "")
-				.replace("null,", "").replace("null", "");
+
+	private String formAccessConfig(MessageDto messageDto) {
+		String value = messageDto.getFormAccess().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
+	}
+
+	private String rolesConfig(MessageDto messageDto) {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
+		String value = messageDto.getUserRoles().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
+	}
+
+	private String areaConfig(MessageDto messageDto) {
+		String value = messageDto.getArea().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
+	}
+
+	private String regionConfig(MessageDto messageDto) {
+		String value = messageDto.getRegion().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
+	}
+
+	private String districtConfig(MessageDto messageDto) {
+		String value = messageDto.getDistrict().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
+	}
+
+	private String communityConfig(MessageDto messageDto) {
+		String value = messageDto.getCommunity().toString();
+		return value.replace("[", "").replace("]", "").replace("null,", "").replace("null", "");
 	}
 
 	public void configureGrid() {
@@ -321,13 +383,13 @@ public class MessagingView extends VerticalLayout {
 		grid.setColumnReorderingAllowed(true);
 
 		grid.addColumn(MessageDto.MESSAGE_CONTENT).setHeader("Message Content").setSortable(true).setResizable(true);
-		grid.addColumn(this::rolesConf).setHeader("User Roles").setSortable(true).setResizable(true);
+		grid.addColumn(this::rolesConfig).setHeader("User Roles").setSortable(true).setResizable(true);
 //		grid.addColumn(MessageDto.USER_TYPE).setHeader("User Type").setSortable(true).setResizable(true);
-		grid.addColumn(MessageDto.AREA).setHeader("Region").setSortable(true).setResizable(true);
-		grid.addColumn(MessageDto.REGION).setHeader("Province").setSortable(true).setResizable(true);
-		grid.addColumn(MessageDto.DISTRICT).setHeader("District").setSortable(true).setResizable(true);
-//		grid.addColumn(MessageDto.COMMUNITY).setHeader("Community").setSortable(true)
-//				.setResizable(true);
+		grid.addColumn(this::areaConfig).setHeader("Region").setSortable(true).setResizable(true);
+		grid.addColumn(this::regionConfig).setHeader("Province").setSortable(true).setResizable(true);
+		grid.addColumn(this::districtConfig).setHeader("District").setSortable(true).setResizable(true);
+		grid.addColumn(this::communityConfig).setHeader("Community").setSortable(true).setResizable(true);
+		grid.addColumn(this::formAccessConfig).setHeader("Form Access").setSortable(true).setResizable(true);
 //		grid.addColumn(MessageDto::getCreatingUser).setHeader("Created By").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
@@ -388,7 +450,7 @@ public class MessagingView extends VerticalLayout {
 		dialog.setClassName("edit-message");
 	}
 
-	public void sendFCM(FCMDto fcmDto) throws Exception {		
+	public void sendFCM(FCMDto fcmDto) throws Exception {
 		FCMResponseDto fcmResponseDto = null;
 		try {
 			Gson gson = new Gson();
@@ -397,7 +459,8 @@ public class MessagingView extends VerticalLayout {
 			HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
 			post.setEntity(postingString);
 			post.addHeader("Content-type", "application/json");
-			post.addHeader("Authorization", "key=");
+			post.addHeader("Authorization",
+					"key=AAAA6WgmWr4:APA91bHs3bQ5tvmXzyNt8xBhxHk6AwSjAFyAfypRl-1aOO2NYnfn9_d5khmLmqWdsbfePdyVDIzTggQTOl03KkHnHWdoXF-q7t1Zmx7jrwzVVvz4QJonxp5qnvhKcWD9_yKeY-IvMPuz");
 			StringBuilder result = new StringBuilder();
 			CloseableHttpResponse response = client.execute(post);
 
@@ -411,7 +474,7 @@ public class MessagingView extends VerticalLayout {
 			} else {
 				throw new Exception("Status Code of response not 200");
 			}
-			
+
 			ObjectMapper mapper = new ObjectMapper();
 			fcmResponseDto = mapper.readValue(result.toString(), FCMResponseDto.class);
 		} catch (Throwable ex) {
@@ -419,19 +482,59 @@ public class MessagingView extends VerticalLayout {
 		}
 	}
 
+	public void sendFcmSdk(MessageDto messageDto) {
+
+		List<CommunityReferenceDto> community = new ArrayList(messageDto.getCommunity());
+		List<FormAccess> formAccess = new ArrayList<>(messageDto.getFormAccess());
+//		for (CommunityReferenceDto eachCommunity : community) {
+		try {
+			FileInputStream serviceAccount = new FileInputStream(
+					"C:\\Users\\ABC\\Downloads\\sormas-app-9a541-firebase-adminsdk-1qpfu-b78d91d2b0.json");
+
+			FirebaseOptions options = new FirebaseOptions.Builder()
+					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
+
+			FirebaseApp.initializeApp(options);
+			Message message = Message.builder().setNotification(
+					Notification.builder().setTitle("APMIS Update").setBody(messageDto.getMessageContent()).build())
+					.setTopic("/topics/allDevicesr").build();
+//							.setTopic("/topics/"+eachCommunity.getCaption()).build();
+
+			String response = FirebaseMessaging.getInstance().send(message);
+			System.out.println("Successfully sent message: " + response);
+
+		} catch (Exception e) {
+			e.getStackTrace().toString();
+		} finally {
+		}
+//		}		
+	}
+
 	public void saveMessage(MessagingLayout.SaveEvent event) throws Exception {
 		FacadeProvider.getMessageFacade().saveMessage(event.getMessage());
 
+		List<CommunityReferenceDto> community = new ArrayList(event.getMessage().getCommunity());
+		List<FormAccess> formAccess = new ArrayList<>(event.getMessage().getFormAccess());
 		if (event.getMessage().getUserRoles().contains(UserRole.REST_USER)) {
-			FCMDto fcmDto = new FCMDto();
-			fcmDto.setTo("/topics/allDevices");
+			fcmDtoListConfiguration = new ArrayList();
+			fcmDtoListFormAccess = new ArrayList();
 
-			FCMDto.Notification notification = fcmDto.new Notification();
-			notification.setTitle("APMIS Update");
-			notification.setBody(event.getMessage().getMessageContent());
-			fcmDto.setNotification(notification);
+			sendFcmSdk(event.getMessage());
+//			for (CommunityReferenceDto eachCommunity : community) {
+//				System.out.println(eachCommunity.getCaption() + " gggggggggggggggggg");
+//				baseTopic = new StringBuilder();
+//				baseTopic.append("/topics/");
+//				String toHolder = baseTopic.append(eachCommunity.getCaption().toString()).toString();
+//				fcmDto = new FCMDto();
+//				fcmDto.setTo(toHolder);
+//
+//				FCMDto.Notification notification = fcmDto.new Notification();
+//				notification.setTitle("APMIS Update");
+//				notification.setBody(event.getMessage().getMessageContent());
+//				fcmDto.setNotification(notification);
+//				sendFCM(fcmDto);
+//			}
 
-			sendFCM(fcmDto);
 		}
 	}
 }

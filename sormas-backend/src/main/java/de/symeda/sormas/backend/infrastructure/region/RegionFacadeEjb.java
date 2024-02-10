@@ -653,4 +653,15 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 			return "";
 		}
 	}
+	
+	public static Set<RegionReferenceDto> toReferenceDto(Set<Region> region) { // save
+
+		Set<RegionReferenceDto> dtos = new HashSet<RegionReferenceDto>();
+		for (Region com : region) {
+			RegionReferenceDto dto = new RegionReferenceDto(com.getUuid(), com.toString(), com.getExternalId());
+			dtos.add(dto);
+		}
+
+		return dtos;
+	}
 }

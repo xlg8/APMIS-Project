@@ -68,10 +68,9 @@ public class SormasApplication extends Application implements Application.Activi
 		TaskNotificationService.startTaskNotificationAlarm(this);
 		FeatureConfigurationService.startFeatureConfigurationService(this);
 
-		FirebaseMessaging.getInstance().subscribeToTopic("allDevices").addOnSuccessListener(new OnSuccessListener<Void>() {
+		FirebaseMessaging.getInstance().subscribeToTopic("allDevicesr").addOnSuccessListener(new OnSuccessListener<Void>() {
 			@Override
 			public void onSuccess(Void aVoid) {
-				Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_LONG).show();
 				System.out.println("subscribtion is successfull");
 			}
 		});

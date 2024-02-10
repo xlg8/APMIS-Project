@@ -1,6 +1,8 @@
 package de.symeda.sormas.backend.infrastructure.area;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -19,6 +21,8 @@ import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.DataHelper;
@@ -99,5 +103,20 @@ public class AreaService extends AbstractInfrastructureAdoService<Area> {
 	@Override
 	public List<Area> getByExternalId(Long externalId, boolean includeArchived) {
 		return getByExternalId(externalId, Area.EXTERNAL_ID, includeArchived);
+	}
+	
+	public Set<Area> getByReferenceDto(Set<AreaReferenceDto> area) {
+		Set<Area> areas = new HashSet<Area>();
+		for (AreaReferenceDto com : area) {
+			if (com != null && com.getUuid() != null) {
+				Area result = getByUuid(com.getUuid());
+				if (result == null) {
+					logger.warn("Could not find entity for " + com.getClass().getSimpleName() + " with uuid "
+							+ com.getUuid());
+				}
+				areas.add(result);
+			}
+		}
+		return areas;
 	}
 }

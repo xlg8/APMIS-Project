@@ -143,12 +143,13 @@ public class AppNavItem extends Component {
      *            the CSS class to use for showing the icon
      */
     
-    public AppNavItem(String label,  VaadinIcon iconClass, String style,Button button) {
+    public AppNavItem(String label,  VaadinIcon iconClass, String style,Button button, Class<? extends Component> view) {
        
         setLabel(label);
         setIcon(iconClass.create());
         setId(style);
-        setButton(button);      
+        setButton(button); 
+        setPath(view);
     }
 
 

@@ -88,7 +88,6 @@ public class UserDto extends EntityDto {
 	//public static final String COMMUNITY_NO = "clusterno";
 	
 	private boolean active = true;
-	private boolean message = false;
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	private String userName;
@@ -249,14 +248,6 @@ public class UserDto extends EntityDto {
 	public void setUsertype(UserType usertype) {
 		this.usertype = usertype;
 	}		
-
-	public boolean isMessage() {
-		return message;
-	}
-
-	public void setMessage(boolean message) {
-		this.message = message;
-	}
 
 	@Override
 	public String toString() {

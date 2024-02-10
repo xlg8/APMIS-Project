@@ -5,15 +5,17 @@ import java.util.List;
 import java.util.Set;
 
 import com.cinoteck.application.UserProvider;
-import com.cinoteck.application.views.uiformbuilder.FormBuilderLayout.SaveEvent;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -25,12 +27,15 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.i18n.Captions;
+import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.messaging.MessageDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
@@ -46,12 +51,14 @@ public class MessagingLayout extends VerticalLayout {
 
 	H3 pushNotificationHeader = new H3("Push Notication Configuration");
 	TextField titleField;
-	public TextArea messageContent;// = new TextArea("Message Content");
-	MultiSelectComboBox<UserRole> userRoles; // = new ComboBox<UserRole>("User roles");
-	ComboBox<UserType> userType; // = new ComboBox<UserType>("User Type");
-	ComboBox<AreaReferenceDto> areaSelector; // = new ComboBox<AreaReferenceDto>("Region");
-	ComboBox<RegionReferenceDto> regionSelector;// = new ComboBox<RegionReferenceDto>("Province");
-	ComboBox<DistrictReferenceDto> districtSelector; // = new ComboBox<DistrictReferenceDto>("District");
+	public TextArea messageContent;
+	MultiSelectComboBox<UserRole> userRoles;
+	ComboBox<UserType> userType;
+	MultiSelectComboBox<FormAccess> formAccessSelector;
+	MultiSelectComboBox<AreaReferenceDto> areaSelector;
+	MultiSelectComboBox<RegionReferenceDto> regionSelector;
+	MultiSelectComboBox<DistrictReferenceDto> districtSelector;
+	MultiSelectComboBox<CommunityReferenceDto> communitySelector;
 
 	List<AreaReferenceDto> regions = FacadeProvider.getAreaFacade().getAllActiveAsReference();
 	List<RegionReferenceDto> provinces = FacadeProvider.getRegionFacade().getAllActiveAsReference();
@@ -63,6 +70,12 @@ public class MessagingLayout extends VerticalLayout {
 
 	UserProvider userProvider = new UserProvider();
 
+	List<RegionReferenceDto> regionHolder;
+	List<DistrictReferenceDto> districtHolder;
+	List<CommunityReferenceDto> communityiesHolder;
+	
+	Button savePreviewButton = new Button("Proceed and Save");
+	
 	private boolean isNew = false;
 
 	public MessagingLayout(MessageDto messageDto_, boolean isNew) {
@@ -92,9 +105,11 @@ public class MessagingLayout extends VerticalLayout {
 		TextArea messageContent = new TextArea("Message Content");
 		MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<UserRole>("User roles");
 		ComboBox<UserType> userType = new ComboBox<UserType>("User Type");
-		ComboBox<AreaReferenceDto> areaSelector = new ComboBox<AreaReferenceDto>("Region");
-		ComboBox<RegionReferenceDto> regionSelector = new ComboBox<RegionReferenceDto>("Province");
-		ComboBox<DistrictReferenceDto> districtSelector = new ComboBox<DistrictReferenceDto>("District");
+		MultiSelectComboBox<FormAccess> formAccessSelector = new MultiSelectComboBox<FormAccess>("Form Access");
+		MultiSelectComboBox<AreaReferenceDto> areaSelector = new MultiSelectComboBox<AreaReferenceDto>("Region");
+		MultiSelectComboBox<RegionReferenceDto> regionSelector = new MultiSelectComboBox<RegionReferenceDto>("Province");
+		MultiSelectComboBox<DistrictReferenceDto> districtSelector = new MultiSelectComboBox<DistrictReferenceDto>("District");
+		MultiSelectComboBox<CommunityReferenceDto> communitySelector = new MultiSelectComboBox<CommunityReferenceDto>("Community");
 
 		List<UserType> userTypeConfig = new ArrayList<>();
 
@@ -113,47 +128,55 @@ public class MessagingLayout extends VerticalLayout {
 		areaSelector.setItems(regions);
 		regionSelector.setItems(provinces);
 		districtSelector.setItems(districts);
+		formAccessSelector.setItems(FormAccess.values());
+		formAccessSelector.setClearButtonVisible(true);
 
 		binder.forField(messageContent).asRequired("Message Content is Required").bind(MessageDto::getMessageContent,
 				MessageDto::setMessageContent);
 
 		binder.forField(userRoles).asRequired("User Role is Required").bind(MessageDto::getUserRoles,
-				MessageDto::setUserRoles);
-
-//		binder.forField(userType).asRequired("User Type is Required").bind(MessageDto::getUserTypes,
-//				MessageDto::setUserTypes);		
+				MessageDto::setUserRoles);	
+		
+		binder.forField(formAccessSelector).bind(MessageDto::getFormAccess, MessageDto::setFormAccess);
 
 		binder.forField(areaSelector).bind(MessageDto::getArea, MessageDto::setArea);
 
 		binder.forField(regionSelector).bind(MessageDto::getRegion, MessageDto::setRegion);
 
 		binder.forField(districtSelector).bind(MessageDto::getDistrict, MessageDto::setDistrict);
+		
+		binder.forField(communitySelector).bind(MessageDto::getCommunity, MessageDto::setCommunity);
 
-		formLayout.add(messageContent, userRoles, areaSelector, regionSelector, districtSelector);
+		formLayout.add(messageContent, userRoles, formAccessSelector, areaSelector, regionSelector, districtSelector, communitySelector);
 		formLayout.setColspan(pushNotificationHeader, 2);
 
 		final HorizontalLayout hr = new HorizontalLayout();
+		formLayout.setColspan(messageContent, 2);
+		messageContent.setHeight("300px");
 
 		Button discardChanges = new Button("Dicard Changes");
 		Button saved = new Button("Save");
 		hr.add(discardChanges, saved);
 		add(formLayout, hr);
 
-//		userRoles.addValueChangeListener(e -> {
-//			if(e.getValue().equals(userRoleConfig)) {}
-//		})
 		discardChanges.addClickListener(e -> discardChanges());
 
 		saved.addClickListener(e -> {
+			preView(binder.getBean());
+		});
+		
+		savePreviewButton.addClickListener(e -> {
 			validateAndSave();
 		});
 
 		areaSelector.addValueChangeListener(e -> {
-
+			regionHolder = new ArrayList<>();
 			if (e.getValue() != null) {
-				AreaReferenceDto area = e.getValue();
+				for (AreaReferenceDto eachArea : e.getValue()) {
+					regionHolder.addAll(FacadeProvider.getRegionFacade().getAllActiveByArea(eachArea.getUuid()));
+				}
 				regionSelector.clear();
-				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+				provinces = regionHolder;
 
 //				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 //					regionFilter.setItems(
@@ -183,11 +206,15 @@ public class MessagingLayout extends VerticalLayout {
 		});
 
 		regionSelector.addValueChangeListener(e -> {
+			districtHolder = new ArrayList();
 			if (e.getValue() != null) {
-				RegionReferenceDto region = e.getValue();
+				for (RegionReferenceDto eachRegion : e.getValue()) {
+					districtHolder.addAll(FacadeProvider.getDistrictFacade().getAllActiveByRegion(eachRegion.getUuid()));
+				}
+				
 				districtSelector.clear();
 
-				districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+				districts = districtHolder;
 //				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 //					districtFilter.setItems(
 //							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
@@ -211,25 +238,47 @@ public class MessagingLayout extends VerticalLayout {
 //			filterDataProvider.setFilter(criteria);
 
 		});
+		
+		 // = new ArrayList<>();
+		districtSelector.addValueChangeListener(e -> {
+			communityiesHolder = new ArrayList<>();
+			if (e.getValue() != null) {
+				for (DistrictReferenceDto eachDsitrict : e.getValue()) {
+					
+					communityiesHolder.addAll(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(eachDsitrict.getUuid()));
+				}
+				communitySelector.clear();
+				
+				communities = communityiesHolder;
+				communitySelector.setItems(communities);
+//				criteria.district(district);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//				updateRowCount();
+
+			} else {
+//				criteria.district(null);
+//				filterDataProvider.setFilter(criteria);
+//				filterDataProvider.refreshAll();
+//				updateRowCount();
+
+			}
+		});
 	}
 
 	public void validateAndSave() {
 
 		if (binder.validate().isOk()) {
 
-			messageDto = binder.getBean();	
-//			if(titleField.getValue() != null && !titleField.getValue().isEmpty()) {
-//			messageDto.setTitle(titleField.getValue());
-//			}
-			UserReferenceDto userReferenceDto = new UserReferenceDto(userProvider.getUser().getUuid(), userProvider.getUser().getFirstName(),
-					userProvider.getUser().getLastName(), userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess(), 
+			messageDto = binder.getBean();
+			UserReferenceDto userReferenceDto = new UserReferenceDto(userProvider.getUser().getUuid(),
+					userProvider.getUser().getFirstName(), userProvider.getUser().getLastName(),
+					userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess(),
 					userProvider.getUser().getUsertype());
-			
+
 			messageDto.setCreatingUser(userReferenceDto);
 			fireEvent(new SaveEvent(this, messageDto));
 
-			System.out.println("from frontend " + messageDto.getCreatingUser().getFirstName());
-			System.out.println("from frontend 2 " + messageDto.getUuid());
 			UI.getCurrent().getPage().reload();
 
 			Notification.show("New Message Created");
@@ -238,10 +287,71 @@ public class MessagingLayout extends VerticalLayout {
 			Notification.show("Unable to Save new Message");
 		}
 	}
+	
+	public void preView(MessageDto messageDto) {
+
+		TextArea message = new TextArea("Message");
+		message.setValue(messageDto.getMessageContent());
+		message.setReadOnly(true);
+		message.getStyle().set("margin", "10px");
+		message.setHeight("250px");
+		
+		MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("Userroles");
+		userRoles.setItems(messageDto.getUserRoles());
+		userRoles.setValue(messageDto.getUserRoles());
+		userRoles.setReadOnly(true);
+		userRoles.getStyle().set("margin", "10px");
+		
+		MultiSelectComboBox<FormAccess> formAccess = new MultiSelectComboBox<>("FormAccess");
+		formAccess.setItems(messageDto.getFormAccess());
+		formAccess.setValue(messageDto.getFormAccess());
+		formAccess.setReadOnly(true);
+		userRoles.getStyle().set("margin", "10px");
+		
+		MultiSelectComboBox<AreaReferenceDto> areas = new MultiSelectComboBox<>("Regions");
+		areas.setItems(messageDto.getArea());
+		areas.setValue(messageDto.getArea());
+		areas.setReadOnly(true);
+		areas.getStyle().set("margin", "10px");
+		
+		MultiSelectComboBox<RegionReferenceDto> region = new MultiSelectComboBox<>("Provinces");
+		region.setItems(messageDto.getRegion());
+		region.setValue(messageDto.getRegion());
+		region.setReadOnly(true);
+		region.getStyle().set("margin", "10px");
+		
+		MultiSelectComboBox<DistrictReferenceDto> district = new MultiSelectComboBox<>("Districts");
+		district.setItems(messageDto.getDistrict());
+		district.setValue(messageDto.getDistrict());
+		district.setReadOnly(true);
+		district.getStyle().set("margin", "10px");
+		
+		MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Communities");
+		community.setItems(messageDto.getCommunity());
+		community.setValue(messageDto.getCommunity());
+		community.setReadOnly(true);
+		community.getStyle().set("margin", "10px");
+		
+		FormLayout preViewContent = new FormLayout();
+		preViewContent.add(message, userRoles, formAccess, areas, region, district, community);
+		preViewContent.setColspan(message, 2);
+		Dialog preViewDialog = new Dialog();
+		preViewDialog.setWidth("900px");
+		preViewDialog.setHeight("700px");
+		Button closePreviewButton = new Button("Back", e-> preViewDialog.close());
+		preViewDialog.add(preViewContent);
+		preViewDialog.setHeaderTitle("Notification Preview");
+		preViewDialog.open();
+		preViewDialog.setCloseOnEsc(false);
+		preViewDialog.setCloseOnOutsideClick(false);
+		preViewDialog.setModal(true);
+		preViewDialog.setClassName("notification-preview");
+		preViewDialog.getFooter().add(closePreviewButton, savePreviewButton);
+	}
 
 	public void setMessage(MessageDto messageDto) {
 		messageDto.setCreatingUser(userProvider.getUser().toReference());
-		binder.setBean(messageDto);		
+		binder.setBean(messageDto);
 	}
 
 	public static abstract class MessageEvent extends ComponentEvent<MessagingLayout> {

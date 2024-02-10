@@ -357,10 +357,9 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			System.out.println("DEBUGGER: 45fffffffiiilibraryii = " + campaignFormCriteria);
 			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
 		}
-//		cq.where(cb.and(cb.isFalse(campaignFormMeta.get(CampaignFormMeta.ARCHIVED))));
+		
 		if (filter != null) {
-//			cq.where(filter);
-			cq.where(cb.and(cb.isFalse(campaignFormMeta.get(CampaignFormMeta.ARCHIVED)), filter));
+			cq.where(filter);
 		}
 
 		if (sortProperties != null && sortProperties.size() > 0) {

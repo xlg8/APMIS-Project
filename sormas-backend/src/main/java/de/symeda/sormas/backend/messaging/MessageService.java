@@ -14,7 +14,9 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DataHelper;
@@ -25,7 +27,9 @@ import de.symeda.sormas.backend.common.AdoServiceWithUserFilter;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
+import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.district.DistrictService;
+import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
 import de.symeda.sormas.backend.user.User;
 
@@ -38,10 +42,10 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 
 	@EJB
 	private RegionService regionService;
-	
+
 	@EJB
 	private DistrictService districtService;
-	
+
 	public MessageService() {
 		super(Message.class);
 	}
@@ -53,36 +57,51 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 	}
 
 	public Predicate buildCriteriaFilter(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from) {
-		
+
 		Predicate filter = null;
 //		if (messageCriteria.getUserRole() != null) {
 //			filter = CriteriaBuilderHelper.and(cb, filter,
 //					cb.equal(from.get(Message.USER_ROLES), messageCriteria.getUserRole()));
 //		}
-		
+
 		if (messageCriteria.getUserRole() != null) {
-			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+			Join<User, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(messageCriteria.getUserRole())));
 		}
-		
-		if (messageCriteria.getUserType() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.get(Message.USER_TYPE), messageCriteria.getUserType()));
-		}
 
+		if (messageCriteria.getFormAccess() != null) {
+			Join<User, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
+			filter = CriteriaBuilderHelper.and(cb, filter, joinFormAccess.in(Arrays.asList(messageCriteria.getFormAccess())));
+		}
+		
+//		if (messageCriteria.getArea() != null) {
+//			filter = from.get(Message.AREA).in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
+//		}
+//
+//		if (messageCriteria.getRegion() != null) {
+//			filter = from.get(Message.REGION).in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
+//		}
+//
+//		if (messageCriteria.getDistrict() != null) {
+//			filter = from.get(Message.DISTRICT).in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
+//		}
+		
 		if (messageCriteria.getArea() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.get(Message.AREA), messageCriteria.getArea()));
+			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
+			Predicate areaFilter = joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
 		}
 		
 		if (messageCriteria.getRegion() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.get(Message.REGION), messageCriteria.getRegion()));
+			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
+			Predicate regionFilter = joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
 		}
 		
 		if (messageCriteria.getDistrict() != null) {
-			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(from.get(Message.DISTRICT), messageCriteria.getDistrict()));
+			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
+			Predicate districtFilter = joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
 		}
 
 		if (messageCriteria.getFreeText() != null) {
@@ -92,37 +111,50 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 					continue;
 				}
 
-				Predicate likeFilters = cb
-						.or(CriteriaBuilderHelper.unaccentedIlikeCustom(cb, from.get(Message.MESSAGE_CONTENT), textFilter),
-								CriteriaBuilderHelper.ilike(cb, from.get(Message.UUID), textFilter));
+				Predicate likeFilters = cb.or(
+						CriteriaBuilderHelper.unaccentedIlikeCustom(cb, from.get(Message.MESSAGE_CONTENT), textFilter),
+						CriteriaBuilderHelper.ilike(cb, from.get(Message.UUID), textFilter));
 				filter = CriteriaBuilderHelper.and(cb, filter, likeFilters);
 			}
 		}
 		return filter;
 	}
 
-	public Predicate buildCriteriaFilterCustom(MessageCriteria messageCriteria, CriteriaBuilder cb,
-			Root<Message> from, Set<UserRole> userRoles) {
-			
+	public Predicate buildCriteriaFilterCustom(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from,
+			Set<UserRole> userRoles, Set<FormAccess> formAccess) {
+
 		Predicate filter = null;
 		if (userRoles.size() > 0) {
 			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
 			Predicate rolesFilter = joinRoles.in(userRoles);
 			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
 		}
-
+		
+		if (formAccess.size() > 0) {
+			Join<Message, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
+			Predicate formAccessFilter = joinFormAccess.in(formAccess);
+			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
+		}
+		
 		if (messageCriteria.getArea() != null) {
-			filter = from.get(Message.AREA).in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
+			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
+			Predicate areaFilter = joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
 		}
 		
 		if (messageCriteria.getRegion() != null) {
-			filter = from.get(Message.REGION).in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
+			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
+			Predicate regionFilter = joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
 		}
 		
 		if (messageCriteria.getDistrict() != null) {
-			filter = from.get(Message.DISTRICT).in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
+			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
+			Predicate districtFilter = joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
 		}
+		
 		return filter;
 	}
-	
+
 }
