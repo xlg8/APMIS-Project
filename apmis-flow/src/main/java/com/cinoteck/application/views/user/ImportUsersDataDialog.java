@@ -78,13 +78,13 @@ public class ImportUsersDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-		UI.getCurrent().addPollListener(event -> {
-			if (callbackRunning) {
-				UI.getCurrent().access(this::pokeFlow);
-			} else {
-				stopPullers();
-			}
-		});
+//		UI.getCurrent().addPollListener(event -> {
+//			if (callbackRunning) {
+//				UI.getCurrent().access(this::pokeFlow);
+//			} else {
+//				stopPullers();
+//			}
+//		});
 
 		H3 step2 = new H3();
 		step2.add("Step 1: Download the Import Template");
@@ -166,7 +166,7 @@ public class ImportUsersDataDialog extends Dialog {
 		UserDto userDto = usr.getUser();
 		
 		startDataImport.addClickListener(ed -> {
-
+			startIntervalCallback();
 			
 			try {
 
@@ -246,7 +246,7 @@ public class ImportUsersDataDialog extends Dialog {
 //			startIntervalCallback();
 //		});
 		
-		startIntervalCallback();
+		
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -55,14 +57,16 @@ public class ImportPopulationDataDialog extends Dialog {
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 //	ComboBox valueSeperator = new ComboBox<>();
-//	private boolean callbackRunning = false;
-//	private Timer timer;
+	private boolean callbackRunning = false;
+	private Timer timer;
 //	private int pollCounter = 0;
 	FileUploader buffer = new FileUploader();  
     Upload upload = new Upload(buffer);
 	private File file_;
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
 	
 	@Autowired
 	CampaignForm campaignForm;
@@ -207,6 +211,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		Icon startImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonnIcon);
 		startDataImport.addClickListener(ed -> {
+			startIntervalCallback();
 
 			
 			try {
@@ -268,7 +273,7 @@ finally {
 
 		Button doneButton = new Button("Done", e -> {
 			close();
-		//	stopIntervalCallback();
+			stopIntervalCallback();
 			campaignForm.treeGrid.getDataProvider().refreshAll();
 			// refreshPage();
 		});
@@ -315,9 +320,42 @@ finally {
 	
 //	
 //
-//	private void stopPullers() {
-//		UI.getCurrent().setPollInterval(-1);
-//	}
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
+	
+	private void startIntervalCallback() {
+		//UI.getCurrent().setPollInterval(300);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+//					stopIntervalCallback();
+					pokeFlow();
+				}
+			}, 1000); // 10 minutes
+
+			callbackRunning = true;
+		}
+	}
+	
+	private void stopIntervalCallback() {
+		System.out.println("stopIntervalCallback_________________");
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+
+		}
+	}
+	
+	private void pokeFlow() {
+		logger.debug("runingImport...");
+	}
+
 
 	private void refreshPage() {
 		// Get the current UI
