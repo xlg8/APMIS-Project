@@ -42,6 +42,8 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	public static final String USER_LANGUAGE = "userLanguage";
 	public static final String USER_TYPE = "usertype";
 	public static final String ISVERIFIED = "isVerified";
+	public static final String ISPUBLISHED = "isPublished";
+
 	//for filter
 	
 
@@ -60,6 +62,7 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private String userLanguage;
 	private String usertype;
 	private Boolean isVerified;
+	private Boolean isPublished;
 	private UserType usertypeEnum;
 	// for filter
 
@@ -218,6 +221,14 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public void setIsVerified(Boolean isVerified) {
 		this.isVerified = isVerified;
+	}
+	
+	public Boolean getIsPublished() {
+		return isPublished;
+	}
+
+	public void setIsPublished(Boolean isPublished) {
+		this.isPublished = isPublished;
 	}
 	
 	

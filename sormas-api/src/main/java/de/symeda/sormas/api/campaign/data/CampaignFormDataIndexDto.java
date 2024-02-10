@@ -56,10 +56,12 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public static final String ANALYSIS_FIELD_C_ = "analysis_c_";
 	public static final String ANALYSIS_FIELD_D_ = "analysis_d_";
 
+	public static final String ISVERIFIED = "isverified";
+	public static final String ISPUBLISHED = "ispublished";
+
 	public static final String SOURCE = "source";
 	public static final String CREATED_BY = "creatingUser";
 	public static final String CREATINGUSER_USERTYPE = "creatingUserType";
-
 
 	public static final String PERSON_TITLE = "personTitle";
 
@@ -93,11 +95,39 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Integer analysis_c_;
 	private Integer analysis_d_;
 
+	private boolean isverified;
+	private boolean ispublished;
+
 	private String source;
 	private String creatingUser;
 	private String creatingUserType;
 
 	private String personTitle;
+
+	public CampaignFormDataIndexDto(String uuid, String campaign, String form, Object formValues, String area,
+			Long rcode, String region, Long pcode, String district, Long dcode, String community, Integer clusternumber,
+			Long ccode, Date formDate, String formType, String source, String creatingUser, boolean isverified,
+			boolean ispublished) {
+		this.uuid = uuid;
+		this.campaign = campaign;
+		this.form = form;
+		this.formValues = (List<CampaignFormDataEntry>) formValues;
+		this.area = area;
+		this.rcode = rcode;
+		this.region = region;
+		this.pcode = pcode;
+		this.district = district;
+		this.dcode = dcode;
+		this.community = community;
+		this.clusternumber = clusternumber;
+		this.ccode = ccode;
+		this.formDate = formDate;
+		this.formType = formType;
+		this.source = source;
+		this.creatingUser = creatingUser;
+		this.isverified = isverified;
+		this.ispublished = ispublished;
+	}
 
 	public CampaignFormDataIndexDto(String uuid, String campaign, String form, Object formValues, String area,
 			Long rcode, String region, Long pcode, String district, Long dcode, String community, Integer clusternumber,
@@ -119,6 +149,7 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.formType = formType;
 		this.source = source;
 		this.creatingUser = creatingUser;
+
 	}
 
 	public CampaignFormDataIndexDto(String form, String uuid, Long rcode, String campaign, String creatingUser,
@@ -134,13 +165,11 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.analysis_a = analysis_a;
 		this.analysis_b = analysis_b;
 	}
-	
-	public CampaignFormDataIndexDto(
-			String creatingUserType) {
+
+	public CampaignFormDataIndexDto(String creatingUserType) {
 
 		this.creatingUserType = creatingUserType;
 
-		
 	}
 
 	// FLW Contructor
@@ -224,8 +253,6 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.community = community;
 		this.formDate = formDate;
 	}
-
-	
 
 	public String getUuid() {
 		return uuid;
@@ -466,7 +493,41 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	public void setCreatingUserType(String creatingUserType) {
 		this.creatingUserType = creatingUserType;
 	}
+
+	public boolean isIsverified() {
+		return isverified;
+	}
+
+	public void setIsverified(boolean isverified) {
+		this.isverified = isverified;
+	}
+
+	public boolean isIspublished() {
+		return ispublished;
+	}
+
+	public String getPublishedStringValue() {
+		if (isIspublished()) {
+
+			return "Published";
+
+		} else {
+			return "Unpublished";
+		}
+	}
 	
-	
+	public String getVerifiedStringValue() {
+		if (isIsverified()) {
+
+			return "Verified";
+
+		} else {
+			return "Unverified";
+		}
+	}
+
+	public void setIspublished(boolean ispublished) {
+		this.ispublished = ispublished;
+	}
 
 }

@@ -241,8 +241,8 @@ public class CampaignFormMetaService extends AdoServiceWithUserFilter<CampaignFo
 
 		Predicate filter = cb.equal(campaignRoot.get(Campaign.UUID), uuid);
 		Predicate typefilter = cb.equal(campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE), "post-campaign");// cb.and
-		Predicate filterxx = cb.equal(campaignRoot.get(Campaign.PUBLISHED), true);
-		cq = cq.where(filter, typefilter, filterxx);
+//		Predicate filterxx = cb.equal(campaignRoot.get(Campaign.PUBLISHED), true);
+		cq = cq.where(filter, typefilter);// filterxx);
 		cq.multiselect(campaignFormMetaJoin.get(CampaignFormMeta.UUID),
 				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME));
 

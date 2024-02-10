@@ -248,6 +248,12 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 					cb.equal(root.get(CampaignFormData.ISVERIFIED), criteria.getIsVerified()));
 //					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
 		}
+		
+		if (criteria.getIsPublished() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(root.get(CampaignFormData.ISPUBLISHED), criteria.getIsPublished()));
+//					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
+		}
 
 		return filter;
 	}
@@ -302,12 +308,6 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 			}
 		}
 
-//		if(currentUser.getUsertype() != null) {
-//			UserType type = currentUser.getUsertype();
-//			filter = CriteriaBuilderHelper.or(cb, filter,
-//					cb.equal(campaignPath.get("creatinguser_id").get(User.ID), type));
-////			filter = cb.equal(campaignPath.get(CampaignFormData.COMMUNITY).get(Community.ID), com.getId()));
-//		}
 
 		return filter;
 	}
