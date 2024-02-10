@@ -60,6 +60,7 @@ import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.UserReportModelDto;
@@ -1007,7 +1008,7 @@ public class UserFacadeEjb implements UserFacade {
 			user.setFormAccess(accesses);
 			userService.ensurePersisted(user);
 
-//			userUpdateEvent.fire(new UserUpdateEvent(user));
+			userUpdateEvent.fire(new UserUpdateEvent(user));
 		}
 		
 	}
@@ -1023,13 +1024,17 @@ public class UserFacadeEjb implements UserFacade {
 			user.setRegion(regionService.getByReferenceDto(userDto.getRegion()));
 			user.setDistrict(districtService.getByReferenceDto(userDto.getDistrict()));
 			user.setDistricts(districtService.getByReferenceDto(userDto.getDistricts()));
-			if (userDto.getCommunity() != null) {
+			System.out.println("User Roles from Userfaceade ejb when saving " +userDto.getCommunity());
+//			if (userDto.getCommunity().size() > 0) {
 				user.setCommunity(communityService.getByReferenceDto(userDto.getCommunity()));
 
-			}
+//			}else {
+//				Set<CommunityReferenceDto> emptyCommunity = new HashSet<>();
+//				user.setCommunity(communityService.getByReferenceDto(emptyCommunity));
+//			}
 			userService.ensurePersisted(user);
 
-//			userUpdateEvent.fire(new UserUpdateEvent(user));
+			userUpdateEvent.fire(new UserUpdateEvent(user));
 		}
 		
 	}
