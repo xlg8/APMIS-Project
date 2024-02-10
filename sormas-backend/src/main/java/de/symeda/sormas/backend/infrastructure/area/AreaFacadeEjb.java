@@ -443,4 +443,15 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		return resultData;
 
 	}
+	
+	public static Set<AreaReferenceDto> toReferenceDto(Set<Area> area) { // save
+
+		Set<AreaReferenceDto> dtos = new HashSet<AreaReferenceDto>();
+		for (Area com : area) {
+			AreaReferenceDto dto = new AreaReferenceDto(com.getUuid(), com.toString(), com.getExternalId());
+			dtos.add(dto);
+		}
+
+		return dtos;
+	}
 }

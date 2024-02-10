@@ -1,8 +1,5 @@
 package com.cinoteck.application.views;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.validation.constraints.NotNull;
 
 import com.cinoteck.application.UserProvider;
@@ -19,10 +16,8 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
-import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
-import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
@@ -51,11 +46,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -98,6 +91,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private Button cancelButton;
 	Dialog dialog = new Dialog();
 	Div aboutText = new Div();
+	Button notification = new Button("Notification");
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -287,8 +281,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //		}
 //		
 //		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-//		nav.addItem(new AppNavItem("Notification", UserMessageView.class, VaadinIcon.SERVER,
-//				"navitem"));
+//		nav.addItem(new AppNavItem("Notification",  VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
 //		}
 
 		if (nav != null) {

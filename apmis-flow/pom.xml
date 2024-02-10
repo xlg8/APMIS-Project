@@ -206,7 +206,11 @@
 			<version>4.3.30.RELEASE</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.2.0</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 
 			<dependency>
 				<groupId>org.vaadin.highcharts</groupId>

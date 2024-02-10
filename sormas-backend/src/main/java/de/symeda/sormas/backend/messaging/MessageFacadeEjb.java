@@ -36,12 +36,15 @@ import de.symeda.sormas.api.messaging.FCMResponseDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
 import de.symeda.sormas.api.messaging.MessageDto;
 import de.symeda.sormas.api.messaging.MessageFacade;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
+import de.symeda.sormas.backend.infrastructure.community.Community;
+import de.symeda.sormas.backend.infrastructure.community.CommunityFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.district.DistrictFacadeEjb;
@@ -94,6 +97,7 @@ public class MessageFacadeEjb implements MessageFacade {
 		target.setMessageContent(source.getMessageContent());
 		target.setUserTypes(source.getUsertype());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
+		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
 		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
@@ -101,15 +105,9 @@ public class MessageFacadeEjb implements MessageFacade {
 //			target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));	
 //		}		
 
-//		if (source.getCommunity() != null && !source.getCommunity().isEmpty()) {
-//			Set<String> communitynos = new HashSet<>();
-//			for (Community c : source.getCommunity()) {
-//				if (c.getClusterNumber() != null && c != null) {
-//					communitynos.add(c.getClusterNumber().toString());
-//				}
-//			}
-//			target.setCommunitynos(communitynos);
-//		}
+		if (source.getCommunity() != null) {
+			target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
+		}
 		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
 
 		return target;
@@ -122,15 +120,12 @@ public class MessageFacadeEjb implements MessageFacade {
 		target.setMessageContent(source.getMessageContent());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
 		target.setUsertype(source.getUserTypes());
+		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
-//		if (target.getDistricts() != null) {
-//			target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));	
-//		}		
-
-//		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
-		target.setCreatingUser(userService.getByReferenceDto(source.getCreatingUser()));
+		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
+		target.setCreatingUser(userService.getByUuid(source.getCreatingUser().getUuid()));
 
 		return target;
 	}
@@ -143,20 +138,9 @@ public class MessageFacadeEjb implements MessageFacade {
 		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
 		Root<Message> messages = cq.from(Message.class);
 
-		Join<Message, Area> area = messages.join(Message.AREA, JoinType.LEFT);
-		Join<Message, Region> region = messages.join(Message.REGION, JoinType.LEFT);
-		Join<Message, District> district = messages.join(Message.DISTRICT, JoinType.LEFT);
-//		Join<Message, Community> community = messages.join(Message.COMMUNITY, JoinType.LEFT);
 		Join<Message, User> userJoin = messages.join(Message.CREATED_BY, JoinType.LEFT);
 
-		cq.multiselect(messages.get(Message.UUID), messages.get(Message.MESSAGE_CONTENT),
-//				criteria.getCampaignFormMeta() != null ? root.get(CampaignFormData.FORM_VALUES)
-//						: cb.nullLiteral(String.class),
-				messages.get(Message.USER_ROLES), area.get(Area.NAME), area.get(Area.EXTERNAL_ID),
-				region.get(Region.NAME), region.get(Region.EXTERNAL_ID), district.get(District.NAME),
-				district.get(District.EXTERNAL_ID),
-//				community.get(Community.NAME),community.get(Community.EXTERNAL_ID), 
-				userJoin.get(User.USER_NAME));
+		cq.multiselect(messages.get(Message.UUID), messages.get(Message.MESSAGE_CONTENT), userJoin.get(User.USER_NAME));
 
 		Predicate filter = null;
 
@@ -177,17 +161,20 @@ public class MessageFacadeEjb implements MessageFacade {
 				case Message.MESSAGE_CONTENT:
 					expression = messages.get(sortProperty.propertyName);
 					break;
-				case Message.USER_ROLES:
-					expression = messages.get(Message.USER_ROLES);
-					break;
-				case Message.DISTRICT:
-					expression = district.get(District.NAME);
-					break;
-				case Message.AREA:
-					expression = area.get(Area.NAME);
-					break;
-				case Message.REGION:
-					expression = region.get(Region.NAME);
+//				case Message.USER_ROLES:
+//					expression = messages.get(Message.USER_ROLES);
+//					break;
+//				case Message.DISTRICT:
+//					expression = messages.get(Message.DISTRICT);
+//					break;
+//				case Message.AREA:
+//					expression = messages.get(Message.AREA);
+//					break;
+//				case Message.REGION:
+//					expression = messages.get(Message.REGION);
+//					break;
+				case Message.MESSAGE_FORM_ACCESS:
+					expression = messages.get(Message.MESSAGE_FORM_ACCESS);
 					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -234,7 +221,7 @@ public class MessageFacadeEjb implements MessageFacade {
 
 	@Override
 	public List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
-			Integer max, Set<UserRole> userRoles) {
+			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
@@ -243,14 +230,14 @@ public class MessageFacadeEjb implements MessageFacade {
 		Predicate filter = null;
 
 		if (messageCriteria != null) {
-			filter = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles);
+			filter = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
 		}
 
 		if (filter != null) {
 			cq.where(filter);
 		}
 
-		cq.distinct(true).orderBy(cb.asc(from.get(Message.CHANGE_DATE)));
+		cq.distinct(true).orderBy(cb.desc(from.get(Message.CHANGE_DATE)));
 
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
 	}

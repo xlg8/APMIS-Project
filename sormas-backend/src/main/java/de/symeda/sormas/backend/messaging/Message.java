@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 
 import de.symeda.auditlog.api.Audited;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
@@ -36,12 +37,13 @@ public class Message extends AbstractDomainObject{
 	private static final long serialVersionUID = -9087365913720202358L;
 	
 	public static final String TABLE_NAME = "messages";
-	public static final String TABLE_NAME_USERROLES = "users_userroles";
-	public static final String TABLE_NAME_USERTYPES = "users_usertypes";
+	public static final String TABLE_NAME_USERROLES = "messages_userroles";
+	public static final String TABLE_NAME_USERTYPES = "messages_usertypes";
 	
 	public static final String MESSAGE_CONTENT = "messageContent";
 	public static final String USER_TYPE = "userTypes";
 	public static final String USER_ROLES = "userRoles";
+	public static final String MESSAGE_FORM_ACCESS = "formAccess";
 	public static final String AREA = "area";
 	public static final String REGION = "region";
 	public static final String DISTRICT = "district";
@@ -51,11 +53,11 @@ public class Message extends AbstractDomainObject{
 	private String messageContent;
 	private UserType userTypes;
 	private Set<UserRole> userRoles;
-	private Area area;
-	private Region region;
-	private District district;
-//	private Set<District> districts;
-//	private Set<Community> community;
+	private Set<FormAccess> formAccess;
+	private Set<Area> area;
+	private Set<Region> region;
+	private Set<District> district;
+	private Set<Community> community;
 	private User creatingUser;
 	
 	@Column(name = "messagecontent", nullable = false)
@@ -98,66 +100,81 @@ public class Message extends AbstractDomainObject{
 		this.userRoles = userRoles;
 	}
 
-	@ManyToOne(cascade = {})
-	public Area getArea() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	@Enumerated(EnumType.STRING)
+	@CollectionTable(name = "messages_formaccess",
+		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			"message_id",
+			"formAccess" }))
+	@Column(name = "formAccess", nullable = false)
+	public Set<FormAccess> getFormAccess() {
+		return formAccess;
+	}
+
+	public void setFormAccess(Set<FormAccess> formAccess) {
+		this.formAccess = formAccess;
+	}
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "messages_areas",
+		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			"message_id",
+			"area_id" }))
+	@ManyToMany(cascade = {})
+	public Set<Area> getArea() {
 		return area;
 	}
 	
-	public void setArea(Area area) {
+	public void setArea(Set<Area> area) {
 		this.area = area;
 	}
 	
-	@ManyToOne(cascade = {})
-	public Region getRegion() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "messages_region",
+		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			"message_id",
+			"region_id" }))
+	@ManyToMany(cascade = {})
+	public Set<Region> getRegion() {
 		return region;
 	}
 	
-	public void setRegion(Region region) {
+	public void setRegion(Set<Region> region) {
 		this.region = region;
 	}
 	
-	@ManyToOne(cascade = {})
-	public District getDistrict() {
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "messages_district",
+		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			"message_id",
+			"district_id" }))
+	@ManyToMany(cascade = {})
+	public Set<District> getDistrict() {
 		return district;
 	}
 	
-	public void setDistrict(District district) {
+	public void setDistrict(Set<District> district) {
 		this.district = district;
+	}	
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "messages_community",
+		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
+		uniqueConstraints = @UniqueConstraint(columnNames = {
+			"message_id",
+			"community_id" }))
+	@ManyToMany(cascade = {})
+	public Set<Community> getCommunity() {
+		return community;
 	}
 	
-//	@ManyToMany(cascade = {})
-//	public Set<District> getDistricts() {
-//		return districts;
-//	}
-//
-//	public void setDistricts(Set<District> districts) {
-//		this.districts = districts;
-//	}
-
-//
-//	@JoinTable(
-//		    name = "messages_community",
-//		    joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
-//		    inverseJoinColumns = @JoinColumn(name = "community_id", referencedColumnName = Community.ID, nullable = false),
-//		    uniqueConstraints = @UniqueConstraint(columnNames = {
-//		        "message_id",
-//		        "community_id"
-//		    })
-//		)	
-//	@ElementCollection(fetch = FetchType.EAGER)
-//	@CollectionTable(name = "messages_community",
-//		joinColumns = @JoinColumn(name = "message_id", referencedColumnName = Message.ID, nullable = false),
-//		uniqueConstraints = @UniqueConstraint(columnNames = {
-//			"message_id",
-//			"community_id" }))
-//	@ManyToMany(cascade = {})
-//	public Set<Community> getCommunity() {
-//		return community;
-//	}
-//	
-//	public void setCommunity(Set<Community> community) {
-//		this.community = community;
-//	}
+	public void setCommunity(Set<Community> community) {
+		this.community = community;
+	}
 		
 	@ManyToOne
 	@JoinColumn(name ="creatinguser_id")

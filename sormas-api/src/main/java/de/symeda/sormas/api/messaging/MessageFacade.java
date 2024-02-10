@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -24,6 +25,6 @@ public interface MessageFacade {
 	long count(MessageCriteria messageCriteria);
 
 	List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
-			Integer max, Set<UserRole> userRoles);
+			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess);
 
 }
