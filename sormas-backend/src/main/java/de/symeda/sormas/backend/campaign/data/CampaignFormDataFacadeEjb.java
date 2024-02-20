@@ -1616,7 +1616,28 @@ if(criteria.getUserLanguage() != null) {
 				}
 			}
 			
-			List<CampaignFormData> newlst = campaignFormDataService.getAllActiveAfter(date);
+			List<Long> formMetaIdList = new ArrayList<>();
+			for (CampaignFormMeta met : filtered) {
+				formMetaIdList.add(met.getId());
+			}
+			
+			List<Long> commIdList = new ArrayList<>();
+			if(userService.getCurrentUser().getCommunity().size() > 0) {
+				for (Community commm : userService.getCurrentUser().getCommunity()) {
+					commIdList.add(commm.getId());
+				}
+			}
+			
+			List<Long> distrIdList = new ArrayList<>();
+			if(userService.getCurrentUser().getDistricts().size() > 0) {
+				for (District distr : userService.getCurrentUser().getDistricts()) {
+				
+					distrIdList.add(distr.getId());
+					}
+			}
+			
+			
+			List<CampaignFormData> newlst = campaignFormDataService.getAllActiveAfter(date, formMetaIdList, commIdList, distrIdList);
 			List<CampaignFormData> filterednewlst = new ArrayList<>();
 			for (CampaignFormMeta met : filtered) {
 				
@@ -1662,7 +1683,7 @@ if(criteria.getUserLanguage() != null) {
 			return Collections.emptyList();
 		}
 		
-		 List<CampaignFormMeta> allAfter = campaignFormMetaService.getAllAfter(date, userService.getCurrentUser());
+		 List<CampaignFormMeta> allAfter = campaignFormMetaService.getAllAfter(new Date(0), userService.getCurrentUser());
 			List<CampaignFormMeta> filtered = new ArrayList<>();
 			allAfter.removeIf(e -> e.getFormCategory() == null);
 			
@@ -1675,44 +1696,30 @@ if(criteria.getUserLanguage() != null) {
 				}
 			}
 			
-			List<CampaignFormData> newlst = campaignFormDataService.getAllActiveAfter(date);
-			List<CampaignFormData> filterednewlst = new ArrayList<>();
+			List<Long> formMetaIdList = new ArrayList<>();
 			for (CampaignFormMeta met : filtered) {
-				////System.out.println(">>>>>>>CampaignFormMeta>>>>>>>>>>>"+met.getFormName());
-				boolean ynn = newlst.stream().filter(eee -> eee.getCampaignFormMeta().getId() != null).filter(ee -> ee.getCampaignFormMeta().getId().equals(met.getId())).collect(Collectors.toList()).size() > 0;
+				formMetaIdList.add(met.getId());
+			}
+			
+			List<Long> commIdList = new ArrayList<>();
+			if(userService.getCurrentUser().getCommunity().size() > 0) {
+				for (Community commm : userService.getCurrentUser().getCommunity()) {
+					commIdList.add(commm.getId());
+				}
+			}
+			
+			List<Long> distrIdList = new ArrayList<>();
+			if(userService.getCurrentUser().getDistricts().size() > 0) {
+				for (District distr : userService.getCurrentUser().getDistricts()) {
 				
-				if (ynn) {
-					
-					filterednewlst.addAll(newlst.stream().filter(eee -> eee.getCampaignFormMeta().getId() != null).filter(ee -> ee.getCampaignFormMeta().getId().equals(met.getId())).collect(Collectors.toList()));
-				}
+					distrIdList.add(distr.getId());
+					}
 			}
 			
-			List<CampaignFormData> filterednewlstLst = new ArrayList<>();
-			for (Community commm : userService.getCurrentUser().getCommunity()) {
-				////System.out.println(">>>>>>>>>>>>getCommunity>>>>>>>>>"+commm.getId());
-				boolean ynn = filterednewlst.stream().filter(comf -> comf.getCommunity().getId().equals(commm.getId())).collect(Collectors.toList()).size() > 0;
-					
-				if (ynn) {
-					filterednewlstLst.addAll(filterednewlst.stream().filter(comf -> comf.getCommunity().getId().equals(commm.getId())).collect(Collectors.toList()));
-				}
-			}
+			List<CampaignFormData> newDataList = campaignFormDataService.getAllActiveAfter(date, formMetaIdList, commIdList, distrIdList);
+			newDataList.removeIf(ee -> ee.getCampaign().isOpenandclose() == false);
 			
-			
-			
-			//campaignFormDataService.getAllActiveAfter(date) No population data available for
-			
-//		return campaignFormDataService.getAllActiveAfter(date).stream().map(c -> convertToDto(c))
-//				.collect(Collectors.toList());
-				filterednewlstLst.removeIf(ee -> ee.getCampaign().isOpenandclose() == false);
-			for (CampaignFormData medt : filterednewlstLst) {
-				////System.out.println(medt.getCampaign().isOpenandclose()+ " >>>>>>>>>---------"+medt.getUuid());
-					
-			}
-			
-		
-			////System.out.println(">>>>>>>>>>>>final items from server>>>>>>>"+filterednewlstLst.size());
-		
-		return filterednewlstLst.stream().map(c -> convertToDto(c))
+		return newDataList.stream().map(c -> convertToDto(c))
 				.collect(Collectors.toList());
 	}
 

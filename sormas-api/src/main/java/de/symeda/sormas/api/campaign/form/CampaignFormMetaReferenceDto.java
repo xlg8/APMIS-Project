@@ -36,8 +36,8 @@ public class CampaignFormMetaReferenceDto extends ReferenceDto {
 	@Enumerated(EnumType.STRING)
 	private FormAccess formCategory;
 	private int daysExpired;
-	private String formname_ps_af;
-	private String formname_fa_af;
+//	private String formname_ps_af;
+//	private String formname_fa_af;
 
 
 	public CampaignFormMetaReferenceDto() {
@@ -106,25 +106,25 @@ public class CampaignFormMetaReferenceDto extends ReferenceDto {
 	public void setDaysExpired(int daysExpired) {
 		this.daysExpired = daysExpired;
 	}
-
-	public String getFormname_ps_af() {
-		return formname_ps_af;
-	}
-
-	public void setFormname_ps_af(String formname_ps_af) {
-		this.formname_ps_af = formname_ps_af;
-	}
-
-	public String getFormname_fa_af() {
-		return formname_fa_af;
-	}
-
-	public void setFormname_fa_af(String formname_fa_af) {
-		this.formname_fa_af = formname_fa_af;
-	}
-	
-	
-	
+//
+//	public String getFormname_ps_af() {
+//		return formname_ps_af;
+//	}
+//
+//	public void setFormname_ps_af(String formname_ps_af) {
+//		this.formname_ps_af = formname_ps_af;
+//	}
+//
+//	public String getFormname_fa_af() {
+//		return formname_fa_af;
+//	}
+//
+//	public void setFormname_fa_af(String formname_fa_af) {
+//		this.formname_fa_af = formname_fa_af;
+//	}
+//	
+//	
+//	
 	
 
 }

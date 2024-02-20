@@ -18,8 +18,10 @@
 package de.symeda.sormas.api.infrastructure.community;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.Remote;
 
@@ -69,5 +71,7 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 	List<CommunityUserReportModelDto> getAllActiveCommunitytoRerenceFlow(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
 
 	Integer getAllActiveCommunitytoRerenceFLowCount(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc);
+
+	List<CommunityDto> getAllAfterWithDistrict(Date date, Set<DistrictReferenceDto> rDistdto);
 	
 }

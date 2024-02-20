@@ -41,6 +41,7 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
@@ -60,10 +61,20 @@ public class CommunityResource {
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
-		
-		if(rdto != null) {
+		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" +rdto.size());
+		if(rdto != null && rdto.size() > 0) {
+			System.out.println("rdtordtordto != null :zdsvxxxxxxxxxxxxxxxxxxx");
 		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
 				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
+		} else {
+			System.out.println("else :zdsvxxxxxxxxxxxxxxxxxxx");
+			final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
+			System.out.println(rDistdto+" :zdsvxxxxxxxxxxxxxxxxxxxx: " + rDistdto.size() +" :+_+_+_+_+_+_zzzzzzzzzzz");
+			if(rDistdto != null & rDistdto.size() > 0) {
+				return FacadeProvider.getCommunityFacade().getAllAfterWithDistrict(new Date(since), null);
+					
+			}
+
 		}
 		return null;
 	}
@@ -74,23 +85,40 @@ public class CommunityResource {
 		List<CommunityDto> result = FacadeProvider.getCommunityFacade().getByUuids(uuids);
 		return result;
 	}
-
+	
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		if(rdto != null) {
-			
+		System.out.println(" :zdsvxxxxxx++++ size0 ");
+		final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
+
+		// todo: need to device smarter way of filtering out archived and deleted uuids
+		// as we are collecting this from user table
+		if (rdto != null && rdto.size() > 0) {
+			System.out.println(" :zdsvxxxxxx++++ size1 " + rdto.size());
 			List<String> lstUuid = new ArrayList<>();
-			
-			for(CommunityReferenceDto com : rdto) {	
+
+			for (CommunityReferenceDto com : rdto) {
+				System.out.println(com.getUuid() + " :zdsvxxxxxx++++ size1 " + com.getCaption());
 				lstUuid.add(com.getUuid());
 			}
-			
+
 			return lstUuid;
+		} else if (rDistdto != null & rDistdto.size() > 0) {
+			List<CommunityDto> comx = FacadeProvider.getCommunityFacade().getAllAfterWithDistrict(new Date(0), null);
+			List<String> lstUuidx = new ArrayList<>();
+			for (CommunityDto com : comx) {
+				lstUuidx.add(com.getUuid());
 			}
+
+			System.out.println(rDistdto + " :zdsvxxxxxx++++ size = " + lstUuidx.size() + " xxxxxxxxxxxxxx: "
+					+ rDistdto.size() + " :+_+_+_+_+_+_zzzzzzzzzzz");
+			return lstUuidx;
+
+		} else {
 			return null;
-			
-		//return FacadeProvider.getCommunityFacade().getAllUuids();
+		}
+		// return FacadeProvider.getCommunityFacade().getAllUuids();
 	}
 
 	@POST

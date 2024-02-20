@@ -44,11 +44,11 @@ public class SormasProperties {
 	}
 
 	public static String getUserNameDefault() {
-		return get().getProperty(USER_NAME_DEFAULT, null);
+		return null;//get().getProperty(USER_NAME_DEFAULT, null);
 	}
 
 	public static String getUserPasswordDefault() {
-		return get().getProperty(USER_PASSWORD_DEFAULT, null);
+		return null;//get().getProperty(USER_PASSWORD_DEFAULT, null);
 	}
 
 	private String getProperty(String name, String defaultValue) {
