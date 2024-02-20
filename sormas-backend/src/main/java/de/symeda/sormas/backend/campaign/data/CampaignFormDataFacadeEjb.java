@@ -211,6 +211,32 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setSource(source.getSource());
 		return target;
 	}
+	
+	
+	
+	
+	public CampaignFormDataDto toDtoWithArchive(CampaignFormData source) {
+		if (source == null) {
+			return null;
+		}
+
+		CampaignFormDataDto target = new CampaignFormDataDto();
+		DtoHelper.fillDto(target, source);
+
+		target.setFormValues(source.getFormValues());
+		target.setCampaign(CampaignFacadeEjb.toReferenceDto(source.getCampaign()));
+		target.setCampaignFormMeta(CampaignFormMetaFacadeEjb.toReferenceDto(source.getCampaignFormMeta()));
+		target.setFormDate(source.getFormDate());
+		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
+		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
+		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
+		target.setCommunity(CommunityFacadeEjb.toReferenceDto(source.getCommunity()));
+		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
+		target.setSource(source.getSource());
+		target.setArchived(source.isArchived());
+		return target;
+	}
+
 
 	@Override
 	public CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto campaignFormDataDto)
@@ -282,6 +308,12 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		CampaignFormDataDto dto = toDto(source);
 		return dto;
 	}
+	
+	private CampaignFormDataDto convertToDtoWithArchive(CampaignFormData source) {
+		CampaignFormDataDto dto = toDtoWithArchive(source);
+		return dto;
+	}
+	
 
 	@Override
 	public CampaignFormDataDto getCampaignFormDataByUuid(String uuid) {
@@ -1735,7 +1767,7 @@ if(criteria.getUserLanguage() != null) {
 	@Override
 	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
 	
-		return campaignFormDataService.getAllActiveData(first, max, includeArchived).stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+		return campaignFormDataService.getAllActiveData(first, max, includeArchived).stream().map(c -> convertToDtoWithArchive(c)).collect(Collectors.toList());
 	}
 	
 	@Override

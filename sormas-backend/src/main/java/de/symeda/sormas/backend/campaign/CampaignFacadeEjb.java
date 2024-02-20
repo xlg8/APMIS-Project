@@ -654,6 +654,38 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 		return target;
 	}
+	
+	public CampaignDto toDtoWithArchived(Campaign source) {
+
+		if (source == null) {
+			return null;
+		}
+
+		CampaignDto target = new CampaignDto();
+		DtoHelper.fillDto(target, source);
+		//// System.out.println("++++++++++++++++
+		//// "+UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
+		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
+		target.setDescription(source.getDescription());
+		target.setEndDate(source.getEndDate());
+		target.setName(source.getName());
+		target.setRound(source.getRound());
+		target.setCampaignYear(source.getCampaignYear());
+		target.setStartDate(source.getStartDate());
+		target.setCampaignFormMetas(source.getCampaignFormMetas().stream()
+				.map(campaignFormMeta -> campaignFormMeta.toReference()).collect(Collectors.toSet()));
+		target.setAreas(AreaFacadeEjb.toReferenceDto(new HashSet<Area>(source.getAreas())));
+		target.setRegion(RegionFacadeEjb.toReferenceDto(new HashSet<Region>(source.getRegion())));
+		target.setDistricts(DistrictFacadeEjb.toReferenceDto(new HashSet<District>(source.getDistricts())));
+		target.setCommunity(CommunityFacadeEjb.toReferenceDto(new HashSet<Community>(source.getCommunity())));
+		target.setCampaignDashboardElements(source.getDashboardElements());
+		target.setPublished(source.isPublished());
+		target.setArchived(source.isArchived());
+		target.setDeleted(source.isDeleted());
+		
+
+		return target;
+	}
 
 	@Override
 	public CampaignDto getByUuid(String uuid) {
@@ -977,7 +1009,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	@Override
 	public List<CampaignDto> getAllAfter(Date date) {
 		return campaignService.getAllAfter(date, userService.getCurrentUser()).stream()
-				.map(campaignFormMeta -> toDto(campaignFormMeta)).collect(Collectors.toList());
+				.map(campaignFormMeta -> toDtoWithArchived(campaignFormMeta)).collect(Collectors.toList());
 	}
 
 	@Override

@@ -71,6 +71,7 @@ public class CampaignFormDataDto extends EntityDto {
 	private String formType;
 	private String formCategory;
 	private String source;
+	private boolean archived;
 	//private Double latitude;
 	//private Double longitude;
 
@@ -204,6 +205,15 @@ public class CampaignFormDataDto extends EntityDto {
 	public void setFormCategory(String formCategory) {
 		this.formCategory = formCategory;
 	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
 
 
 

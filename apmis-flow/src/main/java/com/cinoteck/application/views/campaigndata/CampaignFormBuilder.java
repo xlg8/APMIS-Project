@@ -648,7 +648,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				campaignFormElementOptions = new CampaignFormElementOptions();
 
 				optionsValues = formElement.getOptions().stream()
-						.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption)); // .collect(Collectors.toList());
+						.collect(Collectors.toMap(MapperUtil::getKey, MapperUtil::getCaption));
 
 				if (userLocale != null) {
 					if (translationsOpt != null) {

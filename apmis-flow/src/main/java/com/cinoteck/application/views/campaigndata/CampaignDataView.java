@@ -185,19 +185,24 @@ public class CampaignDataView extends VerticalLayout {
 	}
 
 	private String getLabelForEnum(CampaignPhase campaignPhase) {
-		switch (campaignPhase) {
-		case PRE:
-			return "Pre-Campaign";
+		if (campaignPhase != null) {
+			switch (campaignPhase) {
+			case PRE:
+				return "Pre-Campaign";
 
-		case POST:
-			return "Post-Campaign";
+			case POST:
+				return "Post-Campaign";
 
-		case INTRA:
+			case INTRA:
+				return "Intra-Campaign";
+
+			default:
+				return campaignPhase.toString();
+			}
+		} else {
 			return "Intra-Campaign";
-
-		default:
-			return campaignPhase.toString();
 		}
+
 	}
 
 	private void createCampaignDataFilter() {
@@ -472,7 +477,8 @@ public class CampaignDataView extends VerticalLayout {
 
 			deleteBulkItem.setVisible(true);
 
-			if (userProvider.getUser().getUsertype() == UserType.WHO_USER && campaignPhase.getValue() != null) {
+			if (userProvider.getUser().getUsertype() == UserType.WHO_USER && campaignPhase.getValue() != null
+					&& userProvider.getUser().getUserRoles().contains(UserRole.PUBLISH_USER)) {
 				if (campaignPhase.getValue().toString().equalsIgnoreCase("post-campaign")) {
 					verifyDataBulkItem.setVisible(true);
 					publishDataBulkItem.setVisible(true);
@@ -619,39 +625,63 @@ public class CampaignDataView extends VerticalLayout {
 			System.out.println(e.getValue() + " form phase vaue ");
 			importanceSwitcher.setReadOnly(false);
 			if (e.getValue() != null) {
-				if ((userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)
-						&& userProvider.getUser().getUsertype() == UserType.WHO_USER)
-						&& e.getValue().toString().equalsIgnoreCase("post-campaign")) {
+
+				if (e.getValue().toString().equalsIgnoreCase("post-campaign")) {
+					verifiedStatusCombo.setVisible(true);
+					publishedStatusCombo.setVisible(true);
+
+					System.out.println("post campaign selected ");
 
 					if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+						if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
+							if (userProvider.getUser().getUserRoles().contains(UserRole.PUBLISH_USER)) {
+								verifyDataBulkItem.setVisible(true);
+								publishDataBulkItem.setVisible(true);
+								System.out.println("user is a publish user ");
+							} else {
+								verifyDataBulkItem.setVisible(false);
+								publishDataBulkItem.setVisible(false);
+								System.out.println("user is NOT a publish user ");
+							}
+							System.out.println("user ca n do bulk peration an is who  2");
+						} else {
+							verifyDataBulkItem.setVisible(false);
+							publishDataBulkItem.setVisible(false);
+							System.out.println("can either not don bvulk and  is  who   ");
+						}
 
-						verifyDataBulkItem.setVisible(true);
-						publishDataBulkItem.setVisible(true);
-
-						verifiedStatusCombo.setVisible(true);
-						publishedStatusCombo.setVisible(true);
-
-						publishedColumn.setVisible(true);
 						verifiedColumn.setVisible(true);
-
-					}
-
-				} else {
-
-					if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
-						verifyDataBulkItem.setVisible(false);
-						publishDataBulkItem.setVisible(false);
-
-						verifiedStatusCombo.clear();
-						publishedStatusCombo.clear();
-
+						publishedColumn.setVisible(true);
+						System.out.println("user ca n do bulk peration an is who  ");
+					} else {
 						verifiedStatusCombo.setVisible(false);
 						publishedStatusCombo.setVisible(false);
-						publishedColumn.setVisible(false);
+						if(verifiedColumn != null ||  publishedColumn != null)  {
 						verifiedColumn.setVisible(false);
+						publishedColumn.setVisible(false);
+						}
+						verifyDataBulkItem.setVisible(false);
+						publishDataBulkItem.setVisible(false);
+						System.out.println("can either not don bvulk or is not who   ");
 					}
+					
+					
+				} else {
+					verifiedStatusCombo.setVisible(false);
+					publishedStatusCombo.setVisible(false);
+					if(verifiedColumn != null ||  publishedColumn != null) {
+						verifiedColumn.setVisible(false);
+						publishedColumn.setVisible(false);
+					}
+//					verifiedColumn.setVisible(false);
+//					publishedColumn.setVisible(false);
+					verifyDataBulkItem.setVisible(false);
+					publishDataBulkItem.setVisible(false);
+					System.out.println("non - post campaign selected ");
 
 				}
+
+
 			}
 
 			campaignFormCombo.clear();

@@ -74,6 +74,9 @@ public class CampaignDto extends EntityDto {
 
 	@Valid
 	private List<CampaignDashboardElement> campaignDashboardElements;
+	private boolean archived;
+	private boolean deleted;
+	
 
 	public static CampaignDto build() {
 		CampaignDto campaign = new CampaignDto();
@@ -242,5 +245,23 @@ public class CampaignDto extends EntityDto {
 	public void setCampaignFormMetaExpiryDto(Set<CampaignFormMetaExpiryDto> campaignFormMetaExpiryDto) {
 		this.campaignFormMetaExpiryDto = campaignFormMetaExpiryDto;
 	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
+	
 
 }

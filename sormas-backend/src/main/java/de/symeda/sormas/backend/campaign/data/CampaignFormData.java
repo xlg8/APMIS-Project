@@ -238,6 +238,8 @@ public class CampaignFormData extends AbstractDomainObject{
 		this.ispublished = ispublished;
 	}
 
+
+
 //	
 	
 	
