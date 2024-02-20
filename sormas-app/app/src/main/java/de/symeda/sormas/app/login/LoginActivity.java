@@ -76,9 +76,8 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 		binding.loginUsername.setLiveValidationDisabled(true);
 		binding.loginPassword.setLiveValidationDisabled(true);
 
-		boolean hasDefaultUser =
-			!DataHelper.isNullOrEmpty(SormasProperties.getUserNameDefault()) && !DataHelper.isNullOrEmpty(SormasProperties.getUserPasswordDefault());
-		binding.btnLoginDefaultUser.setVisibility(hasDefaultUser ? View.VISIBLE : View.GONE);
+		//boolean hasDefaultUser = !DataHelper.isNullOrEmpty(SormasProperties.getUserNameDefault()) && !DataHelper.isNullOrEmpty(SormasProperties.getUserPasswordDefault());
+		//binding.btnLoginDefaultUser.setVisibility(hasDefaultUser ? View.VISIBLE : View.GONE);
 
 	}
 
@@ -179,7 +178,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 					RetroProvider.disconnect();
 					System.out.println("+++++++++++++++++>>>>trackkk login(View view)++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 					checkLoginAndDoUpdateAndInitialSync();
-					checkLoginAndDoUpdateAndInitialSync();
+//					checkLoginAndDoUpdateAndInitialSync();
 				} else {
 					// if we could not connect to the server, the user can't sign in - no matter the reason
 					ConfigProvider.clearUserLogin();
@@ -189,7 +188,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 	}
 
 	private void checkLoginAndDoUpdateAndInitialSync() {
-
+		System.out.println(">>>>>++++++++>>>>>+++++++>checkLoginAndDoUpdateAndInitialSync>>1>>>>>>>>>>>>>>");
 		if (DataHelper.isNullOrEmpty(ConfigProvider.getServerRestUrl())) {
 			NavigationHelper.goToSettings(this);
 			return;
@@ -230,7 +229,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 						if (ConfigProvider.getUser() != null) {
 							initializeFirebase();
 							if (ConfigProvider.getUser().getLanguage() != null) {
-								System.out.println(">>>>>>>>>ConfigProvider.getUser().getLanguage() != null>>>>>>>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+								System.out.println(">>>>>>>>>ConfigProvider.getUser().getLanguage() != ++++++++null>>>>>>>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 
 								setNewLocale(this, ConfigProvider.getUser().getLanguage());
 							}
@@ -240,7 +239,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 						}
 					});
 				} else {
-					System.out.println(">>>>>>>>>trackkk no neeed to sync>>>>>>2>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
+					System.out.println(">>>>>>>>>trackkk no neeed to syn++++++++c>>>>>>2>>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());
 
 					RetroProvider.disconnect();
 

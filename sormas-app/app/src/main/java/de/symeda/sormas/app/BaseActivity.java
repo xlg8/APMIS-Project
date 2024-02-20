@@ -56,6 +56,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -63,12 +64,14 @@ import java.util.List;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.feature.FeatureType;
+import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationException;
 import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.backend.region.Community;
+import de.symeda.sormas.app.backend.region.District;
 import de.symeda.sormas.app.backend.synclog.SyncLogDao;
 import de.symeda.sormas.app.backend.user.User;
 import de.symeda.sormas.app.component.Item;
@@ -129,6 +132,7 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 	private CampaignFormData record;
 	private List<Item> initialCommunities;
+	private List<Item> initialDistrictsies;
 
 	private ProgressDialog progressDialog = null;
 
@@ -492,16 +496,24 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			userUserName.setText("Username : " +user.getUserName());
 			userRegion.setText("Region : " +user.getRegion().getArea());
 			userProvince.setText("Province : " +user.getRegion());
-			userDistrict.setText("District : " +user.getDistrict());
+
+			initialCommunities = InfrastructureDaoHelper.loadAllCommunities();//loadCommunities(user.getDistrict());
 
 
-			initialCommunities = InfrastructureDaoHelper.loadCommunities(user.getDistrict());
+			System.out.println((user.getDistrict() == null) +" ++++++++++++++++++++++++++ "+initialCommunities + "++?? "+!initialCommunities.isEmpty()+" +++++++++++++++ "+InfrastructureDaoHelper.loadAllDistricts().size());
 
-			System.out.println( "iniytia" + initialCommunities + "iniytia");
-//			Integer com = new Integer(user.getCommunity().getClusterNumber());
-//			List<Community> ttt = FacadeProvider.getCommunityFacade().get
+			if(user.getDistrict() != null){
 
-			userClusters.setText("Clusters : " + initialCommunities);
+				System.out.println(" ++++++++++++ "+user.getDistrict().getName());
+
+				userDistrict.setText("District : " +user.getDistrict());
+				userClusters.setText("Clusters : " + initialCommunities);
+			} else {
+				userDistrict.setText("District : " +InfrastructureDaoHelper.loadAllDistricts());
+				userClusters.setVisibility(View.GONE);
+			}
+
+
 
 
 //			dropdownButton.setOnClickListener (e->{
@@ -750,7 +762,7 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 		if (showProgressDialog) {
 			if (progressDialog == null || !progressDialog.isShowing()) {
-				boolean isInitialSync = DatabaseHelper.getFacilityDao().isEmpty();
+				boolean isInitialSync = DatabaseHelper.getCommunityDao().isEmpty();
 				progressDialog = ProgressDialog.show(
 						this,
 						getString(R.string.heading_synchronization),

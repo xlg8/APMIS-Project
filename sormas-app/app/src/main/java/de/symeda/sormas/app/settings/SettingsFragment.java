@@ -303,6 +303,7 @@ public class SettingsFragment extends BaseLandingFragment {
 			DatabaseHelper.dropDatabase();
 			ConfigProvider.clearUserLogin();
 			ConfigProvider.clearPin();
+			DatabaseHelper.clearConfigTable();
 			Intent intent = new Intent(getActivity(), LoginActivity.class);
 			startActivity(intent);
 		}, "LOGOUT");

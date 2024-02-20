@@ -106,6 +106,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		return district.getCommunities().stream().filter(c -> !c.isArchived()).map(CommunityFacadeEjb::toReferenceDto)
 				.collect(Collectors.toList());
 	}
+	//getAllAfterWithDistrict
 
 	@Override
 	public List<CommunityDto> getAllAfter(Date date) {
@@ -126,6 +127,61 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 				+ SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
 	}
+	
+	@Override
+	public List<CommunityDto> getAllAfterWithDistrict(Date date, Set<DistrictReferenceDto> notused) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CommunityDto> cq = cb.createQuery(CommunityDto.class);
+		Root<Community> community = cq.from(Community.class);
+
+		CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
+		Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
+
+		cq.multiselect(district.get(District.EXTERNAL_ID), criteriaBuilder.max(community.get(Community.CREATION_DATE)), criteriaBuilder.max(community.get(Community.CHANGE_DATE)), criteriaBuilder.max(community.get(Community.UUID)),
+				criteriaBuilder.max(community.get(Community.NAME)), criteriaBuilder.max(community.get(Community.GROWTH_RATE)),
+				criteriaBuilder.max(region.get(Region.UUID)), criteriaBuilder.max(region.get(Region.NAME)), criteriaBuilder.max(region.get(Region.EXTERNAL_ID)),
+				criteriaBuilder.max(district.get(District.UUID)), criteriaBuilder.max(district.get(District.NAME)), criteriaBuilder.max(district.get(District.EXTERNAL_ID)),
+				criteriaBuilder.max(community.get(Community.EXTERNAL_ID)), criteriaBuilder.max(community.get(Community.CLUSTER_NUMBER)));
+		
+		List<Long> rDistdto = new ArrayList<>();
+		
+		if(userService.getCurrentUser().getDistricts().size() > 0) {
+			for (District distr : userService.getCurrentUser().getDistricts()) {
+				rDistdto.add(distr.getId());
+				}
+		}
+		
+
+		Predicate filter = service.createChangeDateFilter(cb, community, date);
+
+		if (filter != null) {
+			if (rDistdto != null && !rDistdto.isEmpty()) {
+				cq.where(cb.and(filter, community.get(Community.DISTRICT).in(rDistdto), cb.equal(community.get(Community.ARCHIVED), false)));
+				cq.groupBy(district.get(District.EXTERNAL_ID));
+		    }else {
+		    	cq.where(filter);
+		    }
+			//cb.equal(community.get(Community.ARCHIVED), false);
+		} else if (rDistdto != null && !rDistdto.isEmpty()) {
+			cq.where(cb.and(community.get(Community.DISTRICT).in(rDistdto), cb.equal(community.get(Community.ARCHIVED), false)));
+			cq.groupBy(district.get(District.EXTERNAL_ID));
+		}
+		
+		System.out.println("ttttttttt+++++getAllAfterWithDistrict "+ SQLExtractor.from(em.createQuery(cq)));
+
+		return em.createQuery(cq).getResultList();
+		
+		
+	
+	}
+
+	private void selectDtoFieldsMax(CriteriaQuery<CommunityDto> cq, Root<Community> root) {
+		
+	}
+	
+	
 
 	// Need to be in the same order as in the constructor
 	private void selectDtoFields(CriteriaQuery<CommunityDto> cq, Root<Community> root) {

@@ -330,7 +330,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActiveAfter(Date date) {
+	public List<CampaignFormData> getAllActiveAfter(Date date, List<Long> idList, List<Long> commIdList, List<Long> distrIdList) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
 		Root<CampaignFormData> from = cq.from(getElementClass());
@@ -348,10 +348,28 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 				filter = cb.and(filter, dateFilter);
 			}
 		}
+		
+		 // Filter based on IDs
+	    if (idList != null && !idList.isEmpty()) {
+	        filter = cb.and(filter, from.get(CampaignFormData.CAMPAIGN_FORM_META).in(idList));
+	    }
+	    
+	    if (commIdList != null && !commIdList.isEmpty()) {
+	        filter = cb.and(filter, from.get(CampaignFormData.COMMUNITY).in(commIdList));
+	    }
+	    
+	    //TODO improve this by adding isDistrict too campaignformdata while saving the form so that it will be easier to filter district entered data
+	    if (distrIdList != null && !distrIdList.isEmpty()) {
+	        filter = cb.and(filter, from.get(CampaignFormData.DISTRICT).in(distrIdList));
+	    }
 
 		cq.where(filter);
 		cq.orderBy(cb.desc(from.get(AbstractDomainObject.CHANGE_DATE)));
 
+		
+		logger.debug("ttttttttttttttttttttttttttyyyy "+ SQLExtractor.from(em.createQuery(cq)));
+		
+		
 		return em.createQuery(cq).getResultList();
 	}
 

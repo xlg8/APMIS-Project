@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.infrastructure.InfrastructureChangeDatesDto;
 import de.symeda.sormas.api.infrastructure.InfrastructureSyncDto;
@@ -44,7 +45,7 @@ import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.backend.contact.ContactDtoHelper;
 import de.symeda.sormas.app.backend.customizableenum.CustomizableEnumValueDtoHelper;
-import de.symeda.sormas.app.backend.disease.DiseaseConfigurationDtoHelper;
+//import de.symeda.sormas.app.backend.disease.DiseaseConfigurationDtoHelper;
 import de.symeda.sormas.app.backend.event.EventDtoHelper;
 import de.symeda.sormas.app.backend.event.EventParticipantDtoHelper;
 import de.symeda.sormas.app.backend.facility.FacilityDtoHelper;
@@ -109,7 +110,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 			Trace syncModeTrace = null;
 			switch (syncMode) {
 			case Changes:
-				System.out.println("----------------------- changes");
+				System.out.println("++++++++----------------------- changes");
 				syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeChangesTrace");
 				syncModeTrace.start();
 
@@ -143,7 +144,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 			case CompleteAndRepull:
 
-				System.out.println("----------------------- CompleteAndRepull");
+				System.out.println("+++++++++---------------------- CompleteAndRepull");
 				syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteAndRepullTrace");
 				syncModeTrace.start();
 				pullInfrastructure(); // do before missing, because we may have a completely empty database
@@ -171,7 +172,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 				break;
 
 			case Complete:
-					System.out.println("----------------------- complete");
+					System.out.println("_+++++++++----------------------- complete");
 					syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteTrace");
 					syncModeTrace.start();
 
@@ -420,8 +421,10 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 	@AddTrace(name = "pullInfrastructureTrace")
 	private void pullInfrastructure() throws DaoException, NoConnectionException, ServerConnectionException, ServerCommunicationException {
 		if (ConfigProvider.isInitialSyncRequired()) {
+			System.out.println("+++++++++++++111111");
 			pullInitialInfrastructure();
 		} else {
+			System.out.println("+++++++++++++222222");
 			InfrastructureChangeDatesDto changeDates = InfrastructureHelper.getInfrastructureChangeDates();
 
 			try {
@@ -456,6 +459,8 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 		}
 		new RegionDtoHelper().pullEntities(false);
 		new DistrictDtoHelper().pullEntities(false);
+
+		System.out.println("+++++++++++++++++++++++++XXXXXXXXXXXXXXSSSSSSSSSSSSS+++++++++++++");
 		new CommunityDtoHelper().pullEntities(false);
 		//new FacilityDtoHelper().pullEntities(false);
 		//new PointOfEntryDtoHelper().pullEntities(false);

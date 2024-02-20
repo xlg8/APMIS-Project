@@ -17,8 +17,10 @@
  *******************************************************************************/
 package de.symeda.sormas.rest;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -33,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.caze.CriteriaWithSorting;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -48,10 +51,18 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 @RolesAllowed("USER")
 public class UserResource {
 
+	
+	final UserDto userDto = FacadeProvider.getUserFacade().getCurrentUser();
+	
+	
 	@GET
 	@Path("/all/{since}")
 	public List<UserDto> getAll(@PathParam("since") long since) {
-		return FacadeProvider.getUserFacade().getAllAfter(new Date(since));
+		
+		
+		List<UserDto> userDtoList = new ArrayList<>();
+		userDtoList.add(userDto);
+		return userDtoList; //FacadeProvider.getUserFacade().getAllAfter(new Date(since));
 	}
 
 	@POST
@@ -64,7 +75,10 @@ public class UserResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		return FacadeProvider.getUserFacade().getAllUuids();
+		List<String> userDtoList = new ArrayList<>();
+		userDtoList.add(userDto.getUuid());
+		
+		return userDtoList;//FacadeProvider.getUserFacade().getAllUuids();
 	}
 
 	@POST

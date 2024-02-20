@@ -88,7 +88,7 @@ public class CommunityDto extends EntityDto {
 		Integer clusterNumber) {
 
 		super(creationDate, changeDate, uuid);
-		this.archived = archived;
+		this.archived = true;
 		this.name = name;
 		this.growthRate = growthRate;
 		this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);
@@ -96,6 +96,34 @@ public class CommunityDto extends EntityDto {
 		this.externalId = externalId;
 		this.clusterNumber = clusterNumber;
 	}
+	
+	
+	public CommunityDto(
+			Long externalId_unUsed,
+			Date creationDate,
+			Date changeDate,
+			String uuid,
+			//boolean archived,
+			String name,
+			Float growthRate,
+			String regionUuid,
+			String regionName,
+			Long regionExternalId,
+			String districtUuid,
+			String districtName,
+			Long districtExternalId,
+			Long externalId,
+			Integer clusterNumber) {
+
+			super(creationDate, changeDate, uuid);
+			this.archived = true;
+			this.name = name;
+			this.growthRate = growthRate;
+			this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);
+			this.district = new DistrictReferenceDto(districtUuid, districtName, districtExternalId);
+			this.externalId = externalId;
+			this.clusterNumber = clusterNumber;
+		}
 	
 	public CommunityDto(
 			Date creationDate,

@@ -7,6 +7,7 @@
 	<property name="deploy.serverlibs.path" value="${glassfish.domain.root}/lib" />
 	<property name="collect.root.path" value="../deploy" />
 	<property name="collect.serverlibs.path" value="${collect.root.path}/serverlibs" />
+	<property name="basedirapi" value="../sormas-api" />
 
 	<property environment="env" />
 
@@ -25,6 +26,16 @@
 		</artifact:mvn>
 		<property name="shared.installed" value="true" />
 	</target>
+	
+	<target name="install-api-only" description="Compile main source tree java files and install">
+		<artifact:mvn dir="${basedirapi}" fork="true" mavenhome="${env.M2_HOME}" failonerror="true">
+			<sysproperty key="maven.multiModuleProjectDirectory" value="${basedirapi}" />
+			<arg value="install" />
+			<arg value="-Dmaven.test.skip=true" />
+		</artifact:mvn>
+	</target>
+	
+	
 
 	<target name="install-with-app" description="Compile main source tree java files and install, include android app" unless="shared.installed">
 		<artifact:mvn dir="${basedir}" fork="true" mavenhome="${env.M2_HOME}" failonerror="true">

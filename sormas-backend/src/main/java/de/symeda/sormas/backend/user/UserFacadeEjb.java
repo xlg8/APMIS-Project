@@ -429,9 +429,18 @@ public class UserFacadeEjb implements UserFacade {
 
 	@Override
 	public List<UserDto> getAllAfter(Date date) {
+		
+		
+		 List<User> usr = new ArrayList<>();
+		usr.add(userService.getCurrentUser());
+		return usr.stream()
+				.filter(ft -> userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c -> toDto(c))
+				.collect(Collectors.toList());
+		 /*
 		return userService.getAllAfter(date, null).stream()
 				.filter(ft -> userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c -> toDto(c))
 				.collect(Collectors.toList());
+				*/
 	}
 
 	@Override
@@ -822,7 +831,7 @@ public class UserFacadeEjb implements UserFacade {
 
 	@Override
 	public Set<UserRole> getValidLoginRoles(String userName, String password) {
-
+System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		User user = userService.getByUserName(userName);
 		if (user != null && user.isActive()) {
 			if (DataHelper.equal(user.getPassword(), PasswordHelper.encodePassword(password, user.getSeed()))) {
