@@ -306,35 +306,39 @@ public final class RetroProvider {
 	}
 
 	public static void connect(Context context) throws ApiVersionException, ServerConnectionException, ServerCommunicationException {
-
+System.out.println(isConnected() + "connecting +++++++++"+connecting);
 		if (RetroProvider.isConnected()) {
-			Toast.makeText(context, "Connection already established...",
-					Toast.LENGTH_LONG).show();
-			throw new IllegalStateException("Connection already established.");
-		}
-		if (connecting) {
-//			Toast.makeText(context, "Connection already established... now disconnecting...",
+//			Toast.makeText(context, "Connection already established...",
 //					Toast.LENGTH_LONG).show();
-
 			disconnect();
-		//	throw new IllegalStateException("Already connecting.");
-//		}
-
-//		if (connecting) {
-			throw new IllegalStateException("Already connecting.");
+			throw new IllegalStateException("Connection already established... Now disconnecting...");
 		}
+//		if (connecting) {
+////			Toast.makeText(context, "Connection already established... now disconnecting...",
+////					Toast.LENGTH_LONG).show();
+//
+//			disconnect();
+//		//	throw new IllegalStateException("Already connecting.");
+////		}
+//
+////		if (connecting) {
+//			throw new IllegalStateException("Already connecting.");
+//		}
 		if (!isConnectedToNetwork(context)) {
 			throw new ServerConnectionException(600);
 		}
+		if (!connecting) {
+			try {
+				connecting = true;
+				instance = new RetroProvider(context);
+			} catch (Exception e) {
+				connecting = false;
+				instance = null;
+				throw e;
+			} finally {
+				connecting = false;
+			}
 
-		try {
-			connecting = true;
-			instance = new RetroProvider(context);
-		} catch (Exception e) {
-			instance = null;
-			throw e;
-		} finally {
-			connecting = false;
 		}
 	}
 
@@ -351,9 +355,11 @@ public final class RetroProvider {
 		WeakReference<FragmentActivity> activityReference = new WeakReference<>(activity);
 
 		connectAsync(activity.getApplicationContext(), matchExactVersion, (result, versionCompatible) -> {
+			System.out.println(activity.toString() +"+++++++ travcking error 1 +++++++++"+result.getResultStatus());
 			if (result.getResultStatus().isSuccess()) {
 				callback.accept(true);
 			} else {
+				System.out.println(result.getError() + "+++++ travcking error 2 +++++++++"+result.getResultStatus());
 				if (result.getError() instanceof ApiVersionException) {
 					ApiVersionException e = (ApiVersionException) result.getError();
 					if (showUpgradePrompt && !DataHelper.isNullOrEmpty(e.getAppUrl()) && activityReference.get() != null) {
@@ -495,7 +501,7 @@ public final class RetroProvider {
 		if (instance.caseFacadeRetro == null) {
 			synchronized ((RetroProvider.class)) {
 				if (instance.caseFacadeRetro == null) {
-				//	instance.caseFacadeRetro = instance.retrofit.create(CaseFacadeRetro.class);
+					instance.caseFacadeRetro = instance.retrofit.create(CaseFacadeRetro.class);
 				}
 			}
 		}

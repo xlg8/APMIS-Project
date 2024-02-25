@@ -15,7 +15,7 @@ import de.symeda.sormas.api.infrastructure.InfrastructureSyncDto;
 @RolesAllowed({
 	"USER",
 	"REST_USER",
-	"COMMUNITY_OFFICER"})
+	"COMMUNITY_OFFICER", "SURVEILLANCE_OFFICER"})
 public class InfrastructureResource {
 
 	@POST

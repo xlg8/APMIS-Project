@@ -19,6 +19,8 @@ package de.symeda.sormas.rest;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -32,9 +34,11 @@ import javax.ws.rs.core.MediaType;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.caze.CriteriaWithSorting;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 /**
@@ -48,11 +52,22 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 	"USER",
 	"REST_USER" })
 public class DistrictResource {
-
+	final Set<DistrictReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 	@GET
 	@Path("/all/{since}")
 	public List<DistrictDto> getAll(@PathParam("since") long since) {
-		return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
+		System.out.println(rdto.size()+" : List<DistrictDto> getAll(@PathParam(\"since\") long since) +++++++++++++++++++++++++++++++++++++");
+		if(rdto != null && rdto.size() > 0) {
+			
+			System.out.println(FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList()).size()+"hhhhhhhhhhhh+++ ");
+			return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
+		} else {
+			return null;//FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
+		}
+		
+		
 	}
 
 	@POST
@@ -66,7 +81,19 @@ public class DistrictResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		return FacadeProvider.getDistrictFacade().getAllUuids();
+		System.out.println("public List<String> getAllUuids() : +++++++++++++++++++++++++++++++++++++");
+		if(rdto != null && rdto.size() > 0) {
+			System.out.println(FacadeProvider.getDistrictFacade().getAllUuids().stream()
+					.filter(e -> rdto.stream().anyMatch(ee -> e.equals(ee.getUuid()))).collect(Collectors.toList()).size()+" :public List<Strifffffffuids() : +++++++++++++++++++++++++++++++++++++");
+			return FacadeProvider.getDistrictFacade().getAllUuids().stream()
+					.filter(e -> rdto.stream().anyMatch(ee -> e.equals(ee.getUuid()))).collect(Collectors.toList());
+		} else {
+			return null;//FacadeProvider.getDistrictFacade().getAllUuids()
+		}
+		
+//		
+//		System.out.println("public List<String> getAllUuids() : +++++++++++++++++++++++++++++++++++++");
+//		return FacadeProvider.getDistrictFacade().getAllUuids();
 	}
 
 	@POST

@@ -22,6 +22,9 @@
 	<security-role>
         <role-name>HOSPITAL_INFORMANT</role-name>
     </security-role>
+    <security-role>
+        <role-name>SURVEILLANCE_OFFICER</role-name>
+    </security-role>
 	<security-role>
         <role-name>CASE_OFFICER</role-name>
     </security-role>
