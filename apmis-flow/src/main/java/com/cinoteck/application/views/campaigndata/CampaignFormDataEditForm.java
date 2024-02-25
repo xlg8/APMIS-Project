@@ -217,29 +217,33 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		unPublishButton.setIcon(unPublishButtonIcon);
 
 		if (usr.getUser().getUsertype() == UserType.WHO_USER) {
-			if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+			
+			if(usr.getUser().getUserRoles().contains(UserRole.PUBLISH_USER)) {
+				if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
 
-				System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
-				if (uuidForm != null) {
-					if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
-						dialog.getFooter().add(verifyButton);
-						// data is not verified
-						dataPublishNotificationCheck = false;
+					System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
+					if (uuidForm != null) {
+						if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+							dialog.getFooter().add(verifyButton);
+							// data is not verified
+							dataPublishNotificationCheck = false;
 
-					} else {
-						dialog.getFooter().add(unVerifyButton);
-						if (!FacadeProvider.getCampaignFormDataFacade().getPublishedStatus(uuidForm)) {
-							dialog.getFooter().add(publishButton);
 						} else {
-							dialog.getFooter().add(unPublishButton);
+							dialog.getFooter().add(unVerifyButton);
+							if (!FacadeProvider.getCampaignFormDataFacade().getPublishedStatus(uuidForm)) {
+								dialog.getFooter().add(publishButton);
+							} else {
+								dialog.getFooter().add(unPublishButton);
+							}
+
 						}
+					} else {
 
 					}
-				} else {
 
 				}
-
 			}
+			
 		}
 
 		verifyButton.addClickListener(e -> {
