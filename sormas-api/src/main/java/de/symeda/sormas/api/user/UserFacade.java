@@ -26,6 +26,7 @@ import javax.validation.Valid;
 
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.UserReportModelDto;
@@ -109,4 +110,8 @@ public interface UserFacade {
 	
 	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
 
+	boolean updateFcmToken(String username, String token);
+	
+	List<String> getUserForFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas, Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
+			Set<CommunityReferenceDto> communities); 
 }

@@ -95,7 +95,7 @@ public class MessageFacadeEjb implements MessageFacade {
 		DtoHelper.fillDto(target, source);
 
 		target.setMessageContent(source.getMessageContent());
-		target.setUserTypes(source.getUsertype());
+//		target.setUserTypes(source.getUsertype());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
 		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
@@ -119,7 +119,7 @@ public class MessageFacadeEjb implements MessageFacade {
 
 		target.setMessageContent(source.getMessageContent());
 		target.setUserRoles(new HashSet<UserRole>(source.getUserRoles()));
-		target.setUsertype(source.getUserTypes());
+//		target.setUsertype(source.getUserTypes());
 		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));

@@ -183,6 +183,8 @@ public class FormBuilderLayout extends VerticalLayout {
 		if (binder.validate().isOk()) {
 
 			campaignFormMetaDto = binder.getBean();
+			campaignFormMetaDto.setFormname_fa_af(binder.getBean().getFormName());
+			campaignFormMetaDto.setFormname_ps_af(binder.getBean().getFormName());
 			campaignFormMetaDto.setCampaignFormElements(formGridComponent.getGridData());
 			campaignFormMetaDto.setCampaignFormTranslations(translationGridComponent.getGridData());
 

@@ -50,7 +50,7 @@ public class UserMessageView extends VerticalLayout{
 		dialog.setCloseOnEsc(true);
 		dialog.setCloseOnOutsideClick(false);
 		dialog.setHeaderTitle("Notification");
-		dialog.setWidth("700px");
+		dialog.setWidth("800px");
 		dialog.setHeight("400px");
 		dialog.add(grid);
 		Button closeButton = new Button("Close", e -> {
@@ -67,9 +67,15 @@ public class UserMessageView extends VerticalLayout{
 
 		if(userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
 			UserDto user = FacadeProvider.getUserFacade().getByUserName(userProvider.getUser().getUserName());
-			messageCriteria.area(user.getArea());
-			messageCriteria.region(user.getRegion());
-			messageCriteria.district(user.getDistrict());
+			if(user.getArea() != null) {
+				messageCriteria.area(user.getArea());
+			}
+			if(user.getRegion() != null) {
+				messageCriteria.region(user.getRegion());
+			}
+			if(user.getDistrict() != null) {
+				messageCriteria.district(user.getDistrict());
+			}			
 		}
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -88,10 +94,9 @@ public class UserMessageView extends VerticalLayout{
 
 		ListDataProvider<MessageDto> dataProvider = DataProvider
 				.fromStream(FacadeProvider.getMessageFacade()
-						.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 7,
+						.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 5,
 								userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess())
 						.stream());
-
 		dataView = grid.setItems(dataProvider);
 	}
 }

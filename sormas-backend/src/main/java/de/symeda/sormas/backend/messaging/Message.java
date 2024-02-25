@@ -41,7 +41,7 @@ public class Message extends AbstractDomainObject{
 	public static final String TABLE_NAME_USERTYPES = "messages_usertypes";
 	
 	public static final String MESSAGE_CONTENT = "messageContent";
-	public static final String USER_TYPE = "userTypes";
+//	public static final String USER_TYPE = "userTypes";
 	public static final String USER_ROLES = "userRoles";
 	public static final String MESSAGE_FORM_ACCESS = "formAccess";
 	public static final String AREA = "area";
@@ -51,7 +51,7 @@ public class Message extends AbstractDomainObject{
 	public static final String CREATED_BY = "creatingUser";
 	
 	private String messageContent;
-	private UserType userTypes;
+//	private UserType userTypes;
 	private Set<UserRole> userRoles;
 	private Set<FormAccess> formAccess;
 	private Set<Area> area;
@@ -69,20 +69,20 @@ public class Message extends AbstractDomainObject{
 		this.messageContent = messageContent;
 	}	
 		
-	@Enumerated(EnumType.STRING)
-	@CollectionTable(name = "messages_usertypes",
-	joinColumns = @JoinColumn(name = "messages_id", referencedColumnName = Message.ID, nullable = false),
-	uniqueConstraints = @UniqueConstraint(columnNames = {
-		"messages_id",
-		"usertype" }))
-	@Column(name = "usertype", nullable = false)
-	public UserType getUsertype() {
-		return userTypes;
-	}
-
-	public void setUsertype(UserType usertype) {
-		this.userTypes = usertype;
-	}		
+//	@Enumerated(EnumType.STRING)
+//	@CollectionTable(name = "messages_usertypes",
+//	joinColumns = @JoinColumn(name = "messages_id", referencedColumnName = Message.ID, nullable = false),
+//	uniqueConstraints = @UniqueConstraint(columnNames = {
+//		"messages_id",
+//		"usertype" }))
+//	@Column(name = "usertype", nullable = false)
+//	public UserType getUsertype() {
+//		return userTypes;
+//	}
+//
+//	public void setUsertype(UserType usertype) {
+//		this.userTypes = usertype;
+//	}		
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)

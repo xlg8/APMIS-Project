@@ -10,6 +10,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -17,9 +18,14 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -73,9 +79,9 @@ public class MessagingLayout extends VerticalLayout {
 	List<RegionReferenceDto> regionHolder;
 	List<DistrictReferenceDto> districtHolder;
 	List<CommunityReferenceDto> communityiesHolder;
-	
+
 	Button savePreviewButton = new Button("Proceed and Save");
-	
+
 	private boolean isNew = false;
 
 	public MessagingLayout(MessageDto messageDto_, boolean isNew) {
@@ -107,9 +113,12 @@ public class MessagingLayout extends VerticalLayout {
 		ComboBox<UserType> userType = new ComboBox<UserType>("User Type");
 		MultiSelectComboBox<FormAccess> formAccessSelector = new MultiSelectComboBox<FormAccess>("Form Access");
 		MultiSelectComboBox<AreaReferenceDto> areaSelector = new MultiSelectComboBox<AreaReferenceDto>("Region");
-		MultiSelectComboBox<RegionReferenceDto> regionSelector = new MultiSelectComboBox<RegionReferenceDto>("Province");
-		MultiSelectComboBox<DistrictReferenceDto> districtSelector = new MultiSelectComboBox<DistrictReferenceDto>("District");
-		MultiSelectComboBox<CommunityReferenceDto> communitySelector = new MultiSelectComboBox<CommunityReferenceDto>("Community");
+		MultiSelectComboBox<RegionReferenceDto> regionSelector = new MultiSelectComboBox<RegionReferenceDto>(
+				"Province");
+		MultiSelectComboBox<DistrictReferenceDto> districtSelector = new MultiSelectComboBox<DistrictReferenceDto>(
+				"District");
+		MultiSelectComboBox<CommunityReferenceDto> communitySelector = new MultiSelectComboBox<CommunityReferenceDto>(
+				"Community");
 
 		List<UserType> userTypeConfig = new ArrayList<>();
 
@@ -135,8 +144,8 @@ public class MessagingLayout extends VerticalLayout {
 				MessageDto::setMessageContent);
 
 		binder.forField(userRoles).asRequired("User Role is Required").bind(MessageDto::getUserRoles,
-				MessageDto::setUserRoles);	
-		
+				MessageDto::setUserRoles);
+
 		binder.forField(formAccessSelector).bind(MessageDto::getFormAccess, MessageDto::setFormAccess);
 
 		binder.forField(areaSelector).bind(MessageDto::getArea, MessageDto::setArea);
@@ -144,10 +153,11 @@ public class MessagingLayout extends VerticalLayout {
 		binder.forField(regionSelector).bind(MessageDto::getRegion, MessageDto::setRegion);
 
 		binder.forField(districtSelector).bind(MessageDto::getDistrict, MessageDto::setDistrict);
-		
+
 		binder.forField(communitySelector).bind(MessageDto::getCommunity, MessageDto::setCommunity);
 
-		formLayout.add(messageContent, userRoles, formAccessSelector, areaSelector, regionSelector, districtSelector, communitySelector);
+		formLayout.add(messageContent, userRoles, formAccessSelector, areaSelector, regionSelector, districtSelector,
+				communitySelector);
 		formLayout.setColspan(pushNotificationHeader, 2);
 
 		final HorizontalLayout hr = new HorizontalLayout();
@@ -162,9 +172,29 @@ public class MessagingLayout extends VerticalLayout {
 		discardChanges.addClickListener(e -> discardChanges());
 
 		saved.addClickListener(e -> {
-			preView(binder.getBean());
+			if (messageContent.getValue() != null && !messageContent.isEmpty()) {
+				preView(binder.getBean());
+			} else {
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("Message cannot be left Empty");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
+			}
 		});
-		
+
 		savePreviewButton.addClickListener(e -> {
 			validateAndSave();
 		});
@@ -172,7 +202,9 @@ public class MessagingLayout extends VerticalLayout {
 		areaSelector.addValueChangeListener(e -> {
 			regionHolder = new ArrayList<>();
 			if (e.getValue() != null) {
-				for (AreaReferenceDto eachArea : e.getValue()) {
+				for (
+
+				AreaReferenceDto eachArea : e.getValue()) {
 					regionHolder.addAll(FacadeProvider.getRegionFacade().getAllActiveByArea(eachArea.getUuid()));
 				}
 				regionSelector.clear();
@@ -209,9 +241,10 @@ public class MessagingLayout extends VerticalLayout {
 			districtHolder = new ArrayList();
 			if (e.getValue() != null) {
 				for (RegionReferenceDto eachRegion : e.getValue()) {
-					districtHolder.addAll(FacadeProvider.getDistrictFacade().getAllActiveByRegion(eachRegion.getUuid()));
+					districtHolder
+							.addAll(FacadeProvider.getDistrictFacade().getAllActiveByRegion(eachRegion.getUuid()));
 				}
-				
+
 				districtSelector.clear();
 
 				districts = districtHolder;
@@ -238,17 +271,18 @@ public class MessagingLayout extends VerticalLayout {
 //			filterDataProvider.setFilter(criteria);
 
 		});
-		
-		 // = new ArrayList<>();
+
+		// = new ArrayList<>();
 		districtSelector.addValueChangeListener(e -> {
 			communityiesHolder = new ArrayList<>();
 			if (e.getValue() != null) {
 				for (DistrictReferenceDto eachDsitrict : e.getValue()) {
-					
-					communityiesHolder.addAll(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(eachDsitrict.getUuid()));
+
+					communityiesHolder
+							.addAll(FacadeProvider.getCommunityFacade().getAllActiveByDistrict(eachDsitrict.getUuid()));
 				}
 				communitySelector.clear();
-				
+
 				communities = communityiesHolder;
 				communitySelector.setItems(communities);
 //				criteria.district(district);
@@ -279,15 +313,33 @@ public class MessagingLayout extends VerticalLayout {
 			messageDto.setCreatingUser(userReferenceDto);
 			fireEvent(new SaveEvent(this, messageDto));
 
-			UI.getCurrent().getPage().reload();
-
-			Notification.show("New Message Created");
+			Notification notification = new Notification("New Message Created", 3000, Position.MIDDLE);
+			notification.getStyle().set("background-color", "green");
+			notification.getStyle().set("color", "white");
+			notification.open();
+			
+			UI.getCurrent().getPage().reload();			
 		} else {
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
 
-			Notification.show("Unable to Save new Message");
+			Paragraph text = new Paragraph("Unable to Create a Message at the Moment");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
 		}
 	}
-	
+
 	public void preView(MessageDto messageDto) {
 
 		TextArea message = new TextArea("Message");
@@ -295,50 +347,50 @@ public class MessagingLayout extends VerticalLayout {
 		message.setReadOnly(true);
 		message.getStyle().set("margin", "10px");
 		message.setHeight("250px");
-		
+
 		MultiSelectComboBox<UserRole> userRoles = new MultiSelectComboBox<>("Userroles");
 		userRoles.setItems(messageDto.getUserRoles());
 		userRoles.setValue(messageDto.getUserRoles());
 		userRoles.setReadOnly(true);
 		userRoles.getStyle().set("margin", "10px");
-		
+
 		MultiSelectComboBox<FormAccess> formAccess = new MultiSelectComboBox<>("FormAccess");
 		formAccess.setItems(messageDto.getFormAccess());
 		formAccess.setValue(messageDto.getFormAccess());
 		formAccess.setReadOnly(true);
 		userRoles.getStyle().set("margin", "10px");
-		
+
 		MultiSelectComboBox<AreaReferenceDto> areas = new MultiSelectComboBox<>("Regions");
 		areas.setItems(messageDto.getArea());
 		areas.setValue(messageDto.getArea());
 		areas.setReadOnly(true);
 		areas.getStyle().set("margin", "10px");
-		
+
 		MultiSelectComboBox<RegionReferenceDto> region = new MultiSelectComboBox<>("Provinces");
 		region.setItems(messageDto.getRegion());
 		region.setValue(messageDto.getRegion());
 		region.setReadOnly(true);
 		region.getStyle().set("margin", "10px");
-		
+
 		MultiSelectComboBox<DistrictReferenceDto> district = new MultiSelectComboBox<>("Districts");
 		district.setItems(messageDto.getDistrict());
 		district.setValue(messageDto.getDistrict());
 		district.setReadOnly(true);
 		district.getStyle().set("margin", "10px");
-		
+
 		MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Communities");
 		community.setItems(messageDto.getCommunity());
 		community.setValue(messageDto.getCommunity());
 		community.setReadOnly(true);
 		community.getStyle().set("margin", "10px");
-		
+
 		FormLayout preViewContent = new FormLayout();
 		preViewContent.add(message, userRoles, formAccess, areas, region, district, community);
 		preViewContent.setColspan(message, 2);
 		Dialog preViewDialog = new Dialog();
 		preViewDialog.setWidth("900px");
 		preViewDialog.setHeight("700px");
-		Button closePreviewButton = new Button("Back", e-> preViewDialog.close());
+		Button closePreviewButton = new Button("Back", e -> preViewDialog.close());
 		preViewDialog.add(preViewContent);
 		preViewDialog.setHeaderTitle("Notification Preview");
 		preViewDialog.open();

@@ -85,6 +85,7 @@ import de.symeda.sormas.app.core.notification.NotificationHelper;
 import de.symeda.sormas.app.core.notification.NotificationType;
 import de.symeda.sormas.app.login.EnterPinActivity;
 import de.symeda.sormas.app.login.LoginActivity;
+import de.symeda.sormas.app.rest.NoConnectionException;
 import de.symeda.sormas.app.rest.RetroProvider;
 import de.symeda.sormas.app.rest.SynchronizeDataAsync;
 import de.symeda.sormas.app.settings.SettingsFragment;
@@ -216,11 +217,11 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 		if (!isSubActivity()) {
 			getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_blue_36dp);
 		}
-		tryItOut();
+		getFCMToken();
 		setupDrawer(navigationView);
 	}
 
-	public void tryItOut() {
+	public void getFCMToken() {
 
 		FirebaseMessaging.getInstance().getToken()
 				.addOnCompleteListener(new OnCompleteListener<String>() {
@@ -229,7 +230,13 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 						if (task.isSuccessful() && task.getResult() != null) {
 							String token = task.getResult();
 							Log.i("FCM Token", token);
-							// Now you have the FCM token, you can use it as needed.
+//							if(token != null && !token.isEmpty()) {
+//								try {
+//									RetroProvider.getUserFacade().updateFcmToken("AlingarICM6", token);
+//								} catch (NoConnectionException e) {
+//									throw new RuntimeException(e);
+//								}
+//							}
 						} else {
 							Log.e("FCM Token", "Failed to get token", task.getException());
 						}
