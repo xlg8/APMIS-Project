@@ -85,6 +85,7 @@ public class UserDto extends EntityDto {
 	public static final String DCODE = "dcode";
 	public static final String RCODE = "rcode";
 	public static final String COMMUNITY_NOS = "communitynos";
+	public static final String TOKEN = "token";
 	//public static final String COMMUNITY_NO = "clusterno";
 	
 	private boolean active = true;
@@ -141,6 +142,7 @@ public class UserDto extends EntityDto {
 	private String rcode;
 	private Set<String> communitynos;
 	//private String clusterno;
+	private String token;
 
 	public static UserDto build() {
 		UserDto user = new UserDto();
@@ -395,7 +397,12 @@ public class UserDto extends EntityDto {
 		this.districts = districts;
 	}
 	
-	
-	
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 	
 }

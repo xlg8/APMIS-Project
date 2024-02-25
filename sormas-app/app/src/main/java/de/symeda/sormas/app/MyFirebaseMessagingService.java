@@ -24,7 +24,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-        Log.i("New Token ", s);
     }
 
     @Override
@@ -35,19 +34,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String title, String body) {
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-
-            String channelId = "mobile";
-            CharSequence channelName = "Mobile User";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
-
-            notificationManager.createNotificationChannel(channel);
-        }
-
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//
+//            String channelId = "mobile";
+//            CharSequence channelName = "Mobile User";
+//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+//            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+//
+//            notificationManager.createNotificationChannel(channel);
+//        }
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "mobile")
                 .setSmallIcon(R.drawable.ic_lp_not_an_alert_192dp)
                 .setContentTitle(title)

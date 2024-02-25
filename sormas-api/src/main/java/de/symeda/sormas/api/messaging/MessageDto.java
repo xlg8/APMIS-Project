@@ -25,7 +25,7 @@ public class MessageDto extends EntityDto {
 	public static final String TABLE_NAME_COMMUNITY = "messages_community";
 	
 	public static final String MESSAGE_CONTENT = "messageContent";
-	public static final String USER_TYPE = "userTypes";
+//	public static final String USER_TYPE = "userTypes";
 	public static final String USER_ROLES = "userRoles";
 	public static final String FORM_ACCESS = "formAccess";
 	public static final String AREA = "area";
@@ -37,7 +37,7 @@ public class MessageDto extends EntityDto {
 	
 	private String title;
 	private String messageContent;
-	private UserType userTypes;
+//	private UserType userTypes;
 	private Set<UserRole> userRoles;
 	private Set<FormAccess> formAccess;
 	private Set<AreaReferenceDto> area;
@@ -67,12 +67,12 @@ public class MessageDto extends EntityDto {
 	public void setMessageContent(String messageContent) {
 		this.messageContent = messageContent;
 	}
-	public UserType getUserTypes() {
-		return userTypes;
-	}
-	public void setUserTypes(UserType userTypes) {
-		this.userTypes = userTypes;
-	}
+//	public UserType getUserTypes() {
+//		return userTypes;
+//	}
+//	public void setUserTypes(UserType userTypes) {
+//		this.userTypes = userTypes;
+//	}
 	public Set<UserRole> getUserRoles() {
 		return userRoles;
 	}

@@ -2,12 +2,15 @@ package com.cinoteck.application.messaging;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -22,8 +25,11 @@ import com.google.api.client.util.Value;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.gson.Gson;
 import com.vaadin.flow.component.Unit;
@@ -35,12 +41,14 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -93,7 +101,8 @@ public class MessagingView extends VerticalLayout {
 	MessageDto messageDto;
 
 	UserProvider userProvider = new UserProvider();
-	HorizontalLayout hr = new HorizontalLayout();
+	HorizontalLayout buttonLayout = new HorizontalLayout();
+	HorizontalLayout filters = new HorizontalLayout();
 
 	public Grid<MessageDto> grid = new Grid<>(MessageDto.class, false);
 	public GridListDataView<MessageDto> dataView;
@@ -105,12 +114,11 @@ public class MessagingView extends VerticalLayout {
 
 	StringBuilder baseTopic = new StringBuilder();
 	FCMDto fcmDto = new FCMDto();
-	List<FCMDto> fcmDtoListConfiguration = new ArrayList();
-	List<FCMDto> fcmDtoListFormAccess = new ArrayList();
 
 	@Value("${fcm.secret.key}")
 	private String fcmSecretKey;
-
+	Paragraph countRowItems;
+	
 	public MessagingView() {
 
 		this.setSizeFull();
@@ -122,15 +130,26 @@ public class MessagingView extends VerticalLayout {
 
 		configureView();
 		configureGrid();
-		hr.getStyle().set("margin-left", "10px");
-		hr.setAlignItems(Alignment.END);
-		filterLayout.add(search, userRole, formAccessFilter, areaFilter, regionFilter, districtFilter);
-		hr.add(hideFilters, filterLayout, newMessage);
-		add(hr, grid);
+		
+		buttonLayout.getStyle().set("margin-left", "10px");
+		buttonLayout.setAlignItems(Alignment.END);
+		buttonLayout.add(newMessage);
+		
+		filters.getStyle().set("margin-left", "10px");
+		filters.setAlignItems(Alignment.END);
+		filterLayout.add(search, userRole, formAccessFilter, areaFilter, regionFilter, districtFilter, countRowItems);
+		filters.add(hideFilters, filterLayout);
+		add(buttonLayout, filters, grid);
 	}
 
 	public void configureView() {
 
+		int numberOfRows = filterDataProvider.size(new Query<>());
+		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + numberOfRows);
+		countRowItems.setId("rowCount");
+		countRowItems.getStyle().set("margin-top", "60px");
+		countRowItems.getStyle().set("padding-left", "150px");
+		
 		filterLayout = new HorizontalLayout();
 		filterLayout.getStyle().set("margin-top", "10px");
 		hideFilters = new Button("Hide Filters", new Icon(VaadinIcon.SLIDERS));
@@ -162,6 +181,7 @@ public class MessagingView extends VerticalLayout {
 
 				filterDataProvider.refreshAll();
 			}
+			updateRowCount();
 		});
 
 		userType = new ComboBox<>("User Type");
@@ -192,6 +212,7 @@ public class MessagingView extends VerticalLayout {
 
 				filterDataProvider.refreshAll();
 			}
+			updateRowCount();
 		});
 
 		formAccessFilter = new ComboBox<FormAccess>("Form Access");
@@ -211,6 +232,7 @@ public class MessagingView extends VerticalLayout {
 
 				filterDataProvider.refreshAll();
 			}
+			updateRowCount();
 		});
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
@@ -260,7 +282,7 @@ public class MessagingView extends VerticalLayout {
 
 			}
 			filterDataProvider.setFilter(criteria);
-//			updateRowCount();
+			updateRowCount();
 
 		});
 
@@ -298,7 +320,7 @@ public class MessagingView extends VerticalLayout {
 
 			}
 			filterDataProvider.setFilter(criteria);
-//			updateRowCount();
+			updateRowCount();
 
 		});
 
@@ -318,15 +340,15 @@ public class MessagingView extends VerticalLayout {
 				criteria.district(district);
 				filterDataProvider.setFilter(criteria);
 				filterDataProvider.refreshAll();
-//				updateRowCount();
 
 			} else {
 				criteria.district(null);
 				filterDataProvider.setFilter(criteria);
 				filterDataProvider.refreshAll();
-//				updateRowCount();
+
 
 			}
+			updateRowCount();
 		});
 
 		newMessage = new Button("New Massage", new Icon(VaadinIcon.PLUS_CIRCLE_O));
@@ -384,13 +406,11 @@ public class MessagingView extends VerticalLayout {
 
 		grid.addColumn(MessageDto.MESSAGE_CONTENT).setHeader("Message Content").setSortable(true).setResizable(true);
 		grid.addColumn(this::rolesConfig).setHeader("User Roles").setSortable(true).setResizable(true);
-//		grid.addColumn(MessageDto.USER_TYPE).setHeader("User Type").setSortable(true).setResizable(true);
 		grid.addColumn(this::areaConfig).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(this::regionConfig).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(this::districtConfig).setHeader("District").setSortable(true).setResizable(true);
 		grid.addColumn(this::communityConfig).setHeader("Community").setSortable(true).setResizable(true);
 		grid.addColumn(this::formAccessConfig).setHeader("Form Access").setSortable(true).setResizable(true);
-//		grid.addColumn(MessageDto::getCreatingUser).setHeader("Created By").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
@@ -450,91 +470,49 @@ public class MessagingView extends VerticalLayout {
 		dialog.setClassName("edit-message");
 	}
 
-	public void sendFCM(FCMDto fcmDto) throws Exception {
-		FCMResponseDto fcmResponseDto = null;
+	public void sendFcmSdk(MessageDto messageDto) throws IOException {
+
+		List<String> tokens = FacadeProvider.getUserFacade().getUserForFCM(messageDto.getFormAccess(),
+				messageDto.getArea(), messageDto.getRegion(), messageDto.getDistrict(), messageDto.getCommunity());
+
+		tokens = tokens.stream().filter(element -> element != null).collect(Collectors.toList());
+
+		Set<String> mySet = new HashSet<>(tokens);
 		try {
-			Gson gson = new Gson();
-			StringEntity postingString = new StringEntity(gson.toJson(fcmDto));
-			CloseableHttpClient client = HttpClientBuilder.create().build();
-			HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
-			post.setEntity(postingString);
-			post.addHeader("Content-type", "application/json");
-			post.addHeader("Authorization",
-					"key=AAAA6WgmWr4:APA91bHs3bQ5tvmXzyNt8xBhxHk6AwSjAFyAfypRl-1aOO2NYnfn9_d5khmLmqWdsbfePdyVDIzTggQTOl03KkHnHWdoXF-q7t1Zmx7jrwzVVvz4QJonxp5qnvhKcWD9_yKeY-IvMPuz");
-			StringBuilder result = new StringBuilder();
-			CloseableHttpResponse response = client.execute(post);
+			if (FirebaseApp.getApps().isEmpty()) {
+				FileInputStream serviceAccount = new FileInputStream(
+						"pathtoserviceaccountjson");
+				FirebaseOptions options = new FirebaseOptions.Builder()
+						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
-			if (response.getStatusLine().getStatusCode() == 200) {
-				BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-				String line;
-				while ((line = rd.readLine()) != null) {
-					result.append(line);
-				}
-			} else {
-				throw new Exception("Status Code of response not 200");
+				FirebaseApp.initializeApp(options);
 			}
 
-			ObjectMapper mapper = new ObjectMapper();
-			fcmResponseDto = mapper.readValue(result.toString(), FCMResponseDto.class);
-		} catch (Throwable ex) {
-			throw new Exception("Unable to make Successful Request");
-		}
-	}
-
-	public void sendFcmSdk(MessageDto messageDto) {
-
-		List<CommunityReferenceDto> community = new ArrayList(messageDto.getCommunity());
-		List<FormAccess> formAccess = new ArrayList<>(messageDto.getFormAccess());
-//		for (CommunityReferenceDto eachCommunity : community) {
-		try {
-			FileInputStream serviceAccount = new FileInputStream(
-					"C:\\Users\\ABC\\Downloads\\sormas-app-9a541-firebase-adminsdk-1qpfu-b78d91d2b0.json");
-
-			FirebaseOptions options = new FirebaseOptions.Builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
-
-			FirebaseApp.initializeApp(options);
-			Message message = Message.builder().setNotification(
+			MulticastMessage multicastMessage = MulticastMessage.builder().setNotification(
 					Notification.builder().setTitle("APMIS Update").setBody(messageDto.getMessageContent()).build())
-					.setTopic("/topics/allDevicesr").build();
-//							.setTopic("/topics/"+eachCommunity.getCaption()).build();
+					.addAllTokens(mySet).build();
 
-			String response = FirebaseMessaging.getInstance().send(message);
-			System.out.println("Successfully sent message: " + response);
+			BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(multicastMessage);
 
-		} catch (Exception e) {
-			e.getStackTrace().toString();
-		} finally {
+		} catch (FirebaseMessagingException e) {
+			e.getMessage();
 		}
-//		}		
 	}
 
 	public void saveMessage(MessagingLayout.SaveEvent event) throws Exception {
 		FacadeProvider.getMessageFacade().saveMessage(event.getMessage());
 
-		List<CommunityReferenceDto> community = new ArrayList(event.getMessage().getCommunity());
-		List<FormAccess> formAccess = new ArrayList<>(event.getMessage().getFormAccess());
 		if (event.getMessage().getUserRoles().contains(UserRole.REST_USER)) {
-			fcmDtoListConfiguration = new ArrayList();
-			fcmDtoListFormAccess = new ArrayList();
-
 			sendFcmSdk(event.getMessage());
-//			for (CommunityReferenceDto eachCommunity : community) {
-//				System.out.println(eachCommunity.getCaption() + " gggggggggggggggggg");
-//				baseTopic = new StringBuilder();
-//				baseTopic.append("/topics/");
-//				String toHolder = baseTopic.append(eachCommunity.getCaption().toString()).toString();
-//				fcmDto = new FCMDto();
-//				fcmDto.setTo(toHolder);
-//
-//				FCMDto.Notification notification = fcmDto.new Notification();
-//				notification.setTitle("APMIS Update");
-//				notification.setBody(event.getMessage().getMessageContent());
-//				fcmDto.setNotification(notification);
-//				sendFCM(fcmDto);
-//			}
-
 		}
+	}
+	
+	private void updateRowCount() {
+
+		int numberOfRows = filterDataProvider.size(new Query<>());
+		String newText = I18nProperties.getCaption(Captions.rows) + numberOfRows;
+
+		countRowItems.setText(newText);
+		countRowItems.setId("rowCount");
 	}
 }

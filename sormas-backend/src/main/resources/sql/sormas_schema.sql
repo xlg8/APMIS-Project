@@ -9816,8 +9816,6 @@ WHERE formtype = 'intra-campaign' OR formtype = 'pre-campaign';
 INSERT INTO schema_version (version_number, comment) VALUES (462, 'Automatically Verifying Old Intra and Pre Campaign Data');
 
 
---add new column to campaign form data table 
-
 ALTER TABLE campaignformdata
 ADD COLUMN ispublished BOOLEAN DEFAULT false NOT NULL;
 --to set all formphases publish status to true (213060 took 19.346s)
@@ -9869,6 +9867,93 @@ insert
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (463, 'Implementing Standalone function for Campaign Data Publish');
+
+
+CREATE TABLE public.messages (
+	id int8 NOT NULL,
+	uuid varchar(36) NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	messagecontent varchar NOT NULL,
+	area_id int8 NULL,
+	region_id int8 NULL,
+	district_id int8 NULL,
+	creatinguser_id int8 NULL,
+	CONSTRAINT messages_pkey PRIMARY KEY (id),
+	CONSTRAINT messages_uuid_key UNIQUE (uuid),
+	CONSTRAINT messages_area_id_fkey FOREIGN KEY (area_id) REFERENCES public.areas(id),
+	CONSTRAINT messages_creatinguser_id_fkey FOREIGN KEY (creatinguser_id) REFERENCES public.users(id),
+	CONSTRAINT messages_district_id_fkey FOREIGN KEY (district_id) REFERENCES public.district(id),
+	CONSTRAINT messages_region_id_fkey FOREIGN KEY (region_id) REFERENCES public.region(id)
+);
+
+CREATE TABLE public.messages_areas (
+	message_id int4 NOT NULL,
+	area_id int4 NOT NULL,
+	CONSTRAINT messages_areas_pkey PRIMARY KEY (message_id, area_id),
+	CONSTRAINT messages_areas_areas_id_fkey FOREIGN KEY (area_id) REFERENCES public.areas(id),
+	CONSTRAINT messages_areas_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id)
+);
+
+CREATE TABLE public.messages_community (
+	message_id int4 NOT NULL,
+	community_id int4 NOT NULL,
+	CONSTRAINT messages_community_pkey PRIMARY KEY (message_id, community_id),
+	CONSTRAINT messages_community_community_id_fkey FOREIGN KEY (community_id) REFERENCES public.community(id),
+	CONSTRAINT messages_community_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id)
+);
+
+CREATE TABLE public.messages_district (
+	message_id int4 NOT NULL,
+	district_id int4 NOT NULL,
+	CONSTRAINT messages_district_pkey PRIMARY KEY (message_id, district_id),
+	CONSTRAINT messages_district_district_id_fkey FOREIGN KEY (district_id) REFERENCES public.district(id),
+	CONSTRAINT messages_district_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id)
+);
+
+CREATE TABLE public.messages_formaccess (
+	message_id int4 NOT NULL,
+	formaccess varchar(50) NOT NULL,
+	CONSTRAINT messages_formaccess_pkey PRIMARY KEY (message_id, formaccess),
+	CONSTRAINT messages_formaccess_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id)
+);
+
+CREATE TABLE public.messages_region (
+	message_id int4 NOT NULL,
+	region_id int4 NOT NULL,
+	CONSTRAINT messages_region_pkey PRIMARY KEY (message_id, region_id),
+	CONSTRAINT messages_region_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id),
+	CONSTRAINT messages_region_region_id_fkey FOREIGN KEY (region_id) REFERENCES public.region(id)
+);
+
+CREATE TABLE public.messages_userroles (
+	message_id int4 NOT NULL,
+	userrole varchar(50) NOT NULL,
+	CONSTRAINT messages_userroles_pkey PRIMARY KEY (message_id, userrole),
+	CONSTRAINT messages_userroles_message_id_fkey FOREIGN KEY (message_id) REFERENCES public.messages(id)
+);
+
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_areas TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_community TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_district TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_formaccess TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_region TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_userroles TO sormas_user;
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_usertypes TO sormas_user;
+
+ALTER TABLE public.users ADD "token" varchar NULL;
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (464, 'Notification for mobile and system 359 and 360');
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
