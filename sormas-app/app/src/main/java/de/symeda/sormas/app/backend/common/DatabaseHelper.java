@@ -2976,6 +2976,16 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					currentVersion = 335;
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD 'source' TEXT; ");
 					getDao(CampaignFormData.class).executeRaw("UPDATE campaignFormData SET SOURCE = 'MOBILE';");
+					break;
+
+				case 336:
+					currentVersion = 336;
+					//add your code here Segun
+					break;
+
+				case 337:
+					currentVersion = 337;
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD 'lotClusterNo' BIGINT; ");
 					// ATTENTION: break should only be done after last version
 					break;
 

@@ -116,7 +116,7 @@ public class CommunityDto extends EntityDto {
 			Integer clusterNumber) {
 
 			super(creationDate, changeDate, uuid);
-			this.archived = true;
+			this.archived = false;
 			this.name = name;
 			this.growthRate = growthRate;
 			this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);

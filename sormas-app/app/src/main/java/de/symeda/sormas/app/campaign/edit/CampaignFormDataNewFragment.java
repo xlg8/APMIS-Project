@@ -131,6 +131,8 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
         for (CampaignFormElement campaignFormElement : campaignFormMeta.getCampaignFormElements()) {
             CampaignFormElementType type = CampaignFormElementType.fromString(campaignFormElement.getType());
 
+
+
             int minx = 0;
             int maxz = 0;
             boolean expressionx = false;
@@ -212,8 +214,8 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                                 dynamicField = CampaignFormDataFragmentUtils.createControlTextEditFieldRangex(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant(), errorMessage);
                                 isRangeandExpression = true;
                             }
-
-                        } else if (type == CampaignFormElementType.DROPDOWN) {
+//campaignFormElement
+                        }  else if (type == CampaignFormElementType.DROPDOWN ) {
                             dynamicField = CampaignFormDataFragmentUtils.createControlSpinnerFieldEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), optionsValues);
                         } else if (type == CampaignFormElementType.DATE) {
                             dynamicField = CampaignFormDataFragmentUtils.createControlDateEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, this.getFragmentManager(), campaignFormElement.isImportant());
@@ -232,32 +234,65 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                             isdependingOn = true;
                         }
                         Boolean finalIsdependingOn = isdependingOn;
-                        dynamicField.addValueChangedListener(field -> {
 
-                            baseEditActivity.setDataModified(true);
-                            final Boolean isRangeandExpressionx = finalIsRangeandExpression;
-                            Boolean okk = field.getFocusedChild() != null ? true : false;
-                            final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
-                            campaignFormDataEntry.setValue(field.getValue());
-                            if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
-                                for(CampaignFormDataEntry det : formValues){
-                                    if(det.getValue() != null) {
-                                        if (det.getValue().toString().isEmpty()) {
-                                            det.setValue(null);
+                        if (type == CampaignFormElementType.DROPDOWN &&  "lotClusterNo" == campaignFormElement.getId()) {
+                            dynamicField.addValueChangedListener(field -> {
+
+                                baseEditActivity.setDataModified(true);
+                                final Boolean isRangeandExpressionx = finalIsRangeandExpression;
+                                Boolean okk = field.getFocusedChild() != null ? true : false;
+                                final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
+                                campaignFormDataEntry.setValue(field.getValue());
+                                if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
+                                    for(CampaignFormDataEntry det : formValues){
+                                        if(det.getValue() != null) {
+                                            if (det.getValue().toString().isEmpty()) {
+                                                det.setValue(null);
+                                            }
                                         }
                                     }
+                                    expressionMap.forEach((formElement, controlPropertyField) ->
+                                            CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
+                                } else if (field.isFocused()){
+                                    System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" +fieldMap.get(campaignFormElement.getId()).getCaption());
+
                                 }
-                                expressionMap.forEach((formElement, controlPropertyField) ->
-                                        CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
-                            } else if (field.isFocused()){
-                                System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" +fieldMap.get(campaignFormElement.getId()).getCaption());
+                                if(finalIsdependingOn && isRangeandExpressionx){
+                                    field.setVisibility(View.GONE);
+                                }
 
-                            }
-                            if(finalIsdependingOn && isRangeandExpressionx){
-                                field.setVisibility(View.GONE);
-                            }
+                            });
+                        } else {
 
-                        });
+
+                            dynamicField.addValueChangedListener(field -> {
+
+                                baseEditActivity.setDataModified(true);
+                                final Boolean isRangeandExpressionx = finalIsRangeandExpression;
+                                Boolean okk = field.getFocusedChild() != null ? true : false;
+                                final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
+                                campaignFormDataEntry.setValue(field.getValue());
+                                if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
+                                    for (CampaignFormDataEntry det : formValues) {
+                                        if (det.getValue() != null) {
+                                            if (det.getValue().toString().isEmpty()) {
+                                                det.setValue(null);
+                                            }
+                                        }
+                                    }
+                                    expressionMap.forEach((formElement, controlPropertyField) ->
+                                            CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
+                                } else if (field.isFocused()) {
+                                    System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" + fieldMap.get(campaignFormElement.getId()).getCaption());
+
+                                }
+                                if (finalIsdependingOn && isRangeandExpressionx) {
+                                    field.setVisibility(View.GONE);
+                                }
+
+                            });
+                        }
+
                         Object defaultValue = campaignFormElement.getDefaultvalue();
                         formValues.add(new CampaignFormDataEntry(campaignFormElement.getId(), defaultValue == null ? null : defaultValue));
                         dynamicField.setValue(defaultValue == null ? null : defaultValue);

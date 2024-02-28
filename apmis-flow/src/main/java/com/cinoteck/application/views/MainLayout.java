@@ -205,8 +205,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(dashboardNavItem);
 		}
 
-//		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
-//				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "navitem"));
+		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
+				AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 
