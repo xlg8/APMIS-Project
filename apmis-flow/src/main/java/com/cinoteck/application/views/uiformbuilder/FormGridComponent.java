@@ -358,6 +358,11 @@ public class FormGridComponent extends VerticalLayout {
 					errorMessage.setValue(formBeenEdited.getErrormessage());
 					errorMessage.setVisible(true);
 				}
+				
+				if (formBeenEdited.getComment() != null) {
+					comment.setValue(formBeenEdited.getComment());
+					comment.setVisible(true);
+				}				
 
 				if (formBeenEdited.getComment() != null) {
 					comment.setValue(formBeenEdited.getComment());
@@ -754,7 +759,7 @@ public class FormGridComponent extends VerticalLayout {
 		});
 
 		formLayout.add(formType, caption, formId, important, options, expression, dependingOn, dependingOnValues,
-				styles, constraints, min, max, defaultValues, errorMessage, expressions);
+				styles, constraints, min, max, defaultValues, errorMessage, comment, expressions);
 
 		formLayout.setColspan(formType, 2);
 		formLayout.setColspan(formId, 2);
