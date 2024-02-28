@@ -32,7 +32,6 @@ import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRight;
-import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.app.BaseLocalizedActivity;
 import de.symeda.sormas.app.LocaleManager;
