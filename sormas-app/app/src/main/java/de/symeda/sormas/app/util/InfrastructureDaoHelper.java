@@ -19,6 +19,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static de.symeda.sormas.app.util.DataUtils.toItems;
 
+import android.view.View;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -226,6 +228,7 @@ public final class InfrastructureDaoHelper {
 				districtField.setSpinnerData(null);
 			}
 		});
+//hide community here after setting the fist maching community under the selected district... this should be down without user intereaction
 
 		if (communityField != null) {
 			districtField.initializeSpinner(initialDistricts, field -> {
@@ -258,6 +261,9 @@ public final class InfrastructureDaoHelper {
 				communityField.setEnabled(false);
 			}
 		}
+
+		//temp fix
+		communityField.setVisibility(GONE);
 	}
 
 	/**

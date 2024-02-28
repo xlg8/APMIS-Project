@@ -54,7 +54,7 @@ fi
 
 # Temporal workaround: Do not use newer version than 5.194 for developers to avoid redeployment issue, see https://github.com/hzi-braunschweig/SORMAS-Project/issues/2511
 if [[ ${DEV_SYSTEM} != true ]]; then
-	PAYARA_VERSION=5.2020.2
+	PAYARA_VERSION=5.2022.5
 else
 	PAYARA_VERSION=5.194
 fi
@@ -318,6 +318,9 @@ read -p "Database setup completed. Please check the output for any error. Press 
 
 # Setting ASADMIN_CALL and creating domain
 echo "Creating domain for Payara..."
+
+cp production-domain.jar ${PAYARA_HOME}/glassfish/common/templates/gf/production-domain.jar
+
 "${PAYARA_HOME}/bin/asadmin" create-domain --domaindir "${DOMAINS_HOME}" --portbase "${PORT_BASE}" --nopassword --template ${PAYARA_HOME}/glassfish/common/templates/gf/production-domain.jar "${DOMAIN_NAME}"
 ASADMIN="${PAYARA_HOME}/bin/asadmin --port ${PORT_ADMIN}"
 

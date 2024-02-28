@@ -64,7 +64,7 @@ public class DistrictResource {
 			return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
 					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
-			return null;//FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
+			return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
 		}
 		
 		
@@ -88,7 +88,7 @@ public class DistrictResource {
 			return FacadeProvider.getDistrictFacade().getAllUuids().stream()
 					.filter(e -> rdto.stream().anyMatch(ee -> e.equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
-			return null;//FacadeProvider.getDistrictFacade().getAllUuids()
+			return FacadeProvider.getDistrictFacade().getAllUuids();
 		}
 		
 //		
