@@ -9975,6 +9975,10 @@ CREATE TABLE public.configurationchangelog (
 	
 );
 
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.configurationchangelog TO sormas_user;
+
+
 alter table campaignformmetawithexp add column 
 changedate timestamp  null;
 
