@@ -179,7 +179,8 @@ task jacocoUnitTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) 
 }
 
 apply plugin: 'org.sonarqube'
-
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 sonarqube {
     properties {
         property "sonar.projectKey", "de.symeda.sormas:sormas-app"

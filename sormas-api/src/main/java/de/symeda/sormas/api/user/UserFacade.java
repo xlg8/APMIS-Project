@@ -25,6 +25,7 @@ import javax.ejb.Remote;
 import javax.validation.Valid;
 
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -109,8 +110,10 @@ public interface UserFacade {
 	void disableUsers(List<String> userUuids);
 
 	UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto campaignLogDto);
-
+	
 	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
+	
+	List<ConfigurationChangeLogDto>  getUsersConfigurationChangeLog();
 
 	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses);
 

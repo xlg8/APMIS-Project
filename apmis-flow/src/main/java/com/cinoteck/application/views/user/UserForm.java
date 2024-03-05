@@ -20,7 +20,6 @@ import com.cinoteck.application.UserProvider;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.exception.ZeroException;
-import org.springframework.web.context.annotation.SessionScope;
 
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
@@ -86,7 +85,7 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
-@SessionScoped
+
 public class UserForm extends FormLayout {
 	/**
 	 * 

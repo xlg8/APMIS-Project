@@ -16,6 +16,7 @@
 package de.symeda.sormas.app;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -54,6 +55,7 @@ public class SormasApplication extends Application implements Application.Activi
 
 	@Override
 	public void onCreate() {
+		FirebaseApp.initializeApp(this);
 		LocationService.init(this);
 		VibrationHelper.getInstance(this);
 		LocaleManager.initializeI18nProperties();

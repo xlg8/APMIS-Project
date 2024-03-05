@@ -6,13 +6,19 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.sql.Timestamp;
 
-import com.google.type.Date;
 
+import java.util.Date;
+
+
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.backend.campaign.Campaign;
+import de.symeda.sormas.backend.common.AbstractDomainObject;
 
 @Entity(name = "campaignformmetawithexp")
-public class CampaignFormMetaExpDay implements Serializable{// extends AbstractDomainObject {
+public class CampaignFormMetaExpDay  extends AbstractDomainObject {
 
 	private static final long serialVersionUID = -5200626281564146910L;
 
@@ -22,39 +28,47 @@ public class CampaignFormMetaExpDay implements Serializable{// extends AbstractD
 	public static final String CAMPAIGN = "campaignId";
 	public static final String EXPIRE_DAY = "expiryDay"; 
 	public static final String EXPIRE_DATE = "endDate"; 
+	public static final String UUID = "uuid"; 
+
+	
 
 
 	private String formId;
 	private String campaignId;
 	private int expiryDay;
 	private Date expiryDate;
-	
-	@ManyToOne
-	@JoinColumn(name = "uuid")
-	private Campaign campaigns;
+	private String uuid;
 
-	
-	
-	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay) {
-		super();
-		this.formId = formId;
-		this.campaignId = campaignId;
-		this.expiryDay = expiryDay;
-	}
-	
-	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay, Date expiryDate) {
-		super();
-		this.formId = formId;
-		this.campaignId = campaignId;
-		this.expiryDay = expiryDay;
-		this.expiryDate = expiryDate;
-	}
+
+//	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay) {
+//		super();
+//		this.formId = formId;
+//		this.campaignId = campaignId;
+//		this.expiryDay = expiryDay;
+//	}
+//	
+//	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay, Date expiryDate) {
+//		super();
+//		this.formId = formId;
+//		this.campaignId = campaignId;
+//		this.expiryDay = expiryDay;
+//		this.expiryDate = expiryDate;
+//	}
+//	
+//	public CampaignFormMetaExpDay(String formId, String campaignId, int expiryDay, Date expiryDate, Date changedDate) {
+//		super();
+//		this.formId = formId;
+//		this.campaignId = campaignId;
+//		this.expiryDay = expiryDay;
+//		this.expiryDate = expiryDate;
+////		this.setChangeDate(changedDate);
+//	}
 
 	public CampaignFormMetaExpDay() {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Id
+//	@Id
 	@Column
 	public String getFormId() {
 		return formId;
@@ -82,12 +96,28 @@ public class CampaignFormMetaExpDay implements Serializable{// extends AbstractD
 		this.expiryDay = expiryDay;
 	}
 
+	@Column
 	public Date getExpiryDate() {
 		return expiryDate;
 	}
 
 	public void setExpiryDate(Date expiryDate) {
 		this.expiryDate = expiryDate;
+	}
+	
+	
+	
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public CampaignFormMetaWithExpReferenceDto toReference() {
+		Long expiryDayLong  = Long.valueOf(expiryDay);
+		return new CampaignFormMetaWithExpReferenceDto(formId, campaignId, expiryDayLong, expiryDate, uuid);
 	}
 
 	

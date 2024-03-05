@@ -9948,12 +9948,35 @@ GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE pub
 
 GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_userroles TO sormas_user;
 
-GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_usertypes TO sormas_user;
 
 ALTER TABLE public.users ADD "token" varchar NULL;
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (464, 'Notification for mobile and system 359 and 360');
+
+CREATE TABLE public.configurationchangelog (
+	creatinguser varchar NULL,
+	action_unit_type varchar NULL,
+	action_unit_name varchar NULL,
+	unit_code int8 null,
+	action_logged varchar NULL,
+	creationdate timestamp NULL,
+	changedate timestamp null,
+	uuid varchar(36) NULL,
+	deleted bool not NULL default false,
+	id int8 NULL
+	
+)
+
+alter table campaignformmetawithexp add column 
+changedate timestamp NOT NULL,
+uuid varchar(36) not NULL;
+
+UPDATE campaignformmetawithexp
+SET uuid = UPPER(uuid::TEXT);
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (465, 'Adding Configuration Change Log functionlity');
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***

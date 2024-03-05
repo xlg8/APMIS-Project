@@ -169,6 +169,8 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
         campaignFormMetaDialog.setLiveValidationDisabled(true);
     }
 
+
+
     @Override
     public boolean isEntryCreateAllowed() {
         return model.getCriteria().getCampaign() != null && ConfigProvider.hasUserRight(UserRight.CAMPAIGN_FORM_DATA_EDIT);
@@ -255,6 +257,7 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
         listOut.add(new Item<Integer>("", null));
         for (CampaignFormMeta campaignFormMeta : campaignFormMetas) {
             if(campaignFormMeta != null) {
+
                 listOut.add(new Item<>(campaignFormMeta.getFormName(), campaignFormMeta));
 
             }

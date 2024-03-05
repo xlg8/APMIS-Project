@@ -91,7 +91,9 @@
 		<class>de.symeda.sormas.backend.vaccination.LastVaccineType</class>
 		<class>de.symeda.sormas.backend.vaccination.LastVaccinationDate</class>
 		<class>de.symeda.sormas.backend.vaccination.FirstVaccinationDate</class>
-		<class>de.symeda.sormas.backend.labmessage.TestReport</class>		
+		<class>de.symeda.sormas.backend.labmessage.TestReport</class>
+		<class>de.symeda.sormas.backend.infrastructure.ConfigurationChangeLog</class>		
+				
 
 
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>

@@ -44,6 +44,7 @@ import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
@@ -233,15 +234,58 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 	private void saveCampaignFormExp(CampaignDto dto) {
 		try {
-			for (CampaignFormMetaExpiryDto data : dto.getCampaignFormMetaExpiryDto()) {
+			for (CampaignFormMetaWithExpReferenceDto data : dto.getCampaignFormMetaExpiry()) {
+				
+				String sqlQuery = "INSERT INTO " + CampaignFormMetaExpDay.TABLE_NAME + "("
+	                    + CampaignFormMetaExpDay.FORM_ID + ", " 
+	                    + CampaignFormMetaExpDay.CAMPAIGN + ", "
+	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", " 
+	                    + CampaignFormMetaExpDay.UUID + ", "
+	                    + CampaignFormMetaExpDay.CHANGE_DATE + ")"
+	                    + " VALUES ('" + data.getFormId() + "', '" 
+	                    + data.getCampaignId() + "', '" 
+	                    + data.getDaysExpired() + "', '" 
+	                    + data.getUuid() + "', CURRENT_TIMESTAMP)"
+	                    + " ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " 
+	                    + CampaignFormMetaExpDay.CAMPAIGN + ") DO UPDATE "
+	                    + " SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED." 
+	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", "
+	                    + CampaignFormMetaExpDay.UUID + " = EXCLUDED." 
+	                    + CampaignFormMetaExpDay.UUID + ", "
+	                    + CampaignFormMetaExpDay.CHANGE_DATE + " = CURRENT_TIMESTAMP;";
 
-				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
-						+ CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN + ", "
-						+ CampaignFormMetaExpDay.EXPIRE_DAY + ")" + " values (" + "'" + data.getFormId().getUuid()
-						+ "'," + "'" + data.getCampaignId().getUuid() + "'," + data.getExpiryDay() + ")"
-						+ "ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN
-						+ ") DO UPDATE\n" + "SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED."
-						+ CampaignFormMetaExpDay.EXPIRE_DAY + ";" ;
+
+//				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
+//						+ CampaignFormMetaExpDay.FORM_ID + ", " 
+//						+ CampaignFormMetaExpDay.CAMPAIGN + ", "
+//						+ CampaignFormMetaExpDay.EXPIRE_DAY + ", " 
+//						+ CampaignFormMetaExpDay.UUID + ", "
+//						+ CampaignFormMetaExpDay.CHANGE_DATE + ")"
+//						
+//						+ " values (" + "'" + data.getFormId()
+//						+ "'," + "'" + data.getCampaignId() + "','" + data.getDaysExpired() + " ','"+ data.getUuid() + "', CURRENT_TIMESTAMP"+" )"
+//						+ "ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN
+//						+ ") DO UPDATE\n" + "SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED."
+//						+ CampaignFormMetaExpDay.EXPIRE_DAY + ";" ;
+				
+				
+//				String sqlQuery = "INSERT INTO " + CampaignFormMetaExpDay.TABLE_NAME + "("
+//	                    + CampaignFormMetaExpDay.FORM_ID + ", " 
+//	                    + CampaignFormMetaExpDay.CAMPAIGN + ", "
+//	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", " 
+//	                    + CampaignFormMetaExpDay.UUID + ", "
+//	                    + CampaignFormMetaExpDay.CHANGE_DATE + ")"
+//	                    + " VALUES ('" + data.getFormId() + "', '" 
+//	                    + data.getCampaignId() + "', '" 
+//	                    + data.getDaysExpired() + "', '" 
+//	                    + data.getUuid() + "', CURRENT_TIMESTAMP)"
+//	                    + " ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " 
+//	                    + CampaignFormMetaExpDay.CAMPAIGN + ") DO UPDATE "
+//	                    + " SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED." 
+//	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", "
+//	                    + CampaignFormMetaExpDay.UUID + " = EXCLUDED." 
+//	                    + CampaignFormMetaExpDay.UUID + ", "
+//	                    + CampaignFormMetaExpDay.CHANGE_DATE + " = CURRENT_TIMESTAMP;";
 				System.out.println(" trying tio ru  q]sqkkkf : " + sqlQuery);
 
 				int dsc = em.createNativeQuery(sqlQuery).executeUpdate();
@@ -254,7 +298,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 					+ "SET " + CampaignFormMetaExpDay.EXPIRE_DATE + " = " 
 					+ Campaign.START_DATE + " + " + CampaignFormMetaExpDay.EXPIRE_DAY +  " * interval '1 day'\n"
 					+ "FROM " + Campaign.TABLE_NAME + " AS camapigns  \n"
-					+ " WHERE "+ CampaignFormMetaExpDay.CAMPAIGN + " = " +  Campaign.UUID + ";";
+					+ " WHERE "+ CampaignFormMetaExpDay.CAMPAIGN + " =  camapigns." +  Campaign.UUID + ";";
 			System.out.println(" vvvvvvvvvv+++++++++==+++++========: " + sqlQuery);
 			em.createNativeQuery(sqlQuery).executeUpdate();
 		}

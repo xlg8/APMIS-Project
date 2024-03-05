@@ -16,6 +16,7 @@ import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -69,7 +70,7 @@ public class CampaignDto extends EntityDto {
 	private Set<CommunityReferenceDto> community = new HashSet<CommunityReferenceDto>();
 
 	@Transient
-	private Set<CampaignFormMetaExpiryDto> campaignFormMetaExpiryDto = new HashSet<CampaignFormMetaExpiryDto>(); 
+	private Set<CampaignFormMetaWithExpReferenceDto> campaignFormMetaExpiry = new HashSet<CampaignFormMetaWithExpReferenceDto>(); 
 	private Set<PopulationDataDto> populationdata = new HashSet<PopulationDataDto>();
 
 	@Valid
@@ -238,12 +239,12 @@ public class CampaignDto extends EntityDto {
 		return published;
 	}
 
-	public Set<CampaignFormMetaExpiryDto> getCampaignFormMetaExpiryDto() {
-		return campaignFormMetaExpiryDto;
+	public Set<CampaignFormMetaWithExpReferenceDto> getCampaignFormMetaExpiry() {
+		return campaignFormMetaExpiry;
 	}
 
-	public void setCampaignFormMetaExpiryDto(Set<CampaignFormMetaExpiryDto> campaignFormMetaExpiryDto) {
-		this.campaignFormMetaExpiryDto = campaignFormMetaExpiryDto;
+	public void setCampaignFormMetaExpiryDto(Set<CampaignFormMetaWithExpReferenceDto> campaignFormMetaExpiry) {
+		this.campaignFormMetaExpiry = campaignFormMetaExpiry;
 	}
 
 	public boolean isArchived() {

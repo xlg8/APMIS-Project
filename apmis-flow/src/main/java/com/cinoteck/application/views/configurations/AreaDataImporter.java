@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.ImportCellData;
 import com.cinoteck.application.views.utils.importutils.ImportErrorException;
@@ -37,6 +38,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.ValueSeparator;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
@@ -64,10 +66,10 @@ public class AreaDataImporter extends DataImporter {
 	private static final String HEADER_PATTERN = "[A-Z]+_[A-Z]{3}_\\d+_(\\d+|PLUS)";
 	private final AreaReferenceDto areaReferenceDto;
 	private boolean isOverWrite;
-	private boolean isOverWriteEnabledName;
 	private boolean isOverWriteEnabledCode;
 	List<AreaReferenceDto> areas = new ArrayList<>();
 	List<AreaReferenceDto> araeNameList = new ArrayList<>();
+	UserProvider userProvider = new UserProvider();
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -101,18 +103,16 @@ public class AreaDataImporter extends DataImporter {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));
 			return ImportLineResult.ERROR;
 		}
-		
 
 		// Lets run some validations
 		Long areaExternalId = null;
 		String regionName = "";
 
-
 		for (int i = 0; i < entityProperties.length; i++) {
 			if (AreaDto.NAME.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
-					
+
 					regionName = null;
 					writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
 							+ " | This cannot be empty");
@@ -126,9 +126,8 @@ public class AreaDataImporter extends DataImporter {
 					boolean isNoSpaceMatch = regionName_.matches(regex);
 
 					if (!isNoSpaceMatch) {
-						writeImportError(values,
-								new ImportErrorException(values[i], entityProperties[i]).getMessage()
-										+ " | This cannot be empty or have white space. ");
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
+								+ " | This cannot be empty or have white space. ");
 						return ImportLineResult.ERROR;
 					} else {
 						araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
@@ -140,22 +139,21 @@ public class AreaDataImporter extends DataImporter {
 //							if(isOverWrite){
 //								regionName = regionName_;
 //								isOverWriteEnabledName = true;
-								//return ImportLineResult.SUCCESS;
+							// return ImportLineResult.SUCCESS;
 
 //							} else {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage()
-												+ " | Region Name Exists ");
-								return ImportLineResult.ERROR;
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage()
+											+ " | Region Name Exists ");
+							return ImportLineResult.ERROR;
 //							}
-							
+
 						}
 
 					}
 
 				}
 			}
-
 
 			if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(entityProperties[i])) {
 
@@ -166,12 +164,11 @@ public class AreaDataImporter extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					areas = FacadeProvider.getAreaFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
+					areas = FacadeProvider.getAreaFacade().getByExternalId(Long.parseLong(values[i]), false);
 					if (areas.size() > 0) {
-						if(isOverWrite){
+						if (isOverWrite) {
 							try {
-								
+
 								Long externalIdValue = Long.parseLong(values[i]);
 								areaExternalId = externalIdValue;
 								isOverWriteEnabledCode = true;
@@ -180,12 +177,13 @@ public class AreaDataImporter extends DataImporter {
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
-						}else{
-							writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage()
-									+ " | This RCode Exists");
+						} else {
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage()
+											+ " | This RCode Exists");
 							return ImportLineResult.ERROR;
 						}
-						
+
 					} else if (areas.size() == 0) {
 						try {
 							Long externalIdValue = Long.parseLong(values[i]);
@@ -210,23 +208,22 @@ public class AreaDataImporter extends DataImporter {
 
 		newUserLine.setExternalId(finalRegionExternalId);
 		newUserLine.setName(finalRegionName);
-		
-		if(isOverWrite && isOverWriteEnabledCode) {
-			
+
+		if (isOverWrite && isOverWriteEnabledCode) {
+
 			AreaDto newUserLine_ = FacadeProvider.getAreaFacade().getByUuid(areas.get(0).getUuid());
-			
-			
-			 boolean isSameData = checkSameInstances(areas, araeNameList);
-			 if(isSameData) {
-				 return ImportLineResult.SUCCESS;
-			 }
-			 
+
+			boolean isSameData = checkSameInstances(areas, araeNameList);
+			if (isSameData) {
+				return ImportLineResult.SUCCESS;
+			}
+
 			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
 
 						@Override
 						public Exception apply(ImportCellData cellData) {
-							
+
 							try {
 
 								if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
@@ -235,7 +232,6 @@ public class AreaDataImporter extends DataImporter {
 //								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 //									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
 //								}
-								
 
 								newUserLinetoSave.add(newUserLine_);
 
@@ -260,64 +256,85 @@ public class AreaDataImporter extends DataImporter {
 			} else {
 				return ImportLineResult.ERROR;
 			}
-		}else {
-		boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
-				new Function<ImportCellData, Exception>() {
+		} else {
+			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+					new Function<ImportCellData, Exception>() {
 
-					@Override
-					public Exception apply(ImportCellData cellData) {
-						
-						try {
+						@Override
+						public Exception apply(ImportCellData cellData) {
 
-							if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-								newUserLine.setName(cellData.getValue());
+							try {
+
+								if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine.setName(cellData.getValue());
+								}
+								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
+								}
+
+								newUserLinetoSave.add(newUserLine);
+
+							} catch (NumberFormatException e) {
+								return e;
 							}
-							if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-								newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
-							}
-							
 
-							newUserLinetoSave.add(newUserLine);
-
-						} catch (NumberFormatException e) {
-							return e;
+							return null;
 						}
+					});
 
-						return null;
+			if (!usersDataHasImportError) {
+				boolean checkExeption = false;
+				try {
+					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+
+					return ImportLineResult.SUCCESS;
+				} catch (ValidationRuntimeException e) {
+					checkExeption = true;
+					writeImportError(values, e.getMessage());
+					return ImportLineResult.ERROR;
+				} finally {
+					if (!checkExeption) {
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+
+						for (AreaDto  areaData : newUserLinetoSave){
+							
+							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setAction_unit_type("Area");
+							configurationChangeLogDto.setAction_unit_name(areaData.getName());
+							configurationChangeLogDto.setUnit_code(areaData.getExternalId());
+							if(isOverWrite) {
+								configurationChangeLogDto.setAction_logged("Import : Overwrite");
+
+							}else {
+								configurationChangeLogDto.setAction_logged("Import");
+
+							}
+						}
+						
+														
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 					}
-				});
-
-		if (!usersDataHasImportError) {
-
-			try {
-				FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
-
-				return ImportLineResult.SUCCESS;
-			} catch (ValidationRuntimeException e) {
-				writeImportError(values, e.getMessage());
+				}
+			} else {
 				return ImportLineResult.ERROR;
 			}
-		} else {
-			return ImportLineResult.ERROR;
 		}
 	}
-	}
-	
-	
-	 public static boolean checkSameInstances(List<AreaReferenceDto> list1, List<AreaReferenceDto> list2) {
-	        if (list1.size() != list2.size()) {
-	            return false;
-	        }
 
-	        for (AreaReferenceDto model : list1) {
-	            if (!list2.contains(model)) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
-	 
-	 
+	public static boolean checkSameInstances(List<AreaReferenceDto> list1, List<AreaReferenceDto> list2) {
+		if (list1.size() != list2.size()) {
+			return false;
+		}
+
+		for (AreaReferenceDto model : list1) {
+			if (!list2.contains(model)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void makeInitialPassword(String userUuid, String userEmail, String[] lineWorkingOn) throws IOException {
 		if (StringUtils.isBlank(userEmail)
 				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {

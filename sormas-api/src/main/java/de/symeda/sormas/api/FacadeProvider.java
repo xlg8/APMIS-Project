@@ -23,6 +23,7 @@ import de.symeda.sormas.api.bagexport.BAGExportFacade;
 import de.symeda.sormas.api.campaign.CampaignFacade;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataFacade;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionFacade;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsFacade;
 import de.symeda.sormas.api.caze.CaseFacade;
@@ -362,6 +363,10 @@ public class FacadeProvider {
 
 	public static CampaignFormMetaFacade getCampaignFormMetaFacade() {
 		return get().lookupEjbRemote(CampaignFormMetaFacade.class);
+	}
+	
+	public static CampaignFormMetaExpiryFacade getCampaignFormMetaWithExpFacade() {
+		return get().lookupEjbRemote(CampaignFormMetaExpiryFacade.class);
 	}
 
 	public static CampaignFormDataFacade getCampaignFormDataFacade() {

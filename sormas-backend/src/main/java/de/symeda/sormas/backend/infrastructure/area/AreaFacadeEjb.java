@@ -36,22 +36,29 @@ import de.symeda.sormas.api.campaign.data.CampaignAggregateDataDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.campaign.Campaign;
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureEjb;
+import de.symeda.sormas.backend.infrastructure.ConfigurationChangeLog;
+import de.symeda.sormas.backend.infrastructure.ConfigurationChangeLogService;
 import de.symeda.sormas.backend.infrastructure.PopulationData;
 import de.symeda.sormas.backend.infrastructure.community.Community;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.region.Region;
 import de.symeda.sormas.backend.infrastructure.region.RegionService;
+import de.symeda.sormas.backend.user.UserActivitySummary;
+import de.symeda.sormas.backend.user.UserActivitySummaryService;
+import de.symeda.sormas.backend.user.UserFacadeEjb;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
@@ -64,6 +71,12 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 
 	@EJB
 	private AreaService areaService;
+
+	@EJB
+	private ConfigurationChangeLogService configurationChangeLogService;
+
+	@EJB
+	private UserFacadeEjb.UserFacadeEjbLocal userServiceEjb;
 
 	@PersistenceContext(unitName = ModelConstants.PERSISTENCE_UNIT_NAME)
 	private EntityManager em;
@@ -254,6 +267,17 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		return target;
 	}
 
+	public ConfigurationChangeLog fromDto(@NotNull ConfigurationChangeLogDto configurationChangeLogDtos) {
+
+		ConfigurationChangeLog configurationChangeLog = new ConfigurationChangeLog();
+		configurationChangeLog.setAction_logged(configurationChangeLogDtos.getAction_logged());
+		configurationChangeLog.setAction_unit_name(configurationChangeLogDtos.getAction_unit_name());
+		configurationChangeLog.setAction_unit_type(configurationChangeLogDtos.getAction_unit_type());
+		configurationChangeLog.setCreatingUser_string(configurationChangeLogDtos.getCreatingUser_string());
+		configurationChangeLog.setUnit_code(configurationChangeLogDtos.getUnit_code());
+		return configurationChangeLog;
+	}
+
 	@Override
 	public List<AreaReferenceDto> getByExternalId(Long externalId, boolean includeArchivedEntities) {
 
@@ -344,10 +368,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		String queryStringBuilder = "select a.\"name\", sum(p.population), a.id, a.uuid as mdis, a.externalid as exter  from areas a \n"
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\r\n"
-				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10')\n" 
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10')\n"
 				+ "group by a.\"name\", a.id, a.uuid ";
-		
-		
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
@@ -378,8 +400,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
-				+ "group by a.\"name\", a.id, a.uuid ";
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '"
+				+ campaignDt.getUuid() + "'\n" + "group by a.\"name\", a.id, a.uuid ";
 
 //			System.out.println(queryStringBuilder + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
@@ -403,8 +425,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
-				+ "group by a.\"name\", a.id, a.uuid ";
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '"
+				+ campaignDt.getUuid() + "'\n" + "group by a.\"name\", a.id, a.uuid ";
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
@@ -427,8 +449,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 				+ "left outer join region r on r.area_id = a.id\n"
 				+ "left outer join populationdata p on r.id = p.region_id\n"
 				+ "left outer join campaigns ca on p.campaign_id = ca.id \n"
-				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '" + campaignDt.getUuid() + "'\n"
-				+ "group by a.\"name\", a.id, a.uuid ";
+				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and ca.uuid = '"
+				+ campaignDt.getUuid() + "'\n" + "group by a.\"name\", a.id, a.uuid ";
 
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
 
@@ -443,7 +465,26 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		return resultData;
 
 	}
-	
+
+	public ConfigurationChangeLogDto saveAreaChangeLog(ConfigurationChangeLogDto configurationChangeLogDto) {
+		ConfigurationChangeLog userActivitySummary = fromDto(configurationChangeLogDto);
+		configurationChangeLogService.ensurePersisted(userActivitySummary);
+		return toLogDto(userActivitySummary);
+	}
+
+	public ConfigurationChangeLogDto toLogDto(ConfigurationChangeLog source) {
+
+		if (source == null) {
+			return null;
+		}
+		ConfigurationChangeLogDto target = new ConfigurationChangeLogDto();
+
+//		target.setCreatingUser(userServiceEBJ.getByUuid(source.getCreatingUser().getUuid()));
+//		target.setAction(source.getAction());
+//		target.setActionModule(source.getActionModule());
+		return target;
+	}
+
 	public static Set<AreaReferenceDto> toReferenceDto(Set<Area> area) { // save
 
 		Set<AreaReferenceDto> dtos = new HashSet<AreaReferenceDto>();

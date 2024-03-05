@@ -59,6 +59,7 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -518,9 +519,7 @@ public class UserFacadeEjb implements UserFacade {
 	@Override
 	public UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto userActivitySummaryDto) {
 		userActivitySummaryDto.setCreatingUser(userServiceEBJ.getCurrentUser());
-
 		UserActivitySummary userActivitySummary = fromDto(userActivitySummaryDto);
-
 		userActivitySummary.setCreatingUser(userService.getCurrentUser());
 		userActivitySummaryService.ensurePersisted(userActivitySummary);
 		return toLogDto(userActivitySummary);
@@ -968,6 +967,32 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		target.setAction(source.getAction());
 		target.setActionModule(source.getActionModule());
 		return target;
+	}
+	
+	public List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(){
+		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate "
+				+ "from configurationchangelog; ";
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		List<ConfigurationChangeLogDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+		resultData.addAll(
+				resultList.stream()
+				.map(
+				(result) -> new ConfigurationChangeLogDto(
+					(String) result[0].toString(), 
+					(String) result[1].toString(),
+	        		(String) result[2].toString(),
+	        		((BigInteger) result[3]).longValue(),
+	        		(String) result[4].toString(),
+	        		(Date) result[5]
+	        		)).collect(Collectors.toList()));
+	
+		
+	return resultData;
+			
 	}
 
 	@Override

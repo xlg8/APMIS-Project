@@ -6,6 +6,7 @@ import java.util.Set;
 
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.caze.classification.DiseaseClassificationCriteriaDto;
 import de.symeda.sormas.api.disease.DiseaseConfigurationDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
@@ -45,6 +46,7 @@ public class InfrastructureSyncDto implements Serializable {
 	private List<String> deletedFeatureConfigurationUuids;
 	private List<CampaignDto> campaigns;
 	private List<CampaignFormMetaDto> campaignFormMetas;
+	private List<CampaignFormMetaExpiryDto> campaignFormMetaExpiry;
 
 	public boolean isInitialSyncRequired() {
 		return initialSyncRequired;
@@ -198,4 +200,14 @@ public class InfrastructureSyncDto implements Serializable {
 	public void setCampaignFormMetas(List<CampaignFormMetaDto> campaignFormMetas) {
 		this.campaignFormMetas = campaignFormMetas;
 	}
+
+	public List<CampaignFormMetaExpiryDto> getCampaignFormMetaExpiry() {
+		return campaignFormMetaExpiry;
+	}
+
+	public void setCampaignFormMetaExpiry(List<CampaignFormMetaExpiryDto> campaignFormMetaExpiry) {
+		this.campaignFormMetaExpiry = campaignFormMetaExpiry;
+	}
+	
+
 }

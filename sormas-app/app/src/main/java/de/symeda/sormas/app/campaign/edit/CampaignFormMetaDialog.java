@@ -23,8 +23,12 @@ import android.content.Context;
 import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.FragmentActivity;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import de.symeda.sormas.api.utils.ValidationException;
@@ -32,6 +36,7 @@ import de.symeda.sormas.api.utils.fieldaccess.UiFieldAccessCheckers;
 import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.campaign.Campaign;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
+import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.component.dialog.FormDialog;
 import de.symeda.sormas.app.component.validation.FragmentValidator;
 import de.symeda.sormas.app.core.notification.NotificationHelper;
@@ -66,8 +71,28 @@ public class CampaignFormMetaDialog extends FormDialog {
     @Override
     protected void initializeContentView(ViewDataBinding rootBinding, ViewDataBinding buttonPanelBinding) {
         List<CampaignFormMeta> allFormsForCampaign = campaign.getCampaignFormMetas();
-        Collections.sort(allFormsForCampaign, Comparator.comparing(CampaignFormMeta::getFormName));
-        contentBinding.campaignFormMeta.initializeSpinner(DataUtils.toItems(allFormsForCampaign));
+        List<CampaignFormMeta> allUnexpiredFormsForCampaign = new ArrayList<>();
+        for (CampaignFormMeta campaignFormMeta : allFormsForCampaign) {
+            Date expiryDate = DatabaseHelper.getCampaignFormMetaWithExpDao().getCampaignFormExpiryDateByCampaignIdAndFormId(campaign.getUuid(), campaignFormMeta.getUuid());
+            LocalDate currentDate = LocalDate.now();
+            if (expiryDate != null) {
+            LocalDate expiryLocalDate = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if (currentDate.isBefore(expiryLocalDate) || expiryLocalDate.isEqual(currentDate)) {
+                allUnexpiredFormsForCampaign.add(campaignFormMeta);
+//                // expiryDate is before currentDate or equals tob the current date itshold be added to my new list
+            }  else {
+                // expiryDate is after currentDate
+                System.out.print("This form has Expired For Data Entry " + campaignFormMeta.getFormName());
+
+            }
+            } else {
+
+            }
+}
+
+
+        Collections.sort(allUnexpiredFormsForCampaign, Comparator.comparing(CampaignFormMeta::getFormName));
+        contentBinding.campaignFormMeta.initializeSpinner(DataUtils.toItems(allUnexpiredFormsForCampaign));
     }
 
     public CampaignFormMeta getCampaignFormMeta() {

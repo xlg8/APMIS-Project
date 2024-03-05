@@ -25,15 +25,21 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-public interface CampaignFormMetaFacadeRetro {
+public interface CampaignFormMetaWithExpiryFacadeRetro {
 
-	@GET("campaignFormMeta/uuids")
+
+	@GET("campaignFormMetaexp/uuids")
 	Call<List<String>> pullUuids();
 
-	@GET("campaignFormMeta/all/{since}")
-	Call<List<CampaignFormMetaDto>> pullAllSince(@Path("since") long since);
+
+	@GET("campaignFormMetaexp/formswithexp")
+	Call<List<CampaignFormMetaExpiryDto>> getAllFormsWithExpiry();
+
+	@POST("campaignFormMetaexp/getByUuids")
+	Call<List<String>> pullByUuids(@Body List<String> uuids);
+
+	@GET("campaignFormMetaexp/all/{since}")
+	Call<List<CampaignFormMetaExpiryDto>> pullAllSince(@Path("since") long since);
 
 
-	@POST("campaignFormMeta/query")
-	Call<List<CampaignFormMetaDto>> pullByUuids(@Body List<String> uuids);
 }

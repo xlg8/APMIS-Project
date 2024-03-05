@@ -70,6 +70,8 @@ public interface CampaignFormMetaFacade {
 //	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundAndFormExpiry(String round);
 	
 	Date formExpiryDate(CampaignFormDataCriteria criteria);		
+	
+	List<CampaignFormMetaExpiryDto> getFormsWithExpiry();	
 
 	void dearchiveForms(List<String> userUuids);
 	

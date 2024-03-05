@@ -1,6 +1,7 @@
 package de.symeda.sormas.backend.campaign.form;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -48,11 +50,14 @@ import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
@@ -357,7 +362,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			System.out.println("DEBUGGER: 45fffffffiiilibraryii = " + campaignFormCriteria);
 			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
 		}
-		
+
 		if (filter != null) {
 			cq.where(filter);
 		}
@@ -703,6 +708,51 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return new CampaignFormMetaReferenceDto(entity.getUuid(), entity.getFormname_ps_af().toString(),
 				entity.getFormType(), entity.getFormCategory(), entity.getDaysExpired());
 	}
+
+	@Override
+	public List<CampaignFormMetaExpiryDto> getFormsWithExpiry() {
+//
+		String nQuery = "select formid, campaignid, expiryday, enddate, changedate , upper(CAST(uuid AS TEXT)) as uuid from campaignformmetawithexp ";
+//		System.out.println(nQuery);
+		Query getFormsWithExpiryQuery = em.createNativeQuery(nQuery);
+//
+		List<CampaignFormMetaExpiryDto> resultData = new ArrayList<>();
+
+//		@SuppressWarnings("unchecked")
+//		List<Object[]> resultList = getFormsWithExpiryQuery.getResultList();
+//
+//		resultData.addAll(resultList.stream()
+//				.map((result) -> new CampaignFormMetaExpiryDto((String) result[0].toString(),
+//						(String) result[1].toString(), ((BigInteger) result[2]).longValue(), (Date) result[3], (Date) result[4]))
+//				.collect(Collectors.toList()));
+//
+//		return resultData;//getFormsWithExpiryQuery.getResultList();
+		
+		 @SuppressWarnings("unchecked")
+	        List<Object[]> resultList = getFormsWithExpiryQuery.getResultList();
+
+	        // Create a list to hold the DTOs
+//	        List<CampaignFormMetaExpiryDto> resultData = new ArrayList<>();
+
+	        // Iterate over the result list and create DTO objects
+	        for (Object[] result : resultList) {
+	            CampaignFormMetaExpiryDto dto = new CampaignFormMetaExpiryDto();
+	            dto.setFormId((String) result[0]);
+	            dto.setCampaignId((String) result[1]);
+	            dto.setExpiryDay(((Number) result[2]).longValue());
+	            dto.setEnddate((Date) result[3]);
+	            dto.setChangeDate((Date) result[4]);
+	            dto.setUuid((String) result[5]);
+	         
+	            resultData.add(dto);
+	        }
+	        
+	        return resultData;
+
+//
+	}
+	
+	
 
 	@Override
 	public Date formExpiryDate(CampaignFormDataCriteria criteria) {

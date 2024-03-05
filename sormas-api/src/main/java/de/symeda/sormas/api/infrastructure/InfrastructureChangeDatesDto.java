@@ -23,6 +23,7 @@ public class InfrastructureChangeDatesDto implements Serializable {
 	private Date featureConfigurationChangeDate;
 	private Date campaignChangeDate;
 	private Date campaignFormMetaChangeDate;
+	private Date campaignFormMetaExpiryChangeDate;
 
 	public Date getContinentChangeDate() {
 		return continentChangeDate;
@@ -151,4 +152,14 @@ public class InfrastructureChangeDatesDto implements Serializable {
 	public void setCampaignFormMetaChangeDate(Date campaignFormMetaChangeDate) {
 		this.campaignFormMetaChangeDate = campaignFormMetaChangeDate;
 	}
+
+	public Date getCampaignFormMetaExpiryChangeDate() {
+		return campaignFormMetaExpiryChangeDate;
+	}
+
+	public void setCampaignFormMetaExpiryChangeDate(Date campaignFormMetaExpiryChangeDate) {
+		this.campaignFormMetaExpiryChangeDate = campaignFormMetaExpiryChangeDate;
+	}
+	
+	
 }
