@@ -45,14 +45,18 @@ public class PopulationDataImporter extends DataImporter {
 	 */
 	private static final String TOTAL_HEADER_PATTERN = "[A-Z]+_TOTAL";
 
+	
+	private boolean isOverWrite;
+	private boolean isOverWriteEnabledCode;
 	private final Date collectionDate;
 	private final CampaignReferenceDto campaignReferenceDto;
 	private final String dtoIdentifier;
 
-	public PopulationDataImporter(File inputFile, UserDto currentUser, CampaignDto campaignDto, ValueSeparator csvSeparator) throws IOException {
+	public PopulationDataImporter(File inputFile, UserDto currentUser, CampaignDto campaignDto, ValueSeparator csvSeparator,  boolean overwrite) throws IOException {
 		
 		super(inputFile, false, currentUser, csvSeparator);
 		this.collectionDate = new Date();
+		this.isOverWrite = overwrite;
 		this.campaignReferenceDto = FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid());
 		this.dtoIdentifier = campaignDto.getUuid();
 	}
@@ -178,22 +182,6 @@ public class PopulationDataImporter extends DataImporter {
 				}
 			
 		
-//		
-//		//Enable campaign based population import
-//		if (PopulationDataDto.CAMPAIGN.equalsIgnoreCase(entityProperties[i])) { 
-//			if (DataHelper.isNullOrEmpty(values[i])) {
-//				campaign = null;
-//			} else {
-//				if(values[i].toString().length() > 20 && values[i].toString().contains("-")) {
-//				campaign = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-//				
-//			} else {
-//				writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//				System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" campaginttttttttttttttttt 1111"+values[i]);
-//				return ImportLineResult.ERROR;
-//			}
-//				}
-//			}
 		}
 //	
 
@@ -213,9 +201,6 @@ public class PopulationDataImporter extends DataImporter {
 			criteria.campaign(finalCampaign);
 		}
 		
-		
-		
-		
 		if (finalCommunity == null) {
 			criteria.communityIsNull(true);
 		} else {
@@ -230,18 +215,8 @@ public class PopulationDataImporter extends DataImporter {
 		
 		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade().getPopulationDataImportChecker(criteria);
 		List<PopulationDataDto> modifiedPopulationDataList = new ArrayList<PopulationDataDto>();
-		
-		
-		System.out.println("+++++++++:+ " + criteria.getAgeGroup());
-		System.out.println("+++++++++:+ " + criteria.getRegion());
-		System.out.println("+++++++++:+ " + criteria.getDistrict());
-		System.out.println("+++++++++:+ " + criteria.getCampaign());
-		System.out.println("+++++++++:+ " + criteria.getSex());
-		System.out.println("+++++++++:+ " + criteria.getDistrict());
-		System.out.println("+++++++++:+ " + existingPopulationDataList.size());
-		
-		
 
+		
 		boolean populationDataHasImportError =
 			insertRowIntoData(values, entityClasses, entityPropertyPaths, false, new Function<ImportCellData, Exception>() {
 				
