@@ -138,6 +138,7 @@ public class MessagingView extends VerticalLayout {
 		filters.getStyle().set("margin-left", "10px");
 		filters.setAlignItems(Alignment.END);
 		filterLayout.add(search, userRole, formAccessFilter, areaFilter, regionFilter, districtFilter, countRowItems);
+		filterLayout.setAlignItems(Alignment.START);
 		filters.add(hideFilters, filterLayout);
 		add(buttonLayout, filters, grid);
 	}
@@ -148,7 +149,9 @@ public class MessagingView extends VerticalLayout {
 		countRowItems = new Paragraph(I18nProperties.getCaption(Captions.rows) + numberOfRows);
 		countRowItems.setId("rowCount");
 		countRowItems.getStyle().set("margin-top", "60px");
-		countRowItems.getStyle().set("padding-left", "150px");
+//		countRowItems.getStyle().set("padding-left", "150px");
+		countRowItems.getStyle().set("margin-right", "20px");
+		countRowItems.getStyle().set("margin-left", "auto");
 		
 		filterLayout = new HorizontalLayout();
 		filterLayout.getStyle().set("margin-top", "10px");

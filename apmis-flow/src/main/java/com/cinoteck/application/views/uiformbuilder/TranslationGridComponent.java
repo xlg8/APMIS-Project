@@ -44,7 +44,6 @@ public class TranslationGridComponent extends VerticalLayout {
 	private static final long serialVersionUID = -1204658853656142982L;
 	ComboBox<String> languageCode = new ComboBox<String>("Tranlation Language Code");
 	ComboBox<String> elementId = new ComboBox<String>("Element Id");
-//	TextField elementId = new TextField("Element Id");
 	TextField caption = new TextField("Caption");
 
 	CampaignFormMetaDto campaignFormMetaDto;
@@ -141,9 +140,17 @@ public class TranslationGridComponent extends VerticalLayout {
 		del.setId("main");
 		del.getStyle().set("background-color", "red !important");
 
-		Button cancel = new Button("Cancel");
+		Icon cancelIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
+		cancelIcon.getStyle().set("color", "red !important");
+		Button cancel = new Button("Cancel", cancelIcon);
 		cancel.setId("main");
-		Button save = new Button("Save");
+		cancel.getStyle().set("color", "red !important");
+		cancel.getStyle().set("background", "white");
+		cancel.getStyle().set("border", "1px solid red");
+
+		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		saveIcon.getStyle().set("color", "green");
+		Button save = new Button("Save", saveIcon);
 		save.setId("main");
 
 		vr1.add(back, plus, del);
@@ -270,11 +277,9 @@ public class TranslationGridComponent extends VerticalLayout {
 				mainLayout.setVisible(true);
 				vr3.setVisible(true);
 				vr1.setVisible(false);
-				System.out.println("mainnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
 			} else {
 				if (((Button) e.getSource()).getId().get().equals("sub")) {
 
-					System.out.println("subbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 					formLayout.setVisible(true);
 					vr3.setVisible(true);
 					vr1.setVisible(false);
@@ -284,11 +289,6 @@ public class TranslationGridComponent extends VerticalLayout {
 					newTranslation = new TranslationElement();
 
 					if (campaignFormMetaDto.getCampaignFormTranslations() == null) {
-//						List<TranslationElement> translationElementHold = new ArrayList<>();
-//						for (CampaignFormTranslations campaignFormTranslationslooper : campaignFormTranslationsList) {						
-//							translationElementHold.addAll(campaignFormTranslationslooper.getTranslations());
-//						}
-//						campaignFormMetaDto = new CampaignFormMetaDto();
 						grid.setItems(dataprovider);
 					}
 				}
@@ -302,10 +302,28 @@ public class TranslationGridComponent extends VerticalLayout {
 			if (translationBeenEdited != null) {
 
 				campaignFormMetaDto.getCampaignFormElements().remove(translationBeenEdited);
-				Notification.show("Selected Form Translation Deleted");
+				Notification notification = new Notification("Selected Form Translation Deleted", 3000, Position.MIDDLE);
+				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				notification.open();
 				grid.setItems(translationBeenEdited);
 			} else {
-				Notification.show("No Form Translation Selected");
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("No Form Translation Selected");
+
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
 			}
 		});
 
@@ -342,9 +360,7 @@ public class TranslationGridComponent extends VerticalLayout {
 				CampaignFormTranslations campaignFormTranslations = new CampaignFormTranslations();
 				List<TranslationElement> translationElementsList = new ArrayList<>();
 				if (campaignFormTranslationsList.size() < 2 && languageCode.getValue() != null) {
-					System.out.println("bfffffffffffffffffff1111111111111111111111");
 					if (campaignFormTranslationsList.size() > 0) {
-						System.out.println("bfffffffffffffff2222222222222222222222");
 						if (!languageCode.getValue()
 								.equalsIgnoreCase(campaignFormTranslationsList.get(0).getLanguageCode())) {
 
@@ -354,11 +370,13 @@ public class TranslationGridComponent extends VerticalLayout {
 							campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
 							outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 
-							System.out.println("hereeeeeeeeeeeeeeeeeeeeeeeeeeee");
 							vr1.setVisible(true);
 							mainLayout.setVisible(false);
 							vr3.setVisible(false);
-							Notification.show("New Language Translation Saved");
+							
+							Notification notification = new Notification("New Language Translation Saved", 3000, Position.MIDDLE);
+							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+							notification.open();
 						}
 					} else {
 						campaignFormTranslations.setLanguageCode(languageCode.getValue());
@@ -367,11 +385,12 @@ public class TranslationGridComponent extends VerticalLayout {
 						campaignFormMetaDto.getCampaignFormTranslations().add(campaignFormTranslations);
 						outerGrid.setItems(campaignFormMetaDto.getCampaignFormTranslations());
 
-						System.out.println("thereeeeeeeeeeeeeeeeeeeeeeeeeee");
 						vr1.setVisible(true);
 						mainLayout.setVisible(false);
-						vr3.setVisible(false);
-						Notification.show("New Language Translation Saved");
+						vr3.setVisible(false);				
+						Notification notification = new Notification("New Language Translation Saved", 3000, Position.MIDDLE);
+						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+						notification.open();
 					}
 				} else {
 
@@ -406,7 +425,6 @@ public class TranslationGridComponent extends VerticalLayout {
 
 					if (((Button) e.getSource()).getText().equals("Save")) {
 
-						System.out.println("not nullllllllllllllllllll");
 						List<String> langCodeHolder = new ArrayList<>();
 						List<TranslationElement> translationElementHolder = new ArrayList<>();
 
@@ -426,7 +444,6 @@ public class TranslationGridComponent extends VerticalLayout {
 							for (String langCode : langCodeHolder) {
 								if (langCode.equalsIgnoreCase(identifyer.getLanguageCode())) {
 									index = langCodeHolder.indexOf(langCode);
-									System.out.println(index + " index of langggggggggggggggg");
 								}
 							}
 
@@ -435,13 +452,30 @@ public class TranslationGridComponent extends VerticalLayout {
 							justOne.getTranslations().add(newTranslations);
 
 							campaignFormMetaDto.getCampaignFormTranslations().set(index, justOne);
-							System.out.println(langCodeHolder.size() + " lang sizeeeeeeeeeeeeeeeeeee");
-							System.out.println(translationElementHolder.size() + " elements sizeeeeeeeeeeeeeeeeeee");
 
-							grid.setItems(list.get(index).getTranslations());
-							Notification.show("Translation saved");
+							grid.setItems(list.get(index).getTranslations());					
+							Notification notification = new Notification("Translation saved", 3000, Position.MIDDLE);
+							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+							notification.open();
 						} else {
-							Notification.show("ELementId or Caption must be provided and cannot be Empty");
+
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph("Elementid or Caption must be provided and cannot be Empty");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
 						}
 					} else {
 
@@ -459,13 +493,31 @@ public class TranslationGridComponent extends VerticalLayout {
 							int indexx = using.indexOf(translationBeenEdited);
 
 							using.set(indexx, newElement);
-							System.out.println("problemmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
 							grid.setItems(helper.get(index).getTranslations());
 							getInnergridData();
 
-							Notification.show("Form Element Updated");
+							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
+							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+							notification.open();
 						} else {
-							Notification.show("Select an Element from Grid to edit");
+
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph("Select an Element from Grid to edit");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
 						}
 					}
 				}

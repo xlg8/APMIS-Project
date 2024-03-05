@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
@@ -80,7 +81,8 @@ public class MessagingLayout extends VerticalLayout {
 	List<DistrictReferenceDto> districtHolder;
 	List<CommunityReferenceDto> communityiesHolder;
 
-	Button savePreviewButton = new Button("Proceed and Save");
+	Icon savePreviewIcon = new Icon(VaadinIcon.PROGRESSBAR);
+	Button savePreviewButton = new Button("Proceed and Save", savePreviewIcon);
 
 	private boolean isNew = false;
 
@@ -164,8 +166,11 @@ public class MessagingLayout extends VerticalLayout {
 		formLayout.setColspan(messageContent, 2);
 		messageContent.setHeight("300px");
 
-		Button discardChanges = new Button("Dicard Changes");
-		Button saved = new Button("Save");
+		Icon discardIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
+		Button discardChanges = new Button("Dicard Changes", discardIcon);
+		
+		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		Button saved = new Button("Save", saveIcon);
 		hr.add(discardChanges, saved);
 		add(formLayout, hr);
 
@@ -314,10 +319,8 @@ public class MessagingLayout extends VerticalLayout {
 			fireEvent(new SaveEvent(this, messageDto));
 
 			Notification notification = new Notification("New Message Created", 3000, Position.MIDDLE);
-			notification.getStyle().set("background-color", "green");
-			notification.getStyle().set("color", "white");
-			notification.open();
-			
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.open();			
 			UI.getCurrent().getPage().reload();			
 		} else {
 			Notification notification = new Notification();
@@ -391,6 +394,8 @@ public class MessagingLayout extends VerticalLayout {
 		preViewDialog.setWidth("900px");
 		preViewDialog.setHeight("700px");
 		Button closePreviewButton = new Button("Back", e -> preViewDialog.close());
+		Icon backIcon = new Icon(VaadinIcon.BACKWARDS);
+		closePreviewButton.setIcon(backIcon);
 		preViewDialog.add(preViewContent);
 		preViewDialog.setHeaderTitle("Notification Preview");
 		preViewDialog.open();

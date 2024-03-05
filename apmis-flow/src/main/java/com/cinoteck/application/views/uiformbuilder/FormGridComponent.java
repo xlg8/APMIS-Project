@@ -36,6 +36,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -157,14 +158,14 @@ public class FormGridComponent extends VerticalLayout {
 
 			formId.setValue(generatedValue);
 		});
-		
+
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
-		if(campaignFormMetaDto.getCampaignFormElements() != null) {
+		if (campaignFormMetaDto.getCampaignFormElements() != null) {
 			for (CampaignFormElement campaignFormElement : listofelements) {
 				listofthem.add(campaignFormElement.getId());
 			}
-		}		
+		}
 		dependingOn.setItems(listofthem);
 	}
 
@@ -216,8 +217,17 @@ public class FormGridComponent extends VerticalLayout {
 		del.getStyle().set("background-color", "red!important");
 
 		Button moreFields = new Button("Show More Fields");
-		Button cancel = new Button("Cancel");
-		Button save = new Button("Save");
+		
+		Icon cancelIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
+		cancelIcon.getStyle().set("color", "red !important");
+		Button cancel = new Button("Cancel", cancelIcon);
+		cancel.getStyle().set("color", "red !important");
+		cancel.getStyle().set("background", "white");
+		cancel.getStyle().set("border", "1px solid red");
+		
+		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		saveIcon.getStyle().set("color", "green");
+		Button save = new Button("Save", saveIcon);
 
 		formLayout.setVisible(false);
 		vr3.setVisible(false);
@@ -246,8 +256,6 @@ public class FormGridComponent extends VerticalLayout {
 				formType.setValue(generateType(formBeenEdited.getType()));
 				formType.setVisible(true);
 
-				logger.debug(" gghgsfjgsvjgsdvhgssjf");
-				loggers.debug(" secondeeeeeeeeeeeeeeeeeeeeeeeeed");
 				if (formBeenEdited.getId() != null) {
 					formId.setValue(formBeenEdited.getId());
 					formId.setVisible(true);
@@ -270,8 +278,6 @@ public class FormGridComponent extends VerticalLayout {
 						mapperUtil.setCaption(values.getCaption());
 						mapperUtil.setOrder(values.getOrder());
 						option.add(mapperUtil.toString());
-
-						logger.info(mapperUtil.toString() + " hvhvdshdbjsdjbdbdbhvdbfdb");
 					}
 
 					value = String.valueOf(option);
@@ -364,6 +370,11 @@ public class FormGridComponent extends VerticalLayout {
 					comment.setVisible(true);
 				}
 
+				if (formBeenEdited.getComment() != null) {
+					comment.setValue(formBeenEdited.getComment());
+					comment.setVisible(true);
+				}
+
 				if (formBeenEdited.getDefaultvalue() != null) {
 					defaultValues.setValue(formBeenEdited.getDefaultvalue());
 					defaultValues.setVisible(true);
@@ -398,12 +409,29 @@ public class FormGridComponent extends VerticalLayout {
 //			formBeenEdited = new CampaignFormElement();
 			if (formBeenEdited != null) {
 
-				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
-				Notification.show("Selected Form Element Deleted");
+				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);				
+				Notification notification = new Notification("Selected Form Element Deleted", 3000, Position.MIDDLE);
+				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				notification.open();
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			} else {
 
-				Notification.show("No Form Element Selected");
+				Notification notification = new Notification();
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				notification.setPosition(Position.MIDDLE);
+				Button closeButton = new Button(new Icon("lumo", "cross"));
+				closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+				closeButton.getElement().setAttribute("aria-label", "Close");
+				closeButton.addClickListener(event -> {
+					notification.close();
+				});
+
+				Paragraph text = new Paragraph("No Form Element Selected");
+				HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+				layout.setAlignItems(Alignment.CENTER);
+
+				notification.add(layout);
+				notification.open();
 			}
 		});
 
@@ -467,7 +495,6 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setImportant(important.getValue());
 				}
 
-//				[[key:DC, caption:DC, order:0], [key:CS, caption:CS, order:1], [key:VSM, caption:Vaccinator/SM, order:2]]
 //				[[key:bike, caption:bike, order:0], [key:bicycle, caption:bicycle, order:1], [key:car, caption:car, order:2]]
 				if (!options.getValue().isEmpty()) {
 					List<MapperUtil> option = new ArrayList<>();
@@ -486,18 +513,12 @@ public class FormGridComponent extends VerticalLayout {
 							String[] parts = pair.split(":");
 							String key = parts[0];
 							String value = parts[1];
-							System.out.println(key + " firstttttttttttttttttttttttttttt");
-							System.out.println(value + " firstttttttttttttttttttttttttttt1");
 
 							key = key.trim();
 							value = value.trim();
-							System.out.println(key + " trimmeddddddddddddddddd");
-							System.out.println(value + " trimmeddddddddddddddddd1");
 
 							key = key.replaceAll("\\[", "");
 							value = value.replaceAll("^\"|\"$", "");
-							System.out.println(key + " sterilised");
-							System.out.println(value + " sterilised1");
 
 							switch (key) {
 							case "key":
@@ -508,12 +529,9 @@ public class FormGridComponent extends VerticalLayout {
 								break;
 							case "order":
 								mapperUtil.setOrder(value);
-								System.out.println(key + " lasttttttttttttttt");
-								System.out.println(value + " lasttttttttttttttt1");
 								break;
 							}
 						}
-						System.out.println(mapperUtil.toString() + " everythinggggggggggggggggggggg");
 						option.add(mapperUtil);
 					}
 					newForm.setOptions(option);
@@ -533,7 +551,23 @@ public class FormGridComponent extends VerticalLayout {
 							newForm.setConstraints(valueOfMinMAx.split(" "));
 						} else {
 
-							Notification.show("Minimium must be smaller than Maximium and both must not be empty");
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph(
+									"Minimium must be smaller than Maximium and both must not be empty");
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
 							return;
 						}
 					}
@@ -595,7 +629,9 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					getGridData();
-					Notification.show("New Form Element Saved");
+					Notification notification = new Notification("New Form Element Saved", 3000, Position.MIDDLE);
+					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+					notification.open();
 				}
 
 			} else {
@@ -641,18 +677,12 @@ public class FormGridComponent extends VerticalLayout {
 								String[] parts = pair.split(":");
 								String key = parts[0];
 								String value = parts[1];
-								System.out.println(key + " firstttttttttttttttttttttttttttt");
-								System.out.println(value + " firstttttttttttttttttttttttttttt1");
 
 								key = key.trim();
 								value = value.trim();
-								System.out.println(key + " trimmeddddddddddddddddd");
-								System.out.println(value + " trimmeddddddddddddddddd1");
 
 								key = key.replaceAll("\\[", "");
 								value = value.replaceAll("^\"|\"$", "");
-								System.out.println(key + " sterilised");
-								System.out.println(value + " sterilised1");
 
 								switch (key) {
 								case "key":
@@ -663,12 +693,9 @@ public class FormGridComponent extends VerticalLayout {
 									break;
 								case "order":
 									mapperUtil.setOrder(value);
-									System.out.println(key + " lasttttttttttttttt");
-									System.out.println(value + " lasttttttttttttttt1");
 									break;
 								}
 							}
-							System.out.println(mapperUtil.toString() + " everythinggggggggggggggggggggg");
 							option.add(mapperUtil);
 						}
 						newForm.setOptions(option);
@@ -689,8 +716,23 @@ public class FormGridComponent extends VerticalLayout {
 									newForm.setConstraints(valueOfMinMAx.split(" "));
 								} else {
 
-									Notification
-											.show("Minimium must be smaller than Maximium and both must not be empty");
+									Notification notification = new Notification();
+									notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+									notification.setPosition(Position.MIDDLE);
+									Button closeButton = new Button(new Icon("lumo", "cross"));
+									closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+									closeButton.getElement().setAttribute("aria-label", "Close");
+									closeButton.addClickListener(event -> {
+										notification.close();
+									});
+
+									Paragraph text = new Paragraph(
+											"Minimium must be smaller than Maximium and both must not be empty");
+									HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+									layout.setAlignItems(Alignment.CENTER);
+
+									notification.add(layout);
+									notification.open();
 								}
 							}
 						}
@@ -738,23 +780,40 @@ public class FormGridComponent extends VerticalLayout {
 						using = campaignFormMetaDto.getCampaignFormElements();
 						int index = using.indexOf(formBeenEdited);
 
-						logger.info(index + " indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 						using.set(index, newForm);
 						campaignFormMetaDto.setCampaignFormElements(using);
 						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 
 //						getGridData();
-						Notification.show("Form Element Updated");
+						Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
+						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+						notification.open();
 					}
 
 				} else {
-					Notification.show("Select an Form Element to edit Please");
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("Select an Form Element to edit Please");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
 				}
 			}
 		});
 
 		formLayout.add(formType, caption, formId, important, options, expression, dependingOn, dependingOnValues,
-				styles, constraints, min, max, defaultValues, errorMessage, expressions);
+				styles, constraints, min, max, defaultValues, errorMessage, comment, expressions);
 
 		formLayout.setColspan(formType, 2);
 		formLayout.setColspan(formId, 2);

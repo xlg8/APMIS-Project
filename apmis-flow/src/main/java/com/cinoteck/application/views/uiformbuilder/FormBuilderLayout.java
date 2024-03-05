@@ -8,13 +8,21 @@ import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -141,7 +149,6 @@ public class FormBuilderLayout extends VerticalLayout {
 
 		final HorizontalLayout hr = new HorizontalLayout();
 		hr.setWidthFull();
-		
 
 		TabSheet sheet = new TabSheet();
 		sheet.addClassName("formbuildertab");
@@ -161,10 +168,19 @@ public class FormBuilderLayout extends VerticalLayout {
 		add(formLayout);
 		add(hr);
 
-		Button discardChanges = new Button("Discard Changes");
-		Button saved = new Button("Save");
+		Icon discardIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
+		discardIcon.getStyle().set("color", "red !important");
+		Button discardChanges = new Button("Discard Changes", discardIcon);
+		discardChanges.getStyle().set("color", "red !important");
+		discardChanges.getStyle().set("background", "white");
+		discardChanges.getStyle().set("border", "1px solid red");
+
+		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
+		saveIcon.getStyle().set("color", "green");
+		Button saved = new Button("Save", saveIcon);
 
 		HorizontalLayout buttonLayout = new HorizontalLayout(discardChanges, saved);
+		buttonLayout.getStyle().set("margin-left", "auto");
 
 		add(buttonLayout);
 
@@ -192,10 +208,28 @@ public class FormBuilderLayout extends VerticalLayout {
 
 			UI.getCurrent().getPage().reload();
 
-			Notification.show("Form Saved");
+			Notification notification = new Notification("Form Saved", 3000, Position.MIDDLE);
+			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+			notification.open();
 		} else {
 
-			Notification.show("Unable to Save Form");
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
+
+			Paragraph text = new Paragraph("Unable to Save Form");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
 		}
 	}
 
