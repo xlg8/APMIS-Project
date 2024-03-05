@@ -300,7 +300,7 @@ public class AreaDataImporter extends DataImporter {
 						for (AreaDto  areaData : newUserLinetoSave){
 							
 							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-							configurationChangeLogDto.setAction_unit_type("Area");
+							configurationChangeLogDto.setAction_unit_type("Region");
 							configurationChangeLogDto.setAction_unit_name(areaData.getName());
 							configurationChangeLogDto.setUnit_code(areaData.getExternalId());
 							if(isOverWrite) {
@@ -314,6 +314,7 @@ public class AreaDataImporter extends DataImporter {
 						
 														
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						checkExeption = false;
 					}
 				}
 			} else {

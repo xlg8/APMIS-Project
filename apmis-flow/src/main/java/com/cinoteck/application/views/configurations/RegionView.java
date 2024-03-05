@@ -496,7 +496,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-						configurationChangeLogDto.setAction_unit_type("Area");
+						configurationChangeLogDto.setAction_unit_type("Region");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk Archive");
@@ -516,7 +516,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-						configurationChangeLogDto.setAction_unit_type("Area");
+						configurationChangeLogDto.setAction_unit_type("Region");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
@@ -584,7 +584,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								FacadeProvider.getAreaFacade().dearchive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-								configurationChangeLogDto.setAction_unit_type("Area");
+								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("De-Archive");
@@ -604,7 +604,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								FacadeProvider.getAreaFacade().archive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-								configurationChangeLogDto.setAction_unit_type("Area");
+								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("Archive");
@@ -678,10 +678,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //										String unit_code, String action_logged)
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-								configurationChangeLogDto.setAction_unit_type("Area");
+								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(name);
 								configurationChangeLogDto.setUnit_code(rcodeValue);
-								configurationChangeLogDto.setAction_logged("Area Edit");
+								configurationChangeLogDto.setAction_logged("Region Edit");
 																
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								
@@ -729,10 +729,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								if(!checkexception) {
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 									configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-									configurationChangeLogDto.setAction_unit_type("Area");
+									configurationChangeLogDto.setAction_unit_type("Region");
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(rcodeValue);
-									configurationChangeLogDto.setAction_logged("Area Create");
+									configurationChangeLogDto.setAction_logged("Region Create");
 																	
 									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								}

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.ImportCellData;
 import com.cinoteck.application.views.utils.importutils.ImportErrorException;
@@ -36,6 +37,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.ValueSeparator;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -74,6 +76,7 @@ public class ClusterDataImporter extends DataImporter {
 	private boolean isOverWriteEnabledCode;
 	List<CommunityReferenceDto> clusters = new ArrayList<>();
 	List<CommunityReferenceDto> clusterNameList = new ArrayList<>();
+	UserProvider userProvider = new UserProvider();
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -496,14 +499,41 @@ public class ClusterDataImporter extends DataImporter {
 					});
 
 			if (!usersDataHasImportError) {
+				boolean checkExeption = false;
 
 				try {
 					FacadeProvider.getCommunityFacade().save(newUserLinetoSave.get(0), true);
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
+					checkExeption = true;
+
 					writeImportError(values, values + " already exists.");
 					return ImportLineResult.ERROR;
+				}finally {
+					if (!checkExeption) {
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+
+						for (CommunityDto  clusterData : newUserLinetoSave){
+							
+							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setAction_unit_type("Cluster");
+							configurationChangeLogDto.setAction_unit_name(clusterData.getName());
+							configurationChangeLogDto.setUnit_code(clusterData.getExternalId());
+							if(isOverWrite) {
+								configurationChangeLogDto.setAction_logged("Import : Overwrite");
+
+							}else {
+								configurationChangeLogDto.setAction_logged("Import");
+
+							}
+						}
+						
+														
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						checkExeption = false;
+					}
 				}
 			} else {
 				return ImportLineResult.ERROR;

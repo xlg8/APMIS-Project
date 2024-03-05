@@ -216,84 +216,132 @@ public class PopulationDataImporter extends DataImporter {
 		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade()
 				.getPopulationDataImportChecker(criteria);
 		List<PopulationDataDto> modifiedPopulationDataList = new ArrayList<PopulationDataDto>();
+		boolean populationDataHasImportError = false;
+		if (isOverWrite) {
+			populationDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+					new Function<ImportCellData, Exception>() {
 
-		boolean populationDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
-				new Function<ImportCellData, Exception>() {
+						@Override
+						public Exception apply(ImportCellData cellData) {
+							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
 
-					@Override
-					public Exception apply(ImportCellData cellData) {
-						System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
-
-						try {
-							if (PopulationDataDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
-									|| PopulationDataDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
-									|| PopulationDataDto.CAMPAIGN.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) // Property
-																														// type// allowed
-									|| PopulationDataDto.COMMUNITY_EXTID
-											.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-//							System.out.println("+++++++++++++ignoring......");
-								// Ignore the region, district and community columns
-							} else if (RegionDto.GROWTH_RATE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-//							System.out.println("+++++++++++++----------");
-								// Update the growth rate of the region or district
-//							if (!DataHelper.isNullOrEmpty(cellData.value)) {
-//								Float growthRate = Float.parseFloat(cellData.value);
-//								if (finalCommunity != null) {
-//									CommunityDto communityDto = FacadeProvider.getCommunityFacade().getByUuid(finalCommunity.getUuid());
-//									communityDto.setGrowthRate(growthRate);
-//									FacadeProvider.getCommunityFacade().save(communityDto);
-//								} else if (finalDistrict != null) {
-//									DistrictDto districtDto = FacadeProvider.getDistrictFacade().getDistrictByUuid(finalDistrict.getUuid());
-//									districtDto.setGrowthRate(growthRate);
-//									FacadeProvider.getDistrictFacade().save(districtDto);
-//								} else {
-//									RegionDto regionDto = FacadeProvider.getRegionFacade().getByUuid(finalRegion.getUuid());
-//									regionDto.setGrowthRate(growthRate);
-//									FacadeProvider.getRegionFacade().save(regionDto);
-//								}
-//							}
-							} else {
-
-								// Add the data from the currently processed cell to a new population data
-								// object
-								PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
-								newPopulationData.setCampaign(finalCampaign);
-								insertCellValueIntoData(newPopulationData, cellData.getValue(),
-										cellData.getEntityPropertyPath());
-								System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++: "
-										+ existingPopulationDataList.size());
-
-								Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList.stream()
-										.filter(populationData -> populationData.getAgeGroup()
-												.equals(newPopulationData.getAgeGroup())
-												&& populationData.getCampaign().equals(newPopulationData.getCampaign()))
-										.findFirst();
-
-								if (existingPopulationData.isPresent()) {
-									System.out.println(
-											"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
-									existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
-									existingPopulationData.get().setCollectionDate(collectionDate);
-									modifiedPopulationDataList.add(existingPopulationData.get());
+							try {
+								if (PopulationDataDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+										|| PopulationDataDto.DISTRICT
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+										|| PopulationDataDto.CAMPAIGN
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) // Property
+																										// type//
+																										// allowed
+										|| PopulationDataDto.COMMUNITY_EXTID
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 								} else {
-									System.out.println(
-											"++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
 
-									newPopulationData.setRegion(finalRegion);
-									newPopulationData.setDistrict(finalDistrict);
-									newPopulationData.setCommunity(finalCommunity);
+									// Add the data from the currently processed cell to a new population data
+									// object
+									PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
 									newPopulationData.setCampaign(finalCampaign);
-									modifiedPopulationDataList.add(newPopulationData);
+									insertCellValueIntoData(newPopulationData, cellData.getValue(),
+											cellData.getEntityPropertyPath());
+									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++: "
+											+ existingPopulationDataList.size());
+
+									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
+											.stream()
+											.filter(populationData -> populationData.getAgeGroup()
+													.equals(newPopulationData.getAgeGroup())
+													&& populationData.getCampaign()
+															.equals(newPopulationData.getCampaign()))
+											.findFirst();
+
+									if (existingPopulationData.isPresent()) {
+										System.out.println(
+												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
+										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
+										existingPopulationData.get().setCollectionDate(collectionDate);
+										modifiedPopulationDataList.add(existingPopulationData.get());
+									} else {
+										System.out.println(
+												"++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
+
+										newPopulationData.setRegion(finalRegion);
+										newPopulationData.setDistrict(finalDistrict);
+										newPopulationData.setCommunity(finalCommunity);
+										newPopulationData.setCampaign(finalCampaign);
+										modifiedPopulationDataList.add(newPopulationData);
+									}
 								}
+							} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
+
+								return e;
 							}
-						} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
 
-							return e;
+							return null;
 						}
+					});
+		} else {
+			populationDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+					new Function<ImportCellData, Exception>() {
 
-						return null;
-					}
-				});
+						@Override
+						public Exception apply(ImportCellData cellData) {
+							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
+
+							try {
+								if (PopulationDataDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+										|| PopulationDataDto.DISTRICT
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+										|| PopulationDataDto.CAMPAIGN
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) // Property
+																										// type//
+																										// allowed
+										|| PopulationDataDto.COMMUNITY_EXTID
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+								} else {
+
+									// Add the data from the currently processed cell to a new population data
+									// object
+									PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
+									newPopulationData.setCampaign(finalCampaign);
+									insertCellValueIntoData(newPopulationData, cellData.getValue(),
+											cellData.getEntityPropertyPath());
+									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++: "
+											+ existingPopulationDataList.size());
+
+									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
+											.stream()
+											.filter(populationData -> populationData.getAgeGroup()
+													.equals(newPopulationData.getAgeGroup())
+													&& populationData.getCampaign()
+															.equals(newPopulationData.getCampaign()))
+											.findFirst();
+
+									if (existingPopulationData.isPresent()) {
+										System.out.println(
+												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
+										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
+										existingPopulationData.get().setCollectionDate(collectionDate);
+										modifiedPopulationDataList.add(existingPopulationData.get());
+									} else {
+										System.out.println(
+												"++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
+
+										newPopulationData.setRegion(finalRegion);
+										newPopulationData.setDistrict(finalDistrict);
+										newPopulationData.setCommunity(finalCommunity);
+										newPopulationData.setCampaign(finalCampaign);
+										modifiedPopulationDataList.add(newPopulationData);
+									}
+								}
+							} catch (ImportErrorException | InvalidColumnException | NumberFormatException e) {
+
+								return e;
+							}
+
+							return null;
+						}
+					});
+		}
 
 		// Validate and save the population data object into the database if the import
 		// has no errors
