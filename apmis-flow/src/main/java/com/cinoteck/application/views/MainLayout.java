@@ -16,6 +16,7 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
+import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.reports.ReportView;
@@ -169,13 +170,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Header header = new Header(imgApmis);
 
 		Span versionadd = new Span();
-		
+
 		String releaseDate = FacadeProvider.getInfoFacade().getApmisReleaseDate();
-		
+
 		String webAppVersionNumber = FacadeProvider.getInfoFacade().getWebAppVersionNumber();
 
-		versionadd.getElement().setProperty("innerHTML", "<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber)
-				+ ": " + webAppVersionNumber + "</p> <p>" + I18nProperties.getCaption(Captions.releaseDate) + ": " + releaseDate + "</p>" );
+		versionadd.getElement().setProperty("innerHTML",
+				"<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber) + ": " + webAppVersionNumber + "</p> <p>"
+						+ I18nProperties.getCaption(Captions.releaseDate) + ": " + releaseDate + "</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");
@@ -205,8 +207,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(dashboardNavItem);
 		}
 
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
-				AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));
+		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+			
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
+					AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));			
+		}
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 
@@ -273,15 +278,15 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 						UserActivitySummary.class, VaadinIcon.CHART_LINE, "navitem"));
 			}
 		}
-		
+
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.PUSH_NOTIFICATION_ACCESS)) {
-		nav.addItem(new AppNavItem("Push Notification", MessagingView.class, VaadinIcon.SERVER,
-				"navitem"));	
+			nav.addItem(new AppNavItem("Push Notification", MessagingView.class, VaadinIcon.SERVER, "navitem"));
 		}
-		
+
 		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-		nav.addItem(new AppNavItem("Notification",  VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
+			nav.addItem(
+					new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
 		}
 
 		if (nav != null) {

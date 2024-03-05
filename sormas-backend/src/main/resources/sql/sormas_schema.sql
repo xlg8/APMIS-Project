@@ -9686,11 +9686,8 @@ insert
 INSERT INTO schema_version (version_number, comment) VALUES (457, 'Admin WHO_User should be able to approve/verify PCM data rows for publication #602');
 
 
-<<<<<<< HEAD
-ALTER TABLE public.campaignformmeta ADD archived bool default false
-=======
+ALTER TABLE public.campaignformmeta ADD archived bool default false;
 ALTER TABLE public.campaignformmeta ADD archived bool NULL;
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (458, 'Form Builder Requirement Archiving feactionality add');
@@ -9900,13 +9897,10 @@ GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE pub
 
 GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_userroles TO sormas_user;
 
-GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.messages_usertypes TO sormas_user;
-
 ALTER TABLE public.users ADD "token" varchar NULL;
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (463, 'Notification for mobile and system 359 and 360');
-
 
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***

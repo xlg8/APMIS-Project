@@ -564,23 +564,23 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 
 		// Validate element IDs used in translations and clean HTML used in translation
 		// captions
-		if (CollectionUtils.isNotEmpty(campaignFormMetaDto.getCampaignFormTranslations())) {
-			for (CampaignFormTranslations translations : campaignFormMetaDto.getCampaignFormTranslations()) {
-				translations.getTranslations().forEach(e -> {
-					if (idsAndTypes.get(e.getElementId()) == null) {
-						throw new ValidationRuntimeException(
-								I18nProperties.getValidationError(Validations.campaignFormTranslationIdInvalid,
-										e.getElementId(), translations.getLanguageCode()));
-					}
-
-					if (StringUtils.isNotBlank(e.getCaption())) {
-						Whitelist whitelist = Whitelist.none();
-						whitelist.addTags(CampaignFormElement.ALLOWED_HTML_TAGS);
-						e.setCaption(HtmlHelper.cleanHtml(e.getCaption(), whitelist));
-					}
-				});
-			}
-		}
+//		if (CollectionUtils.isNotEmpty(campaignFormMetaDto.getCampaignFormTranslations())) {
+//			for (CampaignFormTranslations translations : campaignFormMetaDto.getCampaignFormTranslations()) {
+//				translations.getTranslations().forEach(e -> {
+//					if (idsAndTypes.get(e.getElementId()) == null) {
+//						throw new ValidationRuntimeException(
+//								I18nProperties.getValidationError(Validations.campaignFormTranslationIdInvalid,
+//										e.getElementId(), translations.getLanguageCode()));
+//					}
+//
+//					if (StringUtils.isNotBlank(e.getCaption())) {
+//						Whitelist whitelist = Whitelist.none();
+//						whitelist.addTags(CampaignFormElement.ALLOWED_HTML_TAGS);
+//						e.setCaption(HtmlHelper.cleanHtml(e.getCaption(), whitelist));
+//					}
+//				});
+//			}
+//		}
 	}
 
 	private void validateCampaignFormElementType(String id, String type) throws ValidationRuntimeException {
