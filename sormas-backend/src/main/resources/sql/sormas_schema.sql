@@ -9997,7 +9997,7 @@ alter table campaignformmetawithexp alter column
 uuid set not null;
 
 UPDATE campaignformmetawithexp
-SET changedate  = current_timestamp 
+SET changedate  = current_timestamp;
 
 INSERT INTO schema_version (version_number, comment) VALUES (465, 'Adding Configuration Change Log functionlity');
 
