@@ -9960,6 +9960,7 @@ ALTER TABLE public.users ADD "token" varchar NULL;
 
 INSERT INTO schema_version (version_number, comment) VALUES (464, 'Notification for mobile and system 359 and 360');
 
+
 CREATE TABLE public.configurationchangelog (
 	creatinguser varchar NULL,
 	action_unit_type varchar NULL,
@@ -9972,15 +9973,27 @@ CREATE TABLE public.configurationchangelog (
 	deleted bool not NULL default false,
 	id int8 NULL
 	
-)
+);
 
 alter table campaignformmetawithexp add column 
-changedate timestamp NOT NULL,
-uuid varchar(36) not NULL;
+changedate timestamp  null;
+
+alter table campaignformmetawithexp add column 
+uuid varchar(36) NULL;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+UPDATE campaignformmetawithexp
+SET uuid = uuid_generate_v4();
 
 UPDATE campaignformmetawithexp
 SET uuid = UPPER(uuid::TEXT);
 
+alter table campaignformmetawithexp alter column 
+uuid set not null;
+
+UPDATE campaignformmetawithexp
+SET changedate  = current_timestamp 
 
 INSERT INTO schema_version (version_number, comment) VALUES (465, 'Adding Configuration Change Log functionlity');
 

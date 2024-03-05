@@ -38,8 +38,8 @@ public class ConfigurationChangeLogView extends VerticalLayout {
 		grid.setHeightFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(ConfigurationChangeLogDto::getCreationDate).setHeader(I18nProperties.getCaption("Date"))
-				.setSortable(true).setResizable(true);
+//		grid.addColumn(ConfigurationChangeLogDto::getCreationDate).setHeader(I18nProperties.getCaption("Date"))
+//				.setSortable(true).setResizable(true);
 
 		grid.addColumn(ConfigurationChangeLogDto.ACTION_UNIT_TYPE).setHeader(I18nProperties.getCaption("Unit Type"))
 				.setSortable(true).setResizable(true);
