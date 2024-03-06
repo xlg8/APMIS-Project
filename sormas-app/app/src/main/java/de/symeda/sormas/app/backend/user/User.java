@@ -51,6 +51,8 @@ public class User extends AbstractDomainObject {
 	public static final String I18N_PREFIX = "User";
 
 	public static final String USER_NAME = "userName";
+
+	public static final String TOKEN = "token";
 	public static final String ACTIVE = "active";
 	public static final String FIRST_NAME = "firstName";
 	public static final String LAST_NAME = "lastName";
@@ -103,6 +105,18 @@ public class User extends AbstractDomainObject {
 
 	@Column(name = "userRole")
 	private String userRolesJson;
+
+	@Column(name = "token")
+	private String token;
+
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 	// initialized from userRolesJson
 	private Set<UserRole> userRoles = null;

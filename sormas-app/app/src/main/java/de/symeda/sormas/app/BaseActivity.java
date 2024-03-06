@@ -234,13 +234,10 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 						if (task.isSuccessful() && task.getResult() != null) {
 							String token = task.getResult();
 							Log.i("FCM Token", token);
-//							if(token != null && !token.isEmpty()) {
-//								try {
-//									RetroProvider.getUserFacade().updateFcmToken("AlingarICM6", token);
-//								} catch (NoConnectionException e) {
-//									throw new RuntimeException(e);
-//								}
-//							}
+							if(token != null && !token.isEmpty()) {
+								User user = ConfigProvider.getUser();
+								DatabaseHelper.getUserDao().updateFcmToken(user.getUserName(), token);
+							}
 						} else {
 							Log.e("FCM Token", "Failed to get token", task.getException());
 						}
