@@ -34,7 +34,9 @@ import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryDto;
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
+import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.backend.facility.Facility;
 import de.symeda.sormas.app.backend.infrastructure.PointOfEntry;
 import de.symeda.sormas.app.backend.region.Area;
@@ -263,7 +265,18 @@ public final class InfrastructureDaoHelper {
 		}
 
 		//temp fix
-		communityField.setVisibility(GONE);
+System.out.println("++++++++++++ :::: is servallance role there: "+ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER));
+		if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){
+			communityField.setVisibility(GONE);
+		}else{
+			communityField.setVisibility(VISIBLE);
+		};
+
+
+
+
+
+		//communityField.setVisibility(GONE);
 	}
 
 	/**

@@ -83,7 +83,7 @@ public class CampaignFormDataFragmentUtils {
                 final Object expressionValue = getExpressionValue(expressionParser, formValues, expressionString);
                 String valuex = expressionValue + "";
 
-                System.out.println(dynamicField.getCaption()+" =------))))))))))))))))))))))))))))))))))))))-----= " + valuex);
+             //   System.out.println(dynamicField.getCaption()+" =------))))))))))))))))))))))))))))))))))))))-----= " + valuex);
                 if (!valuex.isEmpty() && !valuex.equals("") && expressionValue != null) {//&& !valuex.equals("0")
 
                     if (expressionValue != null) { //we need to see how to check and filter when its blank or empty
@@ -92,15 +92,15 @@ public class CampaignFormDataFragmentUtils {
                         if (type == CampaignFormElementType.YES_NO) {
                             ControlSwitchField.setValue((ControlSwitchField) dynamicField, expressionValue, true, YesNo.class, null);
                         } else if (type == CampaignFormElementType.RANGE) {
-                            System.out.println("+++++++++++111111+++++++++++++++++ " + valuex);
+                         //   System.out.println("+++++++++++111111+++++++++++++++++ " + valuex);
                             String valudex = valuex.equals("0") ? null : valuex.endsWith(".0") ? valuex.replace(".0", "") : valuex;
-                            System.out.println(orginalValue+ "++++++++++++22222222++++++++++++++++ " + valudex);
+                         //   System.out.println(orginalValue+ "++++++++++++22222222++++++++++++++++ " + valudex);
                             if (orginalValue != null) {
                                 if (!orginalValue.toString().equals(valudex)) {
-                                    System.out.println(orginalValue + "++++++++++++2222333++++++++++++++++ " + valudex);
+                                  //  System.out.println(orginalValue + "++++++++++++2222333++++++++++++++++ " + valudex);
                                     if (!(orginalValue.toString().isEmpty() && valudex == null)) {
                                         //   if (!valudex.isEmpty() && !orginalValue.toString().equals(valudex)) {
-                                        System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
+                                   //     System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
                                         ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString().equals("0") ? null : expressionValue.toString().endsWith(".0") ? expressionValue.toString().replace(".0", "") : expressionValue.toString());
                                         // }
                                     }
@@ -108,7 +108,7 @@ public class CampaignFormDataFragmentUtils {
                             }else {
                                 if (valudex != null) {
                                         //   if (!valudex.isEmpty() && !orginalValue.toString().equals(valudex)) {
-                                        System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
+                                //        System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
                                         ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString().equals("0") ? null : expressionValue.toString().endsWith(".0") ? expressionValue.toString().replace(".0", "") : expressionValue.toString());
                                         // }
                                     }

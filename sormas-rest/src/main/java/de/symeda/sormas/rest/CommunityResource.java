@@ -45,27 +45,32 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
-/**
- * @see <a href="https://jersey.java.net/documentation/latest/">Jersey documentation</a>
- * @see <a href="https://jersey.java.net/documentation/latest/jaxrs-resources.html#d0e2051">Jersey documentation HTTP Methods</a>
- *
- */
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 @RolesAllowed({
 	"USER",
 	"REST_USER" })
 public class CommunityResource {
-	final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
-
+	
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
 		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" +rdto.size());
 		if(rdto != null && rdto.size() > 0) {
 			System.out.println("rdtordtordto != null :zdsvxxxxxxxxxxxxxxxxxxx");
-		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
-				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
+			List<CommunityDto> returnList = new ArrayList<>();
+			
+			for(CommunityReferenceDto lcs : rdto) {
+				returnList.add(FacadeProvider.getCommunityFacade().getByUuid(lcs.getUuid()));
+			}
+			
+			System.out.println("returnListvxxxxxxxxxxxxxxxxxxx"+returnList.size());
+
+			
+		return returnList;//FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
+//				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
 			System.out.println("else :zdsvxxxxxxxxxxxxxxxxxxx");
 			final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
@@ -73,10 +78,12 @@ public class CommunityResource {
 			if(rDistdto != null & rDistdto.size() > 0) {
 				return FacadeProvider.getCommunityFacade().getAllAfterWithDistrict(new Date(since), null);
 					
+			} else {
+				System.out.println("eCOMMUNITY RETUNRING NULLL CHECK xxxxxxxxxxxxxxxx");
+			return null;
 			}
-
 		}
-		return null;
+//		
 	}
 
 	@POST
@@ -89,17 +96,19 @@ public class CommunityResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		System.out.println(" :zdsvxxxxxx++++ size0 ");
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
+		System.out.println(" :zdsvxxxxxx++++ size-0: ");
 		final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 
 		// todo: need to device smarter way of filtering out archived and deleted uuids
 		// as we are collecting this from user table
 		if (rdto != null && rdto.size() > 0) {
-			System.out.println(" :zdsvxxxxxx++++ size1 " + rdto.size());
+			System.out.println(" :zdsvxxxxxx++++ size-1: " + rdto.size());
 			List<String> lstUuid = new ArrayList<>();
 
 			for (CommunityReferenceDto com : rdto) {
-				System.out.println(com.getUuid() + " :zdsvxxxxxx++++ size1 " + com.getCaption());
+				System.out.println(com.getUuid() + " :zdsvxxxxxx++++ size-2: " + com.getCaption());
 				lstUuid.add(com.getUuid());
 			}
 

@@ -208,7 +208,7 @@ public class LoginActivity extends BaseLocalizedActivity implements ActivityComp
 		RetroProvider.connectAsyncHandled(this, true, true, result -> {
 			if (Boolean.TRUE.equals(result)) {
 
-				boolean needsSync = ConfigProvider.getUser() == null || DatabaseHelper.getCampaignFormMetaDao().isEmpty();
+				boolean needsSync = ConfigProvider.getUser() == null;// || DatabaseHelper.getCampaignFormMetaDao().isEmpty();
 
 				if (needsSync) {
 //					System.out.println(">>>>>>>>>>>trackkk needsSync>>1>>>>>>>>>>>>>>"+ConfigProvider.getUser().getLanguage());

@@ -1,7 +1,10 @@
 package de.symeda.sormas.rest;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -13,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 
 @Path("/campaignFormMeta")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -25,7 +29,21 @@ public class CampaignFormMetaResource extends EntityDtoResource {
 	@GET
 	@Path("/all/{since}")
 	public List<CampaignFormMetaDto> getAllCampaignFormMeta(@PathParam("since") long since) {
-		return FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(since));
+		final Set<DistrictReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
+		
+			
+		if(rdto != null && rdto.size() > 0) {
+			System.out.println("+++++++++++++++++++++++form size"+FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> e.isDistrictentry() == true).collect(Collectors.toList()).size());
+			return FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> e.isDistrictentry() == true).collect(Collectors.toList());
+			
+		} else {
+			System.out.println("+++++++++++++++++++++++form size"+FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> e.isDistrictentry() != true).collect(Collectors.toList()).size());
+			return FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> e.isDistrictentry() != true).collect(Collectors.toList());
+		}
 	}
 
 	@POST
@@ -37,6 +55,30 @@ public class CampaignFormMetaResource extends EntityDtoResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		return FacadeProvider.getCampaignFormMetaFacade().getAllUuids();
+		final Set<DistrictReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
+		
+		
+		if(rdto != null && rdto.size() > 0) {
+			List<CampaignFormMetaDto> listArra = FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(0)).stream()
+					.filter(e -> e.isDistrictentry() == true).collect(Collectors.toList());
+			List<String> finalList = new ArrayList<>();
+			System.out.println("+++++++++++++++++++++++form size"+listArra.size());
+			for(CampaignFormMetaDto lsc : listArra ) {
+				finalList.add(lsc.getUuid());
+			}
+			return finalList;
+			
+		} else {
+			List<CampaignFormMetaDto> listArra = FacadeProvider.getCampaignFormMetaFacade().getAllAfter(new Date(0)).stream()
+					.filter(e -> e.isDistrictentry() != true).collect(Collectors.toList());
+			List<String> finalList = new ArrayList<>();
+			System.out.println("+++++++++++++++else++++++++form size"+listArra.size());
+			for(CampaignFormMetaDto lsc : listArra ) {
+				finalList.add(lsc.getUuid());
+			}
+			return finalList;
+		}
+		
+//		return FacadeProvider.getCampaignFormMetaFacade().getAllUuids();
 	}
 }

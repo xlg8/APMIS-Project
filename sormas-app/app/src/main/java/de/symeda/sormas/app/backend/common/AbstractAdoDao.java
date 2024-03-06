@@ -435,7 +435,7 @@ public abstract class AbstractAdoDao<ADO extends AbstractDomainObject> {
 
 		} catch (SQLException e) {
 			System.out.println(e);
-			throw new DaoException("Sorry, we are unable to add data to this cluster; instead, use the listing view to change the data that is already stored.");
+			throw new DaoException("Sorry, we are unable to add data to this cluster; DUPLICATE entry detected or/and CLUSTER LOT has already been selected.");
 		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
