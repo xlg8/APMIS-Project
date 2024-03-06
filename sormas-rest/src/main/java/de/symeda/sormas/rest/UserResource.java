@@ -89,5 +89,11 @@ public class UserResource {
 		@QueryParam("size") int size) {
 		return FacadeProvider.getUserFacade().getIndexPage(criteriaWithSorting.getCriteria(), offset, size, criteriaWithSorting.getSortProperties());
 	}
+	
+	@POST
+	@Path("/fcm/token/{username}/{token}")
+	public boolean updateFcmToken(@PathParam("username") String username, @PathParam("token") String token) {	
+		return FacadeProvider.getUserFacade().updateFcmToken(username, token);
+	}
 
 }

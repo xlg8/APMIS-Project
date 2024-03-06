@@ -50,8 +50,12 @@ import org.keycloak.representations.idm.UserFederationProviderFactoryRepresentat
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.AuthProvider;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserRight;
@@ -68,9 +72,14 @@ import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.event.Event;
 import de.symeda.sormas.backend.infrastructure.facility.Facility;
 import de.symeda.sormas.backend.infrastructure.area.Area;
+import de.symeda.sormas.backend.infrastructure.area.AreaService;
 import de.symeda.sormas.backend.infrastructure.community.Community;
+import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.district.DistrictService;
 import de.symeda.sormas.backend.infrastructure.region.Region;
+import de.symeda.sormas.backend.infrastructure.region.RegionService;
+import de.symeda.sormas.backend.messaging.Message;
 import de.symeda.sormas.backend.util.IterableHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 
@@ -82,6 +91,14 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 	private UserRoleConfigFacadeEjb.UserRoleConfigFacadeEjbLocal userRoleConfigFacade;
 	@EJB
 	private ConfigFacadeEjbLocal configFacade;
+	@EJB
+	private AreaService areaService;
+	@EJB
+	private RegionService regionService;
+	@EJB
+	private DistrictService districtService;
+	@EJB
+	private CommunityService communityService;
 
 	public UserService() {
 		super(User.class);
@@ -585,6 +602,66 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 					cb.isMember(UserRole.COMMUNITY_OFFICER, from.get(User.USER_ROLES)));
 		}
 
+		return filter;
+	}
+	
+	public Predicate buildCriteriaFilterFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas,
+			Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
+			Set<CommunityReferenceDto> communities, CriteriaBuilder cb, Root<User> from) {
+		
+		Predicate filter = null;	
+		Set<UserRole> mobileuser = new HashSet<>();
+		mobileuser.add(UserRole.REST_USER);
+		mobileuser.add(UserRole.COMMUNITY_OFFICER);
+		
+		if (mobileuser.size() > 0) {
+			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+			Predicate rolesFilter = joinRoles.in(mobileuser);
+			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
+		}
+		
+		if (formAccesses.size() > 0) {
+			Join<User, FormAccess> joinFormAccess = from.join(User.USER_FORM_ACCESS, JoinType.LEFT);
+			Predicate formAccessFilter = joinFormAccess.in(formAccesses);
+			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
+		}
+		
+		if (areas.size() > 0) {
+			Join<User, Area> joinAreas = from.join(User.AREA, JoinType.LEFT);			
+			List<String> areaUuids = areas.stream()
+		            .map(area -> area.getUuid())
+		            .collect(Collectors.toList());
+		    Predicate areaFilter = joinAreas.in(areaService.getByUuids(areaUuids));
+			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
+		}
+		
+		if (regions.size() > 0) {
+			Join<User, Region> joinRegion = from.join(User.REGION, JoinType.LEFT);			
+			List<String> regionUuids = regions.stream()
+		            .map(region -> region.getUuid())
+		            .collect(Collectors.toList());			
+			Predicate regionFilter = joinRegion.in(regionService.getByUuids(regionUuids));
+			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
+		}
+		
+		if (districts.size() > 0) {
+			Join<User, District> joinDistrict = from.join(User.DISTRICT, JoinType.LEFT);			
+			List<String> districtUuids = districts.stream()
+		            .map(district -> district.getUuid())
+		            .collect(Collectors.toList());			
+			Predicate districtFilter = joinDistrict.in(districtService.getByUuids(districtUuids));
+			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
+		}
+		
+//		if (communities.size() > 0) {
+//			Join<User, Community> joinCommunity = from.join(User.COMMUNITY, JoinType.LEFT);			
+//			List<String> communityUuids = districts.stream()
+//		            .map(community -> community.getUuid())
+//		            .collect(Collectors.toList());			
+//			Predicate communityFilter = joinCommunity.in(communityService.getByUuids(communityUuids));
+//			filter = CriteriaBuilderHelper.and(cb, filter, communityFilter);
+//		}
+		
 		return filter;
 	}
 

@@ -46,6 +46,7 @@ import de.symeda.sormas.app.backend.region.Country;
 import de.symeda.sormas.app.backend.region.District;
 import de.symeda.sormas.app.backend.region.Region;
 import de.symeda.sormas.app.backend.region.Subcontinent;
+import de.symeda.sormas.app.backend.user.User;
 import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.component.controls.ControlPropertyEditField;
 import de.symeda.sormas.app.component.controls.ControlPropertyField;
@@ -73,6 +74,8 @@ public final class InfrastructureDaoHelper {
 				.map(c -> new Item<>(I18nProperties.getContinentName(c.getDefaultName()), c))
 				.sorted(Comparator.comparing(Item::getKey))
 				.collect(Collectors.toList()));
+
+
 		return items;
 	}
 
@@ -371,4 +374,7 @@ System.out.println("++++++++++++ :::: is servallance role there: "+ConfigProvide
 	public static boolean isUnknownFacility(Facility healthFacility) {
 		return unknownFacility.equals(healthFacility);
 	}
+
+
+
 }

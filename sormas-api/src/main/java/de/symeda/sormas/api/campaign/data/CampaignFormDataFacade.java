@@ -118,7 +118,7 @@ public interface CampaignFormDataFacade {
 
 	List<CampaignFormDataDto> getAllActive();
 
-	List<CampaignFormDataDto> getAllActiveData(Integer first, Integer Max);
+	List<CampaignFormDataDto> getAllActiveData(Integer first, Integer Max, Boolean includeArchived);
 
 	List<CampaignFormDataDto> getAllActiveRef();
 
@@ -136,6 +136,8 @@ public interface CampaignFormDataFacade {
 	void deleteCampaignData(List<String> uuids);
 
 	void verifyCampaignData(List<String> uuids, boolean isUnVerifying);
+	
+	void publishCampaignData(List<String> uuids, boolean isUnPublishing);
 
 	List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria,
 			List<SortProperty> sortProperties, FormAccess frms);
@@ -162,6 +164,8 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
 
 	boolean getVerifiedStatus(String uuid);
+	
+	boolean getPublishedStatus(String uuid);
 
 	Integer getAllActiveDataTotalRowCount();
 

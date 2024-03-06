@@ -194,8 +194,8 @@ public class ApmisCampaignResource {// extends EntityDtoResource {
 	@GET
 	@Path("/campaignformdata")
 	public List<CampaignFormDataDto> getAllCampaignFormDataWithoutTime(@QueryParam("fetchDataFromIndex") Integer first,
-			@QueryParam("dataFetchSize") Integer max) {
-		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData(first, max);
+			@QueryParam("dataFetchSize") Integer max,@QueryParam("includeArchived") Boolean includeArchived) {
+		return FacadeProvider.getCampaignFormDataFacade().getAllActiveData(first, max, includeArchived );
 
 	}
 	

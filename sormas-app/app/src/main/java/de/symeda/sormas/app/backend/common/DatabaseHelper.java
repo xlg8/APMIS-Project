@@ -67,6 +67,8 @@ import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.app.backend.campaign.data.CampaignFormDataDao;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaDao;
+import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaWithExp;
+import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaWithExpDao;
 import de.symeda.sormas.app.backend.caze.Case;
 import de.symeda.sormas.app.backend.caze.CaseDao;
 import de.symeda.sormas.app.backend.caze.maternalhistory.MaternalHistory;
@@ -259,6 +261,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.clearTable(connectionSource, DiseaseClassificationCriteria.class);
 			TableUtils.clearTable(connectionSource, CampaignFormData.class);
 			TableUtils.clearTable(connectionSource, CampaignFormMeta.class);
+			TableUtils.clearTable(connectionSource, CampaignFormMetaWithExp.class);
 
 			if (clearInfrastructure) {
 				TableUtils.clearTable(connectionSource, User.class);
@@ -277,6 +280,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 				TableUtils.clearTable(connectionSource, Area.class);
 				TableUtils.clearTable(connectionSource, Campaign.class);
 				TableUtils.clearTable(connectionSource, CampaignFormMeta.class);
+				TableUtils.clearTable(connectionSource, CampaignFormMetaWithExp.class);
 
 				ConfigProvider.init(instance.context);
 			}
@@ -365,6 +369,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(connectionSource, Campaign.class);
 			TableUtils.createTable(connectionSource, CampaignFormData.class);
 			TableUtils.createTable(connectionSource, CampaignFormMeta.class);
+			TableUtils.createTable(connectionSource, CampaignFormMetaWithExp.class);
 			TableUtils.createTable(connectionSource, LbdsSync.class);
 			updatePatchForTriggers();
 		} catch (SQLException e) {
@@ -2979,17 +2984,39 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					break;
 
 				case 336:
-
 					currentVersion = 336;
+
+
+					getDao(CampaignFormMetaWithExp.class).executeRaw(
+							"CREATE TABLE campaignformmetawithexp ("
+									+ "		uuid VARCHAR,"
+									+ "		campaignid VARCHAR,"
+									+ "		expiryday BIGINT,"
+									+ "		endDate DATE,"
+									+ "		pseudonymized SMALLINT,"
+									+ "		changeDate BIGINT NOT NULL,"
+									+ "		creationDate BIGINT NOT NULL,"
+									+ "		id INTEGER PRIMARY KEY AUTOINCREMENT,"
+									+ "		lastOpenedDate BIGINT,"
+									+ "		localChangeDate BIGINT NOT NULL,"
+									+ "		modified SMALLINT,"
+									+ "		snapshot SMALLINT,"
+
+									+ "		UNIQUE (snapshot ASC, uuid ASC)"
+									+ ");"
+					);
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD COLUMN 'lotclusterno' VARCHAR; ");
 					getDao(CampaignFormData.class).executeRaw("CREATE UNIQUE INDEX campaignFormDataDuplicateClusterLot ON campaignFormData(campaign_id, campaignFormMeta_id, community_id, lotClusterNo)");
 					break;
+
 				case 337:
 
 					currentVersion = 337;
 					getDao(CampaignFormMeta.class).executeRaw("ALTER TABLE campaignFormMeta ADD COLUMN 'districtentry' boolean; ");
 					// ATTENTION: break should only be done after last version
 					break;
+
+
 
 				default:
 					throw new IllegalStateException("onUpgrade() with unknown oldVersion " + oldVersion);
@@ -3689,7 +3716,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					dao = (AbstractAdoDao<ADO>) new CampaignFormMetaDao((Dao<CampaignFormMeta, Long>) innerDao);
 				} else if (type.equals(CampaignFormData.class)) {
 					dao = (AbstractAdoDao<ADO>) new CampaignFormDataDao((Dao<CampaignFormData, Long>) innerDao);
-				} else {
+				} else if (type.equals(CampaignFormMetaWithExp.class)) {
+				dao = (AbstractAdoDao<ADO>) new CampaignFormMetaWithExpDao((Dao<CampaignFormMetaWithExp, Long>) innerDao);
+			}
+				else {
 					throw new UnsupportedOperationException(type.toString());
 				}
 
@@ -3956,6 +3986,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	public static CampaignFormMetaDao getCampaignFormMetaDao() {
 		return (CampaignFormMetaDao) getAdoDao(CampaignFormMeta.class);
+	}
+
+	public static CampaignFormMetaWithExpDao getCampaignFormMetaWithExpDao() {
+		return (CampaignFormMetaWithExpDao)  getAdoDao(CampaignFormMetaWithExp.class);
 	}
 
 	public static CampaignFormDataDao getCampaignFormDataDao() {

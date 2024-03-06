@@ -48,7 +48,6 @@ import static de.symeda.sormas.api.user.UserRole.AREA_SURVEILLANCE_SUPERVISOR;
 import static de.symeda.sormas.api.user.UserRole.AREA_STATE_OBSERVER;
 import static de.symeda.sormas.api.user.UserRole.AREA_ADMIN_SUPERVISOR;
 
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -1119,6 +1118,33 @@ public enum UserRight {
 	USER_ACTIVITY_SUMMARYVIEW(
 			ADMIN
 	),
+	FORM_BUILDER_ACCESS(
+			ADMIN
+	),
+	PUSH_NOTIFICATION_ACCESS(
+			ADMIN
+	),
+	NON_ADMIN_ACCESS(
+			NATIONAL_USER,
+			NATIONAL_CLINICIAN,
+			NATIONAL_OBSERVER,
+			POE_NATIONAL_USER,
+			STATE_OBSERVER, AREA_STATE_OBSERVER,
+			DISTRICT_OBSERVER,
+			SURVEILLANCE_SUPERVISOR, AREA_SURVEILLANCE_SUPERVISOR,
+			ADMIN_SUPERVISOR, AREA_ADMIN_SUPERVISOR,
+			SURVEILLANCE_OFFICER,
+			CASE_SUPERVISOR,
+			CASE_OFFICER,
+			CONTACT_SUPERVISOR,
+			CONTACT_OFFICER,
+			POE_SUPERVISOR,
+			POE_INFORMANT,
+			HOSPITAL_INFORMANT,
+			LAB_USER,
+			EVENT_OFFICER,
+			COMMUNITY_OFFICER
+	),
 	DASHBOARD_SURVEILLANCE_ACCESS(
 			ADMIN,
 			NATIONAL_USER,
@@ -1602,8 +1628,8 @@ public enum UserRight {
 	UserRight(UserRole... defaultUserRoles) {
 
 		this.defaultUserRoles = defaultUserRoles.length > 0
-			? Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(defaultUserRoles)))
-			: Collections.<UserRole> emptySet();
+				? Collections.unmodifiableSet(EnumSet.copyOf(Arrays.asList(defaultUserRoles)))
+				: Collections.<UserRole>emptySet();
 	}
 
 	public boolean isDefaultForRole(UserRole userRole) {

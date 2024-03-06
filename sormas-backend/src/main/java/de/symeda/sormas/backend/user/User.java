@@ -92,6 +92,7 @@ public class User extends AbstractDomainObject {
 	public static final String ASSOCIATED_OFFICER = "associatedOfficer";
 	public static final String LANGUAGE = "language";
 	public static final String HAS_CONSENTED_TO_GDPR = "hasConsentedToGdpr";
+	public static final String TOKEN = "token";
 
 	private String userName;
 	private String password;
@@ -134,6 +135,8 @@ public class User extends AbstractDomainObject {
 	private Language language;
 
 	private boolean hasConsentedToGdpr;
+	
+	private String token;
 
 	@Column(nullable = false, length = CHARACTER_LIMIT_DEFAULT)
 	public String getUserName() {
@@ -310,7 +313,7 @@ public class User extends AbstractDomainObject {
 
 	public void setAssociatedOfficer(User associatedOfficer) {
 		this.associatedOfficer = associatedOfficer;
-	}
+	}	
 
 	@Override
 	public String toString() {
@@ -397,6 +400,14 @@ public class User extends AbstractDomainObject {
 	@Enumerated(EnumType.STRING)
 	public Language getLanguage() {
 		return language;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	public void setLanguage(Language language) {

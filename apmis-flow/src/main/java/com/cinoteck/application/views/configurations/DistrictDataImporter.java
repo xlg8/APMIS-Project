@@ -4,7 +4,10 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.ImportCellData;
 import com.cinoteck.application.views.utils.importutils.ImportErrorException;
@@ -36,6 +40,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.ValueSeparator;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -62,7 +67,6 @@ public class DistrictDataImporter extends DataImporter {
 	private static final String DISTRICT_NAME = "District_Name";
 	private static final String P_CODE = "PCode";
 	private static final String D_CODE = "DCode";
-	
 
 	private final DistrictFacade districtFacade;
 
@@ -72,6 +76,12 @@ public class DistrictDataImporter extends DataImporter {
 	private boolean isOverWriteEnabledCode;
 	List<DistrictReferenceDto> districtNameList = new ArrayList<>();
 	List<DistrictReferenceDto> districts = new ArrayList<>();
+	UserProvider userProvider = new UserProvider();
+	
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -104,7 +114,7 @@ public class DistrictDataImporter extends DataImporter {
 		// Lets run some validations
 		RegionReferenceDto province = null;
 		Long province_xt_id = null;
-		
+
 		Long districtExtId = null;
 		String districtName = "";
 		String risk = "";
@@ -113,7 +123,7 @@ public class DistrictDataImporter extends DataImporter {
 		// or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
 
-			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i+" = "+values[i]);
+			System.out.println(entityProperties[i] + " :++++++++++++++++++===============: " + i + " = " + values[i]);
 			if (DISTRICT_NAME.equalsIgnoreCase(entityProperties[i])) {
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
@@ -135,8 +145,7 @@ public class DistrictDataImporter extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						RegionReferenceDto regrefDto = new RegionReferenceDto();
-						districtNameList = FacadeProvider.getDistrictFacade()
-								.getByName(districtName_, regrefDto, true);
+						districtNameList = FacadeProvider.getDistrictFacade().getByName(districtName_, regrefDto, true);
 
 						if (districtNameList.size() < 1) {
 							districtName = districtName_;
@@ -145,13 +154,13 @@ public class DistrictDataImporter extends DataImporter {
 //							if (isOverWrite) {
 //
 //								districtName = districtName_;
-								//return ImportLineResult.SUCCESS;
+							// return ImportLineResult.SUCCESS;
 
 //							} else {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage()
-												+ " | District Name Exists ");
-								return ImportLineResult.ERROR;
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage()
+											+ " | District Name Exists ");
+							return ImportLineResult.ERROR;
 //							}
 						}
 
@@ -169,7 +178,6 @@ public class DistrictDataImporter extends DataImporter {
 //					return ImportLineResult.ERROR;
 //				}
 //			}
-			
 
 			if (P_CODE.equalsIgnoreCase(entityProperties[i])) {
 
@@ -201,10 +209,10 @@ public class DistrictDataImporter extends DataImporter {
 				}
 
 			}
-			
+
 			if (DistrictDto.RISK.equalsIgnoreCase(entityProperties[i])) {
 				risk = values[i];
-				
+
 			}
 
 			if (D_CODE.equalsIgnoreCase(entityProperties[i])) {
@@ -215,50 +223,48 @@ public class DistrictDataImporter extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					
+
 					try {
-							Long externalIdValue = Long.parseLong(values[i]);
-						
-							districts = FacadeProvider.getDistrictFacade()
-									.getByExternalId(externalIdValue, false);
-							
-							if (districts.size() > 0) {
-								if (isOverWrite && districts.size() == 1) {
-										try {
+						Long externalIdValue = Long.parseLong(values[i]);
+
+						districts = FacadeProvider.getDistrictFacade().getByExternalId(externalIdValue, false);
+
+						if (districts.size() > 0) {
+							if (isOverWrite && districts.size() == 1) {
+								try {
 //											Long externalIdValue = Long.parseLong(values[i]);
-											districtExtId = externalIdValue;
-											isOverWriteEnabledCode = true;
-										} catch (NumberFormatException e) {
-											writeImportError(values,
-													new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | " +e.getMessage());
-											return ImportLineResult.ERROR;
-										}
-								
-						
-								
-									} else if (districts.size() > 1) {
-										writeImportError(values,
-												new ImportErrorException(values[i], entityProperties[i]).getMessage() +" | Possible duplicate already on this system");
-										return ImportLineResult.ERROR;
-									} else {
-										writeImportError(values,
-												new ImportErrorException(values[i], entityProperties[i]).getMessage());
-										return ImportLineResult.ERROR;
-									}
-		
-							} else if (districts.size() == 0) {
-							
 									districtExtId = externalIdValue;
-								
+									isOverWriteEnabledCode = true;
+								} catch (NumberFormatException e) {
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage()
+													+ " | " + e.getMessage());
+									return ImportLineResult.ERROR;
+								}
+
+							} else if (districts.size() > 1) {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage()
+												+ " | Possible duplicate already on this system");
+								return ImportLineResult.ERROR;
+							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
 							}
-						
+
+						} else if (districts.size() == 0) {
+
+							districtExtId = externalIdValue;
+
+						}
+
 					} catch (NumberFormatException e) {
-						writeImportError(values,
-								new ImportErrorException(values[i], entityProperties[i]).getMessage());
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
 						return ImportLineResult.ERROR;
 					}
 
-			}
+				}
 			}
 		}
 //		if(isOverWrite) {
@@ -266,97 +272,94 @@ public class DistrictDataImporter extends DataImporter {
 //		}else {
 //			
 //		}
-		if (province_xt_id != null && province != null && districtName != "" && districtExtId != null) {}else {
+		if (province_xt_id != null && province != null && districtName != "" && districtExtId != null) {
+		} else {
 			writeImportError(values, " | Somthing went wrong: Required data not supplied");
 			return ImportLineResult.ERROR;
 		}
-		
-		
-		
-			final RegionReferenceDto finalRegion = province;
-			final String finalDistrictname = districtName;
-			final Long districtid = districtExtId;
-			String rixk = risk;
 
-			List<DistrictDto> newUserLinetoSave = new ArrayList<>();
+		final RegionReferenceDto finalRegion = province;
+		final String finalDistrictname = districtName;
+		final Long districtid = districtExtId;
+		String rixk = risk;
 
-			DistrictDto newUserLine = DistrictDto.build();
+		List<DistrictDto> newUserLinetoSave = new ArrayList<>();
 
-			newUserLine.setName(finalDistrictname);
-			newUserLine.setRegion(finalRegion);
-			newUserLine.setExternalId(districtid);
-			newUserLine.setRisk(rixk);
-			
-			if(isOverWrite && isOverWriteEnabledCode) {
-				DistrictDto newUserLine_ = FacadeProvider.getDistrictFacade().getByUuid(districts.get(0).getUuid());
-;
-				newUserLine_.setName(finalDistrictname);
-				newUserLine_.setRegion(finalRegion);
-				newUserLine_.setExternalId(districtid);
-				newUserLine_.setRisk(rixk);
-				
-				
-				 boolean isSameData = checkSameInstances(districts, districtNameList);
-				 if(isSameData) {
-					 return ImportLineResult.SUCCESS;
-				 }
-				 
-				 
-				 boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
-							new Function<ImportCellData, Exception>() {
+		DistrictDto newUserLine = DistrictDto.build();
 
-								@Override
-								public Exception apply(ImportCellData cellData) {
-									System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
+		newUserLine.setName(finalDistrictname);
+		newUserLine.setRegion(finalRegion);
+		newUserLine.setExternalId(districtid);
+		newUserLine.setRisk(rixk);
 
-									try {
+		if (isOverWrite && isOverWriteEnabledCode) {
+			DistrictDto newUserLine_ = FacadeProvider.getDistrictFacade().getByUuid(districts.get(0).getUuid());
+			;
+			newUserLine_.setName(finalDistrictname);
+			newUserLine_.setRegion(finalRegion);
+			newUserLine_.setExternalId(districtid);
+			newUserLine_.setRisk(rixk);
 
-										if (DistrictDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-											newUserLine_.setName(cellData.getValue());
-										}
-										if (DistrictDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-											newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
-										}
-										
-										if (DistrictDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-											Long externalId = Long.parseLong(cellData.getValue());
-											List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
-													.getByExternalId(externalId, false);
-											RegionReferenceDto areaReferenceDto = areasz.get(0);
-											newUserLine_.setRegion(areaReferenceDto);
-//											newUserLine.setArea(cellData.getValue());
-										}
-										if (DistrictDto.RISK.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-											newUserLine_.setRisk(cellData.getValue());
-										}
+			boolean isSameData = checkSameInstances(districts, districtNameList);
+			if (isSameData) {
+				return ImportLineResult.SUCCESS;
+			}
 
-										newUserLinetoSave.add(newUserLine_);
+			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+					new Function<ImportCellData, Exception>() {
 
-									} catch (NumberFormatException e) {
-										System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+						@Override
+						public Exception apply(ImportCellData cellData) {
+							System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
 
-										return e;
-									}
+							try {
 
-									return null;
+								if (DistrictDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine_.setName(cellData.getValue());
 								}
-							});
-				 
-					if (!usersDataHasImportError) {
+								if (DistrictDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+								}
 
-						try {
-							FacadeProvider.getDistrictFacade().save(newUserLinetoSave.get(0), true);
+								if (DistrictDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									Long externalId = Long.parseLong(cellData.getValue());
+									List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
+											.getByExternalId(externalId, false);
+									RegionReferenceDto areaReferenceDto = areasz.get(0);
+									newUserLine_.setRegion(areaReferenceDto);
+//											newUserLine.setArea(cellData.getValue());
+								}
+								if (DistrictDto.RISK.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine_.setRisk(cellData.getValue());
+								}
 
-							return ImportLineResult.SUCCESS;
-						} catch (ValidationRuntimeException e) {
-							writeImportError(values, e.getMessage());
-							return ImportLineResult.ERROR;
+								newUserLinetoSave.add(newUserLine_);
+
+							} catch (NumberFormatException e) {
+								System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+
+								return e;
+							}
+
+							return null;
 						}
-					} else {
-						return ImportLineResult.ERROR;
-					}
-				
-			}else {
+					});
+
+			if (!usersDataHasImportError) {
+
+				try {
+					FacadeProvider.getDistrictFacade().save(newUserLinetoSave.get(0), true);
+
+					return ImportLineResult.SUCCESS;
+				} catch (ValidationRuntimeException e) {
+					writeImportError(values, e.getMessage());
+					return ImportLineResult.ERROR;
+				}
+			} else {
+				return ImportLineResult.ERROR;
+			}
+
+		} else {
 
 			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
@@ -398,34 +401,60 @@ public class DistrictDataImporter extends DataImporter {
 					});
 
 			if (!usersDataHasImportError) {
-
+				boolean checkExeption = false;
 				try {
 					FacadeProvider.getDistrictFacade().save(newUserLinetoSave.get(0), true);
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
+					checkExeption = true;
 					writeImportError(values, e.getMessage());
 					return ImportLineResult.ERROR;
+				} finally {
+					if (!checkExeption) {
+
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+
+						for (DistrictDto districtData : newUserLinetoSave) {
+
+							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setAction_unit_type("District");
+							configurationChangeLogDto.setAction_unit_name(districtData.getName());
+							configurationChangeLogDto.setUnit_code(districtData.getExternalId());
+							configurationChangeLogDto.setAction_date(date);
+
+							if (isOverWrite) {
+								configurationChangeLogDto.setAction_logged("Import : Overwrite");
+
+							} else {
+								configurationChangeLogDto.setAction_logged("Import");
+
+							}
+						}
+
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						checkExeption = false;
+					}
 				}
 			} else {
 				return ImportLineResult.ERROR;
 			}
-	}
-		
-	}
-	
-	 public static boolean checkSameInstances(List<DistrictReferenceDto> list1, List<DistrictReferenceDto> list2) {
-	        if (list1.size() != list2.size()) {
-	            return false;
-	        }
+		}
 
-	        for (DistrictReferenceDto model : list1) {
-	            if (!list2.contains(model)) {
-	                return false;
-	            }
-	        }
-	        return true;
-	    }
+	}
+
+	public static boolean checkSameInstances(List<DistrictReferenceDto> list1, List<DistrictReferenceDto> list2) {
+		if (list1.size() != list2.size()) {
+			return false;
+		}
+
+		for (DistrictReferenceDto model : list1) {
+			if (!list2.contains(model)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,

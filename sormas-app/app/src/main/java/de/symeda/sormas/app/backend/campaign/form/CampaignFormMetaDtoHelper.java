@@ -28,7 +28,7 @@ import de.symeda.sormas.app.rest.NoConnectionException;
 import de.symeda.sormas.app.rest.RetroProvider;
 import retrofit2.Call;
 
-public class CampaignFormMetaDtoHelper extends AdoDtoHelper<CampaignFormMeta, CampaignFormMetaDto> {
+public class    CampaignFormMetaDtoHelper extends AdoDtoHelper<CampaignFormMeta, CampaignFormMetaDto> {
 
     public static CampaignFormMetaReferenceDto toReferenceDto(CampaignFormMeta ado) {
         if (ado == null) {

@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -19,6 +21,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
@@ -55,14 +58,18 @@ public class ImportPopulationDataDialog extends Dialog {
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 //	ComboBox valueSeperator = new ComboBox<>();
-//	private boolean callbackRunning = false;
-//	private Timer timer;
+	private boolean callbackRunning = false;
+	private Timer timer;
 //	private int pollCounter = 0;
 	FileUploader buffer = new FileUploader();  
     Upload upload = new Upload(buffer);
 	private File file_;
+	public Checkbox overWriteExistingData = new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
+	boolean overWrite = false;
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
+
 	
 	@Autowired
 	CampaignForm campaignForm;
@@ -185,6 +192,12 @@ public class ImportPopulationDataDialog extends Dialog {
 		H3 step2 = new H3();
 		step2.add("Step 2: Import CSV File");
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
+		
+		overWriteExistingData.setValue(false);
+		overWriteExistingData.addValueChangeListener(e -> {
+			overWrite = e.getValue();
+		});
+		
 		Label sd = new Label("Upload");
 		
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -207,13 +220,14 @@ public class ImportPopulationDataDialog extends Dialog {
 		Icon startImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonnIcon);
 		startDataImport.addClickListener(ed -> {
+			startIntervalCallback();
 
 			
 			try {
 
 				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
 				
-				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA);
+				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA, overWrite);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(
@@ -247,28 +261,15 @@ finally {
 		});
 		
 		anchorSpan.add(downloadErrorReportButton);
-//		anchorSpan.setVisible(false);
-//		Button startButton = new Button("Start Interval__ Callback");
-//		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		startButton.setId("pokers");
-//		startButton.addClickListener(e -> {
-//			startIntervalCallback();
-//		});
-		
-	//	startIntervalCallback();
-
-//		Button stopButton = new Button("Stop Interval Callback");
-//		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		stopButton.addClickListener(e -> stopIntervalCallback());
 
 		dialog.add(seperatorr, //startButton, stopButton,
 //				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step1, lblImportTemplateInfo, downloadImportTemplate,downloadDefaultPopulationTemplate, step2, lblImportCsvFile, upload, startDataImport, step3,
+				step1, lblImportTemplateInfo, downloadImportTemplate,downloadDefaultPopulationTemplate, step2, lblImportCsvFile,overWriteExistingData,  upload, startDataImport, step3,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();
-		//	stopIntervalCallback();
+			stopIntervalCallback();
 			campaignForm.treeGrid.getDataProvider().refreshAll();
 			// refreshPage();
 		});
@@ -281,43 +282,43 @@ finally {
 		setCloseOnOutsideClick(false);
 
 	}
-//
-//	private void pokeFlow() {
-//	//	Notification.show("dialog detected... User wont logout");
-//	}
 
-//	private void startIntervalCallback() {
-//		UI.getCurrent().setPollInterval(5000);
-//		if (!callbackRunning) {
-//			timer = new Timer();
-//			timer.schedule(new TimerTask() {
-//				@Override
-//				public void run() {
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
+	
+	private void startIntervalCallback() {
+		//UI.getCurrent().setPollInterval(300);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
 //					stopIntervalCallback();
-//				}
-//			}, 15000); // 10 minutes
-//
-//			callbackRunning = true;
-//		}
-//	}
-//
-//	private void stopIntervalCallback() {
-//		if (callbackRunning) {
-//			callbackRunning = false;
-//			if (timer != null) {
-//				timer.cancel();
-//				timer.purge();
-//			}
-//
-//		}
-//	}
+					pokeFlow();
+				}
+			}, 1000); // 10 minutes
+
+			callbackRunning = true;
+		}
+	}
 	
+	private void stopIntervalCallback() {
+		System.out.println("stopIntervalCallback_________________");
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+
+		}
+	}
 	
-//	
-//
-//	private void stopPullers() {
-//		UI.getCurrent().setPollInterval(-1);
-//	}
+	private void pokeFlow() {
+		logger.debug("runingImport...");
+	}
+
 
 	private void refreshPage() {
 		// Get the current UI

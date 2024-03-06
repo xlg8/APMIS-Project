@@ -5,6 +5,7 @@ import de.symeda.sormas.api.infrastructure.InfrastructureChangeDatesDto;
 import de.symeda.sormas.api.infrastructure.InfrastructureSyncDto;
 import de.symeda.sormas.app.backend.campaign.CampaignDtoHelper;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaDtoHelper;
+import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaWithExpDtoHelper;
 import de.symeda.sormas.app.backend.classification.DiseaseClassificationDtoHelper;
 import de.symeda.sormas.app.backend.common.DaoException;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
@@ -41,6 +42,7 @@ public class InfrastructureHelper {
 		changeDates.setFeatureConfigurationChangeDate(DatabaseHelper.getFeatureConfigurationDao().getLatestChangeDate());
 		changeDates.setCampaignChangeDate(DatabaseHelper.getCampaignDao().getLatestChangeDate());
 		changeDates.setCampaignFormMetaChangeDate(DatabaseHelper.getCampaignFormMetaDao().getLatestChangeDate());
+		changeDates.setCampaignFormMetaExpiryChangeDate(DatabaseHelper.getCampaignFormMetaWithExpDao().getLatestChangeDate());
 		changeDates.setAreaChangeDate(DatabaseHelper.getAreaDao().getLatestChangeDate());
 
 		return changeDates;
@@ -73,6 +75,8 @@ public class InfrastructureHelper {
 		if (!DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CAMPAIGNS)) {
 			new CampaignDtoHelper().handlePulledList(DatabaseHelper.getCampaignDao(), infrastructureData.getCampaigns());
 			new CampaignFormMetaDtoHelper().handlePulledList(DatabaseHelper.getCampaignFormMetaDao(), infrastructureData.getCampaignFormMetas());
+//			new CampaignFormMetaWithExpDtoHelper().handlePulledList(DatabaseHelper.getCampaignFormMetaWithExpDao(), infrastructureData.getCampaignFormMetaExpiry());
+
 		}
 	}
 }

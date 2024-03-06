@@ -25,7 +25,9 @@ import javax.ejb.Remote;
 import javax.validation.Valid;
 
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.UserReportModelDto;
@@ -41,28 +43,30 @@ public interface UserFacade {
 	boolean isLoginUnique(String uuid, String userName);
 
 	String resetPassword(String uuid);
-	
+
 	String changePassword(String uuid, String pass);
 
-	List<UserDto> getAllAfter(Date date); 
+	List<UserDto> getAllAfter(Date date);
 
 	UserDto getByUserName(String userName);
-	
+
 	UserDto getByEmail(String email);
 
 	List<UserReferenceDto> getUsersByAreaAndRoles(AreaReferenceDto areaRef, UserRole... assignableRoles);
 
 	List<UserReferenceDto> getUsersByAreasAndRoles(List<AreaReferenceDto> areaRefs, UserRole... assignableRoles);
-	
+
 	List<UserReferenceDto> getUsersByRegionAndRoles(RegionReferenceDto regionRef, UserRole... assignableRoles);
 
 	List<UserReferenceDto> getUsersByRegionsAndRoles(List<RegionReferenceDto> regionRefs, UserRole... assignableRoles);
 
 	List<UserReferenceDto> getUsersWithSuperiorJurisdiction(UserDto user);
 
-	List<UserDto> getIndexList(UserCriteria userCriteria, Integer first, Integer max, List<SortProperty> sortProperties);
-	
-	List<UserReportModelDto> getIndexListToDto(UserCriteria userCriteria, Integer first, Integer max, List<SortProperty> sortProperties);
+	List<UserDto> getIndexList(UserCriteria userCriteria, Integer first, Integer max,
+			List<SortProperty> sortProperties);
+
+	List<UserReportModelDto> getIndexListToDto(UserCriteria userCriteria, Integer first, Integer max,
+			List<SortProperty> sortProperties);
 
 	Page<UserDto> getIndexPage(UserCriteria userCriteria, int offset, int size, List<SortProperty> sortProperties);
 
@@ -71,15 +75,15 @@ public interface UserFacade {
 	/**
 	 * 
 	 * @param district
-	 * @param includeSupervisors
-	 *            independent from the district
-	 * @param userRoles
-	 *            roles of the users by district
+	 * @param includeSupervisors independent from the district
+	 * @param userRoles          roles of the users by district
 	 * @return
 	 */
-	List<UserReferenceDto> getUserRefsByDistrict(DistrictReferenceDto district, boolean includeSupervisors, UserRole... userRoles);
+	List<UserReferenceDto> getUserRefsByDistrict(DistrictReferenceDto district, boolean includeSupervisors,
+			UserRole... userRoles);
 
-	List<UserReferenceDto> getUserRefsByDistricts(List<DistrictReferenceDto> districts, boolean includeSupervisors, UserRole... userRoles);
+	List<UserReferenceDto> getUserRefsByDistricts(List<DistrictReferenceDto> districts, boolean includeSupervisors,
+			UserRole... userRoles);
 
 	List<UserReferenceDto> getAllUserRefs(boolean includeInactive);
 
@@ -108,5 +112,16 @@ public interface UserFacade {
 	UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto campaignLogDto);
 	
 	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
+	
+	List<ConfigurationChangeLogDto>  getUsersConfigurationChangeLog();
 
+	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses);
+
+	public void bulkUpdateUserRoles(List<String> userUuids, UserDto userDto);
+
+	boolean updateFcmToken(String username, String token);
+
+	List<String> getUserForFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas,
+			Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
+			Set<CommunityReferenceDto> communities);
 }

@@ -21,6 +21,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -51,33 +53,37 @@ import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 
-@PageTitle("APMIS-Form-Builder-Wizard")
-@Route(value = "Form-Builder-Wizard", layout = MainLayout.class)
+
+@PageTitle("APMIS-Form-Manager")
+@Route(value = "Form-Manager-Wizard", layout = MainLayout.class)
 public class FormBuilderView extends VerticalLayout {
 
 	/**
 		 * 
 		 */
 	private static final long serialVersionUID = 1L;
-
-	Button hideFilters;
+	HorizontalLayout filterWithButton;
+	HorizontalLayout filterLayout;
+	Button displayFilters;
 	TextField search;
 	ComboBox<CampaignPhase> formType;
 	ComboBox<FormAccess> formAccess;
 	ComboBox<Modality> modality;
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter;
-	Button newForm;
 
-	Button bulkModeButton = new Button("Enter Bulk Edit Mode");
-	Button leaveBulkModeButton = new Button("Leave Bulk Edit Mode");
-	Button dearchiveForms = new Button("Dearchive");
-	Button archiveForms = new Button("Archive");
+	HorizontalLayout buttonLayout;
+	Button newForm;
+	Button bulkModeButton = new Button("Enter Bulk Edit Mode", new Icon(VaadinIcon.CLIPBOARD_CHECK));
+	Button leaveBulkModeButton = new Button("Leave Bulk Edit Mode", new Icon(VaadinIcon.CLIPBOARD_CHECK));
+	Button dearchiveForms = new Button("Dearchive", new Icon(VaadinIcon.UNLOCK));
+	Button archiveForms = new Button("Archive", new Icon(VaadinIcon.ARCHIVE));
 
 	CampaignFormMetaDto campaignFormMetaDto;
 
 	UserProvider userProvider = new UserProvider();
 	HorizontalLayout hr = new HorizontalLayout();
 	ConfirmDialog confirmationPopup = new ConfirmDialog();
+	ConfirmDialog confirmationPopups = new ConfirmDialog();
 
 	private FormBuilderDataProvider formBuilderDataProvider = new FormBuilderDataProvider();
 	private ConfigurableFilterDataProvider<CampaignFormMetaDto, Void, CampaignFormCriteria> filterDataProvider;
@@ -98,23 +104,29 @@ public class FormBuilderView extends VerticalLayout {
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		filterDataProvider.setFilter(criteria);
-
 		filterDataProvider.refreshAll();
+
 		configureView();
 		configureGrid();
 		setHeightFull();
 		setSizeFull();
 
-		hr.getStyle().set("margin-left", "10px");
-		hr.setAlignItems(Alignment.END);
-		hr.add(hideFilters, search, formType, formAccess, modality, relevanceStatusFilter, newForm, bulkModeButton,
-				leaveBulkModeButton, dearchiveForms, archiveForms);
-		add(hr, grid);
+		buttonLayout.getStyle().set("margin-left", "10px");
+		buttonLayout.setAlignItems(Alignment.END);
+		filterWithButton.getStyle().set("margin-left", "10px");
+		filterWithButton.setAlignItems(Alignment.END);
+		displayFilters.getStyle().set("margin-top", "10px");
+		buttonLayout.add(newForm, bulkModeButton, leaveBulkModeButton, dearchiveForms, archiveForms);
+		filterLayout.add(search, formType, formAccess, modality, relevanceStatusFilter);
+		filterWithButton.add(displayFilters, filterLayout);
+		add(buttonLayout, filterWithButton, grid);
 	}
 
 	public void configureView() {
 
-		hideFilters = new Button("Hide Filters");
+		filterWithButton = new HorizontalLayout();
+		filterLayout = new HorizontalLayout();
+		displayFilters = new Button("Hide Filters", new Icon(VaadinIcon.SLIDERS));
 
 		search = new TextField("Search");
 		search.setClearButtonVisible(true);
@@ -128,7 +140,18 @@ public class FormBuilderView extends VerticalLayout {
 		modality.setItems(Modality.values());
 		modality.setClearButtonVisible(true);
 
-		newForm = new Button("New Forms");
+		displayFilters.addClickListener(e -> {
+			if (filterLayout.isVisible() == false) {
+				filterLayout.setVisible(true);
+				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));
+			} else {
+				filterLayout.setVisible(false);
+				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
+			}
+		});
+
+		buttonLayout = new HorizontalLayout();
+		newForm = new Button("New Forms", new Icon(VaadinIcon.PLUS_CIRCLE_O));
 		newForm.addClickListener(e -> {
 
 			campaignFormMetaDto = new CampaignFormMetaDto();
@@ -153,7 +176,6 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		formType.addValueChangeListener(e -> {
-			System.out.println(CampaignPhase.PRE + " hghgshgsdhgsdhgshsgsnsd");
 			if (e.getValue() != null) {
 
 				criteria.setFormType(e.getValue().toString().toLowerCase());
@@ -226,13 +248,13 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		archiveForms.addClickListener(e -> {
-			archiveFormPopup();			
+			archiveFormPopup();
 		});
-		
+
 		dearchiveForms.addClickListener(e -> {
 			dearchiveFormPopup();
 		});
-		
+
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
@@ -243,7 +265,8 @@ public class FormBuilderView extends VerticalLayout {
 
 			if (e.getValue() != null) {
 
-				criteria.relevanceStatus(e.getValue());
+				EntityRelevanceStatus entityRelevanceStatus = e.getValue();
+				criteria.relevanceStatus(entityRelevanceStatus);
 				filterDataProvider.setFilter(criteria);
 
 				filterDataProvider.refreshAll();
@@ -288,13 +311,9 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Data Entry").setSortable(true)
 				.setResizable(true);
 
-//		ListDataProvider<CampaignFormMetaDto> dataprovider = DataProvider
-//				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getAllFormElement().stream());
-
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
-//		grid.setItems(dataprovider);
 
 		grid.setDataProvider(filterDataProvider);
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
@@ -340,45 +359,61 @@ public class FormBuilderView extends VerticalLayout {
 
 	private void archiveFormPopup() {
 
-		confirmationPopup.setHeader("Archive Forms");
+		if (grid.getSelectedItems().size() < 1) {
 
-		confirmationPopup.setText("You are about to Archive " + grid.getSelectedItems().size() + " Forms");
-		confirmationPopup.setCloseOnEsc(false);
-		confirmationPopup.setCancelable(true);
-		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+			Notification notification = Notification.show("Please Select Forms to Archive");
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {			
+			confirmationPopup.setHeader("Archive Forms");
 
-		confirmationPopup.setRejectable(true);
-		confirmationPopup.setRejectText("Cancel");
-		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+			confirmationPopup.setText("You are about to Archive " + grid.getSelectedItems().size() + " Forms");
+			confirmationPopup.setCloseOnEsc(false);
+			confirmationPopup.setCancelable(true);
+			confirmationPopup.addCancelListener(e -> confirmationPopup.close());
 
-		confirmationPopup.setConfirmText("Archive");
-		List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
-		confirmationPopup.addConfirmListener(e -> archiveForms(gridListConverted));
-		confirmationPopup.open();
+			confirmationPopup.setRejectable(true);
+			confirmationPopup.setRejectText("Cancel");
+			confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+
+			confirmationPopup.setConfirmText("Archive");
+			List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
+			confirmationPopup.addConfirmListener(e -> archiveForms(gridListConverted));
+			confirmationPopup.open();
+		}
 	}
-	
+
 	private void dearchiveFormPopup() {
-		confirmationPopup.setHeader("Dearchive Forms");
+		
+		if (grid.getSelectedItems().size() < 1) {
+			
+			Notification notification = Notification.show("Please Select Forms to Dearchive");
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Notification.Position.MIDDLE);
+			notification.open();
+		} else {
+			confirmationPopups.setHeader("Dearchive Forms");
 
-		confirmationPopup.setText("You are about to dearchive " + grid.getSelectedItems().size() + " Forms");
-		confirmationPopup.setCloseOnEsc(false);
-		confirmationPopup.setCancelable(true);
-		confirmationPopup.addCancelListener(e -> confirmationPopup.close());
+			confirmationPopups.setText("You are about to dearchive " + grid.getSelectedItems().size() + " Forms");
+			confirmationPopups.setCloseOnEsc(false);
+			confirmationPopups.setCancelable(true);
+			confirmationPopups.addCancelListener(e -> confirmationPopups.close());
 
-		confirmationPopup.setRejectable(true);
-		confirmationPopup.setRejectText("Cancel");
-		confirmationPopup.addRejectListener(e -> confirmationPopup.close());
+			confirmationPopups.setRejectable(true);
+			confirmationPopups.setRejectText("Cancel");
+			confirmationPopups.addRejectListener(e -> confirmationPopups.close());
 
-		confirmationPopup.setConfirmText("Dearchive");
-		List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
-		confirmationPopup.addConfirmListener(e -> dearchiveForms(gridListConverted));
-		confirmationPopup.open();
+			confirmationPopups.setConfirmText("Dearchive");
+			List<CampaignFormMetaDto> gridListConverted = new ArrayList<>(grid.getSelectedItems());
+			confirmationPopups.addConfirmListener(e -> dearchiveForms(gridListConverted));
+			confirmationPopups.open();
+		}
 	}
 
 	private void dearchiveForms(List<CampaignFormMetaDto> selectedItems) {
 
-		if (selectedItems.size() == 0) {
-
+		if (selectedItems.size() < 1) {
 			Notification notification = Notification.show("Please Select Form to Dearchive");
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notification.setPosition(Notification.Position.MIDDLE);
@@ -388,18 +423,22 @@ public class FormBuilderView extends VerticalLayout {
 			List<String> uuids = selectedItems.stream().map(CampaignFormMetaDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getCampaignFormMetaFacade().dearchiveForms(uuids);
 
-			Notification notification = Notification.show("All Selected Form have been Dearchive");
+			Notification notification = Notification.show("All Selected Form have been Dearchived");
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			filterDataProvider.refreshAll();
+			leaveBulkModeButton.setVisible(false);
+			archiveForms.setVisible(false);
+			dearchiveForms.setVisible(false);
+			bulkModeButton.setVisible(true);
 		}
 	}
-	
+
 	private void archiveForms(List<CampaignFormMetaDto> selectedItems) {
 
-		if (selectedItems.size() == 0) {
+		if (selectedItems.size() < 1) {
 
 			Notification notification = Notification.show("Please Select Form to Archive");
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -410,17 +449,20 @@ public class FormBuilderView extends VerticalLayout {
 			List<String> uuids = selectedItems.stream().map(CampaignFormMetaDto::getUuid).collect(Collectors.toList());
 			FacadeProvider.getCampaignFormMetaFacade().archiveForms(uuids);
 
-			Notification notification = Notification.show("All Selected Form have been Archive");
+			Notification notification = Notification.show("All Selected Form have been Archived");
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 			filterDataProvider.refreshAll();
+			leaveBulkModeButton.setVisible(false);
+			archiveForms.setVisible(false);
+			dearchiveForms.setVisible(false);
+			bulkModeButton.setVisible(true);
 		}
 	}
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
-
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
 

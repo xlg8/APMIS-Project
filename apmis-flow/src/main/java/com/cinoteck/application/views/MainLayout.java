@@ -1,8 +1,5 @@
 package com.cinoteck.application.views;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.validation.constraints.NotNull;
 
 import com.cinoteck.application.UserProvider;
@@ -11,6 +8,8 @@ import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.components.appnav.AppNav;
 import com.cinoteck.application.components.appnav.AppNavItem;
+import com.cinoteck.application.messaging.MessagingView;
+import com.cinoteck.application.messaging.UserMessageView;
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.views.about.AboutView;
@@ -20,7 +19,6 @@ import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
-import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
@@ -49,11 +47,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
-import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -96,6 +92,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	private Button cancelButton;
 	Dialog dialog = new Dialog();
 	Div aboutText = new Div();
+	Button notification = new Button("Notification");
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -173,13 +170,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Header header = new Header(imgApmis);
 
 		Span versionadd = new Span();
-		
+
 		String releaseDate = FacadeProvider.getInfoFacade().getApmisReleaseDate();
-		
+
 		String webAppVersionNumber = FacadeProvider.getInfoFacade().getWebAppVersionNumber();
 
-		versionadd.getElement().setProperty("innerHTML", "<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber)
-				+ ": " + webAppVersionNumber + "</p> <p>" + I18nProperties.getCaption(Captions.releaseDate) + ": " + releaseDate + "</p>" );
+		versionadd.getElement().setProperty("innerHTML",
+				"<p>" + I18nProperties.getCaption(Captions.apmisVersionNumber) + ": " + webAppVersionNumber + "</p> <p>"
+						+ I18nProperties.getCaption(Captions.releaseDate) + ": " + releaseDate + "</p>");
 		versionadd.getStyle().set("background-color", "#0d6938");
 		versionadd.getStyle().set("color", "#16c400");
 		versionadd.getStyle().set("padding-left", "0.7rem");
@@ -209,8 +207,12 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(dashboardNavItem);
 		}
 
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
-				AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));
+
+		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+			
+			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
+					AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));			
+		}
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 
@@ -251,16 +253,13 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 					VaadinIcon.CHART_LINE, "navitem"));
 		}
 
-
-
 //		if	(userProvider.hasUserRight(UserRight.USER_RIGHTS_MANAGE)) {
 //			nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 //		}
 
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
 		// VaadinIcon.TREE_TABLE, "navitem"));
-		
-		
+
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), MyAccountView.class,
 				VaadinIcon.USER, "navitem"));
 //		nav.addItem(new AppNavItem("Language", VaadinIcon.USER, "navitem",myButton));
@@ -268,16 +267,28 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				"navitem"));
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
-		
-//		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
-//		if	(userProvider.hasUserRight(UserRight.USER_ACTIVITY_SUMMARYVIEW)) {
-//		nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"), UserActivitySummary.class,
-//				VaadinIcon.CHART_LINE, "navitem"));
-//		}
-//		}
 
-//		nav.addItem(new AppNavItem("Form Builder", FormBuilderView.class, VaadinIcon.BUILDING,
-//				"navitem"));	       
+		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
+				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
+			nav.addItem(new AppNavItem("Form Manager", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
+		}
+
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+			if (userProvider.hasUserRight(UserRight.USER_ACTIVITY_SUMMARYVIEW)) {
+				nav.addItem(new AppNavItem(I18nProperties.getCaption("User Activity Summary"),
+						UserActivitySummary.class, VaadinIcon.CHART_LINE, "navitem"));
+			}
+		}
+
+		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
+				&& userProvider.hasUserRight(UserRight.PUSH_NOTIFICATION_ACCESS)) {
+			nav.addItem(new AppNavItem("Push Notification", MessagingView.class, VaadinIcon.SERVER, "navitem"));
+		}
+
+		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
+			nav.addItem(
+					new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
+		}
 
 		if (nav != null) {
 			nav.addClassName("active");

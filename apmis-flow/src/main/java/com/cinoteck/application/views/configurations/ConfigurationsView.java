@@ -63,6 +63,9 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
         tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.region)), new ProvinceView());
         tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.district)), new DistrictView());
         tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.community)), new ClusterView());
+        
+        tabComponentMap.put(new Tab(I18nProperties.getCaption("Change Log")), new ConfigurationChangeLogView());
+
 
         return new Tabs(tabComponentMap.keySet().toArray(new Tab[]{}));
     }

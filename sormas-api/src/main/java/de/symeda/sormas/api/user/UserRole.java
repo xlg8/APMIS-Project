@@ -63,9 +63,12 @@ public enum UserRole
 	NATIONAL_CLINICIAN(false, false, false, false, JurisdictionLevel.NATION),
 	POE_INFORMANT(false, false, false, true, JurisdictionLevel.POINT_OF_ENTRY),
 	POE_SUPERVISOR(true, false, false, true, JurisdictionLevel.REGION),
+	PUBLISH_USER(false, false, false, false, JurisdictionLevel.NONE),
+
 	//IMPORT_USER(false, false, false, false, JurisdictionLevel.NONE),
 	//SORMAS_TO_SORMAS_CLIENT(false, false, false, true, JurisdictionLevel.NATION),
 	BAG_USER(false, false, false, false, JurisdictionLevel.NONE);
+	
 
 	//REST_EXTERNAL_VISITS_USER(false, false, false, true, JurisdictionLevel.NATION),;
 	
@@ -105,6 +108,7 @@ public enum UserRole
 	//public static final String _IMPORT_USER = IMPORT_USER.name();
 	public static final String _REST_EXTERNAL_VISITS_USER = "";
 	public static final String _REST_USER = REST_USER.name();
+	public static final String _PUBLISH_USER = PUBLISH_USER.name();
 	public static final String _SORMAS_TO_SORMAS_CLIENT = "";
 	public static final String _BAG_USER = "BAG_USER";
 	
@@ -177,6 +181,8 @@ public enum UserRole
 				collection.add(role);
 			}
 			break;
+
+			
 		case COMMUNITY_INFORMANT:
 //			collection.add(SURVEILLANCE_SUPERVISOR);
 //			collection.add(AREA_SURVEILLANCE_SUPERVISOR);
@@ -197,16 +203,24 @@ public enum UserRole
 			
 			collection.add(COMMUNITY_OFFICER);
 			collection.add(REST_USER);
+			collection.add(PUBLISH_USER);
+
+
 			
 			break;
 		case AREA_ADMIN_SUPERVISOR:
 			
 			collection.add(COMMUNITY_OFFICER);
-			collection.add(REST_USER);break;
+			collection.add(REST_USER);
+			collection.add(PUBLISH_USER);
+
+			break;
 		case ADMIN_SUPERVISOR:
 			
 			collection.add(COMMUNITY_OFFICER);
 			collection.add(REST_USER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case NATIONAL_USER: 
 			collection.add(SURVEILLANCE_SUPERVISOR);
@@ -225,43 +239,65 @@ public enum UserRole
 			collection.add(POE_SUPERVISOR);
 			collection.add(POE_NATIONAL_USER);
 			collection.add(AREA_STATE_OBSERVER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case POE_NATIONAL_USER:
 			collection.add(POE_INFORMANT);
 			collection.add(POE_SUPERVISOR);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case NATIONAL_CLINICIAN:
 			collection.add(CASE_SUPERVISOR);
 			collection.add(CASE_OFFICER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case SURVEILLANCE_SUPERVISOR:
 			collection.add(SURVEILLANCE_OFFICER);
 			collection.add(HOSPITAL_INFORMANT);
+			collection.add(PUBLISH_USER);
+
 			//collection.add(COMMUNITY_INFORMANT);
 			break;
 		case AREA_SURVEILLANCE_SUPERVISOR:
 			collection.add(AREA_SURVEILLANCE_SUPERVISOR);
 			collection.add(AREA_STATE_OBSERVER);
 			collection.add(AREA_ADMIN_SUPERVISOR);
+			collection.add(PUBLISH_USER);
+
 			break;
 		
 		case CASE_SUPERVISOR:
 			collection.add(CASE_OFFICER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case CONTACT_SUPERVISOR:
 			collection.add(CONTACT_OFFICER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case POE_SUPERVISOR:
 			collection.add(POE_INFORMANT);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case EVENT_OFFICER:
 			collection.add(EVENT_OFFICER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case LAB_USER:
 			collection.add(LAB_USER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		case EXTERNAL_LAB_USER:
 			collection.add(EXTERNAL_LAB_USER);
+			collection.add(PUBLISH_USER);
+
 			break;
 //		case IMPORT_USER:
 //			collection.add(IMPORT_USER);
@@ -271,12 +307,16 @@ public enum UserRole
 	//		break;
 		case REST_USER:
 			collection.add(REST_USER);
+			collection.add(PUBLISH_USER);
+
 			break;
 	//	case SORMAS_TO_SORMAS_CLIENT:
 	//		collection.add(SORMAS_TO_SORMAS_CLIENT);
 	//		break;
 		case BAG_USER:
 			collection.add(BAG_USER);
+			collection.add(PUBLISH_USER);
+
 			break;
 		
 		default:

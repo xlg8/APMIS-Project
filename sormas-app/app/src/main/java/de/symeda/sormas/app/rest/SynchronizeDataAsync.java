@@ -35,6 +35,12 @@ import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.campaign.CampaignDtoHelper;
 import de.symeda.sormas.app.backend.campaign.data.CampaignFormDataDtoHelper;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaDtoHelper;
+
+import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaWithExpDtoHelper;
+import de.symeda.sormas.app.backend.caze.CaseDtoHelper;
+import de.symeda.sormas.app.backend.classification.DiseaseClassificationDtoHelper;
+import de.symeda.sormas.app.backend.clinicalcourse.ClinicalVisitDtoHelper;
+
 import de.symeda.sormas.app.backend.common.DaoException;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
@@ -328,9 +334,15 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 			if (campaignFormMetaDtoHelper.pullAndPushEntities())
 				campaignFormMetaDtoHelper.pullEntities(true);
 
+
 			final CampaignFormDataDtoHelper campaignFormDataDtoHelper = new CampaignFormDataDtoHelper();
 			if (campaignFormDataDtoHelper.pullAndPushEntities())
 				campaignFormDataDtoHelper.pullEntities(true);
+
+			final CampaignFormMetaWithExpDtoHelper campaignFormMetaWithExpDtoHelper = new CampaignFormMetaWithExpDtoHelper();
+			if (campaignFormMetaWithExpDtoHelper.pullAndPushEntities())
+				campaignFormMetaWithExpDtoHelper.pullEntities(true);
+
 
 			repullData();
 		}
@@ -347,9 +359,12 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 		if (!DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CAMPAIGNS)) {
 			final CampaignFormDataDtoHelper campaignFormDataDtoHelper = new CampaignFormDataDtoHelper();
 			final CampaignFormMetaDtoHelper campaignFormMetaDtoHelper = new CampaignFormMetaDtoHelper();
+			final CampaignFormMetaWithExpDtoHelper campaignFormMetaWithExpDtoHelper = new CampaignFormMetaWithExpDtoHelper();
+
 
 			campaignFormMetaDtoHelper.repullEntities();
 			campaignFormDataDtoHelper.repullEntities();
+			campaignFormMetaWithExpDtoHelper.repullEntities();
 		}
 	}
 
@@ -400,6 +415,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 		//new FacilityDtoHelper().pullEntities(false);
 		//new PointOfEntryDtoHelper().pullEntities(false);
 		new UserDtoHelper().pullEntities(false);
+
 		//new DiseaseClassificationDtoHelper().pullEntities(false);
 		//new DiseaseConfigurationDtoHelper().pullEntities(false);
 	//	new CustomizableEnumValueDtoHelper().pullEntities(false);
@@ -423,6 +439,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 		if (!DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CAMPAIGNS)) {
 			new CampaignFormMetaDtoHelper().pullEntities(false);
+			new CampaignFormMetaWithExpDtoHelper().pullEntities(false);
 			new CampaignDtoHelper().pullEntities(false);
 		}
 
@@ -618,8 +635,11 @@ if (1 == 3) {
 			final List<String> campaignFormDataUuids = executeUuidCall(RetroProvider.getCampaignFormDataFacade().pullUuids());
 			DatabaseHelper.getCampaignFormDataDao().deleteInvalid(campaignFormDataUuids);
 			campaignFormDataDtoHelper.pullMissing(campaignFormDataUuids);
+		//TODO: Add Expiry Date Login
 
 		}
+
+
 	}
 
 	@AddTrace(name = "pullMissingAndDeleteInvalidInfrastructureTrace")
@@ -700,7 +720,7 @@ if (1 == 3) {
 			// campaigns
 			List<String> campaignUuids = executeUuidCall(RetroProvider.getCampaignFacade().pullUuids());
 			//for(String dcs : campaignUuids){
-			//	System.out.println("  --0-0-0-0-0-0-0  "+dcs);
+				System.out.println("  ============================--0-0-0-0-0-0-0  CHecking Missingand DeleteInvalid");
 			//}
 
 			DatabaseHelper.getCampaignDao().deleteInvalid(campaignUuids);
@@ -709,6 +729,8 @@ if (1 == 3) {
 			DatabaseHelper.getCampaignFormMetaDao().deleteInvalid(campaignFormMetaUuids);
 
 			new CampaignFormMetaDtoHelper().pullMissing(campaignFormMetaUuids);
+//			new CampaignFormMetaWithExpDtoHelper().pullMissing(campaignFormMetaUuids);
+
 			new CampaignDtoHelper().pullMissing(campaignUuids);
 		}
 	}

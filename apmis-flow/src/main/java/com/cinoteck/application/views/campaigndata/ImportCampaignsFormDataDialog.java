@@ -177,7 +177,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		UserDto userDto = usr.getUser();
 		
 		startDataImport.addClickListener(ed -> {
-
+			startIntervalCallback();
 			try {
 
 				 
@@ -196,6 +196,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
+			
 
 		});
 
@@ -217,7 +218,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		anchorSpan.add(downloadErrorReportButton);
 
 
-		startIntervalCallback();
 		
 
 //		UI.getCurrent().addPollListener(event -> {

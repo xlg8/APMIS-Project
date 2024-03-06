@@ -707,19 +707,24 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	}
 
 	private String getLabelForEnum(CampaignPhase campaignPhase) {
-		switch (campaignPhase) {
-		case PRE:
-			return "Pre-Campaign";
+		if(campaignPhase != null ) {
+			switch (campaignPhase) {
+			case PRE:
+				return "Pre-Campaign";
 
-		case POST:
-			return "Post-Campaign";
+			case POST:
+				return "Post-Campaign";
 
-		case INTRA:
+			case INTRA:
+				return "Intra-Campaign";
+
+			default:
+				return campaignPhase.toString();
+			}
+		}else {
 			return "Intra-Campaign";
-
-		default:
-			return campaignPhase.toString();
 		}
+		
 	}
 
 	public void generateProvinceComboItems() {

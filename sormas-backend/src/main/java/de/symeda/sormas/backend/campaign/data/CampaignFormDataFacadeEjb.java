@@ -211,6 +211,32 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setSource(source.getSource());
 		return target;
 	}
+	
+	
+	
+	
+	public CampaignFormDataDto toDtoWithArchive(CampaignFormData source) {
+		if (source == null) {
+			return null;
+		}
+
+		CampaignFormDataDto target = new CampaignFormDataDto();
+		DtoHelper.fillDto(target, source);
+
+		target.setFormValues(source.getFormValues());
+		target.setCampaign(CampaignFacadeEjb.toReferenceDto(source.getCampaign()));
+		target.setCampaignFormMeta(CampaignFormMetaFacadeEjb.toReferenceDto(source.getCampaignFormMeta()));
+		target.setFormDate(source.getFormDate());
+		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
+		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
+		target.setDistrict(DistrictFacadeEjb.toReferenceDto(source.getDistrict()));
+		target.setCommunity(CommunityFacadeEjb.toReferenceDto(source.getCommunity()));
+		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
+		target.setSource(source.getSource());
+		target.setArchived(source.isArchived());
+		return target;
+	}
+
 
 	@Override
 	public CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto campaignFormDataDto)
@@ -282,6 +308,12 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		CampaignFormDataDto dto = toDto(source);
 		return dto;
 	}
+	
+	private CampaignFormDataDto convertToDtoWithArchive(CampaignFormData source) {
+		CampaignFormDataDto dto = toDtoWithArchive(source);
+		return dto;
+	}
+	
 
 	@Override
 	public CampaignFormDataDto getCampaignFormDataByUuid(String uuid) {
@@ -386,7 +418,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
 				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
 				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
-				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME), root.get(CampaignFormData.ISVERIFIED), root.get(CampaignFormData.ISPUBLISHED));
 
 		Predicate filter = CriteriaBuilderHelper.and(cb,
 				campaignFormDataService.createCriteriaFilter(criteria, cb, root),
@@ -442,6 +474,14 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 					break;
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
+					break;
+					
+				case CampaignFormDataIndexDto.ISVERIFIED:
+					expression = campaignFormMetaJoin.get(CampaignFormData.ISVERIFIED);
+					break;
+					
+				case CampaignFormDataIndexDto.ISPUBLISHED:
+					expression = campaignFormMetaJoin.get(CampaignFormData.ISPUBLISHED);
 					break;
 
 				case CampaignFormDataIndexDto.FORM_VALUES:
@@ -1732,9 +1772,9 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
-	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max) {
+	public List<CampaignFormDataDto> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
 	
-		return campaignFormDataService.getAllActiveData(first, max).stream().map(c -> convertToDto(c)).collect(Collectors.toList());
+		return campaignFormDataService.getAllActiveData(first, max, includeArchived).stream().map(c -> convertToDtoWithArchive(c)).collect(Collectors.toList());
 	}
 	
 	@Override
@@ -2497,6 +2537,9 @@ if(criteria.getUserLanguage() != null) {
 		}
 
 		cq.select(cb.count(root));
+
+		// resultData.toString());//SQLExtractor.from(seriesDataQuery));
+		System.out.println("Count Queryyy " + SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -2723,26 +2766,7 @@ if(criteria.getUserLanguage() != null) {
 				+ "  WHERE fe->>'caption' IS NOT NULL \r\n"
 				+ "    AND fe->>'caption' NOT LIKE '%<%'\r\n"
 				+ ") AS subquery;";
-		
-		
-	//	Query seriesDataQuery = em.createNativeQuery(joinBuilder);
-		
-	//	List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
-//		
-//		
-//		@SuppressWarnings("unchecked")
-//		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-//		
-//		resultData.addAll(resultList.stream()
-//				.map((result) -> new CampaignFormDataIndexDto(
-//						
-//						(String) result[0]
-//								
-//								)).collect(Collectors.toList()));
-//	
-//		//System.out.println("ending...." +resultData.size());
-		
-	////System.out.println("resultData - "+ resultData.toString()); //SQLExtractor.from(seriesDataQuery));
+	
 	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
@@ -2782,6 +2806,23 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
+	public void publishCampaignData(List<String> uuids, boolean isUnPublishingAction) {
+				for(String uuidx : uuids) {
+					
+					if(isUnPublishingAction) {
+						System.out.println("unverifyyyyyyyyyyyyyyy");
+						campaignFormDataService.unPublishData(uuidx);
+					}else {
+						System.out.println("verifyyyyyyyyyyyyyyy");
+
+						campaignFormDataService.publishData(uuidx);
+					}
+								
+		}
+		
+	}
+	
+	@Override
 	public boolean getVerifiedStatus(String uuid) {
 
 				
@@ -2793,10 +2834,32 @@ if(criteria.getUserLanguage() != null) {
 //						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
 						);
 				cq.select(from.get(CampaignFormData.ISVERIFIED));
+				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
 				boolean count = em.createQuery(cq).getSingleResult();
 				
 				
+				
+				return count;
+		
+	}
+	
+	@Override
+	public boolean getPublishedStatus(String uuid) {
+
+				
+				CriteriaBuilder cb = em.getCriteriaBuilder();
+				CriteriaQuery<Boolean> cq = cb.createQuery(Boolean.class);
+				Root<CampaignFormData> from = cq.from(CampaignFormData.class);
+
+				cq.where(cb.equal(from.get(CampaignFormData.UUID), uuid)
+//						cb.equal(from.get(AbstractDomainObject.UUID), campaignFormDataUuid))
+						);
+				cq.select(from.get(CampaignFormData.ISPUBLISHED));
 				System.out.println("resultData - "+ SQLExtractor.from(em.createQuery(cq)));
+				boolean count = em.createQuery(cq).getSingleResult();
+				
+				
+				
 				return count;
 		
 	}
