@@ -95,6 +95,7 @@ public class CampaignFormCriteria extends BaseCriteria implements Serializable {
 		return this;
 	}
 
+	@IgnoreForUrl
 	public EntityRelevanceStatus getRelevanceStatus() {
 		return relevanceStatus;
 	}

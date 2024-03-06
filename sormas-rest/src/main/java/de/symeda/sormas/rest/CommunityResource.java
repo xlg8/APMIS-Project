@@ -56,16 +56,23 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 	"USER",
 	"REST_USER" })
 public class CommunityResource {
-	final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+	
 
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
+//<<<<<<< HEAD
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
+//		if(rdto != null) {
+//=======
 		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" +rdto.size());
 		if(rdto != null && rdto.size() > 0) {
 			System.out.println("rdtordtordto != null :zdsvxxxxxxxxxxxxxxxxxxx");
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
 				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
+		
 		} else {
 			System.out.println("else :zdsvxxxxxxxxxxxxxxxxxxx");
 			final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
@@ -78,6 +85,17 @@ public class CommunityResource {
 		}
 		return null;
 	}
+	
+	@GET
+	@Path("/allcommunities/{since}")
+	public List<CommunityDto> getAllClusters(@PathParam("since") long since) {
+		
+		
+		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
+				.collect(Collectors.toList());
+		
+		
+	}
 
 	@POST
 	@Path("/query")
@@ -89,13 +107,20 @@ public class CommunityResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-		System.out.println(" :zdsvxxxxxx++++ size0 ");
+//<<<<<<< HEAD
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+
+//		if(rdto != null) {
+			
+//=======
+//		System.out.println(" :zdsvxxxxxx++++ size0 ");
 		final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 
 		// todo: need to device smarter way of filtering out archived and deleted uuids
 		// as we are collecting this from user table
 		if (rdto != null && rdto.size() > 0) {
-			System.out.println(" :zdsvxxxxxx++++ size1 " + rdto.size());
+//			System.out.println(" :zdsvxxxxxx++++ size1 " + rdto.size());
+//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
 			List<String> lstUuid = new ArrayList<>();
 
 			for (CommunityReferenceDto com : rdto) {

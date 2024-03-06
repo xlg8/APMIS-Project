@@ -31,6 +31,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -577,10 +580,14 @@ public abstract class AbstractAdoDao<ADO extends AbstractDomainObject> {
 		if (source.getId() != null) {
 			throw new IllegalArgumentException("Merged source is not allowed to have an id");
 		}
+		System.out.println("Getting the entity namer of the source with a pron[blem : " + source.getUuid());
 
 		ADO current = queryUuid(source.getUuid());
 		ADO snapshot = querySnapshotByUuid(source.getUuid());
 		String sourceEntityString = source.toString();
+
+		System.out.println("Getting the entity namer of the source with a pron[blem : " + source.toString() + " hh" + source.getUuid());
+
 		if (StringUtils.isEmpty(sourceEntityString)) {
 			sourceEntityString = source.getEntityName();
 		}
@@ -732,6 +739,28 @@ public abstract class AbstractAdoDao<ADO extends AbstractDomainObject> {
 			}
 
 			if (current.getId() == null) {
+//
+				if(current.getChangeDate() == null){
+					LocalDate currentDate = LocalDate.now();
+					java.util.Date currentDateUtil = java.util.Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+					Date currentDateSql = new Date(currentDateUtil.getTime());
+					current.setChangeDate(currentDateSql);
+				}
+
+				if(current.getCreationDate() == null){
+					LocalDate currentDate = LocalDate.now();
+					java.util.Date currentDateUtil = java.util.Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+					Date currentDateSql = new Date(currentDateUtil.getTime());
+					current.setCreationDate(currentDateSql);
+//					current.setLastOpenedDate(currentDateSql);
+
+//					current.setLocalChangeDate(currentDateSql);
+
+				}
+
+
+
+
 				create(current);
 			} else {
 				update(current);

@@ -215,12 +215,13 @@ public class CampaignStatisticsService {
 			}
 			
 			whereBuilder.append(" ((").append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
-					.append(" = 'post-campaign'").append(" AND ").append(Campaign.TABLE_NAME).append(".")
-					.append(Campaign.PUBLISHED).append(" = true").append(") OR (")
+					.append(" = 'post-campaign'").append(" AND ").append(CampaignFormData.TABLE_NAME).append(".")
+					.append(CampaignFormData.ISPUBLISHED).append(" = true").append(") OR (")
 
 					.append(CampaignFormMeta.TABLE_NAME).append(".").append(CampaignFormMeta.FORM_TYPE)
-					.append(" != 'post-campaign'").append("))").append(" AND ").append(CampaignFormData.TABLE_NAME).append(".")
-					.append(CampaignFormData.ISVERIFIED).append(" = true");
+					.append(" != 'post-campaign'").append("))");
+//			.append(" AND ").append(CampaignFormData.TABLE_NAME).append(".")
+//					.append(CampaignFormData.ISPUBLISHED).append(" = true");
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {
@@ -257,20 +258,7 @@ public class CampaignStatisticsService {
 					.append(criteria.getDistrict().getUuid()).append("'");
 		}
 
-//		if (criteria.getCommunity() != null) {
-//			if (whereBuilder.length() > 0) {
-//				whereBuilder.append(" AND ");
-//			}
-//			whereBuilder.append(Community.TABLE_NAME)
-//				.append(".")
-//				.append(Community.UUID)
-//				.append(" = '")
-//				.append(criteria.getCommunity().getUuid())
-//				.append("'");
-//		}
 
-		System.out.println(
-				whereBuilder.toString() + "rrrrrrruuuuuuuuuuuuuuuuuuuuuuuuuuuuuubbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 		return whereBuilder.toString();
 	}
 

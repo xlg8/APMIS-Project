@@ -94,6 +94,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
 		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
 		Predicate filter = null;
 
 		boolean isEoc = false;
@@ -104,9 +105,19 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 
 		if (criteria.getCampaign() != null && criteria.getFormType() == null) {
 			if (isEoc) {
-				filter = CriteriaBuilderHelper.and(cb, filter,
-						cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+				if (criteria.getFormType().toString().equalsIgnoreCase("post-campaign")) {
+					filter = CriteriaBuilderHelper.and(cb, filter,
+							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
+
+							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED)));
+				} else {
+					filter = CriteriaBuilderHelper.and(cb, filter,
+							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
+
+							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+				}
+
 			} else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()));
@@ -115,15 +126,27 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		} else if (criteria.getCampaign() != null && criteria.getFormType() != null
 				&& !"ALL PHASES".equals(criteria.getFormType())) {
 			if (isEoc) {
+				if(criteria.getFormType().toString().equalsIgnoreCase("post-campaign")) {
+					filter = CriteriaBuilderHelper.and(cb, filter,
+							cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
+									criteria.getFormType().toLowerCase())),
+							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
+							cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
+							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+
+					);
+				}else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
 								criteria.getFormType().toLowerCase())),
 						cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
 						cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED))
+						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+				}
 
-				);
 			} else {
+
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
 								criteria.getFormType().toLowerCase())),
@@ -136,11 +159,22 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		} else if (criteria.getCampaign() == null && criteria.getFormType() != null
 				&& !"ALL PHASES".equals(criteria.getFormType())) {
 			if (isEoc) {
+
+				if(criteria.getFormType().toString().equalsIgnoreCase("post-campaign")) {
+					filter = CriteriaBuilderHelper.and(cb, filter,
+							cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
+									criteria.getFormType().toLowerCase()), cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
+									cb.isFalse(campaignJoin.get(Campaign.DELETED))),cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+							);
+				}else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
 								criteria.getFormType().toLowerCase()), cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
 								cb.isFalse(campaignJoin.get(Campaign.DELETED))),
 						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+				}
+
 			} else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
@@ -150,10 +184,24 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 
 		} else {
 			if (isEoc) {
+				if(criteria.getFormType().toString().equalsIgnoreCase("post-campaign")) {
+					filter = CriteriaBuilderHelper.and(cb, filter,
+							cb.or(cb.equal(campaignJoin.get(Campaign.ARCHIVED), false),
+									cb.isNull(campaignJoin.get(Campaign.ARCHIVED))),
+							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+							)
+							
+							;
+//				}else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.or(cb.equal(campaignJoin.get(Campaign.ARCHIVED), false),
 								cb.isNull(campaignJoin.get(Campaign.ARCHIVED))),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)))
+
+				;
+				}
+
 			} else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.or(cb.equal(campaignJoin.get(Campaign.ARCHIVED), false),
@@ -200,8 +248,12 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 					cb.equal(root.get(CampaignFormData.ISVERIFIED), criteria.getIsVerified()));
 //					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
 		}
-
-		System.out.println(filter + "ctriteria filter from indexlist");
+		
+		if (criteria.getIsPublished() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(root.get(CampaignFormData.ISPUBLISHED), criteria.getIsPublished()));
+//					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
+		}
 
 		return filter;
 	}
@@ -255,6 +307,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 				return null;
 			}
 		}
+
 
 		return filter;
 	}
@@ -338,32 +391,34 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-		public List<CampaignFormData> getAllActiveData(Integer first, Integer max) {
-			
-			List<CampaignFormData> emptyList = new ArrayList<>();
-			if (max > 1000 || max == null || first == null ||max < 0 || first < 0) {
-				return emptyList;
-			}
-			
-			
-			
-			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-			Root<CampaignFormData> from = cq.from(getElementClass());
-	
-			Predicate filter = cb.and();
-	
-			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
+	public List<CampaignFormData> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
 
-	
-			cq.where(filter);
-			cq.orderBy(cb.asc(from.get(AbstractDomainObject.ID)));
-			logger.debug("ttttttttttttttttttttttttttyyyy " + first + "<-----firsy max ----->" + max
-					+ SQLExtractor.from(em.createQuery(cq)));
-			return QueryHelper.getResultList(em, cq, first, max);
-	
-	//		return em.createQuery(cq).getResultList();
+		List<CampaignFormData> emptyList = new ArrayList<>();
+		if (max > 1000 || max == null || first == null || max < 0 || first < 0) {
+			return emptyList;
 		}
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
+		Root<CampaignFormData> from = cq.from(getElementClass());
+
+		Predicate filter = cb.and();
+		
+		if (includeArchived != null) {
+			if (!includeArchived) {
+				filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
+				cq.where(filter);
+			}
+
+		}
+
+		cq.orderBy(cb.asc(from.get(AbstractDomainObject.ID)));
+		logger.debug("ttttttttttttttttttttttttttyyyy " + first + "<-----firsy max ----->" + max
+				+ SQLExtractor.from(em.createQuery(cq)));
+		return QueryHelper.getResultList(em, cq, first, max);
+
+		// return em.createQuery(cq).getResultList();
+	}
 
 	public List<CampaignFormData> getByCampaignFormMeta_id(Long meta_id) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -428,6 +483,22 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		String cdvv = "";
 		cdvv = "UPDATE campaignformdata SET isverified = false where uuid = '" + uuidx + "';";
 		System.err.println(cdvv + "Query to unverify from the service ");
+		return em.createNativeQuery(cdvv).executeUpdate();
+	}
+
+	public int publishData(String uuidx) {
+		// TODO Auto-generated method stub
+		String cdvv = "";
+		cdvv = "UPDATE campaignformdata SET ispublished = true where uuid = '" + uuidx + "';";
+		System.err.println(cdvv + "Query to publish from the service ");
+		return em.createNativeQuery(cdvv).executeUpdate();
+	}
+
+	public int unPublishData(String uuidx) {
+		// TODO Auto-generated method stub
+		String cdvv = "";
+		cdvv = "UPDATE campaignformdata SET ispublished = false where uuid = '" + uuidx + "';";
+		System.err.println(cdvv + "Query to unpublishing from the service ");
 		return em.createNativeQuery(cdvv).executeUpdate();
 	}
 

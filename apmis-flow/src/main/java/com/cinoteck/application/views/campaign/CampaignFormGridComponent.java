@@ -1,9 +1,12 @@
 package com.cinoteck.application.views.campaign;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
@@ -24,6 +27,7 @@ import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -47,7 +51,6 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	private UserProvider userProvider = new UserProvider();
 	private String userLanguage;
 
-
 	public CampaignFormGridComponent(List<CampaignFormMetaReferenceDto> savedCampaignFormMetas,
 			List<CampaignFormMetaReferenceDto> allCampaignFormMetas, CampaignDto capaingDto, String campaignPhase) {
 		this.savedCampaignFormMetas = savedCampaignFormMetas;
@@ -55,20 +58,20 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		this.capaingDto = capaingDto;
 		this.campaignPhase = campaignPhase;
 		this.userLanguage = userLanguage;
-		
+
 		userLanguage = userProvider.getUser().getLanguage().toString();
 
-		if(userLanguage.equalsIgnoreCase("pashto")) {
-				grid.addColumn(CampaignFormMetaReferenceDto::getFormname_ps_af )
-		.setHeader(I18nProperties.getCaption(Captions.formname) + "Pashto");
-		}else if(userLanguage.equalsIgnoreCase("Dari")) {
+		if (userLanguage.equalsIgnoreCase("pashto")) {
+			grid.addColumn(CampaignFormMetaReferenceDto::getFormname_ps_af)
+					.setHeader(I18nProperties.getCaption(Captions.formname) + "Pashto");
+		} else if (userLanguage.equalsIgnoreCase("Dari")) {
 			grid.addColumn(CampaignFormMetaReferenceDto::getFormname_fa_af)
-			.setHeader(I18nProperties.getCaption(Captions.formname) + "Dari ");
-		}else if(userLanguage.equalsIgnoreCase("english")){
+					.setHeader(I18nProperties.getCaption(Captions.formname) + "Dari ");
+		} else if (userLanguage.equalsIgnoreCase("english")) {
 			grid.addColumn(CampaignFormMetaReferenceDto::getCaption)
-			.setHeader(I18nProperties.getCaption(Captions.formname));
+					.setHeader(I18nProperties.getCaption(Captions.formname));
 		}
-		
+
 		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
 				.setHeader(I18nProperties.getCaption(Captions.expiry) + " (default)");
 		grid.addColumn(this::getDaysExpiredEditable)
@@ -181,7 +184,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 		plusButton.addClickListener(ce -> {
 			CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
-			
+
 			formx.setVisible(true);
 			buttonAfterLay.setVisible(true);
 
@@ -210,22 +213,40 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		});
 
 		saveButton.addClickListener(e -> {
-			
+
 //			System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
 
-			if (((Button) e.getSource()).getText().equalsIgnoreCase("Add") || ((Button) e.getSource()).getText().equalsIgnoreCase("Add?")) {
+			if (((Button) e.getSource()).getText().equalsIgnoreCase("Add")
+					|| ((Button) e.getSource()).getText().equalsIgnoreCase("Add?")) {
 				CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-				CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
-						daysExpire.getValue());
 
+				UUID uuid = UUID.randomUUID();
+				String fullUUID = uuid.toString(); // Get full UUID with dashes
+				String truncatedUUID = fullUUID.substring(0, Math.min(fullUUID.length(), 36));
+
+				String uuidWithHyphens = truncatedUUID.toString();
+
+				Date startDate = capaingDto.getStartDate();
+				long differenceInMilliseconds = startDate.getTime();
+				long millisecondsInOneDay = 24 * 60 * 60 * 1000; // 24 hours * 60 minutes * 60 seconds * 1000
+																	// milliseconds
+				long daysexpiredinMilliseconds = daysExpire.getValue().longValue() * millisecondsInOneDay;
+				Date newDate = new Date(startDate.getTime() + differenceInMilliseconds);
+
+				CampaignFormMetaWithExpReferenceDto camFormExp = new CampaignFormMetaWithExpReferenceDto();// capaingDto.getUuid(),
+																											// forms.getValue().getUuid(),
+//						daysExpire.getValue().longValue(), newDate , uuidWithHyphens.toUpperCase());
+				camFormExp.setCampaignId(capaingDto.getUuid());
+				camFormExp.setFormId(forms.getValue().getUuid());
+				camFormExp.setDaysExpired(daysExpire.getValue().longValue());
+				camFormExp.setDate(newDate);
+				camFormExp.setUuid(uuidWithHyphens.toUpperCase());
 
 				newCampForm.setCaption(forms.getValue().toString());
 				newCampForm.setDaysExpired(daysExpire.getValue());
 
-
-
 				capaingDto.getCampaignFormMetas().add(newCampForm);
-				capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp);
+				capaingDto.getCampaignFormMetaExpiry().add(camFormExp);
 				allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
 
 				forms.setItems(allCampaignFormMetas);
@@ -234,42 +255,100 @@ public class CampaignFormGridComponent extends VerticalLayout {
 				grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 
 			} else {
-				System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
+				System.out.println(((Button) e.getSource()).getText()
+						+ " Text buttton when addd ELSEEEEEEEEEEEEEEEEEEE IFFFFFFFFFF");
 				if (formBeenEdited != null) {
 					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
 					capaingDto.getCampaignFormMetas().remove(formBeenEdited);
 					capaingDto.getCampaignFormMetas().add(newCampForm);
-					List<CampaignFormMetaExpiryDto> camFormExp_ = new ArrayList<>();
 
-					camFormExp_ = capaingDto.getCampaignFormMetaExpiryDto().stream()
-							.filter(ew -> ew.getFormId() == formBeenEdited).collect(Collectors.toList());
-					CampaignFormMetaExpiryDto camFormExp_i = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
-							daysExpire.getValue());
+					List<CampaignFormMetaWithExpReferenceDto> camFormExp_ = new ArrayList<>();
+					CampaignFormMetaReferenceDto newCampFormxx = formBeenEdited;
+					String getFormCaption = newCampFormxx.getUuid();
+
+					camFormExp_ = capaingDto.getCampaignFormMetaExpiry().stream()
+							.filter(ew -> ew.getUuid() == getFormCaption).collect(Collectors.toList());
+
+//					CampaignFormMetaWithExpReferenceDto camFormExp_i = new CampaignFormMetaWithExpReferenceDto(capaingDto.getUuid(), forms.getValue().getUuid(),
+//							daysExpire.getValue().longValue());
+//									String uuidWithHyphens = uuid.toString();
+					UUID uuid = UUID.randomUUID();
+					String fullUUID = uuid.toString(); // Get full UUID with dashes
+					String truncatedUUID = fullUUID.substring(0, Math.min(fullUUID.length(), 36));
+
+					String uuidWithHyphens = truncatedUUID.toString();
+
+					Date startDate = capaingDto.getStartDate();
+					long differenceInMilliseconds = startDate.getTime();
+					long millisecondsInOneDay = 24 * 60 * 60 * 1000; // 24 hours * 60 minutes * 60 seconds * 1000
+																		// milliseconds
+					long daysexpiredinMilliseconds = daysExpire.getValue().longValue() * millisecondsInOneDay;
+					Date newDate = new Date(startDate.getTime() + differenceInMilliseconds);
+
+					CampaignFormMetaWithExpReferenceDto camFormExp_i = new CampaignFormMetaWithExpReferenceDto();// capaingDto.getUuid(),
+																												// forms.getValue().getUuid(),
+//					daysExpire.getValue().longValue(), newDate , uuidWithHyphens.toUpperCase());
+					camFormExp_i.setCampaignId(capaingDto.getUuid());
+					camFormExp_i.setFormId(forms.getValue().getUuid());
+					camFormExp_i.setDaysExpired(daysExpire.getValue().longValue());
+					camFormExp_i.setDate(newDate);
+					camFormExp_i.setUuid(uuidWithHyphens.toUpperCase());
+//					CampaignFormMetaWithExpReferenceDto camFormExp_i = new CampaignFormMetaWithExpReferenceDto(capaingDto.getUuid(), forms.getValue().getUuid(),
+//							daysExpire.getValue().longValue(),null , null);
+
+//					CampaignFormMetaWithExpReferenceDto camFormExp_i = new CampaignFormMetaWithExpReferenceDto(capaingDto.getUuid(), forms.getValue().getUuid(),
+//							daysExpire.getValue().longValue(), null , null);
 
 					if (camFormExp_.size() > 0)
-						capaingDto.getCampaignFormMetaExpiryDto().remove(camFormExp_.get(0));
+						capaingDto.getCampaignFormMetaExpiry().remove(camFormExp_.get(0));
 
-					capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp_i);
+					capaingDto.getCampaignFormMetaExpiry().add(camFormExp_i);
 
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 					getSavedElements();
 
 					Notification.show(I18nProperties.getString(Strings.campaignUpdated));
 				} else {
-					
-//					System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
-					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
-					CampaignFormMetaExpiryDto camFormExp = new CampaignFormMetaExpiryDto(capaingDto, forms.getValue(),
-							daysExpire.getValue());
 
+					System.out.println(
+							((Button) e.getSource()).getText() + " Text buttton when addd ELSEEEEEEEEEEEEEEEEEEE");
+					CampaignFormMetaReferenceDto newCampForm = forms.getValue();
+					UUID uuid = UUID.randomUUID();
+					String fullUUID = uuid.toString(); // Get full UUID with dashes
+					String truncatedUUID = fullUUID.substring(0, Math.min(fullUUID.length(), 36));
+
+					String uuidWithHyphens = truncatedUUID.toString();
+					Date startDate = capaingDto.getStartDate();
+					long differenceInMilliseconds = startDate.getTime();
+					long millisecondsInOneDay = 24 * 60 * 60 * 1000; // 24 hours * 60 minutes * 60 seconds * 1000
+																		// milliseconds
+					long daysexpiredinMilliseconds = daysExpire.getValue().longValue() * millisecondsInOneDay;
+					Date newDate = new Date(startDate.getTime() + differenceInMilliseconds);
+//
+
+					CampaignFormMetaWithExpReferenceDto camFormExp = new CampaignFormMetaWithExpReferenceDto();// capaingDto.getUuid(),
+					// forms.getValue().getUuid(),
+//daysExpire.getValue().longValue(), newDate , uuidWithHyphens.toUpperCase());
+					camFormExp.setCampaignId(capaingDto.getUuid());
+					camFormExp.setFormId(forms.getValue().getUuid());
+					camFormExp.setDaysExpired(daysExpire.getValue().longValue());
+					camFormExp.setDate(newDate);
+					camFormExp.setUuid(uuidWithHyphens.toUpperCase());
+//					CampaignFormMetaWithExpReferenceDto camFormExp = new CampaignFormMetaWithExpReferenceDto(
+//							capaingDto.getUuid(), forms.getValue().getUuid(), daysExpire.getValue().longValue(), null,
+//							null);
+
+//					CampaignFormMetaWithExpReferenceDto camFormExp = new CampaignFormMetaWithExpReferenceDto(capaingDto.getUuid(), forms.getValue().getUuid(),
+//							daysExpire.getValue().longValue(), null , null);
+//					
+//					CampaignFormMetaWithExpReferenceDto camFormExp = new CampaignFormMetaWithExpReferenceDto(capaingDto.getUuid(), forms.getValue().getUuid(),
+//							daysExpire.getValue().longValue());
 
 					newCampForm.setCaption(forms.getValue().toString());
 					newCampForm.setDaysExpired(daysExpire.getValue());
 
-
-
 					capaingDto.getCampaignFormMetas().add(newCampForm);
-					capaingDto.getCampaignFormMetaExpiryDto().add(camFormExp);
+					capaingDto.getCampaignFormMetaExpiry().add(camFormExp);
 					allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
 
 					forms.setItems(allCampaignFormMetas);

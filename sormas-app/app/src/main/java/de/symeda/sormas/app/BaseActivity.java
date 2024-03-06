@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +46,12 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+//import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -81,6 +88,7 @@ import de.symeda.sormas.app.core.notification.NotificationHelper;
 import de.symeda.sormas.app.core.notification.NotificationType;
 import de.symeda.sormas.app.login.EnterPinActivity;
 import de.symeda.sormas.app.login.LoginActivity;
+import de.symeda.sormas.app.rest.NoConnectionException;
 import de.symeda.sormas.app.rest.RetroProvider;
 import de.symeda.sormas.app.rest.SynchronizeDataAsync;
 import de.symeda.sormas.app.settings.SettingsFragment;
@@ -213,8 +221,32 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 		if (!isSubActivity()) {
 			getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_blue_36dp);
 		}
-
+		getFCMToken();
 		setupDrawer(navigationView);
+	}
+
+	public void getFCMToken() {
+
+		FirebaseMessaging.getInstance().getToken()
+				.addOnCompleteListener(new OnCompleteListener<String>() {
+					@Override
+					public void onComplete(@NonNull Task<String> task) {
+						if (task.isSuccessful() && task.getResult() != null) {
+							String token = task.getResult();
+							Log.i("FCM Token", token);
+//							if(token != null && !token.isEmpty()) {
+//								try {
+//									RetroProvider.getUserFacade().updateFcmToken("AlingarICM6", token);
+//								} catch (NoConnectionException e) {
+//									throw new RuntimeException(e);
+//								}
+//							}
+						} else {
+							Log.e("FCM Token", "Failed to get token", task.getException());
+						}
+					}
+				});
+
 	}
 
 	protected abstract void onCreateInner(Bundle savedInstanceState);

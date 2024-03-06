@@ -60,8 +60,10 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 	CampaignReferenceDto campaignReferenceDto;
 	CampaignFormBuilder campaignFormBuilder;
 	Dialog dialog;
-	Button verifyAndPublishButton;
-	Button unVerifyAndUnPublishButton;
+	Button verifyButton;
+	Button unVerifyButton;
+	Button publishButton;
+	Button unPublishButton;
 	boolean dataPublishNotificationCheck = false;
 
 	private final UserProvider usr = new UserProvider();
@@ -198,31 +200,53 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 
 		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-		verifyAndPublishButton = new Button(I18nProperties.getCaption("Verify & Publish"));
-		Icon verifyAndPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
-		verifyAndPublishButton.setIcon(verifyAndPublishButtonIcon);
+		verifyButton = new Button(I18nProperties.getCaption("Verify Data"));
+		publishButton = new Button(I18nProperties.getCaption(" Publish Data"));
+		Icon verifyButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+		verifyButton.setIcon(verifyButtonIcon);
 
-		unVerifyAndUnPublishButton = new Button(I18nProperties.getCaption("Un-Verify & Un-Publish"));
-		Icon unVerifyAndUnPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
-		unVerifyAndUnPublishButton.setIcon(unVerifyAndUnPublishButtonIcon);
+		Icon publishButtonIcon = new Icon(VaadinIcon.PRINT);
+		publishButton.setIcon(publishButtonIcon);
+
+		unVerifyButton = new Button(I18nProperties.getCaption("Un-Verify Data"));
+		Icon unVerifyButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+		unVerifyButton.setIcon(unVerifyButtonIcon);
+
+		unPublishButton = new Button(I18nProperties.getCaption("Un-Publish Data"));
+		Icon unPublishButtonIcon = new Icon(VaadinIcon.CHECK_SQUARE_O);
+		unPublishButton.setIcon(unPublishButtonIcon);
 
 		if (usr.getUser().getUsertype() == UserType.WHO_USER) {
-			if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
+			
+			if(usr.getUser().getUserRoles().contains(UserRole.PUBLISH_USER)) {
+				if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
 
-				if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
-					dialog.getFooter().add(verifyAndPublishButton);
-					// data is not verified
+					System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
+					if (uuidForm != null) {
+						if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
+							dialog.getFooter().add(verifyButton);
+							// data is not verified
+							dataPublishNotificationCheck = false;
 
-					dataPublishNotificationCheck = false;
-				} else {
-					dialog.getFooter().add(unVerifyAndUnPublishButton);
+						} else {
+							dialog.getFooter().add(unVerifyButton);
+							if (!FacadeProvider.getCampaignFormDataFacade().getPublishedStatus(uuidForm)) {
+								dialog.getFooter().add(publishButton);
+							} else {
+								dialog.getFooter().add(unPublishButton);
+							}
+
+						}
+					} else {
+
+					}
 
 				}
-
 			}
+			
 		}
 
-		verifyAndPublishButton.addClickListener(e -> {
+		verifyButton.addClickListener(e -> {
 			try {
 				List<String> uuidList = new ArrayList<>();
 				uuidList.add(uuidForm);
@@ -232,26 +256,66 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Verify CampaignData ");
 			} finally {
 
-				Notification.show("Data verified and published successfully");
-				verifyAndPublishButton.setVisible(false);
+				Notification.show("Data verified successfully");
+				verifyButton.setVisible(false);
 				grid.getDataProvider().refreshAll();
 			}
 		});
 
-		unVerifyAndUnPublishButton.addClickListener(e -> {
+		publishButton.addClickListener(e -> {
+			try {
+				List<String> uuidList = new ArrayList<>();
+				uuidList.add(uuidForm);
+				FacadeProvider.getCampaignFormDataFacade().publishCampaignData(uuidList, false);
+
+			} catch (Exception exception) {
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Publish CampaignData ");
+			} finally {
+
+				Notification.show("Data published successfully");
+				publishButton.setVisible(false);
+				grid.getDataProvider().refreshAll();
+			}
+		});
+
+		unVerifyButton.addClickListener(e -> {
 			try {
 				List<String> uuidList = new ArrayList<>();
 				uuidList.add(uuidForm);
 				FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(uuidList, true);
+				for (String eachUuid : uuidList) {
+					if (FacadeProvider.getCampaignFormDataFacade().getPublishedStatus(eachUuid)) {
+						FacadeProvider.getCampaignFormDataFacade().publishCampaignData(uuidList, true);
+						unPublishButton.setVisible(false);
+					}
+				}
 
 			} catch (Exception exception) {
 				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Un-Verify CampaignData ");
 			} finally {
 
-				Notification.show("Data un-verified and un-published successfully");
-				unVerifyAndUnPublishButton.setVisible(false);
+				Notification.show("Data un-verified successfully");
+				unVerifyButton.setVisible(false);
 				grid.getDataProvider().refreshAll();
-//					dialog.getFooter().add(verifyAndPublishButton);
+//					dialog.getFooter().add(verifyButton);
+
+			}
+		});
+
+		unPublishButton.addClickListener(e -> {
+			try {
+				List<String> uuidList = new ArrayList<>();
+				uuidList.add(uuidForm);
+				FacadeProvider.getCampaignFormDataFacade().publishCampaignData(uuidList, true);
+
+			} catch (Exception exception) {
+				logger.debug(" ============xxxxxxxxxxxxx============== " + "Could Not Un-Publish CampaignData ");
+			} finally {
+
+				Notification.show("Data un-published successfully");
+				unPublishButton.setVisible(false);
+				grid.getDataProvider().refreshAll();
+//					dialog.getFooter().add(verifyButton);
 
 			}
 		});

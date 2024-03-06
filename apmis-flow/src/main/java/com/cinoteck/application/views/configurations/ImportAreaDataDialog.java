@@ -172,7 +172,7 @@ public class ImportAreaDataDialog extends Dialog {
 		AreaDto areaDto = new AreaDto();
 //		overWrite = overWriteExistingData.getValue();
 		startDataImport.addClickListener(ed -> {
-
+			startIntervalCallback();
 			
 			try {
 
@@ -233,7 +233,7 @@ public class ImportAreaDataDialog extends Dialog {
 //			startIntervalCallback();
 //		});
 		
-//		startIntervalCallback();
+//		
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -261,42 +261,43 @@ public class ImportAreaDataDialog extends Dialog {
 
 	}
 
+
+
 	private void pokeFlow() {
-//		Notification.show("dialog detected... User wont logout");
+	//	Notification.show("dialog detected... User wont logout");
 	}
 
-//	private void startIntervalCallback() {
-//		UI.getCurrent().setPollInterval(5000);
-//		if (!callbackRunning) {
-//			timer = new Timer();
-//			timer.schedule(new TimerTask() {
-//				@Override
-//				public void run() {
-//					stopIntervalCallback();
-//				}
-//			}, 15000); // 10 minutes
-//
-//			callbackRunning = true;
-//		}
-//	}
+	private void startIntervalCallback() {
+		UI.getCurrent().setPollInterval(5000);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					stopIntervalCallback();
+				}
+			}, 15000); // 10 minutes
 
-//	private void stopIntervalCallback() {
-//		if (callbackRunning) {
-//			callbackRunning = false;
-//			if (timer != null) {
-//				timer.cancel();
-//				timer.purge();
-//			}
-//
-//		}
-//	}
-	
+			callbackRunning = true;
+		}
+	}
+
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+
+		}
+	}
 	
 	
 
-//	private void stopPullers() {
-//		UI.getCurrent().setPollInterval(-1);
-//	}
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
 
 	private void refreshPage() {
 		// Get the current UI

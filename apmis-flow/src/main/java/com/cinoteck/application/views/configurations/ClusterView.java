@@ -6,8 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -63,6 +66,7 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
@@ -112,7 +116,11 @@ public class ClusterView extends VerticalLayout {
 	Button resetFilters = new Button(I18nProperties.getCaption(Captions.resetFilters));
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>(
 			I18nProperties.getCaption(Captions.relevanceStatus));
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+
+	
 	@SuppressWarnings("deprecation")
 	public ClusterView() {
 		setSpacing(false);
@@ -691,6 +699,16 @@ public class ClusterView extends VerticalLayout {
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().archive(selectedRow.getUuid());
 
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Cluster");
+						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
+						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk Archive");	
+						configurationChangeLogDto.setAction_date(date);
+
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						
 						refreshGridData();
 					});
 					Notification.show(I18nProperties.getString(Strings.archivingSelected));
@@ -701,6 +719,17 @@ public class ClusterView extends VerticalLayout {
 							"Are you sure you want to de-archive the " + selectedRows.size() + " selected Clusters?"));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().dearchive(selectedRow.getUuid());
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Cluster");
+						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
+						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk De-Archive");	
+						configurationChangeLogDto.setAction_date(date);
+
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						
 
 						refreshGridData();
 					});
@@ -815,6 +844,16 @@ public class ClusterView extends VerticalLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().dearchive(uuidsz);
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Cluster");
+								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
+								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+								configurationChangeLogDto.setAction_logged("Cluster De-Archive");	
+								configurationChangeLogDto.setAction_date(date);
+
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								
 								dialog.close();
 								refreshGridData();
 							});
@@ -825,6 +864,17 @@ public class ClusterView extends VerticalLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().archive(uuidsz);
+								
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Cluster");
+								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
+								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+								configurationChangeLogDto.setAction_logged("Cluster Archive");	
+								configurationChangeLogDto.setAction_date(date);
+
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								
 								dialog.close();
 								refreshGridData();
 							});
@@ -860,6 +910,16 @@ public class ClusterView extends VerticalLayout {
 
 					FacadeProvider.getCommunityFacade().save(dce, true);
 
+					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setAction_unit_type("Cluster");
+					configurationChangeLogDto.setAction_unit_name(name);
+					configurationChangeLogDto.setUnit_code(ccodeValue);
+					configurationChangeLogDto.setAction_logged("Cluster Edit");	
+					configurationChangeLogDto.setAction_date(date);
+
+					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+					
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					dialog.close();
 					refreshGridData();
@@ -900,6 +960,8 @@ public class ClusterView extends VerticalLayout {
 						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
 
 						if (ccodeValue.equals(cCodeConstruction)) {
+							boolean exceptionCheck = false;
+
 							try {
 								FacadeProvider.getCommunityFacade().save(dcex, true);
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
@@ -907,6 +969,8 @@ public class ClusterView extends VerticalLayout {
 								refreshGridData();
 
 							} catch (Exception e) {
+								exceptionCheck = false;
+
 								Notification notification = new Notification();
 								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 								notification.setPosition(Position.MIDDLE);
@@ -927,6 +991,21 @@ public class ClusterView extends VerticalLayout {
 
 								notification.add(layout);
 								notification.open();
+							}finally {
+								if(!exceptionCheck) {
+//									ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+//											String unit_code, String action_logged)
+									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+									configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+									configurationChangeLogDto.setAction_unit_type("Cluster");
+									configurationChangeLogDto.setAction_unit_name(name);
+									configurationChangeLogDto.setUnit_code(ccodeValue);
+									configurationChangeLogDto.setAction_logged("Cluster Create");	
+									configurationChangeLogDto.setAction_date(date);
+
+									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+									exceptionCheck = false;
+								}
 							}
 						} else {
 

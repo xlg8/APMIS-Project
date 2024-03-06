@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.enterprise.context.SessionScoped;
+
 import com.cinoteck.application.UserProvider;
 
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +61,7 @@ import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.AuthProvider;
@@ -82,6 +85,7 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 @Route(value = "/edit-user")
+
 public class UserForm extends FormLayout {
 	/**
 	 * 
@@ -285,9 +289,25 @@ public class UserForm extends FormLayout {
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
 		roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
+//		System.out.println("User typ  beforee sorting  " + userProvider.getUser().getUsertype());
+//		userProvider.getUser().getUsertype() == UserType.EOC_USER
+		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
+			if (!roles.contains(UserRole.PUBLISH_USER)) {
+				roles.add(UserRole.PUBLISH_USER);
+//				System.out.println("PUBLISH_USER add +++___________333333: " + roles);
+			}
+		} else {
+			if (roles.contains(UserRole.PUBLISH_USER)) {
+				roles.remove(UserRole.PUBLISH_USER);
+//				System.out.println("PUBLISH_USER removed +++___________333333: " + roles);
+			}
+		}
 
 		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
 		roles.remove(UserRole.BAG_USER);
+		
+//		System.out.println("Roles beforee sorting  " + roles);
+
 
 		// Sorting the user roles usng comprtor
 		Collections.sort(rolesz, new UserRoleCustomComparator());
@@ -490,6 +510,7 @@ public class UserForm extends FormLayout {
 				sortedUserRoles.remove(UserRole.ADMIN_SUPERVISOR);
 				sortedUserRoles.remove(UserRole.BAG_USER);
 				sortedUserRoles.remove(UserRole.REST_USER);
+				sortedUserRoles.remove(UserRole.PUBLISH_USER);
 
 				userRoles.setItems(sortedUserRoles);
 			}
@@ -535,9 +556,9 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.EAG_FMS);
 			formAccessesList.add(FormAccess.EAG_LQAS);
 			formAccess.setItems(formAccessesList);
-			//preCampformAccess.setItems(preCampformAccessesList);
-		//	intraCampformAccess.setItems(intraCampformAccessesList);
-		//	postCampformAccess.setItems(postCampformAccessesList);
+			// preCampformAccess.setItems(preCampformAccessesList);
+			// intraCampformAccess.setItems(intraCampformAccessesList);
+			// postCampformAccess.setItems(postCampformAccessesList);
 		} else {
 			formAccessesList.remove(FormAccess.FLW);
 			formAccessesList.remove(FormAccess.TRAINING);
@@ -546,35 +567,23 @@ public class UserForm extends FormLayout {
 			formAccessesList.remove(FormAccess.FMS);
 
 			formAccessesList.add(FormAccess.ARCHIVE);
-		//	formAccess.setItems(formAccessesList);
-			//preCampformAccess.setVisible(false);
+			// formAccess.setItems(formAccessesList);
+			// preCampformAccess.setVisible(false);
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
 			formAccessesList.add(FormAccess.EAG_ICM);
 			formAccessesList.add(FormAccess.EAG_ADMIN);
-			//intraCampformAccess.setItems(intraCampformAccessesList);
-			//postCampformAccess.setVisible(false);
-			
+			// intraCampformAccess.setItems(intraCampformAccessesList);
+			// postCampformAccess.setVisible(false);
+
 			formAccess.setItems(formAccessesList);
 		}
 //		commusr.setValue(isCommonUser);
-		
+
 		Div formAccessCheckers = new Div();
-//		Div formAccessPre = new Div();
-//		Div formAccessIntra = new Div();
-//		Div formAccessPost = new Div();
-//		
-//		formAccessesList.add(FormAccess.ARCHIVE);
-//		formAccessesList.remove(FormAccess.FLW);
-//		formAccessesList.remove(FormAccess.TRAINING);
-//		
-//		
-//		formAccessPre.add(formAccessesList.stream().filter(null);
+
 		formAccessCheckers.add(formAccess);
-		
-		
-		
-		
+
 		language.setWidthFull();
 		region.setWidthFull();
 		province.setWidthFull();
@@ -582,8 +591,9 @@ public class UserForm extends FormLayout {
 
 		VerticalLayout otherFormField = new VerticalLayout(language, region, province, district);
 		formAccess.setId("formaccesschkid");
-		VerticalLayout formAccessParentLayout = new VerticalLayout(formAccess);//, preCampformAccess, intraCampformAccess,
-			//	postCampformAccess);
+		VerticalLayout formAccessParentLayout = new VerticalLayout(formAccess);// , preCampformAccess,
+																				// intraCampformAccess,
+		// postCampformAccess);
 		formAccessParentLayout.setPadding(false);
 		formAccessParentLayout.setSpacing(false);
 		HorizontalLayout allFieldLayout = new HorizontalLayout(formAccessParentLayout, otherFormField);
@@ -593,35 +603,22 @@ public class UserForm extends FormLayout {
 				activeCheck, commusr, userRoles, allFieldLayout, districtMulti, clusterNo);
 
 		createButtonsLayout();
-		String checkBoxDivider =
-				"var parentDiv = document.getElementById(\"formaccesschkid\");\n"
-				+ "if (parentDiv) {\n"
-				+ "var children = parentDiv.querySelectorAll(\"vaadin-checkbox\");\n"
-				+ "for (var i = 0; i < children.length; i++) {\n"
-				+ "console.log(children[i]);\n"
-				+ "if (i === 0) {\n"
+		String checkBoxDivider = "var parentDiv = document.getElementById(\"formaccesschkid\");\n"
+				+ "if (parentDiv) {\n" + "var children = parentDiv.querySelectorAll(\"vaadin-checkbox\");\n"
+				+ "for (var i = 0; i < children.length; i++) {\n" + "console.log(children[i]);\n" + "if (i === 0) {\n"
 				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Pre-Campaign</b><hr>';\n"
-				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
-				+ "}\n"
-				
-				+ "if (i === 2) {\n"
-				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Intra-Campaign</b><hr>';\n"
-				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
-				+ "}\n"
-							
-								
-				+ "if (i === 6) {\n"
-				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Post-Campaign</b><hr>';\n"
-				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n"
-				+ "}\n"
-				
-				+"}}";
-		
-		
-		
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
+
+				+ "if (i === 2) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Intra-Campaign</b><hr>';\n"
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
+
+				+ "if (i === 6) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Post-Campaign</b><hr>';\n"
+				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
+
+				+ "}}";
+
 		UI.getCurrent().getPage().executeJs(checkBoxDivider);
-		
-		
+
 	}
 
 	public void updatePasswordDialog() {
@@ -704,7 +701,7 @@ public class UserForm extends FormLayout {
 	}
 
 	private void handleSelectionChange(SelectionEvent<CheckboxGroup<FormAccess>, FormAccess> event) {
-	
+
 //		if(formAccess.getSelectedItems().size() > 0){
 //			formAccess.deselectAll();
 //		}
@@ -728,7 +725,16 @@ public class UserForm extends FormLayout {
 
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
-		close.addClickListener(event -> fireEvent(new CloseEvent(this)));
+		close.addClickListener(event -> {
+		    VaadinSession.getCurrent().setAttribute("contact-form", null);
+
+			fireEvent(new CloseEvent(this));
+//			userForm.addCloseListener(evemnt -> {
+//			    // Remove form data from session
+//			    VaadinSession.getCurrent().setAttribute("contact-form", null);
+//			});
+
+		});
 
 		createPassword.addClickListener(event -> {
 			_dialog.open();
@@ -964,6 +970,8 @@ public class UserForm extends FormLayout {
 		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
 		List<FormAccess> formAccessexs = new ArrayList<>();
 		formAccessexs.addAll(formAccesses);
+		
+		System.out.println(formAccessexs + "ggggggggggggggggggggggggggggggggggggg"+ formAccesses);
 
 		if (formAccessexs.size() == 0 || formAccessexs.size() < 1) {
 

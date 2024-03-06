@@ -49,9 +49,11 @@ import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -62,9 +64,12 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -115,6 +120,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	int itemCount;// = dataProvider.getItems().size();
 
 	String uuidsz = "";
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 
 	ConfirmDialog archiveDearchiveConfirmation;
 
@@ -491,6 +499,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveSelecetdRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Region");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk Archive");
+						configurationChangeLogDto.setAction_date(date);
+								
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
 					});
@@ -502,6 +520,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Region");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
+						configurationChangeLogDto.setAction_date(date);
+					
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
 					});
@@ -562,6 +590,15 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().dearchive(uuidsz);
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Region");
+								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
+								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
+								configurationChangeLogDto.setAction_logged("De-Archive");
+								configurationChangeLogDto.setAction_date(date);
+					
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								dialog.close();
 								refreshGridData();
 							});
@@ -574,6 +611,16 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().archive(uuidsz);
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Region");
+								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
+								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
+								configurationChangeLogDto.setAction_logged("Archive");
+								configurationChangeLogDto.setAction_date(date);
+				
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								
 								dialog.close();
 								refreshGridData();
 							});
@@ -608,12 +655,14 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						dce.setName(name);
 						long rcodeValue = Long.parseLong(code);
 						dce.setExternalId(rcodeValue);
+						boolean exceptionCheck = false;
 						try {
 							FacadeProvider.getAreaFacade().save(dce, true);
 							Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 							dialog.close();
 							refreshGridData();
 						} catch (Exception e) {
+							exceptionCheck = true;
 							Notification notification = new Notification();
 							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 							notification.setPosition(Position.MIDDLE);
@@ -633,6 +682,21 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							notification.add(layout);
 							notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
+						}finally {
+							if(!exceptionCheck) {
+//								ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+//										String unit_code, String action_logged)
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Region");
+								configurationChangeLogDto.setAction_unit_name(name);
+								configurationChangeLogDto.setUnit_code(rcodeValue);
+								configurationChangeLogDto.setAction_logged("Region Edit");
+								configurationChangeLogDto.setAction_date(date);
+
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								
+							}
 						}
 					} else {
 						AreaDto dcex = new AreaDto();
@@ -642,6 +706,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						dcex.setExternalId(rcodeValue);
 						List<AreaReferenceDto> ccc = FacadeProvider.getAreaFacade().getByExternalID(rcodeValue, false);
 						List<AreaReferenceDto> cccx = FacadeProvider.getAreaFacade().getByName(name, false);
+						boolean checkexception = false;
 						if (ccc.size() < 1 && cccx.size() < 1) {
 							try {
 
@@ -650,6 +715,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								dialog.close();
 								refreshGridData();
 							} catch (Exception e) {
+								checkexception = true;
 								Notification notification = new Notification();
 								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 								notification.setPosition(Position.MIDDLE);
@@ -669,6 +735,20 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								notification.add(layout);
 								notification.open();
 //							        Notification.show("An error occurred while saving: " + e.getMessage());
+							}finally {
+								
+								if(!checkexception) {
+									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+									configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+									configurationChangeLogDto.setAction_unit_type("Region");
+									configurationChangeLogDto.setAction_unit_name(name);
+									configurationChangeLogDto.setUnit_code(rcodeValue);
+									configurationChangeLogDto.setAction_logged("Region Create");
+									configurationChangeLogDto.setAction_date(date);
+																	
+									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								}
+								
 							}
 						} else if (ccc.size() >= 1) {
 							Notification notification = new Notification();

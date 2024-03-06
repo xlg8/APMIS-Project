@@ -59,7 +59,9 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.UserReportModelDto;
@@ -123,10 +125,10 @@ public class UserFacadeEjb implements UserFacade {
 
 	@EJB
 	private UserService userService;
-	
+
 	@EJB
 	private UserActivitySummaryService userActivitySummaryService;
-	
+
 	@EJB
 	private LocationFacadeEjbLocal locationFacade;
 	@EJB
@@ -155,9 +157,18 @@ public class UserFacadeEjb implements UserFacade {
 	private Event<UserUpdateEvent> userUpdateEvent;
 	@Inject
 	private Event<PasswordResetEvent> passwordResetEvent;
-	
+
 	@EJB
 	private UserFacadeEjb.UserFacadeEjbLocal userServiceEBJ;
+	
+	public static String extractToken(User source) {
+		
+		if (source == null) {
+			return null;
+		}
+		
+		return source.getToken();		
+	}
 
 	public static UserDto toDto(User source) {
 
@@ -177,6 +188,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setUserOrganisation(source.getUserOrganisation());
 		target.setUserEmail(source.getUserEmail());
 		target.setPhone(source.getPhone());
+		target.setToken(source.getToken());
 		target.setAddress(LocationFacadeEjb.toDto(source.getAddress()));
 		target.setArea(AreaFacadeEjb.toReferenceDto(source.getArea()));
 		target.setRegion(RegionFacadeEjb.toReferenceDto(source.getRegion()));
@@ -195,20 +207,20 @@ public class UserFacadeEjb implements UserFacade {
 		target.setFormAccess(new HashSet<FormAccess>(source.getFormAccess()));
 
 		target.setUsertype(source.getUsertype());
-		
-		if(source.getArea() != null && source.getArea().getExternalId() != null) {
-		target.setPcode(source.getArea().getExternalId().toString());
+
+		if (source.getArea() != null && source.getArea().getExternalId() != null) {
+			target.setPcode(source.getArea().getExternalId().toString());
 		}
-		if(source.getDistrict() != null && source.getDistrict().getExternalId() != null) {
-		target.setDcode(source.getDistrict().getExternalId().toString());
+		if (source.getDistrict() != null && source.getDistrict().getExternalId() != null) {
+			target.setDcode(source.getDistrict().getExternalId().toString());
 		}
-		if(source.getRegion() != null && source.getRegion().getExternalId() != null) {
-		target.setRcode(source.getRegion().getExternalId().toString());
+		if (source.getRegion() != null && source.getRegion().getExternalId() != null) {
+			target.setRcode(source.getRegion().getExternalId().toString());
 		}
-		if(source.getCommunity() != null && !source.getCommunity().isEmpty()) {
+		if (source.getCommunity() != null && !source.getCommunity().isEmpty()) {
 			Set<String> communitynos = new HashSet<>();
-			for(Community c : source.getCommunity()) {
-				if(c.getClusterNumber() != null && c != null) {
+			for (Community c : source.getCommunity()) {
+				if (c.getClusterNumber() != null && c != null) {
 					communitynos.add(c.getClusterNumber().toString());
 				}
 			}
@@ -467,7 +479,7 @@ public class UserFacadeEjb implements UserFacade {
 	public UserDto getByUserName(String userName) {
 		return toDto(userService.getByUserName(userName));
 	}
-	
+
 	@Override
 	public UserDto getByEmail(String email) {
 		return toDto(userService.getByEmail(email));
@@ -503,13 +515,11 @@ public class UserFacadeEjb implements UserFacade {
 
 		return toDto(user);
 	}
-	
+
 	@Override
 	public UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto userActivitySummaryDto) {
 		userActivitySummaryDto.setCreatingUser(userServiceEBJ.getCurrentUser());
-		
 		UserActivitySummary userActivitySummary = fromDto(userActivitySummaryDto);
-		
 		userActivitySummary.setCreatingUser(userService.getCurrentUser());
 		userActivitySummaryService.ensurePersisted(userActivitySummary);
 		return toLogDto(userActivitySummary);
@@ -613,15 +623,13 @@ public class UserFacadeEjb implements UserFacade {
 	@Override
 	public List<UserDto> getIndexList(UserCriteria userCriteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
-	//	System.out.println(max+" ------ "+first);
-		
+		// System.out.println(max+" ------ "+first);
+
 //		if(max > 500000) {
 //			max = 50;
 //			System.out.println(max+" --corrected---- "+first);
 //		}
-		
-		
-		
+
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<User> cq = cb.createQuery(User.class);
 		Root<User> user = cq.from(User.class);
@@ -629,7 +637,8 @@ public class UserFacadeEjb implements UserFacade {
 		Join<User, Region> region = user.join(User.REGION, JoinType.LEFT);
 		Join<User, District> district = user.join(User.DISTRICT, JoinType.LEFT);
 		Join<User, Location> address = user.join(User.ADDRESS, JoinType.LEFT);
-	//	Join<User, Facility> facility = user.join(User.HEALTH_FACILITY, JoinType.LEFT);
+		// Join<User, Facility> facility = user.join(User.HEALTH_FACILITY,
+		// JoinType.LEFT);
 
 		// TODO: We'll need a user filter for users at some point, to make sure that
 		// users can edit their own details,
@@ -639,15 +648,13 @@ public class UserFacadeEjb implements UserFacade {
 //		Predicate predicateForRestUser = cb.isMember((UserRole.REST_USER), user.get(User.USER_ROLES));
 //		Predicate predicateForCommunityUser = cb.isMember((UserRole.COMMUNITY_OFFICER), user.get(User.USER_ROLES));
 //		Predicate predicateForMobileUser= cb.and(predicateForRestUser, predicateForCommunityUser);
-		
-		
-		
+
 		Set<UserRole> mobileuser = new HashSet<>();
 		mobileuser.add(UserRole.REST_USER);
 		mobileuser.add(UserRole.COMMUNITY_OFFICER);
-		
-		Predicate predicateForMobileUser= user.get(User.USER_ROLES).in(mobileuser);
-		
+
+		Predicate predicateForMobileUser = user.get(User.USER_ROLES).in(mobileuser);
+
 		if (userCriteria != null) {
 			// System.out.println("DEBUGGER: 45fffffffiiilibraryii = "+ userCriteria);
 			filter = userService.buildCriteriaFilter(userCriteria, cb, user);
@@ -668,9 +675,6 @@ public class UserFacadeEjb implements UserFacade {
 //			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+ mobileuser.size());
 			cq.where(filter);
 		}
-		
-	
-		
 
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
@@ -726,9 +730,7 @@ public class UserFacadeEjb implements UserFacade {
 			cq.orderBy(cb.desc(user.get(User.CHANGE_DATE)));
 		}
 
-			
-			cq.select(user);
-
+		cq.select(user);
 
 		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto);
 	}
@@ -767,6 +769,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setUserPosition(source.getUserPosition());
 		target.setUserOrganisation(source.getUserOrganisation());
 		target.setPhone(source.getPhone());
+		target.setToken(source.getToken());
 		target.setAddress(locationFacade.fromDto(source.getAddress(), checkChangeDate));
 
 		target.setUserName(source.getUserName());
@@ -792,8 +795,7 @@ public class UserFacadeEjb implements UserFacade {
 
 		return target;
 	}
-	
-	
+
 	public UserActivitySummary fromDto(@NotNull UserActivitySummaryDto source) {
 
 		UserActivitySummary target = new UserActivitySummary();
@@ -804,7 +806,6 @@ public class UserFacadeEjb implements UserFacade {
 
 		return target;
 	}
-	
 
 	@Override
 	public boolean isLoginUnique(String uuid, String userName) {
@@ -954,8 +955,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		user.setPassword(PasswordHelper.encodePassword(pass, user.getSeed()));
 		return "Changed";
 	}
-	
-	
+
 	public UserActivitySummaryDto toLogDto(UserActivitySummary source) {
 
 		if (source == null) {
@@ -968,35 +968,56 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		target.setActionModule(source.getActionModule());
 		return target;
 	}
+	
+	public List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(){
+		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate, action_date "
+				+ "from configurationchangelog; ";
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		List<ConfigurationChangeLogDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+		resultData.addAll(
+				resultList.stream()
+				.map(
+				(result) -> new ConfigurationChangeLogDto(
+					(String) result[0].toString(), 
+					(String) result[1].toString(),
+	        		(String) result[2].toString(),
+	        		((BigInteger) result[3]).longValue(),
+	        		(String) result[4].toString(),
+	        		(Date) result[5],
+	        		(Date) result[6]
+	        		)).collect(Collectors.toList()));
+	
+		
+	return resultData;
+			
+	}
 
 	@Override
 	public List<UserActivitySummaryDto> getUsersActivityByModule(String module) {
 		// TODO Auto-generated method stub
-		final String joinBuilder = 
-				
-				"select u.action_logged, action_module, us.username, u.creationdate \n"
-				+ "from usersactivity u \n"
-				+ "left outer join users us ON u.creatinguser_id = us.id \n"
-				+ "where u.action_module ilike '" + module + "'";
-	
-	System.out.println("=====seriesDataQuery======== "+joinBuilder);
-		
-		
+		final String joinBuilder =
+
+				"select u.action_logged, action_module, us.username, u.creationdate \n" + "from usersactivity u \n"
+						+ "left outer join users us ON u.creatinguser_id = us.id \n" + "where u.action_module ilike '"
+						+ module + "'";
+
+		System.out.println("=====seriesDataQuery======== " + joinBuilder);
+
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
-		
+
 		List<UserActivitySummaryDto> resultData = new ArrayList<>();
-		
-		
+
 		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList(); 
-		
-	System.out.println("starting....");
-		
-	resultData.addAll(resultList.stream()
-	        .map((result) -> new UserActivitySummaryDto(
-	        		(String) result[0].toString(),
-	        		(String) result[1].toString(),
-//	        		
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+
+		System.out.println("starting....");
+
+		resultData.addAll(resultList.stream().map(
+				(result) -> new UserActivitySummaryDto((String) result[0].toString(), (String) result[1].toString(),
 	        		(String) result[2].toString(),
 	        		(Date) result[3]
 	        		)).collect(Collectors.toList()));
@@ -1004,7 +1025,94 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 	
 	return resultData;	}
 	
-	
-	
+
+	@Override
+	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses) {
+		// TODO Auto-generated method stub
+		List<User> users = userService.getByUuids(userUuids);
+		for (User user : users) {
+		
+			user.setFormAccess(accesses);
+			userService.ensurePersisted(user);
+
+			userUpdateEvent.fire(new UserUpdateEvent(user));
+		}
+		
+	}
+//	
+	public void bulkUpdateUserRoles(List<String> userUuids, UserDto userDto) {
+		
+		List<User> users = userService.getByUuids(userUuids);
+		for (User user : users) {
+		
+			user.setUserRoles(new HashSet<UserRole>(userDto.getUserRoles()));
+
+			user.setArea(areaService.getByReferenceDto(userDto.getArea()));
+			user.setRegion(regionService.getByReferenceDto(userDto.getRegion()));
+			user.setDistrict(districtService.getByReferenceDto(userDto.getDistrict()));
+			user.setDistricts(districtService.getByReferenceDto(userDto.getDistricts()));
+			System.out.println("User Roles from Userfaceade ejb when saving " +userDto.getCommunity());
+//			if (userDto.getCommunity().size() > 0) {
+				user.setCommunity(communityService.getByReferenceDto(userDto.getCommunity()));
+
+//			}else {
+//				Set<CommunityReferenceDto> emptyCommunity = new HashSet<>();
+//				user.setCommunity(communityService.getByReferenceDto(emptyCommunity));
+//			}
+			userService.ensurePersisted(user);
+
+			userUpdateEvent.fire(new UserUpdateEvent(user));
+		}
+		
+	}
+//	
+//	
+//	
+//=======
+//	
+
+	@Override
+	public boolean updateFcmToken(String username, String token) {
+
+		boolean state = false;
+		User user = userService.getByUserName(username);
+		User oldUser;
+		try {
+			oldUser = (User) BeanUtils.cloneBean(user);
+			user.setToken(token);
+			userService.ensurePersisted(user);
+
+			userUpdateEvent.fire(new UserUpdateEvent(oldUser, user));
+			state = true;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Invalid bean access", e);
+		}
+		return state;
+	}
+
+	@Override
+	public List<String> getUserForFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas,
+			Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
+			Set<CommunityReferenceDto> communities) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<User> cq = cb.createQuery(User.class);
+		Root<User> user = cq.from(User.class);
+		Join<User, Area> area = user.join(User.AREA, JoinType.LEFT);
+		Join<User, Region> region = user.join(User.REGION, JoinType.LEFT);
+		Join<User, District> district = user.join(User.DISTRICT, JoinType.LEFT);
+//		Join<User, Location> address = user.join(User.ADDRESS, JoinType.LEFT);
+
+		Predicate filter = null;
+
+		filter = userService.buildCriteriaFilterFCM(formAccesses, areas, regions, districts, communities, cb, user);
+
+		if (filter != null) {
+			cq.where(filter);
+		}
+		
+		return QueryHelper.getResultList(em, cq, 0, Integer.MAX_VALUE, UserFacadeEjb::extractToken);
+	}
+//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 }

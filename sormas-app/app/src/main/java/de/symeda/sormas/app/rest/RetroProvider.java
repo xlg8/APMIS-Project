@@ -120,6 +120,8 @@ public final class RetroProvider {
 	private InfrastructureFacadeRetro infrastructureFacadeRetro;
 	private CampaignFacadeRetro campaignFacadeRetro;
 	private CampaignFormMetaFacadeRetro campaignFormMetaFacadeRetro;
+	private CampaignFormMetaWithExpiryFacadeRetro campaignFormMetaWithExpiryFacadeRetro;
+
 	private CampaignFormDataFacadeRetro campaignFormDataFacadeRetro;
 	private FeatureConfigurationFacadeRetro featureConfigurationFacadeRetro;
 	private AggregateReportFacadeRetro aggregateReportFacadeRetro;
@@ -935,6 +937,19 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 			}
 		}
 		return instance.campaignFormMetaFacadeRetro;
+	}
+//New Line addded for retro
+	public static CampaignFormMetaWithExpiryFacadeRetro getCampaignFormMetaWithExpFacade() throws NoConnectionException {
+		if (instance == null)
+			throw new NoConnectionException();
+		if (instance.campaignFormMetaWithExpiryFacadeRetro == null) {
+			synchronized ((RetroProvider.class)) {
+				if (instance.campaignFormMetaWithExpiryFacadeRetro == null) {
+					instance.campaignFormMetaWithExpiryFacadeRetro = instance.retrofit.create(CampaignFormMetaWithExpiryFacadeRetro.class);
+				}
+			}
+		}
+		return instance.campaignFormMetaWithExpiryFacadeRetro;
 	}
 
 	public static CampaignFormDataFacadeRetro getCampaignFormDataFacade() throws NoConnectionException {

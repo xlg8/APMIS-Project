@@ -71,6 +71,9 @@ public class CampaignFormDataDto extends EntityDto {
 	private String formType;
 	private String formCategory;
 	private String source;
+	private boolean archived;
+	private boolean ispublished;
+	private boolean isverified;
 	//private Double latitude;
 	//private Double longitude;
 
@@ -91,9 +94,7 @@ public class CampaignFormDataDto extends EntityDto {
 		campaignFormData.setCommunity(community);
 		campaignFormData.setFormDate(new Date());
 		campaignFormData.setFormType(campaignFormMeta.getFormType());
-		//campaignFormData.setFormCategory(campaignFormMeta.getFormCategory() != null ? campaignFormMeta.getFormCategory().toString() : null);
-		//campaignFormData.setFormLat(formLat);
-		//campaignFormData.
+
 		return campaignFormData;
 	}
 
@@ -204,6 +205,31 @@ public class CampaignFormDataDto extends EntityDto {
 	public void setFormCategory(String formCategory) {
 		this.formCategory = formCategory;
 	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+	public boolean isIspublished() {
+		return ispublished;
+	}
+
+	public void setIspublished(boolean ispublished) {
+		this.ispublished = ispublished;
+	}
+
+	public boolean isIsverified() {
+		return isverified;
+	}
+
+	public void setIsverified(boolean isverified) {
+		this.isverified = isverified;
+	}
+
 
 
 

@@ -18,6 +18,7 @@ package de.symeda.sormas.app.rest;
 import java.util.List;
 
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -31,6 +32,7 @@ public interface CampaignFormMetaFacadeRetro {
 
 	@GET("campaignFormMeta/all/{since}")
 	Call<List<CampaignFormMetaDto>> pullAllSince(@Path("since") long since);
+
 
 	@POST("campaignFormMeta/query")
 	Call<List<CampaignFormMetaDto>> pullByUuids(@Body List<String> uuids);

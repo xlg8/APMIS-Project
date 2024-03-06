@@ -23,6 +23,7 @@ import de.symeda.sormas.api.bagexport.BAGExportFacade;
 import de.symeda.sormas.api.campaign.CampaignFacade;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataFacade;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionFacade;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsFacade;
 import de.symeda.sormas.api.caze.CaseFacade;
@@ -63,6 +64,7 @@ import de.symeda.sormas.api.infrastructure.PopulationDataFacade;
 import de.symeda.sormas.api.labmessage.ExternalLabResultsFacade;
 import de.symeda.sormas.api.labmessage.LabMessageFacade;
 import de.symeda.sormas.api.labmessage.TestReportFacade;
+import de.symeda.sormas.api.messaging.MessageFacade;
 import de.symeda.sormas.api.outbreak.OutbreakFacade;
 import de.symeda.sormas.api.person.PersonFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
@@ -242,6 +244,10 @@ public class FacadeProvider {
 	public static UserFacade getUserFacade() {
 		return get().lookupEjbRemote(UserFacade.class);
 	}
+	
+	public static MessageFacade getMessageFacade() {
+		return get().lookupEjbRemote(MessageFacade.class);
+	}
 
 	public static UserRoleConfigFacade getUserRoleConfigFacade() {
 		return get().lookupEjbRemote(UserRoleConfigFacade.class);
@@ -357,6 +363,10 @@ public class FacadeProvider {
 
 	public static CampaignFormMetaFacade getCampaignFormMetaFacade() {
 		return get().lookupEjbRemote(CampaignFormMetaFacade.class);
+	}
+	
+	public static CampaignFormMetaExpiryFacade getCampaignFormMetaWithExpFacade() {
+		return get().lookupEjbRemote(CampaignFormMetaExpiryFacade.class);
 	}
 
 	public static CampaignFormDataFacade getCampaignFormDataFacade() {

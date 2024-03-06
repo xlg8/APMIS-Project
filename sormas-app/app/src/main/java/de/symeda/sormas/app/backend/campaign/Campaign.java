@@ -35,7 +35,9 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
+import de.symeda.sormas.app.backend.campaign.form.CampaignFormMetaWithExp;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.common.PseudonymizableAdo;
 import de.symeda.sormas.app.backend.user.User;
@@ -157,11 +159,20 @@ public class Campaign extends PseudonymizableAdo {
 			Type type = new TypeToken<List<CampaignFormMetaReferenceDto>>() {
 			}.getType();
 			List<CampaignFormMetaReferenceDto> campaignFormMetaReferenceDtos = gson.fromJson(campaignFormMetasJson, type);
+
+//			List<CampaignFormMetaWithExpReferenceDto> campaignFormMetaReferenceDtosWithExp = gson.fromJson(campaignFormMetasJson, type);
+
 			campaignFormMetas = new ArrayList<>();
 
 			for (CampaignFormMetaReferenceDto formMetaReferenceDto : campaignFormMetaReferenceDtos) {
 				final CampaignFormMeta campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().getByReferenceDto(formMetaReferenceDto);
 				if(campaignFormMeta != null) {
+//					for (CampaignFormMetaWithExpReferenceDto formMetaReferenceDtoExp : campaignFormMetaReferenceDtosWithExp) {
+//
+//
+//						final CampaignFormMetaWithExp campaignFormMetaWithExp = DatabaseHelper.getCampaignFormMetaWithExpDao().getByReferenceDto(formMetaReferenceDtoExp);
+//					}
+System.out.println(campaignFormMeta.getUuid() + "Form UUUUid from JASON GSON " );
 					campaignFormMetas.add(campaignFormMeta);
 				}
 			}

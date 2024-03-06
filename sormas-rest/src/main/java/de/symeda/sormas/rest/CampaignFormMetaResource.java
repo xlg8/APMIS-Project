@@ -13,6 +13,9 @@ import javax.ws.rs.core.MediaType;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryIndexDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 
 @Path("/campaignFormMeta")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -38,5 +41,12 @@ public class CampaignFormMetaResource extends EntityDtoResource {
 	@Path("/uuids")
 	public List<String> getAllUuids() {
 		return FacadeProvider.getCampaignFormMetaFacade().getAllUuids();
+	}
+	
+	@GET
+	@Path("/formswithexp")
+	public List<CampaignFormMetaExpiryDto> getAllFormsWithExpiry() {
+		System.out.println("Request Hits Form Meta With Expiry "+ "=====================================11");
+		return FacadeProvider.getCampaignFormMetaFacade().getFormsWithExpiry();
 	}
 }

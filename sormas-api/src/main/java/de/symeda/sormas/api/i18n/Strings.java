@@ -829,6 +829,8 @@ public interface Strings {
 	String infoImportAllCountries = "infoImportAllCountries";
 	String infoImportAllSubcontinents = "infoImportAllSubcontinents";
 	String infoImportCsvFile = "infoImportCsvFile";
+	String updateUserFormField = "updateUserFormField";
+	String selectFormField = "selectFormField";
 	String infoImportInfrastructureAllowOverwrite = "infoImportInfrastructureAllowOverwrite";
 	String infoImportProcess = "infoImportProcess";
 	String infoImportSimilarity = "infoImportSimilarity";

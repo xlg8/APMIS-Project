@@ -29,15 +29,20 @@ import java.util.Collection;
 
 public final class UserRolesValidator implements Validator<Collection<UserRole>> {
 
-    @Override
-    public ValidationResult apply(Collection<UserRole> value, ValueContext context) {
-        try {
-            UserRole.validate(value);
-            return ValidationResult.ok();
-        } catch (UserRoleValidationException e) {
-//        	Notification.show(e.getMessage());
-            return ValidationResult.error(e.getMessage());
-        }
-    }
-}
+	@Override
+	public ValidationResult apply(Collection<UserRole> value, ValueContext context) {
+		try {
+			System.out.println(value + "Value collection ");
+			if (value.size() == 1 && value.contains(UserRole.PUBLISH_USER)) {
+				return ValidationResult.error("Publish User Cannot Be Selected as a standalone role");
+			} else {
+				UserRole.validate(value);
+				return ValidationResult.ok();
+			}
 
+		} catch (UserRoleValidationException e) {
+//        	Notification.show(e.getMessage());
+			return ValidationResult.error(e.getMessage());
+		}
+	}
+}

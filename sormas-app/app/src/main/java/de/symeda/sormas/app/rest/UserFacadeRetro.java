@@ -37,4 +37,7 @@ public interface UserFacadeRetro {
 
 	@GET("users/uuids")
 	Call<List<String>> pullUuids();
+
+	@POST("/fcm/token/{username}/{token}")
+	Call<Boolean> updateFcmToken(@Path("username") String username, @Path("token") String token);
 }

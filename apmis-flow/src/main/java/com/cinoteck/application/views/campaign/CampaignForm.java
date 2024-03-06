@@ -934,12 +934,12 @@ public class CampaignForm extends VerticalLayout {
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
 
 		if (campaignDto != null) {
-			leftFloat.add(archiveDearchive, publishUnpublishCampaign, openCloseCampaign, duplicateCampaign,
+			leftFloat.add(archiveDearchive, openCloseCampaign, duplicateCampaign,
 					deleteCampaign, logButton);
 		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
-			leftFloat.add(publishUnpublishCampaign, openCloseCampaign, logButton);
+			leftFloat.add( openCloseCampaign, logButton);
 		}
 
 		leftFloat.setWidth("50%");
