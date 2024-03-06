@@ -4,7 +4,10 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,6 +73,9 @@ public class AreaDataImporter extends DataImporter {
 	List<AreaReferenceDto> areas = new ArrayList<>();
 	List<AreaReferenceDto> araeNameList = new ArrayList<>();
 	UserProvider userProvider = new UserProvider();
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -300,9 +306,11 @@ public class AreaDataImporter extends DataImporter {
 						for (AreaDto  areaData : newUserLinetoSave){
 							
 							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
-							configurationChangeLogDto.setAction_unit_type("Area");
+							configurationChangeLogDto.setAction_unit_type("Region");
 							configurationChangeLogDto.setAction_unit_name(areaData.getName());
 							configurationChangeLogDto.setUnit_code(areaData.getExternalId());
+							configurationChangeLogDto.setAction_date(date);
+
 							if(isOverWrite) {
 								configurationChangeLogDto.setAction_logged("Import : Overwrite");
 
@@ -314,6 +322,7 @@ public class AreaDataImporter extends DataImporter {
 						
 														
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						checkExeption = false;
 					}
 				}
 			} else {

@@ -9967,6 +9967,7 @@ CREATE TABLE public.configurationchangelog (
 	action_unit_name varchar NULL,
 	unit_code int8 null,
 	action_logged varchar NULL,
+	action_date timestamp null,
 	creationdate timestamp NULL,
 	changedate timestamp null,
 	uuid varchar(36) NULL,
@@ -9974,6 +9975,10 @@ CREATE TABLE public.configurationchangelog (
 	id int8 NULL
 	
 );
+
+
+GRANT SELECT, DELETE, TRUNCATE, REFERENCES, UPDATE, INSERT, TRIGGER ON TABLE public.configurationchangelog TO sormas_user;
+
 
 alter table campaignformmetawithexp add column 
 changedate timestamp  null;
@@ -9993,7 +9998,7 @@ alter table campaignformmetawithexp alter column
 uuid set not null;
 
 UPDATE campaignformmetawithexp
-SET changedate  = current_timestamp 
+SET changedate  = current_timestamp;
 
 INSERT INTO schema_version (version_number, comment) VALUES (465, 'Adding Configuration Change Log functionlity');
 

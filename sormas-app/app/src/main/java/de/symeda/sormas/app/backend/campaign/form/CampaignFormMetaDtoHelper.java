@@ -71,6 +71,7 @@ public class    CampaignFormMetaDtoHelper extends AdoDtoHelper<CampaignFormMeta,
         target.setCampaignFormElements(source.getCampaignFormElements());
         target.setCampaignFormTranslations(source.getCampaignFormTranslations());
         target.setLanguageCode(source.getLanguageCode());
+        target.setDistrictentry(source.isDistrictentry());
     }
 
     @Override

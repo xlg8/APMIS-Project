@@ -45,6 +45,9 @@ public class CampaignFormMeta extends PseudonymizableAdo {
 	public static final String FORM_CATEGORY = "formCategory";
 	public static final String CAMPAIGN_FORM_ELEMENTS = "campaignFormElements";
 	public static final String CAMPAIGN_FORM_TRANSLATIONS = "campaignFormTranslations";
+	public static final String DISTRICTENTRY = "districtentry";
+
+
 
 	@Column(length = CHARACTER_LIMIT_DEFAULT)
 	private String formId;
@@ -65,6 +68,9 @@ public class CampaignFormMeta extends PseudonymizableAdo {
 	@Column(name = "campaignFormTranslations")
 	private String campaignFormTranslationsJson;
 	private List<CampaignFormTranslations> campaignFormTranslations;
+
+	@Column(name = "districtentry")
+	private boolean districtentry;
 
 	public String getFormId() {
 		return formId;
@@ -134,6 +140,14 @@ public class CampaignFormMeta extends PseudonymizableAdo {
 		this.campaignFormTranslations = null;
 	}
 
+	public boolean isDistrictentry() {
+		return districtentry;
+	}
+
+	public void setDistrictentry(boolean districtentry) {
+		this.districtentry = districtentry;
+	}
+
 	@Transient
 	public List<CampaignFormTranslations> getCampaignFormTranslations() {
 		if (campaignFormTranslations == null) {
@@ -163,4 +177,6 @@ public class CampaignFormMeta extends PseudonymizableAdo {
 	public String toString() {
 		return getFormName();
 	}
+
+
 }

@@ -45,11 +45,6 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.user.UserDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
-/**
- * @see <a href="https://jersey.java.net/documentation/latest/">Jersey documentation</a>
- * @see <a href="https://jersey.java.net/documentation/latest/jaxrs-resources.html#d0e2051">Jersey documentation HTTP Methods</a>
- *
- */
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 @RolesAllowed({
@@ -57,22 +52,25 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 	"REST_USER" })
 public class CommunityResource {
 	
-
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
-//<<<<<<< HEAD
 		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
 
-//		if(rdto != null) {
-//=======
 		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" +rdto.size());
 		if(rdto != null && rdto.size() > 0) {
 			System.out.println("rdtordtordto != null :zdsvxxxxxxxxxxxxxxxxxxx");
-//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
-		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
-				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
-		
+			List<CommunityDto> returnList = new ArrayList<>();
+			
+			for(CommunityReferenceDto lcs : rdto) {
+				returnList.add(FacadeProvider.getCommunityFacade().getByUuid(lcs.getUuid()));
+			}
+			
+			System.out.println("returnListvxxxxxxxxxxxxxxxxxxx"+returnList.size());
+
+			
+		return returnList;//FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
+//				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
 			System.out.println("else :zdsvxxxxxxxxxxxxxxxxxxx");
 			final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
@@ -80,21 +78,12 @@ public class CommunityResource {
 			if(rDistdto != null & rDistdto.size() > 0) {
 				return FacadeProvider.getCommunityFacade().getAllAfterWithDistrict(new Date(since), null);
 					
+			} else {
+				System.out.println("eCOMMUNITY RETUNRING NULLL CHECK xxxxxxxxxxxxxxxx");
+			return null;
 			}
-
 		}
-		return null;
-	}
-	
-	@GET
-	@Path("/allcommunities/{since}")
-	public List<CommunityDto> getAllClusters(@PathParam("since") long since) {
-		
-		
-		return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
-				.collect(Collectors.toList());
-		
-		
+//		
 	}
 
 	@POST
@@ -107,24 +96,19 @@ public class CommunityResource {
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
-//<<<<<<< HEAD
 		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
 
-//		if(rdto != null) {
-			
-//=======
-//		System.out.println(" :zdsvxxxxxx++++ size0 ");
+		System.out.println(" :zdsvxxxxxx++++ size-0: ");
 		final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 
 		// todo: need to device smarter way of filtering out archived and deleted uuids
 		// as we are collecting this from user table
 		if (rdto != null && rdto.size() > 0) {
-//			System.out.println(" :zdsvxxxxxx++++ size1 " + rdto.size());
-//>>>>>>> branch 'development' of https://github.com/xlg8/APMIS-Project.git
+			System.out.println(" :zdsvxxxxxx++++ size-1: " + rdto.size());
 			List<String> lstUuid = new ArrayList<>();
 
 			for (CommunityReferenceDto com : rdto) {
-				System.out.println(com.getUuid() + " :zdsvxxxxxx++++ size1 " + com.getCaption());
+				System.out.println(com.getUuid() + " :zdsvxxxxxx++++ size-2: " + com.getCaption());
 				lstUuid.add(com.getUuid());
 			}
 

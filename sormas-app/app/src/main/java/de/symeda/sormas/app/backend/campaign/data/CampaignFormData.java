@@ -101,7 +101,7 @@ public class CampaignFormData extends PseudonymizableAdo {
     private PlatformEnum soruce;
 
     @Column(name = "lotclusterno")
-    private Long lotClusterNo;
+    private String lotClusterNo;
 
     /**
      * JsonRawValue annotation is used to handle this differently when merging data
@@ -230,11 +230,11 @@ public class CampaignFormData extends PseudonymizableAdo {
 //        }
 //    }
 
-    public Long getLotClusterNo() {
+    public String getLotClusterNo() {
         return lotClusterNo;
     }
 
-    public void setLotClusterNo(Long lotClusterNo) {
+    public void setLotClusterNo(String lotClusterNo) {
         this.lotClusterNo = lotClusterNo;
     }
 

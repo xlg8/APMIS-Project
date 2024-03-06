@@ -94,7 +94,7 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
         }
 
         final CampaignFormData campaignFormDataToSave = getStoredRootEntity();
-        System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>>>>>>>new>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>__");
+        System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>>>>>>>new>>>>++++++++++++>>>>>>>>>>>>>>>>>>>>>__"+campaignFormDataToSave.getLotClusterNo());
 
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
 

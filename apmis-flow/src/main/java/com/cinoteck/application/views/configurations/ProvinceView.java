@@ -2,8 +2,11 @@ package com.cinoteck.application.views.configurations;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -60,6 +63,7 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -105,6 +109,10 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	String uuidsz = "";
 	ListDataProvider<RegionIndexDto> dataProvider;
 	int itemCount;
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
 
 	public ProvinceView() {
 		setSpacing(false);
@@ -216,6 +224,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 			grid.asSingleSelect().addValueChangeListener(event -> {
 				if (event.getValue() != null) {
+				
 					createOrEditProvince(event.getValue());
 				}
 			});
@@ -413,7 +422,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		addNew.getStyle().set("color", "white");
 		addNew.getStyle().set("background", "#0D6938");
 		addNew.addClickListener(event -> {
-			createOrEditProvince(regionDto);
+						createOrEditProvince(regionDto);
 		});
 
 		if (userProvider.hasUserRight(UserRight.INFRASTRUCTURE_CREATE)) {
@@ -533,6 +542,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 //							dropdownBulkOperations.setVisible(false);
 //						}
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Province");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk Archive");
+						configurationChangeLogDto.setAction_date(date);
+						
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+
 						refreshGridData();
 					});
 
@@ -551,6 +571,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
 //							dropdownBulkOperations.setVisible(false);
 //						}
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("Province");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
+						configurationChangeLogDto.setAction_date(date);
+			
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+
 						refreshGridData();
 					});
 //					Notification.show("De- Archiving Selected Rows ");
@@ -626,6 +657,16 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().dearchive(uuidsz);
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Province");
+								configurationChangeLogDto.setAction_unit_name(dto.getName());
+								configurationChangeLogDto.setUnit_code(dto.getExternalId());
+								configurationChangeLogDto.setAction_logged("De-Archive");
+								configurationChangeLogDto.setAction_date(date);
+			
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+								
 								dialog.close();
 								refreshGridData();
 							});
@@ -638,6 +679,16 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().archive(uuidsz);
+								
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("Province");
+								configurationChangeLogDto.setAction_unit_name(dto.getName());
+								configurationChangeLogDto.setUnit_code(dto.getExternalId());
+								configurationChangeLogDto.setAction_logged("Archive");
+								configurationChangeLogDto.setAction_date(date);
+	
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								dialog.close();
 								refreshGridData();
 							});
@@ -669,6 +720,17 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 
 					FacadeProvider.getRegionFacade().save(dce, true);
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
+					
+					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setAction_unit_type("Province");
+					configurationChangeLogDto.setAction_unit_name(name);
+					configurationChangeLogDto.setUnit_code(rcodeValue);
+					configurationChangeLogDto.setAction_logged("Province Edit");
+					configurationChangeLogDto.setAction_date(date);
+
+					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+					
 					dialog.close();
 					refreshGridData();
 				} else {
@@ -677,6 +739,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					long rcodeValue = Long.parseLong(code);
 					dcex.setExternalId(rcodeValue);
 					dcex.setArea(areaField.getValue());
+					boolean exceptionCheck = false;
 
 					try {
 						FacadeProvider.getRegionFacade().save(dcex, true);
@@ -684,6 +747,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 						dialog.close();
 						refreshGridData();
 					} catch (Exception e) {
+						exceptionCheck = true;
 						Notification notification = new Notification();
 						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 						notification.setPosition(Position.MIDDLE);
@@ -702,6 +766,21 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 						notification.add(layout);
 						notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
+					}finally {
+						if(!exceptionCheck) {
+//							ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+//									String unit_code, String action_logged)
+							ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setAction_unit_type("Province");
+							configurationChangeLogDto.setAction_unit_name(name);
+							configurationChangeLogDto.setUnit_code(rcodeValue);
+							configurationChangeLogDto.setAction_logged("Province Create");
+							configurationChangeLogDto.setAction_date(date);
+
+							FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+							
+						}
 					}
 
 				}

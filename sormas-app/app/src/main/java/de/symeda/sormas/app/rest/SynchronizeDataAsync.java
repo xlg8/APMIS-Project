@@ -107,11 +107,11 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 					pullAndRemoveArchivedUuidsSince(ConfigProvider.getLastArchivedSyncDate());
 				}
-				synchronizeChangedData();
+				//synchronizeChangedData();
 
 
 				pullMissingAndDeleteInvalidInfrastructure();
-				repullData();
+				//repullData();
 				pushNewPullMissingAndDeleteInvalidData();
 				synchronizeChangedData();
 				ConfigProvider.setRepullNeeded(false);
@@ -142,7 +142,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 				synchronizeChangedData();
 
 				pullMissingAndDeleteInvalidInfrastructure();
-				repullData();
+				//repullData();
 				pushNewPullMissingAndDeleteInvalidData();
 
 				ConfigProvider.setRepullNeeded(false);
@@ -350,48 +350,10 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 	@AddTrace(name = "repullDataTrace")
 	private void repullData() throws DaoException, NoConnectionException, ServerConnectionException, ServerCommunicationException {
-		//PersonDtoHelper personDtoHelper = new PersonDtoHelper();
-		//CaseDtoHelper caseDtoHelper = new CaseDtoHelper();
-//		ImmunizationDtoHelper immunizationDtoHelper = new ImmunizationDtoHelper();
-//		EventDtoHelper eventDtoHelper = new EventDtoHelper();
-//		EventParticipantDtoHelper eventParticipantDtoHelper = new EventParticipantDtoHelper();
-//		SampleDtoHelper sampleDtoHelper = new SampleDtoHelper();
-//		PathogenTestDtoHelper pathogenTestDtoHelper = new PathogenTestDtoHelper();
-//		AdditionalTestDtoHelper additionalTestDtoHelper = new AdditionalTestDtoHelper();
-//		ContactDtoHelper contactDtoHelper = new ContactDtoHelper();
-//		VisitDtoHelper visitDtoHelper = new VisitDtoHelper();
-//		TaskDtoHelper taskDtoHelper = new TaskDtoHelper();
-//		WeeklyReportDtoHelper weeklyReportDtoHelper = new WeeklyReportDtoHelper();
-//		AggregateReportDtoHelper aggregateReportDtoHelper = new AggregateReportDtoHelper();
-//		PrescriptionDtoHelper prescriptionDtoHelper = new PrescriptionDtoHelper();
-//		TreatmentDtoHelper treatmentDtoHelper = new TreatmentDtoHelper();
-//		ClinicalVisitDtoHelper clinicalVisitDtoHelper = new ClinicalVisitDtoHelper();
-//
+
 //		// order is important, due to dependencies (e.g. case & person)
-//
 		new UserRoleConfigDtoHelper().repullEntities();
-//		new DiseaseClassificationDtoHelper().repullEntities();
 		new UserDtoHelper().repullEntities();
-//		new OutbreakDtoHelper().repullEntities();
-//		new DiseaseConfigurationDtoHelper().repullEntities();
-//		new CustomizableEnumValueDtoHelper().repullEntities();
-//		new FeatureConfigurationDtoHelper().repullEntities();
-//		personDtoHelper.repullEntities();
-//		caseDtoHelper.repullEntities();
-//		immunizationDtoHelper.repullEntities();
-//		eventDtoHelper.repullEntities();
-//		eventParticipantDtoHelper.repullEntities();
-//		sampleDtoHelper.repullEntities();
-//		pathogenTestDtoHelper.repullEntities();
-//		additionalTestDtoHelper.repullEntities();
-//		contactDtoHelper.repullEntities();
-//		visitDtoHelper.repullEntities();
-//		taskDtoHelper.repullEntities();
-//		weeklyReportDtoHelper.repullEntities();
-//		aggregateReportDtoHelper.repullEntities();
-//		prescriptionDtoHelper.repullEntities();
-//		treatmentDtoHelper.repullEntities();
-//		clinicalVisitDtoHelper.repullEntities();
 
 		// Campaigns
 		if (!DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CAMPAIGNS)) {

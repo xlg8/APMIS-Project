@@ -2,8 +2,11 @@ package com.cinoteck.application.views.configurations;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -55,6 +58,7 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
@@ -104,6 +108,11 @@ public class DistrictView extends VerticalLayout {
 	ListDataProvider<DistrictIndexDto> dataProvider;
 	int itemCount;
 	UserProvider userProvider = new UserProvider();
+	
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
 
 	@SuppressWarnings("deprecation")
 	public DistrictView() {
@@ -136,7 +145,7 @@ public class DistrictView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, DistrictIndexDto> regionExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -149,7 +158,7 @@ public class DistrictView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, DistrictIndexDto> districtExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -162,21 +171,21 @@ public class DistrictView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 
 			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(areaExternalIdRenderer)
-					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.region))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-			grid.addColumn(regionExternalIdRenderer)
-					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true)
-					.setSortable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(regionExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Region_externalID))
+					.setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 			grid.addColumn(DistrictIndexDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.district))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
@@ -342,15 +351,15 @@ public class DistrictView extends VerticalLayout {
 		regionFilter.setPlaceholder(I18nProperties.getCaption(Captions.areaAllAreas));
 		regionFilter.getStyle().set("width", "145px !important");
 		regionFilter.setClearButtonVisible(true);
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
 		} else {
-			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		}
-		
+
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 			criteria.area(currentUser.getUser().getArea());
@@ -386,13 +395,16 @@ public class DistrictView extends VerticalLayout {
 			if (regionFilter.getValue() != null) {
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {					
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provinceFilter.setItems(
+							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provinceFilter
+							.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
 				} else {
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-				}	
+					provinceFilter
+							.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				}
 				refreshGridData();
 			} else {
 				criteria.area(null);
@@ -622,12 +634,17 @@ public class DistrictView extends VerticalLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveDistrict));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().archive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("District");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk Archive");
+						configurationChangeLogDto.setAction_date(date);
+
+														
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						
 						refreshGridData();
 					});
 //					Notification.show("Archiving Selected Rows ");
@@ -638,12 +655,17 @@ public class DistrictView extends VerticalLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedDistricts));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().dearchive(selectedRow.getUuid());
-//						if (leaveBulkEdit.isVisible()) {
-//							leaveBulkEdit.setVisible(false);
-//							enterBulkEdit.setVisible(true);
-//							grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-//							dropdownBulkOperations.setVisible(false);
-//						}
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("District");
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
+						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
+						configurationChangeLogDto.setAction_date(date);
+
+														
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						
 						refreshGridData();
 					});
 //					Notification.show("De- Archiving Selected Rows ");
@@ -727,6 +749,18 @@ public class DistrictView extends VerticalLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getDistrictFacade().dearchive(uuidsz);
+
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("District");
+								configurationChangeLogDto.setAction_unit_name(dto.getName());
+								configurationChangeLogDto.setUnit_code(dto.getExternalId());
+								configurationChangeLogDto.setAction_logged("De-Archive");
+								configurationChangeLogDto.setAction_date(date);
+
+
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+
 								dialog.close();
 								refreshGridData();
 							});
@@ -739,6 +773,18 @@ public class DistrictView extends VerticalLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getDistrictFacade().archive(uuidsz);
+
+								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setAction_unit_type("District");
+								configurationChangeLogDto.setAction_unit_name(dto.getName());
+								configurationChangeLogDto.setUnit_code(dto.getExternalId());
+								configurationChangeLogDto.setAction_logged("Archive");
+								configurationChangeLogDto.setAction_date(date);
+
+
+								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+
 								dialog.close();
 								refreshGridData();
 							});
@@ -771,6 +817,17 @@ public class DistrictView extends VerticalLayout {
 					}
 					FacadeProvider.getDistrictFacade().save(dce, true);
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
+					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setAction_unit_type("District");
+					configurationChangeLogDto.setAction_unit_name(name);
+					configurationChangeLogDto.setUnit_code(rcodeValue);
+					configurationChangeLogDto.setAction_logged("District Edit");
+					configurationChangeLogDto.setAction_date(date);
+
+
+					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+
 					dialog.close();
 					refreshGridData();
 				} else {
@@ -781,6 +838,7 @@ public class DistrictView extends VerticalLayout {
 					dcex.setExternalId(rcodeValue);
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setRisk(risk.getValue());
+					boolean exceptionCheck = false;
 
 					try {
 						FacadeProvider.getDistrictFacade().save(dcex, true);
@@ -788,6 +846,7 @@ public class DistrictView extends VerticalLayout {
 						dialog.close();
 						refreshGridData();
 					} catch (Exception e) {
+						exceptionCheck = true;
 						Notification notification = new Notification();
 						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 						notification.setPosition(Position.MIDDLE);
@@ -807,6 +866,23 @@ public class DistrictView extends VerticalLayout {
 						notification.add(layout);
 						notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
+					} finally {
+						if (!exceptionCheck) {
+//							ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+//									String unit_code, String action_logged)
+							ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setAction_unit_type("District");
+							configurationChangeLogDto.setAction_unit_name(name);
+							configurationChangeLogDto.setUnit_code(rcodeValue);
+							configurationChangeLogDto.setAction_logged("District Create");
+							configurationChangeLogDto.setAction_date(date);
+
+
+							FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+							exceptionCheck = false;
+
+						}
 					}
 
 				}

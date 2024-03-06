@@ -275,6 +275,8 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		configurationChangeLog.setAction_unit_type(configurationChangeLogDtos.getAction_unit_type());
 		configurationChangeLog.setCreatingUser_string(configurationChangeLogDtos.getCreatingUser_string());
 		configurationChangeLog.setUnit_code(configurationChangeLogDtos.getUnit_code());
+		configurationChangeLog.setAction_date(configurationChangeLogDtos.getAction_date());
+
 		return configurationChangeLog;
 	}
 

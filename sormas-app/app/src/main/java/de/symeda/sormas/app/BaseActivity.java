@@ -501,7 +501,7 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			userRegion.setText("Region : " +user.getRegion().getArea());
 			userProvince.setText("Province : " +user.getRegion());
 
-			initialCommunities = InfrastructureDaoHelper.loadAllCommunities();//loadCommunities(user.getDistrict());
+			initialCommunities = InfrastructureDaoHelper.loadCommunities(user.getDistrict());
 
 
 			System.out.println((user.getDistrict() == null) +" ++++++++++++++++++++++++++ "+initialCommunities + "++?? "+!initialCommunities.isEmpty()+" +++++++++++++++ "+InfrastructureDaoHelper.loadAllDistricts().size());
