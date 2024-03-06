@@ -970,7 +970,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 	}
 	
 	public List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(){
-		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate "
+		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate, action_date "
 				+ "from configurationchangelog; ";
 		
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
@@ -987,7 +987,8 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 	        		(String) result[2].toString(),
 	        		((BigInteger) result[3]).longValue(),
 	        		(String) result[4].toString(),
-	        		(Date) result[5]
+	        		(Date) result[5],
+	        		(Date) result[6]
 	        		)).collect(Collectors.toList()));
 	
 		

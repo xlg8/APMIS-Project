@@ -2,8 +2,11 @@ package com.cinoteck.application.views.configurations;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -105,6 +108,11 @@ public class DistrictView extends VerticalLayout {
 	ListDataProvider<DistrictIndexDto> dataProvider;
 	int itemCount;
 	UserProvider userProvider = new UserProvider();
+	
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+
 
 	@SuppressWarnings("deprecation")
 	public DistrictView() {
@@ -632,6 +640,8 @@ public class DistrictView extends VerticalLayout {
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk Archive");
+						configurationChangeLogDto.setAction_date(date);
+
 														
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 						
@@ -651,6 +661,8 @@ public class DistrictView extends VerticalLayout {
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
+						configurationChangeLogDto.setAction_date(date);
+
 														
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 						
@@ -744,6 +756,8 @@ public class DistrictView extends VerticalLayout {
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
 								configurationChangeLogDto.setAction_logged("De-Archive");
+								configurationChangeLogDto.setAction_date(date);
+
 
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
@@ -766,6 +780,8 @@ public class DistrictView extends VerticalLayout {
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
 								configurationChangeLogDto.setAction_logged("Archive");
+								configurationChangeLogDto.setAction_date(date);
+
 
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
@@ -807,6 +823,8 @@ public class DistrictView extends VerticalLayout {
 					configurationChangeLogDto.setAction_unit_name(name);
 					configurationChangeLogDto.setUnit_code(rcodeValue);
 					configurationChangeLogDto.setAction_logged("District Edit");
+					configurationChangeLogDto.setAction_date(date);
+
 
 					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
@@ -858,6 +876,8 @@ public class DistrictView extends VerticalLayout {
 							configurationChangeLogDto.setAction_unit_name(name);
 							configurationChangeLogDto.setUnit_code(rcodeValue);
 							configurationChangeLogDto.setAction_logged("District Create");
+							configurationChangeLogDto.setAction_date(date);
+
 
 							FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 							exceptionCheck = false;

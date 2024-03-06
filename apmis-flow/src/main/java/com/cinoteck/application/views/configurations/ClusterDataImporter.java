@@ -4,7 +4,10 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,6 +80,9 @@ public class ClusterDataImporter extends DataImporter {
 	List<CommunityReferenceDto> clusters = new ArrayList<>();
 	List<CommunityReferenceDto> clusterNameList = new ArrayList<>();
 	UserProvider userProvider = new UserProvider();
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -521,6 +527,8 @@ public class ClusterDataImporter extends DataImporter {
 							configurationChangeLogDto.setAction_unit_type("Cluster");
 							configurationChangeLogDto.setAction_unit_name(clusterData.getName());
 							configurationChangeLogDto.setUnit_code(clusterData.getExternalId());
+							configurationChangeLogDto.setAction_date(date);
+
 							if(isOverWrite) {
 								configurationChangeLogDto.setAction_logged("Import : Overwrite");
 

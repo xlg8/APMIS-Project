@@ -9967,6 +9967,7 @@ CREATE TABLE public.configurationchangelog (
 	action_unit_name varchar NULL,
 	unit_code int8 null,
 	action_logged varchar NULL,
+	action_date timestamp null,
 	creationdate timestamp NULL,
 	changedate timestamp null,
 	uuid varchar(36) NULL,

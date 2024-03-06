@@ -64,9 +64,12 @@ import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -117,6 +120,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	int itemCount;// = dataProvider.getItems().size();
 
 	String uuidsz = "";
+	LocalDate localDate = LocalDate.now();
+	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
 
 	ConfirmDialog archiveDearchiveConfirmation;
 
@@ -500,7 +506,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk Archive");
-														
+						configurationChangeLogDto.setAction_date(date);
+								
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
@@ -520,7 +527,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
-														
+						configurationChangeLogDto.setAction_date(date);
+					
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
@@ -588,7 +596,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("De-Archive");
-																
+								configurationChangeLogDto.setAction_date(date);
+					
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								dialog.close();
 								refreshGridData();
@@ -608,7 +617,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("Archive");
-																
+								configurationChangeLogDto.setAction_date(date);
+				
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								
 								dialog.close();
@@ -682,7 +692,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setAction_unit_name(name);
 								configurationChangeLogDto.setUnit_code(rcodeValue);
 								configurationChangeLogDto.setAction_logged("Region Edit");
-																
+								configurationChangeLogDto.setAction_date(date);
+
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								
 							}
@@ -733,6 +744,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(rcodeValue);
 									configurationChangeLogDto.setAction_logged("Region Create");
+									configurationChangeLogDto.setAction_date(date);
 																	
 									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								}

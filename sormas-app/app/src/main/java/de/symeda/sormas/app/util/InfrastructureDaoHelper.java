@@ -35,6 +35,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.pointofentry.PointOfEntryDto;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
+import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.backend.facility.Facility;
 import de.symeda.sormas.app.backend.infrastructure.PointOfEntry;
 import de.symeda.sormas.app.backend.region.Area;
@@ -44,6 +45,7 @@ import de.symeda.sormas.app.backend.region.Country;
 import de.symeda.sormas.app.backend.region.District;
 import de.symeda.sormas.app.backend.region.Region;
 import de.symeda.sormas.app.backend.region.Subcontinent;
+import de.symeda.sormas.app.backend.user.User;
 import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.component.controls.ControlPropertyEditField;
 import de.symeda.sormas.app.component.controls.ControlPropertyField;
@@ -71,6 +73,8 @@ public final class InfrastructureDaoHelper {
 				.map(c -> new Item<>(I18nProperties.getContinentName(c.getDefaultName()), c))
 				.sorted(Comparator.comparing(Item::getKey))
 				.collect(Collectors.toList()));
+
+
 		return items;
 	}
 
@@ -358,4 +362,7 @@ public final class InfrastructureDaoHelper {
 	public static boolean isUnknownFacility(Facility healthFacility) {
 		return unknownFacility.equals(healthFacility);
 	}
+
+
+
 }

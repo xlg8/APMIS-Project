@@ -1,5 +1,7 @@
 package de.symeda.sormas.backend.infrastructure;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -22,12 +24,16 @@ public class ConfigurationChangeLog extends CoreAdo {
 	public static final String ACTION_UNIT_NAME = "action_unit_name";
 	public static final String UNIT_CODE = "unit_code";
 	public static final String ACTION_LOGGED = "action_logged";
+	public static final String ACTION_DATE = "action_date";
+
 	
 	private String creatingUser_string;
 	private String action_unit_type;
 	private String action_unit_name;
 	private Long unit_code;
 	private String action_logged;
+	private Date action_date;
+
 	
 	@Column(name = "creatingUser")
 	public String getCreatingUser_string() {
@@ -67,6 +73,14 @@ public class ConfigurationChangeLog extends CoreAdo {
 	}
 	public void setAction_logged(String action_logged) {
 		this.action_logged = action_logged;
+	}
+	
+	@Column(name = "action_date")
+	public Date getAction_date() {
+		return action_date;
+	}
+	public void setAction_date(Date action_date) {
+		this.action_date = action_date;
 	}
 	
 	

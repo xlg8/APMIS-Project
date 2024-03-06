@@ -18,6 +18,8 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 	public static final String ACTION_UNIT_NAME = "action_unit_name";
 	public static final String UNIT_CODE = "unit_code";
 	public static final String ACTION_LOGGED = "action_logged";
+	public static final String ACTION_DATE = "action_date";
+
 
 	
 	private String creatingUser_string;
@@ -25,6 +27,7 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 	private String action_unit_name;
 	private Long unit_code;
 	private String action_logged;
+	private Date action_date;
 
 	public ConfigurationChangeLogDto() {
 		
@@ -44,13 +47,15 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 	}
 	
 	public ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
-			Long unit_code, String action_logged, Date changedate ) {
+			Long unit_code, String action_logged, Date changedate,  Date action_date) {
 		this.creatingUser_string = creatingUser_string;
 		this.action_unit_type = action_unit_type;
 		this.action_unit_name = action_unit_name;
 		this.unit_code = unit_code;
 		this.action_logged = action_logged;
 		setChangeDate(changedate);
+		this.action_date = action_date;
+
 	}
 
 
@@ -95,6 +100,18 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 	public void setAction_unit_type(String action_unit_type) {
 		this.action_unit_type = action_unit_type;
 	}
+
+
+	public Date getAction_date() {
+		return action_date;
+	}
+
+
+	public void setAction_date(Date action_date) {
+		this.action_date = action_date;
+	}
+	
+	
 	
 	
 }
