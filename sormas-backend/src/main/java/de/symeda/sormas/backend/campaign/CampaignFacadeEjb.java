@@ -385,6 +385,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 		return resultData;
 	}
+	
+
 
 	public CampaignLog fromDto(@NotNull CampaignLogDto source) {
 
@@ -1091,5 +1093,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	@Stateless
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
+
+	
 
 }

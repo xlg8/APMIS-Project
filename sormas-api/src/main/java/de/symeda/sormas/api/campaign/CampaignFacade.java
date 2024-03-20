@@ -69,6 +69,4 @@ public interface CampaignFacade { //CampaignFacadeEjb
 
 	int getCampaignFormExp(String formUuuid, String campaignUuid);
 
-	
-	
 }

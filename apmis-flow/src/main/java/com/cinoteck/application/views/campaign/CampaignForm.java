@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.user.UserUiHelper;
 import com.cinoteck.application.views.utils.DownloadFlowUtilityView;
-
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Text;
@@ -27,6 +28,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -41,6 +43,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -58,6 +61,7 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
 import de.symeda.sormas.api.AgeGroup;
@@ -75,6 +79,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.infrastructure.PopulationDataCriteria;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -146,6 +151,8 @@ public class CampaignForm extends VerticalLayout {
 	private Set<PopulationDataDto> popopulationDataDtoSet = new HashSet<>();
 
 	private final VerticalLayout statusChangeLayout;
+	FormLayout formx;
+
 	public Boolean isCreateForm = null;
 
 	CampaignFormMetaReferenceDto xx;
@@ -176,7 +183,7 @@ public class CampaignForm extends VerticalLayout {
 	private static final String DEFAULT_POPULATION_DATA_IMPORT_TEMPLATE_FILE_NAME = "default_population_data.csv";
 
 	private UserProvider userProvider = new UserProvider();
-	
+
 	private String userLanguage = "";
 
 	public CampaignForm(CampaignDto formData) {
@@ -196,10 +203,11 @@ public class CampaignForm extends VerticalLayout {
 	}
 
 	public void publishUnvisibleForEOC() {
-		if(userProvider.getUser().getUsertype().equals(UserType.EOC_USER)) {
+		if (userProvider.getUser().getUsertype().equals(UserType.EOC_USER)) {
 			publishUnpublishCampaign.setVisible(false);
-		}			
+		}
 	}
+
 	public LocalDate convertToLocalDateViaMilisecond(Date dateToConvert) {
 		return Instant.ofEpochMilli(dateToConvert.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
 	}
@@ -345,12 +353,13 @@ public class CampaignForm extends VerticalLayout {
 			if (endDate.getValue() != null) {
 				validateDates();
 				campaaignYear.setValue(selectedYearAsString);
-				//System.out.println(selectedYearAsString + "Selected Yearaaaaaaaaaaa: " + selectedYear);
+				// System.out.println(selectedYearAsString + "Selected Yearaaaaaaaaaaa: " +
+				// selectedYear);
 
 			} else if (formData == null || formData != null) {
 				campaaignYear.setValue(selectedYearAsString);
 
-				//System.out.println(selectedYearAsString + "Selected Year: " + selectedYear);
+				// System.out.println(selectedYearAsString + "Selected Year: " + selectedYear);
 			}
 		});
 
@@ -377,9 +386,9 @@ public class CampaignForm extends VerticalLayout {
 
 		TabSheet tabsheet = new TabSheet();
 		layout.add(tabsheet);
-		
+
 		userLanguage = userProvider.getUser().getLanguage().toString();
-		
+
 //		System.out.println(userLanguage + "User language in campaugn data ");
 
 		VerticalLayout tab1 = new VerticalLayout();
@@ -387,19 +396,22 @@ public class CampaignForm extends VerticalLayout {
 		comp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(PRE_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(PRE_CAMPAIGN, userLanguage),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(
+						PRE_CAMPAIGN, userLanguage),
 				campaignDto, PRE_CAMPAIGN);
 
 		compp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(INTRA_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(INTRA_CAMPAIGN, userLanguage),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(
+						INTRA_CAMPAIGN, userLanguage),
 				campaignDto, INTRA_CAMPAIGN);
 
 		comppp = new CampaignFormGridComponent(
 				this.campaignDto == null ? Collections.emptyList()
 						: new ArrayList<>(campaignDto.getCampaignFormMetas(POST_CAMPAIGN)),
-				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(POST_CAMPAIGN, userLanguage),
+				FacadeProvider.getCampaignFormMetaFacade().getAllCampaignFormMetasAsReferencesByRoundAndUserLanguage(
+						POST_CAMPAIGN, userLanguage),
 				campaignDto, POST_CAMPAIGN);
 
 		comp1 = new CampaignDashboardGridElementComponent(
@@ -451,7 +463,6 @@ public class CampaignForm extends VerticalLayout {
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignForms), tab1Intra);
 		tabsheetIntra.setWidthFull();
 
-	
 		VerticalLayout tab2Intra = new VerticalLayout();
 
 //		final List<CampaignDashboardElement> intracampaignDashboardElements = FacadeProvider.getCampaignFacade()
@@ -493,198 +504,15 @@ public class CampaignForm extends VerticalLayout {
 		final HorizontalLayout layoutAssocCamp = new HorizontalLayout();
 		layoutAssocCamp.setWidthFull();
 
-		ComponentRenderer<Span, CampaignTreeGridDto> populationGenerate = new ComponentRenderer<>(input -> {
-
-			NumberFormat arabicFormat = NumberFormat.getInstance();
-			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
-			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
-			} else {
-				arabicFormat = NumberFormat.getInstance(new Locale("en"));
-			}
-
-			String value = String.valueOf(arabicFormat.format(input.getPopulationData()));
-			Span label = new Span(value);
-			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
-			return label;
-		});
-
 		if (campaignDto != null) {
-			treeGrid = new TreeGrid<>();
 
-			treeGrid.removeAllColumns();
-			treeGrid.setWidthFull();
-			treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
+			parentTab4.add(configureTreeGrid());
 
-			treeGrid.setWidthFull();
-
-			treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName)
-					.setHeader(I18nProperties.getCaption(Captions.Location));
-
-			treeGrid.addColumn(populationGenerate)
-					.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
-
-			GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
-					.setSelectionMode(SelectionMode.MULTI);
-			selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.HIDDEN);
-		
-			for (AreaReferenceDto root : campaignDto.getAreas()) {
-
-				for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
-
-					if (areax.getUuid().equals(root.getUuid())) {
-
-						treeGrid.select(areax);
-					}
-
-					for (RegionReferenceDto region_root : campaignDto.getRegion()) {
-
-						for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
-
-							if (regionx.getUuid().equals(region_root.getUuid())) {
-								treeGrid.select(regionx);
-							}
-
-							for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
-
-								for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
-
-									if (districtx.getUuid().equals(district_root.getUuid())) {
-										treeGrid.select(districtx);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-			treeGrid.addItemClickListener(ee -> { // .addItemDoubleClickListener(ee -> {
-				
-				isSingleSelectClickItemLock = true;
-				if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
-					
-					Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
-							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
-					
-					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
-							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");	
-					
-					createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
-							campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10);
-				}
-			});
-
-			treeGrid.asMultiSelect().addSelectionListener(eventx -> {
-				isMultiSelectItemLock = true;
-				
-				if (isSingleSelectClickItemLock) {
-					isSelectItemLock = false;
-					return;
-				} 
-
-				if (!isSelectItemLock) {
-					isSelectItemLock = true;
-					//debug
-					
-					for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
-						if (camTrGrid.getIsClicked() != null) {
-							if (camTrGrid.getIsClicked() != 777L) {
-								System.out.println("===XXXXXX else {"+eventx.getAddedSelection().size());
-								camTrGrid.setIsClicked(777L);
-								treeGrid.select(camTrGrid);
-
-								treeGrid.getTreeData().getChildren(camTrGrid)
-										.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
-
-								for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData()
-										.getChildren(camTrGrid)) {
-
-									treeGrid.getTreeData().getChildren(firstChildren)
-											.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
-								}
-
-							}
-						} else {
-							camTrGrid.setIsClicked(777L);
-							treeGrid.select(camTrGrid);
-							treeGrid.getTreeData().getChildren(camTrGrid)
-									.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
-
-							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
-
-								treeGrid.getTreeData().getChildren(firstChildren)
-										.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
-							}
-
-						}
-
-					}
-					
-					
-					//testing
-					for (CampaignTreeGridDto camTrGrid : eventx.getRemovedSelection()) {
-						if (camTrGrid.getIsClicked() != null) {
-							if (camTrGrid.getIsClicked() == 777L) {
-							treeGrid.deselect(camTrGrid);
-								// deselect its children
-								treeGrid.getTreeData().getChildren(camTrGrid)
-										.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
-
-								// deselect its grandchildren
-								for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData()
-										.getChildren(camTrGrid)) {
-
-									treeGrid.getTreeData().getChildren(firstChildren)
-											.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
-								}
-
-								if (!camTrGrid.getParentUuid().equals("Area")) {
-									// treeGrid.deselect(treeGrid.getTreeData().getParent(e.getItem()));
-								}
-
-								camTrGrid.setIsClicked(7L);
-
-							}
-						} else {
-							camTrGrid.setIsClicked(7L);
-							treeGrid.deselect(camTrGrid);
-							treeGrid.getTreeData().getChildren(camTrGrid)
-									.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
-
-							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
-
-								treeGrid.getTreeData().getChildren(firstChildren)
-										.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
-							} 
-
-					}
-					}
-
-					for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
-						ftg.setIsClicked(777L);
-					}
-
-					isMultiSelectItemLock = false;
-					isSelectItemLock = false;
-//			
-
-				}
-
-			});
-
-			for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
-				ftg.setIsClicked(777L);
-			}
-
-			parentTab4.add(treeGrid);
 		} else {
 			Div textx = new Div(new Text(I18nProperties.getString(Strings.infoSaveCampaignFirst)));
 			parentTab4.add(textx);
 		}
-		
-		
+
 		parentTab4.add(layoutAssocCamp);
 		tabsheetParent.add(I18nProperties.getCaption(Captions.associateCampaign), parentTab4);
 
@@ -863,8 +691,6 @@ public class CampaignForm extends VerticalLayout {
 		saveChanges.setText(I18nProperties.getCaption(Captions.actionSave));
 
 		saveChanges.addClickListener(e -> {
-			
-			
 
 			areass.clear();
 			region.clear();
@@ -885,16 +711,17 @@ public class CampaignForm extends VerticalLayout {
 				}
 				if (((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
 						.getLevelAssessed() == "region") {
-					RegionReferenceDto selectedRegion = FacadeProvider.getRegionFacade()
-							.getRegionReferenceByUuid(((CampaignTreeGridDto) treeGrid.getSelectionModel()
-									.getSelectedItems().toArray()[i]).getUuid());
+					RegionReferenceDto selectedRegion = FacadeProvider.getRegionFacade().getRegionReferenceByUuid(
+							((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
+									.getUuid());
 					region.add(selectedRegion);
 				}
 				if (((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
 						.getLevelAssessed() == "district") {
 					DistrictReferenceDto selectedDistrict = FacadeProvider.getDistrictFacade()
-							.getDistrictReferenceByUuid(((CampaignTreeGridDto) treeGrid.getSelectionModel()
-									.getSelectedItems().toArray()[i]).getUuid());
+							.getDistrictReferenceByUuid(
+									((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
+											.getUuid());
 					districts.add(selectedDistrict);
 				}
 
@@ -903,11 +730,11 @@ public class CampaignForm extends VerticalLayout {
 
 					PopulationDataDto popopulationDataDto = new PopulationDataDto();
 
-					popopulationDataDto.setCampaign(
-							FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
-					popopulationDataDto.setDistrict(FacadeProvider.getDistrictFacade()
-							.getDistrictReferenceByUuid(((CampaignTreeGridDto) treeGrid.getSelectionModel()
-									.getSelectedItems().toArray()[i]).getUuid()));
+					popopulationDataDto
+							.setCampaign(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
+					popopulationDataDto.setDistrict(FacadeProvider.getDistrictFacade().getDistrictReferenceByUuid(
+							((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
+									.getUuid()));
 					popopulationDataDtoSet.add(popopulationDataDto);
 				}
 
@@ -919,11 +746,9 @@ public class CampaignForm extends VerticalLayout {
 				campaignDto.setDistricts((Set<DistrictReferenceDto>) districts);
 				campaignDto.setPopulationdata((Set<PopulationDataDto>) popopulationDataDtoSet);
 				campaignDto.setCommunity((Set<CommunityReferenceDto>) community);
-				
 
 			}
-			
-			
+
 			validateAndSave(editMode);
 		});
 
@@ -934,12 +759,11 @@ public class CampaignForm extends VerticalLayout {
 		rightFloat.setJustifyContentMode(JustifyContentMode.END);
 
 		if (campaignDto != null) {
-			leftFloat.add(archiveDearchive, openCloseCampaign, duplicateCampaign,
-					deleteCampaign, logButton);
+			leftFloat.add(archiveDearchive, openCloseCampaign, duplicateCampaign, deleteCampaign, logButton);
 		} else {
 			publishUnpublishCampaign.setText(I18nProperties.getString(Strings.headingPublishCampaign));
 			openCloseCampaign.setText("Open Campaign");
-			leftFloat.add( openCloseCampaign, logButton);
+			leftFloat.add(openCloseCampaign, logButton);
 		}
 
 		leftFloat.setWidth("50%");
@@ -971,8 +795,739 @@ public class CampaignForm extends VerticalLayout {
 
 	}
 
-	private void createDialogBasic(String Uuid, Long selectedPopData, String name_, CampaignDto campaignDto_,
-			CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10) {
+//	public HorizontalLayout reconfigureTreeGrid() {
+//
+//		ComponentRenderer<Span, CampaignTreeGridDto> populationGenerate = new ComponentRenderer<>(input -> {
+//
+//			NumberFormat arabicFormat = NumberFormat.getInstance();
+//			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+//				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+//			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+//				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+//			} else {
+//				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+//			}
+//
+//			String value = String.valueOf(arabicFormat.format(input.getPopulationData()));
+//			Span label = new Span(value);
+//			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+//			return label;
+//		});
+//		
+//		
+//		treeGrid.removeAllColumns();
+//		treeGrid.setWidthFull();
+//		treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
+//
+//		treeGrid.setWidthFull();
+//
+//		treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName)
+//				.setHeader(I18nProperties.getCaption(Captions.Location));
+//
+//		treeGrid.addColumn(populationGenerate)
+//				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+//
+//		treeGrid.addColumn(CampaignTreeGridDto::getDistrictStatus).setHeader("Modality");
+//
+//		GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
+//				.setSelectionMode(SelectionMode.MULTI);
+//		selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.HIDDEN);
+//
+//		for (AreaReferenceDto root : campaignDto.getAreas()) {
+//
+//			for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
+//
+//				if (areax.getUuid().equals(root.getUuid())) {
+//
+//					treeGrid.select(areax);
+//				}
+//
+//				for (RegionReferenceDto region_root : campaignDto.getRegion()) {
+//
+//					for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
+//
+//						if (regionx.getUuid().equals(region_root.getUuid())) {
+//							treeGrid.select(regionx);
+//						}
+//
+//						for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
+//
+//							for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
+//
+//								if (districtx.getUuid().equals(district_root.getUuid())) {
+//									treeGrid.select(districtx);
+//
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		treeGrid.addItemClickListener(ee -> { // .addItemDoubleClickListener(ee -> {
+//
+//			isSingleSelectClickItemLock = true;
+//			if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
+//
+//				Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+//								"AGE_0_4");
+//
+//				Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+//								"AGE_5_10");
+//
+//				String districtModality_0_4 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(),
+//								campaignDto.getUuid(), AgeGroup.AGE_0_4);
+//
+//				String districtModality_5_10 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(),
+//								campaignDto.getUuid(), AgeGroup.AGE_5_10);
+//
+//				createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
+//						campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10, districtModality_0_4,
+//						districtModality_5_10);
+//			}
+//		});
+//
+//		treeGrid.asMultiSelect().addSelectionListener(eventx -> {
+//			isMultiSelectItemLock = true;
+//
+//			if (isSingleSelectClickItemLock) {
+//				isSelectItemLock = false;
+//				return;
+//			}
+//
+//			if (!isSelectItemLock) {
+//				isSelectItemLock = true;
+//				// debug
+//
+//				for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
+//					if (camTrGrid.getIsClicked() != null) {
+//						if (camTrGrid.getIsClicked() != 777L) {
+//							System.out.println("===XXXXXX else {" + eventx.getAddedSelection().size());
+//							camTrGrid.setIsClicked(777L);
+//							treeGrid.select(camTrGrid);
+//
+//							treeGrid.getTreeData().getChildren(camTrGrid)
+//									.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+//
+//							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData()
+//									.getChildren(camTrGrid)) {
+//
+//								treeGrid.getTreeData().getChildren(firstChildren)
+//										.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+//							}
+//
+//						}
+//					} else {
+//						camTrGrid.setIsClicked(777L);
+//						treeGrid.select(camTrGrid);
+//						treeGrid.getTreeData().getChildren(camTrGrid)
+//								.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+//
+//						for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+//
+//							treeGrid.getTreeData().getChildren(firstChildren)
+//									.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+//						}
+//
+//					}
+//
+//				}
+//
+//				// testing
+//				for (CampaignTreeGridDto camTrGrid : eventx.getRemovedSelection()) {
+//					if (camTrGrid.getIsClicked() != null) {
+//						if (camTrGrid.getIsClicked() == 777L) {
+//							treeGrid.deselect(camTrGrid);
+//							// deselect its children
+//							treeGrid.getTreeData().getChildren(camTrGrid)
+//									.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+//
+//							// deselect its grandchildren
+//							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData()
+//									.getChildren(camTrGrid)) {
+//
+//								treeGrid.getTreeData().getChildren(firstChildren)
+//										.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+//							}
+//
+//							if (!camTrGrid.getParentUuid().equals("Area")) {
+//								// treeGrid.deselect(treeGrid.getTreeData().getParent(e.getItem()));
+//							}
+//
+//							camTrGrid.setIsClicked(7L);
+//
+//						}
+//					} else {
+//						camTrGrid.setIsClicked(7L);
+//						treeGrid.deselect(camTrGrid);
+//						treeGrid.getTreeData().getChildren(camTrGrid)
+//								.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+//
+//						for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+//
+//							treeGrid.getTreeData().getChildren(firstChildren)
+//									.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+//						}
+//
+//					}
+//				}
+//
+//				for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
+//					ftg.setIsClicked(777L);
+//				}
+//
+//				isMultiSelectItemLock = false;
+//				isSelectItemLock = false;
+////		
+//
+//			}
+//
+//		});
+//
+//		for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
+//			ftg.setIsClicked(777L);
+//		}
+//
+//		HorizontalLayout assocCampaignLayout = new HorizontalLayout();
+//		assocCampaignLayout.setWidthFull();
+//		ComboBox box = new ComboBox();
+//		box.setItems("A", "B");
+//
+//		assocCampaignLayout.add(treeGrid, configurePopEdit());
+//		return assocCampaignLayout;
+//		
+//	}
+//
+//	
+
+	public HorizontalLayout configureTreeGrid() {
+
+		ComponentRenderer<Span, CampaignTreeGridDto> populationGenerate = new ComponentRenderer<>(input -> {
+
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			} else {
+				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getPopulationData()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+
+		treeGrid = new TreeGrid<>();
+
+		treeGrid.removeAllColumns();
+		treeGrid.setWidthFull();
+		treeGrid.setItems(generateTreeGridData(), CampaignTreeGridDto::getRegionData);
+
+		treeGrid.setWidthFull();
+
+		treeGrid.addHierarchyColumn(CampaignTreeGridDto::getName)
+				.setHeader(I18nProperties.getCaption(Captions.Location));
+
+		treeGrid.addColumn(populationGenerate)
+				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+
+		treeGrid.addColumn(CampaignTreeGridDto::getAgeGroup)
+				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+
+		treeGrid.addColumn(CampaignTreeGridDto::getDistrictModality).setHeader("Modality");
+
+		treeGrid.addColumn(CampaignTreeGridDto::getDistrictStatus).setHeader("Status");
+
+		GridMultiSelectionModel<CampaignTreeGridDto> selectionModel = (GridMultiSelectionModel<CampaignTreeGridDto>) treeGrid
+				.setSelectionMode(SelectionMode.MULTI);
+		selectionModel.setSelectAllCheckboxVisibility(SelectAllCheckboxVisibility.HIDDEN);
+
+		for (AreaReferenceDto root : campaignDto.getAreas()) {
+
+			for (CampaignTreeGridDto areax : treeGrid.getTreeData().getRootItems()) {
+
+				if (areax.getUuid().equals(root.getUuid())) {
+
+					treeGrid.select(areax);
+				}
+
+				for (RegionReferenceDto region_root : campaignDto.getRegion()) {
+
+					for (CampaignTreeGridDto regionx : treeGrid.getTreeData().getChildren(areax)) {
+
+						if (regionx.getUuid().equals(region_root.getUuid())) {
+							treeGrid.select(regionx);
+						}
+
+						for (DistrictReferenceDto district_root : campaignDto.getDistricts()) {
+
+							for (CampaignTreeGridDto districtx : treeGrid.getTreeData().getChildren(regionx)) {
+
+								if (districtx.getUuid().equals(district_root.getUuid())) {
+									treeGrid.select(districtx);
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		treeGrid.addItemClickListener(ee -> { // .addItemDoubleClickListener(ee -> {
+
+			isSingleSelectClickItemLock = true;
+			if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
+
+				if (ee.getItem().getAgeGroup().equalsIgnoreCase("AGE_0_4")) {
+					
+					System.out.println("Age Group from item click " + ee.getItem().getAgeGroup());
+					Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+									"AGE_0_4");
+					String districtModality_0_4 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(),
+									campaignDto.getUuid(), "AGE_0_4");
+					String districtStatus_0_4 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
+
+					createDialogBasics(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
+							ee.getItem().getAgeGroup(), campaignDto, ee.getItem(), popDataAge0_4, districtModality_0_4,
+							districtStatus_0_4);
+
+				}
+
+				else if (ee.getItem().getAgeGroup().equalsIgnoreCase("AGE_5_10")) {
+					System.out.println("Age Group from item click " + ee.getItem().getAgeGroup());
+
+					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+									"AGE_5_10");
+
+					String districtModality_5_10 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(),
+									campaignDto.getUuid(), "AGE_5_10");
+
+					String districtStatus_5_10 = FacadeProvider.getPopulationDataFacade()
+							.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");
+
+					createDialogBasics(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
+							ee.getItem().getAgeGroup(), campaignDto, ee.getItem(), popDataAge5_10,
+							districtModality_5_10, districtStatus_5_10);
+				} else {
+
+				}
+
+//				Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade().getDistrictPopulationByUuidAndAgeGroup(
+//						ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
+//				String districtModality_0_4 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+//								"AGE_0_4");
+//				String districtStatus_0_4 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
+//
+//				Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+//								"AGE_5_10");
+//
+//				String districtModality_5_10 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
+//								"AGE_5_10");
+//
+//				String districtStatus_5_10 = FacadeProvider.getPopulationDataFacade()
+//						.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");
+//
+//				System.out.println(districtStatus_0_4 + "0-------4" + districtStatus_5_10 + " 5-------10");
+//
+//				createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
+//						ee.getItem().getAgeGroup(), campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10,
+//						districtModality_0_4, districtModality_5_10, districtStatus_0_4, districtStatus_5_10);
+			}
+		});
+
+		treeGrid.asMultiSelect().addSelectionListener(eventx -> {
+			isMultiSelectItemLock = true;
+
+			if (isSingleSelectClickItemLock) {
+				isSelectItemLock = false;
+				return;
+			}
+
+			if (!isSelectItemLock) {
+				isSelectItemLock = true;
+				// debug
+
+				for (CampaignTreeGridDto camTrGrid : eventx.getAddedSelection()) {
+					if (camTrGrid.getIsClicked() != null) {
+						if (camTrGrid.getIsClicked() != 777L) {
+							System.out.println("===XXXXXX else {" + eventx.getAddedSelection().size());
+							camTrGrid.setIsClicked(777L);
+							treeGrid.select(camTrGrid);
+
+							treeGrid.getTreeData().getChildren(camTrGrid)
+									.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+
+							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+
+								treeGrid.getTreeData().getChildren(firstChildren)
+										.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+							}
+
+						}
+					} else {
+						camTrGrid.setIsClicked(777L);
+						treeGrid.select(camTrGrid);
+						treeGrid.getTreeData().getChildren(camTrGrid)
+								.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+
+						for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+
+							treeGrid.getTreeData().getChildren(firstChildren)
+									.forEach(ee -> treeGrid.select((CampaignTreeGridDto) ee));
+						}
+
+					}
+
+				}
+
+				// testing
+				for (CampaignTreeGridDto camTrGrid : eventx.getRemovedSelection()) {
+					if (camTrGrid.getIsClicked() != null) {
+						if (camTrGrid.getIsClicked() == 777L) {
+							treeGrid.deselect(camTrGrid);
+							// deselect its children
+							treeGrid.getTreeData().getChildren(camTrGrid)
+									.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+
+							// deselect its grandchildren
+							for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+
+								treeGrid.getTreeData().getChildren(firstChildren)
+										.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+							}
+
+							if (!camTrGrid.getParentUuid().equals("Area")) {
+								// treeGrid.deselect(treeGrid.getTreeData().getParent(e.getItem()));
+							}
+
+							camTrGrid.setIsClicked(7L);
+
+						}
+					} else {
+						camTrGrid.setIsClicked(7L);
+						treeGrid.deselect(camTrGrid);
+						treeGrid.getTreeData().getChildren(camTrGrid)
+								.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+
+						for (CampaignTreeGridDto firstChildren : treeGrid.getTreeData().getChildren(camTrGrid)) {
+
+							treeGrid.getTreeData().getChildren(firstChildren)
+									.forEach(ee -> treeGrid.deselect((CampaignTreeGridDto) ee));
+						}
+
+					}
+				}
+
+				for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
+					ftg.setIsClicked(777L);
+				}
+
+				isMultiSelectItemLock = false;
+				isSelectItemLock = false;
+//		
+
+			}
+
+		});
+
+		for (CampaignTreeGridDto ftg : treeGrid.getSelectionModel().getSelectedItems()) {
+			ftg.setIsClicked(777L);
+		}
+
+		HorizontalLayout assocCampaignLayout = new HorizontalLayout();
+		assocCampaignLayout.setWidthFull();
+		ComboBox box = new ComboBox();
+		box.setItems("A", "B");
+
+		assocCampaignLayout.add(treeGrid, configurePopEdit());
+		return assocCampaignLayout;
+
+	}
+
+	private Component configurePopEdit() {
+		VerticalLayout formx = editorForm();
+		formx.getStyle().remove("width");
+		HorizontalLayout content = new HorizontalLayout(treeGrid, formx);
+		content.setFlexGrow(4, treeGrid);
+		content.setFlexGrow(0, formx);
+		content.addClassNames("content");
+//		content.setSizeFull();
+		return content;
+	}
+
+	private VerticalLayout editorForm() {
+		VerticalLayout vert = new VerticalLayout();
+
+		formx = new FormLayout();
+
+		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
+		plusButton.addThemeVariants(ButtonVariant.LUMO_ICON);
+		plusButton.setTooltipText(I18nProperties.getCaption(Captions.addNewForm));
+
+		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionAdd), new Icon(VaadinIcon.CHECK));
+
+		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel),
+				new Icon(VaadinIcon.REFRESH));
+
+		ComboBox<AreaReferenceDto> regionFilter = new ComboBox<AreaReferenceDto>();
+		regionFilter.setLabel(I18nProperties.getCaption(Captions.area));
+		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
+
+		ComboBox<RegionReferenceDto> provinceFilter = new ComboBox<>(I18nProperties.getCaption(Captions.region));
+		provinceFilter.setPlaceholder(I18nProperties.getCaption(Captions.regionAllRegions));
+		provinceFilter.setClearButtonVisible(true);
+		provinceFilter.getStyle().set("width", "145px !important");
+
+		ComboBox<DistrictReferenceDto> districtFilter = new ComboBox<>(I18nProperties.getCaption(Captions.district));
+		districtFilter.setPlaceholder(I18nProperties.getCaption(Captions.districtAllDistricts));
+		districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveAsReference());
+		districtFilter.getStyle().set("width", "145px !important");
+		List<PopulationDataDto> populationDataList = new ArrayList<PopulationDataDto>();
+
+		IntegerField popData0_4 = new IntegerField(
+				I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
+
+		IntegerField popDataAge5_10 = new IntegerField(
+				I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
+
+		ComboBox<String> districtModality = new ComboBox<String>("Modality");
+		districtModality.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+
+		ComboBox<String> districtStatus = new ComboBox<String>("Status");
+		districtStatus.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only", "Partial",
+				"Not Targted", "On Hold");
+
+		popData0_4.setVisible(false);
+		popDataAge5_10.setVisible(false);
+		districtModality.setVisible(false);
+		districtStatus.setVisible(false);
+
+		popData0_4.setValue(null);
+		popDataAge5_10.setValue(null);
+		districtModality.setValue(null);
+		districtStatus.setValue(null);
+
+		regionFilter.addValueChangeListener(e -> {
+			if (regionFilter.getValue() != null) {
+				AreaReferenceDto area = e.getValue();
+
+				provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+//			}
+//			refreshGridData();
+			} else {
+//			criteria.area(null);
+//			refreshGridData();
+			}
+
+		});
+
+		provinceFilter.addValueChangeListener(e -> {
+			if (provinceFilter.getValue() != null) {
+
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+				} else {
+					districtFilter
+							.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+				}
+//			filteredDataProvider.setFilter(criteria);
+				RegionReferenceDto province = e.getValue();
+//				criteria.region(province);
+//				refreshGridData();
+			} else {
+//				criteria.region(null);
+//				refreshGridData();
+			}
+
+		});
+
+		districtFilter.addValueChangeListener(e -> {
+			if (districtFilter.getValue() != null) {
+//			filteredDataProvider.setFilter(criteria);
+				DistrictReferenceDto district = e.getValue();
+				popData0_4.setVisible(true);
+				popDataAge5_10.setVisible(true);
+				districtModality.setVisible(true);
+				districtStatus.setVisible(true);
+
+				for (PopulationDataDto xx : FacadeProvider.getPopulationDataFacade()
+						.getDistrictPopulationByTypeUsingUUIDs(districtFilter.getValue().getUuid(),
+								campaignDto.getUuid(), AgeGroup.AGE_0_4)) {
+					popData0_4.setValue(xx.getPopulation());
+					System.out.println(xx.getPopulation() + "55555555555555555555555555555555555555555555");
+				}
+
+				for (PopulationDataDto xx : FacadeProvider.getPopulationDataFacade()
+						.getDistrictPopulationByTypeUsingUUIDs(districtFilter.getValue().getUuid(),
+								campaignDto.getUuid(), AgeGroup.AGE_5_10)) {
+					popDataAge5_10.setValue(xx.getPopulation());
+					System.out.println(xx.getPopulation() + "666666666666666666666666666666666666666666666");
+				}
+
+//				criteria.district(district);
+//				refreshGridData();
+
+			} else {
+//				criteria.district(null);
+//				refreshGridData();
+			}
+		});
+
+		HorizontalLayout buttonLay = new HorizontalLayout(plusButton);
+
+		HorizontalLayout buttonAfterLay = new HorizontalLayout(saveButton, cancelButton);
+		buttonAfterLay.getStyle().set("flex-wrap", "wrap");
+		buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
+		buttonLay.setSpacing(true);
+
+		cancelButton.addClickListener(ees -> {
+			CampaignFormMetaReferenceDto newcampform = new CampaignFormMetaReferenceDto();
+
+			formx.setVisible(false);
+			buttonAfterLay.setVisible(false);
+			saveButton.setText(I18nProperties.getCaption(Captions.actionSave));
+
+		});
+
+		saveButton.addClickListener(e -> {
+			if (districtFilter.getValue() != null) {
+
+				System.out.println(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid())
+						+ "<<<Campaignuid " + " district uuid" + FacadeProvider.getDistrictFacade()
+								.getDistrictReferenceByUuid(districtFilter.getValue().getUuid())
+						+ "modality " + districtModality.getValue());
+
+				Date collectionDate = new Date();
+
+				PopulationDataDto newPopulationData_10 = PopulationDataDto.build(collectionDate);
+				PopulationDataDto newPopulationData_0_4 = PopulationDataDto.build(collectionDate);
+
+				List<PopulationDataDto> itirationList = new ArrayList<PopulationDataDto>();
+				itirationList.add(newPopulationData_0_4);
+				itirationList.add(newPopulationData_10);
+
+				System.out.println("Age Group rom ope  is age 0_4");
+				if (popData0_4 != null) {
+					newPopulationData_0_4
+							.setCampaign(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
+					newPopulationData_0_4.setRegion(FacadeProvider.getRegionFacade()
+							.getRegionReferenceByUuid(provinceFilter.getValue().getUuid()));
+					newPopulationData_0_4.setDistrict(FacadeProvider.getDistrictFacade()
+							.getDistrictReferenceByUuid(districtFilter.getValue().getUuid()));
+					newPopulationData_0_4.setModality(districtModality.getValue());
+					newPopulationData_0_4.setDistrictStatus(districtStatus.getValue());
+					newPopulationData_0_4.setAgeGroup(AgeGroup.AGE_0_4);
+					newPopulationData_0_4.setPopulation(popData0_4.getValue());
+
+					populationDataList.add(newPopulationData_0_4);
+
+					try {
+						FacadeProvider.getPopulationDataFacade().savePopulationData(populationDataList);
+					} catch (Exception ex) {
+						System.out.println(ex + "Exception");
+					} finally {
+						populationDataList.remove(newPopulationData_0_4);
+
+					}
+
+				}
+
+				if (popDataAge5_10 != null) {
+					newPopulationData_10
+							.setCampaign(FacadeProvider.getCampaignFacade().getReferenceByUuid(campaignDto.getUuid()));
+					newPopulationData_10.setRegion(FacadeProvider.getRegionFacade()
+							.getRegionReferenceByUuid(provinceFilter.getValue().getUuid()));
+					newPopulationData_10.setDistrict(FacadeProvider.getDistrictFacade()
+							.getDistrictReferenceByUuid(districtFilter.getValue().getUuid()));
+					newPopulationData_10.setModality(districtModality.getValue());
+					newPopulationData_10.setDistrictStatus(districtStatus.getValue());
+					newPopulationData_10.setAgeGroup(AgeGroup.AGE_5_10);
+					newPopulationData_10.setPopulation(popDataAge5_10.getValue());
+
+					populationDataList.add(newPopulationData_10);
+
+					try {
+						FacadeProvider.getPopulationDataFacade().savePopulationData(populationDataList);
+					} catch (Exception ex) {
+						System.out.println(ex + "Exception");
+					} finally {
+						populationDataList.remove(newPopulationData_10);
+
+					}
+
+				}
+
+				Notification.show("Population Data Added Succesfully");
+
+				regionFilter.clear();
+				provinceFilter.clear();
+				districtFilter.clear();
+				popData0_4.clear();
+				popDataAge5_10.clear();
+				districtModality.clear();
+				districtStatus.clear();
+				formx.setVisible(false);
+				buttonAfterLay.setVisible(false);
+
+			} else {
+				Notification.show("Please Select a District");
+			}
+
+//			reconfigureTreeGrid();
+
+//			treeGrid.removeAllColumns()
+		});
+
+		formx.add(regionFilter, provinceFilter, districtFilter, popData0_4, popDataAge5_10, districtModality,
+				districtStatus);
+		formx.setColspan(regionFilter, 1);
+		formx.setColspan(provinceFilter, 1);
+		formx.setColspan(districtFilter, 1);
+		formx.setColspan(popData0_4, 1);
+		formx.setColspan(popDataAge5_10, 1);
+		formx.setColspan(districtModality, 1);
+		formx.setColspan(districtStatus, 2);
+
+		formx.setVisible(false);
+		buttonAfterLay.setVisible(false);
+
+		plusButton.addClickListener(ce ->
+
+		{
+			formx.setVisible(true);
+			buttonAfterLay.setVisible(true);
+			saveButton.setText(I18nProperties.getCaption(Captions.actionAdd));
+		});
+
+		vert.add(buttonLay, formx, buttonAfterLay);
+
+		return vert;
+	}
+
+	private void createDialogBasics(String Uuid, Long selectedPopData, String name_, String ageGroup,
+			CampaignDto campaignDto_, CampaignTreeGridDto campaignTreeGridDto, Integer populationByAgeGroup,
+			String districtModalityByAgeGroup, String districtStatusByAgeGroup) {
 		Dialog dialog = new Dialog();
 
 		dialog.removeAll();
@@ -984,11 +1539,10 @@ public class CampaignForm extends VerticalLayout {
 		dialog.getFooter().add(cancelButton);
 		dialog.getFooter().add(saveButton);
 
-		VerticalLayout dialogLayout = createDialogLayout(name_, selectedPopData, saveButton, Uuid, campaignDto_, dialog,
-				campaignTreeGridDto, age0_4, age5_10);
-		
-		
-		
+		VerticalLayout dialogLayout = createDialogLayoutByAge(name_, ageGroup, selectedPopData, saveButton, Uuid,
+				campaignDto_, dialog, campaignTreeGridDto, populationByAgeGroup, districtModalityByAgeGroup,
+				districtStatusByAgeGroup);
+
 		dialog.add(dialogLayout);
 
 		add(dialog);
@@ -998,78 +1552,381 @@ public class CampaignForm extends VerticalLayout {
 		isSingleSelectClickItemLock = false;
 	}
 
-	private static VerticalLayout createDialogLayout(String name_, Long selectedPopData, Button saveButton, String Uuid,
-			CampaignDto campaignDto_, Dialog dialog, CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10) {
-		
-//		System.out.println(age5_10 + "POPULATION DATA SET " + age0_4);
+//	private void createDialogBasic(String Uuid, Long selectedPopData, String name_, String ageGroup,
+//			CampaignDto campaignDto_, CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10,
+//			String modality_0_4, String modality_5_10, String districtStatus_0_4, String districtStatus_5_10) {
+//		Dialog dialog = new Dialog();
+//
+//		dialog.removeAll();
+//
+//		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.editing) + " " + name_);
+//
+//		Button saveButton = createSaveButton();
+//		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), e -> dialog.close());
+//		dialog.getFooter().add(cancelButton);
+//		dialog.getFooter().add(saveButton);
+//
+//		VerticalLayout dialogLayout = createDialogLayout(name_, ageGroup, selectedPopData, saveButton, Uuid,
+//				campaignDto_, dialog, campaignTreeGridDto, age0_4, age5_10, modality_0_4, modality_5_10,
+//				districtStatus_0_4, districtStatus_5_10);
+//
+//		dialog.add(dialogLayout);
+//
+//		add(dialog);
+//
+//		dialog.open();
+//
+//		isSingleSelectClickItemLock = false;
+//	}
+
+	private static VerticalLayout createDialogLayoutByAge(String name_, String ageGroup, Long selectedPopData,
+			Button saveButton, String Uuid, CampaignDto campaignDto_, Dialog dialog,
+			CampaignTreeGridDto campaignTreeGridDto, Integer populationByAgeGroup, String districtModalityByAgeGroup,
+			String districtStatusByAgeGroup) {
 
 		TextField district = new TextField(I18nProperties.getCaption(Captions.district));
 		district.setValue(name_);
 		district.setReadOnly(true);
-		
-//		System.out.println(name_ + "name" + selectedPopData +"selectedPopData" );
 
-		IntegerField popData0_4 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
-		
-		IntegerField popDataAge5_10 = new IntegerField(I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
-		
-		popData0_4.setWidthFull();
-		popDataAge5_10.setWidthFull();
-		
-		if (age0_4 != null) {
-			popData0_4.setValue(age0_4);
+		IntegerField popData = new IntegerField(
+				I18nProperties.getCaption(Captions.District_population) + " " + ageGroup);
+
+		ComboBox<String> districtModalityCombo = new ComboBox<String>("Modality");
+		districtModalityCombo.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+
+		ComboBox<String> districtStatusCombo = new ComboBox<String>("District Status");
+		districtStatusCombo.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only", "Partial",
+				"Not Targted", "On Hold");
+
+		districtModalityCombo.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+//				districtModalityCombo.setValue(e.getValue());
+				districtModalityCombo.setValue(e.getValue());
+			}
+		});
+
+		districtStatusCombo.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				districtStatusCombo.setValue(e.getValue());
+			}
+		});
+
+		popData.setWidthFull();
+		districtStatusCombo.setWidthFull();
+		districtModalityCombo.setWidthFull();
+
+		if (populationByAgeGroup != null) {
+			popData.setValue(populationByAgeGroup);
 		} else {
-			popData0_4.setValue(null);
+			popData.setValue(null);
 		}
-		
-		if (age5_10 != null) {
-			popDataAge5_10.setValue(age5_10);
+
+		if (districtModalityByAgeGroup != null) {
+			districtModalityCombo.setValue(districtModalityByAgeGroup);
 		} else {
-			popDataAge5_10.setValue(null);
+			districtModalityCombo.setValue("");
 		}
-		
-//		if (age0_4 != null) {
-//			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
-////			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
-//		}
-//		if (age5_10 != null) {
-////			popData0_4.setValue(Integer.parseInt(age0_4.toString()));
-//			popDataAge5_10.setValue(Integer.parseInt(age5_10.toString()));
-//		} else {
-//			popData0_4.setValue(null);
-//			popDataAge5_10.setValue(null);
-//		}
+
+		if (districtStatusByAgeGroup != null) {
+			districtStatusCombo.setValue(districtStatusByAgeGroup);
+		} else {
+			districtStatusCombo.setValue("");
+		}
+
 		saveButton.addClickListener(e -> {
+			List<PopulationDataDto> popDataDto;
+			List<PopulationDataDto> district_Modality;
+			List<PopulationDataDto> district_Status;
+			
+			List<PopulationDataDto> popDataDtotoList = new ArrayList<>();
 
-			List<PopulationDataDto> popDataDto0_4 = FacadeProvider.getPopulationDataFacade()
-					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_0_4);
 			
-			List<PopulationDataDto> popDataDto5_10 = FacadeProvider.getPopulationDataFacade()
-					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_5_10);
 			
-//			System.out.println(popDataDto  +  "popdata dto " + popDataDto5_10);
-			// new ArrayList<>();
-			popDataDto0_4.get(0).setPopulation(popData0_4.getValue());
-			popDataDto5_10.get(0).setPopulation(popDataAge5_10.getValue());
 			
-			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto0_4);
-			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto5_10);
-			dialog.close();
+			System.out.println(ageGroup + " age group from save click listener " );
+			if (ageGroup != null) {
+				
+				popDataDto = FacadeProvider.getPopulationDataFacade().getDistrictPopulationByTypeUsingUUIDs(Uuid,
+						campaignDto_.getUuid(), ageGroup.equals("Age_0_4") ? AgeGroup.AGE_0_4
+								: ageGroup.equals("AGE_5_10") ? AgeGroup.AGE_5_10 : AgeGroup.AGE_0_4);
 
-			treeGrid.getDataProvider().refreshAll();// .refreshItem(campaignTreeGridDto); //add , true to regresh
-													// children
-			Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully) + " +++_");
+				district_Modality = FacadeProvider.getPopulationDataFacade()
+						.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+								ageGroup.equals("Age_0_4") ? AgeGroup.AGE_0_4
+										: ageGroup.equals("AGE_5_10") ? AgeGroup.AGE_5_10 : AgeGroup.AGE_0_4);
+
+				district_Status = FacadeProvider.getPopulationDataFacade()
+						.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+								ageGroup.equals("Age_0_4") ? AgeGroup.AGE_0_4
+										: ageGroup.equals("AGE_5_10") ? AgeGroup.AGE_5_10 : AgeGroup.AGE_0_4);
+
+				if (popData.getValue() != null
+						&& (districtModalityCombo.getValue() != null || districtModalityCombo.getValue() != "")
+						&& (districtStatusCombo.getValue() != null || districtStatusCombo.getValue() != "")) {
+
+					popDataDto.get(0).setPopulation(popData.getValue());
+
+					popDataDto.get(0).setModality(districtModalityCombo.getValue().toString());
+
+					popDataDto.get(0).setDistrictStatus(districtStatusCombo.getValue().toString());
+					
+					
+					popDataDtotoList.add(popDataDto.get(0));
+//					popDataDtotoList.add(district_Modality.get(0));
+//					popDataDtotoList.add(district_Status.get(0));
+					
+					
+					System.out.println(popDataDtotoList.size() + " Size of rthe popyulation data final list ");
+					
+
+					ConfirmDialog confirmationDialog = new ConfirmDialog();
+
+					confirmationDialog.setCancelable(true);
+					confirmationDialog.setRejectable(false);
+					confirmationDialog.addCancelListener(confirmationDialogx -> confirmationDialog.close());
+					confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
+					confirmationDialog.setCancelText(I18nProperties.getCaption("Cancel Update"));
+
+					confirmationDialog.addConfirmListener(confirmationDialogx -> {
+
+						try {
+							List<PopulationDataDto> popDataDtox=  new ArrayList<PopulationDataDto>();
+						
+							
+
+							FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDtotoList);
+//							FacadeProvider.getPopulationDataFacade().savePopulationData(district_Modality);
+//							FacadeProvider.getPopulationDataFacade().savePopulationData(district_Status);
+						} catch (Exception exception) {
+
+							System.out.println("excetion Caught while saving population data edit");
+
+						} finally {
+
+							confirmationDialog.close();
+
+							dialog.close();
+
+							treeGrid.getDataProvider().refreshAll();// refreshItem(campaignTreeGridDto); 
+																	// add , true
+																	// to
+																	// regresh
+																	// children
+							Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
+						}
+
+					});
+
+					confirmationDialog.setText("Are you sure you want to update the selected population data?");
+					confirmationDialog.setHeader("Update Population Data");
+					confirmationDialog.open();
+
+				} else {
+					Notification.show("You Need to fill all the data fields in order to save this population data");
+				}
+
+			}
 
 		});
 
-		VerticalLayout dialogLayout = new VerticalLayout(district, popData0_4, popDataAge5_10);
+		VerticalLayout dialogLayout = new VerticalLayout(district, popData, districtModalityCombo, districtStatusCombo);
 		dialogLayout.setPadding(false);
 		dialogLayout.setSpacing(false);
 		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
 		dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
 
 		return dialogLayout;
+
 	}
+
+//	private static VerticalLayout createDialogLayout(String name_, String ageGroup, Long selectedPopData,
+//			Button saveButton, String Uuid, CampaignDto campaignDto_, Dialog dialog,
+//			CampaignTreeGridDto campaignTreeGridDto, Integer age0_4, Integer age5_10, String modality0_4,
+//			String modality5_10, String districtStatus_0_4, String districtStatus_5_10) {
+//
+//		System.out.println(ageGroup + "Age Group of Selected Items ssssssssssssssssssssssssssssssssssssssssssssss");
+//
+//		TextField district = new TextField(I18nProperties.getCaption(Captions.district));
+//		district.setValue(name_);
+//		district.setReadOnly(true);
+//
+//		IntegerField popData0_4 = new IntegerField(
+//				I18nProperties.getCaption(Captions.District_population) + " Age 0_4");
+//
+//		IntegerField popDataAge5_10_Field = new IntegerField(
+//				I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
+//
+//		ComboBox<String> districtModalityCombo5_10 = new ComboBox<String>("Modality");
+//		districtModalityCombo5_10.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+//
+//		ComboBox<String> districtModalityCombo = new ComboBox<String>("Modality");
+//		districtModalityCombo.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+//
+//		ComboBox<String> districtStatusCombo5_10 = new ComboBox<String>("District Status");
+//		districtStatusCombo5_10.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only",
+//				"Partial", "Not Targted", "On Hold");
+//
+//		ComboBox<String> districtStatusCombo = new ComboBox<String>("District Status");
+//		districtStatusCombo.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only", "Partial",
+//				"Not Targted", "On Hold");
+//
+//		districtModalityCombo.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+//				districtModalityCombo.setValue(e.getValue());
+//				districtModalityCombo5_10.setValue(e.getValue());
+//			}
+//		});
+//
+//		districtModalityCombo5_10.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+////				districtModalityCombo.setValue(e.getValue());
+//				districtModalityCombo5_10.setValue(e.getValue());
+//			}
+//		});
+//
+//		districtStatusCombo.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+//				districtStatusCombo.setValue(e.getValue());
+//				districtStatusCombo5_10.setValue(e.getValue());
+//			}
+//		});
+//
+//		districtStatusCombo5_10.addValueChangeListener(e -> {
+//			if (e.getValue() != null) {
+////				districtModalityCombo.setValue(e.getValue());
+//				districtStatusCombo5_10.setValue(e.getValue());
+//			}
+//		});
+//
+//		popData0_4.setWidthFull();
+//		popDataAge5_10_Field.setWidthFull();
+//		districtModalityCombo.setWidthFull();
+//		districtModalityCombo5_10.setWidthFull();
+//		districtStatusCombo.setWidthFull();
+//
+//		if (age0_4 != null) {
+//			popData0_4.setValue(age0_4);
+//		} else {
+//			popData0_4.setValue(null);
+//		}
+//
+//		if (age5_10 != null) {
+//			popDataAge5_10_Field.setValue(age5_10);
+//		} else {
+//			popDataAge5_10_Field.setValue(null);
+//		}
+//
+//		if (modality0_4 != null) {
+//			districtModalityCombo.setValue(modality0_4);
+//		} else {
+//			districtModalityCombo.setValue("");
+//		}
+//
+//		if (modality5_10 != null) {
+//			districtModalityCombo5_10.setValue(modality5_10);
+//		} else {
+//			districtModalityCombo5_10.setValue("");
+//		}
+//
+//		if (districtStatus_0_4 != null) {
+//			districtStatusCombo.setValue(districtStatus_0_4);
+//		} else {
+//			districtStatusCombo.setValue("");
+//		}
+//
+//		if (districtStatus_5_10 != null) {
+//			districtStatusCombo5_10.setValue(districtStatus_5_10);
+//		} else {
+//			districtStatusCombo5_10.setValue("");
+//		}
+//
+//		saveButton.addClickListener(e -> {
+//
+//			List<PopulationDataDto> popDataDto0_4 = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_0_4);
+//
+//			List<PopulationDataDto> popDataDto5_10 = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictPopulationByTypeUsingUUIDs(Uuid, campaignDto_.getUuid(), AgeGroup.AGE_5_10);
+//
+//			List<PopulationDataDto> district_Modality = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+//							AgeGroup.AGE_0_4);
+//
+//			List<PopulationDataDto> district_Modality_5_10 = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+//							AgeGroup.AGE_5_10);
+//
+//			List<PopulationDataDto> district_Status_0_4 = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+//							AgeGroup.AGE_0_4);
+//
+//			List<PopulationDataDto> district_Status_5_10 = FacadeProvider.getPopulationDataFacade()
+//					.getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(Uuid, campaignDto_.getUuid(),
+//							AgeGroup.AGE_5_10);
+//
+//			if (popDataDto0_4.size() > 0 || popDataDto0_4 != null) {
+//
+//				popDataDto0_4.get(0).setPopulation(popData0_4.getValue());
+//
+//			}
+//
+//			if (popDataDto5_10.size() > 0 || popDataDto5_10 != null) {
+//
+//				popDataDto5_10.get(0).setPopulation(popDataAge5_10_Field.getValue());
+//
+//			}
+//
+//			if (district_Modality.size() > 0) {
+//
+//				district_Modality.get(0).setModality(districtModalityCombo.getValue().toString());
+//
+//			}
+//
+//			if (district_Modality_5_10.size() > 0) {
+//
+//				district_Modality_5_10.get(0).setModality(districtModalityCombo5_10.getValue().toString());
+//
+//			}
+//
+//			if (district_Status_0_4.size() > 0) {
+//
+//				district_Status_0_4.get(0).setDistrictStatus(districtStatusCombo.getValue().toString()); // (districtStatusCombo.getValue().toString());
+//
+//			}
+//
+//			if (district_Status_5_10.size() > 0) {
+//
+//				district_Status_5_10.get(0).setDistrictStatus(districtStatusCombo5_10.getValue().toString());
+//
+//			}
+//
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto0_4);
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(popDataDto5_10);
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(district_Modality);
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(district_Modality_5_10);
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(district_Status_0_4);
+//			FacadeProvider.getPopulationDataFacade().savePopulationData(district_Status_5_10);
+//
+//			dialog.close();
+//
+//			treeGrid.getDataProvider().refreshAll();// .refreshItem(campaignTreeGridDto); //add , true to regresh
+//													// children
+//			Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
+//
+//		});
+//
+//		districtModalityCombo5_10.setVisible(false);
+//		districtStatusCombo5_10.setVisible(false);
+//
+//		VerticalLayout dialogLayout = new VerticalLayout(district, popData0_4, popDataAge5_10_Field,
+//				districtModalityCombo, districtModalityCombo5_10, districtStatusCombo, districtStatusCombo5_10);
+//		dialogLayout.setPadding(false);
+//		dialogLayout.setSpacing(false);
+//		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+//		dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+//
+//		return dialogLayout;
+//	}
 
 	private static Button createSaveButton() {
 		Button saveButton = new Button(I18nProperties.getCaption(Captions.actionSave));
@@ -1194,7 +2051,8 @@ public class CampaignForm extends VerticalLayout {
 					for (DistrictDto district_x : district_) {
 						arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(),
 								district_x.getRegionId(), district_x.getRegionUuid_(), district_x.getUuid_(),
-								"district", district_x.getSelectedPopulationData()));
+								"district", district_x.getSelectedPopulationData(), district_x.getDistrictModality(),
+								district_x.getDistrictStatus(), district_x.getAgeGroup()));
 					}
 					;
 

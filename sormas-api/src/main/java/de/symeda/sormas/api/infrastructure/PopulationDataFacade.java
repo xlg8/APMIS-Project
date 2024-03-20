@@ -19,7 +19,16 @@ public interface PopulationDataFacade {
 	
 	List<PopulationDataDto> getDistrictPopulationByTypeUsingUUIDs(String districtUuid, String campaignUuid, AgeGroup ageGroup);
 	
+	List<PopulationDataDto> getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(String districtUuid, String campaignUuid, AgeGroup ageGroup);
+	
+//	List<PopulationDataDto> getDistrictStatusByDistrictUuidandCampaignUUIdAndAgeGroup(String districtUuid, String campaignUuid, AgeGroup ageGroup);
+
+	
 	Integer getDistrictPopulationByUuidAndAgeGroup(String districtUuid, String campaignUuid, String ageGroup);
+	
+	String getDistrictModalityByUuidAndCampaignAndAgeGroup(String districtUuid, String campaignUuid,  String ageGroup);
+	
+	String getDistrictStatusByCampaign(String districtUuid, String campaignUuid, String ageGroup);
 	/**
 	 * Returns the population of the district, projected to the current point in time based on its growth rate
 	 */
@@ -33,7 +42,7 @@ public interface PopulationDataFacade {
 	Integer getProjectedRegionPopulation(String regionUuid, PopulationDataCriteria critariax);
 
 	void savePopulationData(@Valid List<PopulationDataDto> populationDataList) throws ValidationRuntimeException;
-
+	
 	List<PopulationDataDto> getPopulationData(PopulationDataCriteria criteria);
 	
 	List<PopulationDataDto> getAllPopulationData();
@@ -56,4 +65,7 @@ public interface PopulationDataFacade {
 	List<PopulationDataDto> getPopulationDataImportChecker(PopulationDataCriteria criteria);
 
 	List<PopulationDataDto> getPopulationDataWithCriteria(String criteria);
+
+	void savePopulationDatax(@Valid List<PopulationDataDto> populationDataList,
+			@Valid List<PopulationDataFauxDto> fauxPopulationDataList, boolean isFauxData) throws ValidationRuntimeException;
 }

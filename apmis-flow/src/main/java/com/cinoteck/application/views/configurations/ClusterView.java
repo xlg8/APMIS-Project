@@ -260,6 +260,11 @@ public class ClusterView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 		}
 		
+		grid.addColumn(CommunityDto::isArchived).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		.setResizable(true).setSortable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
+
+		
 		grid.setVisible(true);	
 //		if (criteria == null) {
 //			criteria = new CommunityCriteriaNew();

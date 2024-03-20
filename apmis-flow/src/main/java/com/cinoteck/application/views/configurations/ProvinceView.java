@@ -210,7 +210,11 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 			grid.setVisible(true);
 			grid.setAllRowsVisible(true);
 		}
+		grid.addColumn(RegionIndexDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		.setResizable(true).setSortable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
 
+		
 		if (criteria == null) {
 			criteria = new RegionCriteria();
 			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);

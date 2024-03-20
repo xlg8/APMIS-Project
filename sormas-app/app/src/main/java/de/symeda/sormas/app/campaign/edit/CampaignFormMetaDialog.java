@@ -78,7 +78,9 @@ public class CampaignFormMetaDialog extends FormDialog {
             if (expiryDate != null) {
             LocalDate expiryLocalDate = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                 if (currentDate.isBefore(expiryLocalDate) || expiryLocalDate.isEqual(currentDate)) {
-                allUnexpiredFormsForCampaign.add(campaignFormMeta);
+                    System.out.print("Checking for form  " + campaignFormMeta.getFormName());
+
+                    allUnexpiredFormsForCampaign.add(campaignFormMeta);
 //                // expiryDate is before currentDate or equals tob the current date itshold be added to my new list
             }  else {
                 // expiryDate is after currentDate
@@ -86,11 +88,10 @@ public class CampaignFormMetaDialog extends FormDialog {
 
             }
             } else {
+                System.out.print("Expired Form   " + campaignFormMeta.getFormName());
 
             }
 }
-
-
         Collections.sort(allUnexpiredFormsForCampaign, Comparator.comparing(CampaignFormMeta::getFormName));
         contentBinding.campaignFormMeta.initializeSpinner(DataUtils.toItems(allUnexpiredFormsForCampaign));
     }

@@ -33,6 +33,10 @@ public class PopulationData extends AbstractDomainObject {
 	public static final String POPULATION = "population";
 	public static final String COLLECTION_DATE = "collectionDate";
 	public static final String SELECTED = "selected";
+	public static final String MODALITY = "modality";
+	public static final String DISTRICT_STATUS = "districtStatus";
+
+
 
 	private Region region;
 	private District district;
@@ -43,6 +47,9 @@ public class PopulationData extends AbstractDomainObject {
 	private Date collectionDate;
 	private Campaign campaign;
 	private boolean selected;
+	private String modality;
+	private String districtStatus;
+
 
 	@ManyToOne(cascade = {})
 	public Region getRegion() {
@@ -123,6 +130,24 @@ public class PopulationData extends AbstractDomainObject {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+
+	public String getDistrictStatus() {
+		return districtStatus;
+	}
+
+	public void setDistrictStatus(String districtStatus) {
+		this.districtStatus = districtStatus;
+	}
+
+	public String getModality() {
+		return modality;
+	}
+
+	public void setModality(String modality) {
+		this.modality = modality;
+	}
+	
+	
 
 	
 	

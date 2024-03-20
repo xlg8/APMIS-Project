@@ -189,6 +189,7 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
                 if(campaign.getCampaignFormMetas() != null){
                     List<Item> forms = campaignFormMetasToItems(campaign.getCampaignFormMetas());
 
+                     System.out.println("-----------------------"+forms);
 
                     forms.stream().filter(ee -> ee.getValue() != null)
                             .sorted(Comparator.comparing(item -> ((CampaignFormMeta)item.getValue()).getFormName()))
@@ -259,6 +260,7 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
             if(campaignFormMeta != null) {
 
                 listOut.add(new Item<>(campaignFormMeta.getFormName(), campaignFormMeta));
+                 System.out.println("-----------ddd-----------"+ listOut);
 
             }
         }
@@ -266,10 +268,13 @@ public class CampaignFormDataListActivity extends PagedBaseListActivity<Campaign
 //        listOut.sort(Comparator.comparing(Item::getKey));
 //        listOut.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
 // Sorting the list alphabetically based on the form names
-        listOut = listOut.stream()
+        listOut.stream()
                 .filter(ee -> ee.getValue() != null)
                 .sorted(Comparator.comparing(item -> ((CampaignFormMeta)item.getValue()).getFormName()))
                 .collect(Collectors.toList());
+
+
+        System.out.println("-----------ddd-----------"+ listOut);
 
         return listOut;
 

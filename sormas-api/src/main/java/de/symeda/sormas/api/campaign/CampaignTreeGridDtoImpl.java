@@ -18,12 +18,26 @@ public class CampaignTreeGridDtoImpl extends CampaignTreeGridDto {
 	
 	private Long populationData;
 	private String savedSelectionData;
-
+	
 	public CampaignTreeGridDtoImpl(String name, Long populationData, Long id, String parentUuid, String uuid, String levelAssessed, String savedSelectionData) {
         super(name, id, parentUuid, uuid, levelAssessed);
         this.populationData = populationData;
         this.savedSelectionData = savedSelectionData;
     }
+	
+
+//	public CampaignTreeGridDtoImpl(String name, Long populationData, Long id, String parentUuid, String uuid, String levelAssessed, String savedSelectionData, String districtModality, String districtStatus) {
+//        super(name, id, parentUuid, uuid, levelAssessed, districtModality, districtStatus);
+//        this.populationData = populationData;
+//        this.savedSelectionData = savedSelectionData;
+//    }
+	
+	public CampaignTreeGridDtoImpl(String name, Long populationData, Long id, String parentUuid, String uuid, String levelAssessed, String savedSelectionData, String districtModality, String districtStatus, String ageGroup) {
+        super(name, id, parentUuid, uuid, levelAssessed, districtModality, districtStatus, ageGroup);
+        this.populationData = populationData;
+        this.savedSelectionData = savedSelectionData;
+    }
+	
 	
 	 @Override
      public Long getPopulationData() {

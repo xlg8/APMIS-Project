@@ -741,7 +741,7 @@ public class CampaignEditForm extends AbstractEditForm<CampaignDto> {
         		 ArrayList arr = new ArrayList<>();
         		 for (DistrictDto district_x : district_) {
         			 arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(), district_x.getRegionId(),
-        					 district_x.getRegionUuid_(), district_x.getUuid_(), "district", district_x.getSelectedPopulationData()));
+        					 district_x.getRegionUuid_(), district_x.getUuid_(), "district", district_x.getSelectedPopulationData(), district_x.getDistrictModality(), district_x.getDistrictStatus(), district_x.getAgeGroup()));
          		};
         		 
         		 regionData.setRegionData(arr);

@@ -239,6 +239,10 @@ public class DistrictView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 			grid.setVisible(true);
 		}
+		grid.addColumn(DistrictIndexDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		.setResizable(true).setSortable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
+
 
 		if (criteria == null) {
 			criteria = new DistrictCriteria();

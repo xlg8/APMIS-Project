@@ -79,6 +79,9 @@ public class PopulationDataImporter extends DataImporter {
 		DistrictReferenceDto district = null;
 		CommunityReferenceDto community = null;
 		CampaignReferenceDto campaigns_ = null;
+		String modality_ = "";
+		String districtStatus_ = "";
+
 
 //		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
 
@@ -180,6 +183,56 @@ public class PopulationDataImporter extends DataImporter {
 					}
 				}
 			}
+			
+			if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
+				if (DataHelper.isNullOrEmpty(values[i])) {
+					modality_ = "";
+				} else {
+
+					if (values[i].toString() != "" || values[i].toString() != null) {
+						modality_ = values[i];
+
+						if (modality_ == null) {
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+							// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+							// ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
+						}
+
+				
+
+					} else {
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+						return ImportLineResult.ERROR;
+					}
+				}
+			}
+			
+			if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
+				if (DataHelper.isNullOrEmpty(values[i])) {
+					districtStatus_ = "";
+				} else {
+
+					if (values[i].toString() != "" || values[i].toString() != null) {
+						districtStatus_ = values[i];
+
+						if (districtStatus_ == null) {
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+							// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+							// ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
+						}
+
+				
+
+					} else {
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+						return ImportLineResult.ERROR;
+					}
+				}
+			}
 
 		}
 //	
@@ -189,8 +242,12 @@ public class PopulationDataImporter extends DataImporter {
 		final RegionReferenceDto finalRegion = region;
 		final DistrictReferenceDto finalDistrict = district;
 		final CommunityReferenceDto finalCommunity = community;
-
 		final CampaignReferenceDto finalCampaign = campaigns_;
+		
+		final String modality = modality_;
+		final String districtStatus = districtStatus_;
+
+
 
 		// Retrieve the existing population data for the region and district
 		PopulationDataCriteria criteria = new PopulationDataCriteria().region(finalRegion);
@@ -207,11 +264,21 @@ public class PopulationDataImporter extends DataImporter {
 			criteria.community(finalCommunity);
 		}
 
-		if (district == null) {
-			criteria.districtIsNull(true);
+		if (modality == null) {
+			criteria.modalityIsNull(true);
 		} else {
-			criteria.district(finalDistrict);
+			criteria.setModality(modality);
 		}
+		
+		if (districtStatus == null) {
+			criteria.districtStatusIsNull(true);
+		} else {
+			criteria.setDistrictStatus(districtStatus);
+		}
+		
+		
+		
+		
 
 		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade()
 				.getPopulationDataImportChecker(criteria);
@@ -234,6 +301,10 @@ public class PopulationDataImporter extends DataImporter {
 																										// type//
 																										// allowed
 										|| PopulationDataDto.COMMUNITY_EXTID
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+												|| PopulationDataDto.MODALITY
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+												|| PopulationDataDto.DISTRICT_STATUS
 												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 								} else {
 
@@ -243,7 +314,7 @@ public class PopulationDataImporter extends DataImporter {
 									newPopulationData.setCampaign(finalCampaign);
 									insertCellValueIntoData(newPopulationData, cellData.getValue(),
 											cellData.getEntityPropertyPath());
-									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++: "
+									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++:X "
 											+ existingPopulationDataList.size());
 
 									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
@@ -251,14 +322,17 @@ public class PopulationDataImporter extends DataImporter {
 											.filter(populationData -> populationData.getAgeGroup()
 													.equals(newPopulationData.getAgeGroup())
 													&& populationData.getCampaign()
-															.equals(newPopulationData.getCampaign()))
+															.equals(newPopulationData.getCampaign()) && populationData.getDistrict()
+															.equals(newPopulationData.getDistrict()))
 											.findFirst();
-
+									
 									if (existingPopulationData.isPresent()) {
 										System.out.println(
 												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
 										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
 										existingPopulationData.get().setCollectionDate(collectionDate);
+//										existingPopulationData.setModality(moda);
+
 										modifiedPopulationDataList.add(existingPopulationData.get());
 									} else {
 										System.out.println(
@@ -268,6 +342,10 @@ public class PopulationDataImporter extends DataImporter {
 										newPopulationData.setDistrict(finalDistrict);
 										newPopulationData.setCommunity(finalCommunity);
 										newPopulationData.setCampaign(finalCampaign);
+										newPopulationData.setModality(modality);
+										newPopulationData.setDistrictStatus(districtStatus);
+
+
 										modifiedPopulationDataList.add(newPopulationData);
 									}
 								}
@@ -292,10 +370,12 @@ public class PopulationDataImporter extends DataImporter {
 										|| PopulationDataDto.DISTRICT
 												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
 										|| PopulationDataDto.CAMPAIGN
-												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) // Property
-																										// type//
-																										// allowed
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0]) // Property// allowed
 										|| PopulationDataDto.COMMUNITY_EXTID
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+												|| PopulationDataDto.MODALITY
+												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
+												|| PopulationDataDto.DISTRICT_STATUS
 												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 								} else {
 
@@ -305,7 +385,7 @@ public class PopulationDataImporter extends DataImporter {
 									newPopulationData.setCampaign(finalCampaign);
 									insertCellValueIntoData(newPopulationData, cellData.getValue(),
 											cellData.getEntityPropertyPath());
-									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++: "
+									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++:Y "
 											+ existingPopulationDataList.size());
 
 									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
@@ -313,7 +393,8 @@ public class PopulationDataImporter extends DataImporter {
 											.filter(populationData -> populationData.getAgeGroup()
 													.equals(newPopulationData.getAgeGroup())
 													&& populationData.getCampaign()
-															.equals(newPopulationData.getCampaign()))
+															.equals(newPopulationData.getCampaign()) && populationData.getDistrict()
+															.equals(newPopulationData.getDistrict()))
 											.findFirst();
 
 									if (existingPopulationData.isPresent()) {
@@ -321,6 +402,8 @@ public class PopulationDataImporter extends DataImporter {
 												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
 										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
 										existingPopulationData.get().setCollectionDate(collectionDate);
+//										existingPopulationData.setModality();
+
 										modifiedPopulationDataList.add(existingPopulationData.get());
 									} else {
 										System.out.println(
@@ -330,6 +413,10 @@ public class PopulationDataImporter extends DataImporter {
 										newPopulationData.setDistrict(finalDistrict);
 										newPopulationData.setCommunity(finalCommunity);
 										newPopulationData.setCampaign(finalCampaign);
+										newPopulationData.setModality(modality);
+										newPopulationData.setDistrictStatus(districtStatus);
+
+
 										modifiedPopulationDataList.add(newPopulationData);
 									}
 								}

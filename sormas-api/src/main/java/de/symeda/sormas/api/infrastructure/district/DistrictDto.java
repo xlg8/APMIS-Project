@@ -43,6 +43,8 @@ public class DistrictDto extends EntityDto {
 	public static final String REGION = "region";
 	public static final String EXTERNAL_ID = "externalId";
 	public static final String EXTERNAL_ID_DUMMY = "externalIddummy";
+//	public static final String DISTRICT_MODALITY = "districtModality";
+
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
 	private String name;
@@ -64,7 +66,12 @@ public class DistrictDto extends EntityDto {
 	private String regionUuid_;
 	private String uuid_;
 	private String mapHasc;
-	
+	private String districtModality;
+	private String districtStatus;
+	private String ageGroup;
+
+
+
 	//@Size(max = FieldConstraints.CHARACTER_LIMIT_DEFAULT, message = Validations.textTooLong)
 	
 	//@Min(2)
@@ -102,6 +109,40 @@ public class DistrictDto extends EntityDto {
 		this.regionUuid_ = regionUuid_;
 		this.uuid_ = uuid_;
 		this.selectedPopulationData = selectedPopulationData;
+	};
+	
+//	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality) {
+//		this.name = name;
+//		this.populationData = populationData;
+//		this.regionId = regionId;
+//		this.regionUuid_ = regionUuid_;
+//		this.uuid_ = uuid_;
+//		this.selectedPopulationData = selectedPopulationData;
+//		this.districtModality = districtModality;
+//	};
+	
+//	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality, String districtStatus) {
+//		this.name = name;
+//		this.populationData = populationData;
+//		this.regionId = regionId;
+//		this.regionUuid_ = regionUuid_;
+//		this.uuid_ = uuid_;
+//		this.selectedPopulationData = selectedPopulationData;
+//		this.districtModality = districtModality;
+//		this.districtStatus = districtStatus;
+//
+//	};
+	
+	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality, String districtStatus, String ageGroup) {
+		this.name = name;
+		this.populationData = populationData;
+		this.regionId = regionId;
+		this.regionUuid_ = regionUuid_;
+		this.uuid_ = uuid_;
+		this.selectedPopulationData = selectedPopulationData;
+		this.districtModality = districtModality;
+		this.districtStatus = districtStatus;
+		this.ageGroup = ageGroup;
 	};
 	
 	
@@ -276,5 +317,31 @@ public class DistrictDto extends EntityDto {
 	public void setPs_af(String ps_af) {
 		this.ps_af = ps_af;
 	}
+
+	public String getDistrictModality() {
+		return districtModality;
+	}
+
+	public void setDistrictModality(String districtModality) {
+		this.districtModality = districtModality;
+	}
+
+	public String getDistrictStatus() {
+		return districtStatus;
+	}
+
+	public void setDistrictStatus(String districtStatus) {
+		this.districtStatus = districtStatus;
+	}
+
+	public String getAgeGroup() {
+		return ageGroup;
+	}
+
+	public void setAgeGroup(String ageGroup) {
+		this.ageGroup = ageGroup;
+	}
+	
+	
 	
 }

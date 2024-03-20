@@ -48,6 +48,8 @@ public class RegionIndexDto extends EntityDto {
 	private Long areaexternalId;
 	private AreaReferenceDto area;
 	private CountryReferenceDto country;
+	private boolean archived;
+ 
 
 	public String getName() {
 		return name;
@@ -132,6 +134,25 @@ public class RegionIndexDto extends EntityDto {
 
 	public void setCountry(CountryReferenceDto country) {
 		this.country = country;
+	}
+	
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	public String provideActiveStatus() {
+		if(isArchived()) {
+			return "Archived";
+
+		}else {
+			return "Active";
+
+		}
+		
 	}
 
 	public RegionReferenceDto toReference() {
