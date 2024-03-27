@@ -544,6 +544,7 @@ public class UserForm extends FormLayout {
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccessesList.add(FormAccess.FLW);
+			formAccessesList.add(FormAccess.Modality_Pre);
 			formAccessesList.add(FormAccess.TRAINING);
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
@@ -554,7 +555,8 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.LQAS);
 			formAccessesList.add(FormAccess.EAG_PCA);
 			formAccessesList.add(FormAccess.EAG_FMS);
-			formAccessesList.add(FormAccess.EAG_LQAS);
+			formAccessesList.add(FormAccess.EAG_LQAS);			
+			formAccessesList.add(FormAccess.Modality_Post);
 			formAccess.setItems(formAccessesList);
 			// preCampformAccess.setItems(preCampformAccessesList);
 			// intraCampformAccess.setItems(intraCampformAccessesList);
@@ -572,7 +574,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
 			formAccessesList.add(FormAccess.EAG_ICM);
-			formAccessesList.add(FormAccess.EAG_ADMIN);
+			formAccessesList.add(FormAccess.EAG_ADMIN);			
 			// intraCampformAccess.setItems(intraCampformAccessesList);
 			// postCampformAccess.setVisible(false);
 
@@ -609,10 +611,10 @@ public class UserForm extends FormLayout {
 				+ "var newContentL = '<hr><b class=\"formaccesschkbox\">Pre-Campaign</b><hr>';\n"
 				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
 
-				+ "if (i === 2) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Intra-Campaign</b><hr>';\n"
+				+ "if (i === 3) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Intra-Campaign</b><hr>';\n"
 				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
 
-				+ "if (i === 6) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Post-Campaign</b><hr>';\n"
+				+ "if (i === 7) {\n" + "var newContentL = '<hr><b class=\"formaccesschkbox\">Post-Campaign</b><hr>';\n"
 				+ "children[i].insertAdjacentHTML('afterend', newContentL);\n" + "}\n"
 
 				+ "}}";
