@@ -13,7 +13,7 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 
 	public static final String I18N_PREFIX = "configurationchangelog";
 
-	public static final String AUDIT_USER = "creatingUser";
+	public static final String AUDIT_USER = "creatinguser";
 	public static final String ACTION_UNIT_TYPE = "action_unit_type";
 	public static final String ACTION_UNIT_NAME = "action_unit_name";
 	public static final String UNIT_CODE = "unit_code";
@@ -22,7 +22,7 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 
 
 	
-	private String creatingUser_string;
+	private String creatinguser;
 	private String action_unit_type;
 	private String action_unit_name;
 	private Long unit_code;
@@ -36,19 +36,19 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 
 
 
-	public ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+	public ConfigurationChangeLogDto(String creatingUser, String action_unit_type, String action_unit_name,
 			Long unit_code, String action_logged) {
 		super();
-		this.creatingUser_string = creatingUser_string;
+		this.creatinguser = creatingUser;
 		this.action_unit_type = action_unit_type;
 		this.action_unit_name = action_unit_name;
 		this.unit_code = unit_code;
 		this.action_logged = action_logged;
 	}
 	
-	public ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
+	public ConfigurationChangeLogDto(String creatingUser, String action_unit_type, String action_unit_name,
 			Long unit_code, String action_logged, Date changedate,  Date action_date) {
-		this.creatingUser_string = creatingUser_string;
+		this.creatinguser = creatingUser;
 		this.action_unit_type = action_unit_type;
 		this.action_unit_name = action_unit_name;
 		this.unit_code = unit_code;
@@ -61,12 +61,12 @@ public class ConfigurationChangeLogDto extends EntityDto {/**
 
 
 
-	public String getCreatingUser_string() {
-		return creatingUser_string;
+	public String getCreatinguser() {
+		return creatinguser;
 	}
 
-	public void setCreatingUser_string(String creatingUser_string) {
-		this.creatingUser_string = creatingUser_string;
+	public void setCreatinguser(String creatinguser) {
+		this.creatinguser = creatinguser;
 	}
 
 	public String getAction_unit_name() {

@@ -368,6 +368,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
 		relevanceStatusFilter.setClearButtonVisible(true);
+		relevanceStatusFilter.setPlaceholder("Active");
+
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			System.out.println(criteria.relevanceStatus(e.getValue()) + "criteria relevance " + criteria + "jjjjjjj"
 					+ e.getValue());
@@ -548,7 +550,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //						}
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Province");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -577,7 +579,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //						}
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Province");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -662,7 +664,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getRegionFacade().dearchive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Province");
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
@@ -685,7 +687,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 								FacadeProvider.getRegionFacade().archive(uuidsz);
 								
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Province");
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
@@ -726,7 +728,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					
 					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 					configurationChangeLogDto.setAction_unit_type("Province");
 					configurationChangeLogDto.setAction_unit_name(name);
 					configurationChangeLogDto.setUnit_code(rcodeValue);
@@ -775,7 +777,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 //							ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //									String unit_code, String action_logged)
 							ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("Province");
 							configurationChangeLogDto.setAction_unit_name(name);
 							configurationChangeLogDto.setUnit_code(rcodeValue);

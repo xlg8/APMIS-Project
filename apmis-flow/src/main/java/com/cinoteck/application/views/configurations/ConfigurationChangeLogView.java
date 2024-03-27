@@ -271,13 +271,18 @@ public class ConfigurationChangeLogView extends VerticalLayout {
 		});
 
 		grid.addColumn(dateRenderer).setHeader(I18nProperties.getCaption("Date")).setSortable(true).setResizable(true);
-//		grid.addColumn(ConfigurationChangeLogDto.AUDIT_USER).setHeader(I18nProperties.getCaption("Username"))
-//		.setSortable(true).setResizable(true);
+
+		grid.addColumn(ConfigurationChangeLogDto.AUDIT_USER).setHeader(I18nProperties.getCaption("Username"))
+		.setSortable(true).setResizable(true);		
+		
 
 		grid.addColumn(ConfigurationChangeLogDto.ACTION_UNIT_TYPE).setHeader(I18nProperties.getCaption("Unit Type"))
 				.setSortable(true).setResizable(true);
+		
+	
 		grid.addColumn(ConfigurationChangeLogDto.ACTION_UNIT_NAME).setHeader(I18nProperties.getCaption("Unit Name"))
 				.setSortable(true).setResizable(true);
+		
 		grid.addColumn(ConfigurationChangeLogDto.UNIT_CODE).setHeader(I18nProperties.getCaption("Unit Code"))
 				.setSortable(true).setResizable(true);
 

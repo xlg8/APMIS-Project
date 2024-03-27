@@ -609,10 +609,16 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		// System.out.println("starting....");
 
 		resultData.addAll(resultList.stream()
-				.map((result) -> new DistrictDto((String) result[0].toString(), ((Integer) result[1]).longValue(),
+				.map((result) -> new DistrictDto(
+						(String) result[0].toString(), 
+						((Integer) result[1]).longValue(),
 						((BigInteger) result[2]).longValue(), 
 						(String) result[3].toString(),
-						(String) result[4].toString(), (String) result[5].toString(), (String) result[6].toString(), (String) result[7].toString(),(String) result[8].toString() ))
+						(String) result[4].toString(), 
+						(String) result[5].toString(), 
+						(String) result[6].toString(),
+						(String) result[7].toString(),
+						(String) result[8].toString() ))
 				.collect(Collectors.toList()));
 
 		// System.out.println("ending...." +resultData.size());

@@ -358,7 +358,7 @@ public class ProvinceDataImporter extends DataImporter {
 
 							for (RegionDto  regionData : newUserLinetoSave){
 								
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Province");
 								configurationChangeLogDto.setAction_unit_name(regionData.getName());
 								configurationChangeLogDto.setUnit_code(regionData.getExternalId());

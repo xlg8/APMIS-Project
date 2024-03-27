@@ -225,10 +225,13 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 //System.out.println(dto + "from the campaign facade when its trying to save ");
 
+		
+		Campaign campaign = fromDto(dto, true);
+		
+		campaignService.ensurePersisted(campaign);
+		
 		saveCampaignFormExp(dto);
 
-		Campaign campaign = fromDto(dto, true);
-		campaignService.ensurePersisted(campaign);
 		return toDto(campaign);
 	}
 

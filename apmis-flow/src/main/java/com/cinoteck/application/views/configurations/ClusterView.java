@@ -260,7 +260,7 @@ public class ClusterView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 		}
 		
-		grid.addColumn(CommunityDto::isArchived).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		grid.addColumn(CommunityDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
 		.setResizable(true).setSortable(true).setAutoWidth(true)
 		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
 
@@ -456,6 +456,7 @@ public class ClusterView extends VerticalLayout {
 
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
+		relevanceStatusFilter.setPlaceholder("Active");
 
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
@@ -705,7 +706,7 @@ public class ClusterView extends VerticalLayout {
 						FacadeProvider.getCommunityFacade().archive(selectedRow.getUuid());
 
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Cluster");
 						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
@@ -726,7 +727,7 @@ public class ClusterView extends VerticalLayout {
 						FacadeProvider.getCommunityFacade().dearchive(selectedRow.getUuid());
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Cluster");
 						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
@@ -850,7 +851,7 @@ public class ClusterView extends VerticalLayout {
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().dearchive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Cluster");
 								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
@@ -871,7 +872,7 @@ public class ClusterView extends VerticalLayout {
 								FacadeProvider.getCommunityFacade().archive(uuidsz);
 								
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Cluster");
 								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
@@ -916,7 +917,7 @@ public class ClusterView extends VerticalLayout {
 					FacadeProvider.getCommunityFacade().save(dce, true);
 
 					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 					configurationChangeLogDto.setAction_unit_type("Cluster");
 					configurationChangeLogDto.setAction_unit_name(name);
 					configurationChangeLogDto.setUnit_code(ccodeValue);
@@ -1001,7 +1002,7 @@ public class ClusterView extends VerticalLayout {
 //									ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //											String unit_code, String action_logged)
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-									configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+									configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 									configurationChangeLogDto.setAction_unit_type("Cluster");
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(ccodeValue);

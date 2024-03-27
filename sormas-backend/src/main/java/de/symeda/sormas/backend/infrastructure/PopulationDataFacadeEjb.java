@@ -400,10 +400,16 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 	public List<Object[]> getPopulationDataForExport(String campaignUuid) {
 //TODO addd campaign to the selection
 		//@formatter:off
-		String qry = "SELECT "+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
+		String qry = "SELECT "
+				+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
 				+ District.TABLE_NAME + "." + District.NAME + " AS districtname, "
-				+ Community.TABLE_NAME + "." + Community.NAME + " AS communityname," + Campaign.TABLE_NAME + "." + Campaign.UUID + " AS campaignname, " + PopulationData.AGE_GROUP + ", "
-				+ PopulationData.SEX + ", " + PopulationData.POPULATION
+				+ Community.TABLE_NAME + "." + Community.NAME + " AS communityname," 
+				+ Campaign.TABLE_NAME + "." + Campaign.UUID + " AS campaignname, " 
+				+ PopulationData.MODALITY  + ", "
+				+ PopulationData.DISTRICT_STATUS  + ", "
+				+ PopulationData.AGE_GROUP + ", "
+				+ PopulationData.SEX + ", " 
+				+ PopulationData.POPULATION 
 				+ " FROM " + PopulationData.TABLE_NAME
 				+ " LEFT JOIN " + Campaign.TABLE_NAME + " ON " + PopulationData.CAMPAIGN + "_id = "
 				+ Campaign.TABLE_NAME + "." + Campaign.ID
