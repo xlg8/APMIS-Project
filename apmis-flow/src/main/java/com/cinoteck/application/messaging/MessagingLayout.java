@@ -82,7 +82,7 @@ public class MessagingLayout extends VerticalLayout {
 	List<CommunityReferenceDto> communityiesHolder;
 
 	Icon savePreviewIcon = new Icon(VaadinIcon.PROGRESSBAR);
-	Button savePreviewButton = new Button("Proceed and Save", savePreviewIcon);
+	Button savePreviewButton = new Button("Proceed and Send", savePreviewIcon);
 
 	private boolean isNew = false;
 
@@ -170,7 +170,7 @@ public class MessagingLayout extends VerticalLayout {
 		Button discardChanges = new Button("Dicard Changes", discardIcon);
 		
 		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
-		Button saved = new Button("Save", saveIcon);
+		Button saved = new Button("Preview", saveIcon);
 		hr.add(discardChanges, saved);
 		add(formLayout, hr);
 

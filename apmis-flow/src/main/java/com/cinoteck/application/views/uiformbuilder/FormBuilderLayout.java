@@ -1,7 +1,9 @@
 package com.cinoteck.application.views.uiformbuilder;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.ComponentEvent;
@@ -204,6 +206,11 @@ public class FormBuilderLayout extends VerticalLayout {
 			campaignFormMetaDto.setCampaignFormElements(formGridComponent.getGridData());
 			campaignFormMetaDto.setCampaignFormTranslations(translationGridComponent.getGridData());
 
+			List<String> listofElement = formGridComponent.getGridData().stream().map(CampaignFormElement::getId)
+					.collect(Collectors.toList());
+			Set<String> setofElement = new LinkedHashSet<>(listofElement);
+			
+			if (listofElement.size() == setofElement.size()) {
 			fireEvent(new SaveEvent(this, campaignFormMetaDto));
 
 			UI.getCurrent().getPage().reload();
@@ -211,6 +218,26 @@ public class FormBuilderLayout extends VerticalLayout {
 			Notification notification = new Notification("Form Saved", 3000, Position.MIDDLE);
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			notification.open();
+		} else {
+
+			Notification notification = new Notification();
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			notification.setPosition(Position.MIDDLE);
+			Button closeButton = new Button(new Icon("lumo", "cross"));
+			closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+			closeButton.getElement().setAttribute("aria-label", "Close");
+			closeButton.addClickListener(event -> {
+				notification.close();
+			});
+
+			Paragraph text = new Paragraph("This Form cannot save because you have multiple elements with the same id");
+
+			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+			layout.setAlignItems(Alignment.CENTER);
+
+			notification.add(layout);
+			notification.open();
+		}
 		} else {
 
 			Notification notification = new Notification();

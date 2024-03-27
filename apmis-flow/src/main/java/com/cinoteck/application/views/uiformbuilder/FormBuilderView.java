@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,8 +13,11 @@ import java.util.stream.Stream;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignForm;
+import com.cinoteck.application.views.uiformbuilder.FormBuilderLayout.SaveEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,12 +25,15 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -44,6 +51,7 @@ import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
+import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -52,7 +60,6 @@ import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserCriteria;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
-
 
 @PageTitle("APMIS-Form-Manager")
 @Route(value = "Form-Manager-Wizard", layout = MainLayout.class)
@@ -365,7 +372,7 @@ public class FormBuilderView extends VerticalLayout {
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
-		} else {			
+		} else {
 			confirmationPopup.setHeader("Archive Forms");
 
 			confirmationPopup.setText("You are about to Archive " + grid.getSelectedItems().size() + " Forms");
@@ -385,9 +392,9 @@ public class FormBuilderView extends VerticalLayout {
 	}
 
 	private void dearchiveFormPopup() {
-		
+
 		if (grid.getSelectedItems().size() < 1) {
-			
+
 			Notification notification = Notification.show("Please Select Forms to Dearchive");
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notification.setPosition(Notification.Position.MIDDLE);

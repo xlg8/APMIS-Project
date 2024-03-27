@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +41,14 @@ import com.vaadin.flow.server.StreamResource;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.importexport.ImportFacade;
 import de.symeda.sormas.api.importexport.ValueSeparator;
-import de.symeda.sormas.api.infrastructure.InfrastructureType;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.utils.DataHelper;
@@ -67,12 +69,13 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	public Anchor downloadErrorReportButton;
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	CampaignDto campaignDto = new CampaignDto();
+	private CampaignFormMetaReferenceDto campaignFormMetaReferenceDto;
 	UserProvider usr = new UserProvider();;
-
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
 			CampaignFormMetaReferenceDto campaignForm, CampaignDto campaignDto) {
 		String dto;
+		this.campaignFormMetaReferenceDto = campaignForm;
 		if (campaignReferenceDto != null) {
 			dto = campaignReferenceDto.getCaption();
 			this.campaignDto = campaignDto;
@@ -88,8 +91,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		seperatorr.getStyle().set("color", " #0D6938");
 
 		VerticalLayout dialog = new VerticalLayout();
-
-
 
 		campaignFormMetaFilter.setText(campaignForm.getCaption());
 
@@ -175,28 +176,26 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
-		
+
 		startDataImport.addClickListener(ed -> {
 			startIntervalCallback();
 			try {
-
-				 
-
+				
 				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),
 						campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
-			}finally {
-				
+			} finally {
+
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Campaign Data Import");
-				userActivitySummaryDto.setAction("User Attempted "+ campaignForm.getCaption() + " Import in " +  campaignDto.getName());
+				userActivitySummaryDto.setAction(
+						"User Attempted " + campaignForm.getCaption() + " Import in " + campaignDto.getName());
 				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			}
-			
 
 		});
 
@@ -206,7 +205,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		downloadErrorReportButton = new Anchor("beforechange");
 		// downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
-		
+
 		Icon downloadErrorReportButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
 		donloadErrorReport.setIcon(downloadErrorReportButtonnIcon);
 		donloadErrorReport.addClickListener(e -> {
@@ -216,9 +215,6 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		});
 
 		anchorSpan.add(downloadErrorReportButton);
-
-
-		
 
 //		UI.getCurrent().addPollListener(event -> {
 //			if (callbackRunning) {
@@ -230,10 +226,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 //			}
 //		});
 
-		dialog.add(seperatorr, 
-				step1,
-				lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload, startDataImport, step3,
-				lblDnldErrorReport, donloadErrorReport, anchorSpan);
+		dialog.add(seperatorr, step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload,
+				startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();
@@ -255,7 +249,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	}
 
 	private void startIntervalCallback() {
-		//UI.getCurrent().setPollInterval(300);
+		// UI.getCurrent().setPollInterval(300);
 		if (!callbackRunning) {
 			timer = new Timer();
 			timer.schedule(new TimerTask() {

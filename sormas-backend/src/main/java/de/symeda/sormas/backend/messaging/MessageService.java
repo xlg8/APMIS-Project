@@ -140,18 +140,29 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
 			Predicate areaFilter = joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
 			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
+			System.out.println("Area debugginggggggggggggggggg");
+			 if (messageCriteria.getRegion() == null) {
+				 System.out.println("Region checking debugginggggggggggggggggg");
+			        return filter;
+			    }
 		}
 		
 		if (messageCriteria.getRegion() != null) {
 			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
 			Predicate regionFilter = joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
 			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
+			System.out.println("Region debugginggggggggggggggggg");
+			if (messageCriteria.getDistrict() == null) {
+				System.out.println("district checking debugginggggggggggggggggg");
+		        return filter;
+		    }
 		}
 		
 		if (messageCriteria.getDistrict() != null) {
 			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
 			Predicate districtFilter = joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
 			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
+			System.out.println("District debugginggggggggggggggggg");
 		}
 		
 		return filter;

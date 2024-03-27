@@ -51,7 +51,11 @@ public interface CampaignFormDataFacade {
 	CampaignFormDataDto getCampaignFormDataByUuid(String campaignFormDataUuid);
 
 	List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser);
+	
+	List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid, String campaignformmetaid);
 
+	CampaignFormDataDto getCampaignFormDataByCcode(Long ccode);
+	
 	void deleteCampaignFormData(String campaignFormDataUuid);
 
 	boolean isArchived(String campaignFormDataUuid);

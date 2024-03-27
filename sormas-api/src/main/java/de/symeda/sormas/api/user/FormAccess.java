@@ -34,7 +34,9 @@ public enum FormAccess {
     EAG_ICM("EAG-ICM"),
     EAG_PCA("EAG-PCA"),
     EAG_FMS("EAG-FMS"),
-    EAG_LQAS("EAG-LQAS");
+    EAG_LQAS("EAG-LQAS"),
+    Modality_Pre("Modality_Pre"),
+    Modality_Post("Modality_Post");
 
     private String displayName;
 

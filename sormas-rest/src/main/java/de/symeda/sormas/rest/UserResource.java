@@ -92,7 +92,7 @@ public class UserResource {
 	
 	@POST
 	@Path("/fcm/token/{username}/{token}")
-	public boolean updateFcmToken(@PathParam("username") String username, @PathParam("token") String token) {	
+	public boolean updateFcmToken(@PathParam("username") String username, @PathParam("token") String token) {
 		return FacadeProvider.getUserFacade().updateFcmToken(username, token);
 	}
 

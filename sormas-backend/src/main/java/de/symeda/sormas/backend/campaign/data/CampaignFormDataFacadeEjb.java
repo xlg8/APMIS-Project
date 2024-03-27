@@ -36,7 +36,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -50,7 +49,6 @@ import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
-import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignJurisdictionLevel;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
@@ -81,7 +79,6 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.CampaignDataExtractDto;
 import de.symeda.sormas.api.report.JsonDictionaryReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
-import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
@@ -211,10 +208,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setSource(source.getSource());
 		return target;
 	}
-	
-	
-	
-	
+
 	public CampaignFormDataDto toDtoWithArchive(CampaignFormData source) {
 		if (source == null) {
 			return null;
@@ -236,7 +230,6 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setArchived(source.isArchived());
 		return target;
 	}
-
 
 	@Override
 	public CampaignFormDataDto saveCampaignFormDataMobile(@Valid CampaignFormDataDto campaignFormDataDto)
@@ -308,12 +301,11 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		CampaignFormDataDto dto = toDto(source);
 		return dto;
 	}
-	
+
 	private CampaignFormDataDto convertToDtoWithArchive(CampaignFormData source) {
 		CampaignFormDataDto dto = toDtoWithArchive(source);
 		return dto;
 	}
-	
 
 	@Override
 	public CampaignFormDataDto getCampaignFormDataByUuid(String uuid) {
@@ -345,6 +337,65 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
 
 		cq.where(cb.and(cb.equal(userJoin.get(User.USER_NAME), creatingUser)));
+		return em.createQuery(cq).getResultList();
+	}
+	
+	@Override
+	public CampaignFormDataDto getCampaignFormDataByCcode(Long ccode) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
+		Root<CampaignFormData> root = cq.from(CampaignFormData.class);
+//		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
+//		Join<CampaignFormData, CampaignFormMeta> campaignFormMetaJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
+//				JoinType.LEFT);
+//		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
+//		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
+//		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
+		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+//		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+
+//		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
+//				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME), root.get(CampaignFormData.FORM_VALUES),
+//				areaJoin.get(Area.NAME), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.NAME),
+//				regionJoin.get(Region.EXTERNAL_ID), districtJoin.get(District.NAME),
+//				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
+//				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
+//				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+//				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+
+		cq.where(cb.and(cb.equal(communityJoin.get(Community.EXTERNAL_ID), ccode)));
+		return QueryHelper.getFirstResult(em, cq, this::toDto);
+	}
+	
+	@Override
+	public List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid,
+			String campaignformmetaid) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
+		Root<CampaignFormData> root = cq.from(CampaignFormData.class);
+		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
+		Join<CampaignFormData, CampaignFormMeta> campaignFormMetaJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
+				JoinType.LEFT);
+		
+		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
+		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
+		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
+		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+
+		cq.multiselect(root.get(CampaignFormData.UUID), campaignJoin.get(Campaign.NAME),
+				campaignFormMetaJoin.get(CampaignFormMeta.FORM_NAME), root.get(CampaignFormData.FORM_VALUES),
+				areaJoin.get(Area.NAME), areaJoin.get(Area.EXTERNAL_ID), regionJoin.get(Region.NAME),
+				regionJoin.get(Region.EXTERNAL_ID), districtJoin.get(District.NAME),
+				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
+				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
+				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
+
+		cq.where(cb.and(cb.equal(campaignJoin.get(Campaign.UUID), campaignid),
+				cb.equal(campaignFormMetaJoin.get(CampaignFormMeta.UUID), campaignformmetaid)));
 		return em.createQuery(cq).getResultList();
 	}
 
@@ -418,7 +469,8 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				districtJoin.get(District.EXTERNAL_ID), communityJoin.get(Community.NAME),
 				communityJoin.get(Community.CLUSTER_NUMBER), communityJoin.get(Community.EXTERNAL_ID),
 				root.get(CampaignFormData.FORM_DATE), campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE),
-				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME), root.get(CampaignFormData.ISVERIFIED), root.get(CampaignFormData.ISPUBLISHED));
+				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME), root.get(CampaignFormData.ISVERIFIED),
+				root.get(CampaignFormData.ISPUBLISHED));
 
 		Predicate filter = CriteriaBuilderHelper.and(cb,
 				campaignFormDataService.createCriteriaFilter(criteria, cb, root),
@@ -475,11 +527,11 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.FORM_TYPE:
 					expression = campaignFormMetaJoin.get(CampaignFormMeta.FORM_TYPE);
 					break;
-					
+
 				case CampaignFormDataIndexDto.ISVERIFIED:
 					expression = campaignFormMetaJoin.get(CampaignFormData.ISVERIFIED);
 					break;
-					
+
 				case CampaignFormDataIndexDto.ISPUBLISHED:
 					expression = campaignFormMetaJoin.get(CampaignFormData.ISPUBLISHED);
 					break;

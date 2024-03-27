@@ -169,19 +169,21 @@ public class UserDao extends AbstractAdoDao<User> {
 
 	public void updateFcmToken(String username, String token) {
 		try {
-			User user;
-			QueryBuilder<User, ?> builder = queryBuilder();
-			Where<User, ?> where = builder.where();
+			QueryBuilder<User, Long> builder = dao.queryBuilder(); // 'dao' is the inner Dao<User, Long> instance
+			Where<User, Long> where = builder.where();
 			where.eq(User.USER_NAME, username.toLowerCase());
 			where.and().eq(AbstractDomainObject.SNAPSHOT, false);
-
 			PreparedQuery<User> preparedQuery = builder.prepare();
-			user = where.queryForFirst();
+			User user = dao.queryForFirst(preparedQuery);
 
-			user.setToken(token);
-			update(user);
+			if (user != null) {
+				user.setToken(token);
+				dao.update(user);
+			} else {
+				throw new RuntimeException("User not found with username: " + username);
+			}
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Failed to update FCM token for user: " + username, e);
 		}
 	}
 }

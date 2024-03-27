@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.StringUtils;
@@ -171,6 +172,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean openData = false;
 	private String uuidForm;
 	private boolean checkDistrictEntry = false;
+	private String formName;
 
 	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
 			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
@@ -185,6 +187,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		this.campaignReferenceDto = campaignReferenceDto;
 		this.campaignFormMeta = campaignFormMetaUUID;
 		this.isDistrictEntry = isDistrictEntry;
+		this.formName = formName;
 		if (formValues != null) {
 			this.formValuesMap = new HashMap<>();
 			formValues.forEach(formValue -> formValuesMap.put(formValue.getId(), formValue.getValue()));
@@ -447,7 +450,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 					logger.debug(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
 							+ "| >>>>>>" + comdto.getClusterNumber());
 //				
-					if (campaignForm.getFormCategory() == FormAccess.ADMIN) {
+					if (campaignForm.getFormCategory() == FormAccess.ADMIN ||
+							campaignForm.getFormCategory() == FormAccess.Modality_Pre ||
+							campaignForm.getFormCategory() == FormAccess.Modality_Post) {
 						if (!formuuid.equals("nul")) {
 
 							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
@@ -784,7 +789,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					});
 
 //					toggle.setItemLabelGenerator(item -> map.get(item));
-					
+
 					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(toggle);
@@ -824,7 +829,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					numberField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					numberField.setId(formElement.getId());
 					numberField.setSizeFull();
-					
+
 					setFieldValue(numberField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 					vertical.add(numberField);
 					fields.put(formElement.getId(), numberField);
@@ -981,7 +986,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					integerField.setId(formElement.getId());
 					integerField.setStepButtonsVisible(true);
 					integerField.setSizeFull();
-					
+
 					setFieldValue(integerField, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(integerField);
@@ -1705,7 +1710,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				component.setVisible(visible);
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
-						
+
 						if (typex == CampaignFormElementType.TEXT) {
 							((TextField) component).setValue(" ");
 							((TextField) component).setValue("");
@@ -1715,8 +1720,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						}
 
 						((AbstractField) component).setRequiredIndicatorVisible(false);
-						
-						
+
 						component.setVisible(visible);
 					} else {
 						component.setVisible(visible);
@@ -1730,7 +1734,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			// hide on default
 			boolean hide = dependingOnValuesList.stream()
 					.anyMatch(v -> fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex));
-			//component.setVisible(hide);
+			// component.setVisible(hide);
 
 //			if (hide) {
 //				// getElement().setProperty("required", requiredIndicatorVisible);
@@ -1745,9 +1749,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (typex != CampaignFormElementType.LABEL) {
 					if (!visible) {
-						
+
 						((AbstractField) component).setRequiredIndicatorVisible(false);
-						
+
 						if (typex == CampaignFormElementType.TEXT) {
 							((TextField) component).setValue(" ");
 							((TextField) component).setValue("");
@@ -1755,7 +1759,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 							((AbstractField) component).setValue(null);
 						}
-						
+
 						component.setVisible(visible);
 
 					} else {
@@ -1953,38 +1957,17 @@ public class CampaignFormBuilder extends VerticalLayout {
 		validateAndSave();
 		if (!invalidForm) {
 			if (openData) {
-				UserProvider userProvider = new UserProvider();
-				List<CampaignFormDataEntry> entries = getFormValues();// LotClusterNo
-
-				for (CampaignFormDataEntry sdxc : getFormValues()) {
-					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
-				}
-
-				CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
-						.getCampaignFormDataByUuid(uuidForm);
-
-				// maybe we want to check the name of the updating user here
-				dataDto.setCreatingUser(userProvider.getUserReference());
-				// dataDto.setSource(PlatformEnum.WEB);
-				dataDto.setFormValues(entries);
-
-				dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
-
-				Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
-				return true;
-
-			} else {
 				boolean saveChecker = true;
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
 
 				CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
-				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();				
-				
+				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
+
 				for (CampaignFormDataEntry sdxc : getFormValues()) {
 					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
 					if (sdxc.getId().equalsIgnoreCase("LotNo")) {
-						lotNo = sdxc;					
+						lotNo = sdxc;
 					}
 					if (sdxc.getId().equalsIgnoreCase("LotClusterNo")) {
 						lotClusterNo = sdxc;
@@ -1992,44 +1975,49 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
-						.getCampaignFormDataByCreatingUser(userProvider.getUser().getUserName());
+						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
+								campaignFormMeta.getUuid());
 
-				Map<Object, Object> lotMap = new HashMap<>();				
-				int index = 0;
-				int indexy = 0;
-				
+				List<String> listLotNo = new ArrayList();
+				List<String> listLotClusterNo = new ArrayList();
+
 				if (lotchecker.size() > 0) {
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();					
-						if(lotOwnSec.contains(lotNo) && lotOwnSec.contains(lotClusterNo)) {					
-							index = lotOwnSec.indexOf(lotNo);
-							indexy = lotOwnSec.indexOf(lotClusterNo);
-							lotMap.put(lotOwnSec.get(index).getValue(), lotOwnSec.get(indexy).getValue());
-						}
-					}
-				}				
 
-				if (!lotMap.isEmpty()) {
-					for (Map.Entry<Object, Object> entry : lotMap.entrySet()) {
-						if (entry.getKey().equals(lotNo.getValue())) {
-							if (entry.getValue().equals(lotClusterNo.getValue())) {
-								saveChecker = false;
-								break;
-							}
+						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
+						if (lotOwnSec.contains(lotNo)) {
+							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
+						}
+
+						if (lotOwnSec.contains(lotClusterNo)) {
+							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
 						}
 					}
 				}
 
+				for (String string : listLotNo) {
+					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
+						saveChecker = false;
+						break;
+					}
+				}
+
+				for (String string : listLotClusterNo) {
+					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
+						saveChecker = false;
+						break;
+					}
+				}
+
 				if (saveChecker) {
-					CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
-							cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
+					CampaignFormDataDto dataDto = FacadeProvider.getCampaignFormDataFacade()
+							.getCampaignFormDataByUuid(uuidForm);
 
-					Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-					dataDto.setFormDate(dateData);
+					// maybe we want to check the name of the updating user here
 					dataDto.setCreatingUser(userProvider.getUserReference());
+					// dataDto.setSource(PlatformEnum.WEB);
 					dataDto.setFormValues(entries);
-					dataDto.setSource("WEB");
+
 					dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 
 					Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
@@ -2045,8 +2033,133 @@ public class CampaignFormBuilder extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph(
-							"Choose another Cluster Lot Number you cannot submit multiple Cluster Lot Number for same Lot Number");
+					Paragraph text = new Paragraph("This Lot Number or Cluster Lot Number exist");
+
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();
+				}
+			} else {
+				boolean saveChecker = true;
+				boolean ccodeChecker = true;
+				UserProvider userProvider = new UserProvider();
+				List<CampaignFormDataEntry> entries = getFormValues();
+
+				CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
+				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
+
+				for (CampaignFormDataEntry sdxc : getFormValues()) {
+					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
+					if (sdxc.getId().equalsIgnoreCase("LotNo")) {
+						lotNo = sdxc;
+					}
+					if (sdxc.getId().equalsIgnoreCase("LotClusterNo")) {
+						lotClusterNo = sdxc;
+					}
+				}
+
+				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
+						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
+								campaignFormMeta.getUuid());
+
+				List<String> listLotNo = new ArrayList();
+				List<String> listLotClusterNo = new ArrayList();
+
+				if (lotchecker.size() > 0) {
+					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
+
+						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
+						if (lotOwnSec.contains(lotNo)) {
+							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
+						}
+
+						if (lotOwnSec.contains(lotClusterNo)) {
+							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
+						}
+					}
+				}
+
+				for (String string : listLotNo) {
+					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
+						saveChecker = false;
+						break;
+					}
+				}
+
+				for (String string : listLotClusterNo) {
+					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
+						saveChecker = false;
+						break;
+					}
+				}
+
+				if (campaignFormMeta.getFormCategory().equals(FormAccess.Modality_Post)
+						|| campaignFormMeta.getFormCategory().equals(FormAccess.Modality_Pre)) {
+
+					List<CampaignFormDataIndexDto> loginUserForms = FacadeProvider.getCampaignFormDataFacade()
+							.getCampaignFormDataByCreatingUser(userProvider.getUser().getUserName()).stream()
+							.filter(e -> e.getForm().trim().equalsIgnoreCase(formName.trim()))
+							.collect(Collectors.toList());
+
+					for (CampaignFormDataIndexDto campaignFormDataIndexDto : loginUserForms) {
+
+						if (campaignFormDataIndexDto.getCcode().equals(FacadeProvider.getCommunityFacade()
+								.getByUuid(cbCommunity.getValue().getUuid()).getExternalId())) {
+
+							ccodeChecker = false;
+							break;
+						}
+					}
+				}
+
+				if (saveChecker) {
+					if (ccodeChecker) {
+						CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
+								cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
+
+						Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+						dataDto.setFormDate(dateData);
+						dataDto.setCreatingUser(userProvider.getUserReference());
+						dataDto.setFormValues(entries);
+						dataDto.setSource("WEB");
+						dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
+
+						Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
+						return true;
+					} else {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("You already submit a data with this community");
+
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+					}
+				} else {
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph("This Lot Number or Cluster Lot Number exist");
 
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);
