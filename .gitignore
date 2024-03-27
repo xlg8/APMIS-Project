@@ -48,3 +48,5 @@ bin
 
 .DS_Store
 /deploy.zip
+/deploy_.zip
+/deploy__.zip
