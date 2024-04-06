@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -34,6 +35,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.campaign.CampaignFacade;
@@ -58,8 +60,10 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.campaign.diagram.CampaignDiagramDefinitionFacadeEjb;
+import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
+import de.symeda.sormas.backend.campaign.form.CampaignFormMetaWithExpiryService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.infrastructure.PopulationData;
@@ -96,6 +100,8 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	private CampaignLogService campaignLogService;
 	@EJB
 	private CampaignFormMetaService campaignFormMetaService;
+	@EJB
+	private CampaignFormMetaWithExpiryService campaignFormMetaWithExpiryService;
 	@EJB
 	private UserService userService;
 	@EJB
@@ -225,11 +231,10 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 //System.out.println(dto + "from the campaign facade when its trying to save ");
 
-		
 		Campaign campaign = fromDto(dto, true);
-		
+
 		campaignService.ensurePersisted(campaign);
-		
+
 		saveCampaignFormExp(dto);
 
 		return toDto(campaign);
@@ -238,25 +243,17 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	private void saveCampaignFormExp(CampaignDto dto) {
 		try {
 			for (CampaignFormMetaWithExpReferenceDto data : dto.getCampaignFormMetaExpiry()) {
-				
-				String sqlQuery = "INSERT INTO " + CampaignFormMetaExpDay.TABLE_NAME + "("
-	                    + CampaignFormMetaExpDay.FORM_ID + ", " 
-	                    + CampaignFormMetaExpDay.CAMPAIGN + ", "
-	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", " 
-	                    + CampaignFormMetaExpDay.UUID + ", "
-	                    + CampaignFormMetaExpDay.CHANGE_DATE + ")"
-	                    + " VALUES ('" + data.getFormId() + "', '" 
-	                    + data.getCampaignId() + "', '" 
-	                    + data.getDaysExpired() + "', '" 
-	                    + data.getUuid() + "', CURRENT_TIMESTAMP)"
-	                    + " ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " 
-	                    + CampaignFormMetaExpDay.CAMPAIGN + ") DO UPDATE "
-	                    + " SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED." 
-	                    + CampaignFormMetaExpDay.EXPIRE_DAY + ", "
-	                    + CampaignFormMetaExpDay.UUID + " = EXCLUDED." 
-	                    + CampaignFormMetaExpDay.UUID + ", "
-	                    + CampaignFormMetaExpDay.CHANGE_DATE + " = CURRENT_TIMESTAMP;";
 
+				String sqlQuery = "INSERT INTO " + CampaignFormMetaExpDay.TABLE_NAME + "("
+						+ CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN + ", "
+						+ CampaignFormMetaExpDay.EXPIRE_DAY + ", " + CampaignFormMetaExpDay.UUID + ", "
+						+ CampaignFormMetaExpDay.CHANGE_DATE + ")" + " VALUES ('" + data.getFormId() + "', '"
+						+ data.getCampaignId() + "', '" + data.getDaysExpired() + "', '" + data.getUuid()
+						+ "', CURRENT_TIMESTAMP)" + " ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", "
+						+ CampaignFormMetaExpDay.CAMPAIGN + ") DO UPDATE " + " SET " + CampaignFormMetaExpDay.EXPIRE_DAY
+						+ " = EXCLUDED." + CampaignFormMetaExpDay.EXPIRE_DAY + ", " + CampaignFormMetaExpDay.UUID
+						+ " = EXCLUDED." + CampaignFormMetaExpDay.UUID + ", " + CampaignFormMetaExpDay.CHANGE_DATE
+						+ " = CURRENT_TIMESTAMP;";
 
 //				String sqlQuery = "insert into " + CampaignFormMetaExpDay.TABLE_NAME + "("
 //						+ CampaignFormMetaExpDay.FORM_ID + ", " 
@@ -270,8 +267,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 //						+ "ON CONFLICT (" + CampaignFormMetaExpDay.FORM_ID + ", " + CampaignFormMetaExpDay.CAMPAIGN
 //						+ ") DO UPDATE\n" + "SET " + CampaignFormMetaExpDay.EXPIRE_DAY + " = EXCLUDED."
 //						+ CampaignFormMetaExpDay.EXPIRE_DAY + ";" ;
-				
-				
+
 //				String sqlQuery = "INSERT INTO " + CampaignFormMetaExpDay.TABLE_NAME + "("
 //	                    + CampaignFormMetaExpDay.FORM_ID + ", " 
 //	                    + CampaignFormMetaExpDay.CAMPAIGN + ", "
@@ -296,12 +292,12 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			}
 		} catch (Exception e) {
 			System.err.println(e.getStackTrace());
-		}finally {
-			String sqlQuery = "UPDATE " + CampaignFormMetaExpDay.TABLE_NAME + " AS campaignExpiry \n"
-					+ "SET " + CampaignFormMetaExpDay.EXPIRE_DATE + " = " 
-					+ Campaign.START_DATE + " + " + CampaignFormMetaExpDay.EXPIRE_DAY +  " * interval '1 day'\n"
-					+ "FROM " + Campaign.TABLE_NAME + " AS camapigns  \n"
-					+ " WHERE "+ CampaignFormMetaExpDay.CAMPAIGN + " =  camapigns." +  Campaign.UUID + ";";
+		} finally {
+			String sqlQuery = "UPDATE " + CampaignFormMetaExpDay.TABLE_NAME + " AS campaignExpiry \n" + "SET "
+					+ CampaignFormMetaExpDay.EXPIRE_DATE + " = " + Campaign.START_DATE + " + "
+					+ CampaignFormMetaExpDay.EXPIRE_DAY + " * interval '1 day'\n" + "FROM " + Campaign.TABLE_NAME
+					+ " AS camapigns  \n" + " WHERE " + CampaignFormMetaExpDay.CAMPAIGN + " =  camapigns."
+					+ Campaign.UUID + ";";
 			System.out.println(" vvvvvvvvvv+++++++++==+++++========: " + sqlQuery);
 			em.createNativeQuery(sqlQuery).executeUpdate();
 		}
@@ -328,6 +324,27 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		}
 		return dsc;
 	}
+	
+	@Override
+	public int getDefaultCampaignFormExp(String formUuuid) {
+		int dsc = 0;
+		try {
+			String sqlQuery = "select " + CampaignFormMeta.DAYSTOEXPIRE + " from "
+					+ CampaignFormMeta.TABLE_NAME + " where " + CampaignFormMeta.UUID + "= '" + formUuuid
+					+ "';";
+
+			Integer result = (Integer) em.createNativeQuery(sqlQuery).getSingleResult();
+
+			// Convert the BigInteger to int
+			dsc = result.intValue();
+
+//				dsc = (int) em.createNativeQuery(sqlQuery).getSingleResult();
+			System.out.println(" =========retriving...: " + dsc);
+		} catch (NoResultException e) {
+
+		}
+		return dsc;
+	}
 
 	@Override
 	public CampaignLogDto saveAuditLog(CampaignLogDto campaignLogDto) {
@@ -338,31 +355,6 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		return toLogDto(campaignLog);
 	}
 
-//	@Override
-//	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
-//
-//		String qr = "select c.action_logged, c.last_updated, ca.name, ur.username from campaignlog c\n"
-//				+ "left outer join campaigns ca on c.campaign = ca.id\n"
-//				+ "left outer join users ur on c.creatinguser = ur.id \n"
-//				+ "where ca.uuid = '"+camp.getUuid()+"';";
-//
-//		Query seriesDataQuery = em.createNativeQuery(qr);
-//
-//		List<CampaignLogDto> resultData = new ArrayList<>();
-//
-//		@SuppressWarnings("unchecked")
-//		List<Object[]> resultList = seriesDataQuery.getResultList();
-//
-//		System.out.println("starting....");
-//
-//		resultData
-//				.addAll(resultList.stream()
-//						.map((result) -> new CampaignLogDto((String) result[0].toString(), (Date) result[1],
-//								(String) result[2].toString(), (String) result[3].toString()))
-//						.collect(Collectors.toList()));
-//
-//		return resultData;
-//	}
 	@Override
 	public List<CampaignLogDto> getAuditLog(CampaignReferenceDto camp) {
 
@@ -388,8 +380,6 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 		return resultData;
 	}
-	
-
 
 	public CampaignLog fromDto(@NotNull CampaignLogDto source) {
 
@@ -510,6 +500,16 @@ public class CampaignFacadeEjb implements CampaignFacade {
 					campaignFormMetas.stream().map(campaignFormMetaReferenceDto -> campaignFormMetaService
 							.getByUuid(campaignFormMetaReferenceDto.getUuid())).collect(Collectors.toSet()));
 		}
+
+//		final Set<CampaignFormMetaWithExpReferenceDto> campaignFormMetasx = source.getCampaignFormMetaExpiry(); // Campaign
+																												// data
+//		if (!CollectionUtils.isEmpty(campaignFormMetasx)) {
+//			target.setCampaignFormMetasExpiry(
+//					campaignFormMetasx.stream().map(campaignFormMetaReferenceDto -> campaignFormMetaWithExpiryService
+//							.getByUuid(campaignFormMetaReferenceDto.getFormId())).collect(Collectors.toSet()));
+//
+//		}
+
 		target.setDashboardElements(source.getCampaignDashboardElements());// .stream().filter(e ->
 																			// e.getDiagramId().equals("")));
 		return target;
@@ -703,7 +703,7 @@ public class CampaignFacadeEjb implements CampaignFacade {
 
 		return target;
 	}
-	
+
 	public CampaignDto toDtoWithArchived(Campaign source) {
 
 		if (source == null) {
@@ -731,7 +731,6 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		target.setPublished(source.isPublished());
 		target.setArchived(source.isArchived());
 		target.setDeleted(source.isDeleted());
-		
 
 		return target;
 	}
@@ -927,11 +926,11 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		}
 
 		CampaignDto oldCampaignDto = getByUuid(campaignUuid);
+
 		Campaign newCampaign = cloneFromDto(oldCampaignDto, user);
 
 		campaignService.ensurePersisted(newCampaign);
 
-//		String newUuid_ = campaignService.cloneForm(campaignService.getByUuid(campaignUuid), user.getId());
 		String newUuid = newCampaign.getUuid();
 
 		List<PopulationData> popList = campaignService.clonePopulationData(campaignService.getByUuid(campaignUuid),
@@ -946,6 +945,10 @@ public class CampaignFacadeEjb implements CampaignFacade {
 			ppData.setRegion(popListx.getRegion());
 			ppData.setCollectionDate(popListx.getCollectionDate());
 			ppData.setSelected(popListx.isSelected());
+			ppData.setModality(popListx.getModality());
+			ppData.setAgeGroup(popListx.getAgeGroup());
+			ppData.setDistrictStatus(popListx.getDistrictStatus());
+			;
 			em.persist(ppData);
 
 		}
@@ -959,6 +962,34 @@ public class CampaignFacadeEjb implements CampaignFacade {
 		}
 
 		saveAuditLog(log);
+
+		CampaignDto newCampaignDto = getByUuid(newUuid);
+		HashSet<CampaignFormMetaWithExpReferenceDto> ccc = new HashSet<CampaignFormMetaWithExpReferenceDto>();
+
+		for (CampaignFormMetaReferenceDto cc : newCampaignDto.getCampaignFormMetas()) {
+
+			if (cc.getUuid() != null) {
+				CampaignFormMetaWithExpReferenceDto vvv = new CampaignFormMetaWithExpReferenceDto();
+
+				vvv.setCampaignId(newUuid);
+				vvv.setFormId(cc.getUuid());
+				vvv.setDaysExpired(Long.valueOf(cc.getDaysExpired()));
+				UUID uuid = UUID.randomUUID();
+				String fullUUID = uuid.toString(); // Get full UUID with dashes
+				String truncatedUUID = fullUUID.substring(0, Math.min(fullUUID.length(), 36));
+
+				String uuidWithHyphens = truncatedUUID.toString();
+
+				vvv.setUuid(uuidWithHyphens);
+
+				ccc.add(vvv);
+
+			} else {
+
+			}
+		}
+		newCampaignDto.setCampaignFormMetaExpiryDto(ccc);
+		saveCampaignFormExp(newCampaignDto);
 
 		return newUuid;
 	}
@@ -1096,7 +1127,5 @@ public class CampaignFacadeEjb implements CampaignFacade {
 	@Stateless
 	public static class CampaignFacadeEjbLocal extends CampaignFacadeEjb {
 	}
-
-	
 
 }

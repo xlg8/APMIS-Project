@@ -37,7 +37,7 @@ public class CampaignTreeGridDto {
         this.levelAssessed = levelAssessed;
     }
     
-    public CampaignTreeGridDto(String name, Long id, String parentUuid, String uuid, String levelAssessed, String districtModality, String districtStatus, String ageGroup) {
+    public CampaignTreeGridDto(String name, Long id, String parentUuid, String uuid, String levelAssessed, String districtModality, String districtStatus) {
         this.name = name;
         this.id = id;
         this.parentUuid = parentUuid;
@@ -45,7 +45,7 @@ public class CampaignTreeGridDto {
         this.levelAssessed = levelAssessed;
         this.districtModality = districtModality;
         this.districtStatus = districtStatus;
-        this.ageGroup = ageGroup;
+//        this.ageGroup = ageGroup;
     }
     
 //    public CampaignTreeGridDto(String name, Long id, String parentUuid, String uuid, String levelAssessed, String districtModality, String districtStatus) {
@@ -89,6 +89,12 @@ public class CampaignTreeGridDto {
     public Long getPopulationData() {
         return getRegionData().stream()
                 .map(region -> region.getPopulationData())
+                .reduce(0L, Long::sum);
+    }
+    
+    public Long getPopulationData5_10() {
+        return getRegionData().stream()
+                .map(region -> region.getPopulationData5_10())
                 .reduce(0L, Long::sum);
     }
         

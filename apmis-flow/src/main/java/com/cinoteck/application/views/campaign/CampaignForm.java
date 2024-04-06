@@ -76,6 +76,7 @@ import de.symeda.sormas.api.campaign.diagram.CampaignDashboardElement;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaWithExpReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -814,6 +815,23 @@ public class CampaignForm extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
+		
+		ComponentRenderer<Span, CampaignTreeGridDto> populationGenerate5_10 = new ComponentRenderer<>(input -> {
+
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			} else {
+				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+			}
+
+			String value = String.valueOf(arabicFormat.format(input.getPopulationData5_10()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
 
 		treeGrid = new TreeGrid<>();
 
@@ -827,10 +845,10 @@ public class CampaignForm extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.Location));
 
 		treeGrid.addColumn(populationGenerate)
-				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short) + " (Age 0-4)");
 
-		treeGrid.addColumn(CampaignTreeGridDto::getAgeGroup)
-				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short));
+		treeGrid.addColumn(populationGenerate5_10)
+				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short)+ " (Age 5-10)");
 
 		treeGrid.addColumn(CampaignTreeGridDto::getDistrictModality).setHeader("Modality");
 
@@ -877,17 +895,13 @@ public class CampaignForm extends VerticalLayout {
 			isSingleSelectClickItemLock = true;
 			if (campaignDto != null && ee.getItem().getLevelAssessed().equals("district")) {
 
-				if (ee.getItem().getAgeGroup().equalsIgnoreCase("AGE_0_4")) {
+				if (ee.getItem().getPopulationData() != null) {
 
 					System.out.println("Age Group from item click " + ee.getItem().getAgeGroup());
 					Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade()
 							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
 									"AGE_0_4");
 
-//					Integer popDataAge5_10;
-//					if(FacadeProvider.getPopulationDataFacade()
-//							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
-//									"AGE_5_10") != null) {
 
 					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
 							.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
@@ -904,13 +918,13 @@ public class CampaignForm extends VerticalLayout {
 //						popDataAge5_10 = 0;
 //					}
 
-					createDialogBasicsx(ee.getItem().getUuid(), ee.getItem().getPopulationData(),
-							ee.getItem().getName(), ee.getItem().getAgeGroup(), campaignDto, ee.getItem(),
+					createDialogBasics(ee.getItem().getUuid(), ee.getItem().getPopulationData(),
+							ee.getItem().getName(), "AGE_0_4", campaignDto, ee.getItem(),
 							popDataAge0_4, popDataAge5_10, districtModality_0_4, districtStatus_0_4);
 
 				}
 
-				else if (ee.getItem().getAgeGroup().equalsIgnoreCase("AGE_5_10")) {
+				else if (ee.getItem().getPopulationData5_10() != null) {
 					System.out.println("Age Group from item click " + ee.getItem().getAgeGroup());
 
 					Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
@@ -932,8 +946,8 @@ public class CampaignForm extends VerticalLayout {
 //						popDataAge0_4 = 0;
 //					}
 
-					createDialogBasicsx(ee.getItem().getUuid(), ee.getItem().getPopulationData(),
-							ee.getItem().getName(), ee.getItem().getAgeGroup(), campaignDto, ee.getItem(),
+					createDialogBasics(ee.getItem().getUuid(), ee.getItem().getPopulationData(),
+							ee.getItem().getName(), "AGE_5_10", campaignDto, ee.getItem(),
 							popDataAge0_4, popDataAge5_10, districtModality_5_10, districtStatus_5_10);
 
 //					createDialogBasics(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
@@ -943,30 +957,6 @@ public class CampaignForm extends VerticalLayout {
 
 				}
 
-//				Integer popDataAge0_4 = FacadeProvider.getPopulationDataFacade().getDistrictPopulationByUuidAndAgeGroup(
-//						ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
-//				String districtModality_0_4 = FacadeProvider.getPopulationDataFacade()
-//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
-//								"AGE_0_4");
-//				String districtStatus_0_4 = FacadeProvider.getPopulationDataFacade()
-//						.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_0_4");
-//
-//				Integer popDataAge5_10 = FacadeProvider.getPopulationDataFacade()
-//						.getDistrictPopulationByUuidAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
-//								"AGE_5_10");
-//
-//				String districtModality_5_10 = FacadeProvider.getPopulationDataFacade()
-//						.getDistrictModalityByUuidAndCampaignAndAgeGroup(ee.getItem().getUuid(), campaignDto.getUuid(),
-//								"AGE_5_10");
-//
-//				String districtStatus_5_10 = FacadeProvider.getPopulationDataFacade()
-//						.getDistrictStatusByCampaign(ee.getItem().getUuid(), campaignDto.getUuid(), "AGE_5_10");
-//
-//				System.out.println(districtStatus_0_4 + "0-------4" + districtStatus_5_10 + " 5-------10");
-//
-//				createDialogBasic(ee.getItem().getUuid(), ee.getItem().getPopulationData(), ee.getItem().getName(),
-//						ee.getItem().getAgeGroup(), campaignDto, ee.getItem(), popDataAge0_4, popDataAge5_10,
-//						districtModality_0_4, districtModality_5_10, districtStatus_0_4, districtStatus_5_10);
 			}
 		});
 
@@ -1074,13 +1064,13 @@ public class CampaignForm extends VerticalLayout {
 		ComboBox box = new ComboBox();
 		box.setItems("A", "B");
 
-		assocCampaignLayout.add(treeGrid, configurePopEdit());
+		assocCampaignLayout.add(treeGrid, configurePopulationPopEdit());
 		return assocCampaignLayout;
 
 	}
 
-	private Component configurePopEdit() {
-		VerticalLayout formx = editorForm();
+	private Component configurePopulationPopEdit() {
+		VerticalLayout formx = populationEditorForm();
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(treeGrid, formx);
 		content.setFlexGrow(4, treeGrid);
@@ -1090,7 +1080,7 @@ public class CampaignForm extends VerticalLayout {
 		return content;
 	}
 
-	private VerticalLayout editorForm() {
+	private VerticalLayout populationEditorForm() {
 		VerticalLayout vert = new VerticalLayout();
 
 		formx = new FormLayout();
@@ -1126,7 +1116,7 @@ public class CampaignForm extends VerticalLayout {
 				I18nProperties.getCaption(Captions.District_population) + " Age 5_10");
 
 		ComboBox<String> districtModality = new ComboBox<String>("Modality");
-		districtModality.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+		districtModality.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed");
 
 		ComboBox<String> districtStatus = new ComboBox<String>("Status");
 		districtStatus.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only", "Partial",
@@ -1385,34 +1375,8 @@ public class CampaignForm extends VerticalLayout {
 		return vert;
 	}
 
-//	private void createDialogBasics(String Uuid, Long selectedPopData, String name_, String ageGroup,
-//			CampaignDto campaignDto_, CampaignTreeGridDto campaignTreeGridDto, Integer populationByAgeGroup,
-//			String districtModalityByAgeGroup, String districtStatusByAgeGroup) {
-//		Dialog dialog = new Dialog();
-//
-//		dialog.removeAll();
-//
-//		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.editing) + " " + name_);
-//
-//		Button saveButton = createSaveButton();
-//		Button cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), e -> dialog.close());
-//		dialog.getFooter().add(cancelButton);
-//		dialog.getFooter().add(saveButton);
-//
-//		VerticalLayout dialogLayout = createDialogLayoutByAge(name_, ageGroup, selectedPopData, saveButton, Uuid,
-//				campaignDto_, dialog, campaignTreeGridDto, populationByAgeGroup, districtModalityByAgeGroup,
-//				districtStatusByAgeGroup);
-//
-//		dialog.add(dialogLayout);
-//
-//		add(dialog);
-//
-//		dialog.open();
-//
-//		isSingleSelectClickItemLock = false;
-//	}
 
-	private void createDialogBasicsx(String Uuid, Long selectedPopData, String name_, String ageGroup,
+	private void createDialogBasics(String Uuid, Long selectedPopData, String name_, String ageGroup,
 			CampaignDto campaignDto_, CampaignTreeGridDto campaignTreeGridDto, Integer populationByAgeGroup,
 			Integer populationByAgeGroup5_10, String districtModalityByAgeGroup, String districtStatusByAgeGroup) {
 		Dialog dialog = new Dialog();
@@ -1455,7 +1419,7 @@ public class CampaignForm extends VerticalLayout {
 				I18nProperties.getCaption(Captions.District_population) + " " + "5_10");
 
 		ComboBox<String> districtModalityCombo = new ComboBox<String>("Modality");
-		districtModalityCombo.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed", "NID");
+		districtModalityCombo.setItems("H2H", "M2M", "S2S", "HF2HF", "Mixed");
 
 		ComboBox<String> districtStatusCombo = new ComboBox<String>("District Status");
 		districtStatusCombo.setItems("Additional", "Additional & Cold", "Cold", "Full District", "HRMP only", "Partial",
@@ -1728,11 +1692,10 @@ public class CampaignForm extends VerticalLayout {
 					for (DistrictDto district_x : district_) {
 
 						if (district_x.getPopulationData() != null) {
-							arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(),
+							arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(), district_x.getPopulationData5_10(),
 									district_x.getRegionId(), district_x.getRegionUuid_(), district_x.getUuid_(),
 									"district", district_x.getSelectedPopulationData(),
-									district_x.getDistrictModality(), district_x.getDistrictStatus(),
-									district_x.getAgeGroup()));
+									district_x.getDistrictModality(), district_x.getDistrictStatus()));
 						} else {
 //							arr.add(new CampaignTreeGridDtoImpl(district_x.getName(), district_x.getPopulationData(),
 //									district_x.getRegionId(), district_x.getRegionUuid_(), district_x.getUuid_(),
@@ -1833,16 +1796,20 @@ public class CampaignForm extends VerticalLayout {
 			}
 
 			List<CampaignFormMetaReferenceDto> preCampaignDashboardgridData = comp.getSavedElements();
+			
 			List<CampaignFormMetaReferenceDto> intraCampaignDashboardgridData = compp.getSavedElements();
 			List<CampaignFormMetaReferenceDto> postCampaignDashboardgridData = comppp.getSavedElements();
 
 			Set<CampaignFormMetaReferenceDto> superSet = new HashSet<>();
+			Set<CampaignFormMetaWithExpReferenceDto> formMetatExpirySet = formDatac.getCampaignFormMetaExpiry();
 
 			for (CampaignFormMetaReferenceDto item : preCampaignDashboardgridData) {
+				
 				if (item != null) {
 					superSet.add(item);
 				}
 			}
+		
 
 			// Add items from intraCampaignDashboardgridData if they are not null
 			for (CampaignFormMetaReferenceDto item : intraCampaignDashboardgridData) {
@@ -1860,6 +1827,8 @@ public class CampaignForm extends VerticalLayout {
 
 			formDatac.setCampaignDashboardElements(superList);
 			formDatac.setCampaignFormMetas(superSet);
+			formDatac.setCampaignFormMetaExpiryDto(formMetatExpirySet);
+
 
 			// Do the facade save stuff for population list here
 

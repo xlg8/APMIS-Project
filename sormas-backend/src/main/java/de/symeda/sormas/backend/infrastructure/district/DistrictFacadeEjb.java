@@ -591,12 +591,15 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 
 	@Override
 	public List<DistrictDto> getAllActiveAsReferenceAndPopulation(Long regionId, CampaignDto campaignDt) {
-		String queryStringBuilder = "select a.name, p.population, a.id, ar.uuid as umid, a.uuid as uimn, p.selected, p.modality, p.districtstatus, p.agegroup from district a\n"
-				+ "left outer join populationdata p on a.id = p.district_id\n" + "left outer join region ar on ar.id = "
+		String queryStringBuilder = "select a.name,"
+				+ " SUM(CASE WHEN p.agegroup = 'AGE_0_4' THEN p.population ELSE 0 END) AS population_age_0_4,\n"
+				+ "    SUM(CASE WHEN p.agegroup = 'AGE_5_10' THEN p.population ELSE 0 END) AS population_age_5_10,"
+				+ " a.id, ar.uuid as umid, a.uuid as uimn, p.selected, p.modality, p.districtstatus from district a\n"
+				+ " left outer join populationdata p on a.id = p.district_id\n" + "left outer join region ar on ar.id = "
 				+ regionId + "\n" + "left outer join campaigns ca on p.campaign_id = ca.id \n"
 				+ "where a.archived = false and (p.agegroup = 'AGE_0_4' or p.agegroup = 'AGE_5_10') and a.region_id = " + regionId
 				+ " and ca.uuid = '" + campaignDt.getUuid() + "'\n"
-				+ "group by a.name, p.population, a.id, ar.uuid, a.uuid, p.selected, p.modality, p.districtstatus, p.agegroup";
+				+ " group by a.name,  a.id, ar.uuid, a.uuid, p.selected, p.modality, p.districtstatus";
 
 		System.out.println("::::::" + queryStringBuilder);
 		Query seriesDataQuery = em.createNativeQuery(queryStringBuilder);
@@ -607,19 +610,35 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 		List<Object[]> resultList = seriesDataQuery.getResultList();
 
 		// System.out.println("starting....");
-
+		
 		resultData.addAll(resultList.stream()
 				.map((result) -> new DistrictDto(
 						(String) result[0].toString(), 
-						((Integer) result[1]).longValue(),
-						((BigInteger) result[2]).longValue(), 
-						(String) result[3].toString(),
-						(String) result[4].toString(), 
+						((BigInteger) result[1]).longValue(),
+						((BigInteger) result[2]).longValue(),
+						((BigInteger) result[3]).longValue(), 
+						(String) result[4].toString(),
 						(String) result[5].toString(), 
-						(String) result[6].toString(),
+						(String) result[6].toString(), 
 						(String) result[7].toString(),
-						(String) result[8].toString() ))
+						(String) result[8].toString()))
+//						,
+//						(String) result[9].toString() ))
 				.collect(Collectors.toList()));
+
+
+//		resultData.addAll(resultList.stream()
+//				.map((result) -> new DistrictDto(
+//						(String) result[0].toString(), 
+//						((Integer) result[1]).longValue(),
+//						((BigInteger) result[2]).longValue(), 
+//						(String) result[3].toString(),
+//						(String) result[4].toString(), 
+//						(String) result[5].toString(), 
+//						(String) result[6].toString(),
+//						(String) result[7].toString(),
+//						(String) result[8].toString() ))
+//				.collect(Collectors.toList()));
 
 		// System.out.println("ending...." +resultData.size());
 
