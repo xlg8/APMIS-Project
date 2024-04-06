@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
@@ -25,6 +26,7 @@ public class MessageCriteria extends BaseCriteria implements Serializable {
 	private AreaReferenceDto area;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
+	private CommunityReferenceDto community;
 	private FormAccess formAccess;
 	private String freeText;	
 	
@@ -65,6 +67,15 @@ public class MessageCriteria extends BaseCriteria implements Serializable {
 
 	public MessageCriteria district(DistrictReferenceDto district) {
 		this.district = district;
+		return this;
+	}
+
+	public CommunityReferenceDto getCommunity() {
+		return community;
+	}
+	
+	public MessageCriteria community(CommunityReferenceDto community) {
+		this.community = community;
 		return this;
 	}
 
