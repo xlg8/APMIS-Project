@@ -118,7 +118,7 @@ public class MessagingView extends VerticalLayout {
 	@Value("${fcm.secret.key}")
 	private String fcmSecretKey;
 	Paragraph countRowItems;
-	
+
 	public MessagingView() {
 
 		this.setSizeFull();
@@ -130,11 +130,11 @@ public class MessagingView extends VerticalLayout {
 
 		configureView();
 		configureGrid();
-		
+
 		buttonLayout.getStyle().set("margin-left", "10px");
 		buttonLayout.setAlignItems(Alignment.END);
 		buttonLayout.add(newMessage);
-		
+
 		filters.getStyle().set("margin-left", "10px");
 		filters.setAlignItems(Alignment.END);
 		filterLayout.add(search, userRole, formAccessFilter, areaFilter, regionFilter, districtFilter, countRowItems);
@@ -152,7 +152,7 @@ public class MessagingView extends VerticalLayout {
 //		countRowItems.getStyle().set("padding-left", "150px");
 		countRowItems.getStyle().set("margin-right", "20px");
 		countRowItems.getStyle().set("margin-left", "auto");
-		
+
 		filterLayout = new HorizontalLayout();
 		filterLayout.getStyle().set("margin-top", "10px");
 		hideFilters = new Button("Hide Filters", new Icon(VaadinIcon.SLIDERS));
@@ -349,7 +349,6 @@ public class MessagingView extends VerticalLayout {
 				filterDataProvider.setFilter(criteria);
 				filterDataProvider.refreshAll();
 
-
 			}
 			updateRowCount();
 		});
@@ -484,7 +483,7 @@ public class MessagingView extends VerticalLayout {
 		try {
 			if (FirebaseApp.getApps().isEmpty()) {
 				FileInputStream serviceAccount = new FileInputStream(
-						"pathtoserviceaccountjson");
+						"C:\\Users\\ABC\\Downloads\\sormas-app-9be58-firebase-adminsdk-h309q-42c55035a8.json");
 				FirebaseOptions options = new FirebaseOptions.Builder()
 						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 
@@ -496,7 +495,6 @@ public class MessagingView extends VerticalLayout {
 					.addAllTokens(mySet).build();
 
 			BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(multicastMessage);
-
 		} catch (FirebaseMessagingException e) {
 			e.getMessage();
 		}
@@ -509,7 +507,7 @@ public class MessagingView extends VerticalLayout {
 			sendFcmSdk(event.getMessage());
 		}
 	}
-	
+
 	private void updateRowCount() {
 
 		int numberOfRows = filterDataProvider.size(new Query<>());

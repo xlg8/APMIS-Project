@@ -4,13 +4,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
+import com.cinoteck.application.views.uiformbuilder.FormBuilderLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
@@ -18,6 +22,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
 import de.symeda.sormas.api.messaging.MessageDto;
 import de.symeda.sormas.api.user.UserDto;
@@ -98,5 +103,33 @@ public class UserMessageView extends VerticalLayout{
 								userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess())
 						.stream());
 		dataView = grid.setItems(dataProvider);
+		
+		grid.asSingleSelect().addValueChangeListener(event -> showMessage(event.getValue()));
 	}
+	
+	private void showMessage(MessageDto messageDto) {
+
+		TextArea message = new TextArea("Message");
+		message.setValue(messageDto.getMessageContent());
+		message.setReadOnly(true);
+		message.getStyle().set("margin", "10px");
+		message.setHeight("300px");
+		message.setWidth("700px");
+		
+		Dialog messageDetails = new Dialog();
+		messageDetails.setWidth("800px");
+		messageDetails.setHeight("400px");
+		Button closePreviewButton = new Button("Back", e -> messageDetails.close());
+		Icon backIcon = new Icon(VaadinIcon.BACKWARDS);
+		closePreviewButton.setIcon(backIcon);
+		messageDetails.add(message);
+		messageDetails.setHeaderTitle("Message Details");
+		messageDetails.open();
+		messageDetails.setCloseOnEsc(false);
+		messageDetails.setCloseOnOutsideClick(false);
+		messageDetails.setModal(true);
+		messageDetails.setClassName("show-message");
+		messageDetails.getFooter().add(closePreviewButton);
+	}
+	
 }
