@@ -10035,5 +10035,17 @@ $function$;
 INSERT INTO schema_version (version_number, comment) VALUES (466, 'Trigger and funtion to prevent duplicate campaignformdata relating to issue #625');
 
 
+
+-- Update the modality column and set the value to 'H2H' where the existing value is 'NID' since there's no NID from isuue #626
+UPDATE public.populationdata
+SET modality = 'H2H'
+WHERE modality = 'NID';
+
+-- Alter the modality column and set the default value to 'H2H'
+ALTER TABLE public.populationdata
+ALTER COLUMN modality SET DEFAULT 'H2H';
+
+INSERT INTO schema_version (version_number, comment) VALUES (467, 'Adding District-level modality attributes to Campaign Basics #626');
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
