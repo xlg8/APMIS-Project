@@ -282,7 +282,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.PUSH_NOTIFICATION_ACCESS)) {
-			nav.addItem(new AppNavItem("Push Notification", MessagingView.class, VaadinIcon.SERVER, "navitem"));
+			nav.addItem(new AppNavItem("Notification", MessagingView.class, VaadinIcon.SERVER, "navitem"));
 		}
 
 		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {

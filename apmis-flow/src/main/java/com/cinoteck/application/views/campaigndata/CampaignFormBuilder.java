@@ -450,9 +450,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 					logger.debug(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
 							+ "| >>>>>>" + comdto.getClusterNumber());
 //				
-					if (campaignForm.getFormCategory() == FormAccess.ADMIN ||
-							campaignForm.getFormCategory() == FormAccess.Modality_Pre ||
-							campaignForm.getFormCategory() == FormAccess.Modality_Post) {
+					if (campaignForm.getFormCategory() == FormAccess.ADMIN
+							|| campaignForm.getFormCategory() == FormAccess.Modality_Pre
+							|| campaignForm.getFormCategory() == FormAccess.Modality_Post
+							) {
 						if (!formuuid.equals("nul")) {
 
 							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
@@ -1973,10 +1974,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 						lotClusterNo = sdxc;
 					}
 				}
-
+			
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
-								campaignFormMeta.getUuid());
+								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(), cbCommunity.getValue().getCaption());
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();
@@ -2062,7 +2063,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
-								campaignFormMeta.getUuid());
+								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(), cbCommunity.getValue().getCaption());
+
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();

@@ -82,7 +82,7 @@ public class MessagingLayout extends VerticalLayout {
 	List<CommunityReferenceDto> communityiesHolder;
 
 	Icon savePreviewIcon = new Icon(VaadinIcon.PROGRESSBAR);
-	Button savePreviewButton = new Button("Proceed and Send", savePreviewIcon);
+	Button savePreviewButton = new Button("Send", savePreviewIcon);
 
 	private boolean isNew = false;
 
@@ -120,7 +120,7 @@ public class MessagingLayout extends VerticalLayout {
 		MultiSelectComboBox<DistrictReferenceDto> districtSelector = new MultiSelectComboBox<DistrictReferenceDto>(
 				"District");
 		MultiSelectComboBox<CommunityReferenceDto> communitySelector = new MultiSelectComboBox<CommunityReferenceDto>(
-				"Community");
+				"Cluster");
 
 		List<UserType> userTypeConfig = new ArrayList<>();
 
@@ -167,10 +167,10 @@ public class MessagingLayout extends VerticalLayout {
 		messageContent.setHeight("300px");
 
 		Icon discardIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
-		Button discardChanges = new Button("Dicard Changes", discardIcon);
+		Button discardChanges = new Button("Discard Changes", discardIcon);
 		
 		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
-		Button saved = new Button("Preview", saveIcon);
+		Button saved = new Button("Send", saveIcon);
 		hr.add(discardChanges, saved);
 		add(formLayout, hr);
 
@@ -381,7 +381,7 @@ public class MessagingLayout extends VerticalLayout {
 		district.setReadOnly(true);
 		district.getStyle().set("margin", "10px");
 
-		MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Communities");
+		MultiSelectComboBox<CommunityReferenceDto> community = new MultiSelectComboBox<>("Clusters");
 		community.setItems(messageDto.getCommunity());
 		community.setValue(messageDto.getCommunity());
 		community.setReadOnly(true);
@@ -393,11 +393,11 @@ public class MessagingLayout extends VerticalLayout {
 		Dialog preViewDialog = new Dialog();
 		preViewDialog.setWidth("900px");
 		preViewDialog.setHeight("700px");
-		Button closePreviewButton = new Button("Back", e -> preViewDialog.close());
+		Button closePreviewButton = new Button("Cancel", e -> preViewDialog.close());
 		Icon backIcon = new Icon(VaadinIcon.BACKWARDS);
 		closePreviewButton.setIcon(backIcon);
 		preViewDialog.add(preViewContent);
-		preViewDialog.setHeaderTitle("Notification Preview");
+		preViewDialog.setHeaderTitle("Send Message");
 		preViewDialog.open();
 		preViewDialog.setCloseOnEsc(false);
 		preViewDialog.setCloseOnOutsideClick(false);
