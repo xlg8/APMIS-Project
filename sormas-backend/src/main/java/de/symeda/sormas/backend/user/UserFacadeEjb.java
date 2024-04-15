@@ -59,6 +59,7 @@ import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogCriteria;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -89,6 +90,7 @@ import de.symeda.sormas.backend.caze.CaseService;
 import de.symeda.sormas.backend.contact.Contact;
 import de.symeda.sormas.backend.contact.ContactService;
 import de.symeda.sormas.backend.event.EventService;
+import de.symeda.sormas.backend.infrastructure.ConfigurationChangeLog;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
@@ -969,32 +971,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		return target;
 	}
 	
-	public List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(){
-		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate, action_date "
-				+ "from configurationchangelog; ";
-		
-		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
-		List<ConfigurationChangeLogDto> resultData = new ArrayList<>();
-		@SuppressWarnings("unchecked")
-		List<Object[]> resultList = seriesDataQuery.getResultList();
-		
-		resultData.addAll(
-				resultList.stream()
-				.map(
-				(result) -> new ConfigurationChangeLogDto(
-					(String) result[0].toString(), 
-					(String) result[1].toString(),
-	        		(String) result[2].toString(),
-	        		((BigInteger) result[3]).longValue(),
-	        		(String) result[4].toString(),
-	        		(Date) result[5],
-	        		(Date) result[6]
-	        		)).collect(Collectors.toList()));
-	
-		
-	return resultData;
-			
-	}
+
 
 	@Override
 	public List<UserActivitySummaryDto> getUsersActivityByModule(String module) {
@@ -1003,7 +980,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 
 				"select u.action_logged, action_module, us.username, u.creationdate \n" + "from usersactivity u \n"
 						+ "left outer join users us ON u.creatinguser_id = us.id \n" + "where u.action_module ilike '"
-						+ module + "'";
+						+ module + "' ORDER BY u.creationdate DESC";
 
 		System.out.println("=====seriesDataQuery======== " + joinBuilder);
 
@@ -1113,6 +1090,46 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		
 		return QueryHelper.getResultList(em, cq, 0, Integer.MAX_VALUE, UserFacadeEjb::extractToken);
 	}
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
+
+	@Override
+	public List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(ConfigurationChangeLogCriteria criteria,
+			Integer first, Integer max, List<SortProperty> sortProperties) {
+		// TODO Auto-generated method stub
+//		final String unitName = criteria.getUnitName();
+//		final String unitType = criteria.getUnitType();
+//		final String action = criteria.getAction();
+//		final Long unitCode = criteria.getUnitCode();
+		
+//		final String unitNameFilter = unitName != null ? "action_unit_name = "
+
+		
+		
+		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate, action_date "
+				+ "from configurationchangelog; ";
+		
+		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+		List<ConfigurationChangeLogDto> resultData = new ArrayList<>();
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+		resultData.addAll(
+				resultList.stream()
+				.map(
+				(result) -> new ConfigurationChangeLogDto(
+					(String) result[0].toString(), 
+					(String) result[1].toString(),
+	        		(String) result[2].toString(),
+	        		((BigInteger) result[3]).longValue(),
+	        		(String) result[4].toString(),
+	        		(Date) result[5],
+	        		(Date) result[6]
+	        		)).collect(Collectors.toList()));
+	
+		
+	return resultData;
+	}
+	
+
+
 
 }

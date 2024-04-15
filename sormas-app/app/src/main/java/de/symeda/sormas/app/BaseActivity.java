@@ -60,6 +60,9 @@ import org.apache.logging.log4j.core.appender.ConsoleAppender;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import java.util.List;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -234,13 +237,13 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 						if (task.isSuccessful() && task.getResult() != null) {
 							String token = task.getResult();
 							Log.i("FCM Token", token);
-//							if(token != null && !token.isEmpty()) {
-//								try {
-//									RetroProvider.getUserFacade().updateFcmToken("AlingarICM6", token);
-//								} catch (NoConnectionException e) {
-//									throw new RuntimeException(e);
-//								}
-//							}
+							if(token != null && !token.isEmpty()) {
+								User user = ConfigProvider.getUser();
+								if(user != null) {
+									DatabaseHelper.getUserDao().updateFcmToken(user.getUserName(), token);
+									System.out.println("insideeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+								}
+							}
 						} else {
 							Log.e("FCM Token", "Failed to get token", task.getException());
 						}
@@ -500,7 +503,8 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 			userName.setText(user.getLastName() + " " + user.getFirstName());
 			userRole.setText(user.getUserRolesString());
-			userUserName.setText("Username : " +user.getUserName());
+			String capitalizedUserName =  usingCharacterToUpperCaseMethod(user.getUserName());
+			userUserName.setText("Username : " + capitalizedUserName.toString());
 			userRegion.setText("Region : " +user.getRegion().getArea());
 			userProvince.setText("Province : " +user.getRegion());
 
@@ -519,23 +523,6 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 				userDistrict.setText("District : " +InfrastructureDaoHelper.loadAllDistricts());
 				userClusters.setVisibility(View.GONE);
 			}
-
-
-
-
-//			dropdownButton.setOnClickListener (e->{
-//				if (userProvince.getVisibility() == View.VISIBLE) {
-//					userProvince.setVisibility(View.GONE) ;
-//					// Set visibility for other TextView elements
-//				} else {
-//
-//					userProvince.setVisibility(View.VISIBLE) ;
-//					// Set visibility for other TextView elements
-//				}
-//			});
-
-
-
 
 			Menu menuNav = navView.getMenu();
 
@@ -634,6 +621,19 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 //        eventNotificationCounter.setText("12");
 //        sampleNotificationCounter.setText("50");
 	}
+
+
+	private String usingCharacterToUpperCaseMethod(String userName) {
+		if (userName == null || userName.isEmpty()) {
+			return null;
+		}
+
+		return Arrays.stream(userName.split("\\s+"))
+				.map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
+				.collect(Collectors.joining(" "));
+	}
+
+
 
 
 

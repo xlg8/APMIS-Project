@@ -10002,6 +10002,50 @@ SET changedate  = current_timestamp;
 
 INSERT INTO schema_version (version_number, comment) VALUES (465, 'Adding Configuration Change Log functionlity');
 
+create trigger tbl_ins_up_before_modality before
+insert
+    on
+    public.campaignformdata for each row execute function tbl_ins_up_before_modality();
+   
+CREATE OR REPLACE FUNCTION public.tbl_ins_up_before_modality()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'Modality_Pre' AND c.formCategory = 'Modality_Post' AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormData SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'Modality_Pre' AND c.formCategory = 'Modality_Post' AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+end
+$function$;
+
+INSERT INTO schema_version (version_number, comment) VALUES (466, 'Trigger and funtion to prevent duplicate campaignformdata relating to issue #625');
+
+
+
+-- Update the modality column and set the value to 'H2H' where the existing value is 'NID' since there's no NID from isuue #626
+UPDATE public.populationdata
+SET modality = 'H2H'
+WHERE modality = 'NID';
+
+-- Alter the modality column and set the default value to 'H2H'
+ALTER TABLE public.populationdata
+ALTER COLUMN modality SET DEFAULT 'H2H';
+
+INSERT INTO schema_version (version_number, comment) VALUES (467, 'Adding District-level modality attributes to Campaign Basics #626');
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

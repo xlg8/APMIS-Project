@@ -72,15 +72,15 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					.setHeader(I18nProperties.getCaption(Captions.formname));
 		}
 
-		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
-				.setHeader(I18nProperties.getCaption(Captions.expiry) + " (default)");
+//		grid.addColumn(CampaignFormMetaReferenceDto::getDaysExpired)
+//				.setHeader(I18nProperties.getCaption(Captions.expiry) + " (default)");
 		grid.addColumn(this::getDaysExpiredEditable)
 				.setHeader(I18nProperties.getCaption(Captions.expiry) + " custom days (may not update until saved)");
 
 		grid.setItems(savedCampaignFormMetas);
 		addClassName("list-view");
 		setSizeFull();
-		add(getContent());
+		add(getContent(capaingDto, savedCampaignFormMetas));
 
 	}
 
@@ -88,8 +88,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		return FacadeProvider.getCampaignFacade().getCampaignFormExp(item.getUuid(), capaingDto.getUuid());
 	}
 
-	private Component getContent() {
-		VerticalLayout formx = editorForm();
+	private Component getContent(CampaignDto capaingDto, List<CampaignFormMetaReferenceDto> savedCampaignFormMetas) {
+		VerticalLayout formx = editorForm(capaingDto, savedCampaignFormMetas);
 		formx.getStyle().remove("width");
 		HorizontalLayout content = new HorizontalLayout(grid, formx);
 		content.setFlexGrow(4, grid);
@@ -99,7 +99,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		return content;
 	}
 
-	private VerticalLayout editorForm() {
+	private VerticalLayout editorForm(CampaignDto capaingDto,
+			List<CampaignFormMetaReferenceDto> savedCampaignFormMetas) {
 
 		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
@@ -125,6 +126,39 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		IntegerField daysExpire = new IntegerField();
 		daysExpire.setLabel(I18nProperties.getCaption(Captions.daysTOExpiry));
 		String datd = "";
+
+		if (capaingDto == null) {
+			forms.addValueChangeListener(e -> {
+				daysExpire.clear();
+				daysExpire
+						.setValue(FacadeProvider.getCampaignFacade().getDefaultCampaignFormExp(e.getValue().getUuid()));
+
+			});
+		} else {
+
+			forms.addValueChangeListener(e -> {
+				boolean isFormUUidInList = false;
+				for (CampaignFormMetaReferenceDto formName : savedCampaignFormMetas) {
+					if (formName.getUuid().equalsIgnoreCase(e.getValue().getUuid())) {
+						isFormUUidInList = true;
+						break;
+					}
+				}
+
+				if (isFormUUidInList) {
+					daysExpire.clear();
+					daysExpire.setValue(
+							FacadeProvider.getCampaignFacade().getCampaignFormExp(e.getValue().getUuid(),capaingDto.getUuid() ));
+				} else {
+					daysExpire.clear();
+					daysExpire.setValue(
+							FacadeProvider.getCampaignFacade().getDefaultCampaignFormExp(e.getValue().getUuid()));
+				}
+
+			});
+
+		}
+		;
 
 		if (capaingDto != null && capaingDto.getStartDate() != null) {
 			datd = capaingDto.getStartDate().toLocaleString();
@@ -247,6 +281,8 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 				capaingDto.getCampaignFormMetas().add(newCampForm);
 				capaingDto.getCampaignFormMetaExpiry().add(camFormExp);
+				capaingDto.setCampaignFormMetaExpiryDto(capaingDto.getCampaignFormMetaExpiry());
+
 				allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
 
 				forms.setItems(allCampaignFormMetas);
@@ -286,7 +322,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 					Date newDate = new Date(startDate.getTime() + differenceInMilliseconds);
 
 					CampaignFormMetaWithExpReferenceDto camFormExp_i = new CampaignFormMetaWithExpReferenceDto();// capaingDto.getUuid(),
-																												// forms.getValue().getUuid(),
+																													// forms.getValue().getUuid(),
 //					daysExpire.getValue().longValue(), newDate , uuidWithHyphens.toUpperCase());
 					camFormExp_i.setCampaignId(capaingDto.getUuid());
 					camFormExp_i.setFormId(forms.getValue().getUuid());
@@ -303,6 +339,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 						capaingDto.getCampaignFormMetaExpiry().remove(camFormExp_.get(0));
 
 					capaingDto.getCampaignFormMetaExpiry().add(camFormExp_i);
+					capaingDto.setCampaignFormMetaExpiryDto(capaingDto.getCampaignFormMetaExpiry());
 
 					grid.setItems(capaingDto.getCampaignFormMetas(campaignPhase));
 					getSavedElements();
@@ -349,6 +386,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 
 					capaingDto.getCampaignFormMetas().add(newCampForm);
 					capaingDto.getCampaignFormMetaExpiry().add(camFormExp);
+					capaingDto.setCampaignFormMetaExpiryDto(capaingDto.getCampaignFormMetaExpiry());
 					allCampaignFormMetas.removeAll(capaingDto.getCampaignFormMetas());
 
 					forms.setItems(allCampaignFormMetas);

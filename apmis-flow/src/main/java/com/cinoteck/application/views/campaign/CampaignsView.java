@@ -279,7 +279,8 @@ public class CampaignsView extends VerticalLayout {
 		searchField.setClassName("col-sm-6, col-xs-6");
 		searchField.setClearButtonVisible(true);
 		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> dataView.addFilter(search -> {
+		searchField.addValueChangeListener(e -> 
+		dataView.addFilter(search -> {
 			String searchTerm = searchField.getValue().trim();
 			if (searchTerm.isEmpty())
 				return true;

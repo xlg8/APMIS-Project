@@ -58,7 +58,7 @@ import de.symeda.sormas.app.util.MetaProperty;
  */
 public abstract class AbstractAdoDao<ADO extends AbstractDomainObject> {
 
-	private Dao<ADO, Long> dao;
+	protected Dao<ADO, Long> dao;
 
 	public AbstractAdoDao(Dao<ADO, Long> innerDao) {
 		this.dao = innerDao;

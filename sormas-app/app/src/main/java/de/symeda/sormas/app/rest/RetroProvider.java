@@ -286,6 +286,8 @@ public final class RetroProvider {
 				throw new ServerConnectionException(601);
 			} else if (compatibilityCheckResponse == CompatibilityCheckResponse.TOO_OLD) {
 				// get the current server version, throw an exception including the app url that is then processed in the UI
+
+				System.out.println( " throw new ServerConnectionException(601); 5555555555555555555555555555555555" );
 				matchAppAndApiVersions(infoFacadeRetro);
 			}
 		} else {
@@ -423,6 +425,9 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				RetroProvider.connect(getApplicationReference().get());
 				versionCompatible = true;
 				if (matchExactVersion) {
+
+					System.out.println( "doInBackground throw new ServerConnectionException(601); 5555555555555555555555555555555555" + getInfoFacade() );
+
 					RetroProvider.matchAppAndApiVersions(getInfoFacade());
 				}
 			}
@@ -478,6 +483,9 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				}
 
 				if (appUrlResponse.isSuccessful()) {
+					System.out.println(serverApiVersion + "hh" +  appUrlResponse.isSuccessful() + "appUrlResponse.isSuccessful() throw new ServerConnectionException(601); 5555555555555555555555555555555555"  );
+
+
 					throw new ApiVersionException(
 						"App version '" + appApiVersion + "' does not match server version '" + serverApiVersion + "'",
 						appUrlResponse.body(),

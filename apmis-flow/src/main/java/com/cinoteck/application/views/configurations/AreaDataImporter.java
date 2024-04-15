@@ -113,6 +113,8 @@ public class AreaDataImporter extends DataImporter {
 		// Lets run some validations
 		Long areaExternalId = null;
 		String regionName = "";
+		
+		List<AreaDto> combinedList = new ArrayList();
 
 		for (int i = 0; i < entityProperties.length; i++) {
 			if (AreaDto.NAME.equalsIgnoreCase(entityProperties[i])) {
@@ -290,6 +292,10 @@ public class AreaDataImporter extends DataImporter {
 
 			if (!usersDataHasImportError) {
 				boolean checkExeption = false;
+				combinedList.add(newUserLinetoSave.get(0));
+				
+				initiateImportConfirmationDialog();
+				
 				try {
 					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
 
@@ -305,7 +311,7 @@ public class AreaDataImporter extends DataImporter {
 
 						for (AreaDto  areaData : newUserLinetoSave){
 							
-							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("Region");
 							configurationChangeLogDto.setAction_unit_name(areaData.getName());
 							configurationChangeLogDto.setUnit_code(areaData.getExternalId());
@@ -329,6 +335,10 @@ public class AreaDataImporter extends DataImporter {
 				return ImportLineResult.ERROR;
 			}
 		}
+	}
+	
+	public void initiateImportConfirmationDialog() {
+		
 	}
 
 	public static boolean checkSameInstances(List<AreaReferenceDto> list1, List<AreaReferenceDto> list2) {

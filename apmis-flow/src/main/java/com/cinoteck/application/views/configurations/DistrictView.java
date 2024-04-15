@@ -239,6 +239,10 @@ public class DistrictView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 			grid.setVisible(true);
 		}
+		grid.addColumn(DistrictIndexDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		.setResizable(true).setSortable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
+
 
 		if (criteria == null) {
 			criteria = new DistrictCriteria();
@@ -447,6 +451,8 @@ public class DistrictView extends VerticalLayout {
 		relevanceStatusFilter.setItems(EntityRelevanceStatus.values());
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
 		relevanceStatusFilter.setClearButtonVisible(true);
+		relevanceStatusFilter.setPlaceholder("Active");
+
 		relevanceStatusFilter.setItemLabelGenerator(status -> {
 			if (status == EntityRelevanceStatus.ARCHIVED) {
 				return I18nProperties.getCaption(Captions.archived);
@@ -635,7 +641,7 @@ public class DistrictView extends VerticalLayout {
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().archive(selectedRow.getUuid());
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("District");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -656,7 +662,7 @@ public class DistrictView extends VerticalLayout {
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getDistrictFacade().dearchive(selectedRow.getUuid());
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("District");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -751,7 +757,7 @@ public class DistrictView extends VerticalLayout {
 								FacadeProvider.getDistrictFacade().dearchive(uuidsz);
 
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("District");
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
@@ -775,7 +781,7 @@ public class DistrictView extends VerticalLayout {
 								FacadeProvider.getDistrictFacade().archive(uuidsz);
 
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("District");
 								configurationChangeLogDto.setAction_unit_name(dto.getName());
 								configurationChangeLogDto.setUnit_code(dto.getExternalId());
@@ -818,7 +824,7 @@ public class DistrictView extends VerticalLayout {
 					FacadeProvider.getDistrictFacade().save(dce, true);
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-					configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+					configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 					configurationChangeLogDto.setAction_unit_type("District");
 					configurationChangeLogDto.setAction_unit_name(name);
 					configurationChangeLogDto.setUnit_code(rcodeValue);
@@ -871,7 +877,7 @@ public class DistrictView extends VerticalLayout {
 //							ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //									String unit_code, String action_logged)
 							ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("District");
 							configurationChangeLogDto.setAction_unit_name(name);
 							configurationChangeLogDto.setUnit_code(rcodeValue);

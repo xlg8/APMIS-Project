@@ -106,6 +106,17 @@ public class AreaDto extends EntityDto {
 	public void setArchived(boolean archived) {
 		this.archived = archived;
 	}
+	
+	public String provideActiveStatus() {
+		if(isArchived()) {
+			return "Archived";
+
+		}else {
+			return "Active";
+
+		}
+		
+	}
 
 //	public Long getPopulationData() {
 //		return populationData;

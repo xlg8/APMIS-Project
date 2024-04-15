@@ -19,7 +19,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import android.util.Log;
@@ -165,4 +167,23 @@ public class UserDao extends AbstractAdoDao<User> {
 		return where.like(User.USER_ROLES_JSON, "%\"" + role.name() + "\"%");
 	}
 
+	public void updateFcmToken(String username, String token) {
+		try {
+			QueryBuilder<User, Long> builder = dao.queryBuilder(); // 'dao' is the inner Dao<User, Long> instance
+			Where<User, Long> where = builder.where();
+			where.eq(User.USER_NAME, username.toLowerCase());
+			where.and().eq(AbstractDomainObject.SNAPSHOT, false);
+			PreparedQuery<User> preparedQuery = builder.prepare();
+			User user = dao.queryForFirst(preparedQuery);
+
+			if (user != null) {
+				user.setToken(token);
+				dao.update(user);
+			} else {
+				throw new RuntimeException("User not found with username: " + username);
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Failed to update FCM token for user: " + username, e);
+		}
+	}
 }

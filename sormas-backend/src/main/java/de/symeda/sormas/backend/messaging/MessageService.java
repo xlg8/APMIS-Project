@@ -27,6 +27,8 @@ import de.symeda.sormas.backend.common.AdoServiceWithUserFilter;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaService;
+import de.symeda.sormas.backend.infrastructure.community.Community;
+import de.symeda.sormas.backend.infrastructure.community.CommunityService;
 import de.symeda.sormas.backend.infrastructure.district.District;
 import de.symeda.sormas.backend.infrastructure.district.DistrictService;
 import de.symeda.sormas.backend.infrastructure.region.Region;
@@ -46,6 +48,9 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 	@EJB
 	private DistrictService districtService;
 
+	@EJB
+	private CommunityService communityService;
+	
 	public MessageService() {
 		super(Message.class);
 	}
@@ -136,25 +141,50 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
 		}
 		
+		return filter;
+	}
+		
+	public Predicate buildCriteriaFilterArea(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from) {
+
+		Predicate filter = null;		
 		if (messageCriteria.getArea() != null) {
 			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
 			Predicate areaFilter = joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
-			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
+			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);	
 		}
+		return filter;
+	}
 		
+	public Predicate buildCriteriaFilterRegion(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from) {
+
+		Predicate filter = null;		
 		if (messageCriteria.getRegion() != null) {
 			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
 			Predicate regionFilter = joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
 			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
 		}
-		
+		return filter;
+	}
+	
+	public Predicate buildCriteriaFilterDistrict(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from) {
+
+		Predicate filter = null;		
 		if (messageCriteria.getDistrict() != null) {
 			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
 			Predicate districtFilter = joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
 			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
 		}
-		
+		return filter;
+	}	
+	
+	public Predicate buildCriteriaFilterCommunity(MessageCriteria messageCriteria, CriteriaBuilder cb, Root<Message> from) {
+
+		Predicate filter = null;		
+		if (messageCriteria.getCommunity() != null) {
+			Join<Message, Community> joinCommunity = from.join(Message.COMMUNITY, JoinType.LEFT);
+			Predicate communityFilter = joinCommunity.in(communityService.getByUuid(messageCriteria.getCommunity().getUuid()));
+			filter = CriteriaBuilderHelper.and(cb, filter, communityFilter);
+		}
 		return filter;
 	}
-
 }

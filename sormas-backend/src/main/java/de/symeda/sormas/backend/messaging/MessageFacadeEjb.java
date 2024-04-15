@@ -227,10 +227,44 @@ public class MessageFacadeEjb implements MessageFacade {
 		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
 		Root<Message> from = cq.from(Message.class);
 
-		Predicate filter = null;
-
+		Predicate filter = null;	
+		Predicate filterMain = null;
+		Predicate filterArea = null;
+		Predicate filterRegion= null;
+		Predicate filterDistrict = null;
+		
 		if (messageCriteria != null) {
-			filter = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
+			filterMain = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
+			filter = filterMain;
+		}
+
+		if (messageCriteria.getArea() != null) {
+			filterArea = messageService.buildCriteriaFilterArea(messageCriteria, cb, from);
+			if (filter != null) {
+		        filter = cb.and(filter, filterArea);
+		    } else {
+		        filter = filterArea;
+		    }
+		}
+		
+		if (messageCriteria.getRegion() != null) {
+			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
+			
+			if (filter != null) {
+		        filter = cb.and(filter, filterRegion);
+		    } else {
+		        filter = filterRegion;
+		    }
+		}
+		
+		if (messageCriteria.getDistrict() != null) {
+			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
+			
+			if (filter != null) {
+		        filter = cb.and(filter, filterDistrict);
+		    } else {
+		        filter = filterDistrict;
+		    }
 		}
 
 		if (filter != null) {
@@ -238,7 +272,6 @@ public class MessageFacadeEjb implements MessageFacade {
 		}
 
 		cq.distinct(true).orderBy(cb.desc(from.get(Message.CHANGE_DATE)));
-
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
 	}
 

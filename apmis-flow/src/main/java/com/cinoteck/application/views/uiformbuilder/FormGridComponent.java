@@ -173,13 +173,20 @@ public class FormGridComponent extends VerticalLayout {
 //		String manipulatingId = sourceValue.replaceAll("[^\\w]", "");
 		String manipulatingId = sourceValue.replaceAll(" ", "_");
 		manipulatingId = manipulatingId.replaceAll("readonly", "");
+		manipulatingId = manipulatingId.replaceAll("-readonly", "");
+		manipulatingId = manipulatingId.replaceAll("<.*?>", "");
 		return manipulatingId;
 	}
 
 	private boolean checkForUniqueId(String currentFormId) {
 
 		boolean codeStopRunning = true;
-		List<CampaignFormElement> listofFormElements = campaignFormMetaDto.getCampaignFormElements();
+		List<CampaignFormElement> listofFormElements = new ArrayList<>();
+
+		if (campaignFormMetaDto.getCampaignFormElements() != null) {
+			listofFormElements = campaignFormMetaDto.getCampaignFormElements();
+		}
+
 		List<String> listofId = new ArrayList<>();
 		for (CampaignFormElement campaignFormElement : listofFormElements) {
 			if (campaignFormElement.getId().equalsIgnoreCase(currentFormId)) {
@@ -217,14 +224,14 @@ public class FormGridComponent extends VerticalLayout {
 		del.getStyle().set("background-color", "red!important");
 
 		Button moreFields = new Button("Show More Fields");
-		
+
 		Icon cancelIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
 		cancelIcon.getStyle().set("color", "red !important");
 		Button cancel = new Button("Cancel", cancelIcon);
 		cancel.getStyle().set("color", "red !important");
 		cancel.getStyle().set("background", "white");
 		cancel.getStyle().set("border", "1px solid red");
-		
+
 		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		saveIcon.getStyle().set("color", "green");
 		Button save = new Button("Save", saveIcon);
@@ -370,11 +377,6 @@ public class FormGridComponent extends VerticalLayout {
 					comment.setVisible(true);
 				}
 
-				if (formBeenEdited.getComment() != null) {
-					comment.setValue(formBeenEdited.getComment());
-					comment.setVisible(true);
-				}
-
 				if (formBeenEdited.getDefaultvalue() != null) {
 					defaultValues.setValue(formBeenEdited.getDefaultvalue());
 					defaultValues.setVisible(true);
@@ -409,7 +411,7 @@ public class FormGridComponent extends VerticalLayout {
 //			formBeenEdited = new CampaignFormElement();
 			if (formBeenEdited != null) {
 
-				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);				
+				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
 				Notification notification = new Notification("Selected Form Element Deleted", 3000, Position.MIDDLE);
 				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 				notification.open();
@@ -775,7 +777,7 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setDefaultvalue(defaultValues.getValue());
 					}
 
-					if (checkForUniqueId(formId.getValue())) {
+					if (formBeenEdited.getId().equals(formId.getValue())) {
 						List<CampaignFormElement> using = new LinkedList<>();
 						using = campaignFormMetaDto.getCampaignFormElements();
 						int index = using.indexOf(formBeenEdited);
@@ -788,6 +790,21 @@ public class FormGridComponent extends VerticalLayout {
 						Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 						notification.open();
+					} else {
+						if (checkForUniqueId(formId.getValue())) {
+							List<CampaignFormElement> using = new LinkedList<>();
+							using = campaignFormMetaDto.getCampaignFormElements();
+							int index = using.indexOf(formBeenEdited);
+
+							using.set(index, newForm);
+							campaignFormMetaDto.setCampaignFormElements(using);
+							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+
+//							getGridData();
+							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
+							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+							notification.open();
+						}
 					}
 
 				} else {

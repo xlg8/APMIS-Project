@@ -1,5 +1,7 @@
 package com.cinoteck.application.views.useractivitysummary;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.cinoteck.application.views.reports.ReportView;
@@ -9,6 +11,7 @@ import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
@@ -28,6 +31,7 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 	 */
 	private static final long serialVersionUID = 6692702413655392041L;
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
+	
 
 	public LoginReportView() {
 		setSizeFull();
@@ -42,15 +46,18 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 		grid.setHeightFull();
 		grid.setColumnReorderingAllowed(true);
 
-//		grid.addColumn(UserActivitySummaryDto.ACTION_MODULE).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
-//				.setSortable(true).setResizable(true);
-		
-		grid.addColumn(UserActivitySummaryDto::getActionDate).setHeader(I18nProperties.getCaption("Timestamp"))
-		.setSortable(true).setResizable(true);
+		TextRenderer<UserActivitySummaryDto> actionDateRenderer = new TextRenderer<>(dto -> {
+			Date timestamp = dto.getActionDate();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			return dateFormat.format(timestamp);
+		});
+
+		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp"))
+		.setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-		.setSortable(true).setResizable(true);
+		.setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
-				.setSortable(true).setResizable(true);
+				.setSortable(false).setResizable(true);
 		
 		List<UserActivitySummaryDto> dataProvider = FacadeProvider.getUserFacade().getUsersActivityByModule("login");
 

@@ -363,8 +363,12 @@ public class BaseAdoService<ADO extends AbstractDomainObject> implements AdoServ
 	public void ensurePersisted(ADO ado) throws EntityExistsException {
 
 		if (ado.getId() == null) {
+			
+			System.out.println("777777777777777777777777777777777777777777777777777777777");
 			em.persist(ado);
 		} else if (!em.contains(ado)) {
+			System.out.println("888888888888888888888888888888888888888888888888888888888");
+
 			throw new EntityExistsException(
 					"Das Entity ist nicht attacht: " + getElementClass().getSimpleName() + "#" + ado.getUuid());
 		}
