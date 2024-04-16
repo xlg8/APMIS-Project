@@ -45,6 +45,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationLayout.setTextViewText(R.id.notification_title, title);
             notificationLayout.setTextViewText(R.id.notification_message, message);
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+                String channelId = "mobile";
+                CharSequence channelName = "Mobile User";
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+
+                notificationManager.createNotificationChannel(channel);
+            }
+
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "mobile")
                     .setCustomContentView(notificationLayout)
                     .setSmallIcon(R.drawable.background_notification_count_shape)
