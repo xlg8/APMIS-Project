@@ -483,7 +483,7 @@ public class MessagingView extends VerticalLayout {
 		try {
 			if (FirebaseApp.getApps().isEmpty()) {
 				FileInputStream serviceAccount = new FileInputStream(
-						"C:\\Users\\ABC\\Downloads\\sormas-app-9be58-firebase-adminsdk-h309q-42c55035a8.json");
+						"C:\\Users\\ABC\\Downloads\\sormasapp-9280a-firebase-adminsdk-p77y7-6d71da1dc3.json");
 				FirebaseOptions options = new FirebaseOptions.Builder()
 						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 

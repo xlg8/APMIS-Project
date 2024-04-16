@@ -3015,8 +3015,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					getDao(CampaignFormMeta.class).executeRaw("ALTER TABLE campaignFormMeta ADD COLUMN 'districtentry' boolean; ");
 					// ATTENTION: break should only be done after last version
 //					break;
-				case 388:
-					currentVersion = 388;
+				case 338:
+					currentVersion = 338;
 					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
 				break;
 				case 339:
