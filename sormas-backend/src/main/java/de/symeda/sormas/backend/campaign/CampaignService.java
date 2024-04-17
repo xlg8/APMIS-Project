@@ -19,6 +19,7 @@ import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
 import de.symeda.sormas.api.utils.DataHelper;
+import de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay;
 import de.symeda.sormas.backend.common.AbstractCoreAdoService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
@@ -197,11 +198,19 @@ public class CampaignService extends AbstractCoreAdoService<Campaign> {
 		cq.where(cb.and(cb.equal(root.get(PopulationData.CAMPAIGN), uuidx)));
 
 		return em.createQuery(cq).getResultList();
-		
-//		
-//		List<PopulationData> popdata = em.createNativeQuery("select from populationdata where campaign_id = "+uuidx.getId()).getResultList();
 
-//		return popdata;
+	}
+	
+public List<CampaignFormMetaExpDay> cloneFormMetaExpiry(Campaign uuidx, Campaign newCampaignUuid) {
+
+		
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<CampaignFormMetaExpDay> cq = cb.createQuery(CampaignFormMetaExpDay.class);
+		Root<CampaignFormMetaExpDay> root = cq.from(CampaignFormMetaExpDay.class);
+		cq.where(cb.and(cb.equal(root.get(CampaignFormMetaExpDay.CAMPAIGN), uuidx)));
+
+		return em.createQuery(cq).getResultList();
+
 	}
 
 	public int campaignPublish(String uuidx, boolean published) {

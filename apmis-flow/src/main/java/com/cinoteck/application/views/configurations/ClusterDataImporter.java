@@ -523,7 +523,7 @@ public class ClusterDataImporter extends DataImporter {
 
 						for (CommunityDto  clusterData : newUserLinetoSave){
 							
-							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("Cluster");
 							configurationChangeLogDto.setAction_unit_name(clusterData.getName());
 							configurationChangeLogDto.setUnit_code(clusterData.getExternalId());

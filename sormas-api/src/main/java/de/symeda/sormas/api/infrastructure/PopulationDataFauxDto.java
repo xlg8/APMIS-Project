@@ -12,11 +12,11 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 
-public class PopulationDataDto extends EntityDto {
+public class PopulationDataFauxDto extends EntityDto {
 
 	private static final long serialVersionUID = -4254008000534611519L;
 
-	public static final String I18N_PREFIX = "PopulationData";
+	public static final String I18N_PREFIX = "PopulationDataFaux";
 
 	public static final String REGION = "region";
 	public static final String DISTRICT = "district";
@@ -29,8 +29,6 @@ public class PopulationDataDto extends EntityDto {
 	public static final String CAMPAIGN = "campaign";
 	public static final String SELECTED = "selected";
 	public static final String MODALITY = "modality";
-	public static final String DISTRICT_STATUS = "districtstatus";
-
 
 
 	private RegionReferenceDto region;
@@ -43,13 +41,11 @@ public class PopulationDataDto extends EntityDto {
 	private CampaignReferenceDto campaign;
 	private String selected;
 	private String modality;
-	private String districtStatus;
 
 
+	public static PopulationDataFauxDto build(Date collectionDate) {
 
-	public static PopulationDataDto build(Date collectionDate) {
-
-		PopulationDataDto dto = new PopulationDataDto();
+		PopulationDataFauxDto dto = new PopulationDataFauxDto();
 		dto.setUuid(DataHelper.createUuid());
 		dto.setCollectionDate(collectionDate);
 		return dto;
@@ -134,14 +130,6 @@ public class PopulationDataDto extends EntityDto {
 
 	public void setModality(String modality) {
 		this.modality = modality;
-	}
-	
-	public String getDistrictStatus() {
-		return districtStatus;
-	}
-
-	public void setDistrictStatus(String districtStatus) {
-		this.districtStatus = districtStatus;
 	}
 	
 	

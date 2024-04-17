@@ -53,6 +53,8 @@ public class DistrictIndexDto extends EntityDto {
 	private Long regionexternalId;
 	private Long areaexternalId;
 	private String areaname;
+	private boolean archived;
+
 
 	public DistrictIndexDto() {
 		super();
@@ -159,6 +161,26 @@ public class DistrictIndexDto extends EntityDto {
 
 	public void setAreaname(String areaname) {
 		this.areaname = areaname;
+	}
+	
+	public boolean isArchived() {
+		return archived;
+	}
+	
+	
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+	
+	public String provideActiveStatus() {
+		if(isArchived()) {
+			return "Archived";
+
+		}else {
+			return "Active";
+
+		}
+		
 	}
 
 	public DistrictReferenceDto toReference() {

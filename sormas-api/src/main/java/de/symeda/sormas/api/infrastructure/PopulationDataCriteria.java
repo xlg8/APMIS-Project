@@ -19,10 +19,15 @@ public class PopulationDataCriteria extends BaseCriteria implements Cloneable {
 	private boolean districtIsNull;
 	private boolean communityIsNull;
 	private boolean campaignIsNull;
+	private boolean modalityIsNull;
+	private boolean districtStatusIsNull;
+
 	private Sex sex;
 	private boolean sexIsNull;
 	private AgeGroup ageGroup;
 	private boolean ageGroupIsNull;
+	private String modality;
+	private String districtStatus;
 
 	public PopulationDataCriteria region(RegionReferenceDto region) {
 		this.region = region;
@@ -126,8 +131,38 @@ public class PopulationDataCriteria extends BaseCriteria implements Cloneable {
 
 	public void setCampaign(CampaignReferenceDto campaign) {
 		this.campaign = campaign;
+	}
+
+	public String getModality() {
+		return modality;
+	}
+
+	public void setModality(String modality) {
+		this.modality = modality;
 	}	
 	
+	public boolean isModalityIsNull() {
+		return modalityIsNull;
+	}
+
+	public PopulationDataCriteria modalityIsNull(boolean modalityIsNull) {
+		this.modalityIsNull = modalityIsNull;
+		return this;
+	}
+
+	public String getDistrictStatus() {
+		return districtStatus;
+	}
+
+	public void setDistrictStatus(String districtStatus) {
+		this.districtStatus = districtStatus;
+	}
+
+
+	public PopulationDataCriteria districtStatusIsNull(boolean districtStatusIsNull) {
+		this.districtStatusIsNull = districtStatusIsNull;
+		return this;
+	}
 	
 	
 }

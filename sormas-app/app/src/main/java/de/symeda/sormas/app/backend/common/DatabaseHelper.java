@@ -3001,7 +3001,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ "		localChangeDate BIGINT NOT NULL,"
 									+ "		modified SMALLINT,"
 									+ "		snapshot SMALLINT,"
-
 									+ "		UNIQUE (snapshot ASC, uuid ASC)"
 									+ ");"
 					);
@@ -3053,6 +3052,51 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ ");"
 					);
 					break;
+
+				case 338:
+
+					currentVersion = 338;
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD COLUMN 'lotclusterno' VARCHAR; ");
+					getDao(CampaignFormData.class).executeRaw("CREATE UNIQUE INDEX campaignFormDataDuplicateClusterLot ON campaignFormData(campaign_id, campaignFormMeta_id, community_id, lotClusterNo)");
+					break;
+
+				case 339:
+
+					currentVersion = 339;
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN formid VARCHAR; ");
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN campaignid VARCHAR; ");
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryday BIGINT; ");
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryDate DATE; ");
+					break;
+
+				case 340:
+
+					currentVersion = 340;
+
+					getDao(HealthConditions.class).executeRaw("DROP TABLE campaignformmetawithexp;");
+
+
+					getDao(CampaignFormMetaWithExp.class).executeRaw(
+							"CREATE TABLE campaignformmetawithexp ("
+									+ "		formid VARCHAR,"
+									+ "		uuid VARCHAR,"
+									+ "		campaignid VARCHAR,"
+									+ "		expiryday BIGINT,"
+									+ "		expiryDate DATE,"
+									+ "		pseudonymized SMALLINT,"
+									+ "		changeDate BIGINT NOT NULL,"
+									+ "		creationDate BIGINT NOT NULL,"
+									+ "		id INTEGER PRIMARY KEY AUTOINCREMENT,"
+									+ "		lastOpenedDate BIGINT,"
+									+ "		localChangeDate BIGINT NOT NULL,"
+									+ "		modified SMALLINT,"
+									+ "		snapshot SMALLINT,"
+									+ "		UNIQUE (snapshot ASC, uuid ASC)"
+									+ ");"
+					);
+			break;
+
+
 
 
 				default:

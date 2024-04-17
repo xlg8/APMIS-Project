@@ -417,7 +417,7 @@ public class DistrictDataImporter extends DataImporter {
 
 						for (DistrictDto districtData : newUserLinetoSave) {
 
-							configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("District");
 							configurationChangeLogDto.setAction_unit_name(districtData.getName());
 							configurationChangeLogDto.setUnit_code(districtData.getExternalId());

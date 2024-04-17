@@ -49,21 +49,31 @@ public final class DownloadFlowUtilityView{
 						columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.COMMUNITY));
 						//add campaign uuid to the last row
 						columnNames.add(I18nProperties.getCaption(Captions.Campaign));
+						columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.MODALITY));
+						columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.DISTRICT_STATUS));
+
 						columnNames.add(I18nProperties.getString(Strings.total));
-						columnNames.add(I18nProperties.getCaption(Captions.populationDataMaleTotal));
-						columnNames.add(I18nProperties.getCaption(Captions.populationDataFemaleTotal));
+//						columnNames.add(I18nProperties.getCaption(Captions.populationDataMaleTotal));
+//						columnNames.add(I18nProperties.getCaption(Captions.populationDataFemaleTotal));
+
+						
+						Map<AgeGroup, Integer> ageGroupPositions = new HashMap<>();
+						int ageGroupIndex = 8;
+						for (AgeGroup ageGroup : AgeGroup.values()) {
+							
+//							if (ageGroup.equals(AgeGroup.AGE_0_4 )|| ageGroup.equals(AgeGroup.AGE_5_10 )) {
+								columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, null));
+								columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.MALE));
+								columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.FEMALE));
+//								columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.OTHER));
+								ageGroupPositions.put(ageGroup, ageGroupIndex);
+								ageGroupIndex += 6;
+//							}
+							
+						}
+						
 						
 
-						Map<AgeGroup, Integer> ageGroupPositions = new HashMap<>();
-						int ageGroupIndex = 6;
-						for (AgeGroup ageGroup : AgeGroup.values()) {
-							columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, null));
-							columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.MALE));
-							columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.FEMALE));
-							columnNames.add(DataHelper.getSexAndAgeGroupString(ageGroup, Sex.OTHER));
-							ageGroupPositions.put(ageGroup, ageGroupIndex);
-							ageGroupIndex += 4;
-						}
 						
 
 						writer.writeNext(columnNames.toArray(new String[columnNames.size()]));
@@ -75,11 +85,21 @@ public final class DownloadFlowUtilityView{
 						String districtName = "";
 						String communityName = "";
 						String campaignName = "";
+						String modality = "";
+						String district_status = "";
+
+
+						
 						for (Object[] populationExportData : populationExportDataList) {
 							String dataRegionName = (String) populationExportData[0];
 							String dataDistrictName = populationExportData[1] == null ? "" : (String) populationExportData[1];
 							String dataCommunityName = populationExportData[2] == null ? "" : (String) populationExportData[2];
 							String dataCampaignName = populationExportData[3] == null ? "" : (String) populationExportData[3];
+							
+							String dataModality = populationExportData[4] == null ? "" : (String) populationExportData[3];
+
+							String dataDistrictStatus = populationExportData[4] == null ? "" : (String) populationExportData[3];
+
 							if (exportLine[0] != null
 								&& (!dataRegionName.equals(regionName)
 									|| !dataDistrictName.equals(districtName)
@@ -93,7 +113,8 @@ public final class DownloadFlowUtilityView{
 							districtName = dataDistrictName;
 							communityName = dataCommunityName;
 							campaignName = dataCampaignName;
-
+							modality = dataModality;
+							district_status = dataDistrictStatus;
 							// Region
 							if (exportLine[0] == null) {
 								exportLine[0] = (String) populationExportData[0];
@@ -111,23 +132,36 @@ public final class DownloadFlowUtilityView{
 							if (exportLine[3] == null) {
 								exportLine[3] = (String) populationExportData[3];
 							}
+							
+							//modality
+							if (exportLine[4] == null) {
+								exportLine[4] = (String) populationExportData[4];
+							}
+							
+							//district status
+							if (exportLine[5] == null) {
+								exportLine[5] = (String) populationExportData[5];
+							}
 
-							if (populationExportData[4] == null) {
+							if (populationExportData[6] == null) {
 								// Total population
-								String sexString = (String) populationExportData[5];
+								String sexString = (String) populationExportData[7];
 								if (Sex.MALE.getName().equals(sexString)) {
-									exportLine[5] = String.valueOf((int) populationExportData[6]);
-								} else if (Sex.FEMALE.getName().equals(sexString)) {
-									exportLine[6] = String.valueOf((int) populationExportData[6]);
-								} else if (Sex.OTHER.getName().equals(sexString)) {
-									exportLine[7] = String.valueOf((int) populationExportData[6]);
-								} else {
-									exportLine[4] = String.valueOf((int) populationExportData[6]);
+									exportLine[7] = String.valueOf((int) populationExportData[8]);
+								} 
+								else if (Sex.FEMALE.getName().equals(sexString)) {
+									exportLine[8] = String.valueOf((int) populationExportData[8]);
+								} 
+								else if (Sex.OTHER.getName().equals(sexString)) {
+									exportLine[9] = String.valueOf((int) populationExportData[8]);
+								} 
+								else {
+									exportLine[6] = String.valueOf((int) populationExportData[8]);
 								}
 							} else {
 								// Population based on age group position and sex
-								Integer ageGroupPosition = ageGroupPositions.get(AgeGroup.valueOf((String) populationExportData[4]));
-								String sexString = (String) populationExportData[5];
+								Integer ageGroupPosition = ageGroupPositions.get(AgeGroup.valueOf((String) populationExportData[6]));
+								String sexString = (String) populationExportData[7];
 								if (Sex.MALE.getName().equals(sexString)) {
 									ageGroupPosition += 1;
 								} else if (Sex.FEMALE.getName().equals(sexString)) {
@@ -135,7 +169,17 @@ public final class DownloadFlowUtilityView{
 								} else if (Sex.OTHER.getName().equals(sexString)) {
 									ageGroupPosition += 3;
 								}
-								exportLine[ageGroupPosition] = String.valueOf((int) populationExportData[6]);
+								exportLine[ageGroupPosition] = String.valueOf((int) populationExportData[8]);
+//								Integer ageGroupPosition = ageGroupPositions.get(AgeGroup.valueOf((String) populationExportData[4]));
+//								String sexString = (String) populationExportData[5];
+//								if (Sex.MALE.getName().equals(sexString)) {
+//									ageGroupPosition += 1;
+//								} else if (Sex.FEMALE.getName().equals(sexString)) {
+//									ageGroupPosition += 2;
+//								} else if (Sex.OTHER.getName().equals(sexString)) {
+//									ageGroupPosition += 3;
+//								}
+//								exportLine[ageGroupPosition] = String.valueOf((int) populationExportData[6]);
 							}
 							
 							columnNames.add(I18nProperties.getCaption(Captions.Campaign));

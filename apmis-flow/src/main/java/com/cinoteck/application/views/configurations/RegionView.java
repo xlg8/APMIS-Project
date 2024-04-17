@@ -185,6 +185,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					.setResizable(true).setSortable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		}
+		
+		grid.addColumn(AreaDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+		.setResizable(true).setSortable(true).setAutoWidth(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
 
 		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
@@ -361,7 +365,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		relevanceStatusFilter.setItems((EntityRelevanceStatus[]) EntityRelevanceStatus.values());
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.getStyle().set("width", "145px !important");
-
+		relevanceStatusFilter.setPlaceholder("Active");
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			criteria.relevanceStatus(e.getValue()); // Set the selected relevance status in the criteria object
 			refreshGridData();
@@ -501,7 +505,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Region");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -522,7 +526,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-						configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Region");
 						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
@@ -591,7 +595,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().dearchive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
@@ -612,7 +616,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getAreaFacade().archive(uuidsz);
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(areaDto.getName());
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
@@ -687,7 +691,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 //								ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //										String unit_code, String action_logged)
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-								configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Region");
 								configurationChangeLogDto.setAction_unit_name(name);
 								configurationChangeLogDto.setUnit_code(rcodeValue);
@@ -739,7 +743,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								
 								if(!checkexception) {
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-									configurationChangeLogDto.setCreatingUser_string(userProvider.getUser().getUserName());
+									configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 									configurationChangeLogDto.setAction_unit_type("Region");
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(rcodeValue);

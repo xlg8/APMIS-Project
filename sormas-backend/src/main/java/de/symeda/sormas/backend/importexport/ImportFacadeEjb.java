@@ -426,6 +426,8 @@ System.out.println("YESSSS");
 		//for (AgeGroup ageGroup : AgeGroup.values()) {
 			importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL_AGE_0_4", Integer.class, separator));
 			importColumns.add(ImportColumn.from(PopulationDataDto.class, "TOTAL_AGE_5_10", Integer.class, separator));
+			importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.MODALITY, String.class, separator));
+			importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.DISTRICT_STATUS, String.class, separator));
 
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "FEMALE_" + ageGroup.name(), Integer.class, separator));
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "OTHER_" + ageGroup.name(), Integer.class, separator));

@@ -19,7 +19,7 @@ public class ConfigurationChangeLog extends CoreAdo {
 	
 	public static final String TABLE_NAME = "configurationchangelog";
 	
-	public static final String AUDIT_USER = "creatingUser";
+	public static final String AUDIT_USER = "creatinguser";
 	public static final String ACTION_UNIT_TYPE = "action_unit_type";
 	public static final String ACTION_UNIT_NAME = "action_unit_name";
 	public static final String UNIT_CODE = "unit_code";
@@ -27,7 +27,7 @@ public class ConfigurationChangeLog extends CoreAdo {
 	public static final String ACTION_DATE = "action_date";
 
 	
-	private String creatingUser_string;
+	private String creatinguser;
 	private String action_unit_type;
 	private String action_unit_name;
 	private Long unit_code;
@@ -35,18 +35,19 @@ public class ConfigurationChangeLog extends CoreAdo {
 	private Date action_date;
 
 	
-	@Column(name = "creatingUser")
-	public String getCreatingUser_string() {
-		return creatingUser_string;
+	@Column(name = "creatinguser")
+	public String getCreatinguser() {
+		return creatinguser;
 	}
-	public void setCreatingUser_string(String creatingUser_string) {
-		this.creatingUser_string = creatingUser_string;
+	public void setCreatinguser(String creatinguser) {
+		this.creatinguser = creatinguser;
 	}
-	
+
 	@Column(name = "action_unit_type")
 	public String getAction_unit_type() {
 		return action_unit_type;
 	}
+	
 	public void setAction_unit_type(String action_unit_type) {
 		this.action_unit_type = action_unit_type;
 	}

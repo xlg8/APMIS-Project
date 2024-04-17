@@ -25,6 +25,7 @@ import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.backend.campaign.form.CampaignFormMeta;
+import de.symeda.sormas.backend.campaign.form.CampaignFormMetaExpDay;
 import de.symeda.sormas.backend.common.CoreAdo;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.community.Community;
@@ -71,6 +72,9 @@ public class Campaign extends CoreAdo {
 	private boolean published;
 	private List<CampaignDashboardElement> dashboardElements;
 	private Set<CampaignFormMeta> campaignFormMetas = new HashSet<>();
+	
+//	private Set<CampaignFormMetaExpDay> campaignFormMetasExpiry = new HashSet<>();
+
 	
 	private Set<Area> areas= new HashSet<>();
 	private Set<Region> regions= new HashSet<>();
@@ -252,5 +256,13 @@ public class Campaign extends CoreAdo {
 		this.communities = communities;
 	}
 
+	
+//	public Set<CampaignFormMetaExpDay> getCampaignFormMetasexpiry() {
+//		return campaignFormMetasExpiry;
+//	}
+//
+//	public void setCampaignFormMetasExpiry(Set<CampaignFormMetaExpDay> campaignFormMetasExpiry) {
+//		this.campaignFormMetasExpiry = campaignFormMetasExpiry;
+//	}
 	
 }

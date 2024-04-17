@@ -794,8 +794,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
+					System.out.println(dependingOnId + "dependingOnId11111111111111111111111 " +  dependingOnValues);
 
 					if (dependingOnId != null && dependingOnValues != null) {
+						
+						System.out.println(dependingOnId + "dependingOnId 2222222222222222" +  dependingOnValues);
 						// needed
 						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
@@ -1212,9 +1215,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					vertical.add(select);
 					fields.put(formElement.getId(), select);
+					
+					System.out.println(dependingOnId +" dependingOnId 3333333333333333333333333" +dependingOnValues );
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
+						
+						System.out.println(dependingOnId +" dependingOnId 44444444444444444444444" +dependingOnValues );
+
 						setVisibilityDependency(select, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
 					} else {

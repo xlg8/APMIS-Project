@@ -290,6 +290,18 @@ public class CommunityDto extends EntityDto {
 	public void setAreaname(String areaname) {
 		this.areaname = areaname;
 	}
+	
+	public String provideActiveStatus() {
+		if(isArchived()) {
+			return "Archived";
+
+		}else {
+			return "Active";
+
+		}
+		
+	}
+	
 
 	@Override
 	public String toString() {
