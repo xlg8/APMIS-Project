@@ -59,12 +59,12 @@ public class DistrictResource {
 		final Set<DistrictReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 		final DistrictReferenceDto rdtox = FacadeProvider.getUserFacade().getCurrentUser().getDistrict();
 		
-//		System.out.println(rdto.size()+" : List<DistrictDto> getAll(@PathParam(\"since\") long since) +++++++++++++++++++++++++++++++++++++");
+		System.out.println(rdto.size()+" : List<DistrictDto> getAll(@PathParam(\"since\") long since) +++++++++++++++++++++++++++++++++++++");
 		
 		if(rdto != null && rdto.size() > 0) {
 			
-//			System.out.println(FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
-//					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList()).size()+"hhhhhhhhhhhh+++ ");
+			System.out.println(FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
+					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList()).size()+"hhhhhhhhhhhh+++ ");
 			return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since)).stream()
 					.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
@@ -77,11 +77,16 @@ public class DistrictResource {
 		
 	}
 	
+	@GET
+	@Path("/all_/{since}")
+	public List<DistrictDto> getAll_(@PathParam("since") long since) {
+		return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
+	}
+	
 
 	@POST
 	@Path("/query")
 	public List<DistrictDto> getByUuids(List<String> uuids) {
-
 		List<DistrictDto> result = FacadeProvider.getDistrictFacade().getByUuids(uuids);
 		return result;
 	}
@@ -91,11 +96,8 @@ public class DistrictResource {
 	public List<String> getAllUuids() {
 		final Set<DistrictReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
 		final DistrictReferenceDto rdtox = FacadeProvider.getUserFacade().getCurrentUser().getDistrict();
-		
-//		System.out.println("public List<String> getAllUuids() : +++++++++++++++++++++++++++++++++++++");
+
 		if(rdto != null && rdto.size() > 0) {
-//			System.out.println(FacadeProvider.getDistrictFacade().getAllUuids().stream()
-//					.filter(e -> rdto.stream().anyMatch(ee -> e.equals(ee.getUuid()))).collect(Collectors.toList()).size()+" :public List<Strifffffffuids() : +++++++++++++++++++++++++++++++++++++");
 			return FacadeProvider.getDistrictFacade().getAllUuids().stream()
 					.filter(e -> rdto.stream().anyMatch(ee -> e.equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
@@ -106,12 +108,9 @@ public class DistrictResource {
 			return retListx;
 		
 		}
-		
-//		
-//		System.out.println("public List<String> getAllUuids() : +++++++++++++++++++++++++++++++++++++");
-//		return FacadeProvider.getDistrictFacade().getAllUuids();
 	}
 
+	
 	@POST
 	@Path("/indexList")
 	public Page<DistrictIndexDto> getIndexList(

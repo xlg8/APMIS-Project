@@ -184,7 +184,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public static final String DATABASE_NAME = "sormas.db";
 	// any time you make changes to your database objects, you may have to increase the database version
 
-	public static final int DATABASE_VERSION = 341;
+	public static final int DATABASE_VERSION = 342;
 
 	private static DatabaseHelper instance = null;
 
@@ -2982,7 +2982,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					currentVersion = 335;
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD 'source' TEXT; ");
 					getDao(CampaignFormData.class).executeRaw("UPDATE campaignFormData SET SOURCE = 'MOBILE';");
-//					break;
+
 
 				case 336:
 					currentVersion = 336;
@@ -3006,74 +3006,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					);
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD COLUMN 'lotclusterno' VARCHAR; ");
 					getDao(CampaignFormData.class).executeRaw("CREATE UNIQUE INDEX campaignFormDataDuplicateClusterLot ON campaignFormData(campaign_id, campaignFormMeta_id, community_id, lotClusterNo)");
-//					break;
+
 
 				case 337:
 
 					currentVersion = 337;
 					getDao(CampaignFormMeta.class).executeRaw("ALTER TABLE campaignFormMeta ADD COLUMN 'districtentry' boolean; ");
-					// ATTENTION: break should only be done after last version
-//					break;
-				case 388:
-					currentVersion = 388;
-					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
-				break;
-				case 339:
-
-					currentVersion = 339;
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN formid VARCHAR; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN campaignid VARCHAR; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryday BIGINT; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryDate DATE; ");
-
-				case 340:
-
-					currentVersion = 340;
-
-					getDao(HealthConditions.class).executeRaw("DROP TABLE campaignformmetawithexp;");
-
-
-					getDao(CampaignFormMetaWithExp.class).executeRaw(
-							"CREATE TABLE campaignformmetawithexp ("
-									+ "		formid VARCHAR,"
-									+ "		uuid VARCHAR,"
-									+ "		campaignid VARCHAR,"
-									+ "		expiryday BIGINT,"
-									+ "		expiryDate DATE,"
-									+ "		pseudonymized SMALLINT,"
-									+ "		changeDate BIGINT NOT NULL,"
-									+ "		creationDate BIGINT NOT NULL,"
-									+ "		id INTEGER PRIMARY KEY AUTOINCREMENT,"
-									+ "		lastOpenedDate BIGINT,"
-									+ "		localChangeDate BIGINT NOT NULL,"
-									+ "		modified SMALLINT,"
-									+ "		snapshot SMALLINT,"
-									+ "		UNIQUE (snapshot ASC, uuid ASC)"
-									+ ");"
-					);
-					break;
 
 				case 338:
 
 					currentVersion = 338;
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD COLUMN 'lotclusterno' VARCHAR; ");
 					getDao(CampaignFormData.class).executeRaw("CREATE UNIQUE INDEX campaignFormDataDuplicateClusterLot ON campaignFormData(campaign_id, campaignFormMeta_id, community_id, lotClusterNo)");
-					break;
+
 
 				case 339:
 
 					currentVersion = 339;
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN formid VARCHAR; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN campaignid VARCHAR; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryday BIGINT; ");
-					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignformmetawithexp ADD COLUMN expiryDate DATE; ");
-					break;
 
-				case 340:
-
-					currentVersion = 340;
-
-					getDao(HealthConditions.class).executeRaw("DROP TABLE campaignformmetawithexp;");
+					getDao(CampaignFormMetaWithExp.class).executeRaw("DROP TABLE campaignformmetawithexp;");
 
 
 					getDao(CampaignFormMetaWithExp.class).executeRaw(
@@ -3094,9 +3045,21 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ "		UNIQUE (snapshot ASC, uuid ASC)"
 									+ ");"
 					);
-			break;
+
+				case 340:
+					currentVersion = 340;
+					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
+
+					// ATTENTION: break should only be done after last version
 
 
+				case 341:
+					currentVersion = 341;
+					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
+
+					// ATTENTION: break should only be done after last version
+
+					break;
 
 
 				default:

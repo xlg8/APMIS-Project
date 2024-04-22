@@ -366,6 +366,7 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				System.out.println(result.getError() + "+++++ travcking error 2 +++++++++"+result.getResultStatus());
 				if (result.getError() instanceof ApiVersionException) {
 					ApiVersionException e = (ApiVersionException) result.getError();
+					System.out.println("+++++ travcking error 2333333333333222222222222 +++++++++"+e.getAppUrl());
 					if (showUpgradePrompt && !DataHelper.isNullOrEmpty(e.getAppUrl()) && activityReference.get() != null) {
 						boolean canWorkOffline = ConfigProvider.getUser() != null;
 						AppUpdateController.getInstance()
@@ -475,6 +476,7 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				// Retrieve the app URL
 				Response<String> appUrlResponse;
 				Call<String> appUrlCall = infoFacadeRetro.getAppUrl(InfoProvider.get().getVersion());
+				System.out.println("+++++ travcking error 55555555544443333333eeeeeeeeeeeee +++++++++"+InfoProvider.get().getVersion());
 				try {
 					appUrlResponse = appUrlCall.execute();
 				} catch (IOException e) {
@@ -483,11 +485,12 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				}
 
 				if (appUrlResponse.isSuccessful()) {
-					System.out.println(serverApiVersion + "hh" +  appUrlResponse.isSuccessful() + "appUrlResponse.isSuccessful() throw new ServerConnectionException(601); 5555555555555555555555555555555555"  );
+
+					System.out.println(serverApiVersion + "++++++++++++++++" +  appUrlResponse.isSuccessful() + "appUrlResponse.isSuccessful() throw new ServerConnectionException(601); 5555555555555555555555555555555555"  );
 
 
 					throw new ApiVersionException(
-						"App version '" + appApiVersion + "' does not match server version '" + serverApiVersion + "'",
+						"App version '" + appApiVersion + "' does not match server version '" + serverApiVersion + "'.",
 						appUrlResponse.body(),
 						serverApiVersion);
 				} else {
