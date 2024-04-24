@@ -83,6 +83,7 @@ public class DistrictResource {
 		return FacadeProvider.getDistrictFacade().getAllAfter(new Date(since));
 	}
 	
+	
 
 	@POST
 	@Path("/query")
