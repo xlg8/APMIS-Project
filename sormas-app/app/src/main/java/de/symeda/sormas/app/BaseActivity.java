@@ -347,27 +347,29 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 				// Handle navigation view item clicks here.
 				int id = item.getItemId();
 
-				if (id == R.id.menu_item_dashboard) {
-					NavigationHelper.goToDashboard(getContext());
-				} else if (id == R.id.menu_item_tasks) {
-					NavigationHelper.goToTasks(getContext());
-				} else if (id == R.id.menu_item_cases) {
-					NavigationHelper.goToCases(getContext());
-				} else if (id == R.id.menu_item_aggregate_reports) {
-					NavigationHelper.goToAggregateReports(getContext());
-				} else if (id == R.id.menu_item_contacts) {
-					NavigationHelper.goToContacts(getContext());
-				} else if (id == R.id.menu_item_events) {
-					NavigationHelper.goToEvents(getContext());
-				} else if (id == R.id.menu_item_samples) {
-					NavigationHelper.goToSamples(getContext());
-				} /*else if (id == R.id.menu_item_immunizations) {
-					NavigationHelper.goToImmunizations(getContext());
-				} */else if (id == R.id.menu_item_campaigns) {
+//				if (id == R.id.menu_item_dashboard) {
+//					NavigationHelper.goToDashboard(getContext());
+//				} else if (id == R.id.menu_item_tasks) {
+//					NavigationHelper.goToTasks(getContext());
+//				} else if (id == R.id.menu_item_cases) {
+//					NavigationHelper.goToCases(getContext());
+//				} else if (id == R.id.menu_item_aggregate_reports) {
+//					NavigationHelper.goToAggregateReports(getContext());
+//				} else if (id == R.id.menu_item_contacts) {
+//					NavigationHelper.goToContacts(getContext());
+//				} else if (id == R.id.menu_item_events) {
+//					NavigationHelper.goToEvents(getContext());
+//				} else if (id == R.id.menu_item_samples) {
+//					NavigationHelper.goToSamples(getContext());
+//				} /*else if (id == R.id.menu_item_immunizations) {
+//					NavigationHelper.goToImmunizations(getContext());
+//				} */else
+					if (id == R.id.menu_item_campaigns) {
 					NavigationHelper.goToCampaigns(getContext());
-				} else if (id == R.id.menu_item_reports) {
-					NavigationHelper.goToReports(getContext());
 				}
+//					else if (id == R.id.menu_item_reports) {
+//					NavigationHelper.goToReports(getContext());
+//				}
 
 				// necessary to prevent the drawer from staying open when the same entry is selected
 				menuDrawerLayout.closeDrawers();
@@ -376,16 +378,16 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 			}
 		});
 
-		taskNotificationCounter =
-				(TextView) navigationView.getMenu().findItem(R.id.menu_item_tasks).getActionView().findViewById(R.id.main_menu_notification_counter);
-		caseNotificationCounter =
-				(TextView) navigationView.getMenu().findItem(R.id.menu_item_cases).getActionView().findViewById(R.id.main_menu_notification_counter);
-		contactNotificationCounter =
-				(TextView) navigationView.getMenu().findItem(R.id.menu_item_contacts).getActionView().findViewById(R.id.main_menu_notification_counter);
-		eventNotificationCounter =
-				(TextView) navigationView.getMenu().findItem(R.id.menu_item_events).getActionView().findViewById(R.id.main_menu_notification_counter);
-		sampleNotificationCounter =
-				(TextView) navigationView.getMenu().findItem(R.id.menu_item_samples).getActionView().findViewById(R.id.main_menu_notification_counter);
+//		taskNotificationCounter =
+//				(TextView) navigationView.getMenu().findItem(R.id.menu_item_tasks).getActionView().findViewById(R.id.main_menu_notification_counter);
+//		caseNotificationCounter =
+//				(TextView) navigationView.getMenu().findItem(R.id.menu_item_cases).getActionView().findViewById(R.id.main_menu_notification_counter);
+//		contactNotificationCounter =
+//				(TextView) navigationView.getMenu().findItem(R.id.menu_item_contacts).getActionView().findViewById(R.id.main_menu_notification_counter);
+//		eventNotificationCounter =
+//				(TextView) navigationView.getMenu().findItem(R.id.menu_item_events).getActionView().findViewById(R.id.main_menu_notification_counter);
+//		sampleNotificationCounter =
+//				(TextView) navigationView.getMenu().findItem(R.id.menu_item_samples).getActionView().findViewById(R.id.main_menu_notification_counter);
 	}
 
 	protected abstract boolean isSubActivity();
@@ -503,8 +505,9 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 			userName.setText(user.getLastName() + " " + user.getFirstName());
 			userRole.setText(user.getUserRolesString());
-			String capitalizedUserName =  usingCharacterToUpperCaseMethod(user.getUserName());
-			userUserName.setText("Username : " + capitalizedUserName.toString());
+//			String capitalizedUserName =  usingCharacterToUpperCaseMethod(user.getUserName());
+//			userUserName.setText("Username : " + capitalizedUserName.toString());
+			userUserName.setText("Username : " +user.getUserName());
 			userRegion.setText("Region : " +user.getRegion().getArea());
 			userProvince.setText("Province : " +user.getRegion());
 
@@ -526,61 +529,60 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 
 			Menu menuNav = navView.getMenu();
 
-			MenuItem dashboardMenu = menuNav.findItem(R.id.menu_item_dashboard);
-			MenuItem taskMenu = menuNav.findItem(R.id.menu_item_tasks);
-			MenuItem caseMenu = menuNav.findItem(R.id.menu_item_cases);
-			MenuItem aggregateReportsMenu = menuNav.findItem(R.id.menu_item_aggregate_reports);
-			MenuItem contactMenu = menuNav.findItem(R.id.menu_item_contacts);
-			MenuItem eventMenu = menuNav.findItem(R.id.menu_item_events);
-			MenuItem sampleMenu = menuNav.findItem(R.id.menu_item_samples);
-			MenuItem immunizationMenu = menuNav.findItem(R.id.menu_item_samples);
-			MenuItem reportMenu = menuNav.findItem(R.id.menu_item_reports);
+//			MenuItem dashboardMenu = menuNav.findItem(R.id.menu_item_dashboard);
+//			MenuItem taskMenu = menuNav.findItem(R.id.menu_item_tasks);
+//			MenuItem caseMenu = menuNav.findItem(R.id.menu_item_cases);
+//			MenuItem aggregateReportsMenu = menuNav.findItem(R.id.menu_item_aggregate_reports);
+//			MenuItem contactMenu = menuNav.findItem(R.id.menu_item_contacts);
+//			MenuItem eventMenu = menuNav.findItem(R.id.menu_item_events);
+//			MenuItem sampleMenu = menuNav.findItem(R.id.menu_item_samples);
+//			MenuItem immunizationMenu = menuNav.findItem(R.id.menu_item_samples);
+//			MenuItem reportMenu = menuNav.findItem(R.id.menu_item_reports);
 			MenuItem campaignMenu = menuNav.findItem(R.id.menu_item_campaigns);
 
 			// TODO implement dashboard
-			if (dashboardMenu != null)
-				dashboardMenu.setVisible(false);
+//			if (dashboardMenu != null)
+//				dashboardMenu.setVisible(false);
 
-			if (taskMenu != null)
-				taskMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.TASK_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.TASK_MANAGEMENT));
+//			if (taskMenu != null)
+//				taskMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.TASK_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.TASK_MANAGEMENT));
 
-			if (caseMenu != null)
-				caseMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.CASE_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CASE_SURVEILANCE));
+//			if (caseMenu != null)
+//				caseMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.CASE_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CASE_SURVEILANCE));
 
-			if (aggregateReportsMenu != null)
-				aggregateReportsMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.AGGREGATE_REPORT_EDIT)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.AGGREGATE_REPORTING));
+//			if (aggregateReportsMenu != null)
+//				aggregateReportsMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.AGGREGATE_REPORT_EDIT)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.AGGREGATE_REPORTING));
 
-			if (sampleMenu != null)
-				sampleMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.SAMPLE_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.SAMPLES_LAB));
+//			if (sampleMenu != null)
+//				sampleMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.SAMPLE_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.SAMPLES_LAB));
 
 
-			if (immunizationMenu != null)
-				immunizationMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.IMMUNIZATION_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.IMMUNIZATION_MANAGEMENT));
+//			if (immunizationMenu != null)
+//				immunizationMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.IMMUNIZATION_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.IMMUNIZATION_MANAGEMENT));
+//
+//			if (eventMenu != null)
+//				eventMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.EVENT_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.EVENT_SURVEILLANCE));
+//
+//			if (contactMenu != null)
+//				contactMenu.setVisible(
+//						ConfigProvider.hasUserRight(UserRight.CONTACT_VIEW)
+//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CONTACT_TRACING));
 
-			if (eventMenu != null)
-				eventMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.EVENT_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.EVENT_SURVEILLANCE));
-
-			if (contactMenu != null)
-				contactMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.CONTACT_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CONTACT_TRACING));
-
-			if (reportMenu != null)
-				reportMenu.setVisible(
-						ConfigProvider.hasUserRight(UserRight.WEEKLYREPORT_VIEW)
-								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.WEEKLY_REPORTING));
+//			if (reportMenu != null)
+//				reportMenu.setVisible(
+//						true);
 
 			if (campaignMenu != null)
 				campaignMenu.setVisible(
@@ -610,11 +612,11 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 		menuDrawerLayout.addDrawerListener(menuDrawerToggle);
 
 		// TODO implement unread entity counters
-		taskNotificationCounter.setVisibility(View.GONE);
-		caseNotificationCounter.setVisibility(View.GONE);
-		contactNotificationCounter.setVisibility(View.GONE);
-		eventNotificationCounter.setVisibility(View.GONE);
-		sampleNotificationCounter.setVisibility(View.GONE);
+//		taskNotificationCounter.setVisibility(View.GONE);
+//		caseNotificationCounter.setVisibility(View.GONE);
+//		contactNotificationCounter.setVisibility(View.GONE);
+//		eventNotificationCounter.setVisibility(View.GONE);
+//		sampleNotificationCounter.setVisibility(View.GONE);
 //        taskNotificationCounter.setText("3");
 //        caseNotificationCounter.setText("10");
 //        contactNotificationCounter.setText("7");

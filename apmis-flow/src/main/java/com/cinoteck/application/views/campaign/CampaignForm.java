@@ -431,8 +431,7 @@ public class CampaignForm extends VerticalLayout {
 						: new ArrayList<>(campaignDto.getCampaignDashboardElements(POST_CAMPAIGN)),
 				getListDashboardFromType(POST_CAMPAIGN), campaignDto, POST_CAMPAIGN);
 
-		tab1.add(comp);
-
+		
 		// this might blow our in new campaign saying null
 //		this.campaignDto = comp.getModifiedDto();
 
@@ -440,7 +439,7 @@ public class CampaignForm extends VerticalLayout {
 
 		VerticalLayout tab2 = new VerticalLayout();
 
-		tab2.add(comp1);
+		
 		tabsheet.add(I18nProperties.getCaption(Captions.preCampaignDashboard), tab2);
 		tabsheet.setWidthFull();
 		parentTab1.add(layout);
@@ -460,7 +459,7 @@ public class CampaignForm extends VerticalLayout {
 
 		H1 text = new H1(I18nProperties.getString(Strings.contentGoeshere));
 
-		tab1Intra.add(compp);
+		
 //		this.campaignDto = compp.getModifiedDto();
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignForms), tab1Intra);
 		tabsheetIntra.setWidthFull();
@@ -470,7 +469,7 @@ public class CampaignForm extends VerticalLayout {
 //		final List<CampaignDashboardElement> intracampaignDashboardElements = FacadeProvider.getCampaignFacade()
 //				.getCampaignDashboardElements(null, INTRA_CAMPAIGN);
 
-		tab2Intra.add(compp2);
+		
 
 		tabsheetIntra.add(I18nProperties.getCaption(Captions.intraCampaignDashboard), tab2Intra);
 		parentTab2.add(layoutIntra);
@@ -486,7 +485,7 @@ public class CampaignForm extends VerticalLayout {
 
 		VerticalLayout tab1Post = new VerticalLayout();
 
-		tab1Post.add(comppp);
+		
 //		this.campaignDto = comppp.getModifiedDto();
 		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignForms), tab1Post);
 
@@ -495,7 +494,7 @@ public class CampaignForm extends VerticalLayout {
 //		final List<CampaignDashboardElement> postcampaignDashboardElements = FacadeProvider.getCampaignFacade()
 //				.getCampaignDashboardElements(null, POST_CAMPAIGN);
 
-		tab2Post.add(comppp2);
+		
 
 		tabsheetPost.add(I18nProperties.getCaption(Captions.postCampaignDashboard), tab2Post);
 		tabsheetPost.setWidthFull();
@@ -507,11 +506,22 @@ public class CampaignForm extends VerticalLayout {
 		layoutAssocCamp.setWidthFull();
 
 		if (campaignDto != null) {
-
+			tab1.add(comp);
+			tab2.add(comp1);
+			tab1Intra.add(compp);
+			tab2Intra.add(compp2);
+			tab1Post.add(comppp);
+			tab2Post.add(comppp2);
 			parentTab4.add(configureTreeGrid());
 
 		} else {
 			Div textx = new Div(new Text(I18nProperties.getString(Strings.infoSaveCampaignFirst)));
+			comp.add(textx);
+			comp1.add(textx);
+			compp.add(textx);
+			compp2.add(textx);
+			comppp.add(textx);
+			comppp2.add(textx);
 			parentTab4.add(textx);
 		}
 
@@ -703,7 +713,7 @@ public class CampaignForm extends VerticalLayout {
 			for (int i = 0; i < treeGrid.getSelectionModel().getSelectedItems().size(); i++) {
 				// TODO: let make thnis work faster by implementing a converion of
 				// treeGrid.getSelectionModel().getSelectedItems() into a set of campaigngridto
-
+				if (campaignDto != null) {
 				if (((CampaignTreeGridDto) treeGrid.getSelectionModel().getSelectedItems().toArray()[i])
 						.getLevelAssessed() == "area") {
 					AreaReferenceDto selectedArea = FacadeProvider.getAreaFacade().getAreaReferenceByUuid(
@@ -739,8 +749,16 @@ public class CampaignForm extends VerticalLayout {
 									.getUuid()));
 					popopulationDataDtoSet.add(popopulationDataDto);
 				}
+				
+				} else {
+
+
+					
+				}
 
 			}
+			
+
 
 			if (campaignDto != null) {
 				campaignDto.setAreas((Set<AreaReferenceDto>) areass);

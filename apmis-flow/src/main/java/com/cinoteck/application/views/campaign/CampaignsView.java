@@ -1,6 +1,7 @@
 package com.cinoteck.application.views.campaign;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -8,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import java.util.List;
@@ -77,8 +79,9 @@ public class CampaignsView extends VerticalLayout {
 	private Button createButton;
 	private TextField searchField;
 	private ComboBox<EntityRelevanceStatus> relevanceStatusFilter;
+	ComboBox<String> campaignYear = new ComboBox<>();
 	VerticalLayout campaignsFilterLayout = new VerticalLayout();
-
+	boolean isCampaignYearChanging;
 //	private Grid<CampaignDto> grid = new Grid<>(CampaignDto.class, false);
 //	private GridListDataView<CampaignDto> dataView;
 
@@ -87,6 +90,8 @@ public class CampaignsView extends VerticalLayout {
 
 	private GridListDataView<CampaignIndexDto> dataView;
 	List<CampaignIndexDto> campaigns;
+	List<String> campaingYears = new ArrayList<>();
+
 
 	CampaignCriteria criteria = new CampaignCriteria();
 	List<CampaignIndexDto> indexList = FacadeProvider.getCampaignFacade().getIndexList(criteria, null, null, null);
@@ -102,6 +107,10 @@ public class CampaignsView extends VerticalLayout {
 	boolean isEditingModeActive;
 
 	Dialog dialog = new Dialog();
+	
+	List<CampaignReferenceDto> campaignsx;
+	NumberFormat arabicFormat = NumberFormat.getInstance();
+
 
 	public CampaignsView() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -288,6 +297,41 @@ public class CampaignsView extends VerticalLayout {
 					.contains(searchTerm.toLowerCase());
 			return matchesDistrictName;
 		}));
+		
+		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
+		campaignsx = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
+
+		for (CampaignReferenceDto cmfdto : campaignsx) {
+			campaingYears.add(cmfdto.getCampaignYear());
+
+		}
+		
+		Set<String> setDeduplicated = new HashSet<>(campaingYears);
+		campaignYear.setItems(setDeduplicated);
+		campaignYear.setItemLabelGenerator(item -> {
+
+			switch (userProvider.getUser().getLanguage().toString()) {
+			case "Pashto":
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
+			case "Dari":
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
+			default:
+				arabicFormat = NumberFormat.getInstance(new Locale("en"));
+				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
+			}
+
+
+		});
+
+		campaignYear.setClassName("col-sm-6, col-xs-6");
+		campaignYear.setClearButtonVisible(true);
+		campaignYear.addValueChangeListener(e -> {
+			criteria.campaignYear(e.getValue());
+			refreshGridData();
+		});
+		
 
 		relevanceStatusFilter = new ComboBox<EntityRelevanceStatus>();
 		relevanceStatusFilter.setLabel(I18nProperties.getCaption(Captions.campaignStatus));
@@ -330,7 +374,7 @@ public class CampaignsView extends VerticalLayout {
 			formLayout.editMode = false;
 			newCampaign(dto_);
 		});
-		filterLayout.add(searchField, relevanceStatusFilter);
+		filterLayout.add(searchField,campaignYear, relevanceStatusFilter);
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 			filterToggleLayout.add(filterDisplayToggle, filterLayout, validateFormsButton, createButton);
@@ -371,7 +415,6 @@ public class CampaignsView extends VerticalLayout {
 		closeIcon.addClickListener(event -> {
 			dialog.removeAll();
 			dialog.close();
-//			UI.getCurrent().getPage().reload();
 		});
 		H3 headerText = new H3(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		headerText.addClassName("headingText");
@@ -380,14 +423,6 @@ public class CampaignsView extends VerticalLayout {
 		VerticalLayout content = new VerticalLayout(header, formLayout);
 		content.setWidthFull();
 		dialog.add(content);
-
-//		header.add(new Span(I18nProperties.getCaption(Captions.campaignNewCampaign)));
-//		header.add(closeIcon);
-//		VerticalLayout content = new VerticalLayout(header, formLayout);
-//		dialog.add(content);
-
-//		dialog.add(formLayout);
-//		dialog.setHeaderTitle(I18nProperties.getCaption(Captions.campaignNewCampaign));
 		dialog.setSizeFull();
 		dialog.open();
 		dialog.setCloseOnEsc(false);

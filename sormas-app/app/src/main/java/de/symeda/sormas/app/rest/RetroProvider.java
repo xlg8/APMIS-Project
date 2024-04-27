@@ -364,9 +364,18 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				callback.accept(true);
 			} else {
 				System.out.println(result.getError() + "+++++ travcking error 2 +++++++++"+result.getResultStatus());
+
 				if (result.getError() instanceof ApiVersionException) {
+
+
 					ApiVersionException e = (ApiVersionException) result.getError();
+
+					System.err.println(showUpgradePrompt + "+++++ travcking error333333333333333 +++++++++--"+e.getAppUrl() + " 333333333333  ---" + activityReference.get());
 					if (showUpgradePrompt && !DataHelper.isNullOrEmpty(e.getAppUrl()) && activityReference.get() != null) {
+
+
+						System.err.println(showUpgradePrompt + "Sttttttttttttttrrrrrrrrrratttt" + " 44444444  ---");
+
 						boolean canWorkOffline = ConfigProvider.getUser() != null;
 						AppUpdateController.getInstance()
 							.updateApp(
@@ -375,12 +384,24 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 								e.getVersion(),
 								versionCompatible || canWorkOffline,
 								() -> callback.accept(false));
+						System.err.println(showUpgradePrompt + "Enddddddddddddddddddddddddd" + " 44444444  ---");
+
 					} else {
-						if (activityReference.get() != null) {
-							NotificationHelper
-								.showNotification((NotificationContext) activityReference.get(), NotificationType.ERROR, e.getMessage());
-						}
-						callback.accept(false);
+						boolean canWorkOffline = ConfigProvider.getUser() != null;
+
+//						boolean canWorkOffline = ConfigProvider.getUser() != null;
+						AppUpdateController.getInstance()
+								.updateApp(
+										activityReference.get(),
+										e.getAppUrl(),
+										e.getVersion(),
+										versionCompatible || canWorkOffline,
+										() -> callback.accept(false));
+//						if (activityReference.get() != null) {
+//							NotificationHelper
+//								.showNotification((NotificationContext) activityReference.get(), NotificationType.ERROR, e.getMessage());
+//						}
+//						callback.accept(false);
 					}
 				} else if (result.getError() instanceof ServerConnectionException) {
 					ServerConnectionException exception = (ServerConnectionException) result.getError();
@@ -426,7 +447,7 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				versionCompatible = true;
 				if (matchExactVersion) {
 
-					System.out.println( "doInBackground throw new ServerConnectionException(601); 5555555555555555555555555555555555" + getInfoFacade() );
+					System.out.println(matchExactVersion + "doInBackground throw new ServerConnectionException(601); 5555555555555555555555555555555555" + getInfoFacade() );
 
 					RetroProvider.matchAppAndApiVersions(getInfoFacade());
 				}
@@ -475,10 +496,18 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				// Retrieve the app URL
 				Response<String> appUrlResponse;
 				Call<String> appUrlCall = infoFacadeRetro.getAppUrl(InfoProvider.get().getVersion());
+
+				System.out.println(appUrlCall + "---------------------------------------6666666666666666666666666666666666666666666666"  );
+
 				try {
 					appUrlResponse = appUrlCall.execute();
+
+					System.out.println(appUrlResponse + "---------------------------------------6666666666666666666666666666666666666666666666"  );
+
 				} catch (IOException e) {
 					// wrap the exception message inside a response object
+					System.out.println( "----------------------------------rrrrrr-----6666666666666666666666666666666666666666666666"  );
+
 					appUrlResponse = Response.error(500, ResponseBody.create(MediaType.parse("text/plain"), e.getMessage()));
 				}
 

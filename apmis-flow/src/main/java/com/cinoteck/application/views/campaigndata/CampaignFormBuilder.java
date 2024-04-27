@@ -798,7 +798,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						
-						System.out.println(dependingOnId + "dependingOnId 2222222222222222" +  dependingOnValues);
+						System.out.println(dependingOnId + "dependingOnId 2222222222222222" +  dependingOnValues +  "tttttt" + formElement.isImportant());
 						// needed
 						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
@@ -1185,8 +1185,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					final HashMap<String, String> dataOrder = (HashMap<String, String>) campaignFormElementOptions
 							.getOptionsListOrder();
 
-//=======
-//>>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
+
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 
@@ -1221,10 +1220,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
 						
-						System.out.println(dependingOnId +" dependingOnId 44444444444444444444444" +dependingOnValues );
+						System.out.println(dependingOnId +" dependingOnId 44444444444444444444444" +dependingOnValues  + "44444444444444444444444" + formElement.isImportant());
 
 						setVisibilityDependency(select, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
+						
 					} else {
 						select.setRequiredIndicatorVisible(formElement.isImportant());
 					}
@@ -1701,6 +1701,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 			// hide on default
 			boolean hideNt = dependingOnValuesList.stream().anyMatch(
 					v -> fieldValueMatchesDependingOnValuesNOTValuer(dependingOnField, dependingOnValuesList, typex));
+			
+			System.out.println(dependingOnValuesList + "JJJJ"+ dependingOnField + "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + hideNt );
 
 			if (hideNt) {
 				component.setVisible(hideNt);
@@ -1742,14 +1744,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 			// hide on default
 			boolean hide = dependingOnValuesList.stream()
 					.anyMatch(v -> fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex));
-			// component.setVisible(hide);
+			 component.setVisible(hide);
 
-//			if (hide) {
-//				// getElement().setProperty("required", requiredIndicatorVisible);
-//				component.getElement().setProperty("required", isRequiredField);
-//			} else {
-//				component.getElement().setProperty("required", false);
-//			}
+			if (hide) {
+				// getElement().setProperty("required", requiredIndicatorVisible);
+				component.getElement().setProperty("required", isRequiredField);
+			} else {
+				component.getElement().setProperty("required", false);
+			}
 
 			// check value and determine if to hide or show
 			((AbstractField) dependingOnField).addValueChangeListener(e -> {

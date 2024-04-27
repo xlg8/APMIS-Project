@@ -190,7 +190,7 @@ public class AppUpdateController {
 		downloadAppDialog.setCancelable(false);
 		downloadAppDialog.setPositiveCallback(() -> downloadNewAppVersion());
 		if (xallowDismiss) {
-			downloadAppDialog.setNegativeCallback(dismissCallback);
+			downloadAppDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		} else {
 			downloadAppDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		}
@@ -211,7 +211,7 @@ public class AppUpdateController {
 		downloadFailedDialog.setCancelable(false);
 		downloadFailedDialog.setPositiveCallback(() -> downloadNewAppVersion());
 		if (allowDismiss) {
-			downloadFailedDialog.setNegativeCallback(dismissCallback);
+			downloadFailedDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		} else {
 			downloadFailedDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		}
@@ -232,7 +232,7 @@ public class AppUpdateController {
 		installAppDialog.setCancelable(false);
 		installAppDialog.setPositiveCallback(() -> installApp());
 		if (allowDismiss) {
-			installAppDialog.setNegativeCallback(dismissCallback);
+			installAppDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		} else {
 			installAppDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		}
@@ -253,7 +253,7 @@ public class AppUpdateController {
 		installFailedDialog.setCancelable(false);
 		installFailedDialog.setPositiveCallback(() -> downloadNewAppVersion());
 		if (xallowDismiss) {
-			installFailedDialog.setNegativeCallback(dismissCallback);
+			installFailedDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		} else {
 			installFailedDialog.setNegativeCallback(() -> ((SormasApplication) activity.getApplication()).closeApp(activity));
 		}

@@ -207,7 +207,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(dashboardNavItem);
 		}
 
-
 		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
 			
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),

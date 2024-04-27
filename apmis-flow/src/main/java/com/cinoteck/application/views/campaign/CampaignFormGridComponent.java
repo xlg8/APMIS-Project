@@ -50,6 +50,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	List<CampaignFormMetaReferenceDto> allElements;
 	private UserProvider userProvider = new UserProvider();
 	private String userLanguage;
+	FormLayout formx = new FormLayout();
 
 	public CampaignFormGridComponent(List<CampaignFormMetaReferenceDto> savedCampaignFormMetas,
 			List<CampaignFormMetaReferenceDto> allCampaignFormMetas, CampaignDto capaingDto, String campaignPhase) {
@@ -89,20 +90,28 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	}
 
 	private Component getContent(CampaignDto capaingDto, List<CampaignFormMetaReferenceDto> savedCampaignFormMetas) {
-		VerticalLayout formx = editorForm(capaingDto, savedCampaignFormMetas);
-		formx.getStyle().remove("width");
-		HorizontalLayout content = new HorizontalLayout(grid, formx);
-		content.setFlexGrow(4, grid);
-		content.setFlexGrow(0, formx);
-		content.addClassNames("content");
-		content.setSizeFull();
-		return content;
+		System.out.println(capaingDto + "0------HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+		if(capaingDto != null) {
+			VerticalLayout formx = editorForm(capaingDto, savedCampaignFormMetas);
+			formx.getStyle().remove("width");
+			HorizontalLayout content = new HorizontalLayout(grid, formx);
+			content.setFlexGrow(4, grid);
+			content.setFlexGrow(0, formx);
+			content.addClassNames("content");
+			content.setSizeFull();
+			return content;	
+		}else {
+			VerticalLayout saveCampaignFirstLayout = new VerticalLayout();
+			
+			return saveCampaignFirstLayout;
+		}
+		
+		
 	}
 
 	private VerticalLayout editorForm(CampaignDto capaingDto,
 			List<CampaignFormMetaReferenceDto> savedCampaignFormMetas) {
 
-		FormLayout formx = new FormLayout();
 		VerticalLayout vert = new VerticalLayout();
 
 		Button plusButton = new Button(new Icon(VaadinIcon.PLUS));
@@ -180,28 +189,6 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		buttonAfterLay.setJustifyContentMode(JustifyContentMode.END);
 		buttonLay.setSpacing(true);
 
-		grid.addSelectionListener(ee -> {
-
-			int size = ee.getAllSelectedItems().size();
-			if (size > 0) {
-				CampaignFormMetaReferenceDto selectedCamp = ee.getFirstSelectedItem().get();
-				formBeenEdited = selectedCamp;
-				boolean isSingleSelection = size == 1;
-				buttonLay.setEnabled(isSingleSelection);
-				buttonAfterLay.setEnabled(isSingleSelection);
-
-				formx.setVisible(true);
-				buttonAfterLay.setVisible(true);
-
-				// delete.setEnabled(size != 0);
-				forms.setValue(selectedCamp);
-				saveButton.setText(I18nProperties.getCaption(Captions.update));
-				int dayz = getDaysExpiredEditable(selectedCamp);
-				daysExpire.setValue(dayz == 0 ? selectedCamp.getDaysExpired() : dayz);
-			} else {
-				formBeenEdited = new CampaignFormMetaReferenceDto();
-			}
-		});
 
 		deleteButton.addClickListener(dex -> {
 			if (formBeenEdited == null) {
@@ -247,8 +234,6 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		});
 
 		saveButton.addClickListener(e -> {
-
-//			System.out.println(((Button) e.getSource()).getText() + " Text buttton when addd");
 
 			if (((Button) e.getSource()).getText().equalsIgnoreCase("Add")
 					|| ((Button) e.getSource()).getText().equalsIgnoreCase("Add?")) {
@@ -406,6 +391,33 @@ public class CampaignFormGridComponent extends VerticalLayout {
 		buttonAfterLay.setVisible(false);
 
 		vert.add(buttonLay, formx, buttonAfterLay);
+		
+		grid.addSelectionListener(ee -> {
+
+			int size = ee.getAllSelectedItems().size();
+			if (size > 0) {
+				CampaignFormMetaReferenceDto selectedCamp = ee.getFirstSelectedItem().get();
+				formBeenEdited = selectedCamp;
+				boolean isSingleSelection = size == 1;
+				buttonLay.setEnabled(isSingleSelection);
+				buttonAfterLay.setEnabled(isSingleSelection);
+				formx.setVisible(true);
+				buttonAfterLay.setVisible(true);
+
+				// delete.setEnabled(size != 0);
+				forms.setValue(selectedCamp);
+				saveButton.setText(I18nProperties.getCaption(Captions.update));
+				int dayz = getDaysExpiredEditable(selectedCamp);
+				
+				daysExpire.clear();
+				daysExpire.setPlaceholder(String.valueOf(dayz));
+				daysExpire.setValue(daysExpire.getValue() == null ? dayz : selectedCamp.getDaysExpired());
+
+			} else {
+				formBeenEdited = new CampaignFormMetaReferenceDto();
+			}
+		});
+
 
 		return vert;
 	}

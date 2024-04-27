@@ -257,6 +257,12 @@ public class PopulationDataImporter extends DataImporter {
 		} else {
 			criteria.campaign(finalCampaign);
 		}
+		
+		if (finalDistrict == null) {
+			criteria.districtIsNull(true);
+		} else {
+			criteria.district(finalDistrict);
+		}
 
 		if (finalCommunity == null) {
 			criteria.communityIsNull(true);
@@ -282,7 +288,9 @@ public class PopulationDataImporter extends DataImporter {
 
 		List<PopulationDataDto> existingPopulationDataList = FacadeProvider.getPopulationDataFacade()
 				.getPopulationDataImportChecker(criteria);
+		
 		List<PopulationDataDto> modifiedPopulationDataList = new ArrayList<PopulationDataDto>();
+		
 		boolean populationDataHasImportError = false;
 		if (isOverWrite) {
 			populationDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
@@ -306,16 +314,27 @@ public class PopulationDataImporter extends DataImporter {
 												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
 												|| PopulationDataDto.DISTRICT_STATUS
 												.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									
+									
 								} else {
 
 									// Add the data from the currently processed cell to a new population data
 									// object
 									PopulationDataDto newPopulationData = PopulationDataDto.build(collectionDate);
+									
 									newPopulationData.setCampaign(finalCampaign);
+									newPopulationData.setDistrict(finalDistrict);
+									
 									insertCellValueIntoData(newPopulationData, cellData.getValue(),
 											cellData.getEntityPropertyPath());
-									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++:X "
+									
+									System.out.println(newPopulationData.getAgeGroup() + "   :+++++++++++++:X " 
+											+ "yyyyyy" + newPopulationData.getCampaign() + "zzzzzzz" + newPopulationData.getDistrict()
 											+ existingPopulationDataList.size());
+									
+									System.out.println("  999 :+++++++++++++:X " 
+											+ "yyyyyyzzzzzzz" 
+											+ existingPopulationDataList);
 
 									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
 											.stream()
@@ -325,6 +344,12 @@ public class PopulationDataImporter extends DataImporter {
 															.equals(newPopulationData.getCampaign()) && populationData.getDistrict()
 															.equals(newPopulationData.getDistrict()))
 											.findFirst();
+									
+									 Optional<PopulationDataDto> existingPopulationDatax = existingPopulationDataList.stream()
+									            .filter(populationData -> populationData.getAgeGroup().equals(newPopulationData.getAgeGroup())).findFirst();
+									
+									System.out.println(" ---======+++++++++++++:X " + existingPopulationData + "hhhhh" +existingPopulationDataList);
+
 									
 									if (existingPopulationData.isPresent()) {
 										System.out.println(

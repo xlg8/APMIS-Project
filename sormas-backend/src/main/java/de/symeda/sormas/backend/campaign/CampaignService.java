@@ -80,6 +80,11 @@ public class CampaignService extends AbstractCoreAdoService<Campaign> {
 				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(Campaign.ARCHIVED), true));
 			}
 		}	
+		
+		if (campaignCriteria.getCampaignYear() != null) {
+			filter = CriteriaBuilderHelper.and(cb, filter,
+					cb.equal(from.get(Campaign.CAMPAIGN_YEAR), campaignCriteria.getCampaignYear()));
+		}	
 		return filter;
 	}
 
