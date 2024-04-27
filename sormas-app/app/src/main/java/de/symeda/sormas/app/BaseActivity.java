@@ -540,50 +540,6 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 //			MenuItem reportMenu = menuNav.findItem(R.id.menu_item_reports);
 			MenuItem campaignMenu = menuNav.findItem(R.id.menu_item_campaigns);
 
-			// TODO implement dashboard
-//			if (dashboardMenu != null)
-//				dashboardMenu.setVisible(false);
-
-//			if (taskMenu != null)
-//				taskMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.TASK_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.TASK_MANAGEMENT));
-
-//			if (caseMenu != null)
-//				caseMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.CASE_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CASE_SURVEILANCE));
-
-//			if (aggregateReportsMenu != null)
-//				aggregateReportsMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.AGGREGATE_REPORT_EDIT)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.AGGREGATE_REPORTING));
-
-//			if (sampleMenu != null)
-//				sampleMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.SAMPLE_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.SAMPLES_LAB));
-
-
-//			if (immunizationMenu != null)
-//				immunizationMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.IMMUNIZATION_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.IMMUNIZATION_MANAGEMENT));
-//
-//			if (eventMenu != null)
-//				eventMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.EVENT_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.EVENT_SURVEILLANCE));
-//
-//			if (contactMenu != null)
-//				contactMenu.setVisible(
-//						ConfigProvider.hasUserRight(UserRight.CONTACT_VIEW)
-//								&& !DatabaseHelper.getFeatureConfigurationDao().isFeatureDisabled(FeatureType.CONTACT_TRACING));
-
-//			if (reportMenu != null)
-//				reportMenu.setVisible(
-//						true);
-
 			if (campaignMenu != null)
 				campaignMenu.setVisible(
 						ConfigProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)

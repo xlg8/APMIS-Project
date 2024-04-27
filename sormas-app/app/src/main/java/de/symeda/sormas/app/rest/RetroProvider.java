@@ -370,7 +370,7 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 
 					ApiVersionException e = (ApiVersionException) result.getError();
 
-					System.err.println(showUpgradePrompt + "+++++ travcking error333333333333333 +++++++++--"+e.getAppUrl() + " 333333333333  ---" + activityReference.get());
+					System.out.println("+++++ travcking error 2333333333333222222222222 +++++++++"+e.getAppUrl());
 					if (showUpgradePrompt && !DataHelper.isNullOrEmpty(e.getAppUrl()) && activityReference.get() != null) {
 
 
@@ -497,8 +497,7 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				Response<String> appUrlResponse;
 				Call<String> appUrlCall = infoFacadeRetro.getAppUrl(InfoProvider.get().getVersion());
 
-				System.out.println(appUrlCall + "---------------------------------------6666666666666666666666666666666666666666666666"  );
-
+				System.out.println("+++++ travcking error 55555555544443333333eeeeeeeeeeeee +++++++++"+InfoProvider.get().getVersion());
 				try {
 					appUrlResponse = appUrlCall.execute();
 
@@ -512,11 +511,12 @@ System.out.println(isConnected() + "connecting +++++++++"+connecting);
 				}
 
 				if (appUrlResponse.isSuccessful()) {
-					System.out.println(serverApiVersion + "hh" +  appUrlResponse.isSuccessful() + "appUrlResponse.isSuccessful() throw new ServerConnectionException(601); 5555555555555555555555555555555555"  );
+
+					System.out.println(serverApiVersion + "++++++++++++++++" +  appUrlResponse.isSuccessful() + "appUrlResponse.isSuccessful() throw new ServerConnectionException(601); 5555555555555555555555555555555555"  );
 
 
 					throw new ApiVersionException(
-						"App version '" + appApiVersion + "' does not match server version '" + serverApiVersion + "'",
+						"App version '" + appApiVersion + "' does not match server version '" + serverApiVersion + "'.",
 						appUrlResponse.body(),
 						serverApiVersion);
 				} else {

@@ -184,7 +184,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public static final String DATABASE_NAME = "sormas.db";
 	// any time you make changes to your database objects, you may have to increase the database version
 
-	public static final int DATABASE_VERSION = 341;
+	public static final int DATABASE_VERSION = 342;
 
 	private static DatabaseHelper instance = null;
 
@@ -2982,7 +2982,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					currentVersion = 335;
 					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD 'source' TEXT; ");
 					getDao(CampaignFormData.class).executeRaw("UPDATE campaignFormData SET SOURCE = 'MOBILE';");
-//					break;
+
 
 				case 336:
 					currentVersion = 336;
@@ -3004,14 +3004,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ "		UNIQUE (snapshot ASC, uuid ASC)"
 									+ ");"
 					);
+					getDao(CampaignFormData.class).executeRaw("ALTER TABLE campaignFormData ADD COLUMN 'lotclusterno' VARCHAR; ");
+					getDao(CampaignFormData.class).executeRaw("CREATE UNIQUE INDEX campaignFormDataDuplicateClusterLot ON campaignFormData(campaign_id, campaignFormMeta_id, community_id, lotClusterNo)");
 
-//					break;
 
 				case 337:
 
 					currentVersion = 337;
 					getDao(CampaignFormMeta.class).executeRaw("ALTER TABLE campaignFormMeta ADD COLUMN 'districtentry' boolean; ");
-//					break;
 
 				case 338:
 
@@ -3045,10 +3045,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ "		UNIQUE (snapshot ASC, uuid ASC)"
 									+ ");"
 					);
-//					break;
 
 				case 340:
 					currentVersion = 340;
+					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
+
+
+				case 341:
+					currentVersion = 341;
 					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
 
 					// ATTENTION: break should only be done after last version
