@@ -168,7 +168,7 @@ public class MessagingLayout extends VerticalLayout {
 
 		Icon discardIcon = new Icon(VaadinIcon.CLOSE_CIRCLE_O);
 		Button discardChanges = new Button("Discard Changes", discardIcon);
-		
+
 		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		Button saved = new Button("Send", saveIcon);
 		hr.add(discardChanges, saved);
@@ -214,31 +214,8 @@ public class MessagingLayout extends VerticalLayout {
 				}
 				regionSelector.clear();
 				provinces = regionHolder;
-
-//				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-//					regionFilter.setItems(
-//							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
-//				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-//					regionFilter
-//							.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
-//				} else {
 				regionSelector.setItems(provinces);
-//				}
-
-//				criteria.area(area);
-//				regionFilter.setReadOnly(false);
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//				criteria.district(null);
 			}
-//			else {
-//				regionFilter.clear();
-//				regionFilter.setReadOnly(true);
-//				criteria.area(null);
-//
-//			}
-//			filterDataProvider.setFilter(criteria);
 
 		});
 
@@ -253,31 +230,11 @@ public class MessagingLayout extends VerticalLayout {
 				districtSelector.clear();
 
 				districts = districtHolder;
-//				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-//					districtFilter.setItems(
-//							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
-//				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-//					districtFilter.setItems(
-//							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
-//				} else {
 				districtSelector.setItems(districts);
-//				}
-//
-//				criteria.region(region);
-//				districtFilter.setReadOnly(false);
-//				criteria.district(null);
 			}
-//			else {
-//				districtFilter.clear();
-//				districtFilter.setReadOnly(true);
-//				criteria.region(null);
-//
-//			}
-//			filterDataProvider.setFilter(criteria);
 
 		});
 
-		// = new ArrayList<>();
 		districtSelector.addValueChangeListener(e -> {
 			communityiesHolder = new ArrayList<>();
 			if (e.getValue() != null) {
@@ -320,8 +277,8 @@ public class MessagingLayout extends VerticalLayout {
 
 			Notification notification = new Notification("New Message Created", 3000, Position.MIDDLE);
 			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-			notification.open();			
-			UI.getCurrent().getPage().reload();			
+			notification.open();
+			UI.getCurrent().getPage().reload();
 		} else {
 			Notification notification = new Notification();
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -388,16 +345,17 @@ public class MessagingLayout extends VerticalLayout {
 		community.getStyle().set("margin", "10px");
 
 		FormLayout preViewContent = new FormLayout();
-		preViewContent.add(message, userRoles, formAccess, areas, region, district, community);
+		preViewContent.add(message);
+//		, userRoles, formAccess, areas, region, district, community
 		preViewContent.setColspan(message, 2);
 		Dialog preViewDialog = new Dialog();
-		preViewDialog.setWidth("900px");
-		preViewDialog.setHeight("700px");
+		preViewDialog.setWidth("700px");
+		preViewDialog.setHeight("400px");
 		Button closePreviewButton = new Button("Cancel", e -> preViewDialog.close());
 		Icon backIcon = new Icon(VaadinIcon.BACKWARDS);
 		closePreviewButton.setIcon(backIcon);
 		preViewDialog.add(preViewContent);
-		preViewDialog.setHeaderTitle("Send Message");
+		preViewDialog.setHeaderTitle("Send Message?");
 		preViewDialog.open();
 		preViewDialog.setCloseOnEsc(false);
 		preViewDialog.setCloseOnOutsideClick(false);

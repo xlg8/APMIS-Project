@@ -451,8 +451,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 							+ "| >>>>>>" + comdto.getClusterNumber());
 //				
 					if (campaignForm.getFormCategory() == FormAccess.ADMIN
-							|| campaignForm.getFormCategory() == FormAccess.Modality_Pre
-							|| campaignForm.getFormCategory() == FormAccess.Modality_Post) {
+							|| campaignForm.getFormCategory() == FormAccess.MODALITY_PRE
+							|| campaignForm.getFormCategory() == FormAccess.MODALITY_POST) {
 						if (!formuuid.equals("nul")) {
 
 							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()

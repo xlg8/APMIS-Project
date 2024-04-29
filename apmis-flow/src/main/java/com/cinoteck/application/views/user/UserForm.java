@@ -544,7 +544,7 @@ public class UserForm extends FormLayout {
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccessesList.add(FormAccess.FLW);
-			formAccessesList.add(FormAccess.Modality_Pre);
+			formAccessesList.add(FormAccess.MODALITY_PRE);
 			formAccessesList.add(FormAccess.TRAINING);
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
@@ -556,7 +556,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.EAG_PCA);
 			formAccessesList.add(FormAccess.EAG_FMS);
 			formAccessesList.add(FormAccess.EAG_LQAS);			
-			formAccessesList.add(FormAccess.Modality_Post);
+			formAccessesList.add(FormAccess.MODALITY_POST);
 			formAccess.setItems(formAccessesList);
 			// preCampformAccess.setItems(preCampformAccessesList);
 			// intraCampformAccess.setItems(intraCampformAccessesList);
