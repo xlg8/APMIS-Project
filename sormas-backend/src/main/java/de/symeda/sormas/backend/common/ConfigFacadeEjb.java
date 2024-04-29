@@ -26,6 +26,7 @@ import javax.ejb.Stateless;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.logging.log4j.core.util.SystemClock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,9 +337,12 @@ public class ConfigFacadeEjb implements ConfigFacade {
 	public String getAppUrl() {
 
 		String appUrl = getProperty(APP_URL, null);
+		System.out.println("+appurl11+++++++++++++++++"+appUrl);
 		if (appUrl != null) {
 			appUrl = appUrl.replaceAll(VERSION_PLACEHOLER, InfoProvider.get().getVersion());
 		}
+		
+		System.out.println("++appurl11222++++++++++++++++"+appUrl);
 		return appUrl;
 	}
 
@@ -596,6 +600,7 @@ public class ConfigFacadeEjb implements ConfigFacade {
 
 		// must contain version information
 		int[] appVersion = VersionHelper.extractVersion(appUrl);
+		System.out.println("+++++++++++++++++++++"+appVersion);
 		if (!DataHelper.isNullOrEmpty(appUrl) && !VersionHelper.isVersion(appVersion)) {
 			throw new IllegalArgumentException("Property '" + ConfigFacadeEjb.APP_URL + "' must contain a valid version: '" + appUrl + "'");
 		}

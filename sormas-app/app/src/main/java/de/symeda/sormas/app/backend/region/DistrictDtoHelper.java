@@ -58,6 +58,7 @@ public class DistrictDtoHelper extends AdoDtoHelper<District, DistrictDto> {
 		ado.setName(dto.getName());
 		ado.setEpidCode(dto.getEpidCode());
 		ado.setRisk(dto.getRisk());
+		System.out.println("+++++++++++++++++++++>>"+dto.getRegion().getUuid());
 		ado.setRegion(DatabaseHelper.getRegionDao().queryUuid(dto.getRegion().getUuid()));
 		ado.setArchived(dto.isArchived());
 	}

@@ -791,14 +791,8 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			return (Date) em.createNativeQuery(queryBuilder).getSingleResult();
 		} catch (NoResultException e) {
 			return null;
-		    // Handle the case when no result is found
 		}
-		
-		
-		
 	}
-
-
 
 	@LocalBean
 	@Stateless
