@@ -614,6 +614,7 @@ public class CampaignDataView extends VerticalLayout {
 						+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 				exporter.setFileName(exportFileName);
 				anchor.setHref(exporter.getCsvStreamResource());
+				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(false);
 				reload();
 				updateRowCount();
@@ -623,6 +624,7 @@ public class CampaignDataView extends VerticalLayout {
 		campaignPhase.addValueChangeListener(e -> {
 
 			System.out.println(e.getValue() + " form phase vaue ");
+			importanceSwitcher.clear();
 			importanceSwitcher.setReadOnly(false);
 			if (e.getValue() != null) {
 
@@ -706,6 +708,7 @@ public class CampaignDataView extends VerticalLayout {
 				exporter.setFileName(exportFileName);
 //				System.out.println(exportFileName + "Export file name on form change ");
 				anchor.setHref(exporter.getCsvStreamResource());
+				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(false);
 
 				reload();
@@ -928,6 +931,7 @@ public class CampaignDataView extends VerticalLayout {
 
 		enterBulkEdit.addClickListener(e -> {
 
+			selectAllButtonpLACEHOLDER.setText("Select All");
 			dropdownBulkOperations.setVisible(true);
 			selectAllButtonpLACEHOLDER.setVisible(true);
 
@@ -1190,19 +1194,25 @@ public class CampaignDataView extends VerticalLayout {
 		boolean isDataDirty = false;
 		for (CampaignFormDataIndexDto selectedItem : selectedRows) {
 
+			
+			System.out.println(selectedRows.size() + "<<<Size of selected items " + selectedItem.isIsverified()  + ">>>> Dirty data " + isDataDirty);
+			
 			if (selectedItem.isIsverified() == false) {
 				isDataDirty = true;
 			}
+			
+			System.out.println(selectedRows.size() + "<<<2222222Size of selected items " + selectedItem.isIsverified()  + "2222222222>>>> Dirty data " + isDataDirty);
+
 		}
 		if (selectedRows.size() == 0 || isDataDirty) {
 			confirmationDialog.setCancelable(false);
 			confirmationDialog.setRejectable(false);
 			confirmationDialog.addCancelListener(e -> confirmationDialog.close());
 			confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
-			if (selectedRows.size() == 0) {
+			if (selectedRows.size() == 0 && (isDataDirty || !isDataDirty)) {
 				confirmationDialog.setText("You have not selected any data to be published.");
 
-			} else if (isDataDirty) {
+			} else if ( selectedRows.size() > 0  && isDataDirty) {
 				confirmationDialog.setText(
 						"You have selected 1 or more unverified records to publish. Please verify any records you wish to publish first.");
 
@@ -1761,7 +1771,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	public void addCustomColumn(String property, String caption) {
 		if (!property.toString().contains("readonly")) {
-
+System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
 			grid.addColumn(
 					e -> e.getFormValues().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null))
 					.setHeader(caption)

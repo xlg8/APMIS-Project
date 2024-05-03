@@ -325,6 +325,7 @@ public class PopulationDataImporter extends DataImporter {
 									newPopulationData.setCampaign(finalCampaign);
 									newPopulationData.setDistrict(finalDistrict);
 									
+									
 									insertCellValueIntoData(newPopulationData, cellData.getValue(),
 											cellData.getEntityPropertyPath());
 									
@@ -335,7 +336,14 @@ public class PopulationDataImporter extends DataImporter {
 									System.out.println("  999 :+++++++++++++:X " 
 											+ "yyyyyyzzzzzzz" 
 											+ existingPopulationDataList);
+									
+//									AgeGroup xx =  newPopulationData.getAgeGroup();
 
+									
+//									System.out.println(" 10000000:+++++++++++++:X " 
+//											+ "yyyyyyzzzzzzz" 
+//											+ xx );
+									
 									Optional<PopulationDataDto> existingPopulationData = existingPopulationDataList
 											.stream()
 											.filter(populationData -> populationData.getAgeGroup()
