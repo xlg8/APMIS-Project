@@ -16,10 +16,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:textSize="14sp"
         android:ellipsize="end"
         android:gravity="start|top"
-        android:maxLines="10"
-        android:textColor="@android:color/black" />
+        android:maxLines="30"
+        android:scrollbars="vertical"
+        android:textColor="@android:color/black"
+        android:textSize="14sp" />
 
 </LinearLayout>

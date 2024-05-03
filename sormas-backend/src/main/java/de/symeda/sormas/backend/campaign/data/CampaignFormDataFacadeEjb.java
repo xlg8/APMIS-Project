@@ -370,7 +370,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 	
 	@Override
 	public List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid,
-			String campaignformmetaid) {
+			String campaignformmetaid, String district, String community) {
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
@@ -395,7 +395,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				root.get(CampaignFormData.SOURCE), userJoin.get(User.USER_NAME));
 
 		cq.where(cb.and(cb.equal(campaignJoin.get(Campaign.UUID), campaignid),
-				cb.equal(campaignFormMetaJoin.get(CampaignFormMeta.UUID), campaignformmetaid)));
+				cb.equal(campaignFormMetaJoin.get(CampaignFormMeta.UUID), campaignformmetaid),
+				cb.equal(districtJoin.get(District.NAME), district),
+				cb.equal(communityJoin.get(Community.NAME), community)));
 		return em.createQuery(cq).getResultList();
 	}
 

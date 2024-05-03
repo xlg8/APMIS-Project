@@ -450,9 +450,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 					logger.debug(comdto.getExternalId() + "?comdto.getExternalId() going to session |" + formuuid
 							+ "| >>>>>>" + comdto.getClusterNumber());
 //				
-					if (campaignForm.getFormCategory() == FormAccess.ADMIN ||
-							campaignForm.getFormCategory() == FormAccess.Modality_Pre ||
-							campaignForm.getFormCategory() == FormAccess.Modality_Post) {
+					if (campaignForm.getFormCategory() == FormAccess.ADMIN
+							|| campaignForm.getFormCategory() == FormAccess.MODALITY_PRE
+							|| campaignForm.getFormCategory() == FormAccess.MODALITY_POST) {
 						if (!formuuid.equals("nul")) {
 
 							CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
@@ -1986,7 +1986,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
-								campaignFormMeta.getUuid());
+								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(),
+								cbCommunity.getValue().getCaption());
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();
@@ -2072,7 +2073,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				List<CampaignFormDataIndexDto> lotchecker = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
-								campaignFormMeta.getUuid());
+								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(),
+								cbCommunity.getValue().getCaption());
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();
@@ -2105,59 +2107,21 @@ public class CampaignFormBuilder extends VerticalLayout {
 					}
 				}
 
-				if (campaignFormMeta.getFormCategory().equals(FormAccess.Modality_Post)
-						|| campaignFormMeta.getFormCategory().equals(FormAccess.Modality_Pre)) {
-
-					List<CampaignFormDataIndexDto> loginUserForms = FacadeProvider.getCampaignFormDataFacade()
-							.getCampaignFormDataByCreatingUser(userProvider.getUser().getUserName()).stream()
-							.filter(e -> e.getForm().trim().equalsIgnoreCase(formName.trim()))
-							.collect(Collectors.toList());
-
-					for (CampaignFormDataIndexDto campaignFormDataIndexDto : loginUserForms) {
-
-						if (campaignFormDataIndexDto.getCcode().equals(FacadeProvider.getCommunityFacade()
-								.getByUuid(cbCommunity.getValue().getUuid()).getExternalId())) {
-
-							ccodeChecker = false;
-							break;
-						}
-					}
-				}
-
 				if (saveChecker) {
-					if (ccodeChecker) {
-						CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
-								cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
+					CampaignFormDataDto dataDto = CampaignFormDataDto.build(campaignReferenceDto, campaignFormMeta,
+							cbArea.getValue(), cbRegion.getValue(), cbDistrict.getValue(), cbCommunity.getValue());
 
-						Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
+					Date dateData = Date.from(formDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-						dataDto.setFormDate(dateData);
-						dataDto.setCreatingUser(userProvider.getUserReference());
-						dataDto.setFormValues(entries);
-						dataDto.setSource("WEB");
-						dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
+					dataDto.setFormDate(dateData);
+					dataDto.setCreatingUser(userProvider.getUserReference());
+					dataDto.setFormValues(entries);
+					dataDto.setSource("WEB");
+					dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 
-						Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
-						return true;
-					} else {
-						Notification notification = new Notification();
-						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notification.setPosition(Position.MIDDLE);
-						Button closeButton = new Button(new Icon("lumo", "cross"));
-						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-						closeButton.getElement().setAttribute("aria-label", "Close");
-						closeButton.addClickListener(event -> {
-							notification.close();
-						});
+					Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
+					return true;
 
-						Paragraph text = new Paragraph("You already submit a data with this community");
-
-						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
-						layout.setAlignItems(Alignment.CENTER);
-
-						notification.add(layout);
-						notification.open();
-					}
 				} else {
 					Notification notification = new Notification();
 					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
