@@ -6,11 +6,13 @@ import java.lang.System.Logger;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.sound.midi.SysexMessage;
+import javax.ws.rs.core.Form;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
@@ -85,6 +88,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
@@ -658,20 +662,19 @@ public class CampaignDataView extends VerticalLayout {
 					} else {
 						verifiedStatusCombo.setVisible(false);
 						publishedStatusCombo.setVisible(false);
-						if(verifiedColumn != null ||  publishedColumn != null)  {
-						verifiedColumn.setVisible(false);
-						publishedColumn.setVisible(false);
+						if (verifiedColumn != null || publishedColumn != null) {
+							verifiedColumn.setVisible(false);
+							publishedColumn.setVisible(false);
 						}
 						verifyDataBulkItem.setVisible(false);
 						publishDataBulkItem.setVisible(false);
 						System.out.println("can either not don bvulk or is not who   ");
 					}
-					
-					
+
 				} else {
 					verifiedStatusCombo.setVisible(false);
 					publishedStatusCombo.setVisible(false);
-					if(verifiedColumn != null ||  publishedColumn != null) {
+					if (verifiedColumn != null || publishedColumn != null) {
 						verifiedColumn.setVisible(false);
 						publishedColumn.setVisible(false);
 					}
@@ -682,7 +685,6 @@ public class CampaignDataView extends VerticalLayout {
 					System.out.println("non - post campaign selected ");
 
 				}
-
 
 			}
 
@@ -1014,15 +1016,49 @@ public class CampaignDataView extends VerticalLayout {
 
 		String language = userProvider.getUser().getLanguage().toString();
 
+		Set<FormAccess> xx = new HashSet<FormAccess>();
+		xx = userProvider.getUser().getFormAccess();
+
+		List<CampaignFormMetaReferenceDto> filterdList = new ArrayList<>();
+
 		switch (language) {
 		case "Pashto":
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-			newForm.setItems(campaignForms);
-			importFormData.setItems(campaignForms);
-			campaignFormCombo.setItems(campaignForms);
+			
+
+			for (FormAccess n : xx) {
+				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filterdList.addAll(campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+
+			filterdList.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+//			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+//					.getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+//							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid(),
+//							userProvider.getUser().getFormAccess(), "Dari");
+//			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+			newForm.setItems(filterdList);
+			importFormData.setItems(filterdList);
+			campaignFormCombo.setItems(filterdList);
+//			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+//			newForm.setItems(campaignForms);
+//
+////			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+////					.getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+////							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid(),
+////							userProvider.getUser().getFormAccess(), "Pashto");
+////			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+////			newForm.setItems(campaignForms);
+//			importFormData.setItems(campaignForms);
+//			campaignFormCombo.setItems(campaignForms);
 			break;
 
 		case "Dari":
@@ -1030,20 +1066,67 @@ public class CampaignDataView extends VerticalLayout {
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-			newForm.setItems(campaignForms);
-			importFormData.setItems(campaignForms);
-			campaignFormCombo.setItems(campaignForms);
+			
+
+			for (FormAccess n : xx) {
+				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filterdList.addAll(campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+
+			filterdList.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+//			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+//					.getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+//							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid(),
+//							userProvider.getUser().getFormAccess(), "Dari");
+//			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+			newForm.setItems(filterdList);
+			importFormData.setItems(filterdList);
+			campaignFormCombo.setItems(filterdList);
+//			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+//			newForm.setItems(campaignForms);
+////			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+////					.getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+////							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid(),
+////							userProvider.getUser().getFormAccess(), "Dari");
+////			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+////			newForm.setItems(campaignForms);
+//			importFormData.setItems(campaignForms);
+//			campaignFormCombo.setItems(campaignForms);
 			break;
 
 		default:
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaign(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-			newForm.setItems(campaignForms);
-			importFormData.setItems(campaignForms);
-			campaignFormCombo.setItems(campaignForms);
+
+			campaignForms.removeIf(e -> e.getFormCategory() == null);
+
+			for (FormAccess n : xx) {
+				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filterdList.addAll(campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+
+			filterdList.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+//			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
+//					.getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+//							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid(),
+//							userProvider.getUser().getFormAccess(), "Dari");
+//			campaignForms.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
+
+			newForm.setItems(filterdList);
+			importFormData.setItems(filterdList);
+			campaignFormCombo.setItems(filterdList);
 //		        	newForm.setItems(campaignForms);
 			break;
 
@@ -1194,14 +1277,15 @@ public class CampaignDataView extends VerticalLayout {
 		boolean isDataDirty = false;
 		for (CampaignFormDataIndexDto selectedItem : selectedRows) {
 
-			
-			System.out.println(selectedRows.size() + "<<<Size of selected items " + selectedItem.isIsverified()  + ">>>> Dirty data " + isDataDirty);
-			
+			System.out.println(selectedRows.size() + "<<<Size of selected items " + selectedItem.isIsverified()
+					+ ">>>> Dirty data " + isDataDirty);
+
 			if (selectedItem.isIsverified() == false) {
 				isDataDirty = true;
 			}
-			
-			System.out.println(selectedRows.size() + "<<<2222222Size of selected items " + selectedItem.isIsverified()  + "2222222222>>>> Dirty data " + isDataDirty);
+
+			System.out.println(selectedRows.size() + "<<<2222222Size of selected items " + selectedItem.isIsverified()
+					+ "2222222222>>>> Dirty data " + isDataDirty);
 
 		}
 		if (selectedRows.size() == 0 || isDataDirty) {
@@ -1212,7 +1296,7 @@ public class CampaignDataView extends VerticalLayout {
 			if (selectedRows.size() == 0 && (isDataDirty || !isDataDirty)) {
 				confirmationDialog.setText("You have not selected any data to be published.");
 
-			} else if ( selectedRows.size() > 0  && isDataDirty) {
+			} else if (selectedRows.size() > 0 && isDataDirty) {
 				confirmationDialog.setText(
 						"You have selected 1 or more unverified records to publish. Please verify any records you wish to publish first.");
 
@@ -1771,7 +1855,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	public void addCustomColumn(String property, String caption) {
 		if (!property.toString().contains("readonly")) {
-System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
+			System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
 			grid.addColumn(
 					e -> e.getFormValues().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null))
 					.setHeader(caption)

@@ -339,7 +339,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		cq.where(cb.and(cb.equal(userJoin.get(User.USER_NAME), creatingUser)));
 		return em.createQuery(cq).getResultList();
 	}
-	
+
 	@Override
 	public CampaignFormDataDto getCampaignFormDataByCcode(Long ccode) {
 
@@ -367,7 +367,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		cq.where(cb.and(cb.equal(communityJoin.get(Community.EXTERNAL_ID), ccode)));
 		return QueryHelper.getFirstResult(em, cq, this::toDto);
 	}
-	
+
 	@Override
 	public List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid,
 			String campaignformmetaid, String district, String community) {
@@ -378,7 +378,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
 		Join<CampaignFormData, CampaignFormMeta> campaignFormMetaJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
 				JoinType.LEFT);
-		
+
 		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
 		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
 		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
@@ -2877,6 +2877,14 @@ if(criteria.getUserLanguage() != null) {
 	}
 	
 	@Override
+	public  void updateReassignedDistrictData(String uuid) {
+		// TODO Auto-generated method stub
+		
+		campaignFormDataService.updateReassignedDistrictData(uuid);
+		
+	}
+	
+	@Override
 	public boolean getVerifiedStatus(String uuid) {
 
 				
@@ -3825,18 +3833,5 @@ resultData.addAll(resultList.stream()
 
 
 
-
-	
-
-
-
-
-
-
-
-
-
-	
-
-	
+		
 }

@@ -173,5 +173,8 @@ public interface CampaignFormDataFacade {
 	boolean getPublishedStatus(String uuid);
 
 	Integer getAllActiveDataTotalRowCount();
+	
+
+	void updateReassignedDistrictData(String uuid);
 
 }
