@@ -686,6 +686,7 @@ public class DistrictView extends VerticalLayout {
 	}
 
 	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 

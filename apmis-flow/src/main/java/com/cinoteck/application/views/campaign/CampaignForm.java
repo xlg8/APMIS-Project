@@ -189,7 +189,9 @@ public class CampaignForm extends VerticalLayout {
 	private String userLanguage = "";
 
 	public CampaignForm(CampaignDto formData) {
+		
 		super();
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		this.statusChangeLayout = new VerticalLayout();
 		this.formDatac = formData;
 

@@ -610,6 +610,7 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 	}
 
 	public boolean createOrEditProvince(RegionIndexDto regionDto) {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 		TextField nameField = new TextField(I18nProperties.getCaption(Captions.name));
