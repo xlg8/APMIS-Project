@@ -108,6 +108,8 @@ public class DistrictView extends VerticalLayout {
 	ListDataProvider<DistrictIndexDto> dataProvider;
 	int itemCount;
 	UserProvider userProvider = new UserProvider();
+	RegionReferenceDto initialProvince = new RegionReferenceDto();;
+
 	
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -697,7 +699,16 @@ public class DistrictView extends VerticalLayout {
 		ComboBox<String> risk = new ComboBox<>(I18nProperties.getCaption(Captions.risk));
 		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
 		
-		RegionReferenceDto initialProvince = districtIndexDto.getRegion();
+		
+		if(districtIndexDto == null) {
+//			initialProvince = districtIndexDto.getRegion();
+
+		}else {
+//			return;
+			initialProvince = districtIndexDto.getRegion();
+
+		}
+		
 
 		if (districtIndexDto != null) {
 			nameField.setValue(districtIndexDto.getName());
@@ -827,7 +838,7 @@ public class DistrictView extends VerticalLayout {
 					
 					FacadeProvider.getDistrictFacade().save(dce, true);
 
-					if(initialProvince.equals(provinceOfDistrict.getValue())) {
+					if((initialProvince != null) && initialProvince.equals(provinceOfDistrict.getValue())) {
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());

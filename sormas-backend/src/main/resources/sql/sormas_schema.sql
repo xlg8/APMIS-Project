@@ -10080,5 +10080,97 @@ ALTER COLUMN modality SET DEFAULT 'H2H';
 
 INSERT INTO schema_version (version_number, comment) VALUES (467, 'Adding District-level modality attributes to Campaign Basics #626');
 
+
+
+
+DROP TRIGGER if exists tbl_ins_up_before_modality ON public.campaignformdata;
+
+DROP TRIGGER if exists modality_pre_deduplicator ON public.campaignformdata;
+
+DROP TRIGGER if exists modality_post_deduplicator ON public.campaignformdata;
+
+DROP FUNCTION if exists public.tbl_ins_up_before_modality();
+
+DROP FUNCTION if exists public.tbl_ins_up_before_modality_post();
+
+DROP FUNCTION if exists public.tbl_ins_up_before_modality_pre();
+
+
+
+
+CREATE OR REPLACE FUNCTION public.tbl_ins_up_before_modality_pre()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_PRE' AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormData SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_PRE' AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+end
+$function$;
+
+create trigger modality_pre_deduplicator before
+insert
+    on
+    public.campaignformdata for each row execute function tbl_ins_up_before_modality_pre();
+   
+
+
+
+CREATE OR REPLACE FUNCTION public.tbl_ins_up_before_modality_post()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_POST' AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormData SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormData rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_POST' AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+end
+$function$;
+
+
+create trigger modality_post_deduplicator before
+insert
+    on
+    public.campaignformdata for each row execute function tbl_ins_up_before_modality_post();
+   
+
+INSERT INTO schema_version (version_number, comment) VALUES (468, 'Updating Trigger and funtion to prevent duplicate campaignformdata relating to issue #625');
+
+
+
+
+
+
+
+
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 
