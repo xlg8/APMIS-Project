@@ -254,6 +254,54 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 //		return service.getByRoundAndExpiryDate(round).stream().map(CampaignFormMetaFacadeEjb::toReferenceDto)
 //				.sorted(Comparator.comparing(ReferenceDto::toString)).collect(Collectors.toList());
 //	}
+	@Override
+	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(
+			String round, String campaignUUID, Set<FormAccess> userFormAccess, String userLanguage) {
+		// TODO Auto-generated method stub
+
+		System.out.println(userLanguage + "< -------^^^^^^^^ User Language ");
+
+		List<CampaignFormMetaReferenceDto> filterdList = new ArrayList<>();
+
+		List<CampaignFormMetaReferenceDto> allForms = new ArrayList<>();
+
+		if (userLanguage != null) {
+			switch (userLanguage) {
+			case "Pashto":
+				allForms = getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(round, campaignUUID);
+			case "Dari":
+				allForms = getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(round, campaignUUID);
+			default:
+				allForms = getAllCampaignFormMetasAsReferencesByRoundandCampaign(round, campaignUUID);
+			}
+
+			allForms.removeIf(e -> e.getFormCategory() == null);
+
+			for (FormAccess n : userFormAccess) {
+				boolean yn = allForms.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filterdList.addAll(allForms.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+
+		} else {
+			allForms = getAllCampaignFormMetasAsReferencesByRoundandCampaign(round, campaignUUID);
+			allForms.removeIf(e -> e.getFormCategory() == null);
+
+			for (FormAccess n : userFormAccess) {
+				boolean yn = allForms.stream().filter(e -> !e.getFormCategory().equals(null))
+						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
+				if (yn) {
+					filterdList.addAll(allForms.stream().filter(e -> !e.getFormCategory().equals(null))
+							.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
+				}
+			}
+		}
+
+		return filterdList;
+	}
 
 	@Override
 	public List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round,
@@ -727,32 +775,30 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 //				.collect(Collectors.toList()));
 //
 //		return resultData;//getFormsWithExpiryQuery.getResultList();
-		
-		 @SuppressWarnings("unchecked")
-	        List<Object[]> resultList = getFormsWithExpiryQuery.getResultList();
 
-	        // Create a list to hold the DTOs
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = getFormsWithExpiryQuery.getResultList();
+
+		// Create a list to hold the DTOs
 //	        List<CampaignFormMetaExpiryDto> resultData = new ArrayList<>();
 
-	        // Iterate over the result list and create DTO objects
-	        for (Object[] result : resultList) {
-	            CampaignFormMetaExpiryDto dto = new CampaignFormMetaExpiryDto();
-	            dto.setFormId((String) result[0]);
-	            dto.setCampaignId((String) result[1]);
-	            dto.setExpiryDay(((Number) result[2]).longValue());
-	            dto.setEnddate((Date) result[3]);
-	            dto.setChangeDate((Date) result[4]);
-	            dto.setUuid((String) result[5]);
-	         
-	            resultData.add(dto);
-	        }
-	        
-	        return resultData;
+		// Iterate over the result list and create DTO objects
+		for (Object[] result : resultList) {
+			CampaignFormMetaExpiryDto dto = new CampaignFormMetaExpiryDto();
+			dto.setFormId((String) result[0]);
+			dto.setCampaignId((String) result[1]);
+			dto.setExpiryDay(((Number) result[2]).longValue());
+			dto.setEnddate((Date) result[3]);
+			dto.setChangeDate((Date) result[4]);
+			dto.setUuid((String) result[5]);
+
+			resultData.add(dto);
+		}
+
+		return resultData;
 
 //
 	}
-	
-	
 
 	@Override
 	public Date formExpiryDate(CampaignFormDataCriteria criteria) {
@@ -798,5 +844,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
 	}
+
+	
 
 }

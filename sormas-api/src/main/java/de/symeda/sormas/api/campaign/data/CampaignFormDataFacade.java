@@ -51,11 +51,12 @@ public interface CampaignFormDataFacade {
 	CampaignFormDataDto getCampaignFormDataByUuid(String campaignFormDataUuid);
 
 	List<CampaignFormDataIndexDto> getCampaignFormDataByCreatingUser(String creatingUser);
-	
-	List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid, String campaignformmetaid);
+
+	List<CampaignFormDataIndexDto> getCampaignFormDataByCampaignandFormMeta(String campaignid,
+			String campaignformmetaid, String district, String community);
 
 	CampaignFormDataDto getCampaignFormDataByCcode(Long ccode);
-	
+
 	void deleteCampaignFormData(String campaignFormDataUuid);
 
 	boolean isArchived(String campaignFormDataUuid);
@@ -140,7 +141,7 @@ public interface CampaignFormDataFacade {
 	void deleteCampaignData(List<String> uuids);
 
 	void verifyCampaignData(List<String> uuids, boolean isUnVerifying);
-	
+
 	void publishCampaignData(List<String> uuids, boolean isUnPublishing);
 
 	List<CampaignFormDataIndexDto> getByCompletionAnalysisNew(CampaignFormDataCriteria criteria,
@@ -168,9 +169,12 @@ public interface CampaignFormDataFacade {
 	List<CampaignFormDataIndexDto> getCreatingUsersUserType(String username);
 
 	boolean getVerifiedStatus(String uuid);
-	
+
 	boolean getPublishedStatus(String uuid);
 
 	Integer getAllActiveDataTotalRowCount();
+	
+
+	void updateReassignedDistrictData(String uuid);
 
 }

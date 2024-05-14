@@ -1,5 +1,6 @@
 package com.cinoteck.application.views.configurations;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -20,10 +21,11 @@ public class ClusterEditForm extends HorizontalLayout{
 	private boolean create;
 	
 	Binder<CommunityDto> binder = new BeanValidationBinder<CommunityDto>(CommunityDto.class);
-	
+	UserProvider userProvider = new UserProvider();
 	
 	public ClusterEditForm(boolean create) {
 		
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		this.create = create;
 		Dialog dialog = new Dialog();
 		dialog.add();

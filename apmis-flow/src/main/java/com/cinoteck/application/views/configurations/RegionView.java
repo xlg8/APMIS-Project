@@ -544,6 +544,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	}
 
 	public boolean createOrEditArea(AreaDto areaDto) {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 
