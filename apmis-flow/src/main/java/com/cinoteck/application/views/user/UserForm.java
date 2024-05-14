@@ -488,6 +488,21 @@ public class UserForm extends FormLayout {
 							checkbox.getElement().getClassList().add("custom-checkbox-class");
 
 						});
+						
+						clusterNo.addValueChangeListener(ex->{
+							
+							if(ex.getValue() != null) {
+								
+								Set<String> yyy =  new HashSet<>();
+								yyy.add(ex.getValue().toString() );
+								
+								System.out.println(yyy +  "SEt of users clusters after being saved ");
+								
+								user.setCommunitynos(yyy);
+								
+							}
+								
+							});
 //		            
 					}
 				}
@@ -497,6 +512,14 @@ public class UserForm extends FormLayout {
 				clusterNo.clear();
 				clusterNo.setVisible(false);
 			}
+		});
+		
+		clusterNo.addValueChangeListener(e->{
+			
+		if(e.getValue() != null) {
+			
+		}
+			
 		});
 
 		commusr.addValueChangeListener(e -> {
@@ -544,7 +567,7 @@ public class UserForm extends FormLayout {
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 			formAccessesList.add(FormAccess.ARCHIVE);
 			formAccessesList.add(FormAccess.FLW);
-			formAccessesList.add(FormAccess.Modality_Pre);
+			formAccessesList.add(FormAccess.MODALITY_PRE);
 			formAccessesList.add(FormAccess.TRAINING);
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
@@ -556,7 +579,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.EAG_PCA);
 			formAccessesList.add(FormAccess.EAG_FMS);
 			formAccessesList.add(FormAccess.EAG_LQAS);			
-			formAccessesList.add(FormAccess.Modality_Post);
+			formAccessesList.add(FormAccess.MODALITY_POST);
 			formAccess.setItems(formAccessesList);
 			// preCampformAccess.setItems(preCampformAccessesList);
 			// intraCampformAccess.setItems(intraCampformAccessesList);
@@ -757,7 +780,7 @@ public class UserForm extends FormLayout {
 		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
 
 		System.out.println(
-				formAccesses + "TFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + formAccesses.size());
+				originalUser.getCommunitynos() + "TFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + formAccesses.size() + originalUser.getCommunity());
 
 		if (formAccesses.size() == 0 || formAccesses.size() < 1) {
 

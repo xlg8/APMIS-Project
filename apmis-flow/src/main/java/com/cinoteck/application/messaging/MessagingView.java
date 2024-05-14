@@ -353,7 +353,7 @@ public class MessagingView extends VerticalLayout {
 			updateRowCount();
 		});
 
-		newMessage = new Button("New Massage", new Icon(VaadinIcon.PLUS_CIRCLE_O));
+		newMessage = new Button("New Message", new Icon(VaadinIcon.PLUS_CIRCLE_O));
 		newMessage.getStyle().set("margin-top", "10px");
 
 		bulkModeButton = new Button("Enter Bulk Edit Mode");
@@ -411,7 +411,7 @@ public class MessagingView extends VerticalLayout {
 		grid.addColumn(this::areaConfig).setHeader("Region").setSortable(true).setResizable(true);
 		grid.addColumn(this::regionConfig).setHeader("Province").setSortable(true).setResizable(true);
 		grid.addColumn(this::districtConfig).setHeader("District").setSortable(true).setResizable(true);
-		grid.addColumn(this::communityConfig).setHeader("Community").setSortable(true).setResizable(true);
+		grid.addColumn(this::communityConfig).setHeader("Cluster").setSortable(true).setResizable(true);
 		grid.addColumn(this::formAccessConfig).setHeader("Form Access").setSortable(true).setResizable(true);
 
 		grid.setVisible(true);
@@ -483,7 +483,7 @@ public class MessagingView extends VerticalLayout {
 		try {
 			if (FirebaseApp.getApps().isEmpty()) {
 				FileInputStream serviceAccount = new FileInputStream(
-						"C:\\Users\\ABC\\Downloads\\sormas-app-9be58-firebase-adminsdk-h309q-42c55035a8.json");
+						"C:\\Users\\ABC\\Downloads\\sormasapp-9280a-firebase-adminsdk-p77y7-6d71da1dc3.json");
 				FirebaseOptions options = new FirebaseOptions.Builder()
 						.setCredentials(GoogleCredentials.fromStream(serviceAccount)).build();
 

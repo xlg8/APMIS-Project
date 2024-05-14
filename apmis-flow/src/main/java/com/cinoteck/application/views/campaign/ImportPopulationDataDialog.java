@@ -261,6 +261,8 @@ finally {
 		});
 		
 		anchorSpan.add(downloadErrorReportButton);
+		
+		downloadDefaultPopulationTemplate.setEnabled(false);
 
 		dialog.add(seperatorr, //startButton, stopButton,
 //				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,

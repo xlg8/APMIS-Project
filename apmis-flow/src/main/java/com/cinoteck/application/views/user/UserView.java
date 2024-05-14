@@ -733,6 +733,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 	private void configureForm(UserDto user) {
 
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		userForm = new UserForm(regions, provinces, districts, user, false);
 		userForm.setSizeFull();
 //		form.addUserFieldValueChangeEventListener(this::suggestUserName);
@@ -809,6 +810,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	}
 
 	private void closeEditor() {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		UserDto userr = new UserDto();
 		mainContainer.remove(userForm);
 		configureForm(userr);

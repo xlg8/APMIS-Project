@@ -108,6 +108,8 @@ public class DistrictView extends VerticalLayout {
 	ListDataProvider<DistrictIndexDto> dataProvider;
 	int itemCount;
 	UserProvider userProvider = new UserProvider();
+	RegionReferenceDto initialProvince = new RegionReferenceDto();;
+
 	
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -686,6 +688,7 @@ public class DistrictView extends VerticalLayout {
 	}
 
 	public boolean createOrEditDistrict(DistrictIndexDto districtIndexDto) {
+		I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 		Dialog dialog = new Dialog();
 		FormLayout fmr = new FormLayout();
 
@@ -696,6 +699,17 @@ public class DistrictView extends VerticalLayout {
 		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		ComboBox<String> risk = new ComboBox<>(I18nProperties.getCaption(Captions.risk));
 		risk.setItems("Low Risk (LW)", "Medium Risk (MD)", "High Risk (HR)");
+		
+		
+		if(districtIndexDto == null) {
+//			initialProvince = districtIndexDto.getRegion();
+
+		}else {
+//			return;
+			initialProvince = districtIndexDto.getRegion();
+
+		}
+		
 
 		if (districtIndexDto != null) {
 			nameField.setValue(districtIndexDto.getName());
@@ -821,18 +835,37 @@ public class DistrictView extends VerticalLayout {
 					if (dce.getRisk() != null) {
 						dce.setRisk(risk.getValue());
 					}
+					
+					
 					FacadeProvider.getDistrictFacade().save(dce, true);
+
+					if((initialProvince != null) && initialProvince.equals(provinceOfDistrict.getValue())) {
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("District");
+						configurationChangeLogDto.setAction_unit_name(name);
+						configurationChangeLogDto.setUnit_code(rcodeValue);
+						configurationChangeLogDto.setAction_logged("District Edit");
+						configurationChangeLogDto.setAction_date(date);
+
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+					}else {
+						
+						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
+						configurationChangeLogDto.setAction_unit_type("District");
+						configurationChangeLogDto.setAction_unit_name(name);
+						configurationChangeLogDto.setUnit_code(rcodeValue);
+						configurationChangeLogDto.setAction_logged("District Re-Assign");
+						configurationChangeLogDto.setAction_date(date);
+
+						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+						
+						FacadeProvider.getCampaignFormDataFacade().updateReassignedDistrictData(uuids);
+					}
+				
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
-					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-					configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
-					configurationChangeLogDto.setAction_unit_type("District");
-					configurationChangeLogDto.setAction_unit_name(name);
-					configurationChangeLogDto.setUnit_code(rcodeValue);
-					configurationChangeLogDto.setAction_logged("District Edit");
-					configurationChangeLogDto.setAction_date(date);
-
-
-					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 					dialog.close();
 					refreshGridData();

@@ -18,6 +18,7 @@ public class CampaignCriteria extends BaseCriteria implements Serializable {
 	private Boolean deleted = Boolean.FALSE;
 	private String freeText;
 	private EntityRelevanceStatus relevanceStatus;
+	private String campaignYear;
 
 	public CampaignCriteria startDateAfter(Date startDateAfter) {
 		this.startDateAfter = startDateAfter;
@@ -83,5 +84,15 @@ public class CampaignCriteria extends BaseCriteria implements Serializable {
 	@IgnoreForUrl
 	public EntityRelevanceStatus getRelevanceStatus() {
 		return relevanceStatus;
+	}
+	
+	public CampaignCriteria campaignYear(String campaignYear) {
+		this.campaignYear = campaignYear;
+		return this;
+	}
+
+	@IgnoreForUrl
+	public String getCampaignYear() {
+		return campaignYear;
 	}
 }

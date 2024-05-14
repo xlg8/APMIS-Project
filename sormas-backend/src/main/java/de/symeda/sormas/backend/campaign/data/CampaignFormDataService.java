@@ -501,5 +501,19 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		System.err.println(cdvv + "Query to unpublishing from the service ");
 		return em.createNativeQuery(cdvv).executeUpdate();
 	}
+	
+	public  int updateReassignedDistrictData(String uuidx) {
+		// TODO Auto-generated method stub
+		String cdvv = "";
+		cdvv = "UPDATE campaignformdata c SET region_id = d.region_id, area_id = d.area_id \n"
+				+ "FROM (SELECT dx.id, dx.region_id, r.area_id \n"
+				+ "FROM district dx \n"
+				+ "LEFT JOIN region r ON dx.region_id = r.id \n"
+				+ "WHERE dx.uuid = '" + uuidx + "') AS d \n"
+				+ "WHERE c.district_id  = d.id;";
+		
+//		System.err.println(cdvv + "Query to unpublishing from the service ");
+		return em.createNativeQuery(cdvv).executeUpdate();
+	}
 
 }

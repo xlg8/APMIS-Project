@@ -135,17 +135,24 @@ public class AboutView extends VerticalLayout {
 
 		getUserGuide.addClickListener(e -> {
 			UI.getCurrent().getPage().open(
-					"https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/APMIS_User_Guide.pdf");
+					"guides/APMIS_User_Guide.pdf");
 		});
 
 		getTechnicalGuide.addClickListener(e -> {
 			UI.getCurrent().getPage().open(
-					"https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/APMIS_Technical_Manual.pdf");
+					"guides/APMIS_Technical_Manual.pdf");
 		});
 
 		getMobileGuide.addClickListener(e -> {
-			UI.getCurrent().getPage().open(
-					"https://staging.afghanistan-apmis.com/sormas-ui/VAADIN/themes/sormas/img/Apmis_MobileUser_Guide.pdf");
+//			UI.getCurrent().getPage().open(
+//					
+//					
+//					"https://afghanistan-apmis.com/main/frontend/themes/sormas/img/Apmis_MobileUser_Guide.pdf");
+			
+			  String localFilePath = "guides/Apmis_MobileUser_Guide.pdf";
+
+			    // Open the file using its local path
+			    UI.getCurrent().getPage().open(localFilePath, "_blank");
 		});
 		;
 

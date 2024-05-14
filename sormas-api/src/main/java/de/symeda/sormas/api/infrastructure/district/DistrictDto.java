@@ -113,27 +113,7 @@ public class DistrictDto extends EntityDto {
 		this.selectedPopulationData = selectedPopulationData;
 	};
 	
-//	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality) {
-//		this.name = name;
-//		this.populationData = populationData;
-//		this.regionId = regionId;
-//		this.regionUuid_ = regionUuid_;
-//		this.uuid_ = uuid_;
-//		this.selectedPopulationData = selectedPopulationData;
-//		this.districtModality = districtModality;
-//	};
-	
-//	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality, String districtStatus) {
-//		this.name = name;
-//		this.populationData = populationData;
-//		this.regionId = regionId;
-//		this.regionUuid_ = regionUuid_;
-//		this.uuid_ = uuid_;
-//		this.selectedPopulationData = selectedPopulationData;
-//		this.districtModality = districtModality;
-//		this.districtStatus = districtStatus;
-//
-//	};
+
 	
 	public DistrictDto(String name, Long populationData, Long regionId, String regionUuid_, String uuid_, String selectedPopulationData, String districtModality, String districtStatus, String ageGroup) {
 		this.name = name;

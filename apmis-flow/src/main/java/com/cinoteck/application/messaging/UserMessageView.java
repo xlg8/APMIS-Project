@@ -1,7 +1,11 @@
 package com.cinoteck.application.messaging;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderLayout;
@@ -45,9 +49,11 @@ public class UserMessageView extends VerticalLayout{
 
 	MessageCriteria messageCriteria;
 	Dialog dialog = new Dialog();
+	Date thirtyDaysAgo;
 
 	public UserMessageView() {
 
+		thirtyDaysAgo = subtractDaysFromDate(new Date(), 30);
 		this.messageCriteria = new MessageCriteria();
 		campaignsGrid();
 
@@ -95,17 +101,27 @@ public class UserMessageView extends VerticalLayout{
 		});
 
 		grid.addColumn(MessageDto.MESSAGE_CONTENT).setHeader("Message").setSortable(true).setResizable(true);
-		grid.addColumn(changeDateRenderer).setHeader("Broadcasted at").setSortable(true).setResizable(true);
+		grid.addColumn(changeDateRenderer).setHeader("Broadcasted at").setSortable(true).setResizable(true);		
 
+		List<MessageDto> listOfMessagesToRemoveExpiredMessages = FacadeProvider.getMessageFacade()
+				.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 10,
+						userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess());
+		
+		List<MessageDto> mainMessagesList = new ArrayList<>();
+		
+		for (MessageDto messages : listOfMessagesToRemoveExpiredMessages) {
+            if (messages.getChangeDate().after(thirtyDaysAgo) || messages.getChangeDate().equals(thirtyDaysAgo)) {
+            	mainMessagesList.add(messages);
+            }
+        }
+		
 		ListDataProvider<MessageDto> dataProvider = DataProvider
-				.fromStream(FacadeProvider.getMessageFacade()
-						.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 5,
-								userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess())
-						.stream());
+				.fromStream(mainMessagesList.stream());
+		
 		dataView = grid.setItems(dataProvider);
 		
 		grid.asSingleSelect().addValueChangeListener(event -> showMessage(event.getValue()));
-	}
+	}		
 	
 	private void showMessage(MessageDto messageDto) {
 
@@ -131,5 +147,12 @@ public class UserMessageView extends VerticalLayout{
 		messageDetails.setClassName("show-message");
 		messageDetails.getFooter().add(closePreviewButton);
 	}
+	
+	public static Date subtractDaysFromDate(Date date, int days) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, -days);
+        return calendar.getTime();
+    }
 	
 }

@@ -40,6 +40,8 @@ public interface CampaignFormMetaFacade {
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaign(String round, String campaignUUID);	
 	List<CampaignFormMetaReferenceDto> getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(String round, String campaignUUID);	
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(String round, String campaignUUID);
+	
+	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundUserLanguageCampaignandForm(String round, String campaignUUID, Set<FormAccess> userFormAccess, String userLanguage);
 
 	List<CampaignFormMetaReferenceDto> getAllCampaignFormMetasAsReferencesByRoundandCampaignandForm(String round, String campaignUUID, Set<FormAccess> userFormAccess);
 

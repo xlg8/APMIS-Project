@@ -3134,12 +3134,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					currentVersion = 340;
 					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
 
-					// ATTENTION: break should only be done after last version
 
-
-				case 341:
-					currentVersion = 341;
-					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
 
 					// ATTENTION: break should only be done after last version
 
