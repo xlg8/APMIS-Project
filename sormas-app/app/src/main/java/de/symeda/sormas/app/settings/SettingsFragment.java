@@ -28,9 +28,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.Nullable;
+//import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import javax.annotation.Nullable;
 
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -225,25 +227,25 @@ public class SettingsFragment extends BaseLandingFragment {
 
 		confirmationDialog.setPositiveCallback(() -> {
 			// Collect unsynchronized changes
-		//	final List<Case> modifiedCases = DatabaseHelper.getCaseDao().getModifiedEntities();
-		//	final List<Contact> modifiedContacts = DatabaseHelper.getContactDao().getModifiedEntities();
-		//	final List<Person> modifiedPersons = DatabaseHelper.getPersonDao().getModifiedEntities();
-		//	final List<Event> modifiedEvents = DatabaseHelper.getEventDao().getModifiedEntities();
-		//	final List<EventParticipant> modifiedEventParticipants = DatabaseHelper.getEventParticipantDao().getModifiedEntities();
-		//	final List<Sample> modifiedSamples = DatabaseHelper.getSampleDao().getModifiedEntities();
-		//	final List<Visit> modifiedVisits = DatabaseHelper.getVisitDao().getModifiedEntities();
+			final List<Case> modifiedCases = DatabaseHelper.getCaseDao().getModifiedEntities();
+//			final List<Contact> modifiedContacts = DatabaseHelper.getContactDao().getModifiedEntities();
+//			final List<Person> modifiedPersons = DatabaseHelper.getPersonDao().getModifiedEntities();
+//			final List<Event> modifiedEvents = DatabaseHelper.getEventDao().getModifiedEntities();
+//			final List<EventParticipant> modifiedEventParticipants = DatabaseHelper.getEventParticipantDao().getModifiedEntities();
+//			final List<Sample> modifiedSamples = DatabaseHelper.getSampleDao().getModifiedEntities();
+//			final List<Visit> modifiedVisits = DatabaseHelper.getVisitDao().getModifiedEntities();
 
 			getBaseActivity().synchronizeData(SynchronizeDataAsync.SyncMode.CompleteAndRepull, true, true, null, new Callback() {
 
 				@Override
 				public void call() {
 					// Add deleted entities that had unsynchronized changes to sync log
-//					for (Case caze : modifiedCases) {
-//						if (DatabaseHelper.getCaseDao().queryUuidReference(caze.getUuid()) == null) {
-//							DatabaseHelper.getSyncLogDao()
-//								.createWithParentStack(caze.toString(), getResources().getString(R.string.caption_changed_data_lost));
-//						}
-//					}
+					for (Case caze : modifiedCases) {
+						if (DatabaseHelper.getCaseDao().queryUuidReference(caze.getUuid()) == null) {
+							DatabaseHelper.getSyncLogDao()
+								.createWithParentStack(caze.toString(), getResources().getString(R.string.caption_changed_data_lost));
+						}
+					}
 //					for (Contact contact : modifiedContacts) {
 //						if (DatabaseHelper.getContactDao().queryUuidReference(contact.getUuid()) == null) {
 //							DatabaseHelper.getSyncLogDao()
@@ -285,7 +287,7 @@ public class SettingsFragment extends BaseLandingFragment {
 
 				@Override
 				public void call() {
-					DatabaseHelper.clearTables(false);
+					DatabaseHelper.clearTables(true, false);
 				}
 			});
 		});
