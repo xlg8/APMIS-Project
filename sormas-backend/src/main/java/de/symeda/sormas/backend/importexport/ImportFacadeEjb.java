@@ -411,7 +411,7 @@ System.out.println("YESSSS");
 		char separator = configFacade.getCsvSeparator();
 
 		List<ImportColumn> importColumns = new ArrayList<>();
-		importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.REGION, RegionReferenceDto.class, separator));
+		importColumns.add(ImportColumn.from(PopulationDataDto.class, "province", RegionReferenceDto.class, separator));
 		importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.DISTRICT, DistrictReferenceDto.class, separator));
 		//importColumns.add(ImportColumn.from(PopulationDataDto.class, PopulationDataDto.COMMUNITY, CommunityReferenceDto.class, separator));
 		//adding cluster no to import data
@@ -433,7 +433,7 @@ System.out.println("YESSSS");
 		//	importColumns.add(ImportColumn.from(PopulationDataDto.class, "OTHER_" + ageGroup.name(), Integer.class, separator));
 		//} External ID of
 
-		writeTemplate(Paths.get(getPopulationDataImportTemplateFilePath()), importColumns, false);
+			writePopulationTemplate(Paths.get(getPopulationDataImportTemplateFilePath()), importColumns, false);
 	}
 	
 	@Override
@@ -940,7 +940,21 @@ System.out.println("YESSSS");
 			}
 			writer.writeNext(importColumns.stream().map(ImportColumn::getColumnName).toArray(String[]::new));
 			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getCaption).toArray(String[]::new));
-			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getDataDescription).toArray(String[]::new));
+//			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getDataDescription).toArray(String[]::new));
+			writer.flush();
+		}
+	}
+	
+	private void writePopulationTemplate(Path templatePath, List<ImportColumn> importColumns, boolean includeEntityNames) throws IOException {
+		try (CSVWriter writer = CSVUtils.createCSVWriter(
+			new OutputStreamWriter(new FileOutputStream(templatePath.toString()), StandardCharsets.UTF_8.newEncoder()),
+			configFacade.getCsvSeparator())) {
+			if (includeEntityNames) {
+				writer.writeNext(importColumns.stream().map(ImportColumn::getEntityName).toArray(String[]::new));
+			}
+			writer.writeNext(importColumns.stream().map(ImportColumn::getColumnName).toArray(String[]::new));
+//			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getCaption).toArray(String[]::new));
+//			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getDataDescription).toArray(String[]::new));
 			writer.flush();
 		}
 	}

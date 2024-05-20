@@ -874,8 +874,7 @@ public class CampaignForm extends VerticalLayout {
 				.setHeader(I18nProperties.getCaption(Captions.Location));
 
 		treeGrid.addColumn(populationGenerateTotal)
-				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short) + " Total")
-				.setVisible(false);
+				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short) + " Total");
 
 		treeGrid.addColumn(populationGenerate)
 				.setHeader(I18nProperties.getCaption(Captions.View_configuration_populationdata_short) + " (Age 0-4)");
@@ -1555,7 +1554,7 @@ public class CampaignForm extends VerticalLayout {
 					confirmationDialog.setCancelable(true);
 					confirmationDialog.setRejectable(false);
 					confirmationDialog.addCancelListener(confirmationDialogx -> confirmationDialog.close());
-					confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionOkay));
+					confirmationDialog.setConfirmText(I18nProperties.getCaption(Captions.actionYes));
 					confirmationDialog.setCancelText(I18nProperties.getCaption("Cancel Update"));
 
 					confirmationDialog.addConfirmListener(confirmationDialogx -> {

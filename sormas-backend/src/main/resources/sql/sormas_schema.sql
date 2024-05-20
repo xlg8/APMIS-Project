@@ -10085,10 +10085,6 @@ INSERT INTO schema_version (version_number, comment) VALUES (467, 'Adding Distri
 
 DROP TRIGGER if exists tbl_ins_up_before_modality ON public.campaignformdata;
 
-DROP TRIGGER if exists modality_pre_deduplicator ON public.campaignformdata;
-
-DROP TRIGGER if exists modality_post_deduplicator ON public.campaignformdata;
-
 DROP FUNCTION if exists public.tbl_ins_up_before_modality();
 
 DROP FUNCTION if exists public.tbl_ins_up_before_modality_post();

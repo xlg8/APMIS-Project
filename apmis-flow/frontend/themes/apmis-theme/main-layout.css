@@ -727,3 +727,10 @@ tfoot#footer {
 	font-family: Lato;
 	color: green !important;
 }
+
+.customTextWrap label{
+	white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    text-wrap: balance;
+}

@@ -402,7 +402,9 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		//@formatter:off
 		String qry = "SELECT "
 				+ Region.TABLE_NAME + "." + Region.NAME + " AS regionname, "
+				+ Region.TABLE_NAME + "." + Region.EXTERNAL_ID + " AS pcode, "
 				+ District.TABLE_NAME + "." + District.NAME + " AS districtname, "
+				+ District.TABLE_NAME + "." + District.EXTERNAL_ID + " AS dcode, "
 				+ Community.TABLE_NAME + "." + Community.NAME + " AS communityname," 
 				+ Campaign.TABLE_NAME + "." + Campaign.UUID + " AS campaignname, " 
 				+ PopulationData.MODALITY  + ", "
@@ -420,7 +422,7 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 				+ " LEFT JOIN " + Community.TABLE_NAME + " ON "
 					+ PopulationData.COMMUNITY + "_id = " + Community.TABLE_NAME + "." + Community.ID
 					+" where "+ Campaign.TABLE_NAME + "." + Campaign.UUID +" = '"+campaignUuid+"' " 
-				+ " ORDER BY campaignname, regionname, districtname, communityname asc NULLS FIRST";
+				+ " ORDER BY campaignname, regionname, districtname, communityname, pcode, dcode asc NULLS FIRST";
 		System.out.println("__________________: "+qry);
 		//@formatter:on
 		return em.createNativeQuery(qry).getResultList();

@@ -764,6 +764,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
+					
+					toggle.setClassName("customTextWrap");
 
 					HashMap<Boolean, String> map = new HashMap<>();
 					map.put(true, "Yes");
@@ -809,6 +811,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.TEXT) {
 					TextField textField = new TextField();
 					textField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					textField.setClassName("customTextWrap");
+					
+
 					// textField.setValue("Ruukinkatu 2");
 					textField.setClearButtonVisible(true);
 					textField.setPrefixComponent(VaadinIcon.PENCIL.create());
@@ -830,6 +835,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.NUMBER) {
 					NumberField numberField = new NumberField();
 					numberField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					numberField.setClassName("customTextWrap");
+
 					numberField.setId(formElement.getId());
 					numberField.setSizeFull();
 
@@ -985,6 +992,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.RANGE) {
 					IntegerField integerField = new IntegerField();
 					integerField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					integerField.setClassName("customTextWrap");
+
 //					integerField.setHelperText("Max 10 items");
 					integerField.setId(formElement.getId());
 					integerField.setStepButtonsVisible(true);
@@ -1058,6 +1067,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.DECIMAL) {
 					BigDecimalField bigDecimalField = new BigDecimalField();
 					bigDecimalField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					bigDecimalField.setClassName("customTextWrap");
+
 					bigDecimalField.setWidth("240px");
 					bigDecimalField.setValue(new BigDecimal("948205817.472950487"));
 					bigDecimalField.setId(formElement.getId());
@@ -1079,6 +1090,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					TextArea textArea = new TextArea();
 					textArea.setWidthFull();
 					textArea.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					textArea.setClassName("customTextWrap");
 					textArea.setId(formElement.getId());
 					textArea.setSizeFull();
 					setFieldValue(textArea, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
@@ -1096,6 +1108,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.RADIO) {
 					RadioButtonGroup<String> radioGroup = new RadioButtonGroup<>();
 					radioGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					radioGroup.setClassName("customTextWrap");
+
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
 					radioGroup.setItems(data.keySet().stream().collect(Collectors.toList()));
@@ -1119,6 +1133,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					RadioButtonGroup<String> radioGroupVert = new RadioButtonGroup<>();
 					radioGroupVert.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 					radioGroupVert.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					radioGroupVert.setClassName("customTextWrap");
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -1188,6 +1203,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
+					select.setClassName("customTextWrap");
 
 					List<String> sortedKeys = new ArrayList<>(data.keySet()); // Create a list of keys
 					if (!isNotSorted) {
@@ -1232,6 +1248,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.CHECKBOX) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
 					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					checkboxGroup.setClassName("customTextWrap");
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -1256,6 +1273,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else if (type == CampaignFormElementType.CHECKBOXBASIC) {
 					CheckboxGroup<String> checkboxGroup = new CheckboxGroup<>();
 					checkboxGroup.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
+					checkboxGroup.setClassName("customTextWrap");
 
 //					data = (HashMap<String, String>) campaignFormElementOptions
 //							.getOptionsListValues();
@@ -1284,6 +1302,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					DatePicker datePicker = new DatePicker(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
+					datePicker.setClassName("customTextWrap");
+
 					datePicker.setI18n(singleFormatI18n);
 					datePicker.setSizeFull();
 					datePicker.setPlaceholder("DD-MM-YYYY");
@@ -2044,7 +2064,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph("This Lot Number or Cluster Lot Number exist");
+					Paragraph text = new Paragraph("This Cluster Number or Lot Cluster Number exist");
 
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);
@@ -2133,7 +2153,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph("This Lot Number or Cluster Lot Number exist");
+					Paragraph text = new Paragraph("This Cluster Number or Lot Cluster Number exist");
 
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);

@@ -152,9 +152,13 @@ public class CampaignFacadeEjb implements CampaignFacade {
 				case CampaignIndexDto.ROUND:
 				case CampaignIndexDto.CAMPAIGN_YEAR:
 				case CampaignIndexDto.NAME:
-				case CampaignIndexDto.START_DATE:
-				case CampaignIndexDto.END_DATE:
 					expression = campaign.get(sortProperty.propertyName);
+					break;
+				case CampaignIndexDto.START_DATE:
+					expression = campaign.get(Campaign.START_DATE);
+					break;
+				case CampaignIndexDto.END_DATE:
+					expression = campaign.get(Campaign.END_DATE);
 					break;
 				case CampaignIndexDto.CAMPAIGN_STATUS:
 					expression = campaign.get(Campaign.CLOSEOPEN);
