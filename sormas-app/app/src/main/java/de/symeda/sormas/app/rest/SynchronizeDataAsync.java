@@ -65,6 +65,7 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 	 * as the last callback is called (i.e. the synchronization has been completed/cancelled).
 	 */
 	protected boolean syncFailed;
+	protected boolean resyncDataRepull;
 	protected String syncFailedMessage;
 
 	private SyncMode syncMode;
@@ -124,6 +125,8 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 			case CompleteAndRepull:
 
 				System.out.println("+++++++++---------------------- CompleteAndRepull");
+
+				resyncDataRepull = true;
 				syncModeTrace = FirebasePerformance.getInstance().newTrace("syncModeCompleteAndRepullTrace");
 				syncModeTrace.start();
 				pullInfrastructure(); // do before missing, because we may have a completely empty database
@@ -370,8 +373,8 @@ public class SynchronizeDataAsync extends AsyncTask<Void, Void, Void> {
 
 	@AddTrace(name = "pullInfrastructureTrace")
 	private void pullInfrastructure() throws DaoException, NoConnectionException, ServerConnectionException, ServerCommunicationException {
-		if (ConfigProvider.isInitialSyncRequired()) {
-			System.out.println("+++++++++++++111111");
+		if (ConfigProvider.isInitialSyncRequired() || resyncDataRepull) {
+			System.out.println("+++++++++++++111111 resync ongoing: "+ resyncDataRepull);
 			pullInitialInfrastructure();
 		} else {
 			System.out.println("+++++++++++++222222");

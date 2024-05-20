@@ -37,8 +37,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+//import androidx.annotation.NonNull;
+//import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -57,6 +57,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -103,6 +104,8 @@ import de.symeda.sormas.app.util.LocationService;
 import de.symeda.sormas.app.util.NavigationHelper;
 
 import static de.symeda.sormas.app.core.notification.NotificationType.ERROR;
+
+import javax.annotation.Nullable;
 
 public abstract class BaseActivity extends BaseLocalizedActivity implements NotificationContext {
 
@@ -842,8 +845,11 @@ public abstract class BaseActivity extends BaseLocalizedActivity implements Noti
 	public void restartAndUpdateApplication() {
 		synchronizeDataAndReloadSetting();
 
-		ProcessPhoenix.triggerRebirth(getApplicationContext());
-		ProcessPhoenix.triggerRebirth(getActiveActivity());
+	//	ProcessPhoenix.triggerRebirth(getApplicationContext());
+		LoginActivity dx = new LoginActivity();
+		Context context3 = dx.getApplicationContext();
+		System.out.println(getActiveActivity() +" ++++++++++++ "+getActiveActivity().getActivityTitle());
+		ProcessPhoenix.triggerRebirth(context3);
 	}
 
 	public void exitApplication() {

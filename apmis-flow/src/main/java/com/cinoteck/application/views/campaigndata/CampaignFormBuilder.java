@@ -2008,6 +2008,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
 								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(),
 								cbCommunity.getValue().getCaption());
+				
+				lotchecker.removeIf(e -> e.getUuid().equals(uuidForm));
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();
@@ -2082,7 +2084,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
 
 				for (CampaignFormDataEntry sdxc : getFormValues()) {
-					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
+//					logger.debug(sdxc.getId() + "____values____ " + sdxc.getValue());
 					if (sdxc.getId().equalsIgnoreCase("LotNo")) {
 						lotNo = sdxc;
 					}

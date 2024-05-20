@@ -295,6 +295,90 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 	}
 
+
+	public static void clearTables(boolean clearInfrastructure, boolean clearUserInfrastructure) {
+		if (instance.clearingTables) {
+			return;
+		}
+		instance.clearingTables = true;
+
+		try {
+			ConnectionSource connectionSource = getCaseDao().getConnectionSource();
+			TableUtils.clearTable(connectionSource, Case.class);
+			TableUtils.clearTable(connectionSource, Immunization.class);
+			TableUtils.clearTable(connectionSource, Vaccination.class);
+			TableUtils.clearTable(connectionSource, Treatment.class);
+			TableUtils.clearTable(connectionSource, Prescription.class);
+			TableUtils.clearTable(connectionSource, Therapy.class);
+			TableUtils.clearTable(connectionSource, ClinicalVisit.class);
+			TableUtils.clearTable(connectionSource, ClinicalCourse.class);
+			TableUtils.clearTable(connectionSource, HealthConditions.class);
+			TableUtils.clearTable(connectionSource, MaternalHistory.class);
+			TableUtils.clearTable(connectionSource, PortHealthInfo.class);
+			TableUtils.clearTable(connectionSource, Person.class);
+			TableUtils.clearTable(connectionSource, PersonContactDetail.class);
+			TableUtils.clearTable(connectionSource, Symptoms.class);
+			TableUtils.clearTable(connectionSource, Task.class);
+			TableUtils.clearTable(connectionSource, Contact.class);
+			TableUtils.clearTable(connectionSource, Visit.class);
+			TableUtils.clearTable(connectionSource, Event.class);
+			TableUtils.clearTable(connectionSource, Sample.class);
+			TableUtils.clearTable(connectionSource, PathogenTest.class);
+			TableUtils.clearTable(connectionSource, AdditionalTest.class);
+			TableUtils.clearTable(connectionSource, EventParticipant.class);
+			TableUtils.clearTable(connectionSource, Hospitalization.class);
+			TableUtils.clearTable(connectionSource, PreviousHospitalization.class);
+			TableUtils.clearTable(connectionSource, EpiData.class);
+			TableUtils.clearTable(connectionSource, Exposure.class);
+			TableUtils.clearTable(connectionSource, ActivityAsCase.class);
+			TableUtils.clearTable(connectionSource, WeeklyReport.class);
+			TableUtils.clearTable(connectionSource, WeeklyReportEntry.class);
+			TableUtils.clearTable(connectionSource, AggregateReport.class);
+			TableUtils.clearTable(connectionSource, Location.class);
+			TableUtils.clearTable(connectionSource, Outbreak.class);
+			TableUtils.clearTable(connectionSource, SyncLog.class);
+			TableUtils.clearTable(connectionSource, DiseaseClassificationCriteria.class);
+			TableUtils.clearTable(connectionSource, CampaignFormData.class);
+			TableUtils.clearTable(connectionSource, CampaignFormMeta.class);
+			TableUtils.clearTable(connectionSource, CampaignFormMetaWithExp.class);
+
+			if (clearUserInfrastructure) {
+				TableUtils.clearTable(connectionSource, User.class);
+				TableUtils.clearTable(connectionSource, UserRoleConfig.class);
+			}
+			if (clearInfrastructure) {
+				TableUtils.clearTable(connectionSource, DiseaseConfiguration.class);
+				TableUtils.clearTable(connectionSource, CustomizableEnumValue.class);
+				TableUtils.clearTable(connectionSource, FeatureConfiguration.class);
+				TableUtils.clearTable(connectionSource, PointOfEntry.class);
+				TableUtils.clearTable(connectionSource, Facility.class);
+				TableUtils.clearTable(connectionSource, Community.class);
+				TableUtils.clearTable(connectionSource, District.class);
+				TableUtils.clearTable(connectionSource, Continent.class);
+				TableUtils.clearTable(connectionSource, Subcontinent.class);
+				TableUtils.clearTable(connectionSource, Country.class);
+				TableUtils.clearTable(connectionSource, Region.class);
+				TableUtils.clearTable(connectionSource, Area.class);
+				TableUtils.clearTable(connectionSource, Campaign.class);
+				TableUtils.clearTable(connectionSource, CampaignFormMeta.class);
+				TableUtils.clearTable(connectionSource, CampaignFormMetaWithExp.class);
+
+				ConfigProvider.init(instance.context);
+			}
+
+			// keep config!
+			//TableUtils.clearTable(connectionSource, Config.class);
+		} catch (SQLException e) {
+			Log.e(DatabaseHelper.class.getName(), "Can't clear database", e);
+			throw new RuntimeException(e);
+		} finally {
+			instance.clearingTables = false;
+		}
+	}
+
+
+
+
 	public static void clearConfigTable() {
 		try {
 			TableUtils.clearTable(DatabaseHelper.getCaseDao().getConnectionSource(), Config.class);
