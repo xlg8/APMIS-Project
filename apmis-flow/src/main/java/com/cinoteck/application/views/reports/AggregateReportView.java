@@ -3,7 +3,9 @@ package com.cinoteck.application.views.reports;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -272,7 +274,9 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
 				.collect(Collectors.toList());
 
-		campaignYear.setItems(camYearList);
+		List<String> campaignYearList = new ArrayList<String>(camYearList);
+		campaignYearList.sort(reverseCampaignYearNumericalOrder);
+		campaignYear.setItems(campaignYearList);
 		campaignYear.setValue(lastStarted.getCampaignYear());
 
 		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
@@ -673,10 +677,16 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 		provinceCombo.setEnabled(true);
 
 	}
+	
+	Comparator<String> reverseCampaignYearNumericalOrder = new Comparator<String>() {
+		@Override
+		public int compare(String s1, String s2) {		
+			return Integer.compare(Integer.parseInt(s2), Integer.parseInt(s1));
+		}
+	};
 
 	public void generateDistrictComboItems(UserProvider user) {
 
-		System.out.println("================1111111111111");
 		districtCombo.clear();
 
 		criteria.setRegion(provinceCombo.getValue());
