@@ -2048,6 +2048,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					// maybe we want to check the name of the updating user here
 					dataDto.setCreatingUser(userProvider.getUserReference());
+
 					// dataDto.setSource(PlatformEnum.WEB);
 					dataDto.setFormValues(entries);
 
@@ -2139,6 +2140,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 					dataDto.setCreatingUser(userProvider.getUserReference());
 					dataDto.setFormValues(entries);
 					dataDto.setSource("WEB");
+//					if (dataDto.getFormType())
+					
+			
 					dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 
 					Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));

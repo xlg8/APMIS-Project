@@ -3134,6 +3134,30 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					currentVersion = 340;
 					getDao(User.class).executeRaw("ALTER TABLE users ADD COLUMN token varchar(500);");
 
+					
+					//Attemping to fix error of database case from last @sundayadu commit 
+					//where current version at the top instance was set at 342 with a 341 query 
+					//This query is supposed to create the table if it does not exist, but if it 
+					//does exists, the creat eprocess would be skipped and it will pass
+					//This is not expected to cause any problem for the mobile devices -- @devseg
+				case 341:
+					currentVersion = 341;
+					getDao(Subcontinent.class).executeRaw(
+							"CREATE TABLE IF NOT EXISTS subcontinent ("
+									+ "		continent_id BIGINT NOT NULL,"
+									+ "		defaultName text,"
+									+ "		archived SMALLINT,"
+									+ "		changeDate BIGINT NOT NULL,"
+									+ "		creationDate BIGINT NOT NULL,"
+									+ "		id INTEGER PRIMARY KEY AUTOINCREMENT,"
+									+ "		lastOpenedDate BIGINT,"
+									+ "		localChangeDate BIGINT NOT NULL,"
+									+ "		modified SMALLINT,"
+									+ "		snapshot SMALLINT,"
+									+ "		uuid VARCHAR NOT NULL,"
+									+ "		UNIQUE (snapshot ASC, uuid ASC)"
+									+ ");");
+
 
 
 					// ATTENTION: break should only be done after last version

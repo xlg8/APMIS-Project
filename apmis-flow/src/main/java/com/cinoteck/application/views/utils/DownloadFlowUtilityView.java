@@ -42,6 +42,10 @@ public final class DownloadFlowUtilityView {
 	                
 	                // Generate and write columns to CSV writer
 	                List<String> columnNames = new ArrayList<>();
+	                
+	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, "Region"));
+	                columnNames.add(I18nProperties.getCaption("RCode"));
+	                
 	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.REGION));
 	                columnNames.add(I18nProperties.getCaption("PCode"));
 
@@ -50,9 +54,7 @@ public final class DownloadFlowUtilityView {
 
 	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.COMMUNITY));
 	                columnNames.add(I18nProperties.getCaption(Captions.Campaign));
-	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.MODALITY));
-	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.DISTRICT_STATUS));
-
+	              
 	                Map<AgeGroup, Integer> ageGroupPositions = new HashMap<>();
 	                int ageGroupIndex = columnNames.size();
 	                for (AgeGroup ageGroup : AgeGroup.values()) {
@@ -68,6 +70,10 @@ public final class DownloadFlowUtilityView {
 //	                    ageGroupPositions.put(ageGroup, ageGroupIndex);
 //	                    ageGroupIndex += 4; // Increment by 4 for each age group
 	                }
+	                
+	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.MODALITY));
+	                columnNames.add(I18nProperties.getPrefixCaption(PopulationDataDto.I18N_PREFIX, PopulationDataDto.DISTRICT_STATUS));
+
 
 	                writer.writeNext(columnNames.toArray(new String[0]));
 
@@ -75,7 +81,8 @@ public final class DownloadFlowUtilityView {
 	                        .getPopulationDataForExport(campaignUuid);
 
 	                String[] exportLine = null;
-
+	                String areaName = "";
+	                Long rCode;
 	                String regionName = "";
 	                Long provinceCode;
 	                String districtName = "";
@@ -84,14 +91,16 @@ public final class DownloadFlowUtilityView {
 	                String campaignName = "";
 
 	                for (Object[] populationExportData : populationExportDataList) {
-	                    String dataRegionName = (String) populationExportData[0];
-	                    String dataRegionCode =  ((BigInteger) populationExportData[1]).toString();
-	                    String dataDistrictName = populationExportData[2] == null ? "" : (String) populationExportData[2];
-	                    String dataDistrictCode =  ((BigInteger) populationExportData[3]).toString();;
-	                    String dataCommunityName = populationExportData[4] == null ? "" : (String) populationExportData[4];
-	                    String dataCampaignName = populationExportData[5] == null ? "" : (String) populationExportData[5];
-	                    String dataModality = populationExportData[6] == null ? "" : (String) populationExportData[6];
-	                    String dataDistrictStatus = populationExportData[7] == null ? "" : (String) populationExportData[7];
+	                	String dataAreaName = (String) populationExportData[0];
+		                String dataAreaCode =  ((BigInteger) populationExportData[1]).toString();
+	                    String dataRegionName = (String) populationExportData[2];
+	                    String dataRegionCode =  ((BigInteger) populationExportData[3]).toString();
+	                    String dataDistrictName = populationExportData[4] == null ? "" : (String) populationExportData[4];
+	                    String dataDistrictCode =  ((BigInteger) populationExportData[5]).toString();;
+	                    String dataCommunityName = populationExportData[6] == null ? "" : (String) populationExportData[6];
+	                    String dataCampaignName = populationExportData[7] == null ? "" : (String) populationExportData[7];
+	                    String dataModality = populationExportData[10] == null ? "" : (String) populationExportData[10];
+	                    String dataDistrictStatus = populationExportData[11] == null ? "" : (String) populationExportData[11];
 
 	                    if (exportLine != null && (!dataRegionName.equals(regionName)
 	                            || !dataDistrictName.equals(districtName)
@@ -104,14 +113,16 @@ public final class DownloadFlowUtilityView {
 
 	                    if (exportLine == null) {
 	                        exportLine = new String[columnNames.size()];
-	                        exportLine[0] = dataRegionName;
-	                        exportLine[1] = dataRegionCode;
-	                        exportLine[2] = dataDistrictName;
-	                        exportLine[3] = dataDistrictCode;
-	                        exportLine[4] = dataCommunityName;
-	                        exportLine[5] = dataCampaignName;
-	                        exportLine[6] = dataModality;
-	                        exportLine[7] = dataDistrictStatus;
+	                        exportLine[0] = dataAreaName;
+	                        exportLine[1] = dataAreaCode;
+	                        exportLine[2] = dataRegionName;
+	                        exportLine[3] = dataRegionCode;
+	                        exportLine[4] = dataDistrictName;
+	                        exportLine[5] = dataDistrictCode;
+	                        exportLine[6] = dataCommunityName;
+	                        exportLine[7] = dataCampaignName;
+	                        exportLine[10] = dataModality;
+	                        exportLine[11] = dataDistrictStatus;
 	                    }
 
 	                    AgeGroup ageGroup = AgeGroup.valueOf((String) populationExportData[8]);
@@ -119,15 +130,16 @@ public final class DownloadFlowUtilityView {
 	                    Integer ageGroupPosition = ageGroupPositions.get(ageGroup);
 
 	                    if (Sex.MALE.getName().equals(sexString)) {
-	                        exportLine[ageGroupPosition + 1] = String.valueOf(populationExportData[10]);
+	                        exportLine[ageGroupPosition + 1] = String.valueOf(populationExportData[12]);
 	                    } else if (Sex.FEMALE.getName().equals(sexString)) {
-	                        exportLine[ageGroupPosition + 2] = String.valueOf(populationExportData[10]);
+	                        exportLine[ageGroupPosition + 2] = String.valueOf(populationExportData[12]);
 	                    } else if (Sex.OTHER.getName().equals(sexString)) {
-	                        exportLine[ageGroupPosition + 3] = String.valueOf(populationExportData[10]);
+	                        exportLine[ageGroupPosition + 3] = String.valueOf(populationExportData[12]);
 	                    } else {
-	                        exportLine[ageGroupPosition] = String.valueOf(populationExportData[10]);
+	                        exportLine[ageGroupPosition] = String.valueOf(populationExportData[12]);
 	                    }
 	                    
+	                    areaName = dataAreaName;
 	                    regionName = dataRegionName;
 	                    districtName = dataDistrictName;
 	                    communityName = dataCommunityName;
