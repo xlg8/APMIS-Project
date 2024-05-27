@@ -20,6 +20,7 @@ import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaigndata.ImportCampaignsFormDataDialog;
+import com.cinoteck.application.views.user.UserForm.SaveEvent;
 import com.cinoteck.application.views.user.UserForm.UserRoleCustomComparator;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.vaadin.flow.component.ClickEvent;
@@ -894,8 +895,64 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	private void suggestUserNameWorking() {
 
 		if (!userForm.firstName.isEmpty() && !userForm.lastName.isEmpty() && userForm.userName.isEmpty()) {
-			userForm.userName.setValue(
-					UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
+			
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
+					.getByUserName(userForm.userName.getValue());
+			if (checkNewusernamefromDB == null) {
+//				fireEvent(new SaveEvent(this, binder.getBean()));
+				userForm.userName.setValue(
+						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
+			} else {
+				System.out.println("else11111111111 kicked ----------------------------");
+
+				userForm.userName.setErrorMessage("Username exists");
+			}
+			
+		}else {
+			
+			System.out.println("else kicked ----------------------------");
+			
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
+					.getByUserName(userForm.userName.getValue() + userForm.lastName.getValue());
+			
+			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB +  "yyyy "+userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
+
+			
+			if (checkNewusernamefromDB == null) {
+//				fireEvent(new SaveEvent(this, binder.getBean()));
+				userForm.userName.setValue(
+						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
+				userForm.save.setEnabled(true);
+			} else {
+				
+				System.out.println("222222222222222 kicked ----------------------------");
+				userForm.userName.setValue(
+						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
+				userForm.save.setEnabled(false);
+				Notification.show("Username Exists", 5000, Position.MIDDLE);
+//				NotificationVariant.LUMO_ERROR;
+				
+//				Notification.show("Username Exists");
+				
+				userForm.userName.addValueChangeListener(e->{
+					UserDto checkNewusernamefromDBx = FacadeProvider.getUserFacade()
+							.getByUserName(e.getValue());
+					
+					if (checkNewusernamefromDBx == null) {
+						userForm.save.setEnabled(true);
+					}else {
+						userForm.save.setEnabled(false);
+						Notification.show("Username Exists", 5000, Position.MIDDLE);
+					}
+					
+				});
+				
+				
+//				userForm.save.setTooltipText("Username exists");
+//				userForm.userName.setThemeName("error");
+//				userForm.userName.setErrorMessage("Username exists");
+			}
+			
 		}
 
 	}

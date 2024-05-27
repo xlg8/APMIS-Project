@@ -7,6 +7,8 @@ import static de.symeda.sormas.api.campaign.CampaignJurisdictionLevel.REGION;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -174,10 +176,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 //		
 //		
 //		campaingYears.clear();
-//		campaingYears.addAll(setDeduplicated);
+//		campaingYears.addAll(setDeduplicated);				
 
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
-		campaignYear.setItems(setDeduplicated);
+		List<String> campaignYearList = new ArrayList<String>(setDeduplicated);
+		campaignYearList.sort(reverseCampaignYearNumericalOrder);
+
+		campaignYear.setItems(campaignYearList);
 		campaignYear.setItemLabelGenerator(item -> {
 
 			switch (userProvider.getUser().getLanguage().toString()) {
@@ -191,7 +196,6 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 				arabicFormat = NumberFormat.getInstance(new Locale("en"));
 				return String.valueOf(arabicFormat.format(Long.parseLong(item))).replace(",", "");
 			}
-
 
 		});
 
@@ -707,7 +711,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 	}
 
 	private String getLabelForEnum(CampaignPhase campaignPhase) {
-		if(campaignPhase != null ) {
+		if (campaignPhase != null) {
 			switch (campaignPhase) {
 			case PRE:
 				return "Pre-Campaign";
@@ -721,10 +725,10 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 			default:
 				return campaignPhase.toString();
 			}
-		}else {
+		} else {
 			return "Intra-Campaign";
 		}
-		
+
 	}
 
 	public void generateProvinceComboItems() {
@@ -815,6 +819,13 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		}
 	}
 
+	Comparator<String> reverseCampaignYearNumericalOrder = new Comparator<String>() {
+		@Override
+		public int compare(String s1, String s2) {		
+			return Integer.compare(Integer.parseInt(s2), Integer.parseInt(s1));
+		}
+	};
+	
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
 

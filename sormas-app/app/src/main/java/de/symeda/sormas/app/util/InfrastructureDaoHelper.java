@@ -239,13 +239,41 @@ public final class InfrastructureDaoHelper {
 			districtField.initializeSpinner(initialDistricts, field -> {
 				District selectedDistrict = (District) field.getValue();
 				if (selectedDistrict != null) {
+
 					List<Item> newCommunities = loadCommunities(selectedDistrict);
 					if (initialCommunity != null
 						&& selectedDistrict.equals(initialCommunity.getDistrict())
 						&& !newCommunities.contains(communityItem)) {
+
 						newCommunities.add(communityItem);
 					}
 					communityField.setSpinnerData(newCommunities, communityField.getValue());
+
+					if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){ // District Officer
+						districtField.addValueChangedListener(e -> {
+							if (e.getValue() != null){
+								List<Item> newCommunities_ = loadCommunities((District) e.getValue());
+								if (newCommunities_.get(0) != null){
+									communityField.setValue(newCommunities_.get(0));
+								} else {
+									System.err.println("District without community has been detected from the system.");
+								}
+							}
+						});
+						// Set the value of communityField before hiding it
+						if (districtField.getValue() != null){
+							List<Item> newCommunities_ = loadCommunities((District) districtField.getValue());
+							if (newCommunities_.get(0) != null){
+								communityField.setValue(newCommunities_.get(0));
+							}
+						}
+						// Hide the communityField
+						communityField.setVisibility(GONE);
+					}else{
+						communityField.setVisibility(VISIBLE);
+
+					}
+
 					if(isEdit){
 						communityField.setEnabled(false);
 					}
@@ -262,18 +290,61 @@ public final class InfrastructureDaoHelper {
 
 		if (communityField != null) {
 			communityField.initializeSpinner(initialCommunities);
+
 			if(isEdit){
 				communityField.setEnabled(false);
 			}
 		}
 
 		//temp fix
-System.out.println("++++++++++++ :::: is servallance role there: "+ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER));
-		if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){
+
+		if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){ // District Officer
+			districtField.addValueChangedListener(e -> {
+				if (e.getValue() != null){
+					List<Item> newCommunities_ = loadCommunities((District) e.getValue());
+					if (newCommunities_.get(0) != null){
+						communityField.setValue(newCommunities_.get(0));
+					} else {
+						System.err.println("District without community has been detected from the system.");
+					}
+				}
+			});
+			// Set the value of communityField before hiding it
+			if (districtField.getValue() != null){
+				List<Item> newCommunities_ = loadCommunities((District) districtField.getValue());
+				if (newCommunities_.get(0) != null){
+					communityField.setValue(newCommunities_.get(0));
+				}
+			}
+			// Hide the communityField
 			communityField.setVisibility(GONE);
 		}else{
 			communityField.setVisibility(VISIBLE);
-		};
+
+		}
+
+//		System.out.println("++++++++++++ :::: is servallance role there: "+ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER));
+//		if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){ // District Officer
+//			System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------8888888888888888contains(UserRole.SURVEILLANCE_OFFICER) " );
+//			districtField.addValueChangedListener(e -> {
+//				if (e.getValue() != null){
+//					System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------districtField.addValueChangedListener");
+//
+//					List<Item> newCommunities_ = loadCommunities((District) e.getValue());
+//					if (newCommunities_.get(0) != null){
+//						System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------districtField.addValueChangedListener");
+//
+//						communityField.setValue(newCommunities_.get(0));
+//					} else {
+//						System.err.println("District without community has been detected from the system.");
+//					}
+//				}
+//			});
+////			communityField.setVisibility(GONE);
+//		}else{
+//			System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------99999999999999999" + "DOES NOT contains(UserRole.SURVEILLANCE_OFFICER) ");
+////			communityField.setVisibility(VISIBLE);
+//		};
 
 
 

@@ -53,7 +53,6 @@ public class ImportPopulationDataDialog extends Dialog {
 
 //	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
-	Button downloadDefaultPopulationTemplate = new Button(I18nProperties.getCaption(Captions.importDefaultPopulationFile));
 
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
@@ -96,51 +95,8 @@ public class ImportPopulationDataDialog extends Dialog {
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
 		Icon downloadButtonnIcon = new Icon(VaadinIcon.DOWNLOAD);
 		
-		downloadDefaultPopulationTemplate.setIcon(downloadButtonnIcon);
 		downloadImportTemplate.setIcon(downloadButtonnIcon);
-		downloadDefaultPopulationTemplate.addClickListener(ee -> {
-			StreamResource streamResource = new StreamResource("default_population_data.csv", () -> {
-			    InputStream inputStream = getClass().getClassLoader().getResourceAsStream("default_population_data.csv");
-			    if (inputStream != null) {
-			        return inputStream;
-			    } else {
-			        // Handle error, e.g., show a notification
-			        Notification.show("CSV file not found");
-			        return null;
-			    }
-			});
-
-			// Create a StreamResource
-//				StreamResource streamResource = new StreamResource(templateFileName, () -> inputStream);
-
-			// Open the StreamResource in browser for download
-			streamResource.setContentType("text/csv");
-			streamResource.setCacheTime(0); // Disable caching
-
-			// Create an anchor to trigger the download
-			Anchor downloadAnchorx = new Anchor(streamResource, "Download CSV");
-			downloadAnchorx.getElement().setAttribute("download", true);
-			downloadAnchorx.getStyle().set("display", "none");
-
-			step1.add(downloadAnchorx);
-
-			// Simulate a click event on the hidden anchor to trigger the download
-			downloadAnchorx.getElement().callJsFunction("click");
-			Notification.show("downloading...");
-			
-			 UI.getCurrent().getPage().executeJs(
-				        "const downloadAnchor = $0;" +
-				        "downloadAnchor.addEventListener('load', function() {" +
-				        "    setTimeout(function() {" +
-				        "        $1.click();" +
-				        "    }, 1000);" + // Trigger upload after a 1-second delay
-				        "});",
-				        downloadAnchorx.getElement(), // $0 represents the anchor
-				        upload.getElement() // $1 represents the upload element
-				    );
-
-
-		});
+	
 		
 		downloadImportTemplate.addClickListener(e -> {
 
@@ -262,11 +218,10 @@ finally {
 		
 		anchorSpan.add(downloadErrorReportButton);
 		
-		downloadDefaultPopulationTemplate.setEnabled(false);
 
 		dialog.add(seperatorr, //startButton, stopButton,
 //				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step1, lblImportTemplateInfo, downloadImportTemplate,downloadDefaultPopulationTemplate, step2, lblImportCsvFile,overWriteExistingData,  upload, startDataImport, step3,
+				step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile,overWriteExistingData,  upload, startDataImport, step3,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {

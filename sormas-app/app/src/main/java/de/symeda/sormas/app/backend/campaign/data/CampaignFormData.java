@@ -222,13 +222,14 @@ public class CampaignFormData extends PseudonymizableAdo {
     public void setSoruce(PlatformEnum soruce) {
         this.soruce = soruce;
     }
-//    public String getFormCategory() {
-//        if (campaignFormMeta != null) {
-//            return campaignFormMeta.getFormCategory();
-//        } else{
-//            return formCategory;
-//        }
-//    }
+
+    public String getFormCategory() {
+        if (campaignFormMeta != null) {
+            return campaignFormMeta.getFormCategory();
+        } else{
+            return formCategory;
+        }
+    }
 
     public String getLotClusterNo() {
         return lotClusterNo;
@@ -238,9 +239,9 @@ public class CampaignFormData extends PseudonymizableAdo {
         this.lotClusterNo = lotClusterNo;
     }
 
-    public String getFormCategory() {
-        return campaignFormMeta.getFormCategory();
-    }
+//    public String getFormCategory() {
+//        return campaignFormMeta.getFormCategory();
+//    }
 
     public void setFormCategory(String formCategory) {
         if (campaignFormMeta != null) {

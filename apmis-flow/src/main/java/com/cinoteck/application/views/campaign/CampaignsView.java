@@ -11,7 +11,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -307,7 +307,10 @@ public class CampaignsView extends VerticalLayout {
 		}
 		
 		Set<String> setDeduplicated = new HashSet<>(campaingYears);
-		campaignYear.setItems(setDeduplicated);
+		List<String> campaignYearList = new ArrayList<String>(setDeduplicated);
+		campaignYearList.sort(reverseCampaignYearNumericalOrder);
+		
+		campaignYear.setItems(campaignYearList);
 		campaignYear.setItemLabelGenerator(item -> {
 
 			switch (userProvider.getUser().getLanguage().toString()) {
@@ -723,5 +726,12 @@ public class CampaignsView extends VerticalLayout {
 		});
 
 	}
+	
+	Comparator<String> reverseCampaignYearNumericalOrder = new Comparator<String>() {
+		@Override
+		public int compare(String s1, String s2) {		
+			return Integer.compare(Integer.parseInt(s2), Integer.parseInt(s1));
+		}
+	};
 
 }
