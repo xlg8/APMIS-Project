@@ -320,31 +320,7 @@ public final class InfrastructureDaoHelper {
 			communityField.setVisibility(GONE);
 		}else{
 			communityField.setVisibility(VISIBLE);
-
-		}
-
-//		System.out.println("++++++++++++ :::: is servallance role there: "+ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER));
-//		if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){ // District Officer
-//			System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------8888888888888888contains(UserRole.SURVEILLANCE_OFFICER) " );
-//			districtField.addValueChangedListener(e -> {
-//				if (e.getValue() != null){
-//					System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------districtField.addValueChangedListener");
-//
-//					List<Item> newCommunities_ = loadCommunities((District) e.getValue());
-//					if (newCommunities_.get(0) != null){
-//						System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------districtField.addValueChangedListener");
-//
-//						communityField.setValue(newCommunities_.get(0));
-//					} else {
-//						System.err.println("District without community has been detected from the system.");
-//					}
-//				}
-//			});
-////			communityField.setVisibility(GONE);
-//		}else{
-//			System.out.println("++++++++++++++++++XXXXXXXXXXXX---------------------------99999999999999999" + "DOES NOT contains(UserRole.SURVEILLANCE_OFFICER) ");
-////			communityField.setVisibility(VISIBLE);
-//		};
+		};
 
 
 
