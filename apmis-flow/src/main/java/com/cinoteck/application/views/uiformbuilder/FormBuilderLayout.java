@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.cinoteck.application.UserProvider;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -40,6 +41,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 
 public class FormBuilderLayout extends VerticalLayout {
 
@@ -211,13 +213,33 @@ public class FormBuilderLayout extends VerticalLayout {
 			Set<String> setofElement = new LinkedHashSet<>(listofElement);
 			
 			if (listofElement.size() == setofElement.size()) {
-			fireEvent(new SaveEvent(this, campaignFormMetaDto));
+				
+				
 
-			UI.getCurrent().getPage().reload();
+			try {
+				fireEvent(new SaveEvent(this, campaignFormMetaDto));
 
-			Notification notification = new Notification("Form Saved", 3000, Position.MIDDLE);
-			notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-			notification.open();
+			}catch(Exception e ) {
+				System.out.println("Exception Occured while saving : " +  e);
+				
+			}finally {
+		        UserProvider usr = new UserProvider();
+
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Form Manager");
+				userActivitySummaryDto.setAction("Form Saved: " + campaignFormMetaDto.getFormName());
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				
+				UI.getCurrent().getPage().reload();
+				
+				Notification notification = new Notification("Form Saved", 3000, Position.MIDDLE);
+				notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				notification.open();
+
+			}
+
+			
 		} else {
 
 			Notification notification = new Notification();

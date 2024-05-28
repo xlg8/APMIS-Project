@@ -9686,13 +9686,10 @@ insert
 INSERT INTO schema_version (version_number, comment) VALUES (457, 'Admin WHO_User should be able to approve/verify PCM data rows for publication #602');
 
 
-<<<<<<< HEAD
-ALTER TABLE public.campaignformmeta ADD archived bool default false
-=======
+
 ALTER TABLE public.campaignformmeta ADD archived bool default false;
 ALTER TABLE public.campaignformmeta ADD archived bool NULL;
 
->>>>>>> branch 'development' of https://github.com/omoluabidotcom/APMIS-Project.git
 
 INSERT INTO schema_version (version_number, comment) VALUES (458, 'Form Builder Requirement Archiving feactionality add');
 
@@ -10084,10 +10081,6 @@ INSERT INTO schema_version (version_number, comment) VALUES (467, 'Adding Distri
 
 
 DROP TRIGGER if exists tbl_ins_up_before_modality ON public.campaignformdata;
-
-DROP TRIGGER if exists modality_pre_deduplicator ON public.campaignformdata;
-
-DROP TRIGGER if exists modality_post_deduplicator ON public.campaignformdata;
 
 DROP FUNCTION if exists public.tbl_ins_up_before_modality();
 

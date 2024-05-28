@@ -83,7 +83,6 @@ public class ClusterDataImporter extends DataImporter {
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
 	public ClusterDataImporter(File inputFile, boolean hasEntityClassRow, CommunityDto currentUser,
@@ -199,8 +198,7 @@ public class ClusterDataImporter extends DataImporter {
 					try {
 						Long externalIdValue = Long.parseLong(values[i]);
 
-						clusters = FacadeProvider.getCommunityFacade()
-								.getByExternalId(externalIdValue, false);
+						clusters = FacadeProvider.getCommunityFacade().getByExternalId(externalIdValue, false);
 
 						if (clusters.size() > 0) {
 							if (isOverWrite && clusters.size() == 1) {
@@ -210,11 +208,11 @@ public class ClusterDataImporter extends DataImporter {
 									isOverWriteEnabledCode = true;
 								} catch (NumberFormatException e) {
 									writeImportError(values,
-											new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | " +e.getMessage());
+											new ImportErrorException(values[i], entityProperties[i]).getMessage()
+													+ " | " + e.getMessage());
 									return ImportLineResult.ERROR;
 								}
-						
-								
+
 							} else if (clusters.size() > 1) {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
@@ -222,14 +220,20 @@ public class ClusterDataImporter extends DataImporter {
 								return ImportLineResult.ERROR;
 							} else {
 								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage() + " | CCode exists on the system");
-								
+										new ImportErrorException(values[i], entityProperties[i]).getMessage()
+												+ " | CCode exists on the system");
+
 								return ImportLineResult.ERROR;
 							}
 
 						} else if (clusters.size() == 0) {
+							if (isOverWrite) {
+								clusterExtId = externalIdValue;
 
-							clusterExtId = externalIdValue;
+							} else {
+								clusterExtId = externalIdValue;
+
+							}
 
 						}
 
@@ -253,7 +257,7 @@ public class ClusterDataImporter extends DataImporter {
 			}
 
 			if (CLUSTER_NAME.equalsIgnoreCase(entityProperties[i])) {
-				
+
 //				System.out.println("1111111111111111111111111111111111111111111111111111111111111111111111");
 
 				if (DataHelper.isNullOrEmpty(values[i])) {
@@ -277,13 +281,10 @@ public class ClusterDataImporter extends DataImporter {
 										+ Validations.textTooLong);
 						return ImportLineResult.ERROR;
 					} else {
-						
-
 
 						DistrictReferenceDto regrefDto = new DistrictReferenceDto();
-						clusterNameList = FacadeProvider.getCommunityFacade()
-								.getByName(clusterName_, regrefDto, true);
-						
+						clusterNameList = FacadeProvider.getCommunityFacade().getByName(clusterName_, regrefDto, true);
+
 						if (clusterNameList.size() < 1) {
 							clusterName = clusterName_;
 
@@ -295,51 +296,49 @@ public class ClusterDataImporter extends DataImporter {
 //
 //							} else {
 
-								if (clusterNameList.size() >= 0) {
-								//	System.out.println("6666666666666666666666666666666666666666666666666666");
+							if (clusterNameList.size() >= 0) {
+								// System.out.println("6666666666666666666666666666666666666666666666666666");
 
-									List<DistrictReferenceDto> existingDistricts = FacadeProvider.getDistrictFacade()
-											.getByExternalId(district_xt_id, false);
+								List<DistrictReferenceDto> existingDistricts = FacadeProvider.getDistrictFacade()
+										.getByExternalId(district_xt_id, false);
 
-									String finalDistrictUUid = "";
+								String finalDistrictUUid = "";
 
-									for (DistrictReferenceDto isolatedDistrict : existingDistricts) {
-										finalDistrictUUid = isolatedDistrict.getUuid();
-									}
+								for (DistrictReferenceDto isolatedDistrict : existingDistricts) {
+									finalDistrictUUid = isolatedDistrict.getUuid();
+								}
 
-									List<CommunityReferenceDto> checkClusterInDistrictList = FacadeProvider
-											.getCommunityFacade().getAllActiveByDistrict(finalDistrictUUid);
+								List<CommunityReferenceDto> checkClusterInDistrictList = FacadeProvider
+										.getCommunityFacade().getAllActiveByDistrict(finalDistrictUUid);
 
-									List<String> clusterNames = new ArrayList<String>();
-									
-									
-									System.out.println(checkClusterInDistrictList.size() + "List of Clusters in District");
-									for (CommunityReferenceDto ffff : checkClusterInDistrictList) {
-										
-										String caption  = ffff.getCaption();
-										
-										clusterNames.add(caption);
-										
+								List<String> clusterNames = new ArrayList<String>();
+
+								System.out.println(checkClusterInDistrictList.size() + "List of Clusters in District");
+								for (CommunityReferenceDto ffff : checkClusterInDistrictList) {
+
+									String caption = ffff.getCaption();
+
+									clusterNames.add(caption);
+
 //										System.out.println(clusterNames + " Cluster Name   Liat"  + caption );
 //										System.out/.println(clusterNames.size() + "Size  of Clusters Name List");
-									
-									}	
-									if (clusterNames.contains(values[i])) {
-										
 
-										writeImportError(values,
-												new ImportErrorException(values[i], entityProperties[i]).getMessage()
-														+ " | Cluster Name exist ");
-										
-										return ImportLineResult.ERROR;
-									} else {
-										
-//										System.out.println("Successssssfulllll   " + clusterName_ + "yyy"+ clusterName + values[i]);
-										clusterName = clusterName_;
-										
-//										return ImportLineResult.SUCCESS;
-									}
 								}
+								if (clusterNames.contains(values[i])) {
+
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage()
+													+ " | Cluster Name exist ");
+
+									return ImportLineResult.ERROR;
+								} else {
+
+//										System.out.println("Successssssfulllll   " + clusterName_ + "yyy"+ clusterName + values[i]);
+									clusterName = clusterName_;
+
+//										return ImportLineResult.SUCCESS;
+								}
+							}
 
 //							}
 
@@ -374,15 +373,15 @@ public class ClusterDataImporter extends DataImporter {
 		final Integer clusterNo = clusterNumber;
 
 		List<CommunityDto> newUserLinetoSave = new ArrayList<>();
-		
-		if(isOverWrite && isOverWriteEnabledCode) {
+
+		if (isOverWrite && isOverWriteEnabledCode) {
 			CommunityDto newUserLine_ = FacadeProvider.getCommunityFacade().getByUuid(clusters.get(0).getUuid());
 			newUserLine_.setName(finalClustername);
 			newUserLine_.setRegion(finalRegion);
 			newUserLine_.setDistrict(finalDistrict);
 			newUserLine_.setClusterNumber(clusterNo);
 			newUserLine_.setExternalId(clusterid);
-			
+
 			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
 
@@ -430,7 +429,7 @@ public class ClusterDataImporter extends DataImporter {
 							return null;
 						}
 					});
-			
+
 			if (!usersDataHasImportError) {
 
 				try {
@@ -444,8 +443,8 @@ public class ClusterDataImporter extends DataImporter {
 			} else {
 				return ImportLineResult.ERROR;
 			}
-			
-		}else {
+
+		} else {
 			CommunityDto newUserLine = CommunityDto.build();
 
 			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
@@ -516,29 +515,28 @@ public class ClusterDataImporter extends DataImporter {
 
 					writeImportError(values, values + " already exists.");
 					return ImportLineResult.ERROR;
-				}finally {
+				} finally {
 					if (!checkExeption) {
-						
+
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 
-						for (CommunityDto  clusterData : newUserLinetoSave){
-							
+						for (CommunityDto clusterData : newUserLinetoSave) {
+
 							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("Cluster");
 							configurationChangeLogDto.setAction_unit_name(clusterData.getName());
 							configurationChangeLogDto.setUnit_code(clusterData.getExternalId());
 							configurationChangeLogDto.setAction_date(date);
 
-							if(isOverWrite) {
+							if (isOverWrite) {
 								configurationChangeLogDto.setAction_logged("Import : Overwrite");
 
-							}else {
+							} else {
 								configurationChangeLogDto.setAction_logged("Import");
 
 							}
 						}
-						
-														
+
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 						checkExeption = false;
 					}
@@ -547,8 +545,6 @@ public class ClusterDataImporter extends DataImporter {
 				return ImportLineResult.ERROR;
 			}
 		}
-
-		
 
 	}
 

@@ -178,6 +178,19 @@ public class ClusterView extends VerticalLayout {
 			return label;
 		});
 		
+		ComponentRenderer<Span, CommunityDto> clusterNumberRenderer = new ComponentRenderer<>(input -> {
+			NumberFormat arabicFormat = NumberFormat.getInstance();
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("ps"));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				arabicFormat = NumberFormat.getInstance(new Locale("fa"));
+			}
+			String value = String.valueOf(arabicFormat.format(input.getClusterNumber()));
+			Span label = new Span(value);
+			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
+			return label;
+		});
+		
 		ComponentRenderer<Span, CommunityDto> communityExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -210,6 +223,8 @@ public class ClusterView extends VerticalLayout {
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 		grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
 				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+		grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
+		.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
 		grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
 				.setResizable(true).setSortable(true)
 				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
@@ -233,6 +248,8 @@ public class ClusterView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
 					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
+			.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
 			grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
 					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
@@ -255,6 +272,8 @@ public class ClusterView extends VerticalLayout {
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
 			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
 					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
+			.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
 			grid.addColumn(CommunityDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
 					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));

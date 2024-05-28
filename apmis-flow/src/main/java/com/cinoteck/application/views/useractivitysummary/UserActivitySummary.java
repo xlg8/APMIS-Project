@@ -34,6 +34,7 @@ public class UserActivitySummary extends VerticalLayout implements RouterLayout{
 		tabComponentMap.put(new Tab("Users Summary"), new UserModuleActionSummaryView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption("Data Edit Summary")), new CampaignDataEditActivityView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption("Import Activity Log")), new ImportActivitySummary());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption("Form Manager Log")), new FormManagerActivityLog());
 		
 		return new Tabs(tabComponentMap.keySet().toArray(new Tab[] {}));
 

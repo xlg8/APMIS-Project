@@ -18,6 +18,8 @@
 
 package de.symeda.sormas.app.campaign.edit;
 
+import static android.view.View.GONE;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.ValidationException;
 import de.symeda.sormas.app.BaseEditActivity;
 import de.symeda.sormas.app.BaseEditFragment;
@@ -37,6 +40,10 @@ import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.backend.common.DaoException;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
+import de.symeda.sormas.app.backend.config.ConfigProvider;
+import de.symeda.sormas.app.backend.region.Community;
+import de.symeda.sormas.app.backend.region.District;
+import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.component.menu.PageMenuItem;
 import de.symeda.sormas.app.component.validation.FragmentValidator;
 import de.symeda.sormas.app.core.async.AsyncTaskResult;
@@ -47,6 +54,7 @@ import de.symeda.sormas.app.util.Bundler;
 
 import static de.symeda.sormas.app.core.notification.NotificationType.ERROR;
 import static de.symeda.sormas.app.core.notification.NotificationType.WARNING;
+import static de.symeda.sormas.app.util.DataUtils.toItems;
 
 public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormData> {
 
@@ -81,10 +89,14 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
     protected BaseEditFragment buildEditFragment(PageMenuItem menuItem, CampaignFormData activityRootData) {
         activityRootData.setCampaign(campaign);
         activityRootData.setCampaignFormMeta(campaignFormMeta);
+
+        System.out.println(activityRootData.getDistrict() + "------------------------------------------------------------------------------");
         BaseEditFragment campaignFormDataNewFragment = CampaignFormDataNewFragment.newInstance(activityRootData);
         campaignFormDataNewFragment.setLiveValidationDisabled(true);
         return campaignFormDataNewFragment;
     }
+
+
 
     @Override
     public void saveData() {
@@ -97,6 +109,15 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
         System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>>>>>>>new>>>>++++++++++++>>>>>>>>>>>>>>>>>>>>>__"+campaignFormDataToSave.getLotClusterNo());
 
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
+
+        if(ConfigProvider.getUser().getUserRoles().contains(UserRole.SURVEILLANCE_OFFICER)){ // District Officer
+            if(campaignFormDataToSave.getDistrict() !=  null){
+                List<Community> newCommunities_ = DatabaseHelper.getCommunityDao().getByDistrict(campaignFormDataToSave.getDistrict());
+                if (newCommunities_.size() > 0) {
+                    campaignFormDataToSave.setCommunity(newCommunities_.get(0));
+                }
+            }
+            }
 
         try {
             FragmentValidator.validate(getContext(), getActiveFragment().getContentBinding());
