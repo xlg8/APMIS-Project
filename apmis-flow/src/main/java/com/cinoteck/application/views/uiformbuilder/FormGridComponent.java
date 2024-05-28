@@ -408,7 +408,6 @@ public class FormGridComponent extends VerticalLayout {
 
 		del.addClickListener(e -> {
 
-//			formBeenEdited = new CampaignFormElement();
 			if (formBeenEdited != null) {
 
 				campaignFormMetaDto.getCampaignFormElements().remove(formBeenEdited);
@@ -768,8 +767,8 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					if (!comment.getValue().isEmpty()) {
-
-						newForm.setComment(comment.getValue());
+						
+						newForm.setComment(comment.getValue());	
 					}
 
 					if (!defaultValues.getValue().isEmpty()) {
@@ -784,9 +783,8 @@ public class FormGridComponent extends VerticalLayout {
 
 						using.set(index, newForm);
 						campaignFormMetaDto.setCampaignFormElements(using);
-						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-
-//						getGridData();
+						grid.setItems(campaignFormMetaDto.getCampaignFormElements());							
+						getGridData();
 						Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 						notification.open();
@@ -799,8 +797,7 @@ public class FormGridComponent extends VerticalLayout {
 							using.set(index, newForm);
 							campaignFormMetaDto.setCampaignFormElements(using);
 							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-
-//							getGridData();
+							getGridData();
 							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
