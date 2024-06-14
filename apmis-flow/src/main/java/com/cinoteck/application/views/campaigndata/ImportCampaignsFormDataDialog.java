@@ -57,9 +57,9 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 //	ComboBox<CampaignReferenceDto> campaignFilter = new ComboBox<>();
 	Label campaignFormMetaFilter = new Label();
-	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
-	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
-	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
+	Button downloadImportTemplate;
+	Button startDataImport;
+	public Button donloadErrorReport;
 //	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
 	private Timer timer;
@@ -74,6 +74,10 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
 			CampaignFormMetaReferenceDto campaignForm, CampaignDto campaignDto) {
+		I18nProperties.setUserLanguage(usr.getUser().getLanguage());
+		downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
+		startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
+		donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 		String dto;
 		this.campaignFormMetaReferenceDto = campaignForm;
 		if (campaignReferenceDto != null) {
@@ -178,9 +182,10 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		UserDto userDto = usr.getUser();
 
 		startDataImport.addClickListener(ed -> {
+			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
 			startIntervalCallback();
 			try {
-				
+
 				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),
 						campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);

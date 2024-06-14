@@ -73,6 +73,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	Button exportReport = new Button();
+	private UserProvider userProvider = new UserProvider();
 
 //    Paragraph countRowItems;
 	public UserAnalysisGridView(CommunityCriteriaNew criteria, FormAccess formAccess) {
@@ -235,6 +236,7 @@ public class UserAnalysisGridView extends VerticalLayout {
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			filterLayout.setVisible(filterLayout.isVisible());
 			displayFilters.setText(filterLayout.isVisible() ? "Show Filters" : "Hide Filters");
 		});

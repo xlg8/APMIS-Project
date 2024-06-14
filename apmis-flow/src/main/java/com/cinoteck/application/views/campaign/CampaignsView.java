@@ -270,6 +270,7 @@ public class CampaignsView extends VerticalLayout {
 		filterLayout.setVisible(true);
 
 		filterDisplayToggle.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (!filterLayout.isVisible()) {
 				filterLayout.setVisible(true);
 				filterDisplayToggle.setText(I18nProperties.getCaption(Captions.hideFilters));

@@ -389,6 +389,7 @@ public class ClusterView extends VerticalLayout {
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
