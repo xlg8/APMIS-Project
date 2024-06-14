@@ -4,6 +4,7 @@ import static de.symeda.sormas.api.campaign.ExpressionProcessorUtils.refreshEval
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -764,7 +765,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
-					
+
 					toggle.setClassName("customTextWrap");
 
 					HashMap<Boolean, String> map = new HashMap<>();
@@ -796,11 +797,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
-					System.out.println(dependingOnId + "dependingOnId11111111111111111111111 " +  dependingOnValues);
+					System.out.println(dependingOnId + "dependingOnId11111111111111111111111 " + dependingOnValues);
 
 					if (dependingOnId != null && dependingOnValues != null) {
-						
-						System.out.println(dependingOnId + "dependingOnId 2222222222222222" +  dependingOnValues +  "tttttt" + formElement.isImportant());
+
+						System.out.println(dependingOnId + "dependingOnId 2222222222222222" + dependingOnValues
+								+ "tttttt" + formElement.isImportant());
 						// needed
 						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
@@ -812,7 +814,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					TextField textField = new TextField();
 					textField.setLabel(get18nCaption(formElement.getId(), formElement.getCaption()));
 					textField.setClassName("customTextWrap");
-					
 
 					// textField.setValue("Ruukinkatu 2");
 					textField.setClearButtonVisible(true);
@@ -1200,7 +1201,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 					final HashMap<String, String> dataOrder = (HashMap<String, String>) campaignFormElementOptions
 							.getOptionsListOrder();
 
-
 					ComboBox<String> select = new ComboBox<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()));
 					select.setClassName("customTextWrap");
@@ -1230,17 +1230,18 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 					vertical.add(select);
 					fields.put(formElement.getId(), select);
-					
-					System.out.println(dependingOnId +" dependingOnId 3333333333333333333333333" +dependingOnValues );
+
+					System.out.println(dependingOnId + " dependingOnId 3333333333333333333333333" + dependingOnValues);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 						// needed
-						
-						System.out.println(dependingOnId +" dependingOnId 44444444444444444444444" +dependingOnValues  + "44444444444444444444444" + formElement.isImportant());
+
+						System.out.println(dependingOnId + " dependingOnId 44444444444444444444444" + dependingOnValues
+								+ "44444444444444444444444" + formElement.isImportant());
 
 						setVisibilityDependency(select, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
-						
+
 					} else {
 						select.setRequiredIndicatorVisible(formElement.isImportant());
 					}
@@ -1721,8 +1722,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			// hide on default
 			boolean hideNt = dependingOnValuesList.stream().anyMatch(
 					v -> fieldValueMatchesDependingOnValuesNOTValuer(dependingOnField, dependingOnValuesList, typex));
-			
-			System.out.println(dependingOnValuesList + "JJJJ"+ dependingOnField + "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + hideNt );
+
+			System.out.println(dependingOnValuesList + "JJJJ" + dependingOnField
+					+ "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH" + hideNt);
 
 			if (hideNt) {
 				component.setVisible(hideNt);
@@ -1764,7 +1766,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			// hide on default
 			boolean hide = dependingOnValuesList.stream()
 					.anyMatch(v -> fieldValueMatchesDependingOnValues(dependingOnField, dependingOnValuesList, typex));
-			 component.setVisible(hide);
+			component.setVisible(hide);
 
 			if (hide) {
 				// getElement().setProperty("required", requiredIndicatorVisible);
@@ -1885,7 +1887,18 @@ public class CampaignFormBuilder extends VerticalLayout {
 				return new CampaignFormDataEntry(id, valc);
 
 			} else {
-				return new CampaignFormDataEntry(id, ((AbstractField) field).getValue());
+				if (id.equals("villagecode")) {
+					String doubletoParse = ((AbstractField) field).getValue() != null
+							? ((AbstractField) field).getValue().toString()
+							: "0";
+					double number = Double.parseDouble(doubletoParse);
+					DecimalFormat decimalFormat = new DecimalFormat("0");
+					decimalFormat.setMaximumFractionDigits(0);
+					String formattedNumber = decimalFormat.format(number);
+					return new CampaignFormDataEntry(id, formattedNumber);
+				} else {
+					return new CampaignFormDataEntry(id, ((AbstractField) field).getValue());
+				}
 			}
 		}).collect(Collectors.toList());
 	}
@@ -2008,7 +2021,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 						.getCampaignFormDataByCampaignandFormMeta(campaignReferenceDto.getUuid(),
 								campaignFormMeta.getUuid(), cbDistrict.getValue().getCaption(),
 								cbCommunity.getValue().getCaption());
-				
+
 				lotchecker.removeIf(e -> e.getUuid().equals(uuidForm));
 
 				List<String> listLotNo = new ArrayList();
@@ -2141,8 +2154,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					dataDto.setFormValues(entries);
 					dataDto.setSource("WEB");
 //					if (dataDto.getFormType())
-					
-			
+
 					dataDto = FacadeProvider.getCampaignFormDataFacade().saveCampaignFormData(dataDto);
 
 					Notification.show(I18nProperties.getString(Strings.dataSavedSuccessfully));
