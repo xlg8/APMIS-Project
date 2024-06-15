@@ -2,7 +2,9 @@ package com.cinoteck.application.views.configurations;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -14,9 +16,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
@@ -82,7 +88,11 @@ public class ClusterDataImporter extends DataImporter {
 	UserProvider userProvider = new UserProvider();
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	private ValueSeparator csvSeparator;
 
+    // Constructor and other methods...
+
+    
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
 	public ClusterDataImporter(File inputFile, boolean hasEntityClassRow, CommunityDto currentUser,
@@ -93,6 +103,25 @@ public class ClusterDataImporter extends DataImporter {
 
 		this.clusterFacade = FacadeProvider.getCommunityFacade();
 	}
+	public ValueSeparator getCsvSeparator() {
+        return csvSeparator;
+    }
+	
+	  public List<String> extractColumnValues(String columnName) throws IOException {
+	        Set<String> columnValues = new HashSet<>();
+
+	        try (FileReader reader = new FileReader(inputFile);
+	             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(FacadeProvider.getConfigFacade().getCsvSeparator()))) {
+	            	for (CSVRecord csvRecord : csvParser) {
+		                columnValues.add(csvRecord.get(columnName));
+		            }
+	           
+	        }
+
+	        return new ArrayList<>(columnValues);
+	    }
+
+	
 
 	@Override
 	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
@@ -111,7 +140,20 @@ public class ClusterDataImporter extends DataImporter {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));
 			return ImportLineResult.ERROR;
 		}
+		List<Long> comuityExternalIdsInFile = new ArrayList<>();
 
+		for (int i = 0; i < entityProperties.length; i++) {
+			if (C_CODE.equalsIgnoreCase(entityProperties[i])) {
+				if (!DataHelper.isNullOrEmpty(values[i])) {
+					
+					Long externalIdValue = Long.parseLong(values[i]);
+					comuityExternalIdsInFile.add(externalIdValue);
+//					clusters = FacadeProvider.getCommunityFacade().get
+					
+				}
+			}
+		}
+		System.out.println(comuityExternalIdsInFile +"ttttttttttttttttTTTTTTTTTTTTT--------------000000000000000000000000000000000");
 		// Lets run some validations
 
 		RegionReferenceDto province = null;

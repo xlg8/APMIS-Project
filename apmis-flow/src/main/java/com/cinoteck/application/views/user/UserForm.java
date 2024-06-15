@@ -83,6 +83,7 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserHelper;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
+import de.symeda.sormas.api.user.UserRole.UserRoleValidationException;
 
 @Route(value = "/edit-user")
 
@@ -207,6 +208,7 @@ public class UserForm extends FormLayout {
 		// TODO Auto-generated constructor stub
 	}
 
+
 	@SuppressWarnings("unchecked")
 	public void configureFields(UserDto user) {
 
@@ -282,8 +284,18 @@ public class UserForm extends FormLayout {
 
 		binder.bind(clusterNo, UserDto::getCommunity, UserDto::setCommunity);
 
-		binder.forField(userName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
-				.bind(UserDto::getUserName, UserDto::setUserName);
+//		binder.forField(userName).withValidator(this::validateUserName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+//				.bind(UserDto::getUserName, UserDto::setUserName);
+//		userName.addValueChangeListener(ex -> {
+//			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(ex.getValue());
+//
+//			if (checkNewusernamefromDB != null) {
+//				save.setEnabled(false);
+//			}else {
+//				save.setEnabled(true);
+//
+//			}
+//		});
 
 		// TODO: Change implemenation to only add assignable roles sormas style.
 //		userRoles.setItems(UserRole.getAssignableRoles(FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles()));
@@ -305,9 +317,9 @@ public class UserForm extends FormLayout {
 
 		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
 		roles.remove(UserRole.BAG_USER);
-		
-//		System.out.println("Roles beforee sorting  " + roles);
 
+	
+//		System.out.println("Roles beforee sorting  " + roles);
 
 		// Sorting the user roles usng comprtor
 		Collections.sort(rolesz, new UserRoleCustomComparator());
@@ -488,21 +500,21 @@ public class UserForm extends FormLayout {
 							checkbox.getElement().getClassList().add("custom-checkbox-class");
 
 						});
-						
-						clusterNo.addValueChangeListener(ex->{
-							
-							if(ex.getValue() != null) {
-								
-								Set<String> yyy =  new HashSet<>();
-								yyy.add(ex.getValue().toString() );
-								
-								System.out.println(yyy +  "SEt of users clusters after being saved ");
-								
+
+						clusterNo.addValueChangeListener(ex -> {
+
+							if (ex.getValue() != null) {
+
+								Set<String> yyy = new HashSet<>();
+								yyy.add(ex.getValue().toString());
+
+								System.out.println(yyy + "SEt of users clusters after being saved ");
+
 								user.setCommunitynos(yyy);
-								
+
 							}
-								
-							});
+
+						});
 //		            
 					}
 				}
@@ -513,13 +525,13 @@ public class UserForm extends FormLayout {
 				clusterNo.setVisible(false);
 			}
 		});
-		
-		clusterNo.addValueChangeListener(e->{
-			
-		if(e.getValue() != null) {
-			
-		}
-			
+
+		clusterNo.addValueChangeListener(e -> {
+
+			if (e.getValue() != null) {
+
+			}
+
 		});
 
 		commusr.addValueChangeListener(e -> {
@@ -578,7 +590,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.LQAS);
 			formAccessesList.add(FormAccess.EAG_PCA);
 			formAccessesList.add(FormAccess.EAG_FMS);
-			formAccessesList.add(FormAccess.EAG_LQAS);			
+			formAccessesList.add(FormAccess.EAG_LQAS);
 			formAccessesList.add(FormAccess.MODALITY_POST);
 			formAccess.setItems(formAccessesList);
 			// preCampformAccess.setItems(preCampformAccessesList);
@@ -597,7 +609,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.ICM);
 			formAccessesList.add(FormAccess.ADMIN);
 			formAccessesList.add(FormAccess.EAG_ICM);
-			formAccessesList.add(FormAccess.EAG_ADMIN);			
+			formAccessesList.add(FormAccess.EAG_ADMIN);
 			// intraCampformAccess.setItems(intraCampformAccessesList);
 			// postCampformAccess.setVisible(false);
 
@@ -644,6 +656,28 @@ public class UserForm extends FormLayout {
 
 		UI.getCurrent().getPage().executeJs(checkBoxDivider);
 
+	}
+	
+	
+	public ValidationResult validateUserName(String value, ValueContext context) {
+		try {
+			System.out.println(value + "Value collection ");
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
+
+			if (checkNewusernamefromDB != null) {
+				save.setEnabled(false);
+				return ValidationResult.error("Username Exists");
+			} else {
+//				UserRole.validate(value);
+				save.setEnabled(true);
+
+				return ValidationResult.ok();
+			}
+
+		} catch (Exception e) {
+//        	Notification.show(e.getMessage());
+			return ValidationResult.error("Username culd not be validated ");
+		}
 	}
 
 	public void updatePasswordDialog() {
@@ -751,7 +785,7 @@ public class UserForm extends FormLayout {
 		delete.addClickListener(event -> fireEvent(new DeleteEvent(this, binder.getBean())));
 		close.setEnabled(true);
 		close.addClickListener(event -> {
-		    VaadinSession.getCurrent().setAttribute("contact-form", null);
+			VaadinSession.getCurrent().setAttribute("contact-form", null);
 
 			fireEvent(new CloseEvent(this));
 //			userForm.addCloseListener(evemnt -> {
@@ -779,8 +813,8 @@ public class UserForm extends FormLayout {
 
 		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
 
-		System.out.println(
-				originalUser.getCommunitynos() + "TFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + formAccesses.size() + originalUser.getCommunity());
+		System.out.println(originalUser.getCommunitynos() + "TFOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+				+ formAccesses.size() + originalUser.getCommunity());
 
 		if (formAccesses.size() == 0 || formAccesses.size() < 1) {
 
@@ -995,8 +1029,8 @@ public class UserForm extends FormLayout {
 		List<FormAccess> formAccesses = new ArrayList<>(binder.getBean().getFormAccess());
 		List<FormAccess> formAccessexs = new ArrayList<>();
 		formAccessexs.addAll(formAccesses);
-		
-		System.out.println(formAccessexs + "ggggggggggggggggggggggggggggggggggggg"+ formAccesses);
+
+		System.out.println(formAccessexs + "ggggggggggggggggggggggggggggggggggggg" + formAccesses);
 
 		if (formAccessexs.size() == 0 || formAccessexs.size() < 1) {
 

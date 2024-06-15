@@ -955,6 +955,18 @@ System.out.println("YESSSS");
 			writer.writeNext(importColumns.stream().map(ImportColumn::getColumnName).toArray(String[]::new));
 //			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getCaption).toArray(String[]::new));
 //			writeCommentLine(writer, importColumns.stream().map(ImportColumn::getDataDescription).toArray(String[]::new));
+			//This Line of code fixes the import column header description by streaming and mapping the data description 
+			//into a string and check for when the description is COR otherwise do not modify the datadescription 
+			
+			writeCommentLine(
+				    writer, 
+				    importColumns.stream()
+				        .map(importColumn -> {
+				            String dataDescription = importColumn.getDataDescription();
+				            return dataDescription.equalsIgnoreCase("Code of Region") ? "Code of Province" : dataDescription;
+				        })
+				        .toArray(String[]::new)
+				);
 			writer.flush();
 		}
 	}

@@ -702,14 +702,14 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		if (sortProperties != null && sortProperties.size() > 0) {
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
+				
+//				System.out.println( sortProperties + "sortpropetiessssssssssssssssssssssssssssssssssss" + sortProperty);
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case Community.NAME:
 				case Community.GROWTH_RATE:
 				case Community.EXTERNAL_ID:
 				case Community.CLUSTER_NUMBER:
-					expression = community.get(sortProperty.propertyName);
-					break;
 				case District.REGION:
 				case CommunityDto.REGION_EXTERNALID:
 				case CommunityDto.AREA_NAME:
@@ -727,7 +727,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			}
 			cq.orderBy(order);
 		} else {
-			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)));
+			cq.orderBy(cb.asc(region.get(Region.NAME)), cb.asc(district.get(District.NAME)), cb.asc(community.get(Community.NAME)), cb.asc(community.get(Community.EXTERNAL_ID)));
 		}
 
 		cq.select(community);

@@ -779,7 +779,9 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
-		target.setDistricts(districtService.getByReferenceDto(source.getDistricts()));
+		if(source.getDistricts() !=  null) {
+			target.setDistricts(districtService.getByReferenceDto(source.getDistricts()));
+		}
 		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
 		// //System.out.println(source.getDistrict()+"
 		// :@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+source.getCommunity());

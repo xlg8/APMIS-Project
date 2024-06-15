@@ -19,6 +19,8 @@ import com.cinoteck.application.views.configurations.ConfigurationsView;
 import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 import com.cinoteck.application.views.dashboard.DashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
+//import com.cinoteck.application.views.pivot.PivotTableView;
+//import com.cinoteck.application.views.pivot.PivotView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
@@ -253,7 +255,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 //		if	(userProvider.hasUserRight(UserRight.USER_RIGHTS_MANAGE)) {
-//			nav.addItem(new AppNavItem("Pivot", PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
+//			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 //		}
 
 		// nav.addItem(new AppNavItem("Pivot", PivotTableView.class,
@@ -288,7 +290,18 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(
 					new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
 		}
+		
+//		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.userProfile), PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
 
+//		nav.addItem(new AppNavItem(I18nProperties.getCaption("Pivot View"),
+//				PivotView.class, VaadinIcon.TREE_TABLE, "navitem"));
+
+		
+//		nav.addItem(new AppNavItem(I18nProperties.getCaption("Pivot Table View"),
+//				PivotTableView.class, VaadinIcon.TREE_TABLE, "navitem"));
+
+		
+		
 		if (nav != null) {
 			nav.addClassName("active");
 		}

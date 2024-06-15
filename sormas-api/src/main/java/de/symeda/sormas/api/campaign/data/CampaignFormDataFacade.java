@@ -156,6 +156,9 @@ public interface CampaignFormDataFacade {
 	List<CampaignDataExtractDto> getCampaignFormDataExtractApi(String campaignformuuid, String formuuid);
 
 	List<CampaignDataExtractDto> getCampaignFormDataPivotExtractApi();
+	
+	List<Object[]> getTransposedCampaignFormDataDaywiseData(CampaignFormDataCriteria criteria);
+
 
 	List<CampaignFormDataIndexDto> getFlwDuplicateErrorAnalysis(CampaignFormDataCriteria criteria, Integer first,
 			Integer max, List<SortProperty> sortProperties);

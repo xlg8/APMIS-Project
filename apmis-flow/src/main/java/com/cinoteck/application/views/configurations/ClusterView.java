@@ -10,11 +10,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
@@ -63,6 +65,8 @@ import com.vaadin.flow.router.Route;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
@@ -118,9 +122,8 @@ public class ClusterView extends VerticalLayout {
 			I18nProperties.getCaption(Captions.relevanceStatus));
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	Query query = new Query();
 
-
-	
 	@SuppressWarnings("deprecation")
 	public ClusterView() {
 		setSpacing(false);
@@ -151,7 +154,7 @@ public class ClusterView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, CommunityDto> regionExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -164,7 +167,7 @@ public class ClusterView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, CommunityDto> districtExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -177,7 +180,7 @@ public class ClusterView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, CommunityDto> clusterNumberRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -190,7 +193,7 @@ public class ClusterView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		ComponentRenderer<Span, CommunityDto> communityExternalIdRenderer = new ComponentRenderer<>(input -> {
 			NumberFormat arabicFormat = NumberFormat.getInstance();
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
@@ -203,113 +206,113 @@ public class ClusterView extends VerticalLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
-		if(userProvider.getUser().getLanguage().toString().equals("Pashto" )) {
-		grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
-				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-		grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
-				.setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-		grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
-				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-		grid.addColumn(regionExternalIdRenderer)
-				.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
-		grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
-				.setSortable(true).setResizable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
-		grid.addColumn(districtExternalIdRenderer)
-				.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-		grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
-				.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-		grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
-		.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-		grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
-				.setResizable(true).setSortable(true)
-				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
-		} else if(userProvider.getUser().getLanguage().toString().equals("Dari" )) {
 
-			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
 			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-			grid.addColumn(regionExternalIdRenderer)
-					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
+			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(regionExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Region_externalID))
+					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 			grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
 			grid.addColumn(districtExternalIdRenderer)
-					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
-			.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			grid.addColumn(communityExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
-					.setResizable(true).setSortable(true)
+			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortable(false).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			grid.addColumn(communityExternalIdRenderer)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setResizable(true)
+					.setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
-		} else {
-			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
-			grid.addColumn(CommunityDto::getAreaexternalId).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
+		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+
+			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(areaExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
-			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
-			grid.addColumn(CommunityDto::getRegionexternalId)
-					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true).setSortable(true)
+			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(regionExternalIdRenderer).setHeader(I18nProperties.getCaption(Captions.Region_externalID))
+					.setResizable(true).setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
 			grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
-			grid.addColumn(CommunityDto::getDistrictexternalId)
-					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true).setSortable(true)
+			grid.addColumn(districtExternalIdRenderer)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
-			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community)).setSortable(true)
-					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber)).setSortable(true)
-			.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
-			grid.addColumn(CommunityDto::getExternalId).setHeader(I18nProperties.getCaption(Captions.Community_externalID))
-					.setResizable(true).setSortable(true)
+			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortable(false).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber));
+			grid.addColumn(communityExternalIdRenderer)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setResizable(true)
+					.setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+		} else {
+			grid.addColumn(CommunityDto::getAreaname).setHeader(I18nProperties.getCaption(Captions.area))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.area));
+			grid.addColumn(CommunityDto::getAreaexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Area_externalId)).setResizable(true).setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
+			grid.addColumn(CommunityDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.region));
+			grid.addColumn(CommunityDto::getRegionexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Region_externalID)).setResizable(true)
+					.setSortable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Region_externalID));
+			grid.addColumn(CommunityDto::getDistrict).setHeader(I18nProperties.getCaption(Captions.district))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.district));
+			grid.addColumn(CommunityDto::getDistrictexternalId)
+					.setHeader(I18nProperties.getCaption(Captions.District_externalID)).setResizable(true)
+					.setSortable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.District_externalID));
+			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community))
+					.setSortable(true).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
+			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortable(true).setComparator(Comparator.comparing(CommunityDto::getClusterNumber)).setResizable(true)
+					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber");
+			grid.addColumn(CommunityDto::getExternalId)
+					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setResizable(true)
+					.setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
 		}
-		
-		grid.addColumn(CommunityDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
-		.setResizable(true).setSortable(true).setAutoWidth(true)
-		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
 
-		
-		grid.setVisible(true);	
-//		if (criteria == null) {
-//			criteria = new CommunityCriteriaNew();
-//			criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
-//		}
+		grid.addColumn(CommunityDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
+				.setResizable(true).setSortable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
+
+		grid.setVisible(true);
+
 		criteria.relevanceStatus(EntityRelevanceStatus.ALL);
 		refreshGridData();
 
-		dataProvider = DataProvider
-				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
+//		dataProvider = DataProvider
+//				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
+		dataProvider = DataProvider.fromStream(fetchClusterData(query));
 
-//		 dataProvider = DataProvider.fromFilteringCallbacks(
-//				query -> FacadeProvider.getCommunityFacade()
-//					.getIndexList(
-//							criteria,
-//						query.getOffset(),
-//						query.getLimit(),
-//						query.getSortOrders()
-//							.stream()
-//							.map(sortOrder -> new SortProperty(sortOrder.getSorted(), sortOrder.getDirection() == SortDirection.ASCENDING))
-//							.collect(Collectors.toList()))
-//					.stream(),
-//				query -> {
-//					return (int) FacadeProvider.getCommunityFacade().count(query.getFilter().orElse(null));
-//				});
-//		grid.setDataProvider(dataProvider);
 		grid.setItems(dataProvider);
 //		dataView = grid.setItems(dataProvider);
 
@@ -340,6 +343,16 @@ public class ClusterView extends VerticalLayout {
 		icon.getStyle().set("font-size", "10px");
 
 		anchor.getElement().insertChild(0, icon.getElement());
+
+	}
+
+	private Stream<CommunityDto> fetchClusterData(Query<CommunityDto, CommunityCriteriaNew> query) {
+		List<SortProperty> sortProperties = query.getSortOrders().stream()
+			    .map(order -> new SortProperty(order.getSorted(), order.getDirection().equals(SortDirection.ASCENDING)))
+			    .collect(Collectors.toList());
+		
+		return FacadeProvider.getCommunityFacade()
+				.getIndexList(criteria, query.getOffset(), query.getLimit(), sortProperties).stream();
 
 	}
 
@@ -426,15 +439,15 @@ public class ClusterView extends VerticalLayout {
 		regionFilter.setClearButtonVisible(true);
 		regionFilter.getStyle().set("width", "145px !important");
 //		regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferencePashto());
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReferenceDari());
 		} else {
-			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());			
+			regionFilter.setItems(FacadeProvider.getAreaFacade().getAllActiveAsReference());
 		}
-		
+
 		if (currentUser.getUser().getArea() != null) {
 			regionFilter.setValue(currentUser.getUser().getArea());
 			criteria.area(currentUser.getUser().getArea());
@@ -500,13 +513,16 @@ public class ClusterView extends VerticalLayout {
 
 		regionFilter.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {					
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {				
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					provinceFilter.setItems(
+							FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					provinceFilter
+							.setItems(FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid()));
 				} else {
-					provinceFilter.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
-				}	
+					provinceFilter
+							.setItems(FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid()));
+				}
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
 				refreshGridData();
@@ -521,13 +537,16 @@ public class ClusterView extends VerticalLayout {
 
 		provinceFilter.addValueChangeListener(e -> {
 			if (provinceFilter.getValue() != null) {
-				
+
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {		
-					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid()));
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					districtFilter.setItems(
+							FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid()));
 				} else {
-					districtFilter.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
+					districtFilter
+							.setItems(FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid()));
 				}
 //			filteredDataProvider.setFilter(criteria);
 				RegionReferenceDto province = e.getValue();
@@ -605,7 +624,7 @@ public class ClusterView extends VerticalLayout {
 			anchor.getElement().callJsFunction("click");
 
 		});
-		
+
 		Button importCluster = new Button(I18nProperties.getCaption(Captions.actionImport));
 		importCluster.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 
@@ -729,11 +748,11 @@ public class ClusterView extends VerticalLayout {
 						configurationChangeLogDto.setAction_unit_type("Cluster");
 						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
-						configurationChangeLogDto.setAction_logged("Bulk Archive");	
+						configurationChangeLogDto.setAction_logged("Bulk Archive");
 						configurationChangeLogDto.setAction_date(date);
 
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-						
+
 						refreshGridData();
 					});
 					Notification.show(I18nProperties.getString(Strings.archivingSelected));
@@ -744,17 +763,16 @@ public class ClusterView extends VerticalLayout {
 							"Are you sure you want to de-archive the " + selectedRows.size() + " selected Clusters?"));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getCommunityFacade().dearchive(selectedRow.getUuid());
-						
+
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Cluster");
 						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
-						configurationChangeLogDto.setAction_logged("Bulk De-Archive");	
+						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
 						configurationChangeLogDto.setAction_date(date);
 
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-						
 
 						refreshGridData();
 					});
@@ -874,11 +892,11 @@ public class ClusterView extends VerticalLayout {
 								configurationChangeLogDto.setAction_unit_type("Cluster");
 								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
-								configurationChangeLogDto.setAction_logged("Cluster De-Archive");	
+								configurationChangeLogDto.setAction_logged("Cluster De-Archive");
 								configurationChangeLogDto.setAction_date(date);
 
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-								
+
 								dialog.close();
 								refreshGridData();
 							});
@@ -889,17 +907,17 @@ public class ClusterView extends VerticalLayout {
 
 							archiveDearchiveConfirmation.addConfirmListener(e -> {
 								FacadeProvider.getCommunityFacade().archive(uuidsz);
-								
+
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Cluster");
 								configurationChangeLogDto.setAction_unit_name(communityDto.getName());
 								configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
-								configurationChangeLogDto.setAction_logged("Cluster Archive");	
+								configurationChangeLogDto.setAction_logged("Cluster Archive");
 								configurationChangeLogDto.setAction_date(date);
 
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-								
+
 								dialog.close();
 								refreshGridData();
 							});
@@ -940,11 +958,11 @@ public class ClusterView extends VerticalLayout {
 					configurationChangeLogDto.setAction_unit_type("Cluster");
 					configurationChangeLogDto.setAction_unit_name(name);
 					configurationChangeLogDto.setUnit_code(ccodeValue);
-					configurationChangeLogDto.setAction_logged("Cluster Edit");	
+					configurationChangeLogDto.setAction_logged("Cluster Edit");
 					configurationChangeLogDto.setAction_date(date);
 
 					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-					
+
 					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
 					dialog.close();
 					refreshGridData();
@@ -1016,8 +1034,8 @@ public class ClusterView extends VerticalLayout {
 
 								notification.add(layout);
 								notification.open();
-							}finally {
-								if(!exceptionCheck) {
+							} finally {
+								if (!exceptionCheck) {
 //									ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //											String unit_code, String action_logged)
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
@@ -1025,7 +1043,7 @@ public class ClusterView extends VerticalLayout {
 									configurationChangeLogDto.setAction_unit_type("Cluster");
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(ccodeValue);
-									configurationChangeLogDto.setAction_logged("Cluster Create");	
+									configurationChangeLogDto.setAction_logged("Cluster Create");
 									configurationChangeLogDto.setAction_date(date);
 
 									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);

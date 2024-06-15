@@ -184,8 +184,8 @@ public class ImportPopulationDataDialog extends Dialog {
 				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
 				
 				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA, overWrite);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-			} catch (IOException | CsvValidationException e) {
+//				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+			} catch (IOException  e) {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
 					I18nProperties.getString(Strings.messageImportFailed));

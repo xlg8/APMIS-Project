@@ -2678,6 +2678,57 @@ if(criteria.getUserLanguage() != null) {
 
 		return resultData;
 	}
+	
+//	@Override
+//	public void checkIfMaterializedViewNeedsUpdate() {
+//		
+//		String queryString = "select count(jd.id) FROM campaignformdata_jsonextract jd "
+//				+ "INNER JOIN campaignformdata cd ON jd.id = cd.id "
+//				+ "where cd.uuid = '" + 
+//				
+//		
+//	}
+		
+	
+	@Override
+	public List<Object[]> getTransposedCampaignFormDataDaywiseData(CampaignFormDataCriteria criteria) {
+		String queryString = ""
+//				+ "REFRESH MATERIALIZED VIEW campaignformdata_jsonextract; \n"
+				
+				+ "WITH day_split AS ( SELECT c3.campaignyear, c3.\"name\" AS campaign, c2.formname, a.\"name\" AS area, r.\"name\" AS region, d.\"name\" AS district, c.\"name\" AS cluster, regexp_matches(jd.\"key\", '_(day[0-9]+)$') AS day_suffix, jd.\"key\" AS field, jd.value \n"
+				+ "FROM campaignformdata_jsonextract jd INNER JOIN campaignformdata cd ON jd.id = cd.id LEFT OUTER JOIN campaignformmeta c2 ON cd.campaignformmeta_id = c2.id LEFT OUTER JOIN campaigns c3 ON cd.campaign_id = c3.id LEFT OUTER JOIN region r ON cd.region_id = r.id \n"
+				+ "LEFT OUTER JOIN areas a ON r.area_id = a.id  LEFT OUTER JOIN  district d ON cd.district_id = d.id LEFT OUTER JOIN community c  ON cd.community_id = c.id \n"
+				+ "WHERE jd.\"value\" IS NOT NULL AND c3.uuid = '" + criteria.getCampaign().getUuid() + "' AND c2.uuid = '" + criteria.getCampaignFormMeta().getUuid() + "') \n"
+				+ "SELECT campaignyear, campaign, formname, area, region, district, cluster, day_suffix[1] AS day, field, value \n"
+				+ "FROM  day_split \n"
+				+ "ORDER BY  campaignyear, campaign, formname, area, region, district, cluster, day, field;";
+
+//		Query seriesDataQuery = em.createNativeQuery(queryString);
+//		System.out.println("queryyyyyy used - " + queryString.toString()); // SQLExtractor.from(seriesDataQuery));
+		return em.createNativeQuery(queryString).getResultList();
+//		List<CampaignDataExtractDto> resultData = new ArrayList<>();
+//
+//		@SuppressWarnings("unchecked")
+//		List<Object[]> resultList = seriesDataQuery.getResultList();
+//
+//		// Long campaignyear, String campaign, String formname, String key, String
+//		// value,
+//		// String area, String region, String district, String cummunity, Long
+//		// clusternumber
+//
+//		resultData.addAll(resultList.stream()
+//				.map((result) -> new CampaignDataExtractDto((String) result[0], (String) result[1], (String) result[2],
+//						(String) result[3], (String) result[4], (String) result[5], (String) result[6],
+//						(String) result[7],(String) result[8],(String) result[9]
+////								,
+////						(String) result[8],
+////						((Integer) result[9]).longValue()
+//				)).collect(Collectors.toList()));
+//		
+//		
+//
+//		return resultData;
+	}
 
 	@Override
 	public List<CampaignFormDataDto> getCampaignFormData(String campaignformuuid, String formuuid) {
