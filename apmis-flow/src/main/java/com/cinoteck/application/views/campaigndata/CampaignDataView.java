@@ -266,6 +266,7 @@ public class CampaignDataView extends VerticalLayout {
 				verifiedStatusCombo, publishedStatusCombo, importanceSwitcher, resetHandler, rightFloat);
 
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (!level1Filters.isVisible()) {
 				actionButtonlayout.setVisible(true);
 				level1Filters.setVisible(true);

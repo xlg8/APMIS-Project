@@ -484,7 +484,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		});
 
 		displayFilters.addClickListener(e -> {
-
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (!selectFilterLayoutparent.isVisible()) {
 				selectFilterLayoutparent.setVisible(true);
 				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));

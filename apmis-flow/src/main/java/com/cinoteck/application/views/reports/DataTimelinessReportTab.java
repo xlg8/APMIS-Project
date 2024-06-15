@@ -281,6 +281,7 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (filterLayout.isVisible() == false) {
 				filterLayout.setVisible(true);
 				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));

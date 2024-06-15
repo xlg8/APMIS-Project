@@ -402,6 +402,7 @@ public class ClusterView extends VerticalLayout {
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
@@ -946,26 +947,101 @@ public class ClusterView extends VerticalLayout {
 					dce.setName(name);
 					int clusternumbervalue = Integer.parseInt(clusterNum);
 					dce.setClusterNumber(clusternumbervalue);
-					long ccodeValue = Long.parseLong(code);
+					Long ccodeValue = Long.parseLong(code);
 					dce.setExternalId(ccodeValue);
 					dce.setRegion(provinceOfDistrict.getValue());
 					dce.setDistrict(districtOfCluster.getValue());
+			
+					List<DistrictIndexDto> pcode = FacadeProvider.getDistrictFacade().getAllDistricts();
+					for (DistrictIndexDto districtIndexDto : pcode) {
+						String checkerName = districtIndexDto.getName();
 
-					FacadeProvider.getCommunityFacade().save(dce, true);
+						if (checkerName.trim().equals(districtOfCluster.getValue().toString().trim())) {
+							DistrictReferenceDto nuller = new DistrictReferenceDto(districtIndexDto.getUuid(),
+									districtIndexDto.getName(), districtIndexDto.getExternalId());
+							dce.setDistrict(nuller);
+						}
+					}
+					
+					if (dce.getDistrict().getExternalId() != null) {
 
-					ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
-					configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
-					configurationChangeLogDto.setAction_unit_type("Cluster");
-					configurationChangeLogDto.setAction_unit_name(name);
-					configurationChangeLogDto.setUnit_code(ccodeValue);
-					configurationChangeLogDto.setAction_logged("Cluster Edit");
-					configurationChangeLogDto.setAction_date(date);
+						Long cCodeConstruction = dce.getDistrict().getExternalId();
+						if (clusterNum.length() == 1) {
 
-					FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+							clusterNum = "00" + clusterNum.toString();
+						} else if (clusterNum.length() == 2) {
 
-					Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
-					dialog.close();
-					refreshGridData();
+							clusterNum = "0" + clusterNum.toString();
+						}
+						
+						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
+
+						if (ccodeValue.equals(cCodeConstruction)) {
+							boolean exceptionCheck = false;						
+							try {
+								FacadeProvider.getCommunityFacade().save(dce, true);
+								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
+								dialog.close();
+								refreshGridData();
+
+							} catch (Exception e) {
+								exceptionCheck = false;
+
+								Notification notification = new Notification();
+								notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+								notification.setPosition(Position.MIDDLE);
+								Button closeButton = new Button(new Icon("lumo", "cross"));
+								closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+								closeButton.getElement().setAttribute("aria-label", "Close");
+								closeButton.addClickListener(event -> {
+									notification.close();
+								});
+
+								Paragraph text = new Paragraph("Cluster number taken, choose another");
+
+								HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+								layout.setAlignItems(Alignment.CENTER);
+
+								notification.add(layout);
+								notification.open();
+							}finally {
+								if(!exceptionCheck) {
+									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
+									configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
+									configurationChangeLogDto.setAction_unit_type("Cluster");
+									configurationChangeLogDto.setAction_unit_name(name);
+									configurationChangeLogDto.setUnit_code(ccodeValue);
+									configurationChangeLogDto.setAction_logged("Cluster Create");	
+									configurationChangeLogDto.setAction_date(date);
+
+									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
+									exceptionCheck = false;
+								}
+							}
+						} else {
+
+							Notification notification = new Notification();
+							notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+							notification.setPosition(Position.MIDDLE);
+							Button closeButton = new Button(new Icon("lumo", "cross"));
+							closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+							closeButton.getElement().setAttribute("aria-label", "Close");
+							closeButton.addClickListener(event -> {
+								notification.close();
+							});
+
+							Paragraph text = new Paragraph(
+									"You have entered a wrong Ccode, check Dcode with Cluster Number and try again");
+
+							HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+							layout.setAlignItems(Alignment.CENTER);
+
+							notification.add(layout);
+							notification.open();
+						}
+
+					}
+
 				} else {
 					CommunityDto dcex = new CommunityDto();
 					dcex.setName(name);
@@ -975,9 +1051,7 @@ public class ClusterView extends VerticalLayout {
 					dcex.setExternalId(ccodeValue);
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setDistrict(districtOfCluster.getValue());
-					Long finder = 1L;
-
-					// Code block to get pcode of selected district, ends at line
+					
 					List<DistrictIndexDto> pcode = FacadeProvider.getDistrictFacade().getAllDistricts();
 					for (DistrictIndexDto districtIndexDto : pcode) {
 						String checkerName = districtIndexDto.getName();
@@ -999,12 +1073,11 @@ public class ClusterView extends VerticalLayout {
 
 							clusterNum = "0" + clusterNum.toString();
 						}
-
+						
 						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
 
 						if (ccodeValue.equals(cCodeConstruction)) {
-							boolean exceptionCheck = false;
-
+							boolean exceptionCheck = false;				
 							try {
 								FacadeProvider.getCommunityFacade().save(dcex, true);
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
@@ -1023,9 +1096,6 @@ public class ClusterView extends VerticalLayout {
 								closeButton.addClickListener(event -> {
 									notification.close();
 								});
-
-//								Paragraph text = new Paragraph(
-//										"An unexpected error occurred. Please contact your supervisor or administrator and inform them about it.");
 
 								Paragraph text = new Paragraph("Cluster number taken, choose another");
 
@@ -1080,7 +1150,6 @@ public class ClusterView extends VerticalLayout {
 
 		});
 
-//		dialog.setHeaderTitle("Edit " + communityDto.getName());
 		if (communityDto == null) {
 			dialog.setHeaderTitle(I18nProperties.getCaption(Captions.addNewCluster));
 			dialog.getFooter().add(discardButton, saveButton);
