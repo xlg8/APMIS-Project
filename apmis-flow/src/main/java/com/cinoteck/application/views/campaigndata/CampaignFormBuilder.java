@@ -31,6 +31,7 @@ import java.util.Objects;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Precision;
+import org.jsoup.select.Evaluator.IsEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.EvaluationContext;
@@ -765,8 +766,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
-					toggle.getStyle().set("color", "Green");
-					toggle.getStyle().set("background", "white ");
+		
 
 					toggle.setClassName("customTextWrap");
 
@@ -793,19 +793,23 @@ public class CampaignFormBuilder extends VerticalLayout {
 							return map.get(item);
 						}
 					});
+					
+					
 
 //					toggle.setItemLabelGenerator(item -> map.get(item));
+					toggle.getStyle().set("color", "Green");
+					toggle.getStyle().set("background", "white");
 
 					setFieldValue(toggle, type, value, optionsValues, formElement.getDefaultvalue(), false, null);
 
 					vertical.add(toggle);
 					fields.put(formElement.getId(), toggle);
-					System.out.println(dependingOnId + "dependingOnId11111111111111111111111 " + dependingOnValues);
+//					System.out.println(dependingOnId + "dependingOnId11111111111111111111111 " + dependingOnValues);
 
 					if (dependingOnId != null && dependingOnValues != null) {
 
-						System.out.println(dependingOnId + "dependingOnId 2222222222222222" + dependingOnValues
-								+ "tttttt" + formElement.isImportant());
+//						System.out.println(dependingOnId + "dependingOnId 2222222222222222" + dependingOnValues
+//								+ "tttttt" + formElement.isImportant());
 						// needed
 						setVisibilityDependency(toggle, dependingOnId, dependingOnValues, type,
 								formElement.isImportant());
@@ -1379,7 +1383,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 					((ToggleButtonGroup) field).setValue(dvalue);
 
 				}
+				
+				
 
+			}else {
+				
+		
+				
+				((ToggleButtonGroup) field).updateStyles();
+				
 			}
 
 			break;

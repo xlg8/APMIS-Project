@@ -6,7 +6,7 @@
 :host(:not([theme~="primary"]):not([theme~="error"]):not([theme~="success"])) {
   color: white;
      background: #0D6938;
-     min-width: auto !important!;
+     min-width: auto !important;
 }
 :host([focus-ring]:not([theme~="tertiary"])) {
   box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct), inset 0 0 0 1px var(--lumo-primary-color);

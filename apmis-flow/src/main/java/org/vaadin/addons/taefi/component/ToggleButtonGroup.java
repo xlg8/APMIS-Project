@@ -144,6 +144,18 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
         }
     }
 
+    
+    public void updateStyles() {
+        for (Button button : buttonToItemMap.keySet()) {
+            T item = buttonToItemMap.get(button);
+            boolean isSelected = Objects.equals(item, selected);
+//            button.getElement().getClassList().remove("selected");
+//            button.getElement().getClassList().remove("not-selected");
+            button.getElement().getStyle().set("background-color", "white");
+            button.getElement().getStyle().set("color", "green");
+//            button.getElement().getClassList().add(isSelected ? "selected" : "not-selected");
+        }
+    }
     protected Optional<String> getButtonsBaseClass() {
         return Optional.of("toggle-button-group-button-" + getOrientationStylePostfix());
     }
@@ -339,6 +351,8 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
         T oldValue = getValue();
         this.selected = selected;
         fireValueChangeEvent(oldValue, this.selected, isFromClient);
+        
+
        
     }
 
@@ -402,6 +416,14 @@ public class ToggleButtonGroup<T> extends CustomField<T> {
             } else {
                 newSelected.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
                 newSelected.getStyle().set("background-color", "green").set("color", "white");
+            }
+        });
+        
+        idToButtonMap.values().forEach(button -> {
+            if (!button.equals(idToButtonMap.get(newSelectedId))) {
+                button.addClassName("selectedItemX");
+            } else {
+                button.removeClassName("selectedItemX");
             }
         });
     }

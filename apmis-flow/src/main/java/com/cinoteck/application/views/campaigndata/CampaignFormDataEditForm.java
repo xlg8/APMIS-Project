@@ -150,7 +150,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 					grid.getDataProvider().refreshAll();
 				});
 
-				System.out.println("deleted " + uuidForm);
+//				System.out.println("deleted " + uuidForm);
 			} catch (Exception ex) {
 
 				Notification.show("Unable to delete Form at the moment, Try Again", 10, Position.MIDDLE);
@@ -198,7 +198,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			// showConfirmationDialog();
 		});
 
-		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//		System.out.println(openData + "open dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
 		verifyButton = new Button(I18nProperties.getCaption("Verify Data"));
 		publishButton = new Button(I18nProperties.getCaption(" Publish Data"));
@@ -221,7 +221,7 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 			if(usr.getUser().getUserRoles().contains(UserRole.PUBLISH_USER)) {
 				if (campaignFormMetaReferenceDto.getFormType().equalsIgnoreCase("post-campaign")) {
 
-					System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
+//					System.out.println(uuidForm + "uuuuuuuuuuuuuuuuuuiddddddddddddddddddddddddddd from view ");
 					if (uuidForm != null) {
 						if (!FacadeProvider.getCampaignFormDataFacade().getVerifiedStatus(uuidForm)) {
 							dialog.getFooter().add(verifyButton);
