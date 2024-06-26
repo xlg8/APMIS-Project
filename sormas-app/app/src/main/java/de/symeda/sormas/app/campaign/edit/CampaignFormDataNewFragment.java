@@ -54,6 +54,7 @@ import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
+import de.symeda.sormas.app.backend.region.Community;
 import de.symeda.sormas.app.backend.user.User;
 import de.symeda.sormas.app.campaign.CampaignFormDataFragmentUtils;
 import de.symeda.sormas.app.component.controls.ControlPropertyField;
@@ -234,10 +235,6 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                         }
                         Boolean finalIsdependingOn = isdependingOn;
 
-                        if (type == CampaignFormElementType.DROPDOWN && campaignFormElement.getId().equalsIgnoreCase("lotClusterNo")) {
-
-                            System.out.println("++++++++_________________1111________lotClusterNo");
-                        }
 
                         if (type == CampaignFormElementType.DROPDOWN && "lotClusterNo" == campaignFormElement.getId()) {
                             System.out.println("++++++++_______________222__________lotClusterNo");
@@ -994,7 +991,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                     } else {
                         dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), false, campaignFormElement.isImportant());
                     }
-                    System.out.println("Field properties: " + campaignFormElement.getId() + " exp = " + campaignFormElement.getExpression() + " :");
+//                    System.out.println("Field properties: " + campaignFormElement.getId() + " exp = " + campaignFormElement.getExpression() + " :");
                     fieldMap.put(campaignFormElement.getId(), dynamicField);
                     dynamicField.setShowCaption(true);
                     dynamicLayout.addView(dynamicField, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -1004,11 +1001,11 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                     if (dependingOn != null) {
                         isdependingOn = true;
                     }
-                    System.out.println(record.getLotClusterNo() + "++++++++_______________" + campaignFormElement.getId());
+//                    System.out.println(record.getLotClusterNo() + "++++++++_______________" + campaignFormElement.getId());
 
                     Boolean finalIsdependingOn = isdependingOn;
                     if (type == CampaignFormElementType.DROPDOWN && campaignFormElement.getId().equalsIgnoreCase("lotClusterNo")) {
-                        System.out.println(record.getLotClusterNo() + "++++++++_______________222__________lotClusterNo");
+//                        System.out.println(record.getLotClusterNo() + "++++++++_______________222__________lotClusterNo");
                         dynamicField.addValueChangedListener(field -> {
 
                             baseEditActivity.setDataModified(true);
@@ -1071,126 +1068,23 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                         });
                     }
 
+
                     if (type == CampaignFormElementType.NUMBER && campaignFormElement.getId().equalsIgnoreCase("villageCode")) {
-                        System.out.println( "XXXXXX++++++++______________111__________Village COde ");
-                        dynamicField.addValueChangedListener(field -> {
+                        dynamicField.addValueChangedListener(e->{
+                            if (dynamicField.getValue().toString() != null && dynamicField.getValue().toString() != ""){
+                                    if (record != null && record.getCommunity() != null) {
 
-                            System.out.println( "Listener confugured++++++++______________111__________Village COde ");
 
-                            baseEditActivity.setDataModified(true);
-
-                            String inputValue = field.getValue() != null ? field.getValue().toString() : "";
-
-                            if (field.getValue() != null && field.getValue().toString().length() == 3) {
-                                System.out.println( "Value is 3 ++++++++______________111__________Village COde ");
-
-                                String result = inputValue.substring(0, 1);
-
-                                int length = result.length();
-
-                                if (length == 1 && record.getCommunity() != null) {
-
-                                    String cCodeLengthCheck = record.getCommunity().getClusterNumber().toString();
-                                    System.out.println( "cCodeLengthCheck is 3 ++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                    int ccodeCheckLength = cCodeLengthCheck.length();
-                                    if (ccodeCheckLength == 6) {
-                                        System.out.println( "cCodeLengthCheck is 6 ++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber() + "000" + result;
-                                    } else if (ccodeCheckLength == 7) {
-                                        System.out.println( "cCodeLengthCheck is 7 ++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber() + "00" + result;
+                                        if ( dynamicField.getValue().toString().length() == 3) {
+                                            String inputValue = e.getValue().toString();
+                                            if (inputValue.length() == 3) {
+                                                handleValueSetting(inputValue, dynamicField);
+                                            }
+                                        }
                                     }
-                                }
-
-                                field.setValue(result);
-                            }
-
-                            if (field.getValue() != null && field.getValue().toString().length() == 4) {
-
-                                System.out.println( "Value is 4 ++++++++______________111__________Village COde ");
-
-                                String result = inputValue.substring(0, field.getValue().toString().length() - 2);
-
-                                int length = result.length();
-
-                                if (length == 2 && record.getCommunity() != null) {
-
-                                    String cCodeLengthCheck = record.getCommunity().getClusterNumber().toString();
-
-                                    int ccodeCheckLength = cCodeLengthCheck.length();
-                                    if (ccodeCheckLength == 6) {
-                                        System.out.println( "cCodeLengthCheck is 6 4 valiue++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber() + "00" + result;
-                                    } else if (ccodeCheckLength == 7) {
-                                        System.out.println( "cCodeLengthCheck is 7 in 4 valiue++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber() + "0" + result;
-                                    }
-                                }
-
-                                field.setValue(result);
-                            }
-
-                            if (field.getValue() != null && field.getValue().toString().length() == 5) {
-
-                                System.out.println( "Value is 5 ++++++++______________111__________Village COde ");
-
-                                String result = inputValue.substring(0, field.getValue().toString().length() - 2);
-
-                                int length = result.length();
-
-                                if (length == 3 && record.getCommunity() != null) {
-
-                                    String cCodeLengthCheck = record.getCommunity().getClusterNumber().toString();
-
-                                    int ccodeCheckLength = cCodeLengthCheck.length();
-                                    if (ccodeCheckLength == 6) {
-                                        System.out.println( "cCodeLengthCheck is 7 in 5 valiue++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber() + "0" + result;
-                                    } else if (ccodeCheckLength == 7) {
-                                        System.out.println( "cCodeLengthCheck is 7 in 5 valiue++++++++______________111__________Village COde " + cCodeLengthCheck);
-
-                                        result = record.getCommunity().getClusterNumber()  + result;
-                                    }
-                                }
-
-                                field.setValue(result);
-                            }
-//
-
-//                            if (field.getValue() != null) {
-//                                record.setLotClusterNo((String) field.getValue());
-//                            }
-//                            final Boolean isRangeandExpressionx = finalIsRangeandExpression;
-//                            Boolean okk = field.getFocusedChild() != null ? true : false;
-//                            final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
-//                            campaignFormDataEntry.setValue(field.getValue());
-//                            if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
-//                                for (CampaignFormDataEntry det : formValues) {
-//                                    if (det.getValue() != null) {
-//                                        if (det.getValue().toString().isEmpty()) {
-//                                            det.setValue(null);
-//                                        }
-//                                    }
-//                                }
-//                                expressionMap.forEach((formElement, controlPropertyField) ->
-//                                        CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
-//                            } else if (field.isFocused()) {
-//                                System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" + fieldMap.get(campaignFormElement.getId()).getCaption());
-//
-//                            }
-
-                         });
+                        }
+                        });
                     }
-
-
-
-                    //  formValues.add(new CampaignFormDataEntry(campaignFormElement.getId(), null));
 
                     Object defaultValue = campaignFormElement.getDefaultvalue();
                     formValues.add(new CampaignFormDataEntry(campaignFormElement.getId(), defaultValue == null ? null : defaultValue));
@@ -1327,6 +1221,33 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
         }
         return view;
     }
+
+    private void handleValueSetting(String inputValue, ControlPropertyField dynamicField) {
+            String cCode = record.getCommunity().getExternalid().toString();
+            switch (cCode.length()) {
+                case 4:
+                    dynamicField.setValue(cCode + "000" + inputValue);
+                    break;
+                case 5:
+                    dynamicField.setValue(cCode + "00" + inputValue);
+                    break;
+                case 6:
+                    dynamicField.setValue(cCode + "0" + inputValue);
+                    break;
+                case 7:
+                    dynamicField.setValue(cCode + "" + inputValue);
+                    break;
+                case 8:
+                    // when the length of the ccode is 8 what we're doing here is to
+                    //delete the first charcter and return a new bvalue
+
+                    String firstCharacterDelete = inputValue.substring(1);
+
+                    dynamicField.setValue(cCode + "" + firstCharacterDelete);
+                    break;
+            }
+        }
+
 
 
     @Override

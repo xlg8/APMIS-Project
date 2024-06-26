@@ -22,11 +22,14 @@ import java.util.stream.Stream;
 import javax.sound.midi.SysexMessage;
 import javax.ws.rs.core.Form;
 
+import org.jsoup.select.Evaluator.ContainsData;
+
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignDataImportDialog;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaign.ImportPopulationDataDialog;
+import com.cinoteck.application.views.utils.DownloadTransposedDaywiseDataUtility;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
@@ -139,6 +142,8 @@ public class CampaignDataView extends VerticalLayout {
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
+	Anchor transposdeDataAnchor = new Anchor("", I18nProperties.getCaption(Captions.export)+ "Transposed Data");
+
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	Paragraph countRowItems;
 	UserProvider userProvider = new UserProvider();
@@ -242,12 +247,17 @@ public class CampaignDataView extends VerticalLayout {
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
+		
+		Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) +"Transposed Data");
+		exportTransposedDataButton.setIcon(new Icon(VaadinIcon.UPLOAD));
+				
 		exportButton.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 		});
 
 		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importFormData, exportButton, anchor);
 		anchor.getStyle().set("display", "none");
+		transposdeDataAnchor.getStyle().set("display", "none");
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
@@ -716,6 +726,23 @@ public class CampaignDataView extends VerticalLayout {
 
 				reload();
 				configureColumnStyles(criteria);
+				
+				//Known problem around here , depending on the number of times this filter value changes 
+				//the export button would download a file with the numbe rof criteria that has baaen send out 
+				//i.e if this filter value changes 10 times, the next time you click the button, it downloads 10 files 
+				//if it chnges again and you click the button, it down loads 11 times 
+				if(e.getValue().toString().contains("Day 1")) {
+					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
+
+					
+					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
+					transposdeDataAnchor.getElement().setAttribute("download", true);
+					exportTransposedDataButton.addClickListener(ex->{
+						transposdeDataAnchor.getElement().callJsFunction("click");
+					});
+				};
+				
 			} else {
 
 				importanceSwitcher.clear();
@@ -724,7 +751,11 @@ public class CampaignDataView extends VerticalLayout {
 			}
 			updateRowCount();
 			configureColumnStyles(criteria);
+			
+			
+			
 
+		
 		});
 
 		regionCombo.setClearButtonVisible(true);

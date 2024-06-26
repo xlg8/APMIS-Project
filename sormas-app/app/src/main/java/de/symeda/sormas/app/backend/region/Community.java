@@ -39,11 +39,17 @@ public class Community extends InfrastructureAdo {
 	public static final String DISTRICT = "district";
 	public static final String CLUSTERNUMBER = "clusterNumber";
 
+	public static final String CCODE = "externalid";
+
+
 	@Column
 	private String name;
 
 	@Column
 	private Integer clusterNumber;
+
+	@Column
+	private Long externalid;
 
 	@DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false, maxForeignAutoRefreshLevel = 3)
 	@ManyToOne(cascade = CascadeType.REFRESH, optional = false)
@@ -74,6 +80,14 @@ public class Community extends InfrastructureAdo {
 
 	public void setDistrict(District district) {
 		this.district = district;
+	}
+
+	public Long getExternalid() {
+		return externalid;
+	}
+
+	public void setExternalid(Long externalid) {
+		this.externalid = externalid;
 	}
 
 	@Override

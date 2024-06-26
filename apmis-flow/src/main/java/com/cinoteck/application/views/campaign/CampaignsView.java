@@ -67,6 +67,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -198,23 +199,23 @@ public class CampaignsView extends VerticalLayout {
 
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 			grid.addColumn(startDateRendererPashto).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
-					.setSortable(true).setResizable(true);
-			grid.addColumn(endDateRendererPashto).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+					.setSortable(true).setComparator(Comparator.comparing(CampaignIndexDto::getStartDate)).setResizable(true);
+			grid.addColumn(endDateRendererPashto).setComparator(Comparator.comparing(CampaignIndexDto::getEndDate)).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
 					.setSortable(true).setResizable(true);
 			grid.addColumn(campaignYearRender).setHeader(I18nProperties.getCaption(Captions.campaignYear))
 					.setSortable(true).setResizable(true);
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			grid.addColumn(startDateRendererDari).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
-					.setSortable(true).setResizable(true);
-			grid.addColumn(endDateRendererDari).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
+					.setSortable(true).setComparator(Comparator.comparing(CampaignIndexDto::getStartDate)).setResizable(true);
+			grid.addColumn(endDateRendererDari).setComparator(Comparator.comparing(CampaignIndexDto::getEndDate)).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
 					.setSortable(true).setResizable(true);
 			grid.addColumn(campaignYearRender).setHeader(I18nProperties.getCaption(Captions.campaignYear))
 					.setSortable(true).setResizable(true);
 		} else {
 			grid.addColumn(startDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_startDate))
-					.setSortable(true).setResizable(true);
+					.setSortable(true).setComparator(Comparator.comparing(CampaignIndexDto::getStartDate)).setResizable(true);
 			grid.addColumn(endDateRenderer).setHeader(I18nProperties.getCaption(Captions.Campaign_endDate))
-					.setSortable(true).setResizable(true);
+					.setSortable(true).setComparator(Comparator.comparing(CampaignIndexDto::getEndDate)).setResizable(true);
 			grid.addColumn(CampaignIndexDto.CAMPAIGN_YEAR).setHeader(I18nProperties.getCaption(Captions.campaignYear))
 					.setSortable(true).setResizable(true);
 		}

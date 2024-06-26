@@ -206,7 +206,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	public List<RegionReferenceDto> getAllActiveByArea(String areaUuid) {
 		Area area = areaService.getByUuid(areaUuid);
 		
-		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getName() != null).map(RegionFacadeEjb::toReferenceDto)
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getName() != null && d.getExternalId() != null).map(RegionFacadeEjb::toReferenceDto)
 				.collect(Collectors.toList());
 //				getAllActiveByPredicate((cb, root) -> cb.equal(root.get(Region.AREA).get(Area.UUID), areaUuid));
 	}
@@ -214,14 +214,14 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 	@Override
 	public List<RegionReferenceDto> getAllActiveByAreaPashto(String areaUuid) {
 		Area area = areaService.getByUuid(areaUuid);
-		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getPs_af() != null).map(RegionFacadeEjb::toReferenceDtoP)
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getPs_af() != null && d.getExternalId() != null).map(RegionFacadeEjb::toReferenceDtoP)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RegionReferenceDto> getAllActiveByAreaDari(String areaUuid) {
 		Area area = areaService.getByUuid(areaUuid);
-		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getFa_af() != null).map(RegionFacadeEjb::toReferenceDtoD)
+		return area.getRegions().stream().filter(d -> !d.isArchived() && d.getFa_af() != null && d.getExternalId() != null).map(RegionFacadeEjb::toReferenceDtoD)
 				.collect(Collectors.toList());
 	}
 

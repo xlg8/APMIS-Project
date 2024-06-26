@@ -659,26 +659,26 @@ public class UserForm extends FormLayout {
 	}
 	
 	
-	public ValidationResult validateUserName(String value, ValueContext context) {
-		try {
-			System.out.println(value + "Value collection ");
-			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
-
-			if (checkNewusernamefromDB != null) {
-				save.setEnabled(false);
-				return ValidationResult.error("Username Exists");
-			} else {
-//				UserRole.validate(value);
-				save.setEnabled(true);
-
-				return ValidationResult.ok();
-			}
-
-		} catch (Exception e) {
-//        	Notification.show(e.getMessage());
-			return ValidationResult.error("Username culd not be validated ");
-		}
-	}
+//	public ValidationResult validateUserName(String value, ValueContext context) {
+//		try {
+//			System.out.println(value + "Value collection ");
+//			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
+//
+//			if (checkNewusernamefromDB != null) {
+//				save.setEnabled(false);
+//				return ValidationResult.error("Username Exists");
+//			} else {
+////				UserRole.validate(value);
+//				save.setEnabled(true);
+//
+//				return ValidationResult.ok();
+//			}
+//
+//		} catch (Exception e) {
+////        	Notification.show(e.getMessage());
+//			return ValidationResult.error("Username culd not be validated ");
+//		}
+//	}
 
 	public void updatePasswordDialog() {
 

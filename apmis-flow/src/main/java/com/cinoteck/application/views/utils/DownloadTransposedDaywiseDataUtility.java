@@ -1,35 +1,20 @@
 package com.cinoteck.application.views.utils;
 
-import com.cinoteck.application.views.utils.ExportEntityName;
 import com.opencsv.CSVWriter;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.data.provider.Query;
-import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.server.StreamResource;
 
-import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
-import de.symeda.sormas.api.i18n.Captions;
-import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.i18n.Strings;
-import de.symeda.sormas.api.infrastructure.PopulationDataDto;
-import de.symeda.sormas.api.person.Sex;
-import de.symeda.sormas.api.report.CampaignDataExtractDto;
 import de.symeda.sormas.api.utils.CSVUtils;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
-import de.symeda.sormas.api.utils.SortProperty;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,17 +28,254 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 public final class DownloadTransposedDaywiseDataUtility {
 
-	public StreamResource writeDataToCSV(List<CampaignFormDataIndexDto> formDatafromIndexList) {
+
+	
+	public static StreamResource createTransposedDataFromIndexListDemox2(CampaignFormDataCriteria criteria) {
+	    String exportFileName = createFileNameWithCurrentDateandEntityNameString("transposeddata", ".csv");
+
+	    // Using the index list method to get the day-wise form data since it already
+	    // used the criteria on the grid to get the data
+	    List<CampaignFormDataIndexDto> formDatafromIndexList = FacadeProvider.getCampaignFormDataFacade()
+	            .getIndexList(criteria, null, null, null);
+
+	    // Initialize the set to store unique variable parts without the day suffix
+	    Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt = new HashSet<>();
+
+	    // Iterate through all elements in the formDatafromIndexList to build column
+	    // headers
+	    for (CampaignFormDataIndexDto formDataIndex : formDatafromIndexList) {
+	        if (formDataIndex.getFormValues() != null) {
+	            Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+
+	            // Extract the field IDs from the form values and add them to the set to remove
+	            // duplicates
+	            for (CampaignFormDataEntry formValues : formDataIndex.getFormValues()) {
+	                fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+	            }
+
+	            // Convert the set back to a list
+	            List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
+	                    fieldIDsFromFormValuesforColumnHeadersSet);
+
+	            // Extract unique variable parts and remove the day suffix
+	            for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+	                String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
+	                uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt.add(variableID);
+	            }
+	        }
+	    }
+
+	    List<String> columnNames = new ArrayList<>();
+//	    columnNames.add(I18nProperties.getPrefixCaption(CampaignFormDataIndexDto.I18N_PREFIX, CampaignFormDataIndexDto.COMMUNITY));
+	    columnNames.add("Cluster Name");
+	    columnNames.add("CLUSTERNUMBER");
+	    columnNames.add("DAY");
+
+	    // Generate and write columns to CSV writer
+	    Map<String, Integer> fieldIdPositions = new HashMap<>();
+	    int ageGroupIndex = 3;
+	    for (String fieldGroup : uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt) {
+	        columnNames.add(fieldGroup);
+	        fieldIdPositions.put(fieldGroup, ageGroupIndex);
+	        ageGroupIndex += 1;
+	    }
+
+	    Map<String, Map<String, String>> dayValueMap = new HashMap<>();
+
+	    for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
+	        if (individualTransposedFormData.getFormValues() != null) {
+	            Map<String, String> formDataMaxp = new HashMap<>();
+	            Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+
+	            for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
+	                formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
+	                fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+	            }
+
+	            List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
+	                    fieldIDsFromFormValuesforColumnHeadersSet);
+
+	            Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderx = new HashSet<>();
+
+	            for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+	                String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
+	                uniqueVariablePartsWithoutDaySuffixForColumnHeaderx.add(variableID);
+	            }
+
+	            for (String day : extractUniqueDayValues(fieldIDsFromFormValuesforColumnHeadersx)) {
+	                for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeaderx) {
+	                    String key = variable + "_" + day;
+
+	                    if (formDataMaxp.containsKey(key)) {
+	                        String keyValue = formDataMaxp.get(key);
+	                        dayValueMap.computeIfAbsent(day, k -> new HashMap<>()).put(variable, keyValue);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    return new StreamResource(exportFileName, () -> {
+	        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+	            try (CSVWriter writer = CSVUtils.createCSVWriter(
+	                    new OutputStreamWriter(byteStream, StandardCharsets.UTF_8.name()),
+	                    FacadeProvider.getConfigFacade().getCsvSeparator())) {
+
+	                writer.writeNext(columnNames.toArray(new String[0]));
+
+	                for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
+	                    if (individualTransposedFormData.getFormValues() != null) {
+	                        Map<String, String> formDataMaxp = new HashMap<>();
+	                        Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+
+	                        for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
+	                            formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
+	                            fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+	                        }
+
+	                        List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
+	                                fieldIDsFromFormValuesforColumnHeadersSet);
+
+	                        Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderx = new HashSet<>();
+
+	                        for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+	                            String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
+	                            uniqueVariablePartsWithoutDaySuffixForColumnHeaderx.add(variableID);
+	                        }
+
+	                        for (String day : extractUniqueDayValues(fieldIDsFromFormValuesforColumnHeadersx)) {
+	                            List<String> row = new ArrayList<>(Collections.nCopies(columnNames.size(), ""));
+//	                            row.set(0, I18nProperties.getPrefixCaption(CampaignFormDataIndexDto.I18N_PREFIX, CampaignFormDataIndexDto.COMMUNITY));
+	                            row.set(0, individualTransposedFormData.getCommunity().toString());
+
+	                            row.set(1, individualTransposedFormData.getClusternumber().toString());
+
+	                            row.set(2, day);
+
+	                            for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeaderx) {
+	                                String key = variable + "_" + day;
+	                                if (formDataMaxp.containsKey(key)) {
+	                                    String keyValue = formDataMaxp.get(key);
+	                                    int colIndex = columnNames.indexOf(variable);
+	                                    if (colIndex >= 0) {
+	                                        row.set(colIndex, keyValue);
+	                                    }
+	                                }
+	                            }
+
+	                            writer.writeNext(row.toArray(new String[0]));
+	                        }
+	                    }
+	                }
+
+	                writer.flush();
+
+	            }
+	            return new ByteArrayInputStream(byteStream.toByteArray());
+	        } catch (IOException e) {
+	            // Handle exceptions and show a notification if needed
+	            return null;
+	        }
+	    });
+	}
+
+
+	public static StreamResource createTransposedDataFromIndexListDemox(CampaignFormDataCriteria criteria) {
 		String exportFileName = createFileNameWithCurrentDateandEntityNameString("transposeddata", ".csv");
+
+		// Using the index list method to get the day-wise form data since it already
+		// used the criteria on the grid to get the data
+		List<CampaignFormDataIndexDto> formDatafromIndexList = FacadeProvider.getCampaignFormDataFacade()
+				.getIndexList(criteria, null, null, null);
+
+		// Initialize the set to store unique variable parts without the day suffix
+		Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt = new HashSet<>();
+
+		// Iterate through all elements in the formDatafromIndexList to build column
+		// headers
+		for (CampaignFormDataIndexDto formDataIndex : formDatafromIndexList) {
+			if (formDataIndex.getFormValues() != null) {
+				Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+
+				// Extract the field IDs from the form values and add them to the set to remove
+				// duplicates
+				for (CampaignFormDataEntry formValues : formDataIndex.getFormValues()) {
+					fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+				}
+
+				// Convert the set back to a list
+				List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
+						fieldIDsFromFormValuesforColumnHeadersSet);
+
+				// Extract unique variable parts and remove the day suffix
+				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+					String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
+					uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt.add(variableID);
+				}
+			}
+		}
+		System.out.println("===============uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt"
+				+ uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt);
+
+		List<String> columnNames = new ArrayList<>();
+		columnNames.add("CLUSTERNUMBER");
+		columnNames.add("DAY");
+
+		// Generate and write columns to CSV writer
+		Map<String, Integer> fieldIdPositions = new HashMap<>();
+		int ageGroupIndex = 2;
+		for (String fieldGroup : uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt) {
+			columnNames.add(fieldGroup);
+			fieldIdPositions.put(fieldGroup, ageGroupIndex);
+			ageGroupIndex += 1;
+		}
+
+		System.out.println("===============columnNamescolumnNamescolumnNamescolumnNames" + columnNames);
+
+		Map<String, Map<String, String>> dayValueMap = new HashMap<>();
+
+		for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
+
+			if (individualTransposedFormData.getFormValues() != null) {
+				Map<String, String> formDataMaxp = new HashMap<>();
+				Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+
+				for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
+					formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
+					fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+				}
+
+				List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
+						fieldIDsFromFormValuesforColumnHeadersSet);
+
+				Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderx = new HashSet<>();
+
+				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+					String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
+					uniqueVariablePartsWithoutDaySuffixForColumnHeaderx.add(variableID);
+				}
+				for (CampaignFormDataIndexDto individualTransposedFormDatax : formDatafromIndexList) {
+
+					for (String day : extractUniqueDayValues(fieldIDsFromFormValuesforColumnHeadersx)) {
+						for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeaderx) {
+							String key = variable + "_" + day;
+
+							if (formDataMaxp.containsKey(key)) {
+								String keyValue = formDataMaxp.get(key);
+								dayValueMap.computeIfAbsent(day, k -> new HashMap<>()).put(variable, keyValue);
+							}
+						}
+					}
+				}
+			}
+			System.out.println("================individualTransposedFormDataindividualTransposedFormData"
+					+ individualTransposedFormData);
+		}
+
+		System.out.println("================dayValueMapdayValueMapdayValueMapdayValueMap" + dayValueMap);
 
 		return new StreamResource(exportFileName, () -> {
 			try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
@@ -61,84 +283,61 @@ public final class DownloadTransposedDaywiseDataUtility {
 						new OutputStreamWriter(byteStream, StandardCharsets.UTF_8.name()),
 						FacadeProvider.getConfigFacade().getCsvSeparator())) {
 
-					// Prepare list to hold headers
-					List<String> headers = new ArrayList<>();
-//                	  Prepare list to hold days
-					List<String> daysList = new ArrayList<>();
+					writer.writeNext(columnNames.toArray(new String[0]));
 
-					Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
-					Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt = new HashSet<>();
+					List<Object[]> campaignformDataExportDataList = new ArrayList<>();
 
-
-					headers.add("Day");
-
-					// Process form data to populate daysList and headers
-//                for (CampaignFormDataIndexDto formData : formDatafromIndexList) {
-					for (CampaignFormDataEntry formValue : formDatafromIndexList.get(0).getFormValues()) {// formData.getFormValues())
-																											// {
-
-						String id = formValue.getId();
-						String[] parts = id.split("_");
-
-						String daySuffix = parts[parts.length - 1];
-						String header = id.replace("_" + daySuffix, "");
-
-						// Extract the field IDs from the form values and add them to the set to remove
-						// duplicates
-						fieldIDsFromFormValuesforColumnHeadersSet.add(formValue.getId());
-
-						// Convert the set back to a list
-						List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
-								fieldIDsFromFormValuesforColumnHeadersSet);
-
-						for (String uniqueVariable : extractUniqueVariableParts(
-								fieldIDsFromFormValuesforColumnHeadersx)) {
-							String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
-							uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt.add(variableID);
-						}
-
-						System.out
-								.println(id + "<<<<ID>> Day Suffix >>>>" + daySuffix + ">>>>>>>Final Header " + header);
-						
-						System.out
-						.println( ">>>>>>>Final Header " + header);
-
-						
-						System.out
-						.println(">>>>>>>Final Header " + uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt);
-
-
-						// Add day suffix to days list
-						if (!daysList.contains(daySuffix)) {
-							daysList.add(daySuffix);
-						}
-
-						// Add header to headers list
-						if (!headers.contains(header)) {
-							headers.add(header);
-						}
-
+					for (CampaignFormDataIndexDto dto : formDatafromIndexList) {
+						Object[] data = new Object[] { dto.getClusternumber() // Ensure you have a getClusternumber()
+																				// method in CampaignFormDataIndexDto
+						};
+						campaignformDataExportDataList.add(data);
 					}
-//                }
-					System.out.println(daysList + "<<<< Day List >>>>" + ">>>>>>>Final Header " + headers);
 
-					writer.writeNext(headers.toArray(new String[0]));
+					String clusterNumber = "";
+					String[] exportLine = null;
 
-//                    writer.writeNext(columnNames.toArray(new String[0]));
-//
-//                    // Write each row for day values from dayValueMap
-//                    for (String day : dayValueMap.keySet()) {
-//                        Map<String, String> dayValues = dayValueMap.get(day);
-//
-//                        List<String> row = columnNames.stream().map(columnName -> {
-//                            if (columnName.equals("DAY")) {
-//                                return day;
-//                            }
-//                            return dayValues.getOrDefault(columnName, "");
-//                        }).collect(Collectors.toList());
-//
-//                        writer.writeNext(row.toArray(new String[0]));
-//                    }
+					for (Object[] campaignformDataObjects : campaignformDataExportDataList) {
+						Integer dataclusterNumber = (Integer) campaignformDataObjects[0];
+
+						if (exportLine != null && (!dataclusterNumber.equals(clusterNumber))) {
+							// New region or district reached; write line to CSV
+							writer.writeNext(exportLine);
+							exportLine = null;
+						}
+
+						if (exportLine == null) {
+							exportLine = new String[columnNames.size()];
+							exportLine[0] = dataclusterNumber.toString();
+						}
+
+						for (String day : dayValueMap.keySet()) {
+							Map<String, String> dayValues = dayValueMap.get(day);
+
+							List<String> row = columnNames.stream().map(columnName -> {
+								if (columnName.equals("CLUSTERNUMBER")) {
+									return dataclusterNumber.toString();
+								}
+
+								if (columnName.equals("DAY")) {
+									return day;
+								}
+
+								return dayValues.getOrDefault(columnName, "");
+							}).collect(Collectors.toList());
+
+							writer.writeNext(row.toArray(new String[0]));
+						}
+
+						clusterNumber = dataclusterNumber.toString();
+					}
+
+					if (exportLine != null) {
+						writer.writeNext(exportLine);
+					}
+
+					writer.flush();
+
 				}
 				return new ByteArrayInputStream(byteStream.toByteArray());
 			} catch (IOException e) {
@@ -146,62 +345,6 @@ public final class DownloadTransposedDaywiseDataUtility {
 				return null;
 			}
 		});
-		// Prepare list to hold days
-//            List<String> daysList = new ArrayList<>();
-//
-//            // Prepare list to hold headers
-//            List<String> headers = new ArrayList<>();
-//
-//            // Process form data to populate daysList and headers
-//            for (CampaignFormDataIndexDto formData : formDatafromIndexList) {
-//                for (CampaignFormDataEntry formValue : formData.getFormValues()) {
-//                    String id = formValue.getId();
-//                    String[] parts = id.split("_");
-//                    String daySuffix = parts[parts.length - 1];
-//                    String header = id.replace("_" + daySuffix, "");
-//
-//                    // Add day suffix to days list
-//                    if (!daysList.contains(daySuffix)) {
-//                        daysList.add(daySuffix);
-//                    }
-//
-//                    // Add header to headers list
-//                    if (!headers.contains(header)) {
-//                        headers.add(header);
-//                    }
-//                }
-//            }
-//
-//            // Write headers to CSV
-//            writer.writeNext(headers.toArray(new String[0]));
-//
-//            // Write form values to CSV
-//            for (String day : daysList) {
-//                String[] row = new String[headers.size()];
-//                for (CampaignFormDataIndexDto formData : formDatafromIndexList) {
-//                    for (CampaignFormDataEntry formValue : formData.getFormValues()) {
-//                        String id = formValue.getId();
-//                        String[] parts = id.split("_");
-//                        String daySuffix = parts[parts.length - 1];
-//                        String header = id.replace("_" + daySuffix, "");
-//
-//                        if (day.equals(daySuffix)) {
-//                            int index = headers.indexOf(header);
-//                            row[index] = formValue.getValue().toString();
-//                        }
-//                    }
-//                }
-//                writer.writeNext(row);
-//            }
-//
-//            try {
-//				writer.close();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//            return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-//        });
 	}
 
 	public static StreamResource createTransposedDataFromIndexListDemo(CampaignFormDataCriteria criteria) {
@@ -238,7 +381,8 @@ public final class DownloadTransposedDaywiseDataUtility {
 				}
 			}
 		}
-
+		System.out.println("===============uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt"
+				+ uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt);
 		List<String> columnNames = new ArrayList<>();
 		columnNames.add("DAY");
 		// Generate and write columns to CSV writer
@@ -249,6 +393,8 @@ public final class DownloadTransposedDaywiseDataUtility {
 			fieldIdPositions.put(fieldGroup, ageGroupIndex);
 			ageGroupIndex += 1;
 		}
+		System.out.println("===============columnNamescolumnNamescolumnNamescolumnNames"
+				+ uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt);
 
 		Map<String, Map<String, String>> dayValueMap = new HashMap<>();
 

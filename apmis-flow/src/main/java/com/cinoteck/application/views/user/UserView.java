@@ -56,6 +56,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.Query;
@@ -779,30 +781,114 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	}
 
 	// new user... dialog with no data in it
-	public void editUser(boolean isEdMode) {
+//	public void editUser(boolean isEdMode) {
+//
+//		isNewUser = true;
+//		UserDto user = new UserDto();
+//
+//		mainContainer.remove(userForm);
+//		configureForm(user);
+//		mainContainer.add(userForm);
+//
+//		// configureForm(user); //this make sure the userform dialog is a new container
+//		userForm.createPassword.setVisible(false);
+//		userForm.setUser(user);
+////		form.addUserFieldValueChangeEventListener(this::suggestUserName);
+//		userForm.setVisible(true);
+//		userForm.setSizeFull();
+//		grid.setVisible(false);
+//		setFiltersVisible(false);
+//		userForm.binder.forField(userForm.userName)
+//		.withValidator(e->validateUserName(userForm.userName.getValue(), userForm.save))
+//		.asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+//		.bind(UserDto::getUserName, UserDto::setUserName);
+//		userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
+//		userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
+//		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
+//		userForm.userName.addValueChangeListener(e -> checkIfUserNameExists());
+//	}
+//	
+//	public static ValidationResult validateUserName(String value, Button save) {
+//	try {
+//		System.out.println(value + "Value collection ");
+//		UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
+//
+//		if (checkNewusernamefromDB != null) {
+//			save.setEnabled(false);
+//			return ValidationResult.error("Username Exists");
+//		} else {
+////			UserRole.validate(value);
+//			save.setEnabled(true);
+//
+//			return ValidationResult.ok();
+//		}
+//
+//	} catch (Exception e) {
+////    	Notification.show(e.getMessage());
+//		return ValidationResult.error("Username culd not be validated ");
+//	}
+//}
+	
+	public void editUser(boolean isEditMode) {
+	    isNewUser = true;
+	    UserDto user = new UserDto();
 
-		isNewUser = true;
-		UserDto user = new UserDto();
+	    mainContainer.remove(userForm);
+	    configureForm(user);
+	    mainContainer.add(userForm);
 
-		mainContainer.remove(userForm);
-		configureForm(user);
-		mainContainer.add(userForm);
+	    userForm.createPassword.setVisible(false);
+	    userForm.setUser(user);
+	    userForm.setVisible(true);
+	    userForm.setSizeFull();
+	    grid.setVisible(false);
+	    setFiltersVisible(false);
 
-		// configureForm(user); //this make sure the userform dialog is a new container
-		userForm.createPassword.setVisible(false);
-		userForm.setUser(user);
-//		form.addUserFieldValueChangeEventListener(this::suggestUserName);
-		userForm.setVisible(true);
-		userForm.setSizeFull();
-		grid.setVisible(false);
-		setFiltersVisible(false);
-		userForm.binder.forField(userForm.userName).withValidator(userForm::validateUserName).asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
-		.bind(UserDto::getUserName, UserDto::setUserName);
-		userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
-		userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
-		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
-		userForm.userName.addValueChangeListener(e -> checkIfUserNameExists());
+	    // Set up the binder for the username field
+	    userForm.binder.forField(userForm.userName)
+	        .withValidator(this::validateUserName)
+	        .asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+	        .bind(UserDto::getUserName, UserDto::setUserName);
+
+	    userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
+	    userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
+	    userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
+	    userForm.userName.addValueChangeListener(e -> checkIfUserNameIsExisting());
 	}
+
+	public ValidationResult validateUserName(String value, ValueContext context) {
+	    try {
+	        UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
+
+	        if (checkNewusernamefromDB != null) {
+	            userForm.save.setEnabled(false);
+	            userForm.userName.clear();
+//	            ValidationResult.error("Username Exists");
+	            return ValidationResult.error("Username Exists");
+	        } else {
+	            userForm.save.setEnabled(true);
+	            return ValidationResult.ok();
+	        }
+	    } catch (Exception e) {
+	        return ValidationResult.error("Username could not be validated");
+	    }
+	}
+
+	public void checkIfUserNameIsExisting() {
+	    ValidationResult result = validateUserName(userForm.userName.getValue(), new ValueContext());
+	    if (result.isError()) {
+	    	Notification notification = Notification.show("Username Exists", 5000, Position.MIDDLE);
+	    	notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+	        userForm.userName.setErrorMessage(result.getErrorMessage());
+	        userForm.userName.setInvalid(true);
+	        userForm.save.setEnabled(false);
+	    } else {
+	        userForm.userName.setInvalid(false);
+	        userForm.save.setEnabled(true);
+	    }
+	}
+
 
 	private void updateRowCount() {
 
@@ -906,19 +992,20 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 			} else {
-				System.out.println("else11111111111 kicked ----------------------------");
+//				System.out.println("else11111111111 kicked ----------------------------");
 
 				userForm.userName.setErrorMessage("Username exists");
 			}
 			
 		}else {
 			
-			System.out.println("else kicked ----------------------------");
-			
+//			System.out.println("else kicked ----------------------------+ userForm.lastName.getValue()" + userForm.lastName.getValue());
+//			System.out.println("else kicked ---------------------------- userForm.userName.getValue() +" + userForm.userName.getValue() );
+
 			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
 					.getByUserName(userForm.userName.getValue() + userForm.lastName.getValue());
 			
-			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB +  "yyyy "+userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
+//			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB +  "yyyy "+userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
 
 			
 			if (checkNewusernamefromDB == null) {
@@ -928,13 +1015,12 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 				userForm.save.setEnabled(true);
 			} else {
 				
-				System.out.println("222222222222222 kicked ----------------------------");
+//				System.out.println("222222222222222 kicked ----------------------------");
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 				userForm.save.setEnabled(false);
-				Notification.show("Username Exists", 5000, Position.MIDDLE);
-//				NotificationVariant.LUMO_ERROR;
-				
+				Notification notification = Notification.show("Username Exists", 5000, Position.MIDDLE);
+		    	notification.addThemeVariants(NotificationVariant.LUMO_ERROR);				
 //				Notification.show("Username Exists");
 				
 				userForm.userName.addValueChangeListener(e->{

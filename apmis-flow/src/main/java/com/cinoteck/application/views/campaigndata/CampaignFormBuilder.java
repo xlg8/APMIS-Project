@@ -765,8 +765,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
+					toggle.getStyle().set("color", "Green");
+					toggle.getStyle().set("background", "white ");
 
 					toggle.setClassName("customTextWrap");
+
 
 					HashMap<Boolean, String> map = new HashMap<>();
 					map.put(true, "Yes");
