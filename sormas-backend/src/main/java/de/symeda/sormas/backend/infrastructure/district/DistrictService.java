@@ -223,6 +223,8 @@ public class DistrictService extends AbstractInfrastructureAdoService<District> 
 						cb.or(cb.equal(from.get(District.ARCHIVED), false), cb.isNull(from.get(District.ARCHIVED))));
 			} else if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
 				filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(from.get(District.ARCHIVED), true));
+			}else if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ALL) {
+				filter = CriteriaBuilderHelper.and(cb, filter);
 			}
 		}
 

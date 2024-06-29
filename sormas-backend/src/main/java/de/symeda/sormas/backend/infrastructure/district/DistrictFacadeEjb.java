@@ -136,7 +136,7 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 	public List<DistrictReferenceDto> getAllActiveByRegion(String regionUuid) {
 
 		Region region = regionService.getByUuid(regionUuid);
-		return region.getDistricts().stream().filter(d -> !d.isArchived()).map(f -> toReferenceDto(f))
+		return region.getDistricts().stream().filter(d -> !d.isArchived() && d.getName() != null && d.getExternalId() != null).map(f -> toReferenceDto(f))
 				.collect(Collectors.toList());
 	}
 
@@ -213,13 +213,20 @@ public class DistrictFacadeEjb extends AbstractInfrastructureEjb<District, Distr
 				cb.equal(district.get(District.ARCHIVED), false), cb.isNotNull(district.get(District.ARCHIVED)));
 		Predicate filterxx = cb.and(cb.isNotNull(district.get(District.EXTERNAL_ID)),
 				cb.equal(district.get(District.ARCHIVED), true), cb.isNotNull(district.get(District.ARCHIVED)));
+		Predicate filterForAll = cb.and(cb.isNotNull(district.get(District.ARCHIVED)), cb.isNotNull(district.get(District.EXTERNAL_ID)));
+
+		System.out.println(criteria.getRelevanceStatus() + "criteria relevance status ---------------------");
 
 		if (filter != null) {
+			
 			if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
 				cq.where(filter, filterxx);
 
-			} else {
+			} else if (criteria.getRelevanceStatus() == EntityRelevanceStatus.ACTIVE){
 				cq.where(filter, filterx);
+
+			} else if (criteria.getRelevanceStatus().equals("All")){
+				cq.where(filter, filterForAll);
 
 			}
 //			cq.where(filter, filterx);
