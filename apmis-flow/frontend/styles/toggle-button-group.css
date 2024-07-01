@@ -1,13 +1,13 @@
-
-.toggle-button-group  vaadin-horizontal-layout vaadin-button:focus{
-	background-color: green;
-	color:white;
-}
-
 .toggle-button-group  vaadin-horizontal-layout vaadin-button{
 background-color: white;
 	color: green;
 }
+
+.toggle-button-group  vaadin-horizontal-layout vaadin-button:focus{
+background-color: white;
+	color: green;
+}
+
 
 .toggle-button-group-button-h {
     border-style: solid;
@@ -49,5 +49,10 @@ background-color: white;
 .toggle-button-group-last-button-v {
     border-radius: 0 0 5px 5px;
     border-width: 1px 1px 1px 1px;
+}
+
+.selectedItemX {
+    background-color: white !important;
+    color: green !important;
 }
 

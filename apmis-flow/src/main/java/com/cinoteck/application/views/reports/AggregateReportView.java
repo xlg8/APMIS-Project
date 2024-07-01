@@ -247,6 +247,7 @@ public class AggregateReportView extends VerticalLayout implements RouterLayout 
 				districtCombo, importanceSwitcher, resetHandler, exportReport, anchor);
 
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (!actionButtonlayout.isVisible()) {
 				actionButtonlayout.setVisible(true);
 				displayFilters.setText(I18nProperties.getCaption(Captions.hideFilters));

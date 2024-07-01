@@ -184,7 +184,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	public static final String DATABASE_NAME = "sormas.db";
 	// any time you make changes to your database objects, you may have to increase the database version
 
-	public static final int DATABASE_VERSION = 342;
+	public static final int DATABASE_VERSION = 343;
 
 	private static DatabaseHelper instance = null;
 
@@ -3136,7 +3136,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 					
 					//Attemping to fix error of database case from last @sundayadu commit 
-					//where current version at the top instance was set at 342 with a 341 query 
+					//where current version at the top instance was set at 342 without a 341 query
 					//This query is supposed to create the table if it does not exist, but if it 
 					//does exists, the creat eprocess would be skipped and it will pass
 					//This is not expected to cause any problem for the mobile devices -- @devseg
@@ -3157,6 +3157,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 									+ "		uuid VARCHAR NOT NULL,"
 									+ "		UNIQUE (snapshot ASC, uuid ASC)"
 									+ ");");
+
+				case 342:
+					currentVersion = 342;
+					getDao(Community.class).executeRaw(
+							"ALTER TABLE community ADD COLUMN 'externalid' INTEGER; ");
 
 
 

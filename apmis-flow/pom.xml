@@ -212,6 +212,12 @@
 			<artifactId>firebase-admin</artifactId>
 			<version>9.2.0</version>
 		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-csv</artifactId>
+    		<version>1.8</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.vaadin.highcharts/highcharts 
 			<dependency>
 				<groupId>org.vaadin.highcharts</groupId>

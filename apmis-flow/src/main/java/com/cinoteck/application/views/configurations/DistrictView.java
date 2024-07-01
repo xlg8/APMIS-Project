@@ -330,6 +330,7 @@ public class DistrictView extends VerticalLayout {
 				new Icon(VaadinIcon.SLIDERS));
 		displayFilters.getStyle().set("margin-left", "1em");
 		displayFilters.addClickListener(e -> {
+			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			if (layout.isVisible() == false) {
 				layout.setVisible(true);
 				relevancelayout.setVisible(true);
@@ -468,6 +469,7 @@ public class DistrictView extends VerticalLayout {
 			return status.toString();
 		});
 		relevanceStatusFilter.addValueChangeListener(e -> {
+			System.out.println(e.getValue() + " 7777777777777777777777777");
 			if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ACTIVE)) {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
@@ -476,7 +478,11 @@ public class DistrictView extends VerticalLayout {
 				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
 						event -> handleArchiveDearchiveAction());
 
-			} else {
+			}else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ALL)) {
+				subMenu.removeAll();
+				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
+
+			}else {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
 			}

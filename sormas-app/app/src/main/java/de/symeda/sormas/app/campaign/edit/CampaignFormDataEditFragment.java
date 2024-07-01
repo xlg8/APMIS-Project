@@ -984,6 +984,23 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
 
                         });
 
+                        if (type == CampaignFormElementType.NUMBER && campaignFormElement.getId().equalsIgnoreCase("villageCode")) {
+                            dynamicField.addValueChangedListener(e->{
+                                if (dynamicField.getValue().toString() != null && dynamicField.getValue().toString() != ""){
+                                    if (record != null && record.getCommunity() != null) {
+
+
+                                        if ( dynamicField.getValue().toString().length() == 3) {
+                                            String inputValue = e.getValue().toString();
+                                            if (inputValue.length() == 3) {
+                                                handleVillageCodeValueGeneration(inputValue, dynamicField);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
                         final String dependingOn = campaignFormElement.getDependingOn();
                         if (dependingOn != null) {
                             handleDependingOn(fieldMap, campaignFormElement, dynamicField);
@@ -994,6 +1011,8 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
                             handleExpression(expressionParser, formValues, type, dynamicField, expressionString, ignoreDisable);
                             expressionMap.put(campaignFormElement, dynamicField);
                         }
+
+
                     } else if (type == CampaignFormElementType.SECTION) {
                         if (campaignFormElement.getDependingOn() == null) {
                             ControlPropertyField dynamicField;
@@ -1233,6 +1252,32 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
 
         }
         return view;
+    }
+
+
+    private void handleVillageCodeValueGeneration(String inputValue, ControlPropertyField dynamicField) {
+        String cCode = record.getCommunity().getExternalid().toString();
+        switch (cCode.length()) {
+            case 4:
+                dynamicField.setValue(cCode + "000" + inputValue);
+                break;
+            case 5:
+                dynamicField.setValue(cCode + "00" + inputValue);
+                break;
+            case 6:
+                dynamicField.setValue(cCode + "0" + inputValue);
+                break;
+            case 7:
+                dynamicField.setValue(cCode + "" + inputValue);
+                break;
+            case 8:
+                // when the length of the ccode is 8 what we're doing here is to
+                //delete the first charcter and return a new bvalue
+                String firstCharacterDelete = inputValue.substring(1);
+
+                dynamicField.setValue(cCode + "" + firstCharacterDelete);
+                break;
+        }
     }
 
 

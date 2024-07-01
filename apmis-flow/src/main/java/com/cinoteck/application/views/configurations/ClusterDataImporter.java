@@ -2,7 +2,9 @@ package com.cinoteck.application.views.configurations;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -14,9 +16,13 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
@@ -82,7 +88,11 @@ public class ClusterDataImporter extends DataImporter {
 	UserProvider userProvider = new UserProvider();
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	private ValueSeparator csvSeparator;
 
+    // Constructor and other methods...
+
+    
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
 	public ClusterDataImporter(File inputFile, boolean hasEntityClassRow, CommunityDto currentUser,
@@ -93,6 +103,25 @@ public class ClusterDataImporter extends DataImporter {
 
 		this.clusterFacade = FacadeProvider.getCommunityFacade();
 	}
+	public ValueSeparator getCsvSeparator() {
+        return csvSeparator;
+    }
+	
+	  public List<String> extractColumnValues(String columnName) throws IOException {
+	        Set<String> columnValues = new HashSet<>();
+
+	        try (FileReader reader = new FileReader(inputFile);
+	             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(FacadeProvider.getConfigFacade().getCsvSeparator()))) {
+	            	for (CSVRecord csvRecord : csvParser) {
+		                columnValues.add(csvRecord.get(columnName));
+		            }
+	           
+	        }
+
+	        return new ArrayList<>(columnValues);
+	    }
+
+	
 
 	@Override
 	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
@@ -111,7 +140,20 @@ public class ClusterDataImporter extends DataImporter {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));
 			return ImportLineResult.ERROR;
 		}
+		List<Long> comuityExternalIdsInFile = new ArrayList<>();
 
+		for (int i = 0; i < entityProperties.length; i++) {
+			if (C_CODE.equalsIgnoreCase(entityProperties[i])) {
+				if (!DataHelper.isNullOrEmpty(values[i])) {
+					
+					Long externalIdValue = Long.parseLong(values[i]);
+					comuityExternalIdsInFile.add(externalIdValue);
+//					clusters = FacadeProvider.getCommunityFacade().get
+					
+				}
+			}
+		}
+		System.out.println(comuityExternalIdsInFile +"ttttttttttttttttTTTTTTTTTTTTT--------------000000000000000000000000000000000");
 		// Lets run some validations
 
 		RegionReferenceDto province = null;
@@ -297,7 +339,7 @@ public class ClusterDataImporter extends DataImporter {
 //							} else {
 
 							if (clusterNameList.size() >= 0) {
-								// System.out.println("6666666666666666666666666666666666666666666666666666");
+								 System.out.println(clusterName_ + "6666666666666666666666666666666666666666666666666666" + clusterName_);
 
 								List<DistrictReferenceDto> existingDistricts = FacadeProvider.getDistrictFacade()
 										.getByExternalId(district_xt_id, false);
@@ -375,74 +417,152 @@ public class ClusterDataImporter extends DataImporter {
 		List<CommunityDto> newUserLinetoSave = new ArrayList<>();
 
 		if (isOverWrite && isOverWriteEnabledCode) {
-			CommunityDto newUserLine_ = FacadeProvider.getCommunityFacade().getByUuid(clusters.get(0).getUuid());
-			newUserLine_.setName(finalClustername);
-			newUserLine_.setRegion(finalRegion);
-			newUserLine_.setDistrict(finalDistrict);
-			newUserLine_.setClusterNumber(clusterNo);
-			newUserLine_.setExternalId(clusterid);
+			
+			if(clusters.size() != 0) {
+				CommunityDto newUserLine_ = FacadeProvider.getCommunityFacade().getByUuid(clusters.get(0).getUuid());
+				newUserLine_.setName(finalClustername);
+				newUserLine_.setRegion(finalRegion);
+				newUserLine_.setDistrict(finalDistrict);
+				newUserLine_.setClusterNumber(clusterNo);
+				newUserLine_.setExternalId(clusterid);
 
-			boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
-					new Function<ImportCellData, Exception>() {
+				boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+						new Function<ImportCellData, Exception>() {
 
-						@Override
-						public Exception apply(ImportCellData cellData) {
-							System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
+							@Override
+							public Exception apply(ImportCellData cellData) {
+								System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
 
-							try {
+								try {
 
-								if (CommunityDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setName(cellData.getValue());
+									if (CommunityDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setName(cellData.getValue());
+									}
+									if (CommunityDto.CLUSTER_NUMBER.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setClusterNumber(Integer.parseInt(cellData.getValue()));
+									}
+									if (CommunityDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+									}
+									if (CommunityDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										Long externalId = Long.parseLong(cellData.getValue());
+										List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
+												.getByExternalId(externalId, false);
+										RegionReferenceDto areaReferenceDto = areasz.get(0);
+										newUserLine_.setRegion(areaReferenceDto);
+//											newUserLine_.setArea(cellData.getValue());
+									}
+
+									if (CommunityDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										Long externalId = Long.parseLong(cellData.getValue());
+										List<DistrictReferenceDto> areasz = FacadeProvider.getDistrictFacade()
+												.getByExternalId(externalId, false);
+										DistrictReferenceDto districtReferenceDto = areasz.get(0);
+										newUserLine_.setDistrict(districtReferenceDto);
+//											newUserLine_.setArea(cellData.getValue());
+									}
+
+									newUserLinetoSave.add(newUserLine_);
+
+								} catch (NumberFormatException e) {
+									System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+
+									return e;
 								}
-								if (CommunityDto.CLUSTER_NUMBER.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setClusterNumber(Integer.parseInt(cellData.getValue()));
-								}
-								if (CommunityDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
-								}
-								if (CommunityDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									Long externalId = Long.parseLong(cellData.getValue());
-									List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
-											.getByExternalId(externalId, false);
-									RegionReferenceDto areaReferenceDto = areasz.get(0);
-									newUserLine_.setRegion(areaReferenceDto);
-//										newUserLine_.setArea(cellData.getValue());
-								}
 
-								if (CommunityDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									Long externalId = Long.parseLong(cellData.getValue());
-									List<DistrictReferenceDto> areasz = FacadeProvider.getDistrictFacade()
-											.getByExternalId(externalId, false);
-									DistrictReferenceDto districtReferenceDto = areasz.get(0);
-									newUserLine_.setDistrict(districtReferenceDto);
-//										newUserLine_.setArea(cellData.getValue());
-								}
-
-								newUserLinetoSave.add(newUserLine_);
-
-							} catch (NumberFormatException e) {
-								System.out.println("++++++++++++++++Error found++++++++++++++++ ");
-
-								return e;
+								return null;
 							}
+						});
 
-							return null;
-						}
-					});
+				if (!usersDataHasImportError) {
 
-			if (!usersDataHasImportError) {
+					try {
+						FacadeProvider.getCommunityFacade().save(newUserLinetoSave.get(0), true);
 
-				try {
-					FacadeProvider.getCommunityFacade().save(newUserLinetoSave.get(0), true);
-
-					return ImportLineResult.SUCCESS;
-				} catch (ValidationRuntimeException e) {
-					writeImportError(values, values + " already exists.");
+						return ImportLineResult.SUCCESS;
+					} catch (ValidationRuntimeException e) {
+						writeImportError(values, values + " already exists.");
+						return ImportLineResult.ERROR;
+					}
+				} else {
 					return ImportLineResult.ERROR;
 				}
-			} else {
-				return ImportLineResult.ERROR;
+				
+			}else {
+				
+				CommunityDto newUserLine_ = CommunityDto.build();
+
+//				CommunityDto newUserLine_ = FacadeProvider.getCommunityFacade().getByUuid(clusters.get(0).getUuid());
+				newUserLine_.setName(finalClustername);
+				newUserLine_.setRegion(finalRegion);
+				newUserLine_.setDistrict(finalDistrict);
+				newUserLine_.setClusterNumber(clusterNo);
+				newUserLine_.setExternalId(clusterid);
+
+				boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
+						new Function<ImportCellData, Exception>() {
+
+							@Override
+							public Exception apply(ImportCellData cellData) {
+								System.out.println("++++++++++++++++111111111: " + cellData.getEntityPropertyPath()[0]);
+
+								try {
+
+									if (CommunityDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setName(cellData.getValue());
+									}
+									if (CommunityDto.CLUSTER_NUMBER.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setClusterNumber(Integer.parseInt(cellData.getValue()));
+									}
+									if (CommunityDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+									}
+									if (CommunityDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										Long externalId = Long.parseLong(cellData.getValue());
+										List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
+												.getByExternalId(externalId, false);
+										RegionReferenceDto areaReferenceDto = areasz.get(0);
+										newUserLine_.setRegion(areaReferenceDto);
+//											newUserLine_.setArea(cellData.getValue());
+									}
+
+									if (CommunityDto.DISTRICT.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										Long externalId = Long.parseLong(cellData.getValue());
+										List<DistrictReferenceDto> areasz = FacadeProvider.getDistrictFacade()
+												.getByExternalId(externalId, false);
+										DistrictReferenceDto districtReferenceDto = areasz.get(0);
+										newUserLine_.setDistrict(districtReferenceDto);
+//											newUserLine_.setArea(cellData.getValue());
+									}
+
+									newUserLinetoSave.add(newUserLine_);
+
+								} catch (NumberFormatException e) {
+									System.out.println("++++++++++++++++Error found++++++++++++++++ ");
+
+									return e;
+								}
+
+								return null;
+							}
+						});
+
+				if (!usersDataHasImportError) {
+
+					try {
+						FacadeProvider.getCommunityFacade().save(newUserLinetoSave.get(0), true);
+
+						return ImportLineResult.SUCCESS;
+					} catch (ValidationRuntimeException e) {
+						writeImportError(values, values + " already exists.");
+						return ImportLineResult.ERROR;
+					}
+				} else {
+					return ImportLineResult.ERROR;
+				}
+				
 			}
+		
 
 		} else {
 			CommunityDto newUserLine = CommunityDto.build();

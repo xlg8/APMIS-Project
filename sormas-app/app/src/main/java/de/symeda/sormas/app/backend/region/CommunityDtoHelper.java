@@ -68,6 +68,8 @@ public class CommunityDtoHelper extends AdoDtoHelper<Community, CommunityDto> {
 	public void fillInnerFromDto(Community target, CommunityDto source) {
 		target.setName(source.getName());
 		target.setClusterNumber(source.getClusterNumber());
+		target.setExternalid(source.getExternalId());
+
 		if (lastDistrict == null || !lastDistrict.getUuid().equals(source.getDistrict().getUuid())) {
 			lastDistrict = DatabaseHelper.getDistrictDao().getByReferenceDto(source.getDistrict());
 		}

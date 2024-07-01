@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -64,16 +66,15 @@ public class ImportClusterDataDialog extends Dialog {
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
-	public Checkbox overWriteExistingData = new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
+	public Checkbox overWriteExistingData = new Checkbox(
+			I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
 	boolean overWrite = false;
 
-	
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
-	
 
 	public ImportClusterDataDialog() {
-		
+
 		this.setHeaderTitle(I18nProperties.getString(Strings.clusterImportModule));
 //		this.getStyle().set("color" , "#0D6938");
 
@@ -93,7 +94,7 @@ public class ImportClusterDataDialog extends Dialog {
 		H3 step2 = new H3();
 		step2.add(I18nProperties.getString(Strings.step1));
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
-		
+
 		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
 		downloadImportTemplate.setIcon(downloadImportTemplateButtonIcon);
 		downloadImportTemplate.addClickListener(e -> {
@@ -107,8 +108,7 @@ public class ImportClusterDataDialog extends Dialog {
 				importFacade.generateCommunityImportTemplateFile();
 
 				templateFileName = "Cluster_Import_Template.csv";
-				
-				
+
 				templateFilePath = importFacade.getCommunityImportTemplateFilePath();
 
 				String content = FacadeProvider.getImportFacade().getImportTemplateContent(templateFilePath);
@@ -154,49 +154,87 @@ public class ImportClusterDataDialog extends Dialog {
 			overWrite = e.getValue();
 		});
 		Label sd = new Label(I18nProperties.getCaption(Captions.upload));
-		
+
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		FileUploader buffer = new FileUploader();  
-        Upload upload = new Upload(buffer);
-        
-        
-    	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
-    	startDataImport.setIcon(startImportButtonIcon);
-        startDataImport.setVisible(false);
-        upload.setAcceptedFileTypes("text/csv");
-        upload.addSucceededListener(event -> {
-        	
-        	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(true);
-        	
-        });
-		
-        UserProvider usr = new UserProvider();
+		FileUploader buffer = new FileUploader();
+		Upload upload = new Upload(buffer);
+
+		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
+		startDataImport.setIcon(startImportButtonIcon);
+		startDataImport.setVisible(false);
+		upload.setAcceptedFileTypes("text/csv");
+		upload.addSucceededListener(event -> {
+
+			file_ = new File(buffer.getFilename());
+			startDataImport.setVisible(true);
+
+		});
+
+		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
 //		DistrictDto regionDto = new DistrictDto();
-		CommunityDto regionDto = new CommunityDto();
+		CommunityDto clusterDto = new CommunityDto();
+//		startDataImport.addClickListener(ed -> {
+//
+//			startIntervalCallback();
+//			try {
+//
+//				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+//				
+//				DataImporter importer = new ClusterDataImporter(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+//				
+//				
+//				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
+//			} catch (IOException | CsvValidationException e) {
+//				Notification.show(
+//					I18nProperties.getString(Strings.headingImportFailed) +" : "+
+//					I18nProperties.getString(Strings.messageImportFailed));
+//			}
+//			
+//			
+//		});
+
 		startDataImport.addClickListener(ed -> {
-
 			startIntervalCallback();
-			try {
+			List<String> cCodeColumnValues = new ArrayList<>();
+			List<String> dCodeColumnValues = new ArrayList<>();
 
-				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+			try {
+				ClusterDataImporter importer = new ClusterDataImporter(file_, false, clusterDto, ValueSeparator.COMMA,
+						overWrite);
 				
-				DataImporter importer = new ClusterDataImporter(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+				//Trying to read the csv file to extract values of specific columns 
+				//Eventual Goal is to finally get the list of all clusters from the db by their districts 
+				//upon retrieval i'd be archiving any cluster external id that is not amongst the cCodeColumnValues
+				
+				
+				//Forseeable problem: If we are getting the list at this point the result of the imports is not being considered at this point 
+				
+				cCodeColumnValues = importer.extractColumnValues("CCode"); // replace "Column_Name" with the
+				dCodeColumnValues = importer.extractColumnValues("DCode"); // replace "Column_Name" with the
+
+																		// actual column name
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
+
+				// Process the column values as needed
+//				columnValues.forEach(System.out::println);
+//				System.out.println(columnValues + "Column values ");
+
 			} catch (IOException | CsvValidationException e) {
-				Notification.show(
-					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-					I18nProperties.getString(Strings.messageImportFailed));
+				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+						+ I18nProperties.getString(Strings.messageImportFailed));
+			} finally {
+				
+				System.out.println(dCodeColumnValues + "Column values " +  cCodeColumnValues);
+
+
 			}
-			
-			
 		});
 
 		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
-			
+		// downloadErrorReportButton.setVisible(false);
+
 		Icon downloadErrorButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
 //		donloadUserLodReport.setIcon(downloadErrorButtonIcon);
 //		donloadUserLodReport.setVisible(false);
@@ -205,36 +243,24 @@ public class ImportClusterDataDialog extends Dialog {
 //			
 //			downloadCredntialsReportButton.getElement().callJsFunction("click");
 //		});
-		
-		
-		
-		
-		
-		
-		
+
 		H3 step5 = new H3();
 		step5.add(I18nProperties.getString(Strings.step3));
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 //		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
+		// downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicked to download error "+downloadErrorReportButton.getHref());
-			
-		downloadErrorReportButton.getElement().callJsFunction("click");
+			Notification.show("Button clicked to download error " + downloadErrorReportButton.getHref());
+
+			downloadErrorReportButton.getElement().callJsFunction("click");
 		});
-		
-		
-		
+
 		anchorSpan.add(downloadErrorReportButton);
 //		anchorSpanCredential.add(downloadCredntialsReportButton);
-		
-		
-		
-		
-		
+
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
 //		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -242,23 +268,24 @@ public class ImportClusterDataDialog extends Dialog {
 //		startButton.addClickListener(e -> {
 //			startIntervalCallback();
 //		});
-		
+
 //		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
-		
-		//hacky: hide the anchor
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
+				upload, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+
+		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
 //		anchorSpanCredential.getStyle().set("display", "none");
-		
+
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
 			close();
 			stopIntervalCallback();
-			
+
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 
@@ -272,7 +299,7 @@ public class ImportClusterDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-	//	Notification.show("dialog detected... User wont logout");
+		// Notification.show("dialog detected... User wont logout");
 	}
 
 	private void startIntervalCallback() {
@@ -300,9 +327,6 @@ public class ImportClusterDataDialog extends Dialog {
 
 		}
 	}
-	
-	
-	
 
 	private void stopPullers() {
 		UI.getCurrent().setPollInterval(-1);
@@ -316,7 +340,6 @@ public class ImportClusterDataDialog extends Dialog {
 		Page page = ui.getPage();
 		page.reload();
 	}
-	
 
 	protected void resetDownloadErrorReportButton() {
 		downloadErrorReportButton.removeAll();
@@ -327,15 +350,14 @@ public class ImportClusterDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
+																	// I18nProperties.getCaption(Captions.downloadErrorReport));
+																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-		
+
 	}
 
-
-	
-	
 }

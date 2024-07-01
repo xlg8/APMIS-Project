@@ -657,7 +657,7 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                                 yes_no = resources.getString(R.string.yes);
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
                             } else if(value.equalsIgnoreCase("no")){
-                                yes_no = resources.getString(R.string.yes);
+                                yes_no = resources.getString(R.string.no);
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
                             }
                          } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
