@@ -993,7 +993,7 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
                                         if ( dynamicField.getValue().toString().length() == 3) {
                                             String inputValue = e.getValue().toString();
                                             if (inputValue.length() == 3) {
-                                                handleValueSetting(inputValue, dynamicField);
+                                                handleVillageCodeValueGeneration(inputValue, dynamicField);
                                             }
                                         }
                                     }
@@ -1255,7 +1255,7 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
     }
 
 
-    private void handleValueSetting(String inputValue, ControlPropertyField dynamicField) {
+    private void handleVillageCodeValueGeneration(String inputValue, ControlPropertyField dynamicField) {
         String cCode = record.getCommunity().getExternalid().toString();
         switch (cCode.length()) {
             case 4:

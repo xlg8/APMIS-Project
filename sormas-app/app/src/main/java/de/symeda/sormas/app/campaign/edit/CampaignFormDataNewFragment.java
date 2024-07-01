@@ -1078,7 +1078,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                                         if ( dynamicField.getValue().toString().length() == 3) {
                                             String inputValue = e.getValue().toString();
                                             if (inputValue.length() == 3) {
-                                                handleValueSetting(inputValue, dynamicField);
+                                                handleVillageCodeValueGeneration(inputValue, dynamicField);
                                             }
                                         }
                                     }
@@ -1222,7 +1222,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
         return view;
     }
 
-    private void handleValueSetting(String inputValue, ControlPropertyField dynamicField) {
+    private void handleVillageCodeValueGeneration(String inputValue, ControlPropertyField dynamicField) {
             String cCode = record.getCommunity().getExternalid().toString();
             switch (cCode.length()) {
                 case 4:
@@ -1240,6 +1240,7 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                 case 8:
                     // when the length of the ccode is 8 what we're doing here is to
                     //delete the first charcter and return a new bvalue
+                    //since the village code most likelyh start with "0"
 
                     String firstCharacterDelete = inputValue.substring(1);
 

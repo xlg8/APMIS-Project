@@ -180,15 +180,23 @@ public class ImportPopulationDataDialog extends Dialog {
 
 			
 			try {
+				
+				System.out.println("Start import Clicked + 111111111111111111111111111111");
 
 				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
 				
 				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA, overWrite);
-//				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException  e) {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
 					I18nProperties.getString(Strings.messageImportFailed));
+			} catch (CsvValidationException e1) {
+				// TODO Auto-generated catch block
+				Notification.show(
+						I18nProperties.getString(Strings.headingImportFailed) +" : "+
+						I18nProperties.getString(Strings.messageImportFailed));
+				e1.printStackTrace();
 			}
 finally {
 				

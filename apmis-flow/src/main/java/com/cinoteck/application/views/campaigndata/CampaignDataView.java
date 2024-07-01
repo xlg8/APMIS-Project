@@ -731,17 +731,17 @@ public class CampaignDataView extends VerticalLayout {
 				//the export button would download a file with the numbe rof criteria that has baaen send out 
 				//i.e if this filter value changes 10 times, the next time you click the button, it downloads 10 files 
 				//if it chnges again and you click the button, it down loads 11 times 
-				if(e.getValue().toString().contains("Day 1")) {
-					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
-
-					
-					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
-					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
-					transposdeDataAnchor.getElement().setAttribute("download", true);
-					exportTransposedDataButton.addClickListener(ex->{
-						transposdeDataAnchor.getElement().callJsFunction("click");
-					});
-				};
+//				if(e.getValue().toString().contains("Day 1")) {
+//					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
+//
+//					
+//					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+//					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
+//					transposdeDataAnchor.getElement().setAttribute("download", true);
+//					exportTransposedDataButton.addClickListener(ex->{
+//						transposdeDataAnchor.getElement().callJsFunction("click");
+//					});
+//				};
 				
 			} else {
 
