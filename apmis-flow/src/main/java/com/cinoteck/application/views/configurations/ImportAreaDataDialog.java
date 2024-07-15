@@ -56,6 +56,8 @@ public class ImportAreaDataDialog extends Dialog {
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + "Dry Run");
+
 	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
 	private Timer timer;
@@ -158,13 +160,17 @@ public class ImportAreaDataDialog extends Dialog {
         
     	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
     	startDataImport.setIcon(startImportButtonIcon);
+    	startImportDryRun.setIcon(startImportButtonIcon);
         startDataImport.setVisible(false);
+    	startImportDryRun.setVisible(false);
+
         upload.setAcceptedFileTypes("text/csv");
         upload.addSucceededListener(event -> {
         	
         	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(true);
-        	
+			 startDataImport.setVisible(false);
+		    	startImportDryRun.setVisible(true);
+
         });
 		
         UserProvider usr = new UserProvider();
@@ -184,6 +190,28 @@ public class ImportAreaDataDialog extends Dialog {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+
 					I18nProperties.getString(Strings.messageImportFailed));
+			}
+			
+			
+		});
+
+		
+		startImportDryRun.addClickListener(ed -> {
+			startIntervalCallback();
+			
+			try {
+
+				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+				
+				DataImporter importer = new AreaDataDryRunner(file_, false,userDto, areaDto, ValueSeparator.COMMA, overWrite);
+				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+			} catch (IOException | CsvValidationException e) {
+				Notification.show(
+					I18nProperties.getString(Strings.headingImportFailed) +" : "+
+					I18nProperties.getString(Strings.messageImportFailed));
+			}finally {
+				 startDataImport.setVisible(true);
+
 			}
 			
 			
@@ -239,7 +267,7 @@ public class ImportAreaDataDialog extends Dialog {
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startDataImport,
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startImportDryRun, startDataImport,
 				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 		
 		//hacky: hide the anchor
