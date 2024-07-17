@@ -142,7 +142,7 @@ public class CampaignDataView extends VerticalLayout {
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
-	Anchor transposdeDataAnchor = new Anchor("", I18nProperties.getCaption(Captions.export)+ "Transposed Data");
+	Anchor transposdeDataAnchor = new Anchor("", I18nProperties.getCaption(Captions.export) + "Transposed Data");
 
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	Paragraph countRowItems;
@@ -169,6 +169,11 @@ public class CampaignDataView extends VerticalLayout {
 
 	ComboBox<CampaignFormMetaReferenceDto> newForm = new ComboBox<>();
 	ComboBox<CampaignFormMetaReferenceDto> importFormData = new ComboBox<>();
+	
+	HorizontalLayout actionButtonlayout = new HorizontalLayout();
+	Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) + " Transposed Data");
+
+
 
 	public CampaignDataView() {
 
@@ -240,17 +245,15 @@ public class CampaignDataView extends VerticalLayout {
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 
-		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.setVisible(true);
 		actionButtonlayout.setAlignItems(Alignment.END);
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
-		
-		Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) +"Transposed Data");
+
 		exportTransposedDataButton.setIcon(new Icon(VaadinIcon.UPLOAD));
-				
+
 		exportButton.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 		});
@@ -726,23 +729,31 @@ public class CampaignDataView extends VerticalLayout {
 
 				reload();
 				configureColumnStyles(criteria);
+
+				// Known problem around here , depending on the number of times this filter
+				// value changes
+				// the export button would download a file with the numbe rof criteria that has
+				// baaen send out
+				// i.e if this filter value changes 10 times, the next time you click the
+				// button, it downloads 10 files
+				// if it chnges again and you click the button, it down loads 11 times
 				
-				//Known problem around here , depending on the number of times this filter value changes 
-				//the export button would download a file with the numbe rof criteria that has baaen send out 
-				//i.e if this filter value changes 10 times, the next time you click the button, it downloads 10 files 
-				//if it chnges again and you click the button, it down loads 11 times 
-//				if(e.getValue().toString().contains("Day 1")) {
-//					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
-//
-//					
-//					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
-//					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
-//					transposdeDataAnchor.getElement().setAttribute("download", true);
-//					exportTransposedDataButton.addClickListener(ex->{
-//						transposdeDataAnchor.getElement().callJsFunction("click");
-//					});
-//				};
+				checkIfExportTransposedDataButtonIsAttached();
 				
+				if (e.getValue().toString().contains("Day 1")) {
+
+					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
+
+					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+					transposdeDataAnchor.setHref(
+							downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
+					transposdeDataAnchor.getElement().setAttribute("download", true);
+					exportTransposedDataButton.addClickListener(ex -> {
+						transposdeDataAnchor.getElement().callJsFunction("click");
+					});
+				}
+				;
+
 			} else {
 
 				importanceSwitcher.clear();
@@ -751,11 +762,7 @@ public class CampaignDataView extends VerticalLayout {
 			}
 			updateRowCount();
 			configureColumnStyles(criteria);
-			
-			
-			
 
-		
 		});
 
 		regionCombo.setClearButtonVisible(true);
@@ -1030,6 +1037,20 @@ public class CampaignDataView extends VerticalLayout {
 		add(filterBlock);
 	}
 
+	public void checkIfExportTransposedDataButtonIsAttached() {
+		boolean exportButtonExists = actionButtonlayout.getChildren()
+				.anyMatch(component -> component.equals(exportTransposedDataButton));
+
+		boolean transposdeDataAnchorExists = actionButtonlayout.getChildren()
+				.anyMatch(component -> component.equals(transposdeDataAnchor));
+		
+		if (exportButtonExists && transposdeDataAnchorExists) {
+			actionButtonlayout.remove(exportTransposedDataButton, transposdeDataAnchor);
+		}else {
+			
+		}
+	}
+
 	public void removeColumnsSelectionn() {
 		grid.setSelectionMode(SelectionMode.NONE);
 	}
@@ -1058,7 +1079,6 @@ public class CampaignDataView extends VerticalLayout {
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			
 
 			for (FormAccess n : xx) {
 				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
@@ -1098,7 +1118,6 @@ public class CampaignDataView extends VerticalLayout {
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			
 
 			for (FormAccess n : xx) {
 				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))

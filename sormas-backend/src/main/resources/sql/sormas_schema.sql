@@ -10160,6 +10160,95 @@ INSERT INTO schema_version (version_number, comment) VALUES (468, 'Updating Trig
 
 
 
+CREATE TABLE public.areas_dryrun (
+	id int8 NOT NULL,
+	uuid varchar(36) NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	name varchar(512) NULL,
+	externalid_ varchar(512) NULL,
+	archived bool NULL DEFAULT false,
+	sys_period tstzrange NOT NULL,
+	externalid int8 NULL,
+	fa_af varchar(100) NULL,
+	ps_af varchar(100) NULL,
+	dryrun bool NOT NULL DEFAULT false,
+	CONSTRAINT areas_dryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT areas_dryrun_uuid_key UNIQUE (uuid),
+	CONSTRAINT unique_dryrun_extgernal_id UNIQUE (externalid)
+);
+
+
+CREATE OR REPLACE FUNCTION public.sync_areas_dryrun_insert()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    -- Ensure the areas_dryrun table is synchronized with areas table before insertion
+    INSERT INTO areas_dryrun (id, uuid, changedate, creationdate, "name", externalid_, archived, sys_period, externalid, fa_af, ps_af)
+    SELECT NEW.id, NEW.uuid, NEW.changedate, NEW.creationdate, NEW."name", NEW.externalid_, NEW.archived, NEW.sys_period, NEW.externalid, NEW.fa_af, NEW.ps_af
+    FROM areas
+    WHERE areas.id = NEW.id
+    ON CONFLICT (id) DO UPDATE 
+    SET uuid = EXCLUDED.uuid,
+        changedate = EXCLUDED.changedate,
+        creationdate = EXCLUDED.creationdate,
+        "name" = EXCLUDED."name",
+        externalid_ = EXCLUDED.externalid_,
+        archived = EXCLUDED.archived,
+        sys_period = EXCLUDED.sys_period,
+        externalid = EXCLUDED.externalid,
+        fa_af = EXCLUDED.fa_af,
+        ps_af = EXCLUDED.ps_af;
+
+    RETURN NEW;
+EXCEPTION
+    WHEN others THEN
+        RAISE NOTICE 'Error in sync_areas_dryrun_insert: %', SQLERRM;
+        RETURN NULL;
+END;
+$function$
+;
+
+
+
+
+
+CREATE TABLE public.areas_dryrun_history (
+	id int8 NOT NULL,
+	uuid varchar(36) NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	"name" varchar(512) NULL,
+	externalid_ varchar(512) NULL,
+	archived bool NULL,
+	sys_period tstzrange NOT NULL,
+	externalid int8 NULL
+);
+
+
+
+create trigger before_insert_sync before
+insert
+    on
+    public.areas_dryrun for each row execute function sync_areas_dryrun_insert();
+    
+    
+create trigger versioning_trigger before
+insert
+    or
+delete
+    or
+update
+    on
+    public.areas_dryrun for each row execute function versioning('sys_period',
+    'areas_dryrun_history',
+    'true');
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (469, 'Updating Trigger and funtion to update dryrun table ###Demo ');
+
 
 
 

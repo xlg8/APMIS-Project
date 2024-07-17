@@ -68,6 +68,7 @@ import de.symeda.sormas.api.labmessage.TestReportFacade;
 import de.symeda.sormas.api.messaging.MessageFacade;
 import de.symeda.sormas.api.outbreak.OutbreakFacade;
 import de.symeda.sormas.api.person.PersonFacade;
+import de.symeda.sormas.api.infrastructure.area.AreaDryRunFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.continent.ContinentFacade;
@@ -232,6 +233,9 @@ public class FacadeProvider {
 	
 	public static AreaFacade getAreatFacade() {
 		return get().lookupEjbRemote(AreaFacade.class);
+	}
+	public static AreaDryRunFacade getAreatDryRunFacade() {
+		return get().lookupEjbRemote(AreaDryRunFacade.class);
 	}
 
 	public static DistrictFacade getDistrictFacade() {
