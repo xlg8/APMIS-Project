@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.PopulationDataDryRunner;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -55,6 +56,8 @@ public class ImportPopulationDataDialog extends Dialog {
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
+	Button startDryRunImport = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 //	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
@@ -160,12 +163,17 @@ public class ImportPopulationDataDialog extends Dialog {
 		
         
         startDataImport.setVisible(false);
+        startDryRunImport.setVisible(false);
+
         upload.setAcceptedFileTypes("text/csv");
         
         upload.addSucceededListener(event -> {
         	
         	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(true);
+        	
+            startDryRunImport.setVisible(true);
+
+			 startDataImport.setVisible(false);
         	
         });
 		
@@ -209,6 +217,43 @@ finally {
 			
 			
 		});
+		
+		Icon startDryRunImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
+		startDryRunImport.setIcon(startImportButtonnIcon);
+		startDryRunImport.addClickListener(ed -> {
+			startIntervalCallback();
+
+			
+			try {
+				
+				System.out.println("Start import DryRun  Clicked + 111111111111111111111111111111");
+
+				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
+				
+				DataImporter importer = new PopulationDataDryRunner(file_, srDto, acmpDto, ValueSeparator.COMMA, overWrite);
+				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+			} catch (IOException  e) {
+				Notification.show(
+					I18nProperties.getString(Strings.headingImportFailed) +" : "+
+					I18nProperties.getString(Strings.messageImportFailed));
+			} catch (CsvValidationException e1) {
+				// TODO Auto-generated catch block
+				Notification.show(
+						I18nProperties.getString(Strings.headingImportFailed) +" : "+
+						I18nProperties.getString(Strings.messageImportFailed));
+				e1.printStackTrace();
+			}
+finally {
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Population Data Dry Run");
+				userActivitySummaryDto.setAction("User Attempted Population Import Dry run to " +  camapigndto.getName());
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+			}
+			
+			
+		});
 
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");
@@ -229,7 +274,7 @@ finally {
 
 		dialog.add(seperatorr, //startButton, stopButton,
 //				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
-				step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile,overWriteExistingData,  upload, startDataImport, step3,
+				step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile,overWriteExistingData,  upload,startDryRunImport,startDataImport, step3,
 				lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {

@@ -224,6 +224,14 @@ public class ImportProgressLayout extends VerticalLayout {
 			float resultx = (float) processedImportsCount / totalCount;
 			float percentage = resultx * 100;
 			System.out.println("sssssssssssssssssssssss "+percentage);
+			
+			if(percentage == 100.0) {
+				
+				
+				System.out.println(" Percentage is 100 at this point " + importErrorsCount);
+				
+				
+			}
 			progressBarMain.setValue(percentage);
 		});
 	}

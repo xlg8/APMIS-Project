@@ -255,7 +255,7 @@ public class AreaDataDryRunner extends DataImporter {
 			if (!usersDataHasImportError) {
 
 				try {
-					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+//					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
@@ -299,7 +299,7 @@ public class AreaDataDryRunner extends DataImporter {
 				initiateImportConfirmationDialog();
 				
 				try {
-					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+//					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
