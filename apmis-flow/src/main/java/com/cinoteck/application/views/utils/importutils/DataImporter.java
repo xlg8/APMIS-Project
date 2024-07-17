@@ -407,11 +407,152 @@ public abstract class DataImporter {
 		importThread.start();
 //		return achrdum_;
 	}
+	
+	/**
+	 * Opens a progress layout and runs the import logic in a separate thread.
+	 * 
+	 * @return
+	 * 
+	 * 
+	 */
+	
+	private boolean hasErrors = false;
+
+	
+	
+
+	public void startDryRunImport(Consumer<StreamResource> errorReportConsumer,
+			Consumer<StreamResource> userCredentialReportConsumer, boolean isUserCreation, UI currentUI,
+			boolean duplicatesPossible) throws IOException, CsvValidationException {
+
+		Anchor achrdum_ = new Anchor();
+
+		ImportProgressLayout progressLayout = getImportProgressLayout(currentUI, duplicatesPossible);
+
+		importedLineCallback = progressLayout::updateDryRunProgress;
+
+		Dialog window = new Dialog();
+		window.setHeaderTitle(I18nProperties.getString(Strings.headingDataImport));
+		window.setWidth(800, Unit.PIXELS);
+		window.add(progressLayout);
+		window.setCloseOnEsc(false);
+		window.setCloseOnOutsideClick(false);
+		currentUI.add(window);
+		window.open();
+
+		Thread importThread = new Thread(() -> {
+			try {
+				currentUI.access(() -> {
+					// how often should the front end be updated
+					currentUI.setPollInterval(300);
+				});
+				if(isUserCreation) {
+					I18nProperties.setUserLanguage(currentUser.getLanguage());
+			
+				FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getLanguage());
+				}
+				ImportResultStatus importResult = runImport();
+
+				// Display a window presenting the import result
+				currentUI.access(() -> {
+					window.setCloseOnEsc(true);
+					progressLayout.makeClosable(window::close);
+
+					if (importResult == ImportResultStatus.COMPLETED) {
+						progressLayout.displaySuccessIcon();
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportSuccessful),
+								VaadinIcon.CHECK, "badge success");
+						
+						setHasErrors(false);
+					} else if (importResult == ImportResultStatus.COMPLETED_WITH_ERRORS) {
+						progressLayout.displayWarningIcon();
+						progressLayout.setInfoLabelText(
+								I18nProperties.getString(Strings.messageImportPartiallySuccessful), VaadinIcon.WARNING,
+								"badge primary");
+						
+						setHasErrors(true);
+
+					} else if (importResult == ImportResultStatus.CANCELED) {
+						
+
+						progressLayout.displaySuccessIcon();
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceled),
+								VaadinIcon.CLOSE_CIRCLE_O, "badge primary");
+						setHasErrors(true);
+					} else {
+						progressLayout.displayWarningIcon();
+						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceledErrors),
+								VaadinIcon.WARNING, "badge error");
+						setHasErrors(true);
+
+					}
+
+					window.addOpenedChangeListener(e -> {
+						System.out.println(
+								"trying to addOpenedChangeListener the dialog and listening to that.................");
+						if (importResult == ImportResultStatus.COMPLETED_WITH_ERRORS
+								|| importResult == ImportResultStatus.CANCELED_WITH_ERRORS) {
+							StreamResource streamResource = createErrorReportStreamResource();
+							errorReportConsumer.accept(streamResource);
+
+							// For Credentials
+							
+							System.out.println(
+									"----------trying to addOpenedChangeListener the dialog and listening to that.................");
+
+						}
+
+						if ((importResult == ImportResultStatus.COMPLETED_WITH_ERRORS && isUserCreation)
+								|| (importResult == ImportResultStatus.COMPLETED && isUserCreation)
+								|| (importResult == ImportResultStatus.CANCELED && isUserCreation)) {
+							System.out.println("trying to aUser Credation detected!!! .................");
+							StreamResource credentials = createCredentialsReportStreamResource();
+							userCredentialReportConsumer.accept(credentials);
+						}
+					});
+
+					currentUI.setPollInterval(-1);
+				});
+			} catch (InvalidColumnException e) {
+				currentUI.access(() -> {
+					window.setCloseOnEsc(true);
+					progressLayout.makeClosable(window::close);
+					progressLayout.displayErrorIcon();
+
+					progressLayout.setInfoLabelText(String
+							.format(I18nProperties.getString(Strings.messageImportInvalidColumn), e.getColumnName()),
+							VaadinIcon.HAND, "badge contrast");
+
+					currentUI.setPollInterval(-1);
+					setHasErrors(true);
+
+				});
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+
+				currentUI.access(() -> {
+					window.setCloseOnEsc(true);
+					progressLayout.makeClosable(window::close);
+					progressLayout.displayErrorIcon();
+					progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportFailedFull),
+							VaadinIcon.EXCLAMATION_CIRCLE_O, "red");
+					currentUI.setPollInterval(-1);
+					
+					setHasErrors(true);
+
+				});
+			}
+		});
+
+		importThread.start();
+//		return achrdum_;
+	}
+
 
 	/**
 	 * Can be overriden by subclasses to provide alternative progress layouts
 	 */
-	protected ImportProgressLayout getImportProgressLayout(UI currentUI, boolean duplicatesPossible)
+	public ImportProgressLayout getImportProgressLayout(UI currentUI, boolean duplicatesPossible)
 			throws IOException, CsvValidationException {
 		return new ImportProgressLayout(readImportFileLength(inputFile), currentUI, this::cancelImport,
 				duplicatesPossible);
@@ -513,6 +654,16 @@ public abstract class DataImporter {
 		}
 	}
 
+	
+	public boolean hasErrors() {
+	    return hasErrors;
+	}
+	
+	public void setHasErrors(boolean hasErrors) {
+        this.hasErrors = hasErrors;
+    }
+	
+	
 	public void cancelImport() {
 		cancelAfterCurrent = true;
 	}

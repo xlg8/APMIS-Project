@@ -14,6 +14,7 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -63,14 +64,20 @@ public class ImportAreaDataDialog extends Dialog {
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
-	public Checkbox overWriteExistingData =  new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
+	public Checkbox overWriteExistingData = new Checkbox(
+			I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
 	boolean overWrite = false;
-	
+
+	boolean checkForException = false;
+
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
 	
+	DataImporter importer = null; 
+
+
 	public ImportAreaDataDialog() {
-		
+
 		this.setHeaderTitle(I18nProperties.getString(Strings.regionImportModule));
 //		this.getStyle().set("color" , "#0D6938");
 
@@ -79,18 +86,10 @@ public class ImportAreaDataDialog extends Dialog {
 
 		VerticalLayout dialog = new VerticalLayout();
 
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
-
 		H3 step2 = new H3();
 		step2.add(I18nProperties.getString(Strings.step1));
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
-		
+
 		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
 		downloadImportTemplate.setIcon(downloadImportTemplateButtonIcon);
 		downloadImportTemplate.addClickListener(e -> {
@@ -104,8 +103,7 @@ public class ImportAreaDataDialog extends Dialog {
 				importFacade.generateAreaImportTemplateFile();
 
 				templateFileName = "APMIS_Region_Import_Template.csv";
-				
-				
+
 				templateFilePath = importFacade.getAreaImportTemplateFilePath();
 
 				String content = FacadeProvider.getImportFacade().getImportTemplateContent(templateFilePath);
@@ -145,138 +143,150 @@ public class ImportAreaDataDialog extends Dialog {
 		H3 step3 = new H3();
 		step3.add(I18nProperties.getString(Strings.step2));
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
-		
+
 		overWriteExistingData.setValue(false);
-		overWriteExistingData.addValueChangeListener(e->{
+		overWriteExistingData.addValueChangeListener(e -> {
 			overWrite = e.getValue();
 		});
-		
+
 		Label sd = new Label(I18nProperties.getCaption(Captions.upload));
-		
-//		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		FileUploader buffer = new FileUploader();  
-        Upload upload = new Upload(buffer);
-        
-        
-    	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
-    	startDataImport.setIcon(startImportButtonIcon);
-    	startImportDryRun.setIcon(startImportButtonIcon);
-        startDataImport.setVisible(false);
-    	startImportDryRun.setVisible(false);
 
-        upload.setAcceptedFileTypes("text/csv");
-        upload.addSucceededListener(event -> {
-        	
-        	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(false);
-		    	startImportDryRun.setVisible(true);
+		FileUploader buffer = new FileUploader();
+		Upload upload = new Upload(buffer);
 
-        });
-		
-        UserProvider usr = new UserProvider();
+		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
+		startDataImport.setIcon(startImportButtonIcon);
+		startImportDryRun.setIcon(startImportButtonIcon);
+		startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
+		upload.setAcceptedFileTypes("text/csv");
+		upload.addSucceededListener(event -> {
+
+			file_ = new File(buffer.getFilename());
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
+
+		});
+
+		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
 		AreaDto areaDto = new AreaDto();
-//		overWrite = overWriteExistingData.getValue();
+
 		startDataImport.addClickListener(ed -> {
 			startIntervalCallback();
-			
-			try {
 
-				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
-				
-				DataImporter importer = new AreaDataImporter(file_, false,userDto, areaDto, ValueSeparator.COMMA, overWrite);
+			try {
+				DataImporter importer = new AreaDataImporter(file_, false, userDto, areaDto, ValueSeparator.COMMA,
+						overWrite);
 				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
-				Notification.show(
-					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-					I18nProperties.getString(Strings.messageImportFailed));
+				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+						+ I18nProperties.getString(Strings.messageImportFailed));
 			}
-			
-			
+
 		});
 
-		
 		startImportDryRun.addClickListener(ed -> {
 			startIntervalCallback();
-			
 			try {
-
-				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
-				
-				DataImporter importer = new AreaDataDryRunner(file_, false,userDto, areaDto, ValueSeparator.COMMA, overWrite);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				importer = new AreaDataDryRunner(file_, false, userDto, areaDto, ValueSeparator.COMMA,
+						overWrite);
+				importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
-				Notification.show(
-					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-					I18nProperties.getString(Strings.messageImportFailed));
-			}finally {
-				 startDataImport.setVisible(true);
+				checkForException = true;
+				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+						+ I18nProperties.getString(Strings.messageImportFailed));
+			} finally {
+				
+				boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+		        startDataImport.setVisible(!hasErrors);
+				
+//				ImportProgressLayout progressLayout;
+//				try {
+//					progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+//					
+//					  if (importer != null) {
+//				            progressLayout.makeClosable(() -> {
+//				                if (!checkForException && !importer.hasErrors()) {
+//				                    startDataImport.setVisible(true);
+//				                }
+//				            });
+//				        }
+//				} catch (CsvValidationException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				} catch (IOException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				};
+
+				
+				 
+				
+//				   if (!checkForException && importer != null && !importer.hasErrors()) {
+//			            startDataImport.setVisible(true);
+//			        }
+				
+//				
+//					if (!checkForException) {
+//						
+//						ImportProgressLayout progressLayout = null;
+//						try {
+//							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+//						} catch (CsvValidationException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						} catch (IOException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+//						
+//						System.out.println("NNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOO Exception ");
+//						
+//							boolean exceptionValue = progressLayout.hasImportErrors();
+//							System.out.println("NNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOO Exception cccccc" + exceptionValue);
+//
+//							if(!exceptionValue) {
+//								startDataImport.setVisible(true);
+//							}
+//					
+//					}
+			
+
 
 			}
-			
-			
+
 		});
 
-
-		
-		
 		downloadErrorReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
-			
+
 		Icon downloadErrorButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
-	
-		
-		
-		
-		
-		
-		
+
 		H3 step5 = new H3();
 		step5.add(I18nProperties.getString(Strings.step3));
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
-//		downloadErrorReportButton = new Anchor("beforechange");
-//		downloadCredntialsReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
+
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
-			Notification.show("Button clicked to download error "+downloadErrorReportButton.getHref());
-			
-		downloadErrorReportButton.getElement().callJsFunction("click");
+			Notification.show("Button clicked to download error " + downloadErrorReportButton.getHref());
+
+			downloadErrorReportButton.getElement().callJsFunction("click");
 		});
-		
-		
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-		
-		
-		
-		
-		
-//		anchorSpan.setVisible(false);
-//		Button startButton = new Button("Start Interval__ Callback");
-//		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		startButton.setId("pokers");
-//		startButton.addClickListener(e -> {
-//			startIntervalCallback();
-//		});
-		
-//		
 
-//		Button stopButton = new Button("Stop Interval Callback");
-//		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//		stopButton.addClickListener(e -> stopIntervalCallback());
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startImportDryRun, startDataImport,
-				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
-		
-		//hacky: hide the anchor
+		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
-		
+
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
 			close();
 //			stopIntervalCallback();
-			
+
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 
@@ -289,10 +299,8 @@ public class ImportAreaDataDialog extends Dialog {
 
 	}
 
-
-
 	private void pokeFlow() {
-	//	Notification.show("dialog detected... User wont logout");
+		// Notification.show("dialog detected... User wont logout");
 	}
 
 	private void startIntervalCallback() {
@@ -320,8 +328,6 @@ public class ImportAreaDataDialog extends Dialog {
 
 		}
 	}
-	
-	
 
 	private void stopPullers() {
 		UI.getCurrent().setPollInterval(-1);
@@ -335,7 +341,6 @@ public class ImportAreaDataDialog extends Dialog {
 		Page page = ui.getPage();
 		page.reload();
 	}
-	
 
 	protected void resetDownloadErrorReportButton() {
 		downloadErrorReportButton.removeAll();
@@ -346,14 +351,14 @@ public class ImportAreaDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
+																	// I18nProperties.getCaption(Captions.downloadErrorReport));
+																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-		
+
 	}
 
-	
-	
 }

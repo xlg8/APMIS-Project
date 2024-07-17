@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.ejb.TransactionRolledbackLocalException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ import de.symeda.sormas.api.i18n.Validations;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.PopulationDataDto;
+import de.symeda.sormas.api.infrastructure.area.AreaDryRunDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -71,7 +74,10 @@ public class AreaDataDryRunner extends DataImporter {
 	private boolean isOverWrite;
 	private boolean isOverWriteEnabledCode;
 	List<AreaReferenceDto> areas = new ArrayList<>();
+	List<AreaReferenceDto> dyrunareas = new ArrayList<>();
+
 	List<AreaReferenceDto> araeNameList = new ArrayList<>();
+	List<AreaReferenceDto> 	araeryunNameList = new ArrayList<>();
 	UserProvider userProvider = new UserProvider();
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -139,24 +145,36 @@ public class AreaDataDryRunner extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
-
-						if (araeNameList.size() < 1) {// (usrCheck == null) {
+						
+						araeryunNameList = FacadeProvider.getAreatDryRunFacade().getByName(regionName_, true);
+						if (araeryunNameList.size() < 1 ) {// (usrCheck == null) {
 							regionName = regionName_;
+							
+							
+							if (araeNameList.size() < 1 ) {// (usrCheck == null) {
+								regionName = regionName_;
 
-						} else {
-//							if(isOverWrite){
-//								regionName = regionName_;
-//								isOverWriteEnabledName = true;
-							// return ImportLineResult.SUCCESS;
+							} else {
 
-//							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage()
+												+ " | Region Name Exists ");
+								return ImportLineResult.ERROR;
+
+
+							}
+
+						}else {
+
 							writeImportError(values,
 									new ImportErrorException(values[i], entityProperties[i]).getMessage()
-											+ " | Region Name Exists ");
+											+ " | Region Name Imported In This Dry Run Process");
 							return ImportLineResult.ERROR;
-//							}
-
+							
 						}
+						
+
+						
 
 					}
 
@@ -172,9 +190,14 @@ public class AreaDataDryRunner extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
+					dyrunareas = FacadeProvider.getAreatDryRunFacade().getByExternalId(Long.parseLong(values[i]), false);
+					
 					areas = FacadeProvider.getAreaFacade().getByExternalId(Long.parseLong(values[i]), false);
-					if (areas.size() > 0) {
+					
+					
+					if (dyrunareas.size() > 0) {
 						if (isOverWrite) {
+							
 							try {
 
 								Long externalIdValue = Long.parseLong(values[i]);
@@ -185,23 +208,51 @@ public class AreaDataDryRunner extends DataImporter {
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
-						} else {
+							
+						}else {
+							
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage()
-											+ " | This RCode Exists");
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + "External ID Exists in this Dry Rub Process ");
 							return ImportLineResult.ERROR;
+							
 						}
+						
+					}else {
+					
+						
+						if (areas.size() > 0) {
+							if (isOverWrite) {
+								try {
 
-					} else if (areas.size() == 0) {
-						try {
-							Long externalIdValue = Long.parseLong(values[i]);
-							areaExternalId = externalIdValue;
-						} catch (NumberFormatException e) {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							return ImportLineResult.ERROR;
+									Long externalIdValue = Long.parseLong(values[i]);
+									areaExternalId = externalIdValue;
+									isOverWriteEnabledCode = true;
+								} catch (NumberFormatException e) {
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage()
+												+ " | This RCode Exists");
+								return ImportLineResult.ERROR;
+							}
+
+						} else if (areas.size() == 0) {
+							try {
+								Long externalIdValue = Long.parseLong(values[i]);
+								areaExternalId = externalIdValue;
+							} catch (NumberFormatException e) {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
 						}
+						
 					}
+					
+					
 				}
 
 			}
@@ -210,9 +261,9 @@ public class AreaDataDryRunner extends DataImporter {
 
 		final long finalRegionExternalId = areaExternalId;
 		final String finalRegionName = regionName;
-		List<AreaDto> newUserLinetoSave = new ArrayList<>();
+		List<AreaDryRunDto> newUserLinetoSave = new ArrayList<>();
 
-		AreaDto newUserLine = AreaDto.build();
+		AreaDryRunDto newUserLine = AreaDryRunDto.build();
 
 		newUserLine.setExternalId(finalRegionExternalId);
 		newUserLine.setName(finalRegionName);
@@ -241,8 +292,9 @@ public class AreaDataDryRunner extends DataImporter {
 //								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 //									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
 //								}
+								AreaDryRunDto areaDryRunDto = AreaDryRunDto.fromAreaDto(newUserLine_);
 
-								newUserLinetoSave.add(newUserLine_);
+								newUserLinetoSave.add(areaDryRunDto);
 
 							} catch (NumberFormatException e) {
 								return e;
@@ -255,7 +307,7 @@ public class AreaDataDryRunner extends DataImporter {
 			if (!usersDataHasImportError) {
 
 				try {
-					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
@@ -274,10 +326,10 @@ public class AreaDataDryRunner extends DataImporter {
 
 							try {
 
-								if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+								if (AreaDryRunDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 									newUserLine.setName(cellData.getValue());
 								}
-								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+								if (AreaDryRunDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
 									newUserLine.setDryRun(true);
 								}
@@ -294,24 +346,28 @@ public class AreaDataDryRunner extends DataImporter {
 
 			if (!usersDataHasImportError) {
 				boolean checkExeption = false;
-				combinedList.add(newUserLinetoSave.get(0));
+//				combinedList.add(newUserLinetoSave.get(0));
 				
 				initiateImportConfirmationDialog();
 				
 				try {
-					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
+					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
 					checkExeption = true;
 					writeImportError(values, e.getMessage());
 					return ImportLineResult.ERROR;
+				} catch (TransactionRolledbackLocalException ex) {
+					checkExeption = true;
+					writeImportError(values, ex.getMessage());
+					return ImportLineResult.ERROR;
 				} finally {
 					if (!checkExeption) {
 						
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 
-						for (AreaDto  areaData : newUserLinetoSave){
+						for (AreaDryRunDto  areaData : newUserLinetoSave){
 							
 							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 							configurationChangeLogDto.setAction_unit_type("Region" );
