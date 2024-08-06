@@ -399,15 +399,9 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		CriteriaQuery<CampaignFormMeta> cq = cb.createQuery(CampaignFormMeta.class);
 		Root<CampaignFormMeta> campaignFormMeta = cq.from(CampaignFormMeta.class);
 
-//		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
-//				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
-//				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
-//				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
-
 		Predicate filter = null;
 
 		if (campaignFormCriteria != null) {
-			System.out.println("DEBUGGER: 45fffffffiiilibraryii = " + campaignFormCriteria);
 			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
 		}
 
@@ -415,26 +409,34 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			cq.where(filter);
 		}
 
-		if (sortProperties != null && sortProperties.size() > 0) {
+		List<CampaignFormMetaDto> results = QueryHelper.getResultList(em, cq, first, max,
+				CampaignFormMetaFacadeEjb::toDto);
+
+		if (results.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		if (sortProperties != null && !sortProperties.isEmpty()) {			
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormMeta.UUID:
-				case CampaignFormMeta.MODALITY:
+				case CampaignFormMeta.FORM_ID:
+				case CampaignFormMeta.FORM_NAME:
+				case CampaignFormMeta.CREATION_DATE:
+				case CampaignFormMeta.CHANGE_DATE:
+				case CampaignFormMeta.FORM_CATEGORY:
 					expression = campaignFormMeta.get(sortProperty.propertyName);
 					break;
-				case CampaignFormMeta.FORM_NAME:
-					expression = campaignFormMeta.get(CampaignFormMeta.FORM_NAME);
+				case CampaignFormMeta.DAYSTOEXPIRE:
+					expression = campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE);
+					break;
+				case CampaignFormMeta.DISTRICTENTRY:
+					expression = campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY);
 					break;
 				case CampaignFormMeta.FORM_TYPE:
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_TYPE);
-					break;
-				case CampaignFormMeta.FORM_CATEGORY:
-					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
-					break;
-				case CampaignFormMeta.ARCHIVED:
-					expression = campaignFormMeta.get(CampaignFormMeta.ARCHIVED);
 					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -443,10 +445,10 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			}
 			cq.orderBy(order);
 		} else {
-			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
+			cq.orderBy(cb.asc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
 		}
-		cq.select(campaignFormMeta);
-		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
+
+		return results;
 	}
 
 	@Override
