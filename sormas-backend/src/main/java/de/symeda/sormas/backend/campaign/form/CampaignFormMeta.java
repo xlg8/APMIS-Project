@@ -42,6 +42,7 @@ public class CampaignFormMeta extends AbstractDomainObject {
 	public static final String FORM_ID = "formId";
 	public static final String FORM_TYPE = "formType";
 	public static final String DISTRICTENTRY = "districtentry";
+	public static final String LANGUAGE_CODE = "languageCode";
 	public static final String FORM_NAME = "formName"; 
 	public static final String FORM_CATEGORY = "formCategory";
 	public static final String MODALITY = "modality";

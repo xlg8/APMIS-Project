@@ -170,7 +170,6 @@ public class FormGridComponent extends VerticalLayout {
 	}
 
 	private String generateValueBasedOnSource(String sourceValue) {
-//		String manipulatingId = sourceValue.replaceAll("[^\\w]", "");
 		String manipulatingId = sourceValue.replaceAll(" ", "_");
 		manipulatingId = manipulatingId.replaceAll("readonly", "");
 		manipulatingId = manipulatingId.replaceAll("-readonly", "");
@@ -767,7 +766,7 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					if (!comment.getValue().isEmpty()) {
-						
+						System.out.println(" dsfsgdgetwreqdacsvsf  " +comment.getValue() + "       hhhhhhhhhhhhhhh");
 						newForm.setComment(comment.getValue());	
 					}
 
@@ -801,6 +800,8 @@ public class FormGridComponent extends VerticalLayout {
 							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
+						} else {
+							System.out.println("nothing supppppppppppppppppppppppppppppppppppppppppppppp");
 						}
 					}
 
