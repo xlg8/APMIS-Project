@@ -77,11 +77,10 @@ public class AreaDataDryRunner extends DataImporter {
 	List<AreaReferenceDto> dyrunareas = new ArrayList<>();
 
 	List<AreaReferenceDto> araeNameList = new ArrayList<>();
-	List<AreaReferenceDto> 	araeryunNameList = new ArrayList<>();
+	List<AreaReferenceDto> araeryunNameList = new ArrayList<>();
 	UserProvider userProvider = new UserProvider();
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -119,7 +118,7 @@ public class AreaDataDryRunner extends DataImporter {
 		// Lets run some validations
 		Long areaExternalId = null;
 		String regionName = "";
-		
+
 		List<AreaDto> combinedList = new ArrayList();
 
 		for (int i = 0; i < entityProperties.length; i++) {
@@ -145,13 +144,16 @@ public class AreaDataDryRunner extends DataImporter {
 						return ImportLineResult.ERROR;
 					} else {
 						araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
-						
+
 						araeryunNameList = FacadeProvider.getAreatDryRunFacade().getByName(regionName_, true);
-						if (araeryunNameList.size() < 1 ) {// (usrCheck == null) {
+						
+						//Trying to make sure all the dry run processs occurs basically as an override 
+						
+						//The Area Nmae in the importline now exists on the dryrun table 
+						if (araeryunNameList.size() < 1) {// (usrCheck == null) {
 							regionName = regionName_;
-							
-							
-							if (araeNameList.size() < 1 ) {// (usrCheck == null) {
+
+							if (araeNameList.size() < 1) {// (usrCheck == null) {
 								regionName = regionName_;
 
 							} else {
@@ -161,20 +163,33 @@ public class AreaDataDryRunner extends DataImporter {
 												+ " | Region Name Exists ");
 								return ImportLineResult.ERROR;
 
-
 							}
 
-						}else {
+						} else {
 
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage()
-											+ " | Region Name Imported In This Dry Run Process");
-							return ImportLineResult.ERROR;
-							
+							if (araeryunNameList.size() < 1) {
+								regionName = regionName_;
+
+								if (araeNameList.size() < 1) {// (usrCheck == null) {
+									regionName = regionName_;
+
+								}else {
+
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage()
+													+ " | Region Name Exists ");
+									return ImportLineResult.ERROR;
+
+								}
+
+							}
+//
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage()
+//											+ " | Region Name Imported In This Dry Run Process");
+//							return ImportLineResult.ERROR;
+
 						}
-						
-
-						
 
 					}
 
@@ -190,36 +205,73 @@ public class AreaDataDryRunner extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					dyrunareas = FacadeProvider.getAreatDryRunFacade().getByExternalId(Long.parseLong(values[i]), false);
-					
-					areas = FacadeProvider.getAreaFacade().getByExternalId(Long.parseLong(values[i]), false);
-					
-					
-					if (dyrunareas.size() > 0) {
-						if (isOverWrite) {
-							
-							try {
+					dyrunareas = FacadeProvider.getAreatDryRunFacade().getByExternalId(Long.parseLong(values[i]),
+							false);
 
+					areas = FacadeProvider.getAreaFacade().getByExternalId(Long.parseLong(values[i]), false);
+
+					if (dyrunareas.size() > 0) {
+						
+						if (areas.size() > 0) {
+//							if (isOverWrite) {
+								try {
+
+									Long externalIdValue = Long.parseLong(values[i]);
+									areaExternalId = externalIdValue;
+									isOverWriteEnabledCode = true;
+								} catch (NumberFormatException e) {
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+//							} else {
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage()
+//												+ " | This RCode Exists");
+//								return ImportLineResult.ERROR;
+//							}
+
+						} else if (areas.size() == 0) {
+							try {
 								Long externalIdValue = Long.parseLong(values[i]);
 								areaExternalId = externalIdValue;
-								isOverWriteEnabledCode = true;
 							} catch (NumberFormatException e) {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
-							
-						}else {
-							
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + "External ID Exists in this Dry Rub Process ");
-							return ImportLineResult.ERROR;
-							
 						}
 						
-					}else {
-					
 						
+						
+						
+						
+						
+						
+//						if (isOverWrite) {
+
+//							try {
+//
+//								Long externalIdValue = Long.parseLong(values[i]);
+//								areaExternalId = externalIdValue;
+//								isOverWriteEnabledCode = true;
+//							} catch (NumberFormatException e) {
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								return ImportLineResult.ERROR;
+//							}
+
+//						} else {
+
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage()
+//											+ "External ID Exists in this Dry Rub Process ");
+//							return ImportLineResult.ERROR;
+
+//						}
+
+					} else {
+
 						if (areas.size() > 0) {
 							if (isOverWrite) {
 								try {
@@ -249,10 +301,9 @@ public class AreaDataDryRunner extends DataImporter {
 								return ImportLineResult.ERROR;
 							}
 						}
-						
+
 					}
-					
-					
+
 				}
 
 			}
@@ -285,16 +336,15 @@ public class AreaDataDryRunner extends DataImporter {
 
 							try {
 
-								if (AreaDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setName(cellData.getValue());
-									newUserLine_.setDryRun(true);
+								if (AreaDryRunDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine.setName(cellData.getValue());
 								}
-//								if (AreaDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-//									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
-//								}
-								AreaDryRunDto areaDryRunDto = AreaDryRunDto.fromAreaDto(newUserLine_);
+								if (AreaDryRunDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));// LastName(cellData.getValue());
+									newUserLine.setDryRun(true);
+								}
 
-								newUserLinetoSave.add(areaDryRunDto);
+								newUserLinetoSave.add(newUserLine);
 
 							} catch (NumberFormatException e) {
 								return e;
@@ -305,16 +355,22 @@ public class AreaDataDryRunner extends DataImporter {
 					});
 
 			if (!usersDataHasImportError) {
-
+				boolean checkExeption = false;
 				try {
-//<<<<<<< HEAD
-////					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
-//=======
+
 					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
-//>>>>>>> branch 'team_collaboration_branch' of https://github.com/DevSeg/APMIS-Project.git
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
+					checkExeption = true;
+					writeImportError(values, e.getMessage());
+					return ImportLineResult.ERROR;
+				} catch (TransactionRolledbackLocalException ex) {
+					checkExeption = true;
+					writeImportError(values, ex.getMessage());
+					return ImportLineResult.ERROR;
+				} catch (Exception e) {
+					checkExeption = true;
 					writeImportError(values, e.getMessage());
 					return ImportLineResult.ERROR;
 				}
@@ -351,15 +407,9 @@ public class AreaDataDryRunner extends DataImporter {
 			if (!usersDataHasImportError) {
 				boolean checkExeption = false;
 //				combinedList.add(newUserLinetoSave.get(0));
-				
-				initiateImportConfirmationDialog();
-				
+
 				try {
-//<<<<<<< HEAD
-////					FacadeProvider.getAreaFacade().save(newUserLinetoSave.get(0));
-//=======
 					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
-//>>>>>>> branch 'team_collaboration_branch' of https://github.com/DevSeg/APMIS-Project.git
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
@@ -370,29 +420,32 @@ public class AreaDataDryRunner extends DataImporter {
 					checkExeption = true;
 					writeImportError(values, ex.getMessage());
 					return ImportLineResult.ERROR;
+				} catch (Exception e) {
+					checkExeption = true;
+					writeImportError(values, e.getMessage());
+					return ImportLineResult.ERROR;
 				} finally {
 					if (!checkExeption) {
-						
+
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 
-						for (AreaDryRunDto  areaData : newUserLinetoSave){
-							
+						for (AreaDryRunDto areaData : newUserLinetoSave) {
+
 							configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
-							configurationChangeLogDto.setAction_unit_type("Region" );
+							configurationChangeLogDto.setAction_unit_type("Region");
 							configurationChangeLogDto.setAction_unit_name(areaData.getName());
 							configurationChangeLogDto.setUnit_code(areaData.getExternalId());
 							configurationChangeLogDto.setAction_date(date);
 
-							if(isOverWrite) {
+							if (isOverWrite) {
 								configurationChangeLogDto.setAction_logged("Import : Overwrite" + "DRyRun");
 
-							}else {
-								configurationChangeLogDto.setAction_logged("Import"+ "DRyRun");
+							} else {
+								configurationChangeLogDto.setAction_logged("Import" + "DRyRun");
 
 							}
 						}
-						
-														
+
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 						checkExeption = false;
 					}
@@ -401,10 +454,6 @@ public class AreaDataDryRunner extends DataImporter {
 				return ImportLineResult.ERROR;
 			}
 		}
-	}
-	
-	public void initiateImportConfirmationDialog() {
-		
 	}
 
 	public static boolean checkSameInstances(List<AreaReferenceDto> list1, List<AreaReferenceDto> list2) {
@@ -420,18 +469,8 @@ public class AreaDataDryRunner extends DataImporter {
 		return true;
 	}
 
-	public void makeInitialPassword(String userUuid, String userEmail, String[] lineWorkingOn) throws IOException {
-		if (StringUtils.isBlank(userEmail)
-				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {
-			String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
-
-			writeUserCredentialLog(lineWorkingOn, newPassword);
-
-		}
-	}
-
 	@Override
 	protected String getErrorReportFileName() {
-		return "user_Import_error_report.csv";
+		return "area_Import_error_report.csv";
 	}
 }
