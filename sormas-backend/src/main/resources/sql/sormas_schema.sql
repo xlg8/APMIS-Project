@@ -10179,6 +10179,9 @@ CREATE TABLE public.areas_dryrun (
 );
 
 
+
+
+
 CREATE OR REPLACE FUNCTION public.sync_areas_dryrun_insert()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -10244,10 +10247,75 @@ update
     public.areas_dryrun for each row execute function versioning('sys_period',
     'areas_dryrun_history',
     'true');
+    
+    
+    
+    CREATE TABLE public.populationdatadryrun (
+	id int8 NOT NULL,
+	"uuid" varchar(36) NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	region_id int8 NULL,
+	district_id int8 NULL,
+	sex varchar(255) NULL,
+	agegroup varchar(255) NULL,
+	population int4 NULL,
+	collectiondate timestamp NULL,
+	community_id int8 NULL,
+	campaign_id int8 NULL,
+	selected bool DEFAULT false NULL,
+	modality varchar DEFAULT 'H2H'::character varying NULL,
+	districtstatus varchar NULL,
+	CONSTRAINT populationdatadryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT populationdatadryrun_un UNIQUE (district_id, agegroup, campaign_id),
+	CONSTRAINT populationdatadryrun_uuid_key UNIQUE (uuid),
+	CONSTRAINT fk_populationdatadryrun_community_id FOREIGN KEY (community_id) REFERENCES public.community(id),
+	CONSTRAINT fk_populationdatadryrun_district_id FOREIGN KEY (district_id) REFERENCES public.district(id),
+	CONSTRAINT fk_populationdatadryrun_region_id FOREIGN KEY (region_id) REFERENCES public.region(id),
+	CONSTRAINT populationdatadryrun_fk FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id)
+);
+
+ alter table areas add column dryrun bool DEFAULT false NOT NULL;
 
 
 
 INSERT INTO schema_version (version_number, comment) VALUES (469, 'Updating Trigger and funtion to update dryrun table ###Demo ');
+
+
+
+alter table community add column floating varchar(36) default ''::character varying not null;
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (470, 'Adding Floating attribute to clusters ');
+
+
+
+CREATE TABLE public.region (
+	id int8 NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	"name" varchar(255) NULL,
+	"uuid" varchar(36) NOT NULL,
+	epidcode varchar(255) NULL,
+	growthrate float4 NULL,
+	archived bool DEFAULT false NULL,
+	externalid_ varchar(512) NULL,
+	area_id int8 NULL,
+	country_id int8 NULL,
+	externalid int8 NULL,
+	hasc varchar NULL,
+	fa_af varchar(100) NULL,
+	ps_af varchar(100) NULL,
+	CONSTRAINT region_pkey PRIMARY KEY (id),
+	CONSTRAINT region_unique_extgernal_id UNIQUE (externalid),
+	CONSTRAINT region_uuid_key UNIQUE (uuid),
+	CONSTRAINT fk_region_area_id FOREIGN KEY (area_id) REFERENCES public.areas(id),
+	CONSTRAINT fk_region_country_id FOREIGN KEY (country_id) REFERENCES public.country(id)
+);
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (471, 'Implementing Region Dry Run Functionality');
 
 
 

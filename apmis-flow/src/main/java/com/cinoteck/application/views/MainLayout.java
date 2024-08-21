@@ -16,8 +16,7 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
-import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
-import com.cinoteck.application.views.dashboard.DashboardView;
+//import com.cinoteck.application.views.dashboard.NewDashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 //import com.cinoteck.application.views.pivot.PivotTableView;
 //import com.cinoteck.application.views.pivot.PivotView;
@@ -95,6 +94,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Dialog dialog = new Dialog();
 	Div aboutText = new Div();
 	Button notification = new Button("Notification");
+	IdleNotification idleNotification = new IdleNotification();
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -145,7 +145,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			}
 		});
 
-		IdleNotification idleNotification = new IdleNotification();
 		idleNotification.setMessage(
 				"Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT + " seconds.");
 		idleNotification.addExtendSessionButton("Extend session");
@@ -153,11 +152,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.addCloseButton();
 		idleNotification.setExtendSessionOnOutsideClick(true);
 		idleNotification.setRedirectAtTimeoutUrl("./");
+//		idleNotification
 
 		UI.getCurrent().add(idleNotification);
 
 		addToNavbar(true, toggle, titleLayout);
 	}
+	
+	 public IdleNotification getIdleNotification() {
+	        return idleNotification;
+	    }
 
 	private void addDrawerContent() {
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -196,24 +200,26 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		Button myButton = new Button();
 
-		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+//		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+//
+//			AppNavItem dashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
+//					DashboardView.class, VaadinIcon.GRID_BIG_O, "navitem");
+//
+//			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
+//					|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
+//				dashboardNavItem.getElement().getStyle().set("display", "math");
+//			}
+//
+//			nav.addItem(dashboardNavItem);
+//		}
+		
+	
 
-			AppNavItem dashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
-					DashboardView.class, VaadinIcon.GRID_BIG_O, "navitem");
-
-			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
-					|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
-				dashboardNavItem.getElement().getStyle().set("display", "math");
-			}
-
-			nav.addItem(dashboardNavItem);
-		}
-
-		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
-			
-			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
-					AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));			
-		}
+//		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+//			
+//			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuAnalyticsDashboard),
+//					AnalyticsDashboardView.class, VaadinIcon.CHART_GRID, "navitem"));			
+//		}
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 
@@ -224,6 +230,20 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignAllCampaigns), CampaignsView.class,
 					VaadinIcon.CLIPBOARD_TEXT, "navitem"));
+		}
+		
+		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+			 //NOTE : On the long run if we would not be using an external link here 
+			//remeber that we can pass the subdomain url here to open in a new tab 
+			//
+			AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),  VaadinIcon.GRID_BIG_O , "https://dashboard.afghanistan-apmis.com/", "navitem");
+
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
+					|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				newDashboardNavItem.getElement().getStyle().set("display", "math");
+			}
+
+			nav.addItem(newDashboardNavItem);
 		}
 
 		if (userProvider.hasUserRight(UserRight.CONFIGURATION_ACCESS)) {

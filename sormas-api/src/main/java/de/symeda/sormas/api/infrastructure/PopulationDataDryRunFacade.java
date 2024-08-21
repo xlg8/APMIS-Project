@@ -7,6 +7,7 @@ import javax.ejb.Remote;
 import javax.validation.Valid;
 
 import de.symeda.sormas.api.AgeGroup;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.statistics.StatisticsCaseCriteria;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -41,7 +42,7 @@ public interface PopulationDataDryRunFacade {
 	 */
 	Integer getProjectedRegionPopulation(String regionUuid, PopulationDataCriteria critariax);
 
-	void savePopulationData(@Valid List<PopulationDataDto> populationDataList) throws ValidationRuntimeException;
+	void savePopulationData(@Valid List<PopulationDataDryRunDto> populationDataList) throws ValidationRuntimeException;
 	
 	List<PopulationDataDryRunDto> getPopulationData(PopulationDataDryRunCriteria criteria);
 	
@@ -68,4 +69,9 @@ public interface PopulationDataDryRunFacade {
 
 	void savePopulationDatax(@Valid List<PopulationDataDryRunDto> populationDataList,
 			@Valid List<PopulationDataFauxDto> fauxPopulationDataList, boolean isFauxData) throws ValidationRuntimeException;
+	
+	
+	boolean checkDuplicatePopulationData(String districtExternalID, String AgeGroup, String campaignUUId);
+	
+	void truncateDryRunTable();
 }

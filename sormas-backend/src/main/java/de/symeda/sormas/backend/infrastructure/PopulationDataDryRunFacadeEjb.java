@@ -232,16 +232,16 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 	}
 
 	@Override
-	public void savePopulationData(@Valid List<PopulationDataDto> populationDataList)
+	public void savePopulationData(@Valid List<PopulationDataDryRunDto> populationDataList)
 			throws ValidationRuntimeException {
 
-		for (PopulationDataDto populationData : populationDataList) {
+		for (PopulationDataDryRunDto populationData : populationDataList) {
 			System.out.println(populationData.getAgeGroup() + "11111111133333" + populationData.getModality() + "11111111133333"+ populationData.getPopulation() +  populationData.getDistrictStatus());
 			
 			
 			validate(populationData);
-			PopulationData entity = fromDto(populationData, false);
-			service.ensurePersisted(entity);
+			PopulationDataDryRun entity = fromDto(populationData, false);
+			populationDataDryRunService.ensurePersisted(entity);
 		}
 	}
 
@@ -721,24 +721,24 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 		}
 	}
 
-	private void validate(PopulationDataDto populationData) throws ValidationRuntimeException {
+	private void validate(PopulationDataDryRunDto populationData) throws ValidationRuntimeException {
 
 		if (populationData.getRegion() == null) {
 			throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.validRegion));
 		}
 	}
 
-	private void validate(PopulationDataFauxDto populationData) throws ValidationRuntimeException {
+//	private void validate(PopulationDataFauxDto populationData) throws ValidationRuntimeException {
+//
+//		if (populationData.getRegion() == null) {
+//			throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.validRegion));
+//		}
+//	}
 
-		if (populationData.getRegion() == null) {
-			throw new ValidationRuntimeException(I18nProperties.getValidationError(Validations.validRegion));
-		}
-	}
+	public PopulationDataDryRun fromDto(@NotNull PopulationDataDryRunDto source, boolean checkChangeDate) {
 
-	public PopulationData fromDto(@NotNull PopulationDataDto source, boolean checkChangeDate) {
-
-		PopulationData target = DtoHelper.fillOrBuildEntity(source, service.getByUuid(source.getUuid()),
-				PopulationData::new, checkChangeDate);
+		PopulationDataDryRun target = DtoHelper.fillOrBuildEntity(source, populationDataDryRunService.getByUuid(source.getUuid()),
+				PopulationDataDryRun::new, checkChangeDate);
 
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
@@ -899,5 +899,36 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	public boolean checkDuplicatePopulationData(String districtExternalID, String AgeGroup,
+			String campaignUUId) {
+		// TODO Auto-generated method stub
+		
+		final String joinBuilder = "SELECT COUNT(*) FROM populationdatadryrun WHERE district_id = " + districtExternalID +" AND agegroup = " + AgeGroup + " AND campaign_id = " + campaignUUId + ";";
+
+		System.out.println(joinBuilder + "Credentials from backend OOOPPPPPP" );
+
+		try {
+			return true ;//(boolean) em.createNativeQuery(joinBuilder).getSingleResult();
+
+		} catch (NoResultException e) {
+			return false;
+		}
+	
+	}
+	
+	@Override
+	public void truncateDryRunTable() {
+		
+		System.out.println("11111----------------------------------------------Credentials from backend OOOPPPPPP" );
+
+		final String joinBuilder = "truncate table populationdatadryrun;";
+		
+		em.createNativeQuery(joinBuilder);
+
+	}
+
+
 
 }

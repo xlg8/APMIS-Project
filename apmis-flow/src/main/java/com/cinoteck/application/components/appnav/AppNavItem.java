@@ -1,5 +1,7 @@
 package com.cinoteck.application.components.appnav;
 
+import com.cinoteck.application.utils.authentication.AccessControl;
+import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.button.Button;
@@ -106,11 +108,44 @@ public class AppNavItem extends Component {
      * @param iconClass
      *            the CSS class to use for showing the icon
      */
-    public AppNavItem(String label, String path, VaadinIcon iconClass) {
+    
+    // This APp Nav would work for having a subdomain under apmis - segun
+    public AppNavItem(String label, String path, VaadinIcon iconClass, String style) {
         setPath(path);
         setLabel(label);
-
         setIcon(iconClass.create());
+        setId(style);
+    }
+    
+    /**
+     * Creates a new menu item using the given label and icon that links to the
+     * given url in a new tab .
+     * 
+     * @param label
+     *            the label for the item
+     * @param path
+     *            the url to be opened in a new tab  to link to
+     * @param iconClass
+     *            the CSS class to use for showing the icon ##Segun
+     */
+ // This APp Nav would work for opening the url in another tab  - segun
+    public AppNavItem(String label,  VaadinIcon iconClass, String path, String style) {
+       
+        setLabel(label);
+        setIcon(iconClass.create());
+        setId(style);
+       
+        // If the path is a URL, use JavaScript to open it in a new tab
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+        	
+    		final AccessControl accessControl = AccessControlFactory.getInstance().createAccessControl();
+    		accessControl.isUserSignedIn();
+            getElement().addEventListener("click", e -> {
+                getUI().ifPresent(ui -> ui.getPage().executeJs("window.open($0, '_blank')", path));
+            });
+        } else {
+            setPath(path);
+        }
     }
 
     /**

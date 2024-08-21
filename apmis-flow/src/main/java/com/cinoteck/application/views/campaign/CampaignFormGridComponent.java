@@ -90,7 +90,7 @@ public class CampaignFormGridComponent extends VerticalLayout {
 	}
 
 	private Component getContent(CampaignDto capaingDto, List<CampaignFormMetaReferenceDto> savedCampaignFormMetas) {
-		System.out.println(capaingDto + "0------HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+//		System.out.println(capaingDto + "0------HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
 		if(capaingDto != null) {
 			VerticalLayout formx = editorForm(capaingDto, savedCampaignFormMetas);
 			formx.getStyle().remove("width");

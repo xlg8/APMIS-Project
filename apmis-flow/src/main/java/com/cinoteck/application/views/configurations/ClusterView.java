@@ -8,6 +8,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -62,6 +63,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import de.symeda.sormas.api.ClusterFloatStatus;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
@@ -136,7 +138,6 @@ public class ClusterView extends VerticalLayout {
 
 	private void clusterGrid() {
 
-		System.out.println(criteria + "tttttttttttttttttttttttttttttttttttttttttttttttt");
 		grid.setSelectionMode(SelectionMode.SINGLE);
 		grid.setMultiSort(true, MultiSortPriority.APPEND);
 		grid.setSizeFull();
@@ -292,13 +293,20 @@ public class ClusterView extends VerticalLayout {
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
 			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
-					.setSortable(true).setComparator(Comparator.comparing(CommunityDto::getClusterNumber)).setResizable(true)
-					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber)).setSortProperty("clusterNumber");
+					.setSortable(true).setComparator(Comparator.comparing(CommunityDto::getClusterNumber))
+					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber))
+					.setSortProperty("clusterNumber");
 			grid.addColumn(CommunityDto::getExternalId)
 					.setHeader(I18nProperties.getCaption(Captions.Community_externalID)).setResizable(true)
 					.setSortable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Community_externalID));
+
+			
 		}
+		
+		grid.addColumn(CommunityDto::provideFloatStatus).setHeader(I18nProperties.getCaption(Captions.floatStatus))
+		.setSortable(true).setResizable(true)
+		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.floatStatus));
 
 		grid.addColumn(CommunityDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
 				.setResizable(true).setSortable(true).setAutoWidth(true)
@@ -306,7 +314,7 @@ public class ClusterView extends VerticalLayout {
 
 		grid.setVisible(true);
 
-		criteria.relevanceStatus(EntityRelevanceStatus.ALL);
+		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		refreshGridData();
 
 //		dataProvider = DataProvider
@@ -348,9 +356,9 @@ public class ClusterView extends VerticalLayout {
 
 	private Stream<CommunityDto> fetchClusterData(Query<CommunityDto, CommunityCriteriaNew> query) {
 		List<SortProperty> sortProperties = query.getSortOrders().stream()
-			    .map(order -> new SortProperty(order.getSorted(), order.getDirection().equals(SortDirection.ASCENDING)))
-			    .collect(Collectors.toList());
-		
+				.map(order -> new SortProperty(order.getSorted(), order.getDirection().equals(SortDirection.ASCENDING)))
+				.collect(Collectors.toList());
+
 		return FacadeProvider.getCommunityFacade()
 				.getIndexList(criteria, query.getOffset(), query.getLimit(), sortProperties).stream();
 
@@ -372,7 +380,7 @@ public class ClusterView extends VerticalLayout {
 
 		}
 
-		criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
+//		criteria.relevanceStatus(EntityRelevanceStatus.ARCHIVED);
 		dataProvider = DataProvider
 				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
 
@@ -425,6 +433,9 @@ public class ClusterView extends VerticalLayout {
 		Button resetFilters = new Button(I18nProperties.getCaption(Captions.resetFilters));
 		ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>(
 				I18nProperties.getCaption(Captions.relevanceStatus));
+
+		ComboBox<ClusterFloatStatus> floatingStatusFilter = new ComboBox<>(
+				I18nProperties.getCaption(Captions.floatStatus));
 
 		searchField.addClassName("filterBar");
 		searchField.setPlaceholder(I18nProperties.getCaption(Captions.actionSearch));
@@ -503,6 +514,20 @@ public class ClusterView extends VerticalLayout {
 			return status.toString();
 		});
 
+		floatingStatusFilter.setItems(ClusterFloatStatus.values());
+		floatingStatusFilter.getStyle().set("width", "145px !important");
+		floatingStatusFilter.setPlaceholder("Normal");
+
+		floatingStatusFilter.setItemLabelGenerator(status -> {
+			if (status == ClusterFloatStatus.NORMAL) {
+				return I18nProperties.getCaption(Captions.floatingNormal);
+			} else if (status == ClusterFloatStatus.FLOATING) {
+				return I18nProperties.getCaption(Captions.floatingFloat);
+			}
+			// Handle other enum values if needed
+			return status.toString();
+		});
+
 		layout.add(resetFilters);
 
 		searchField.addValueChangeListener(e -> {
@@ -527,7 +552,7 @@ public class ClusterView extends VerticalLayout {
 				AreaReferenceDto area = e.getValue();
 				criteria.area(area);
 				refreshGridData();
-				System.out.println(regionFilter.getValue() + "region filtervalue ");
+//				System.out.println(regionFilter.getValue() + "region filtervalue ");
 				resetFilters.setVisible(true);
 			} else {
 				criteria.area(null);
@@ -593,6 +618,15 @@ public class ClusterView extends VerticalLayout {
 				criteria.relevanceStatus(selectedStatus);
 				refreshGridData();
 
+			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ALL)) {
+
+				subMenu.removeAll();
+//				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
+//						event -> handleArchiveDearchiveAction());
+				EntityRelevanceStatus selectedStatus = e.getValue();
+				criteria.relevanceStatus(selectedStatus);
+				refreshGridData();
+
 			} else {
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
@@ -601,6 +635,42 @@ public class ClusterView extends VerticalLayout {
 				refreshGridData();
 			}
 
+		});
+
+		floatingStatusFilter.setClearButtonVisible(true);
+		floatingStatusFilter.addValueChangeListener(e -> {
+			if (floatingStatusFilter.getValue() == null) {
+				ClusterFloatStatus selectedStatus = e.getValue();
+				criteria.floatStatus(selectedStatus);
+				refreshGridData();
+				
+			
+			} else {
+				if (floatingStatusFilter.getValue().equals(ClusterFloatStatus.FLOATING)) {
+					subMenu.removeAll();
+					subMenu.addItem(I18nProperties.getCaption(Captions.archive), event -> handleArchiveDearchiveAction());
+					ClusterFloatStatus selectedStatus = e.getValue();
+					criteria.floatStatus(selectedStatus);
+					refreshGridData();
+				} else if (floatingStatusFilter.getValue().equals(ClusterFloatStatus.NORMAL)) {
+					subMenu.removeAll();
+					subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
+							event -> handleArchiveDearchiveAction());
+					ClusterFloatStatus selectedStatus = e.getValue();
+					criteria.floatStatus(selectedStatus);
+					refreshGridData();
+
+				} else {
+					subMenu.removeAll();
+					subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
+					ClusterFloatStatus selectedStatus = e.getValue();
+					criteria.floatStatus(selectedStatus);
+					refreshGridData();
+				}
+				
+			}
+			
+			System.out.println(criteria.getFloatStatus() + "Floar Status=------------------ ");
 		});
 
 		resetFilters.addClassName("resetButton");
@@ -643,7 +713,7 @@ public class ClusterView extends VerticalLayout {
 		layout.addClassName("pl-3");
 		layout.addClassName("row");
 
-		relevancelayout.add(relevanceStatusFilter, countRowItems);
+		relevancelayout.add(relevanceStatusFilter, floatingStatusFilter, countRowItems);
 		vlayout.setWidth("99%");
 		vlayout.add(displayFilters, layout, relevancelayout);
 		vlayout.getStyle().set("margin-right", "0.5rem");
@@ -707,6 +777,10 @@ public class ClusterView extends VerticalLayout {
 				refreshGridData();
 				relevanceStatusFilter.clear();
 			}
+			if (!floatingStatusFilter.isEmpty()) {
+				refreshGridData();
+				floatingStatusFilter.clear();
+			}
 			refreshGridData();
 
 		});
@@ -747,8 +821,8 @@ public class ClusterView extends VerticalLayout {
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Cluster");
-						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
-						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk Archive");
 						configurationChangeLogDto.setAction_date(date);
 
@@ -768,8 +842,8 @@ public class ClusterView extends VerticalLayout {
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Cluster");
-						configurationChangeLogDto.setAction_unit_name(communityDto.getName());
-						configurationChangeLogDto.setUnit_code(communityDto.getExternalId());
+						configurationChangeLogDto.setAction_unit_name(selectedRow.getName());
+						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
 						configurationChangeLogDto.setAction_date(date);
 
@@ -823,10 +897,16 @@ public class ClusterView extends VerticalLayout {
 		TextField cCodeField = new TextField(I18nProperties.getCaption(Captions.Community_externalID));
 		ComboBox<RegionReferenceDto> provinceOfDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 		ComboBox<DistrictReferenceDto> districtOfCluster = new ComboBox<>(I18nProperties.getCaption(Captions.district));
-		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
+		ComboBox<String> floatStatus = new ComboBox<>(I18nProperties.getCaption(Captions.floatStatus));
+		
+		List<String> floatStatusesAvailable = new ArrayList<String>();
+		for (ClusterFloatStatus floatStatuses : ClusterFloatStatus.values()) {
+			floatStatusesAvailable.add(floatStatuses.toString());
+		}
+		floatStatus.setItems(floatStatusesAvailable);
 
+		provinceOfDistrict.setItems(FacadeProvider.getRegionFacade().getAllActiveAsReference());
 		provinceOfDistrict.addValueChangeListener(e -> {
-//			districtOfCluster.clear();
 			districtOfCluster.setItems(
 					FacadeProvider.getDistrictFacade().getAllActiveByRegion(provinceOfDistrict.getValue().getUuid()));
 		});
@@ -840,6 +920,9 @@ public class ClusterView extends VerticalLayout {
 //			districtOfCluster.setItems(communityDto.getDistrict());
 			districtOfCluster.setValue(communityDto.getDistrict());
 			districtOfCluster.setEnabled(true);
+
+			floatStatus.setValue(communityDto.getFloating());
+			floatStatus.setEnabled(true);
 		}
 
 		// this can generate null
@@ -853,9 +936,7 @@ public class ClusterView extends VerticalLayout {
 
 		if (communityDto != null) {
 
-//			dto = new Co();
 			String regionUUid = communityDto.getUuid();
-//			dto = FacadeProvider.getCommunityFacade().getByUuid(regionUUid);
 			boolean isArchivedx = communityDto.isArchived();
 			archiveButton.setText(isArchivedx ? "De-Archive" : "Archive");
 
@@ -863,7 +944,6 @@ public class ClusterView extends VerticalLayout {
 			selectedRows = grid.getSelectedItems();
 			Set<String> selectedRowsUuids = selectedRows.stream().map(row -> ((HasUuid) row).getUuid())
 					.collect(Collectors.toSet());
-			System.out.println(selectedRowsUuids + " selected row infracsucfhshfvshfhjvs");
 			archiveButton.addClickListener(archiveEvent -> {
 //				String uuidsz = "";
 				if (communityDto != null) {
@@ -877,7 +957,6 @@ public class ClusterView extends VerticalLayout {
 					archiveDearchiveConfirmation.open();
 					uuidsz = communityDto.getUuid();
 
-					System.out.println(uuidsz + "areeeeeeeeeeeeeeeeeaaaaaaaaaaaaaaa by uuid");
 					boolean isArchived = communityDto.isArchived();
 					if (uuidsz != null) {
 						if (isArchived == true) {
@@ -935,6 +1014,8 @@ public class ClusterView extends VerticalLayout {
 			String clusterNum = clusterNumber.getValue();
 			String code = cCodeField.getValue();
 
+			String clusterFloatStatus = floatStatus.getValue().toString();
+
 			String uuids = "";
 			if (communityDto != null) {
 				uuids = communityDto.getUuid();
@@ -944,6 +1025,8 @@ public class ClusterView extends VerticalLayout {
 
 				CommunityDto dce = FacadeProvider.getCommunityFacade().getByUuid(uuids);
 				if (dce != null) {
+					
+					System.out.println(clusterFloatStatus +" ======================clusterFloatStatus");
 					dce.setName(name);
 					int clusternumbervalue = Integer.parseInt(clusterNum);
 					dce.setClusterNumber(clusternumbervalue);
@@ -951,7 +1034,8 @@ public class ClusterView extends VerticalLayout {
 					dce.setExternalId(ccodeValue);
 					dce.setRegion(provinceOfDistrict.getValue());
 					dce.setDistrict(districtOfCluster.getValue());
-			
+					dce.setFloating(clusterFloatStatus);
+
 					List<DistrictIndexDto> pcode = FacadeProvider.getDistrictFacade().getAllDistricts();
 					for (DistrictIndexDto districtIndexDto : pcode) {
 						String checkerName = districtIndexDto.getName();
@@ -962,7 +1046,7 @@ public class ClusterView extends VerticalLayout {
 							dce.setDistrict(nuller);
 						}
 					}
-					
+
 					if (dce.getDistrict().getExternalId() != null) {
 
 						Long cCodeConstruction = dce.getDistrict().getExternalId();
@@ -973,11 +1057,11 @@ public class ClusterView extends VerticalLayout {
 
 							clusterNum = "0" + clusterNum.toString();
 						}
-						
+
 						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
 
 						if (ccodeValue.equals(cCodeConstruction)) {
-							boolean exceptionCheck = false;						
+							boolean exceptionCheck = false;
 							try {
 								FacadeProvider.getCommunityFacade().save(dce, true);
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
@@ -1004,14 +1088,14 @@ public class ClusterView extends VerticalLayout {
 
 								notification.add(layout);
 								notification.open();
-							}finally {
-								if(!exceptionCheck) {
+							} finally {
+								if (!exceptionCheck) {
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 									configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 									configurationChangeLogDto.setAction_unit_type("Cluster");
 									configurationChangeLogDto.setAction_unit_name(name);
 									configurationChangeLogDto.setUnit_code(ccodeValue);
-									configurationChangeLogDto.setAction_logged("Cluster Create");	
+									configurationChangeLogDto.setAction_logged("Cluster Create");
 									configurationChangeLogDto.setAction_date(date);
 
 									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
@@ -1052,6 +1136,10 @@ public class ClusterView extends VerticalLayout {
 					dcex.setRegion(provinceOfDistrict.getValue());
 					dcex.setDistrict(districtOfCluster.getValue());
 					
+					System.out.println(clusterFloatStatus +" ======================clusterFloatStatus");
+
+					dcex.setFloating(clusterFloatStatus);
+
 					List<DistrictIndexDto> pcode = FacadeProvider.getDistrictFacade().getAllDistricts();
 					for (DistrictIndexDto districtIndexDto : pcode) {
 						String checkerName = districtIndexDto.getName();
@@ -1073,11 +1161,11 @@ public class ClusterView extends VerticalLayout {
 
 							clusterNum = "0" + clusterNum.toString();
 						}
-						
+
 						cCodeConstruction = Long.parseLong(cCodeConstruction + clusterNum);
 
 						if (ccodeValue.equals(cCodeConstruction)) {
-							boolean exceptionCheck = false;				
+							boolean exceptionCheck = false;
 							try {
 								FacadeProvider.getCommunityFacade().save(dcex, true);
 								Notification.show(I18nProperties.getString(Strings.saved) + name + " " + code);
@@ -1158,7 +1246,7 @@ public class ClusterView extends VerticalLayout {
 			dialog.getFooter().add(archiveButton, discardButton, saveButton);
 
 		}
-		fmr.add(nameField, cCodeField, clusterNumber, provinceOfDistrict, districtOfCluster);
+		fmr.add(nameField, cCodeField, clusterNumber, provinceOfDistrict, districtOfCluster, floatStatus);
 		dialog.add(fmr);
 
 //      getStyle().set("position", "fixed").set("top", "0").set("right", "0").set("bottom", "0").set("left", "0")

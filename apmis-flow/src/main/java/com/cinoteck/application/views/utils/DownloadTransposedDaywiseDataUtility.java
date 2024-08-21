@@ -27,41 +27,47 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class DownloadTransposedDaywiseDataUtility {
+	
+	CampaignFormDataCriteria criteria = new CampaignFormDataCriteria() ;
 
-	public static StreamResource createTransposedDataFromIndexListDemox2(CampaignFormDataCriteria criteria) {
-		String exportFileName = createFileNameWithCurrentDateandEntityNameString("transposeddata", ".csv");
+	public static StreamResource createTransposedDataFromIndexList(CampaignFormDataCriteria criteria, String formName, String campaignName) {
+		CampaignFormDataCriteria criteriax = new CampaignFormDataCriteria() ;
+		
+		criteriax = criteria;
+		String exportFileName =  "APMIS_"+ formName + "_" + campaignName +".csv";// createFileNameWithCurrentDateandEntityNameString(formName+ "_" + campaignName, ".csv");
 
 		// Using the index list method to get the day-wise form data since it already
 		// used the criteria on the grid to get the data
 		List<CampaignFormDataIndexDto> formDatafromIndexList = FacadeProvider.getCampaignFormDataFacade()
-				.getIndexList(criteria, null, null, null);
+				.getIndexList(criteriax, null, null, null);
 
 		// Initialize the set to store unique variable parts without the day suffix
-		Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt = new HashSet<>();
+		Set<String> fieldIDWithoutDaySuffix = new HashSet<>();
 
 		// Iterate through all elements in the formDatafromIndexList to build column
 		// headers
-		for (CampaignFormDataIndexDto formDataIndex : formDatafromIndexList) {
-			if (formDataIndex.getFormValues() != null) {
-				Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+		for (CampaignFormDataIndexDto formData : formDatafromIndexList) {
+			if (formData.getFormValues() != null) {
+				Set<String> fieldIDsFromFormValues = new HashSet<>();
 
 				// Extract the field IDs from the form values and add them to the set to remove
 				// duplicates
-				for (CampaignFormDataEntry formValues : formDataIndex.getFormValues()) {
-					fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+				for (CampaignFormDataEntry formValues : formData.getFormValues()) {
+					fieldIDsFromFormValues.add(formValues.getId());
 				}
 
 				// Convert the set back to a list
-				List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
-						fieldIDsFromFormValuesforColumnHeadersSet);
+				List<String> fieldIDsforColumnHeaders = new ArrayList<>(
+						fieldIDsFromFormValues);
 
 				// Extract unique variable parts and remove the day suffix
-				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsforColumnHeaders)) {
 					String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
-					uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt.add(variableID);
+					fieldIDWithoutDaySuffix.add(variableID);
 				}
 			}
 		}
+		
 
 		List<String> columnNames = new ArrayList<>();
 //	    columnNames.add(I18nProperties.getPrefixCaption(CampaignFormDataIndexDto.I18N_PREFIX, CampaignFormDataIndexDto.COMMUNITY));
@@ -82,9 +88,11 @@ public final class DownloadTransposedDaywiseDataUtility {
 		columnNames.add("Day");
 
 		// Generate and write columns to CSV writer
+		//index here has to be 15 because of the number of existing column 
+		//remeber to increment the values when new columns are added below the defined columns 
 		Map<String, Integer> fieldIdPositions = new HashMap<>();
 		int ageGroupIndex = 15;
-		for (String fieldGroup : uniqueVariablePartsWithoutDaySuffixForColumnHeaderxt) {
+		for (String fieldGroup : fieldIDWithoutDaySuffix) {
 			columnNames.add(fieldGroup);
 			fieldIdPositions.put(fieldGroup, ageGroupIndex);
 			ageGroupIndex += 1;
@@ -95,25 +103,25 @@ public final class DownloadTransposedDaywiseDataUtility {
 		for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
 			if (individualTransposedFormData.getFormValues() != null) {
 				Map<String, String> formDataMaxp = new HashMap<>();
-				Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+				Set<String> fieldIDsFromFormValues = new HashSet<>();
 
 				for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
 					formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
-					fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+					fieldIDsFromFormValues.add(formValues.getId());
 				}
 
-				List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
-						fieldIDsFromFormValuesforColumnHeadersSet);
+				List<String> fieldIDsforColumnHeaders = new ArrayList<>(
+						fieldIDsFromFormValues);
 
-				Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderx = new HashSet<>();
+				Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeader = new HashSet<>();
 
-				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsFromFormValuesforColumnHeadersx)) {
+				for (String uniqueVariable : extractUniqueVariableParts(fieldIDsforColumnHeaders)) {
 					String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
-					uniqueVariablePartsWithoutDaySuffixForColumnHeaderx.add(variableID);
+					uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(variableID);
 				}
 
-				for (String day : extractUniqueDayValues(fieldIDsFromFormValuesforColumnHeadersx)) {
-					for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeaderx) {
+				for (String day : extractUniqueDayValues(fieldIDsforColumnHeaders)) {
+					for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
 						String key = variable + "_" + day;
 
 						if (formDataMaxp.containsKey(key)) {
@@ -136,25 +144,25 @@ public final class DownloadTransposedDaywiseDataUtility {
 					for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
 						if (individualTransposedFormData.getFormValues() != null) {
 							Map<String, String> formDataMaxp = new HashMap<>();
-							Set<String> fieldIDsFromFormValuesforColumnHeadersSet = new HashSet<>();
+							Set<String> fieldIDsFromFormValues = new HashSet<>();
 
 							for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
 								formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
-								fieldIDsFromFormValuesforColumnHeadersSet.add(formValues.getId());
+								fieldIDsFromFormValues.add(formValues.getId());
 							}
 
-							List<String> fieldIDsFromFormValuesforColumnHeadersx = new ArrayList<>(
-									fieldIDsFromFormValuesforColumnHeadersSet);
+							List<String> fieldIDsforColumnHeaders = new ArrayList<>(
+									fieldIDsFromFormValues);
 
-							Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeaderx = new HashSet<>();
+							Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeader = new HashSet<>();
 
 							for (String uniqueVariable : extractUniqueVariableParts(
-									fieldIDsFromFormValuesforColumnHeadersx)) {
+									fieldIDsforColumnHeaders)) {
 								String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
-								uniqueVariablePartsWithoutDaySuffixForColumnHeaderx.add(variableID);
+								uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(variableID);
 							}
 
-							for (String day : extractUniqueDayValues(fieldIDsFromFormValuesforColumnHeadersx)) {
+							for (String day : extractUniqueDayValues(fieldIDsforColumnHeaders)) {
 								List<String> row = new ArrayList<>(Collections.nCopies(columnNames.size(), ""));
 
 								row.set(0, individualTransposedFormData.getCampaign().toString());
@@ -212,7 +220,7 @@ public final class DownloadTransposedDaywiseDataUtility {
 
 								row.set(14, day);
 
-								for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeaderx) {
+								for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
 									String key = variable + "_" + day;
 									if (formDataMaxp.containsKey(key)) {
 										String keyValue = formDataMaxp.get(key);
@@ -249,7 +257,7 @@ public final class DownloadTransposedDaywiseDataUtility {
 				variablePartsSet.add(matcher.group(1));
 			}
 		}
-		System.out.println("extractUniqueVariableParts-----" + variablePartsSet);
+		//System.out.println("extractUniqueVariableParts-----" + variablePartsSet);
 		return new ArrayList<>(variablePartsSet);
 	}
 

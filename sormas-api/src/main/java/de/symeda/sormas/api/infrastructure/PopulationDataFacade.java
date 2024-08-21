@@ -7,6 +7,7 @@ import javax.ejb.Remote;
 import javax.validation.Valid;
 
 import de.symeda.sormas.api.AgeGroup;
+import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.statistics.StatisticsCaseCriteria;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -68,4 +69,6 @@ public interface PopulationDataFacade {
 
 	void savePopulationDatax(@Valid List<PopulationDataDto> populationDataList,
 			@Valid List<PopulationDataFauxDto> fauxPopulationDataList, boolean isFauxData) throws ValidationRuntimeException;
+	
+	void deletePopulationDataByDistrict(List<Long> populationDataList, String campaignUUID);
 }

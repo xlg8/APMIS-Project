@@ -35,8 +35,6 @@ public class BarChartCardComponent extends Div {
 	
 setSizeFull();
 
-System.out.println("dddddddddddddddddddddddd");
-
 		// Create the outer div
 		Div outerDiv = new Div();
 		outerDiv.addClassNames("mb-2", "card");

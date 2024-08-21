@@ -75,6 +75,7 @@ import de.symeda.sormas.api.infrastructure.continent.ContinentFacade;
 import de.symeda.sormas.api.infrastructure.country.CountryFacade;
 import de.symeda.sormas.api.infrastructure.district.DistrictFacade;
 import de.symeda.sormas.api.geo.GeoShapeProvider;
+import de.symeda.sormas.api.infrastructure.region.RegionDryRunFacade;
 import de.symeda.sormas.api.infrastructure.region.RegionFacade;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentFacade;
 import de.symeda.sormas.api.report.AggregateReportFacade;
@@ -231,10 +232,14 @@ public class FacadeProvider {
 		return get().lookupEjbRemote(RegionFacade.class);
 	}
 	
+	public static RegionDryRunFacade getRegionDryRunFacade() {
+		return get().lookupEjbRemote(RegionDryRunFacade.class);
+	}
+	
 	public static AreaFacade getAreatFacade() {
 		return get().lookupEjbRemote(AreaFacade.class);
 	}
-	public static AreaDryRunFacade getAreatDryRunFacade() {
+	public static AreaDryRunFacade getAreaDryRunFacade() {
 		return get().lookupEjbRemote(AreaDryRunFacade.class);
 	}
 
@@ -502,6 +507,8 @@ public class FacadeProvider {
 		try {
 			return (P) get().ic.lookup(buildJndiLookupName(clazz));
 		} catch (NamingException e) {
+			
+			System.out.println(clazz + "-------------");
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
@@ -509,4 +516,16 @@ public class FacadeProvider {
 	public static String buildJndiLookupName(Class<?> clazz) {
 		return JNDI_PREFIX + clazz.getSimpleName();
 	}
+	
+	
+	private static InitialContext initialContext;
+
+    public static void setInitialContext(InitialContext context) {
+        initialContext = context;
+    }
+
+    public static InitialContext getInitialContext() {
+        return initialContext;
+    }
+    
 }

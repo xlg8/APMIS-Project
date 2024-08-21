@@ -37,5 +37,7 @@ public interface AreaDryRunFacade extends GeoLocationFacade<AreaDryRunDto, AreaD
 	AreaReferenceDto getAreaReferenceByUuid(String uuid);
 
 	ConfigurationChangeLogDto saveAreaChangeLog(ConfigurationChangeLogDto configurationChangeLogDto);
+	
+	void clearDryRunTable();
 
 }

@@ -468,8 +468,23 @@ public class IdleNotification extends Component {
      */
     @ClientCallable
     private boolean pokeServer() {
+    	System.out.println("Sever Pokedd-----------------------------");
         return true;
     }
+    
+//    @ClientCallable
+//    public void _pokeServer(e) {
+//    	 this.$server.pokeServer().then((result) => {
+//    	        if (result === true) {
+//    	            console.log('Idle-Notification: Server poked successfully. Session extended.');
+//    	            this.opened = false;
+//    	            this._resetTimer();
+//    	        } else {
+//    	            console.error('Could not poke the server');
+//    	        }
+//    	    });
+////        return true;
+//    }
 
     private boolean isCloseButtonEnabled() {
         return closeButtonEnabled;

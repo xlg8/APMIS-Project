@@ -348,7 +348,7 @@ public class DashboardView extends VerticalLayout implements RouterLayout, Befor
 		// filter listeners
 
 		campaign.addValueChangeListener(e -> {
-			System.out.println("hgfghyuioffkjbnjkijhnbjk");
+//			System.out.println("hgfghyuioffkjbnjkijhnbjk");
 			isCampaignChanged = true;
 
 			if (!isCampaignYearChanging) {

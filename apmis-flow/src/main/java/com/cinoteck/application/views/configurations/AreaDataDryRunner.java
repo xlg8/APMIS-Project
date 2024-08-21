@@ -145,7 +145,7 @@ public class AreaDataDryRunner extends DataImporter {
 					} else {
 						araeNameList = FacadeProvider.getAreaFacade().getByName(regionName_, true);
 
-						araeryunNameList = FacadeProvider.getAreatDryRunFacade().getByName(regionName_, true);
+						araeryunNameList = FacadeProvider.getAreaDryRunFacade().getByName(regionName_, true);
 						
 						//Trying to make sure all the dry run processs occurs basically as an override 
 						
@@ -205,7 +205,7 @@ public class AreaDataDryRunner extends DataImporter {
 					return ImportLineResult.ERROR;
 
 				} else {
-					dyrunareas = FacadeProvider.getAreatDryRunFacade().getByExternalId(Long.parseLong(values[i]),
+					dyrunareas = FacadeProvider.getAreaDryRunFacade().getByExternalId(Long.parseLong(values[i]),
 							false);
 
 					areas = FacadeProvider.getAreaFacade().getByExternalId(Long.parseLong(values[i]), false);
@@ -358,7 +358,7 @@ public class AreaDataDryRunner extends DataImporter {
 				boolean checkExeption = false;
 				try {
 
-					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
+					FacadeProvider.getAreaDryRunFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {
@@ -409,7 +409,7 @@ public class AreaDataDryRunner extends DataImporter {
 //				combinedList.add(newUserLinetoSave.get(0));
 
 				try {
-					FacadeProvider.getAreatDryRunFacade().save(newUserLinetoSave.get(0));
+					FacadeProvider.getAreaDryRunFacade().save(newUserLinetoSave.get(0));
 
 					return ImportLineResult.SUCCESS;
 				} catch (ValidationRuntimeException e) {

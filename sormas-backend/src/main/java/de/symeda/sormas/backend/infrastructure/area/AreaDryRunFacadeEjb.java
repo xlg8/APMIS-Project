@@ -592,4 +592,18 @@ public class AreaDryRunFacadeEjb extends AbstractInfrastructureEjb<AreaDryRun, A
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void clearDryRunTable() {
+		// TODO Auto-generated method stub
+		
+	    String truncateQuery = "TRUNCATE TABLE areas_dryrun";
+
+	    // Create a native query
+	    Query query = em.createNativeQuery(truncateQuery);
+
+	    // Execute the query
+	    query.executeUpdate();
+		
+	}
 }

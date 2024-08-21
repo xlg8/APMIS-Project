@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.ejb.EJBTransactionRolledbackException;
+import javax.ejb.TransactionRolledbackLocalException;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
+
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -69,7 +74,7 @@ public class PopulationDataDryRunner extends DataImporter {
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
 			String[][] entityPropertyPaths, boolean firstLine)
-			throws IOException, InvalidColumnException, InterruptedException {
+			throws IOException, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException {
 
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {
@@ -92,7 +97,7 @@ public class PopulationDataDryRunner extends DataImporter {
 		// or less than one entry have been retrieved
 		for (int i = 0; i < entityProperties.length; i++) {
 
-			if (isOverWrite) {
+//			if (isOverWrite) {
 				if ( PROVINCE.equalsIgnoreCase(entityProperties[i])) {
 					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
 							.getByExternalId(Long.parseLong(values[i]), false);
@@ -117,16 +122,6 @@ public class PopulationDataDryRunner extends DataImporter {
 					}
 				}
 				
-//				if (PopulationDataDto.AGE_GROUP.) {
-//					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
-//							.getByExternalId(Long.parseLong(values[i]), false);
-//					if (regions.size() != 1) {
-//						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//						return ImportLineResult.ERROR;
-//					}
-//					region = regions.get(0);
-//				}
-
 				// patch to use cluster No for data import
 
 				if (PopulationDataDto.COMMUNITY_EXTID.equalsIgnoreCase(entityProperties[i])) {
@@ -186,92 +181,13 @@ public class PopulationDataDryRunner extends DataImporter {
 						}
 					}
 				}
-
-			} else {
-				if (PROVINCE.equalsIgnoreCase(entityProperties[i])) {
-					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
-					if (regions.size() != 1) {
-						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
-						return ImportLineResult.ERROR;
-					}
-					region = regions.get(0);
-				}
-				if (PopulationDataDto.DISTRICT.equalsIgnoreCase(entityProperties[i])) {
-					if (DataHelper.isNullOrEmpty(values[i])) {
-						district = null;
-					} else {
-						List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
-								.getByExternalID(Long.parseLong(values[i]), region, false);
-						if (districts.size() != 1) {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							return ImportLineResult.ERROR;
-						}
-						district = districts.get(0);
-					}
-				}
-
-				// patch to use cluster No for data import
-
-				if (PopulationDataDto.COMMUNITY_EXTID.equalsIgnoreCase(entityProperties[i])) {
-					if (DataHelper.isNullOrEmpty(values[i])) {
-						community = null;
-					} else {
-						if (isLong(values[i])) {
-							List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade()
-									.getByExternalId(Long.parseLong(values[i]), false);
-							if (communities.size() != 1) {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//							System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage());
-								return ImportLineResult.ERROR;
-							}
-							community = communities.get(0);
-						} else {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-//						System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
-							return ImportLineResult.ERROR;
-						}
-					}
-				}
-
-				// fixing importing campaign population based patch
-				if (PopulationDataDto.CAMPAIGN.equalsIgnoreCase(entityProperties[i])) {
-					if (DataHelper.isNullOrEmpty(values[i])) {
-						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(dtoIdentifier);
-					} else {
-
-						if (values[i].toString().length() > 28 && values[i].toString().contains("-")) {
-							campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
-
-							if (campaigns_ == null) {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
-								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
-								// ImportErrorException(values[i], entityProperties[i]).getMessage());
-								return ImportLineResult.ERROR;
-							}
-
-							// check if data matched campaign
-							if (!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
-								writeImportError(values, campaigns_ + " Campaign mismatched");
-								// writeImportError(values, new ImportErrorException(values[i], "Capaign not
-								// matched");
-								return ImportLineResult.ERROR;
-							}
-
-						} else {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							// System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i],
-							// entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
-							return ImportLineResult.ERROR;
-						}
-					}
-				}
-
+				
+				
+				
+				
+				
+				
+				
 				if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
 					if (DataHelper.isNullOrEmpty(values[i])) {
 						modality_ = "H2H";
@@ -297,7 +213,10 @@ public class PopulationDataDryRunner extends DataImporter {
 						}
 					}
 				}
-
+				
+				
+				
+				
 				if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
 					if (DataHelper.isNullOrEmpty(values[i])) {
 						districtStatus_ = "Full District";
@@ -321,8 +240,169 @@ public class PopulationDataDryRunner extends DataImporter {
 						}
 					}
 				}
+				
+				
+//			} 	
 
-			}
+//			else {
+//				if (PROVINCE.equalsIgnoreCase(entityProperties[i])) {
+//					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
+//							.getByExternalId(Long.parseLong(values[i]), false);
+//					if (regions.size() != 1) {
+//						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//						return ImportLineResult.ERROR;
+//					}
+//					region = regions.get(0);
+//				}
+//				if (PopulationDataDto.DISTRICT.equalsIgnoreCase(entityProperties[i])) {
+//					if (DataHelper.isNullOrEmpty(values[i])) {
+//						district = null;
+//					} else {
+//						List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
+//								.getByExternalID(Long.parseLong(values[i]), region, false);
+//						if (districts.size() != 1) {
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//							return ImportLineResult.ERROR;
+//						}
+//						district = districts.get(0);
+//					}
+//				}
+//
+//				// patch to use cluster No for data import
+//
+//				if (PopulationDataDto.COMMUNITY_EXTID.equalsIgnoreCase(entityProperties[i])) {
+//					if (DataHelper.isNullOrEmpty(values[i])) {
+//						community = null;
+//					} else {
+//						if (isLong(values[i])) {
+//							List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade()
+//									.getByExternalId(Long.parseLong(values[i]), false);
+//							if (communities.size() != 1) {
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+////							System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								return ImportLineResult.ERROR;
+//							}
+//							community = communities.get(0);
+//						} else {
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+////						System.out.println(new ImportErrorException(values[i], entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+//							return ImportLineResult.ERROR;
+//						}
+//					}
+//				}
+//
+//				// fixing importing campaign population based patch
+//				if (PopulationDataDto.CAMPAIGN.equalsIgnoreCase(entityProperties[i])) {
+//					if (DataHelper.isNullOrEmpty(values[i])) {
+//						campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(dtoIdentifier);
+//					} else {
+//
+//						if (values[i].toString().length() > 28 && values[i].toString().contains("-")) {
+//							campaigns_ = FacadeProvider.getCampaignFacade().getReferenceByUuid(values[i]);
+//
+//							if (campaigns_ == null) {
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+//								// ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								return ImportLineResult.ERROR;
+//							}
+//
+//							// check if data matched campaign
+//							if (!campaigns_.getUuid().equals(campaignReferenceDto.getUuid())) {
+//								writeImportError(values, campaigns_ + " Campaign mismatched");
+//								// writeImportError(values, new ImportErrorException(values[i], "Capaign not
+//								// matched");
+//								return ImportLineResult.ERROR;
+//							}
+//							
+//
+//			                if (district != null && campaigns_.getUuid() != null) {
+//			                    // Check for duplicate key
+////			                    boolean duplicateExists = FacadeProvider.getPopulationDataDryRunFacade()
+////			                            .checkDuplicatePopulationData(district.getUuid(), "AGE_GROUP", campaigns_.getUuid());
+////			                    if (duplicateExists) {
+////			                        writeImportError(values, "Duplicate key value violates unique constraint for district_id, agegroup, campaign_id.");
+////			                        return ImportLineResult.ERROR;
+////			                    }
+//
+//			                    Integer districtPopulation =
+//			                            FacadeProvider.getPopulationDataDryRunFacade().getDistrictPopulationByUuidAndAgeGroup(
+//			                                    district.getUuid(), campaigns_.getUuid(), values[i]);
+//
+//			                    if (districtPopulation == null) {
+//			                        writeImportError(values, campaigns_ + " Campaign mismatched with District");
+//			                        return ImportLineResult.ERROR;
+//			                    }
+//			                }
+//
+//						} else {
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//							// System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i],
+//							// entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+//							return ImportLineResult.ERROR;
+//						}
+//					}
+//				}
+//
+//				if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
+//					if (DataHelper.isNullOrEmpty(values[i])) {
+//						modality_ = "H2H";
+//					} else {
+//
+//						if (values[i].toString() != "" || values[i].toString() != null) {
+//							modality_ = values[i];
+//
+//							if (modality_ == null) {
+//								
+//								
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+//								// ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								return ImportLineResult.ERROR;
+//							}
+//
+//						} else {
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//							return ImportLineResult.ERROR;
+//						}
+//					}
+//				}
+//
+//				if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
+//					if (DataHelper.isNullOrEmpty(values[i])) {
+//						districtStatus_ = "Full District";
+//					} else {
+//
+//						if (values[i].toString() != "" || values[i].toString() != null) {
+//							districtStatus_ = values[i];
+//
+//							if (districtStatus_ == null) {
+//								writeImportError(values,
+//										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+//								// ImportErrorException(values[i], entityProperties[i]).getMessage());
+//								return ImportLineResult.ERROR;
+//							}
+//
+//						} else {
+//							writeImportError(values,
+//									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+//							return ImportLineResult.ERROR;
+//						}
+//					}
+//				}
+//				
+//
+//				
+//
+//			}
 
 
 		}
@@ -383,7 +463,7 @@ public class PopulationDataDryRunner extends DataImporter {
 
 						@Override
 						public Exception apply(ImportCellData cellData) {
-							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
+//							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
 
 							try {
 								if (PROVINCE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
@@ -461,13 +541,14 @@ public class PopulationDataDryRunner extends DataImporter {
 							return null;
 						}
 					});
+			
 		} else {
 			populationDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 					new Function<ImportCellData, Exception>() {
 
 						@Override
 						public Exception apply(ImportCellData cellData) {
-							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
+//							System.out.println("++++++++++++++++111111111111111111111111++++++++++++++++ ");
 
 							try {
 								if (PROVINCE.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])
@@ -549,9 +630,21 @@ public class PopulationDataDryRunner extends DataImporter {
 					+ modifiedPopulationDataList.size());
 
 			try {
-//				FacadeProvider.getPopulationDataFacade().savePopulationData(modifiedPopulationDataList);
+				FacadeProvider.getPopulationDataDryRunFacade().savePopulationData(modifiedPopulationDataList);
 				return ImportLineResult.SUCCESS;
 			} catch (ValidationRuntimeException e) {
+//				writeImportError(values, e.getMessage());
+				return ImportLineResult.ERROR;
+			}
+			catch (ConstraintViolationException exx) {
+				writeImportError(values,
+						 "Check to ensure PCode and DCode Match and Campaign UUID is correct" +exx.getMessage());
+//				writeImportError(values, e.getMessage());
+				return ImportLineResult.ERROR;
+			}
+			catch (Exception exx) {
+				writeImportError(values,
+						 "Data Cannot Be Saved Please Check The Fields to be sure they're correct" +exx.getMessage());
 //				writeImportError(values, e.getMessage());
 				return ImportLineResult.ERROR;
 			}

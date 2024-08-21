@@ -177,7 +177,8 @@ public interface CampaignFormDataFacade {
 
 	Integer getAllActiveDataTotalRowCount();
 	
-
+	Integer getAllDataTotalRowCountByArchivedStatus(Boolean includeArchived);
+	
 	void updateReassignedDistrictData(String uuid);
 
 }

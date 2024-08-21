@@ -15,51 +15,59 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *******************************************************************************/
-package de.symeda.sormas.backend.infrastructure.community;
+package de.symeda.sormas.backend.infrastructure.region;
 
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_DEFAULT;
 
-import javax.persistence.CascadeType;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
 import de.symeda.sormas.backend.common.InfrastructureAdo;
+import de.symeda.sormas.backend.infrastructure.area.Area;
+import de.symeda.sormas.backend.infrastructure.country.Country;
 import de.symeda.sormas.backend.infrastructure.district.District;
 
 @Entity
-public class Community extends InfrastructureAdo {
+public class RegionDryRun extends InfrastructureAdo {
 
-	private static final long serialVersionUID = 1971053920357795693L;
+	private static final long serialVersionUID = -2958216667876104358L;
 
-	public static final String TABLE_NAME = "community";
+	public static final String TABLE_NAME = "region_dryrun";
 
 	public static final String NAME = "name";
 	public static final String FA_AF = "fa_af";
 	public static final String PS_AF = "ps_af";
-	public static final String DISTRICT = "district";
+	public static final String EPID_CODE = "epidCode";
+	public static final String DISTRICTS = "districts";
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String EXTERNAL_ID = "externalId";
-	public static final String CLUSTER_NUMBER = "clusterNumber";
-	public static final String FLOATING_STATUS = "floating";
+	public static final String AREA = "area";
+	public static final String COUNTRY = "country";
 
 	private String name;
 	private String fa_af;
 	private String ps_af;
-	private District district;
+	private String epidCode;
+	private List<District> districts;
 	private Float growthRate;
 	private Long externalId;
-	private Integer clusterNumber;
-	private String floating;
+	private Area area;
+	private Country country;
 
 	public String getName() {
-			return name;
+		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	
 	public String getFa_af() {
 		return fa_af;
@@ -77,14 +85,27 @@ public class Community extends InfrastructureAdo {
 		this.ps_af = ps_af;
 	}
 
-	@ManyToOne(cascade = CascadeType.REFRESH, optional = false)
-	@JoinColumn(nullable = false)
-	public District getDistrict() {
-		return district;
+	public String getEpidCode() {
+		return epidCode;
 	}
 
-	public void setDistrict(District district) {
-		this.district = district;
+	public void setEpidCode(String epidCode) {
+		this.epidCode = epidCode;
+	}
+
+	@OneToMany(mappedBy = District.REGION, cascade = {}, fetch = FetchType.LAZY)
+	@OrderBy(District.NAME)
+	public List<District> getDistricts() {
+		return districts;
+	}
+
+	public void setDistricts(List<District> districts) {
+		this.districts = districts;
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 	public Float getGrowthRate() {
@@ -95,7 +116,9 @@ public class Community extends InfrastructureAdo {
 		this.growthRate = growthRate;
 	}
 
-	//@Column(length = CHARACTER_LIMIT_DEFAULT)
+	
+	//unsure... changed these to Id instead of ID...
+	@Column(length = CHARACTER_LIMIT_DEFAULT)
 	public Long getExternalId() {
 		return externalId;
 	}
@@ -104,26 +127,23 @@ public class Community extends InfrastructureAdo {
 		this.externalId = externalId;
 	}
 
-	public Integer getClusterNumber() {
-		return clusterNumber;
+	@ManyToOne
+	public Area getArea() {
+		return area;
 	}
 
-	public void setClusterNumber(Integer clusterNumber) {
-		this.clusterNumber = clusterNumber;
+	public void setArea(Area area) {
+		this.area = area;
+	}
+
+	@ManyToOne
+	public Country getCountry() {
+		return country;
+	}
+
+	public void setCountry(Country country) {
+		this.country = country;
 	}
 	
 	
-
-	public String getFloating() {
-		return floating;
-	}
-
-	public void setFloating(String floating) {
-		this.floating = floating;
-	}
-
-	@Override
-	public String toString() {
-		return getName();
-	}
 }

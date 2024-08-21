@@ -57,7 +57,7 @@ public class ImportAreaDataDialog extends Dialog {
 	Button downloadImportTemplate = new Button(I18nProperties.getCaption(Captions.importDownloadImportTemplate));
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
-	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + "Dry Run");
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
 
 	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
@@ -72,9 +72,8 @@ public class ImportAreaDataDialog extends Dialog {
 
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
-	
-	DataImporter importer = null; 
 
+	DataImporter importer = null;
 
 	public ImportAreaDataDialog() {
 
@@ -188,73 +187,72 @@ public class ImportAreaDataDialog extends Dialog {
 		});
 
 		startImportDryRun.addClickListener(ed -> {
-			startIntervalCallback();
+
 			try {
-				importer = new AreaDataDryRunner(file_, false, userDto, areaDto, ValueSeparator.COMMA,
-						overWrite);
-				importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-			} catch (IOException | CsvValidationException e) {
-				checkForException = true;
-				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-						+ I18nProperties.getString(Strings.messageImportFailed));
+				truncateDryRunTable();
+				
+				
 			} finally {
-				
-				boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
-		        startDataImport.setVisible(!hasErrors);
-				
-//				ImportProgressLayout progressLayout;
-//				try {
-//					progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
-//					
-//					  if (importer != null) {
-//				            progressLayout.makeClosable(() -> {
-//				                if (!checkForException && !importer.hasErrors()) {
-//				                    startDataImport.setVisible(true);
-//				                }
-//				            });
-//				        }
-//				} catch (CsvValidationException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				} catch (IOException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				};
+				System.out.println("Import Data Dry Run Table Truncated-------------------------------------");
+				startIntervalCallback();
+
+				try {
+					importer = new AreaDataDryRunner(file_, false, userDto, areaDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+					ImportProgressLayout progressLayout;
+					try {
+						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+
+						if (importer != null) {
+							progressLayout.makeClosable(() -> {
+								if (!checkForException && !importer.hasErrors()) {
+									startDataImport.setVisible(true);
+								}
+							});
+						}
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					;
+					if (!checkForException && importer != null && !importer.hasErrors()) {
+						startDataImport.setVisible(true);
+					}
+
+					if (!checkForException) {
+
+						progressLayout = null;
+						try {
+							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						} catch (CsvValidationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 
 				
-				 
-				
-//				   if (!checkForException && importer != null && !importer.hasErrors()) {
-//			            startDataImport.setVisible(true);
-//			        }
-				
-//				
-//					if (!checkForException) {
-//						
-//						ImportProgressLayout progressLayout = null;
-//						try {
-//							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
-//						} catch (CsvValidationException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						} catch (IOException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						}
-//						
-//						System.out.println("NNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOO Exception ");
-//						
-//							boolean exceptionValue = progressLayout.hasImportErrors();
-//							System.out.println("NNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOO Exception cccccc" + exceptionValue);
-//
-//							if(!exceptionValue) {
-//								startDataImport.setVisible(true);
-//							}
-//					
-//					}
-			
+						boolean exceptionValue = progressLayout.hasImportErrors();
 
+						if (!exceptionValue) {
+							startDataImport.setVisible(true);
+						}
 
+					}
+				}
 			}
 
 		});
@@ -315,6 +313,15 @@ public class ImportAreaDataDialog extends Dialog {
 			}, 15000); // 10 minutes
 
 			callbackRunning = true;
+		}
+	}
+
+	private void truncateDryRunTable() {
+		try {
+			FacadeProvider.getAreaDryRunFacade().clearDryRunTable();
+
+		} catch (Exception e) {
+
 		}
 	}
 
