@@ -257,7 +257,10 @@ public class CampaignFormMetaWithExpFacadeEjb implements CampaignFormMetaExpiryF
 
 	@LocalBean
 	@Stateless
-	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaWithExpFacadeEjb {
+	public static class CampaignFormMetaWithExpFacadeEjbLocal extends CampaignFormMetaWithExpFacadeEjb {
+		
+		public CampaignFormMetaWithExpFacadeEjbLocal() {
+		}
 	}
 
 

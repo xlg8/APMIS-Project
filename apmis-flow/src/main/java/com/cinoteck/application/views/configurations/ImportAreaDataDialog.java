@@ -273,6 +273,7 @@ public class ImportAreaDataDialog extends Dialog {
 			downloadErrorReportButton.getElement().callJsFunction("click");
 		});
 
+		
 		anchorSpan.add(downloadErrorReportButton);
 
 		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,

@@ -73,6 +73,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.continent.ContinentFacade;
 import de.symeda.sormas.api.infrastructure.country.CountryFacade;
+import de.symeda.sormas.api.infrastructure.district.DistrictDryRunFacade;
 import de.symeda.sormas.api.infrastructure.district.DistrictFacade;
 import de.symeda.sormas.api.geo.GeoShapeProvider;
 import de.symeda.sormas.api.infrastructure.region.RegionDryRunFacade;
@@ -245,6 +246,10 @@ public class FacadeProvider {
 
 	public static DistrictFacade getDistrictFacade() {
 		return get().lookupEjbRemote(DistrictFacade.class);
+	}
+	
+	public static DistrictDryRunFacade getDistrictDryRunFacade() {
+		return get().lookupEjbRemote(DistrictDryRunFacade.class);
 	}
 
 	public static CommunityFacade getCommunityFacade() {

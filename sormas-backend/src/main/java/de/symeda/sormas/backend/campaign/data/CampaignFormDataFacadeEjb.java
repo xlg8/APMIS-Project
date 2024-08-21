@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -93,6 +94,7 @@ import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
 import de.symeda.sormas.backend.campaign.statistics.CampaignStatisticsService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
+import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.PopulationDataFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
@@ -3901,6 +3903,13 @@ resultData.addAll(resultList.stream()
 	@LocalBean
 	@Stateless
 	public static class CampaignFormDataFacadeEjbLocal extends CampaignFormDataFacadeEjb {
+		
+		public CampaignFormDataFacadeEjbLocal() {
+			
+		}
+		
+		
+	
 	}
 
 

@@ -821,6 +821,8 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
 
+		public CampaignFormMetaFacadeEjbLocal() {
+		}
 	}
 
 	

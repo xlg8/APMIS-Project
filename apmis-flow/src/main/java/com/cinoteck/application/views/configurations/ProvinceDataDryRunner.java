@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.ejb.TransactionRolledbackLocalException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionDryRunDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionFacade;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
@@ -265,9 +268,9 @@ public class ProvinceDataDryRunner extends DataImporter {
 			final String finalRProvincename = provinceName;
 			final Long extd = provinceExternalId;
 
-			List<RegionDto> newUserLinetoSave = new ArrayList<>();
+			List<RegionDryRunDto> newUserLinetoSave = new ArrayList<>();
 
-			RegionDto newUserLine = RegionDto.build();
+			RegionDryRunDto newUserLine = RegionDryRunDto.build();
 
 			newUserLine.setArea(finalArea);
 			newUserLine.setExternalId(extd);
@@ -291,15 +294,15 @@ public class ProvinceDataDryRunner extends DataImporter {
 								@Override
 								public Exception apply(ImportCellData cellData) {
 									try {
-										if (RegionDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										if (RegionDryRunDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 											newUserLine_.setName(cellData.getValue());
 											System.out.println(cellData.getValue() +  "cell data value ");
 										}
-										if (RegionDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
+										if (RegionDryRunDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 											newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
 											System.out.println(cellData.getValue() +  "cell data value ");
 										}
-										newUserLinetoSave.add(newUserLine_);
+										newUserLinetoSave.add(newUserLine);
 
 									} catch (NumberFormatException e) {
 										return e;
@@ -309,12 +312,20 @@ public class ProvinceDataDryRunner extends DataImporter {
 								}
 							});
 				 if (!usersDataHasImportError && !stopProcessNow) {
-
+					 boolean checkExeption = false;
 						try {
-							FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
+							FacadeProvider.getRegionDryRunFacade().save(newUserLinetoSave.get(0), true);
 
 							return ImportLineResult.SUCCESS;
 						} catch (ValidationRuntimeException e) {
+							writeImportError(values, e.getMessage());
+							return ImportLineResult.ERROR;
+						} catch (TransactionRolledbackLocalException ex) {
+							checkExeption = true;
+							writeImportError(values, ex.getMessage());
+							return ImportLineResult.ERROR;
+						} catch (Exception e) {
+							checkExeption = true;
 							writeImportError(values, e.getMessage());
 							return ImportLineResult.ERROR;
 						}
@@ -344,7 +355,7 @@ public class ProvinceDataDryRunner extends DataImporter {
 				if (!usersDataHasImportError && !stopProcessNow) {
 					boolean checkExeption = false;
 					try {
-						FacadeProvider.getRegionFacade().save(newUserLinetoSave.get(0), true);
+						FacadeProvider.getRegionDryRunFacade().save(newUserLinetoSave.get(0), true);
 
 						return ImportLineResult.SUCCESS;
 					} catch (ValidationRuntimeException e) {
@@ -356,7 +367,7 @@ public class ProvinceDataDryRunner extends DataImporter {
 							
 							ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 
-							for (RegionDto  regionData : newUserLinetoSave){
+							for (RegionDryRunDto  regionData : newUserLinetoSave){
 								
 								configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 								configurationChangeLogDto.setAction_unit_type("Province");

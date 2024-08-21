@@ -10291,7 +10291,7 @@ INSERT INTO schema_version (version_number, comment) VALUES (470, 'Adding Floati
 
 
 
-CREATE TABLE public.region (
+CREATE TABLE public.regiondryrun (
 	id int8 NOT NULL,
 	changedate timestamp NOT NULL,
 	creationdate timestamp NOT NULL,
@@ -10307,11 +10307,11 @@ CREATE TABLE public.region (
 	hasc varchar NULL,
 	fa_af varchar(100) NULL,
 	ps_af varchar(100) NULL,
-	CONSTRAINT region_pkey PRIMARY KEY (id),
-	CONSTRAINT region_unique_extgernal_id UNIQUE (externalid),
-	CONSTRAINT region_uuid_key UNIQUE (uuid),
-	CONSTRAINT fk_region_area_id FOREIGN KEY (area_id) REFERENCES public.areas(id),
-	CONSTRAINT fk_region_country_id FOREIGN KEY (country_id) REFERENCES public.country(id)
+	CONSTRAINT regiondryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT regiondryrun_unique_extgernal_id UNIQUE (externalid),
+	CONSTRAINT regiondryrun_uuid_key UNIQUE (uuid),
+	CONSTRAINT fk_regiondryrun_area_id FOREIGN KEY (area_id) REFERENCES public.areas(id),
+	CONSTRAINT fk_regiondryrun_country_id FOREIGN KEY (country_id) REFERENCES public.country(id)
 );
 
 

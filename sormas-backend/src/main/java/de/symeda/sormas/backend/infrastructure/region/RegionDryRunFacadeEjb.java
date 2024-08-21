@@ -581,6 +581,20 @@ public class RegionDryRunFacadeEjb extends AbstractInfrastructureEjb<RegionDryRu
 //		return em.createQuery(cq).getResultList().stream().map(RegionDryRunFacadeEjb::toReferenceDto)
 //				.collect(Collectors.toList());
 //	}
+	
+	@Override
+	public void clearDryRunTable() {
+		// TODO Auto-generated method stub
+		
+	    String truncateQuery = "TRUNCATE TABLE regiondryrun";
+
+	    // Create a native query
+	    Query query = em.createNativeQuery(truncateQuery);
+
+	    // Execute the query
+	    query.executeUpdate();
+		
+	}
 
 	private RegionDryRun fillOrBuildEntity(@NotNull RegionDryRunDto source, RegionDryRun target, boolean checkChangeDate) {
 
@@ -599,13 +613,13 @@ public class RegionDryRunFacadeEjb extends AbstractInfrastructureEjb<RegionDryRu
 
 	@LocalBean
 	@Stateless
-	public static class RegionFacadeEjbLocal extends RegionDryRunFacadeEjb {
+	public static class RegionDRyRunFacadeEjbLocal extends RegionDryRunFacadeEjb {
 
-		public RegionFacadeEjbLocal() {
+		public RegionDRyRunFacadeEjbLocal() {
 		}
 
 		@Inject
-		protected RegionFacadeEjbLocal(RegionDryRunService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
+		protected RegionDRyRunFacadeEjbLocal(RegionDryRunService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
 			super(service, featureConfiguration);
 		}
 	}

@@ -304,7 +304,7 @@ public class ImportProvinceDataDialog extends Dialog {
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
 		dialog.add(step1, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
-				upload, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
@@ -371,7 +371,7 @@ public class ImportProvinceDataDialog extends Dialog {
 
 	private void truncateDryRunTable() {
 		try {
-			FacadeProvider.getAreaDryRunFacade().clearDryRunTable();
+			FacadeProvider.getRegionDryRunFacade().clearDryRunTable();
 
 		} catch (Exception e) {
 

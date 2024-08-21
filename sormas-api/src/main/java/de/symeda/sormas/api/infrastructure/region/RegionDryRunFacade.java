@@ -75,4 +75,6 @@ public interface RegionDryRunFacade extends GeoLocationFacade<RegionDryRunDto, R
 	List<RegionIndexDto> getAllRegions();
 
 	String getMapDiagramRegionHascByUuid(String chartrandom);
+
+	void clearDryRunTable();
 }

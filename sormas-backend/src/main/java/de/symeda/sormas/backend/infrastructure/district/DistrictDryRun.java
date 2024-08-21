@@ -15,50 +15,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *******************************************************************************/
-package de.symeda.sormas.backend.infrastructure.region;
+package de.symeda.sormas.backend.infrastructure.district;
 
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_DEFAULT;
 
 import java.util.List;
+import java.util.ListIterator;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
 import de.symeda.sormas.backend.common.InfrastructureAdo;
-import de.symeda.sormas.backend.infrastructure.area.Area;
-import de.symeda.sormas.backend.infrastructure.country.Country;
-import de.symeda.sormas.backend.infrastructure.district.District;
+import de.symeda.sormas.backend.infrastructure.community.Community;
+import de.symeda.sormas.backend.infrastructure.region.Region;
 
 @Entity
-public class RegionDryRun extends InfrastructureAdo {
+public class DistrictDryRun extends InfrastructureAdo {
 
-	private static final long serialVersionUID = -2958216667876104358L;
+	private static final long serialVersionUID = -6057113756091470463L;
 
-	public static final String TABLE_NAME = "regiondryrun";
+	public static final String TABLE_NAME = "districtdryrun";
 
 	public static final String NAME = "name";
 	public static final String FA_AF = "fa_af";
 	public static final String PS_AF = "ps_af";
+	public static final String REGION = "region";
 	public static final String EPID_CODE = "epidCode";
-	public static final String DISTRICTS = "districts";
+	public static final String RISK = "risk";
+	public static final String COMMUNITIES = "communities";
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String EXTERNAL_ID = "externalId";
-	public static final String AREA = "area";
-	public static final String COUNTRY = "country";
 
 	private String name;
 	private String fa_af;
 	private String ps_af;
+	private Region region;
 	private String epidCode;
-	private List<District> districts;
+	private String risk;
+	private List<Community> communities;
 	private Float growthRate;
 	private Long externalId;
-	private Area area;
-	private Country country;
 
 	public String getName() {
 		return name;
@@ -67,7 +69,6 @@ public class RegionDryRun extends InfrastructureAdo {
 	public void setName(String name) {
 		this.name = name;
 	}
-
 	
 	public String getFa_af() {
 		return fa_af;
@@ -85,6 +86,16 @@ public class RegionDryRun extends InfrastructureAdo {
 		this.ps_af = ps_af;
 	}
 
+	@ManyToOne(cascade = CascadeType.REFRESH, optional = false)
+	@JoinColumn(nullable = false)
+	public Region getRegion() {
+		return region;
+	}
+
+	public void setRegion(Region region) {
+		this.region = region;
+	}
+
 	public String getEpidCode() {
 		return epidCode;
 	}
@@ -93,19 +104,22 @@ public class RegionDryRun extends InfrastructureAdo {
 		this.epidCode = epidCode;
 	}
 
-	@OneToMany(mappedBy = District.REGION, cascade = {}, fetch = FetchType.LAZY)
-	@OrderBy(District.NAME)
-	public List<District> getDistricts() {
-		return districts;
+	public String getRisk() {
+		return risk;
 	}
 
-	public void setDistricts(List<District> districts) {
-		this.districts = districts;
+	public void setRisk(String risk) {
+		this.risk = risk;
 	}
 
-	@Override
-	public String toString() {
-		return getName();
+	@OneToMany(mappedBy = Community.DISTRICT, cascade = {}, fetch = FetchType.LAZY)
+	@OrderBy(DistrictDryRun.NAME)
+	public List<Community> getCommunities() {
+		return communities;
+	}
+
+	public void setCommunities(List<Community> communities) {
+		this.communities = communities;
 	}
 
 	public Float getGrowthRate() {
@@ -116,9 +130,7 @@ public class RegionDryRun extends InfrastructureAdo {
 		this.growthRate = growthRate;
 	}
 
-	
-	//unsure... changed these to Id instead of ID...
-	@Column(length = CHARACTER_LIMIT_DEFAULT)
+	// @Column(length = CHARACTER_LIMIT_DEFAULT)
 	public Long getExternalId() {
 		return externalId;
 	}
@@ -127,23 +139,8 @@ public class RegionDryRun extends InfrastructureAdo {
 		this.externalId = externalId;
 	}
 
-	@ManyToOne
-	public Area getArea() {
-		return area;
+	@Override
+	public String toString() {
+		return getName();
 	}
-
-	public void setArea(Area area) {
-		this.area = area;
-	}
-
-	@ManyToOne
-	public Country getCountry() {
-		return country;
-	}
-
-	public void setCountry(Country country) {
-		this.country = country;
-	}
-	
-	
 }
