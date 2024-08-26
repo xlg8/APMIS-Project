@@ -17,6 +17,8 @@ package de.symeda.sormas.app.rest;
 
 import java.util.List;
 
+import de.symeda.sormas.api.PushResult;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.user.UserDto;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -38,6 +40,6 @@ public interface UserFacadeRetro {
 	@GET("users/uuids")
 	Call<List<String>> pullUuids();
 
-	@POST("/fcm/token/{username}/{token}")
-	Call<Boolean> updateFcmToken(@Path("username") String username, @Path("token") String token);
+	@POST("/users/push")
+	Call<List<PushResult>> pushAll(@Body List<UserDto> dtos);
 }

@@ -57,6 +57,7 @@ import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.HasUuid;
 import de.symeda.sormas.api.campaign.CampaignLogDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogCriteria;
@@ -82,7 +83,9 @@ import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DefaultEntityHelper;
 import de.symeda.sormas.api.utils.PasswordHelper;
 import de.symeda.sormas.api.utils.SortProperty;
+import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.campaign.CampaignLog;
+import de.symeda.sormas.backend.campaign.data.CampaignFormData;
 import de.symeda.sormas.backend.caze.Case;
 import de.symeda.sormas.backend.caze.CaseFacadeEjb.CaseFacadeEjbLocal;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
@@ -162,14 +165,14 @@ public class UserFacadeEjb implements UserFacade {
 
 	@EJB
 	private UserFacadeEjb.UserFacadeEjbLocal userServiceEBJ;
-	
+
 	public static String extractToken(User source) {
-		
+
 		if (source == null) {
 			return null;
 		}
-		
-		return source.getToken();		
+
+		return source.getToken();
 	}
 
 	public static UserDto toDto(User source) {
@@ -442,18 +445,16 @@ public class UserFacadeEjb implements UserFacade {
 
 	@Override
 	public List<UserDto> getAllAfter(Date date) {
-		
-		
-		 List<User> usr = new ArrayList<>();
+
+		List<User> usr = new ArrayList<>();
 		usr.add(userService.getCurrentUser());
-		return usr.stream()
-				.filter(ft -> userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c -> toDto(c))
+		return usr.stream().filter(ft -> userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c -> toDto(c))
 				.collect(Collectors.toList());
-		 /*
-		return userService.getAllAfter(date, null).stream()
-				.filter(ft -> userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c -> toDto(c))
-				.collect(Collectors.toList());
-				*/
+		/*
+		 * return userService.getAllAfter(date, null).stream() .filter(ft ->
+		 * userService.getCurrentUser().getUuid().equals(ft.getUuid())).map(c ->
+		 * toDto(c)) .collect(Collectors.toList());
+		 */
 	}
 
 	@Override
@@ -779,7 +780,7 @@ public class UserFacadeEjb implements UserFacade {
 		target.setArea(areaService.getByReferenceDto(source.getArea()));
 		target.setRegion(regionService.getByReferenceDto(source.getRegion()));
 		target.setDistrict(districtService.getByReferenceDto(source.getDistrict()));
-		if(source.getDistricts() !=  null) {
+		if (source.getDistricts() != null) {
 			target.setDistricts(districtService.getByReferenceDto(source.getDistricts()));
 		}
 		target.setCommunity(communityService.getByReferenceDto(source.getCommunity()));
@@ -835,7 +836,7 @@ public class UserFacadeEjb implements UserFacade {
 
 	@Override
 	public Set<UserRole> getValidLoginRoles(String userName, String password) {
-System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
+		System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		User user = userService.getByUserName(userName);
 		if (user != null && user.isActive()) {
 			if (DataHelper.equal(user.getPassword(), PasswordHelper.encodePassword(password, user.getSeed()))) {
@@ -972,8 +973,6 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		target.setActionModule(source.getActionModule());
 		return target;
 	}
-	
-
 
 	@Override
 	public List<UserActivitySummaryDto> getUsersActivityByModule(String module) {
@@ -995,44 +994,43 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 
 		System.out.println("starting....");
 
-		resultData.addAll(resultList.stream().map(
-				(result) -> new UserActivitySummaryDto((String) result[0].toString(), (String) result[1].toString(),
-	        		(String) result[2].toString(),
-	        		(Date) result[3]
-	        		)).collect(Collectors.toList()));
-	
-	
-	return resultData;	}
-	
+		resultData.addAll(resultList.stream()
+				.map((result) -> new UserActivitySummaryDto((String) result[0].toString(),
+						(String) result[1].toString(), (String) result[2].toString(), (Date) result[3]))
+				.collect(Collectors.toList()));
+
+		return resultData;
+	}
 
 	@Override
 	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses) {
 		// TODO Auto-generated method stub
 		List<User> users = userService.getByUuids(userUuids);
 		for (User user : users) {
-		
+
 			user.setFormAccess(accesses);
 			userService.ensurePersisted(user);
 
 			userUpdateEvent.fire(new UserUpdateEvent(user));
 		}
-		
+
 	}
+
 //	
 	public void bulkUpdateUserRoles(List<String> userUuids, UserDto userDto) {
-		
+
 		List<User> users = userService.getByUuids(userUuids);
 		for (User user : users) {
-		
+
 			user.setUserRoles(new HashSet<UserRole>(userDto.getUserRoles()));
 
 			user.setArea(areaService.getByReferenceDto(userDto.getArea()));
 			user.setRegion(regionService.getByReferenceDto(userDto.getRegion()));
 			user.setDistrict(districtService.getByReferenceDto(userDto.getDistrict()));
 			user.setDistricts(districtService.getByReferenceDto(userDto.getDistricts()));
-			System.out.println("User Roles from Userfaceade ejb when saving " +userDto.getCommunity());
+			System.out.println("User Roles from Userfaceade ejb when saving " + userDto.getCommunity());
 //			if (userDto.getCommunity().size() > 0) {
-				user.setCommunity(communityService.getByReferenceDto(userDto.getCommunity()));
+			user.setCommunity(communityService.getByReferenceDto(userDto.getCommunity()));
 
 //			}else {
 //				Set<CommunityReferenceDto> emptyCommunity = new HashSet<>();
@@ -1042,7 +1040,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 
 			userUpdateEvent.fire(new UserUpdateEvent(user));
 		}
-		
+
 	}
 //	
 //	
@@ -1089,7 +1087,7 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 		if (filter != null) {
 			cq.where(filter);
 		}
-		
+
 		return QueryHelper.getResultList(em, cq, 0, Integer.MAX_VALUE, UserFacadeEjb::extractToken);
 	}
 
@@ -1101,37 +1099,32 @@ System.out.println("sgetValidLoginRoles+ dfgasdfgasgas+++");
 //		final String unitType = criteria.getUnitType();
 //		final String action = criteria.getAction();
 //		final Long unitCode = criteria.getUnitCode();
-		
+
 //		final String unitNameFilter = unitName != null ? "action_unit_name = "
 
-		
-		
 		final String joinBuilder = " select creatinguser, action_unit_type, action_unit_name, unit_code, action_logged, creationdate, action_date "
 				+ "from configurationchangelog; ";
-		
+
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
 		List<ConfigurationChangeLogDto> resultData = new ArrayList<>();
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList();
-		
-		resultData.addAll(
-				resultList.stream()
-				.map(
-				(result) -> new ConfigurationChangeLogDto(
-					(String) result[0].toString(), 
-					(String) result[1].toString(),
-	        		(String) result[2].toString(),
-	        		((BigInteger) result[3]).longValue(),
-	        		(String) result[4].toString(),
-	        		(Date) result[5],
-	        		(Date) result[6]
-	        		)).collect(Collectors.toList()));
-	
-		
-	return resultData;
+
+		resultData.addAll(resultList.stream()
+				.map((result) -> new ConfigurationChangeLogDto((String) result[0].toString(),
+						(String) result[1].toString(), (String) result[2].toString(),
+						((BigInteger) result[3]).longValue(), (String) result[4].toString(), (Date) result[5],
+						(Date) result[6]))
+				.collect(Collectors.toList()));
+
+		return resultData;
 	}
-	
 
-
-
+	@Override
+	public UserDto saveUserFcmMobile(@Valid UserDto dto) {
+		System.out.println("Backend hereeeeeeeeeeee token " + dto.getToken());
+		User fromDto = fromDto(dto, false);
+		userService.ensurePersisted(fromDto);
+		return toDto(fromDto);
+	}
 }
