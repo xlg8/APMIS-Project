@@ -283,7 +283,12 @@ public class ImportAreaDataDialog extends Dialog {
 		anchorSpan.getStyle().set("display", "none");
 
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
+			UI.getCurrent().getPage().executeJs("window.inactivityHandler.stopTimer();");
+			UI.getCurrent().getPage().executeJs("window.inactivityHandler.resetTimer($0);", 60000);
 			close();
+			
+			UI.getCurrent().getPage().executeJs("window.inactivityHandler.startInactivityTimer(); "
+					+ "console.log(\"Time out function Reset-------------------------\");");
 //			stopIntervalCallback();
 
 		});

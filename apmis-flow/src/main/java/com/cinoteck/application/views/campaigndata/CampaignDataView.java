@@ -935,6 +935,16 @@ public class CampaignDataView extends VerticalLayout
 			CampaignDto campaignUuid = FacadeProvider.getCampaignFacade().getByUuid(campaignz.getValue().getUuid());
 
 			if (importFormData.getValue() != null) {
+				
+				startIntervalCallback();		
+				UI.getCurrent().addPollListener(event -> {
+					if (callbackRunning) {
+						UI.getCurrent().access(this::pokeFlow);
+					} else {
+						stopPullers();
+					}
+				});
+				
 				// CampaignReferenceDto camapigndto, CampaignFormMetaDto campaignFormMetaDto
 				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(),
 						importFormData.getValue(), campaignUuid);
@@ -2036,86 +2046,26 @@ public class CampaignDataView extends VerticalLayout
 	}
 
 	private void pokeFlow() {
-		System.out.println("pokeee  IntervalCallback_________________");
-		VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
-		logger.debug("Attemptig to start import ...");
+		logger.debug("runingImport...");
 	}
-
+	
+	
 	private void startIntervalCallback() {
-		System.out.println("start IntervalCallback_________________");
-
-//		 UI.getCurrent().setPollInterval(300);
+		UI.getCurrent().setPollInterval(5000);
 		if (!callbackRunning) {
 			timer = new Timer();
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
 //					stopIntervalCallback();
-//					pokeFlow();
-//					resetSessionMaxInterval();
-
-					printAllThreads();
 				}
-			}, 0, 1000); // 10 minutes
+			}, 15000); // 10 minutes
 
 			callbackRunning = true;
 		}
 	}
 
-	public static void printAllThreads() {
-		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
-
-		for (Map.Entry<Thread, StackTraceElement[]> entry : threadMap.entrySet()) {
-			Thread thread = entry.getKey();
-			StackTraceElement[] stackTrace = entry.getValue();
-
-			System.out.println("Thread Name: " + thread.getName());
-			System.out.println("Thread ID: " + thread.getId());
-			System.out.println("Thread State: " + thread.getState());
-			System.out.println("Is Daemon: " + thread.isDaemon());
-			System.out.println("Stack Trace:");
-
-			for (StackTraceElement element : stackTrace) {
-				System.out.println("\tat " + element);
-			}
-
-			System.out.println("----------------------------");
-		}
-	}
-
-	private void resetSessionMaxInterval() {
-
-		System.out.println(VaadinSession.getCurrent().getSession().getMaxInactiveInterval()
-				+ "Tinmer-------------------------------------------");
-		UI ui = new UI();
-		System.out.println(ui.getCurrent() + "Tinmerui-------------------------------------------");
-
-		ui.getCurrent().access(this::pokeFlow);
-//				.filter(component -> component instanceof MainLayout).findFirst().orElse(null);
-
-//		if (mainLayout != null) {
-//			IdleNotification idleNotification = mainLayout.getIdleNotification();
-//			if (idleNotification != null) {
-//// Now you can interact with idleNotification
-//			}
-//			System.err.println("MainLayout is ----available.");
-//		} else {
-//			System.err.println("MainLayout is not available.");
-//		}
-
-//	    UI.getCurrent().access(() -> {
-//	        VaadinSession session = VaadinSession.getCurrent();
-//	        if (session != null) {
-//	            session.getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
-//	            System.out.println("Session maxInactiveInterval reset to 20 minutes");
-//	        } else {
-//	            System.err.println("VaadinSession is null. Cannot reset maxInactiveInterval.");
-//	        }
-//	    });
-	}
-
 	private void stopIntervalCallback() {
-		System.out.println("stopIntervalCallback_________________");
 		if (callbackRunning) {
 			callbackRunning = false;
 			if (timer != null) {
@@ -2124,7 +2074,34 @@ public class CampaignDataView extends VerticalLayout
 			}
 
 		}
+		
 	}
+	
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
+
+//	public static void printAllThreads() {
+//		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+//
+//		for (Map.Entry<Thread, StackTraceElement[]> entry : threadMap.entrySet()) {
+//			Thread thread = entry.getKey();
+//			StackTraceElement[] stackTrace = entry.getValue();
+//
+//			System.out.println("Thread Name: " + thread.getName());
+//			System.out.println("Thread ID: " + thread.getId());
+//			System.out.println("Thread State: " + thread.getState());
+//			System.out.println("Is Daemon: " + thread.isDaemon());
+//			System.out.println("Stack Trace:");
+//
+//			for (StackTraceElement element : stackTrace) {
+//				System.out.println("\tat " + element);
+//			}
+//
+//			System.out.println("----------------------------");
+//		}
+//	}
+
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {

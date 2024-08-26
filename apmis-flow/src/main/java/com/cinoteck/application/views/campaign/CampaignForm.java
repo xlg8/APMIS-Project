@@ -13,9 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.user.UserUiHelper;
@@ -192,6 +196,13 @@ public class CampaignForm extends VerticalLayout {
 	Checkbox selectDistrictCheckbox = new Checkbox();
 
 	List<CampaignTreeGridDto> deletelist = new ArrayList<>();
+	
+	
+	boolean isClickListenerAttached;
+	private boolean callbackRunning = false;
+	private Timer timer;
+	protected final org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
+
 
 	public CampaignForm(CampaignDto formData) {
 
@@ -551,6 +562,18 @@ public class CampaignForm extends VerticalLayout {
 
 		btnImport.addClickListener(e -> {
 			if (campaignDto != null) {
+				
+				startIntervalCallback();		
+				UI.getCurrent().addPollListener(event -> {
+					if (callbackRunning) {
+						UI.getCurrent().access(this::pokeFlow);
+					} else {
+						stopPullers();
+					}
+				});
+				
+				
+				
 				ImportPopulationDataDialog dialog = new ImportPopulationDataDialog(InfrastructureType.POPULATION_DATA,
 						campaignDto);
 				dialog.open();
@@ -2554,6 +2577,43 @@ public class CampaignForm extends VerticalLayout {
 		}
 		return elements;
 
+	}
+	
+	
+	private void pokeFlow() {
+		logger.debug("runingImport...");
+	}
+	
+	
+	private void startIntervalCallback() {
+		UI.getCurrent().setPollInterval(5000);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+//					stopIntervalCallback();
+				}
+			}, 15000); // 10 minutes
+
+			callbackRunning = true;
+		}
+	}
+
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+
+		}
+		
+	}
+	
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
 	}
 
 }

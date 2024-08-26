@@ -1,6 +1,8 @@
 package com.cinoteck.application.views.configurations;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
+//import com.cinoteck.application.views.utils.InactivityHandler;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
@@ -98,6 +100,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 
 	private Button createNewArea;
 	private Button importArea;
+//	private InactivityHandler inactivityHandler;
 
 	ComboBox<EntityRelevanceStatus> relevanceStatusFilter = new ComboBox<>();
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
@@ -123,14 +126,13 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-
 	ConfirmDialog archiveDearchiveConfirmation;
 
-	public RegionView() {
+	public RegionView(MainLayout mainLayout) {
 		setSpacing(false);
 		setHeightFull();
 		setSizeFull();
-		addRegionFilter();
+		addRegionFilter(mainLayout);
 		regionGrid(criteria);
 
 	}
@@ -160,7 +162,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 			label.getStyle().set("color", "var(--lumo-body-text-color) !important");
 			return label;
 		});
-		
+
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
 
 			grid.addColumn(AreaDto::getPs_af).setHeader(I18nProperties.getCaption(Captions.area)).setSortable(true)
@@ -185,10 +187,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					.setResizable(true).setSortable(true).setAutoWidth(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.Area_externalId));
 		}
-		
+
 		grid.addColumn(AreaDto::provideActiveStatus).setHeader(I18nProperties.getCaption(Captions.relevanceStatus))
-		.setResizable(true).setSortable(true).setAutoWidth(true)
-		.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
+				.setResizable(true).setSortable(true).setAutoWidth(true)
+				.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.relevanceStatus));
 
 		// grid.setItemDetailsRenderer(createAreaEditFormRenderer());
 		grid.setVisible(true);
@@ -250,8 +252,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		countRowItems.setId("rowCount");
 	}
 
-	private void addRegionFilter() {
-
+	private void addRegionFilter(MainLayout mainLayout) {
+		
+//		inactivityHandler = new InactivityHandler();
+		
 		if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
 			enterBulkEdit = new Button(I18nProperties.getCaption(Captions.actionEnterBulkEditMode));
 			leaveBulkEdit = new Button();
@@ -345,7 +349,12 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 		importArea.getStyle().set("background", "#0D6938");
 		importArea.setIcon(new Icon(VaadinIcon.DOWNLOAD));
 		importArea.addClickListener(event -> {
-
+//			inactivityHandler.stopTimer();
+//			inactivityHandler.resetTimer();
+			
+//			UI.getCurrent().getPage().executeJs(
+//					"window.inactivityHandler.stopTimer(); "
+//					+ "console.log(\"Time out function stopped-------------------------\");");
 			ImportAreaDataDialog dialog = new ImportAreaDataDialog();
 			dialog.open();
 
@@ -504,7 +513,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToArchiveSelecetdRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().archive(selectedRow.getUuid());
-						
+
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Region");
@@ -512,7 +521,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk Archive");
 						configurationChangeLogDto.setAction_date(date);
-								
+
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
@@ -525,7 +534,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							.setText(I18nProperties.getString(Strings.areYouSureYouWantToDearchiveSelectedRegions));
 					archiveDearchiveConfirmation.addConfirmListener(e -> {
 						FacadeProvider.getAreaFacade().dearchive(selectedRow.getUuid());
-						
+
 						ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 						configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 						configurationChangeLogDto.setAction_unit_type("Region");
@@ -533,7 +542,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 						configurationChangeLogDto.setUnit_code(selectedRow.getExternalId());
 						configurationChangeLogDto.setAction_logged("Bulk De-Archive");
 						configurationChangeLogDto.setAction_date(date);
-					
+
 						FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 
 						refreshGridData();
@@ -603,7 +612,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("De-Archive");
 								configurationChangeLogDto.setAction_date(date);
-					
+
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								dialog.close();
 								refreshGridData();
@@ -624,9 +633,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setUnit_code(areaDto.getExternalId());
 								configurationChangeLogDto.setAction_logged("Archive");
 								configurationChangeLogDto.setAction_date(date);
-				
+
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-								
+
 								dialog.close();
 								refreshGridData();
 							});
@@ -688,8 +697,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 							notification.add(layout);
 							notification.open();
 //					        Notification.show("An error occurred while saving: " + e.getMessage());
-						}finally {
-							if(!exceptionCheck) {
+						} finally {
+							if (!exceptionCheck) {
 //								ConfigurationChangeLogDto(String creatingUser_string, String action_unit_type, String action_unit_name,
 //										String unit_code, String action_logged)
 								ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
@@ -701,7 +710,7 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								configurationChangeLogDto.setAction_date(date);
 
 								FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
-								
+
 							}
 						}
 					} else {
@@ -741,9 +750,9 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 								notification.add(layout);
 								notification.open();
 //							        Notification.show("An error occurred while saving: " + e.getMessage());
-							}finally {
-								
-								if(!checkexception) {
+							} finally {
+
+								if (!checkexception) {
 									ConfigurationChangeLogDto configurationChangeLogDto = new ConfigurationChangeLogDto();
 									configurationChangeLogDto.setCreatinguser(userProvider.getUser().getUserName());
 									configurationChangeLogDto.setAction_unit_type("Region");
@@ -751,10 +760,10 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 									configurationChangeLogDto.setUnit_code(rcodeValue);
 									configurationChangeLogDto.setAction_logged("Region Create");
 									configurationChangeLogDto.setAction_date(date);
-																	
+
 									FacadeProvider.getAreaFacade().saveAreaChangeLog(configurationChangeLogDto);
 								}
-								
+
 							}
 						} else if (ccc.size() >= 1) {
 							Notification notification = new Notification();

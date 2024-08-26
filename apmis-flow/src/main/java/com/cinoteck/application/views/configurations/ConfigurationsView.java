@@ -57,9 +57,11 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 	Button displayActionButtons = new Button("Show Action Buttons", new Icon(VaadinIcon.SLIDERS));
 
 	UserProvider userProvider = new UserProvider();
+	MainLayout mainLayout = new MainLayout();
+	
 
 	private Tabs createTabs() {
-		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.area)), new RegionView());
+		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.area)), new RegionView(mainLayout));
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.region)), new ProvinceView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.district)), new DistrictView());
 		tabComponentMap.put(new Tab(I18nProperties.getCaption(Captions.community)), new ClusterView());
@@ -151,7 +153,7 @@ public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 		exportButton.getStyle().set("background", "#0C5830");
 		exportButton.setVisible(false);
 		exportButton.addClickListener(e -> {
-			RegionView reg = new RegionView();
+//			RegionView reg = new RegionView();
 //        	reg.exportArea();
 		});
 
