@@ -925,7 +925,12 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 
 		final String joinBuilder = "truncate table populationdatadryrun;";
 		
-		em.createNativeQuery(joinBuilder);
+		
+		  Query query = em.createNativeQuery(joinBuilder);
+
+		    // Execute the query
+		    query.executeUpdate();
+//		em.createNativeQuery(joinBuilder);
 
 	}
 

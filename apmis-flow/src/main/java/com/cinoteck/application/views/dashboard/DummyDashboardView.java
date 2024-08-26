@@ -19,33 +19,33 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 @PageTitle("APMIS-Analytics Dashboard")
-@Route(value = "dashbords", layout = MainLayout.class)
+@Route(value = "analytics", layout = MainLayout.class)
 
-public class AnalyticsDashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
+public class DummyDashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	private static final long serialVersionUID = 1851726752523985165L;
 
-	protected static final Logger logger = LogManager.getLogger(AnalyticsDashboardView.class);
+	protected static final Logger logger = LogManager.getLogger(DummyDashboardView.class);
 	protected CampaignDashboardDataProvider dataProvider;
 	private boolean callbackRunning = false;
 	private Timer timer;
 
-	public AnalyticsDashboardView() {		
-//		Html html = new Html(
-//				"<iframe src='https://nalytic.afghanistan-apmis.com/' style='width:100%; height:100%;'></iframe>");
-//	
-//		startIntervalCallback();		
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
-//		
-//
-//		UI.getCurrent().getPage().executeJs("$('#togglecollapse').click();");
-//		add(html);
+	public DummyDashboardView() {		
+		Html html = new Html(
+				"<iframe src='https://nalytic.afghanistan-apmis.com/' style='width:100%; height:100%;'></iframe>");
+	
+		startIntervalCallback();		
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
+		
+
+		UI.getCurrent().getPage().executeJs("$('#togglecollapse').click();");
+		add(html);
 		setSizeFull();
 	}
 

@@ -10315,6 +10315,31 @@ CREATE TABLE public.regiondryrun (
 );
 
 
+
+CREATE TABLE public.districtdryrun (
+	id int8 NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	"name" varchar(255) NULL,
+	"uuid" varchar(36) NOT NULL,
+	region_id int8 NOT NULL,
+	epidcode varchar(255) NULL,
+	growthrate float4 NULL,
+	archived bool DEFAULT false NULL,
+	externalid_ varchar(512) NULL,
+	externalid int8 NULL,
+	risk varchar(45) NULL,
+	hasc varchar NULL,
+	fa_af varchar(100) NULL,
+	ps_af varchar(100) NULL,
+	CONSTRAINT districtdryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT districtdryrun_unique_extgernal_id UNIQUE (externalid),
+	CONSTRAINT districtdryrun_uuid_key UNIQUE (uuid)
+);
+
+ALTER TABLE public.districtdryrun ADD CONSTRAINT fk_districtdryrun_region_id FOREIGN KEY (region_id) REFERENCES public.region(id);
+
+
 INSERT INTO schema_version (version_number, comment) VALUES (471, 'Implementing Region Dry Run Functionality');
 
 

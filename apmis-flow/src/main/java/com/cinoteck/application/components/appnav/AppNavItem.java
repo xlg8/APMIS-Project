@@ -4,6 +4,7 @@ import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -126,6 +127,8 @@ public class AppNavItem extends Component {
 //    		accessControl.isUserSignedIn();
 			getElement().addEventListener("click", e -> {
 				getUI().ifPresent(ui -> ui.getPage().executeJs("window.open($0, '_blank')", path));
+				
+				UI.getCurrent().getPage().reload();
 			});
 		} // else {
 		

@@ -16,6 +16,7 @@ import com.cinoteck.application.views.about.AboutView;
 import com.cinoteck.application.views.campaign.CampaignsView;
 import com.cinoteck.application.views.campaigndata.CampaignDataView;
 import com.cinoteck.application.views.configurations.ConfigurationsView;
+import com.cinoteck.application.views.dashboard.AnalyticsDashboardView;
 //import com.cinoteck.application.views.dashboard.NewDashboardView;
 import com.cinoteck.application.views.myaccount.MyAccountView;
 //import com.cinoteck.application.views.pivot.PivotTableView;
@@ -158,7 +159,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		UI.getCurrent().add(idleNotification);
 
-		addToNavbar(true, toggle, titleLayout);
+//		addToNavbar(true, toggle, titleLayout);
 //
 //		inactivityHandler = new InactivityHandler();
 //		inactivityHandler.setWidth("0%");
@@ -222,11 +223,11 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 					VaadinIcon.CLIPBOARD_TEXT, "navitem"));
 		}
 
-		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
+//		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
 			// NOTE : On the long run if we would not be using an external link here
 			// remeber that we can pass the subdomain url here to open in a new tab
 			//
-			AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), CampaignDataView.class, 
+			AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), AnalyticsDashboardView.class, 
 					VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/", "navitem");
 
 			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
@@ -235,7 +236,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			}
 
 			nav.addItem(newDashboardNavItem);
-		}
+//		}
 
 		if (userProvider.hasUserRight(UserRight.CONFIGURATION_ACCESS)) {
 			if (userProvider.getUser().getUsertype() == UserType.WHO_USER
