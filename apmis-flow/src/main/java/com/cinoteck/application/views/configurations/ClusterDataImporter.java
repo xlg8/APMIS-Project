@@ -106,6 +106,7 @@ public class ClusterDataImporter extends DataImporter {
 	public ValueSeparator getCsvSeparator() {
         return csvSeparator;
     }
+
 	
 	  public List<String> extractColumnValues(String columnName) throws IOException {
 	        Set<String> columnValues = new HashSet<>();
@@ -459,9 +460,20 @@ public class ClusterDataImporter extends DataImporter {
 												.getByExternalId(externalId, false);
 										DistrictReferenceDto districtReferenceDto = areasz.get(0);
 										newUserLine_.setDistrict(districtReferenceDto);
+										
 //											newUserLine_.setArea(cellData.getValue());
 									}
-
+									
+									
+									/* PLEASE MAKE SURE TO REMOVE THIS SETTING OF FLOAT UNTIL WE GET A CLEAR DESCRIPTION ON WETHER 
+									 * IT SHOULD BE A COMPULSORY FIELD TO FILL WHEN UPLOADING CLUSTERS IN IMPORT --SEGUN
+									 * 
+									 * REPEAT THE PROCESS IN THE ELSE STATEMENT WHEN THIS HAS BEEN FIXED 
+									 */
+									newUserLine_.setFloating("");
+									
+									
+									
 									newUserLinetoSave.add(newUserLine_);
 
 								} catch (NumberFormatException e) {
@@ -534,6 +546,15 @@ public class ClusterDataImporter extends DataImporter {
 										newUserLine_.setDistrict(districtReferenceDto);
 //											newUserLine_.setArea(cellData.getValue());
 									}
+									
+									/* PLEASE MAKE SURE TO REMOVE THIS SETTING OF FLOAT UNTIL WE GET A CLEAR DESCRIPTION ON WETHER 
+									 * IT SHOULD BE A COMPULSORY FIELD TO FILL WHEN UPLOADING CLUSTERS IN IMPORT --SEGUN
+									 * 
+									 * REPEAT THE PROCESS IN THE IF STATEMENT WHEN THIS HAS BEEN FIXED 
+									 */
+									newUserLine_.setFloating("");
+									
+									
 
 									newUserLinetoSave.add(newUserLine_);
 
@@ -610,6 +631,15 @@ public class ClusterDataImporter extends DataImporter {
 									newUserLine.setDistrict(districtReferenceDto);
 //										newUserLine.setArea(cellData.getValue());
 								}
+								
+								/* PLEASE MAKE SURE TO REMOVE THIS SETTING OF FLOAT UNTIL WE GET A CLEAR DESCRIPTION ON WETHER 
+								 * IT SHOULD BE A COMPULSORY FIELD TO FILL WHEN UPLOADING CLUSTERS IN IMPORT --SEGUN
+								 * 
+								 * REPEAT THE PROCESS IN THE ELSE STATEMENT WHEN THIS HAS BEEN FIXED 
+								 */
+								newUserLine.setFloating("");
+								
+								
 
 								newUserLinetoSave.add(newUserLine);
 

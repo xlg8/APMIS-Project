@@ -684,12 +684,21 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		if (filter != null) {
 			
-
+//System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
 			if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
+
 				cq.where(filter, filterxx);
 			} else if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ALL) {
-				cq.where(filter, filterxx);
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
+
+				cq.where(filter, filterxy);
 			} else {
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
+
 				cq.where(filter, filterx);
 			}
 			

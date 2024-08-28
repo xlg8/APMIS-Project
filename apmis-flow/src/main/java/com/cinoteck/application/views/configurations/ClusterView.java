@@ -292,7 +292,7 @@ public class ClusterView extends VerticalLayout {
 			grid.addColumn(CommunityDto::getName).setHeader(I18nProperties.getCaption(Captions.community))
 					.setSortable(true).setResizable(true)
 					.setTooltipGenerator(e -> I18nProperties.getCaption(Captions.community));
-			grid.addColumn(clusterNumberRenderer).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
+			grid.addColumn(CommunityDto::getClusterNumber).setHeader(I18nProperties.getCaption(Captions.clusterNumber))
 					.setSortable(true).setComparator(Comparator.comparing(CommunityDto::getClusterNumber))
 					.setResizable(true).setTooltipGenerator(e -> I18nProperties.getCaption(Captions.clusterNumber))
 					.setSortProperty("clusterNumber");
@@ -601,6 +601,8 @@ public class ClusterView extends VerticalLayout {
 		relevanceStatusFilter.setClearButtonVisible(true);
 		relevanceStatusFilter.addValueChangeListener(e -> {
 			if (relevanceStatusFilter.getValue() == null) {
+				System.out.println(" Nullll  has beeen actiovated ===============");
+
 				EntityRelevanceStatus selectedStatus = e.getValue();
 				criteria.relevanceStatus(selectedStatus);
 				refreshGridData();
@@ -619,6 +621,7 @@ public class ClusterView extends VerticalLayout {
 				refreshGridData();
 
 			} else if (relevanceStatusFilter.getValue().equals(EntityRelevanceStatus.ALL)) {
+				System.out.println(" Alllll has beeen actiovated ===============");
 
 				subMenu.removeAll();
 //				subMenu.addItem(I18nProperties.getCaption(Captions.actionDearchive),
@@ -628,6 +631,8 @@ public class ClusterView extends VerticalLayout {
 				refreshGridData();
 
 			} else {
+				
+				System.out.println(" Elswe has beeen actiovated ===============");
 				subMenu.removeAll();
 				subMenu.addItem(I18nProperties.getString(Strings.selectActiveArchivedRelevance));
 				EntityRelevanceStatus selectedStatus = e.getValue();

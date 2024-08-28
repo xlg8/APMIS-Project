@@ -305,7 +305,9 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 
 		if (district == null) {
 			List<DistrictReferenceDto> duplicates = getByName(dto.getName(), dto.getRegion(), true);
-			if (!duplicates.isEmpty()) {
+			if((duplicates == null || duplicates.isEmpty()) && (dto.getName() != null || dto.getRegion()!=null)) {
+				
+			}else if (!duplicates.isEmpty() && (dto.getName() != null || dto.getRegion()!=null)){
 				if (allowMerge) {
 					String uuid = duplicates.get(0).getUuid();
 					district = service.getByUuid(uuid);
@@ -316,6 +318,19 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 							I18nProperties.getValidationError(Validations.importDistrictAlreadyExists));
 				}
 			}
+			
+			System.out.println(duplicates + " ============================ duplicatesduplicates");
+//			if (!duplicates.isEmpty()) {
+//				if (allowMerge) {
+//					String uuid = duplicates.get(0).getUuid();
+//					district = service.getByUuid(uuid);
+//					DistrictDryRunDto dtoToMerge = getDistrictByUuid(uuid);
+//					dto = DtoHelper.copyDtoValues(dtoToMerge, dto, true);
+//				} else {
+//					throw new ValidationRuntimeException(
+//							I18nProperties.getValidationError(Validations.importDistrictAlreadyExists));
+//				}
+//			}
 		}
 
 		district = fillOrBuildEntity(dto, district, true);

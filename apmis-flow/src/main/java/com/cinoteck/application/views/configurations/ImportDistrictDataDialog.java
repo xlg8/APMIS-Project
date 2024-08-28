@@ -324,7 +324,7 @@ public class ImportDistrictDataDialog extends Dialog {
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startDataImport,
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startImportDryRun,  startDataImport,
 				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 		
 		//hacky: hide the anchor
