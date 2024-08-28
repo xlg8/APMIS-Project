@@ -536,7 +536,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 		CriteriaQuery<Region> cq = cb.createQuery(Region.class);
 		Root<Region> root = cq.from(Region.class);
 
-		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
+//		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
 		Predicate basicFilter = service.createBasicFilter(cb, root);
 		cq.where(CriteriaBuilderHelper.and(cb, basicFilter, buildPredicate.apply(cb, root)));
 
@@ -557,7 +557,7 @@ public class RegionFacadeEjb extends AbstractInfrastructureEjb<Region, RegionSer
 
 		cq.orderBy(cb.asc(root.get(Region.PS_AF)));
 
-		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
+//		System.out.println("ololllllllllllllllllllllllllllllllllllllllllll " + SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList().stream().map(RegionFacadeEjb::toReferenceDto)
 				.collect(Collectors.toList());
 	}

@@ -694,6 +694,9 @@ public interface Captions {
 	String Community_externalID = "Community.externalID";
 	String communityActiveCommunities = "communityActiveCommunities";
 	String communityAllCommunities = "communityAllCommunities";
+	String floatingNormal = "floatingNormal";
+	String floatingFloat = "floatingFloat";
+	String floatStatus = "floatStatus";
 	String communityArchivedCommunities = "communityArchivedCommunities";
 	String communityName = "communityName";
 	String Configuration_Facilities = "Configuration.Facilities";

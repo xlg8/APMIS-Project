@@ -1,7 +1,6 @@
 package de.symeda.sormas.backend.campaign.form;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -25,8 +23,6 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -37,50 +33,31 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.model.Parameter.Source;
 import org.jsoup.safety.Whitelist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.TextFormat.ParseException;
-
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
-import de.symeda.sormas.api.campaign.CampaignCriteria;
-import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
-import de.symeda.sormas.api.report.UserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
-import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.HtmlHelper;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
-import de.symeda.sormas.backend.campaign.Campaign;
-import de.symeda.sormas.backend.common.AbstractDomainObject;
-import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
-import de.symeda.sormas.backend.infrastructure.area.Area;
-import de.symeda.sormas.backend.infrastructure.district.District;
-import de.symeda.sormas.backend.infrastructure.facility.Facility;
-import de.symeda.sormas.backend.infrastructure.region.Region;
-import de.symeda.sormas.backend.location.Location;
-import de.symeda.sormas.backend.user.User;
-import de.symeda.sormas.backend.user.UserFacadeEjb;
+import de.symeda.sormas.backend.disease.DiseaseConfigurationFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
-import de.symeda.sormas.backend.user.event.UserUpdateEvent;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
@@ -841,12 +818,16 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			return null;
 		}
 	}
-
+	
 	@LocalBean
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
+
+		public CampaignFormMetaFacadeEjbLocal() {
+		}
 	}
 
+	
 	
 
 }

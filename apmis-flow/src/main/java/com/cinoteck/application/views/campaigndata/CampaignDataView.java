@@ -15,24 +15,35 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.sound.midi.SysexMessage;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Form;
 
 import org.jsoup.select.Evaluator.ContainsData;
+import org.slf4j.LoggerFactory;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.UserProvider.HasUserProvider;
+import com.cinoteck.application.ViewModelProviders;
+import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaign.CampaignDataImportDialog;
 import com.cinoteck.application.views.campaign.CampaignForm;
 import com.cinoteck.application.views.campaign.ImportPopulationDataDialog;
 import com.cinoteck.application.views.utils.DownloadTransposedDaywiseDataUtility;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -67,9 +78,12 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.selection.MultiSelect;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
@@ -104,18 +118,12 @@ import de.symeda.sormas.api.utils.SortProperty;
 @CssImport(value = "./styles/vaadin-text-field.css", themeFor = "vaadin-text-field")
 @CssImport(value = "./styles/vaadin-number-field.css", themeFor = "vaadin-number-field")
 
-public class CampaignDataView extends VerticalLayout {
-
-	/**
-	 * 
-	 */
+public class CampaignDataView extends VerticalLayout
+		implements HasUserProvider, HasViewModelProviders, BeforeEnterObserver {
 
 	private static final long serialVersionUID = 7588118851062483372L;
 
 	private Grid<CampaignFormDataIndexDto> grid = new Grid<>(CampaignFormDataIndexDto.class, false);
-//	GridSelectionModel<CampaignFormDataIndexDto> selectionModel = grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-
-//	private GridListDataView<CampaignFormDataIndexDto> dataView;
 	private CampaignFormDataCriteria criteria;
 	private CampaignFormMetaDto formMetaReference;
 	private CampaignFormDataDto campaignFormDatadto;
@@ -142,7 +150,7 @@ public class CampaignDataView extends VerticalLayout {
 	List<CommunityReferenceDto> communities;
 	List<CampaignFormMetaReferenceDto> campaignForms;
 	Anchor anchor = new Anchor("", I18nProperties.getCaption(Captions.export));
-	Anchor transposdeDataAnchor = new Anchor("", I18nProperties.getCaption(Captions.export)+ "Transposed Data");
+	Anchor transposdeDataAnchor = new Anchor("", I18nProperties.getCaption(Captions.export) + "Transposed Data");
 
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 	Paragraph countRowItems;
@@ -169,6 +177,18 @@ public class CampaignDataView extends VerticalLayout {
 
 	ComboBox<CampaignFormMetaReferenceDto> newForm = new ComboBox<>();
 	ComboBox<CampaignFormMetaReferenceDto> importFormData = new ComboBox<>();
+
+	HorizontalLayout actionButtonlayout = new HorizontalLayout();
+	Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) + " Transposed Data");
+
+	// Counters for tracking creation
+	private int transposdeDataAnchorCreationCount = 0;
+	private int exportTransposedDataButtonCreationCount = 0;
+	// Initialize a flag to check if the click listener is already attached
+	boolean isClickListenerAttached;
+	private boolean callbackRunning = false;
+	private Timer timer;
+	protected final org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
 
 	public CampaignDataView() {
 
@@ -240,24 +260,21 @@ public class CampaignDataView extends VerticalLayout {
 		Button displayFilters = new Button(I18nProperties.getCaption(Captions.hideFilters),
 				new Icon(VaadinIcon.SLIDERS));
 
-		HorizontalLayout actionButtonlayout = new HorizontalLayout();
 		actionButtonlayout.setClassName("row pl-3");
 		actionButtonlayout.setVisible(true);
 		actionButtonlayout.setAlignItems(Alignment.END);
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
-		
-		Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) +"Transposed Data");
+
 		exportTransposedDataButton.setIcon(new Icon(VaadinIcon.UPLOAD));
-				
+
 		exportButton.addClickListener(e -> {
 			anchor.getElement().callJsFunction("click");
 		});
 
 		actionButtonlayout.add(campaignYear, campaignz, campaignPhase, newForm, importFormData, exportButton, anchor);
 		anchor.getStyle().set("display", "none");
-		transposdeDataAnchor.getStyle().set("display", "none");
 
 		HorizontalLayout level1Filters = new HorizontalLayout();
 		level1Filters.setPadding(false);
@@ -647,7 +664,7 @@ public class CampaignDataView extends VerticalLayout {
 					verifiedStatusCombo.setVisible(true);
 					publishedStatusCombo.setVisible(true);
 
-					System.out.println("post campaign selected ");
+//					System.out.println("post campaign selected ");
 
 					if (userProvider.getUser().getUsertype() == UserType.WHO_USER) {
 						if (userProvider.hasUserRight(UserRight.PERFORM_BULK_OPERATIONS)) {
@@ -660,16 +677,16 @@ public class CampaignDataView extends VerticalLayout {
 								publishDataBulkItem.setVisible(false);
 								System.out.println("user is NOT a publish user ");
 							}
-							System.out.println("user ca n do bulk peration an is who  2");
+//							System.out.println("user ca n do bulk peration an is who  2");
 						} else {
 							verifyDataBulkItem.setVisible(false);
 							publishDataBulkItem.setVisible(false);
-							System.out.println("can either not don bvulk and  is  who   ");
+//							System.out.println("can either not don bvulk and  is  who   ");
 						}
 
 						verifiedColumn.setVisible(true);
 						publishedColumn.setVisible(true);
-						System.out.println("user ca n do bulk peration an is who  ");
+//						System.out.println("user ca n do bulk peration an is who  ");
 					} else {
 						verifiedStatusCombo.setVisible(false);
 						publishedStatusCombo.setVisible(false);
@@ -679,7 +696,7 @@ public class CampaignDataView extends VerticalLayout {
 						}
 						verifyDataBulkItem.setVisible(false);
 						publishDataBulkItem.setVisible(false);
-						System.out.println("can either not don bvulk or is not who   ");
+//						System.out.println("can either not don bvulk or is not who   ");
 					}
 
 				} else {
@@ -693,7 +710,7 @@ public class CampaignDataView extends VerticalLayout {
 //					publishedColumn.setVisible(false);
 					verifyDataBulkItem.setVisible(false);
 					publishDataBulkItem.setVisible(false);
-					System.out.println("non - post campaign selected ");
+//					System.out.println("non - post campaign selected ");
 
 				}
 
@@ -711,7 +728,6 @@ public class CampaignDataView extends VerticalLayout {
 		});
 
 		campaignFormCombo.addValueChangeListener(e -> {
-
 			if (e.getValue() != null) {
 				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
 						.getCampaignFormMetaByUuid(e.getValue().getUuid());
@@ -719,44 +735,106 @@ public class CampaignDataView extends VerticalLayout {
 						+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 						+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 				exporter.setFileName(exportFileName);
-//				System.out.println(exportFileName + "Export file name on form change ");
 				anchor.setHref(exporter.getCsvStreamResource());
 				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(false);
 
 				reload();
 				configureColumnStyles(criteria);
-				
-				//Known problem around here , depending on the number of times this filter value changes 
-				//the export button would download a file with the numbe rof criteria that has baaen send out 
-				//i.e if this filter value changes 10 times, the next time you click the button, it downloads 10 files 
-				//if it chnges again and you click the button, it down loads 11 times 
-//				if(e.getValue().toString().contains("Day 1")) {
-//					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
-//
-//					
-//					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
-//					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(criteria));
-//					transposdeDataAnchor.getElement().setAttribute("download", true);
-//					exportTransposedDataButton.addClickListener(ex->{
-//						transposdeDataAnchor.getElement().callJsFunction("click");
-//					});
-//				};
-				
-			} else {
 
+				// Remove the exportTransposedDataButton and transposdeDataAnchor if they exist
+				if (actionButtonlayout.getChildren()
+						.anyMatch(component -> component.equals(exportTransposedDataButton))) {
+					actionButtonlayout.remove(exportTransposedDataButton);
+				}
+				if (actionButtonlayout.getChildren().anyMatch(component -> component.equals(transposdeDataAnchor))) {
+					actionButtonlayout.remove(transposdeDataAnchor);
+				}
+
+				// Check if the value contains "Day 1" and add new components
+				if (e.getValue().toString().contains("Day 1")) {
+					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString());
+				}
+			} else {
 				importanceSwitcher.clear();
 				importanceSwitcher.setReadOnly(true);
-
 			}
 			updateRowCount();
 			configureColumnStyles(criteria);
-			
-			
-			
-
-		
 		});
+
+//		campaignFormCombo.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
+//						.getCampaignFormMetaByUuid(e.getValue().getUuid());
+//				exportFileName = campaignz.getValue().toString() + "_"
+//						+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
+//						+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
+//				exporter.setFileName(exportFileName);
+////				System.out.println(exportFileName + "Export file name on form change ");
+//				anchor.setHref(exporter.getCsvStreamResource());
+//				importanceSwitcher.clear();
+//				importanceSwitcher.setReadOnly(false);
+//
+//				reload();
+//				configureColumnStyles(criteria);
+//
+//				// Known problem around here , depending on the number of times this filter
+//				// value changes
+//				// the export button would download a file with the numbe rof criteria that has
+//				// baaen send out
+//				// i.e if this filter value changes 10 times, the next time you click the
+//				// button, it downloads 10 files
+//				// if it chnges again and you click the button, it down loads 11 times
+//				
+//				
+//				if (transposdeDataAnchorCreationCount > 0 ) {
+//					actionButtonlayout.remove(exportTransposedDataButton, transposdeDataAnchor);
+//					
+//					System.out.println("i just kicked ---------------------------------------- ");
+//
+//				}
+//				checkIfExportTransposedDataButtonIsAttached();
+//				
+//				if (e.getValue().toString().contains("Day 1")) {
+//					
+//					CampaignFormDataCriteria  campaignFormDataCriteria =  new  CampaignFormDataCriteria();
+//					
+//					campaignFormDataCriteria = criteria;
+//					
+//
+//					actionButtonlayout.add(exportTransposedDataButton, transposdeDataAnchor);
+//
+//					DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+//					transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexListDemox2(campaignFormDataCriteria));
+//					transposdeDataAnchor.getElement().setAttribute("download", true);
+//					exportTransposedDataButton.addClickListener(ex -> {
+//						
+//	                    System.out.println("transposdeDataAnchor created ---------------------------------" + criteria);
+//
+//						transposdeDataAnchor.getElement().callJsFunction("click");
+//					});
+//					
+//					// Increment counters when components are created
+//                    transposdeDataAnchorCreationCount++;
+//                    exportTransposedDataButtonCreationCount++;
+//
+//                    System.out.println("transposdeDataAnchor created " + transposdeDataAnchorCreationCount + " times");
+//                    System.out.println("exportTransposedDataButton created " + exportTransposedDataButtonCreationCount + " times");
+//				}
+//				;
+//
+//			} else {
+//
+//				importanceSwitcher.clear();
+//				importanceSwitcher.setReadOnly(true);
+//
+//			}
+//			updateRowCount();
+//			configureColumnStyles(criteria);
+//
+//		});
 
 		regionCombo.setClearButtonVisible(true);
 		regionCombo.addValueChangeListener(e -> {
@@ -857,9 +935,21 @@ public class CampaignDataView extends VerticalLayout {
 			CampaignDto campaignUuid = FacadeProvider.getCampaignFacade().getByUuid(campaignz.getValue().getUuid());
 
 			if (importFormData.getValue() != null) {
+				
+				startIntervalCallback();		
+				UI.getCurrent().addPollListener(event -> {
+					if (callbackRunning) {
+						UI.getCurrent().access(this::pokeFlow);
+					} else {
+						stopPullers();
+					}
+				});
+				
 				// CampaignReferenceDto camapigndto, CampaignFormMetaDto campaignFormMetaDto
 				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(),
 						importFormData.getValue(), campaignUuid);
+				startIntervalCallback();
+
 				dialogx.open();
 			}
 		});
@@ -1030,6 +1120,47 @@ public class CampaignDataView extends VerticalLayout {
 		add(filterBlock);
 	}
 
+	public void checkIfExportTransposedDataButtonIsAttached() {
+		boolean exportButtonExists = actionButtonlayout.getChildren()
+				.anyMatch(component -> component.equals(exportTransposedDataButton));
+
+		boolean transposdeDataAnchorExists = actionButtonlayout.getChildren()
+				.anyMatch(component -> component.equals(transposdeDataAnchor));
+
+//		System.out.println("exportButtonExists" + exportButtonExists +  "transposdeDataAnchorExists" + transposdeDataAnchorExists + "0=====================");
+
+		if (exportButtonExists && transposdeDataAnchorExists) {
+			actionButtonlayout.remove(exportTransposedDataButton, transposdeDataAnchor);
+		} else {
+
+		}
+	}
+
+	public void generateTransposeDataFunctions(HorizontalLayout actionButionLayout, String formName) {
+		transposdeDataAnchor = new Anchor("", "TransposeDaywiseData");
+		transposdeDataAnchor.getStyle().set("display", "none");
+
+		exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) + " Transposed Data");
+
+		if (transposdeDataAnchor.getElement().getAttribute("href") != "") {
+			transposdeDataAnchor.setHref("");
+		}
+
+		CampaignFormDataCriteria transposedDataCriteria = new CampaignFormDataCriteria();
+		transposedDataCriteria = criteria;
+		actionButionLayout.add(exportTransposedDataButton, transposdeDataAnchor);
+		DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+		transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility
+				.createTransposedDataFromIndexList(transposedDataCriteria, formName, campaignz.getValue().toString()));
+
+		exportTransposedDataButton.addClickListener(ex -> {
+			transposdeDataAnchor.getElement().setAttribute("download", true);
+			transposdeDataAnchor.getElement().callJsFunction("click");
+		});
+
+	}
+
+
 	public void removeColumnsSelectionn() {
 		grid.setSelectionMode(SelectionMode.NONE);
 	}
@@ -1058,7 +1189,6 @@ public class CampaignDataView extends VerticalLayout {
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetasAsReferencesByCampaignandRoundAndPashto(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			
 
 			for (FormAccess n : xx) {
 				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
@@ -1098,7 +1228,6 @@ public class CampaignDataView extends VerticalLayout {
 			campaignForms = FacadeProvider.getCampaignFormMetaFacade()
 					.getAllCampaignFormMetasAsReferencesByRoundandCampaignRoundAndDari(
 							campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-			
 
 			for (FormAccess n : xx) {
 				boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
@@ -1216,7 +1345,7 @@ public class CampaignDataView extends VerticalLayout {
 					.stream();
 		} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
 
-			System.out.println("Darrrrrrrrrrrrrrrrrrrrrrr");
+//			System.out.println("Darrrrrrrrrrrrrrrrrrrrrrr");
 
 			return FacadeProvider.getCampaignFormDataFacade()
 					.getIndexListDari(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
@@ -1225,7 +1354,7 @@ public class CampaignDataView extends VerticalLayout {
 							.collect(Collectors.toList()))
 					.stream();
 		} else {
-			System.out.println("Enggggggggggggggggggggggg");
+//			System.out.println("Enggggggggggggggggggggggg");
 			return FacadeProvider.getCampaignFormDataFacade()
 					.getIndexList(criteria, query.getOffset(), query.getLimit(), query.getSortOrders().stream()
 							.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
@@ -1316,8 +1445,8 @@ public class CampaignDataView extends VerticalLayout {
 				isDataDirty = true;
 			}
 
-			System.out.println(selectedRows.size() + "<<<2222222Size of selected items " + selectedItem.isIsverified()
-					+ "2222222222>>>> Dirty data " + isDataDirty);
+//			System.out.println(selectedRows.size() + "<<<2222222Size of selected items " + selectedItem.isIsverified()
+//					+ "2222222222>>>> Dirty data " + isDataDirty);
 
 		}
 		if (selectedRows.size() == 0 || isDataDirty) {
@@ -1354,7 +1483,7 @@ public class CampaignDataView extends VerticalLayout {
 				List<String> uuids = selectedRows.stream().map(CampaignFormDataIndexDto::getUuid)
 						.collect(Collectors.toList());
 
-				System.err.println(" verification kicke from frontend");
+//				System.err.println(" verification kicke from frontend");
 
 //			FacadeProvider.getCampaignFormDataFacade().verifyCampaignData(event.getCampaign().getUuid(), true);
 
@@ -1887,7 +2016,7 @@ public class CampaignDataView extends VerticalLayout {
 
 	public void addCustomColumn(String property, String caption) {
 		if (!property.toString().contains("readonly")) {
-			System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
+//			System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
 			grid.addColumn(
 					e -> e.getFormValues().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null))
 					.setHeader(caption)
@@ -1914,6 +2043,82 @@ public class CampaignDataView extends VerticalLayout {
 		campaignFormDataEditForm.setVisible(false);
 		grid.setVisible(true);
 		removeClassName("editing");
+	}
+
+	private void pokeFlow() {
+		logger.debug("runingImport...");
+	}
+	
+	
+	private void startIntervalCallback() {
+		UI.getCurrent().setPollInterval(5000);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+//					stopIntervalCallback();
+				}
+			}, 15000); // 10 minutes
+
+			callbackRunning = true;
+		}
+	}
+
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+
+		}
+		
+	}
+	
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
+
+//	public static void printAllThreads() {
+//		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+//
+//		for (Map.Entry<Thread, StackTraceElement[]> entry : threadMap.entrySet()) {
+//			Thread thread = entry.getKey();
+//			StackTraceElement[] stackTrace = entry.getValue();
+//
+//			System.out.println("Thread Name: " + thread.getName());
+//			System.out.println("Thread ID: " + thread.getId());
+//			System.out.println("Thread State: " + thread.getState());
+//			System.out.println("Is Daemon: " + thread.isDaemon());
+//			System.out.println("Stack Trace:");
+//
+//			for (StackTraceElement element : stackTrace) {
+//				System.out.println("\tat " + element);
+//			}
+//
+//			System.out.println("----------------------------");
+//		}
+//	}
+
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public @NotNull ViewModelProviders getViewModelProviders() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UserProvider getUserProvider() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

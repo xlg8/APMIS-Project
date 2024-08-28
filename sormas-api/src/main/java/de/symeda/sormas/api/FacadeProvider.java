@@ -50,6 +50,7 @@ import de.symeda.sormas.api.event.eventimport.EventImportFacade;
 import de.symeda.sormas.api.externaljournal.ExternalJournalFacade;
 import de.symeda.sormas.api.externalsurveillancetool.ExternalSurveillanceToolFacade;
 import de.symeda.sormas.api.infrastructure.InfrastructureSyncFacade;
+import de.symeda.sormas.api.infrastructure.PopulationDataDryRunFacade;
 import de.symeda.sormas.api.infrastructure.facility.FacilityFacade;
 import de.symeda.sormas.api.feature.FeatureConfigurationFacade;
 import de.symeda.sormas.api.geocoding.GeocodingFacade;
@@ -67,12 +68,15 @@ import de.symeda.sormas.api.labmessage.TestReportFacade;
 import de.symeda.sormas.api.messaging.MessageFacade;
 import de.symeda.sormas.api.outbreak.OutbreakFacade;
 import de.symeda.sormas.api.person.PersonFacade;
+import de.symeda.sormas.api.infrastructure.area.AreaDryRunFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.continent.ContinentFacade;
 import de.symeda.sormas.api.infrastructure.country.CountryFacade;
+import de.symeda.sormas.api.infrastructure.district.DistrictDryRunFacade;
 import de.symeda.sormas.api.infrastructure.district.DistrictFacade;
 import de.symeda.sormas.api.geo.GeoShapeProvider;
+import de.symeda.sormas.api.infrastructure.region.RegionDryRunFacade;
 import de.symeda.sormas.api.infrastructure.region.RegionFacade;
 import de.symeda.sormas.api.infrastructure.subcontinent.SubcontinentFacade;
 import de.symeda.sormas.api.report.AggregateReportFacade;
@@ -229,12 +233,23 @@ public class FacadeProvider {
 		return get().lookupEjbRemote(RegionFacade.class);
 	}
 	
+	public static RegionDryRunFacade getRegionDryRunFacade() {
+		return get().lookupEjbRemote(RegionDryRunFacade.class);
+	}
+	
 	public static AreaFacade getAreatFacade() {
 		return get().lookupEjbRemote(AreaFacade.class);
+	}
+	public static AreaDryRunFacade getAreaDryRunFacade() {
+		return get().lookupEjbRemote(AreaDryRunFacade.class);
 	}
 
 	public static DistrictFacade getDistrictFacade() {
 		return get().lookupEjbRemote(DistrictFacade.class);
+	}
+	
+	public static DistrictDryRunFacade getDistrictDryRunFacade() {
+		return get().lookupEjbRemote(DistrictDryRunFacade.class);
 	}
 
 	public static CommunityFacade getCommunityFacade() {
@@ -331,6 +346,10 @@ public class FacadeProvider {
 
 	public static PopulationDataFacade getPopulationDataFacade() {
 		return get().lookupEjbRemote(PopulationDataFacade.class);
+	}
+	
+	public static PopulationDataDryRunFacade getPopulationDataDryRunFacade() {
+		return get().lookupEjbRemote(PopulationDataDryRunFacade.class);
 	}
 
 	public static InfrastructureSyncFacade getInfrastructureSyncFacade() {
@@ -493,6 +512,8 @@ public class FacadeProvider {
 		try {
 			return (P) get().ic.lookup(buildJndiLookupName(clazz));
 		} catch (NamingException e) {
+			
+			System.out.println(clazz + "-------------");
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
@@ -500,4 +521,16 @@ public class FacadeProvider {
 	public static String buildJndiLookupName(Class<?> clazz) {
 		return JNDI_PREFIX + clazz.getSimpleName();
 	}
+	
+	
+	private static InitialContext initialContext;
+
+    public static void setInitialContext(InitialContext context) {
+        initialContext = context;
+    }
+
+    public static InitialContext getInitialContext() {
+        return initialContext;
+    }
+    
 }

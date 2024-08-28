@@ -14,6 +14,7 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -57,12 +58,15 @@ public class ImportProvinceDataDialog extends Dialog {
 	Button startDataImport = new Button(I18nProperties.getCaption(Captions.importImportData));
 	public Button donloadErrorReport = new Button(I18nProperties.getCaption(Captions.importDownloadErrorReport));
 	public Button donloadUserLodReport = new Button(I18nProperties.getCaption(Captions.downloadCredentialsButton));
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+
 	ComboBox valueSeperator = new ComboBox<>();
 	private boolean callbackRunning = false;
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
-	public Checkbox overWriteExistingData = new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
+	public Checkbox overWriteExistingData = new Checkbox(
+			I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
 	boolean overWrite = false;
 
 	Span anchorSpan = new Span();
@@ -70,6 +74,9 @@ public class ImportProvinceDataDialog extends Dialog {
 
 	Span anchorSpanCredential = new Span();
 	public Anchor downloadCredntialsReportButton;
+
+	DataImporter importer = null;
+	boolean checkForException = false;
 
 	public ImportProvinceDataDialog() {
 
@@ -146,12 +153,12 @@ public class ImportProvinceDataDialog extends Dialog {
 		H3 step3 = new H3();
 		step3.add(I18nProperties.getString(Strings.step2));
 		Label lblImportCsvFile = new Label(I18nProperties.getString(Strings.infoImportCsvFile));
-		
+
 		overWriteExistingData.setValue(false);
 		overWriteExistingData.addValueChangeListener(e -> {
 			overWrite = e.getValue();
 		});
-		
+
 		Label sd = new Label(I18nProperties.getCaption(Captions.upload));
 
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -160,12 +167,17 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonIcon);
+		startImportDryRun.setIcon(startImportButtonIcon);
+
 		startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
 		upload.setAcceptedFileTypes("text/csv");
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -179,7 +191,8 @@ public class ImportProvinceDataDialog extends Dialog {
 				// CampaignDto campaignDto =
 				// FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
 
-				DataImporter importer = new ProvinceDataImporter(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+				DataImporter importer = new ProvinceDataImporter(file_, false, regionDto, ValueSeparator.COMMA,
+						overWrite);
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
@@ -188,11 +201,77 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		});
 
+		startImportDryRun.addClickListener(ed -> {
+
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+
+				try {
+					importer = new ProvinceDataDryRunner(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+					ImportProgressLayout progressLayout;
+					try {
+						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+
+						if (importer != null) {
+							progressLayout.makeClosable(() -> {
+								if (!checkForException && !importer.hasErrors()) {
+									startDataImport.setVisible(true);
+								}
+							});
+						}
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					;
+					if (!checkForException && importer != null && !importer.hasErrors()) {
+						startDataImport.setVisible(true);
+					}
+
+					if (!checkForException) {
+
+						progressLayout = null;
+						try {
+							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						} catch (CsvValidationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						boolean exceptionValue = progressLayout.hasImportErrors();
+
+						if (!exceptionValue) {
+							startDataImport.setVisible(true);
+						}
+
+					}
+				}
+			}
+		});
+
 		downloadErrorReportButton = new Anchor("beforechange");
-		 downloadErrorReportButton.setVisible(false);
+		downloadErrorReportButton.setVisible(false);
 
 		Icon downloadErrorButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
-
 
 		H3 step5 = new H3();
 		step5.add(I18nProperties.getString(Strings.step3));
@@ -224,9 +303,8 @@ public class ImportProvinceDataDialog extends Dialog {
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step1, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload,
-				startDataImport, step5,
-				lblDnldErrorReport, donloadErrorReport, anchorSpan);
+		dialog.add(step1, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
@@ -291,6 +369,15 @@ public class ImportProvinceDataDialog extends Dialog {
 		page.reload();
 	}
 
+	private void truncateDryRunTable() {
+		try {
+			FacadeProvider.getRegionDryRunFacade().clearDryRunTable();
+
+		} catch (Exception e) {
+
+		}
+	}
+
 	protected void resetDownloadErrorReportButton() {
 		downloadErrorReportButton.removeAll();
 		downloadErrorReportButton.setVisible(false);
@@ -309,6 +396,5 @@ public class ImportProvinceDataDialog extends Dialog {
 		anchorSpan.add(downloadErrorReportButton);
 
 	}
-
 
 }

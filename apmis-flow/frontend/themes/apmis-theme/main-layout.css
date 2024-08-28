@@ -453,6 +453,7 @@ vcf-nav::part(label) {
 }
 
 vcf-nav-item::part(item) {
+	color: white !important;
 	border-inline-start: 2px solid transparent;
 }
 

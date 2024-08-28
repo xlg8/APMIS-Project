@@ -1,21 +1,13 @@
 package de.symeda.sormas.api.campaign;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-import javax.validation.constraints.Size;
+@SuppressWarnings("serial")
 
-import org.springframework.beans.factory.annotation.Autowired;
+ public class CampaignTreeGridDtoImpl extends CampaignTreeGridDto implements Serializable{
+    private static final long serialVersionUID = 1L;
 
-import de.symeda.sormas.api.EntityDto;
-import de.symeda.sormas.api.FacadeProvider;
-import de.symeda.sormas.api.i18n.Validations;
-import de.symeda.sormas.api.infrastructure.region.RegionDto;
-import de.symeda.sormas.api.utils.DataHelper;
-import de.symeda.sormas.api.utils.FieldConstraints;
 
-public class CampaignTreeGridDtoImpl extends CampaignTreeGridDto {
-	
 	private Long populationData;
 	private Long populationData5_10;
 	private Long populationDataTotal;

@@ -174,8 +174,13 @@ public class ImportProgressLayout extends VerticalLayout {
 		warningIcon.getStyle().set("color", "#abab3d!important");
 //		warningIcon.setWidth(35, Unit.PIXELS);
 	}
+	
+	private boolean hasImportErrors = false;
 
-	public void updateProgress(ImportLineResult result) {
+	// Getter for the flag
+	
+	
+	public void updateDryRunProgress(ImportLineResult result) {
 //		System.out.println("__________________________________________cc____________"+result);
 		currentUI.access(() -> {
 			
@@ -198,7 +203,9 @@ public class ImportProgressLayout extends VerticalLayout {
 				Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 				_importErrorsLabel.getStyle().set("color", "error");
 				importErrorsLabel.add(_importErrorsLabel);
-				
+	            hasImportErrors = true; // Set the flag to true when an error occurs
+	            hasImportErrors();
+
 //				importErrorsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
 			} else if (result == ImportLineResult.SKIPPED) {
 				importSkipsCount++;
@@ -224,7 +231,87 @@ public class ImportProgressLayout extends VerticalLayout {
 			float resultx = (float) processedImportsCount / totalCount;
 			float percentage = resultx * 100;
 			System.out.println("sssssssssssssssssssssss "+percentage);
+			
+			if(percentage == 100.0) {
+				
+				
+				System.out.println(" Percentage is 100 at this point " + importErrorsCount);
+				
+				
+			}
 			progressBarMain.setValue(percentage);
+		});
+	}
+	
+	public boolean hasImportErrors() {
+	    return hasImportErrors;
+	}
+
+
+	public void updateProgress(ImportLineResult result) {
+//		System.out.println("__________________________________________cc____________"+result);
+		currentUI.access(() -> {
+			
+			processedImportsCount++;
+			System.out.println("updateProgress(ImportLineResult result): "+processedImportsCount);
+			
+			if (result == ImportLineResult.SUCCESS) {
+				System.out.println("________if (result == ImportLineResult.SUCCESS) {___________");
+//				Notification.show("++++++++++++"+ImportLineResult.SUCCESS.name());
+				successfulImportsCount++;
+				successfulImportsLabel.removeAll();
+				Label _successfulImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importImports),successfulImportsCount ));
+				successfulImportsLabel.add(_successfulImportsLabel);
+//				successfulImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importImports), successfulImportsCount));
+			} else if (result == ImportLineResult.ERROR) {
+				
+				importErrorsCount++;
+//				Notification.show(ImportLineResult.ERROR.name()+"   ============  " + importErrorsCount);
+				importErrorsLabel.removeAll();
+				Label _importErrorsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
+				_importErrorsLabel.getStyle().set("color", "error");
+				importErrorsLabel.add(_importErrorsLabel);
+				
+				
+				 hasImportErrors = true; // Set the flag to true when an error occurs
+		            hasImportErrors();
+//				importErrorsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importErrors), importErrorsCount));
+			} else if (result == ImportLineResult.SKIPPED) {
+				importSkipsCount++;
+				importSkipsLabel.removeAll();
+				Label _importSkipsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+				importSkipsLabel.add(_importSkipsLabel);
+
+//				importSkipsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importSkips), importSkipsCount));
+			} else if (result == ImportLineResult.DUPLICATE) {
+				importDuplicatesCount++;
+				importDuplicatesLabel.removeAll();
+				Label _importDuplicatesLabel = new Label(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+				importDuplicatesLabel.add(_importDuplicatesLabel);
+
+//				importDuplicatesLabel.setValue(String.format(I18nProperties.getCaption(Captions.importDuplicates), importDuplicatesCount));
+			}
+			processedImportsLabel.removeAll();
+			Label _processedImportsLabel = new Label(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+			processedImportsLabel.add(_processedImportsLabel);
+
+			//Notification.show("currentUI.access(() -> {.....");
+//			processedImportsLabel.setValue(String.format(I18nProperties.getCaption(Captions.importProcessed), processedImportsCount, totalCount));
+			float resultx = (float) processedImportsCount / totalCount;
+			float percentage = resultx * 100;
+			System.out.println("sssssssssssssssssssssss "+percentage);
+			
+			
+			System.out.println(percentage +  "Count of the errored iteems ");
+
+			if(percentage == 100.0) {
+				System.out.println(importErrorsCount +  "Count of the errored iteems ");
+			}
+			
+			progressBarMain.setValue(percentage);
+			
+			
+		
 		});
 	}
 
@@ -232,7 +319,18 @@ public class ImportProgressLayout extends VerticalLayout {
 		
 		closeCancelButton.setText(I18nProperties.getCaption(Captions.actionClose));
 //		closeCancelButton.get .removeListener(cancelListener);
-		closeCancelButton.addClickListener(e -> closeCallback.run());
+		closeCancelButton.addClickListener(e -> {
+			closeCallback.run()	;
+		});
+	}
+	
+	public void makeClosableandEnableStartImport(Runnable closeCallback, boolean hasError) {
+		
+		closeCancelButton.setText(I18nProperties.getCaption(Captions.actionClose));
+//		closeCancelButton.get .removeListener(cancelListener);
+		closeCancelButton.addClickListener(e -> {
+			closeCallback.run()	;
+		});
 	}
 
 	public void setInfoLabelText(String text, VaadinIcon ic, String infoType) {

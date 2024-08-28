@@ -25,12 +25,16 @@ public class Area extends InfrastructureAdo {
 	public static final String FA_AF = "fa_af";
 	public static final String PS_AF = "ps_af";
 	public static final String EXTERNAL_ID = "externalId";
+	public static final String DRY_RUN = "dryrun";
+
 
 	private String name;
 	private String fa_af;
 	private String ps_af;
 	private List<Region> regions;
 	private Long externalId;
+	private boolean dryrun;
+
 
 	@Column(length = CHARACTER_LIMIT_DEFAULT)
 	public String getName() {
@@ -74,6 +78,16 @@ public class Area extends InfrastructureAdo {
 
 	public void setExternalId(Long externalId) {
 		this.externalId = externalId;
+	}
+	
+	
+ 
+	public boolean isDryrun() {
+		return dryrun;
+	}
+
+	public void setDryrun(boolean dryrun) {
+		this.dryrun = dryrun;
 	}
 
 	@Override

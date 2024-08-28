@@ -41,6 +41,8 @@ public class AreaDto extends EntityDto {
 	private Long populationData;
 	private Long areaid;
 	private String uuid_;
+	private boolean isDryRun;
+
   
   //TODO check if you want to leave this here 
 	private List<RegionDto> regionData = new ArrayList<>();
@@ -107,6 +109,16 @@ public class AreaDto extends EntityDto {
 		this.archived = archived;
 	}
 	
+	
+	
+	public boolean isDryRun() {
+		return isDryRun;
+	}
+
+	public void setDryRun(boolean isDryRun) {
+		this.isDryRun = isDryRun;
+	}
+
 	public String provideActiveStatus() {
 		if(isArchived()) {
 			return "Archived";

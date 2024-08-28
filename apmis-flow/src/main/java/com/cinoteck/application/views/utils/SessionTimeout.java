@@ -41,6 +41,11 @@ public class SessionTimeout extends Component {
                // .withVariants(NotificationVariant.LUMO_ERROR),
             stayLoggedInButton
         );
+        
+        stayLoggedInButton.addClickListener(e->{
+        	 timeoutDialog.close();
+             resetSessionTimeout();
+        });
 
         resetSessionTimeout();
     }
@@ -51,15 +56,17 @@ public class SessionTimeout extends Component {
     }
 
     private void resetSessionTimeout() {
-        if (timeoutDialog.isOpened()) {
-            timeoutDialog.close();
-        }
+//        if (timeoutDialog.isOpened()) {
+//            timeoutDialog.close();
+//        }
 
         long currentTime = System.currentTimeMillis() / 1000;
         long elapsedTime = currentTime - lastInteractionTime;
 
-        if (elapsedTime >= SESSION_TIMEOUT) {
-            timeoutDialog.open();
+        if (elapsedTime >= SESSION_TIMEOUT - 60) {
+//            timeoutDialog.open();
+        	 UI.getCurrent().getPage().executeJs(
+                     "document.querySelector('idle-notification').opened = true");
         }
     }
 }
