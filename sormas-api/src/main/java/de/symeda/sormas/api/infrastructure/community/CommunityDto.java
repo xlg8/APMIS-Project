@@ -22,6 +22,7 @@ import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import de.symeda.sormas.api.ClusterFloatStatus;
 import de.symeda.sormas.api.EntityDto;
 import de.symeda.sormas.api.ImportIgnore;
 import de.symeda.sormas.api.i18n.Validations;
@@ -50,6 +51,8 @@ public class CommunityDto extends EntityDto {
 	public static final String AREA_EXTERNAL_ID = "areaexternalId";
 	public static final String REGION_EXTERNALID = "regionexternalId";
 	public static final String DISTRICT_EXTERNALID = "districtexternalId";
+	public static final String FLOATING_ATTRIBUTE = "floating";
+
 	
 
 	@Size(max = FieldConstraints.CHARACTER_LIMIT_SMALL, message = Validations.textTooLong)
@@ -69,6 +72,7 @@ public class CommunityDto extends EntityDto {
 	private Long regionexternalId;
 	private Long areaexternalId;
 	private String areaname;
+	private String floating;
 	
 
 	public CommunityDto(
@@ -154,6 +158,38 @@ public class CommunityDto extends EntityDto {
 			this.externalId = externalId;
 			this.clusterNumber = clusterNumber;
 		}
+	
+	public CommunityDto(
+			Date creationDate,
+			Date changeDate,
+			String uuid,
+			boolean archived,
+			String name,
+			String fa_af,
+			String ps_af,
+			Float growthRate,
+			String regionUuid,
+			String regionName,
+			Long regionExternalId,
+			String districtUuid,
+			String districtName,
+			Long districtExternalId,
+			Long externalId,
+			Integer clusterNumber,
+			String floating) {
+
+			super(creationDate, changeDate, uuid);
+			this.archived = archived;
+			this.name = name;
+			this.fa_af = fa_af;
+			this.ps_af = ps_af;
+			this.growthRate = growthRate;
+			this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);
+			this.district = new DistrictReferenceDto(districtUuid, districtName, districtExternalId);
+			this.externalId = externalId;
+			this.clusterNumber = clusterNumber;
+			this.floating = floating; 
+		}
 
 	public CommunityDto() {
 		super();
@@ -219,8 +255,17 @@ public class CommunityDto extends EntityDto {
 	public Long getExternalId() {
 		return externalId;
 	}
-	
-	
+
+	public String getFloating() {
+		return floating;
+	}
+
+
+	public void setFloating(String floating) {
+		this.floating = floating;
+	}
+
+
 	@ImportIgnore
 	public String getExternalIddummy() {
 		
@@ -289,6 +334,20 @@ public class CommunityDto extends EntityDto {
 
 	public void setAreaname(String areaname) {
 		this.areaname = areaname;
+	}
+	
+	public String provideFloatStatus() {
+		if(getFloating().equalsIgnoreCase( ClusterFloatStatus.FLOATING.toString())) {
+			return "Floating";
+
+		}else if(getFloating().equalsIgnoreCase(ClusterFloatStatus.NORMAL.toString())) {
+			return "Normal";
+
+		}else {
+			return "";
+
+		}
+		
 	}
 	
 	public String provideActiveStatus() {

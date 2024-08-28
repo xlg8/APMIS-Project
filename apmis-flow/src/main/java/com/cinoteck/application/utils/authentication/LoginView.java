@@ -135,13 +135,13 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 
 			if (intendedRoute != null) {
 //				loginNavigationControl();
-				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("dashboard")) {
+				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("campaigndata")) {
 					getUI().get().navigate("/campaigndata");
 				}
 				if (intendedRoute.equals("logout")) {
-					getUI().get().navigate("/dashboard");
+					getUI().get().navigate("/campaigndata");
 				} else if (intendedRoute.equals("/")) {
-					getUI().get().navigate("/dashboard");
+					getUI().get().navigate("/campaigndata");
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
@@ -156,7 +156,7 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
 					getUI().get().navigate("/campaigndata");
 				} else {
-					getUI().get().navigate("/dashboard");
+					getUI().get().navigate("/campaigndata");
 				}
 				
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();

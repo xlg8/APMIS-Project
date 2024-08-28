@@ -19,6 +19,7 @@ package de.symeda.sormas.api.infrastructure.community;
 
 import java.io.Serializable;
 
+import de.symeda.sormas.api.ClusterFloatStatus;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
@@ -39,6 +40,7 @@ public class CommunityCriteriaNew extends BaseCriteria implements Serializable, 
 	private String nameLike;
 	private EntityRelevanceStatus relevanceStatus;
 	private ErrorStatusEnum errorStatusEnum;
+	private ClusterFloatStatus floatStatus;
 
 	public CountryReferenceDto getCountry() {
 		return country;
@@ -100,6 +102,20 @@ public class CommunityCriteriaNew extends BaseCriteria implements Serializable, 
 	public EntityRelevanceStatus getRelevanceStatus() {
 		return relevanceStatus;
 	}
+	
+	
+	public CommunityCriteriaNew floatStatus(ClusterFloatStatus floatStatus) {
+		this.floatStatus = floatStatus;
+		return this;
+	}
+
+	@IgnoreForUrl
+	public ClusterFloatStatus getFloatStatus() {
+		return floatStatus;
+	}
+	
+	
+	
 	
 	public CommunityCriteriaNew errorStatusEnum(ErrorStatusEnum errorStatusEnum) {
 		this.errorStatusEnum = errorStatusEnum;

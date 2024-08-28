@@ -8,6 +8,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import javax.ejb.EJBTransactionRolledbackException;
+import javax.ejb.TransactionRolledbackLocalException;
+import javax.persistence.EntityExistsException;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
+
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -67,7 +73,7 @@ public class PopulationDataImporter extends DataImporter {
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
 			String[][] entityPropertyPaths, boolean firstLine)
-			throws IOException, InvalidColumnException, InterruptedException {
+					throws IOException, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
 
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {
@@ -104,6 +110,8 @@ public class PopulationDataImporter extends DataImporter {
 					if (DataHelper.isNullOrEmpty(values[i])) {
 						district = null;
 					} else {
+						
+						System.out.println(region.getCaption() + "----" +  region.getExternalId() + "-----------KKKK---" + Long.parseLong(values[i]));
 						List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
 								.getByExternalID(Long.parseLong(values[i]), region, false);
 						if (districts.size() != 1) {
@@ -259,6 +267,25 @@ public class PopulationDataImporter extends DataImporter {
 								// matched");
 								return ImportLineResult.ERROR;
 							}
+							
+							if (district != null && campaigns_.getUuid() != null) {
+			                    // Check for duplicate key
+//			                    boolean duplicateExists = FacadeProvider.getPopulationDataDryRunFacade()
+//			                            .checkDuplicatePopulationData(district.getUuid(), "AGE_GROUP", campaigns_.getUuid());
+//			                    if (duplicateExists) {
+//			                        writeImportError(values, "Duplicate key value violates unique constraint for district_id, agegroup, campaign_id.");
+//			                        return ImportLineResult.ERROR;
+//			                    }
+
+			                    Integer districtPopulation =
+			                            FacadeProvider.getPopulationDataFacade().getDistrictPopulationByUuidAndAgeGroup(
+			                                    district.getUuid(), campaigns_.getUuid(), values[i]);
+
+			                    if (districtPopulation == null) {
+			                        writeImportError(values, campaigns_ + " Campaign mismatched with District");
+			                        return ImportLineResult.ERROR;
+			                    }
+			                }
 
 						} else {
 							writeImportError(values,
@@ -571,6 +598,11 @@ public class PopulationDataImporter extends DataImporter {
 				FacadeProvider.getPopulationDataFacade().savePopulationData(modifiedPopulationDataList);
 				return ImportLineResult.SUCCESS;
 			} catch (ValidationRuntimeException e) {
+//				writeImportError(values, e.getMessage());
+				return ImportLineResult.ERROR;
+			}catch (Exception exx) {
+				writeImportError(values,
+						 "Data Exists and Cannot Be Saved" +exx.getMessage());
 //				writeImportError(values, e.getMessage());
 				return ImportLineResult.ERROR;
 			}

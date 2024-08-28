@@ -14,6 +14,7 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -69,7 +70,11 @@ public class ImportDistrictDataDialog extends Dialog {
 	
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
-	
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+
+
+	DataImporter importer = null;
+	boolean checkForException = false;
 
 	public ImportDistrictDataDialog() {
 		
@@ -160,18 +165,23 @@ public class ImportDistrictDataDialog extends Dialog {
         
     	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
     	startDataImport.setIcon(startImportButtonIcon);
+		startImportDryRun.setIcon(startImportButtonIcon);
+
         startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
         upload.setAcceptedFileTypes("text/csv");
         upload.addSucceededListener(event -> {
         	
         	file_ = new File(buffer.getFilename());
-			 startDataImport.setVisible(true);
-        	
+        	startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
+
         });
 		
         UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
-		DistrictDto regionDto = new DistrictDto();
+		DistrictDto districtDto = new DistrictDto();
 		startDataImport.addClickListener(ed -> {
 
 			
@@ -179,7 +189,7 @@ public class ImportDistrictDataDialog extends Dialog {
 
 				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
 				
-				DataImporter importer = new DistrictDataImporter(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+				DataImporter importer = new DistrictDataImporter(file_, false, districtDto, ValueSeparator.COMMA, overWrite);
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(
@@ -188,6 +198,73 @@ public class ImportDistrictDataDialog extends Dialog {
 			}
 			
 			
+		});
+		
+		startImportDryRun.addClickListener(ed -> {
+
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+
+				try {
+					importer = new DistrictDataDryRunner(file_, false, districtDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+					ImportProgressLayout progressLayout;
+					try {
+						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+
+						if (importer != null) {
+							progressLayout.makeClosable(() -> {
+								if (!checkForException && !importer.hasErrors()) {
+									startDataImport.setVisible(true);
+								}
+							});
+						}
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					;
+					if (!checkForException && importer != null && !importer.hasErrors()) {
+						startDataImport.setVisible(true);
+					}
+
+					if (!checkForException) {
+
+						progressLayout = null;
+						try {
+							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						} catch (CsvValidationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						boolean exceptionValue = progressLayout.hasImportErrors();
+
+						if (!exceptionValue) {
+							startDataImport.setVisible(true);
+						}
+
+					}
+				}
+			}
 		});
 
 		
@@ -247,7 +324,7 @@ public class ImportDistrictDataDialog extends Dialog {
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startDataImport,
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startImportDryRun,  startDataImport,
 				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 		
 		//hacky: hide the anchor
@@ -314,6 +391,15 @@ public class ImportDistrictDataDialog extends Dialog {
 		// Get the current page and reload it
 		Page page = ui.getPage();
 		page.reload();
+	}
+	
+	private void truncateDryRunTable() {
+		try {
+			FacadeProvider.getDistrictDryRunFacade().clearDryRunTable();
+
+		} catch (Exception e) {
+
+		}
 	}
 	
 

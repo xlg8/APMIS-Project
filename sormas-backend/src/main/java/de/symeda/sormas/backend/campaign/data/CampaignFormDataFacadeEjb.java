@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -93,6 +94,7 @@ import de.symeda.sormas.backend.campaign.form.CampaignFormMetaService;
 import de.symeda.sormas.backend.campaign.statistics.CampaignStatisticsService;
 import de.symeda.sormas.backend.common.AbstractDomainObject;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
+import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.PopulationDataFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.area.Area;
 import de.symeda.sormas.backend.infrastructure.area.AreaFacadeEjb;
@@ -228,6 +230,9 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		target.setCreatingUser(UserFacadeEjb.toReferenceDto(source.getCreatingUser()));
 		target.setSource(source.getSource());
 		target.setArchived(source.isArchived());
+		target.setIspublished(source.isIspublished());
+		target.setIsverified(source.isIsverified());
+
 		return target;
 	}
 
@@ -1833,7 +1838,26 @@ if(criteria.getUserLanguage() != null) {
 	
 	@Override
 	public Integer getAllActiveDataTotalRowCount() {
-		StringBuilder selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata  where archived = false");
+		StringBuilder selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata where archived is not null");
+		BigInteger inte = (BigInteger) em.createNativeQuery(selectBuilder.toString()).getSingleResult();
+		return (int) inte.longValue();
+		
+		}
+	
+	@Override
+	public Integer getAllDataTotalRowCountByArchivedStatus(Boolean includeArchived) {
+		
+		StringBuilder selectBuilder ;//= new StringBuilder("SELECT count(id) from campaignformdata where archived is not null");
+	if (includeArchived != null ) {
+		if(includeArchived){
+			selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata where archived = true");
+		}else {
+			selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata where archived = false");
+		}
+	}else {
+		selectBuilder = new StringBuilder("SELECT count(id) from campaignformdata where archived is not null");
+	}
+
 		BigInteger inte = (BigInteger) em.createNativeQuery(selectBuilder.toString()).getSingleResult();
 		return (int) inte.longValue();
 		
@@ -2678,7 +2702,7 @@ if(criteria.getUserLanguage() != null) {
 
 		return resultData;
 	}
-	
+
 //	@Override
 //	public void checkIfMaterializedViewNeedsUpdate() {
 //		
@@ -2688,17 +2712,17 @@ if(criteria.getUserLanguage() != null) {
 //				
 //		
 //	}
-		
-	
+
 	@Override
 	public List<Object[]> getTransposedCampaignFormDataDaywiseData(CampaignFormDataCriteria criteria) {
 		String queryString = ""
 //				+ "REFRESH MATERIALIZED VIEW campaignformdata_jsonextract; \n"
-				
+
 				+ "WITH day_split AS ( SELECT c3.campaignyear, c3.\"name\" AS campaign, c2.formname, a.\"name\" AS area, r.\"name\" AS region, d.\"name\" AS district, c.\"name\" AS cluster, regexp_matches(jd.\"key\", '_(day[0-9]+)$') AS day_suffix, jd.\"key\" AS field, jd.value \n"
 				+ "FROM campaignformdata_jsonextract jd INNER JOIN campaignformdata cd ON jd.id = cd.id LEFT OUTER JOIN campaignformmeta c2 ON cd.campaignformmeta_id = c2.id LEFT OUTER JOIN campaigns c3 ON cd.campaign_id = c3.id LEFT OUTER JOIN region r ON cd.region_id = r.id \n"
 				+ "LEFT OUTER JOIN areas a ON r.area_id = a.id  LEFT OUTER JOIN  district d ON cd.district_id = d.id LEFT OUTER JOIN community c  ON cd.community_id = c.id \n"
-				+ "WHERE jd.\"value\" IS NOT NULL AND c3.uuid = '" + criteria.getCampaign().getUuid() + "' AND c2.uuid = '" + criteria.getCampaignFormMeta().getUuid() + "') \n"
+				+ "WHERE jd.\"value\" IS NOT NULL AND c3.uuid = '" + criteria.getCampaign().getUuid()
+				+ "' AND c2.uuid = '" + criteria.getCampaignFormMeta().getUuid() + "') \n"
 				+ "SELECT campaignyear, campaign, formname, area, region, district, cluster, day_suffix[1] AS day, field, value \n"
 				+ "FROM  day_split \n"
 				+ "ORDER BY  campaignyear, campaign, formname, area, region, district, cluster, day, field;";
@@ -3879,6 +3903,13 @@ resultData.addAll(resultList.stream()
 	@LocalBean
 	@Stateless
 	public static class CampaignFormDataFacadeEjbLocal extends CampaignFormDataFacadeEjb {
+		
+		public CampaignFormDataFacadeEjbLocal() {
+			
+		}
+		
+		
+	
 	}
 
 

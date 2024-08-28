@@ -42,6 +42,7 @@ public class Community extends InfrastructureAdo {
 	public static final String GROWTH_RATE = "growthRate";
 	public static final String EXTERNAL_ID = "externalId";
 	public static final String CLUSTER_NUMBER = "clusterNumber";
+	public static final String FLOATING_STATUS = "floating";
 
 	private String name;
 	private String fa_af;
@@ -50,6 +51,7 @@ public class Community extends InfrastructureAdo {
 	private Float growthRate;
 	private Long externalId;
 	private Integer clusterNumber;
+	private String floating;
 
 	public String getName() {
 			return name;
@@ -108,6 +110,16 @@ public class Community extends InfrastructureAdo {
 
 	public void setClusterNumber(Integer clusterNumber) {
 		this.clusterNumber = clusterNumber;
+	}
+	
+	
+
+	public String getFloating() {
+		return floating;
+	}
+
+	public void setFloating(String floating) {
+		this.floating = floating;
 	}
 
 	@Override

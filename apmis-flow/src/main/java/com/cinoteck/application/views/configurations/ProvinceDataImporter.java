@@ -156,7 +156,7 @@ public class ProvinceDataImporter extends DataImporter {
 //							}else {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage()
-												+ " | Region Name Exists ");
+												+ " | Province Name Exists ");
 								return ImportLineResult.ERROR;
 //							}
 						}

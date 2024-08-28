@@ -111,7 +111,8 @@ public class FormBuilderView extends VerticalLayout {
 
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		filterDataProvider.setFilter(criteria);
-		filterDataProvider.refreshAll();
+//		filterDataProvider.refreshAll();
+		refreshGridData();
 
 		configureView();
 		configureGrid();
@@ -172,13 +173,15 @@ public class FormBuilderView extends VerticalLayout {
 				criteria.setFormName(e.getValue().toString());
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			} else {
 
 				criteria.setFormName(null);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			}
 		});
 
@@ -188,13 +191,15 @@ public class FormBuilderView extends VerticalLayout {
 				criteria.setFormType(e.getValue().toString().toLowerCase());
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			} else {
 
 				criteria.setFormType(null);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			}
 		});
 
@@ -206,13 +211,15 @@ public class FormBuilderView extends VerticalLayout {
 				criteria.setFormCategory(formAccess);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			} else {
 
 				criteria.setFormCategory(null);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			}
 		});
 
@@ -223,13 +230,15 @@ public class FormBuilderView extends VerticalLayout {
 				criteria.setModality(e.getValue().toString());
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			} else {
 
 				criteria.setModality(null);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			}
 		});
 
@@ -276,13 +285,15 @@ public class FormBuilderView extends VerticalLayout {
 				criteria.relevanceStatus(entityRelevanceStatus);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			} else {
 
 				criteria.relevanceStatus(null);
 				filterDataProvider.setFilter(criteria);
 
-				filterDataProvider.refreshAll();
+//				filterDataProvider.refreshAll();
+				refreshGridData();
 			}
 		});
 	}
@@ -311,18 +322,24 @@ public class FormBuilderView extends VerticalLayout {
 				.setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.FORM_TYPE).setHeader("Campaign Phase").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto::getModality).setHeader("Modality").setSortable(true).setResizable(true);
-		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
-		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
+//		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
+//		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Data Entry").setSortable(true)
 				.setResizable(true);
+		grid.addColumn(CampaignFormMetaDto.LANGUAGE_CODE).setHeader("Language Code").setSortable(true);
 
 		grid.setVisible(true);
 		grid.setWidthFull();
 		grid.setAllRowsVisible(true);
 
-		grid.setDataProvider(filterDataProvider);
+//		grid.setDataProvider(filterDataProvider);
+		
+		ListDataProvider<CampaignFormMetaDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getIndexList(criteria, null, null, null).stream());
+
+		dataView = grid.setItems(dataProvider);
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_EDIT)) {
 
 			grid.asSingleSelect().addValueChangeListener(event -> editForm(event.getValue()));
@@ -435,7 +452,8 @@ public class FormBuilderView extends VerticalLayout {
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-			filterDataProvider.refreshAll();
+//			filterDataProvider.refreshAll();
+			refreshGridData();
 			leaveBulkModeButton.setVisible(false);
 			archiveForms.setVisible(false);
 			dearchiveForms.setVisible(false);
@@ -461,7 +479,8 @@ public class FormBuilderView extends VerticalLayout {
 			notification.setPosition(Notification.Position.MIDDLE);
 			notification.open();
 			grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-			filterDataProvider.refreshAll();
+//			filterDataProvider.refreshAll();
+			refreshGridData();
 			leaveBulkModeButton.setVisible(false);
 			archiveForms.setVisible(false);
 			dearchiveForms.setVisible(false);
@@ -471,6 +490,12 @@ public class FormBuilderView extends VerticalLayout {
 
 	private void saveForm(FormBuilderLayout.SaveEvent event) {
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
+	}
+	
+	private void refreshGridData() {
+		ListDataProvider<CampaignFormMetaDto> dataProvider = DataProvider
+				.fromStream(FacadeProvider.getCampaignFormMetaFacade().getIndexList(criteria, null, null, null).stream());
+		dataView = grid.setItems(dataProvider);
 	}
 
 }

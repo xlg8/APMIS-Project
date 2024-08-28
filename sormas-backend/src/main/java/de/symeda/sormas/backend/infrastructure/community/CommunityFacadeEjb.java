@@ -33,6 +33,7 @@ import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
+import de.symeda.sormas.api.ClusterFloatStatus;
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
 import de.symeda.sormas.api.ReferenceDto;
@@ -106,7 +107,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		return district.getCommunities().stream().filter(c -> !c.isArchived()).map(CommunityFacadeEjb::toReferenceDto)
 				.collect(Collectors.toList());
 	}
-	//getAllAfterWithDistrict
+	// getAllAfterWithDistrict
 
 	@Override
 	public List<CommunityDto> getAllAfter(Date date) {
@@ -123,11 +124,10 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			cq.where(filter);
 		}
 
-		System.out.println("ttttttttttttttttttttttttttyyyy " 
-				+ SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("ttttttttttttttttttttttttttyyyy " + SQLExtractor.from(em.createQuery(cq)));
 		return em.createQuery(cq).getResultList();
 	}
-	
+
 	@Override
 	public List<CommunityDto> getAllAfterWithDistrict(Date date, Set<DistrictReferenceDto> notused) {
 
@@ -139,49 +139,50 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		Join<Community, District> district = community.join(Community.DISTRICT, JoinType.LEFT);
 		Join<District, Region> region = district.join(District.REGION, JoinType.LEFT);
 
-		cq.multiselect(district.get(District.EXTERNAL_ID), criteriaBuilder.max(community.get(Community.CREATION_DATE)), criteriaBuilder.max(community.get(Community.CHANGE_DATE)), criteriaBuilder.max(community.get(Community.UUID)),
-				criteriaBuilder.max(community.get(Community.NAME)), criteriaBuilder.max(community.get(Community.GROWTH_RATE)),
-				criteriaBuilder.max(region.get(Region.UUID)), criteriaBuilder.max(region.get(Region.NAME)), criteriaBuilder.max(region.get(Region.EXTERNAL_ID)),
-				criteriaBuilder.max(district.get(District.UUID)), criteriaBuilder.max(district.get(District.NAME)), criteriaBuilder.max(district.get(District.EXTERNAL_ID)),
-				criteriaBuilder.max(community.get(Community.EXTERNAL_ID)), criteriaBuilder.max(community.get(Community.CLUSTER_NUMBER)));
-		
+		cq.multiselect(district.get(District.EXTERNAL_ID), criteriaBuilder.max(community.get(Community.CREATION_DATE)),
+				criteriaBuilder.max(community.get(Community.CHANGE_DATE)),
+				criteriaBuilder.max(community.get(Community.UUID)), criteriaBuilder.max(community.get(Community.NAME)),
+				criteriaBuilder.max(community.get(Community.GROWTH_RATE)), criteriaBuilder.max(region.get(Region.UUID)),
+				criteriaBuilder.max(region.get(Region.NAME)), criteriaBuilder.max(region.get(Region.EXTERNAL_ID)),
+				criteriaBuilder.max(district.get(District.UUID)), criteriaBuilder.max(district.get(District.NAME)),
+				criteriaBuilder.max(district.get(District.EXTERNAL_ID)),
+				criteriaBuilder.max(community.get(Community.EXTERNAL_ID)),
+				criteriaBuilder.max(community.get(Community.CLUSTER_NUMBER)));
+
 		List<Long> rDistdto = new ArrayList<>();
-		
-		if(userService.getCurrentUser().getDistricts().size() > 0) {
+
+		if (userService.getCurrentUser().getDistricts().size() > 0) {
 			for (District distr : userService.getCurrentUser().getDistricts()) {
 				rDistdto.add(distr.getId());
-				}
+			}
 		}
-		
 
 		Predicate filter = service.createChangeDateFilter(cb, community, date);
 
 		if (filter != null) {
 			if (rDistdto != null && !rDistdto.isEmpty()) {
-				cq.where(cb.and(filter, community.get(Community.DISTRICT).in(rDistdto), cb.equal(community.get(Community.ARCHIVED), false)));
+				cq.where(cb.and(filter, community.get(Community.DISTRICT).in(rDistdto),
+						cb.equal(community.get(Community.ARCHIVED), false)));
 				cq.groupBy(district.get(District.EXTERNAL_ID));
-		    }else {
-		    	cq.where(filter);
-		    }
-			//cb.equal(community.get(Community.ARCHIVED), false);
+			} else {
+				cq.where(filter);
+			}
+			// cb.equal(community.get(Community.ARCHIVED), false);
 		} else if (rDistdto != null && !rDistdto.isEmpty()) {
-			cq.where(cb.and(community.get(Community.DISTRICT).in(rDistdto), cb.equal(community.get(Community.ARCHIVED), false)));
+			cq.where(cb.and(community.get(Community.DISTRICT).in(rDistdto),
+					cb.equal(community.get(Community.ARCHIVED), false)));
 			cq.groupBy(district.get(District.EXTERNAL_ID));
 		}
-		
-		System.out.println("ttttttttt+++++getAllAfterWithDistrict "+ SQLExtractor.from(em.createQuery(cq)));
+
+		System.out.println("ttttttttt+++++getAllAfterWithDistrict " + SQLExtractor.from(em.createQuery(cq)));
 
 		return em.createQuery(cq).getResultList();
-		
-		
-	
+
 	}
 
 	private void selectDtoFieldsMax(CriteriaQuery<CommunityDto> cq, Root<Community> root) {
-		
+
 	}
-	
-	
 
 	// Need to be in the same order as in the constructor
 	private void selectDtoFields(CriteriaQuery<CommunityDto> cq, Root<Community> root) {
@@ -273,10 +274,11 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	};
-	
+
 	private int isUpdateTrakerLocked(String tableToCheck) {
 		// get the total size of the analysis
-		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '"+tableToCheck+"' and isLocked = true;";
+		final String joinBuilder = "select count(*) from tracktableupdates where table_name = '" + tableToCheck
+				+ "' and isLocked = true;";
 		return Integer.parseInt(em.createNativeQuery(joinBuilder).getSingleResult().toString());
 
 	};
@@ -284,8 +286,8 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	private void updateTrakerTable(String tabled, boolean isLocked_) {
 		// get the total size of the analysis
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
-				+ "    VALUES ('" + tabled + "', NOW(), "+isLocked_+")\n" + "    ON CONFLICT (table_name)\n"
-				+ "    DO UPDATE SET last_updated = NOW(), isLocked = "+isLocked_+";";
+				+ "    VALUES ('" + tabled + "', NOW(), " + isLocked_ + ")\n" + "    ON CONFLICT (table_name)\n"
+				+ "    DO UPDATE SET last_updated = NOW(), isLocked = " + isLocked_ + ";";
 		em.createNativeQuery(joinBuilder).executeUpdate();
 	};
 
@@ -294,23 +296,23 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			Integer first, Integer max, List<SortProperty> sortProperties, FormAccess formacc) {
 		frmsAccess = formacc;
 		int isLocked = isUpdateTrakerLocked("useranalysis_main");
-		if(isLocked == 0){
+		if (isLocked == 0) {
 			boolean isAnalyticsOld = campaignStatisticsService.checkChangedDb("users", "useranalysis_main");
-	
-				if (isAnalyticsOld) {
-					try {
-						updateTrakerTable("useranalysis_main", true);
-						
-						updateTrakerTable();
-						String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
-						em.createNativeQuery(updateAnalysisSql).executeUpdate();
 
-					} catch (Exception e) {
-						
-					} finally {
-						updateTrakerTable("useranalysis_main", false);
-					}
+			if (isAnalyticsOld) {
+				try {
+					updateTrakerTable("useranalysis_main", true);
+
+					updateTrakerTable();
+					String updateAnalysisSql = "REFRESH MATERIALIZED VIEW CONCURRENTLY useranalysis_main;";
+					em.createNativeQuery(updateAnalysisSql).executeUpdate();
+
+				} catch (Exception e) {
+
+				} finally {
+					updateTrakerTable("useranalysis_main", false);
 				}
+			}
 		}
 
 		boolean filterIsNull = criteria.getArea() == null;
@@ -656,14 +658,6 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 	@Override
 	public List<CommunityDto> getIndexList(CommunityCriteriaNew criteria, Integer first, Integer max, List<SortProperty> sortProperties) {
 		
-//		System.out.println(first+ " 2222222222222222222222222444444444444444444442222222222222222222222222222 "+max);
-//		if(max > 100000) {
-//			max = 100;
-//			}
-		
-		
-		
-		
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
 		Root<Community> community = cq.from(Community.class);
@@ -672,31 +666,55 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 		
 		
 		
-		
 		Predicate filter = null;
+		
 		if (criteria != null) {
-			filter = service.buildCriteriaFilter(criteria, cb, community);
-//			System.out.println("CHECK 1TOP -------------------------------------------------------");
-
-//			System.out.println(criteria.getRelevanceStatus() + "zzzrelevamce status in Ejbbbbbbbb ");
-
+		filter = service.buildCriteriaFilter(criteria, cb, community);
 		}
 		
 		Predicate filterx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), false), cb.isNotNull(community.get(District.ARCHIVED)));
+		Predicate filterxy = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.isNotNull(community.get(District.ARCHIVED)));
 		Predicate filterxx = cb.and(cb.isNotNull(community.get(District.EXTERNAL_ID)), cb.equal(community.get(District.ARCHIVED), true), cb.isNotNull(community.get(District.ARCHIVED)));
+		Predicate floatPredicate = null;
+		if(criteria.getFloatStatus() != null) {
+		floatPredicate = cb.and( cb.equal(community.get(Community.FLOATING_STATUS), (criteria.getFloatStatus().toString() != null ?  criteria.getFloatStatus().toString(): criteria.getFloatStatus().toString())));
+		}else {
+			
+		}
 
 		if (filter != null) {
+			
+//System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
 			if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ARCHIVED) {
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
+
 				cq.where(filter, filterxx);
+			} else if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ALL) {
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
 
-			}else {
+				cq.where(filter, filterxy);
+			} else {
+				
+//				System.out.println(criteria.getRelevanceStatus() + "criteria.getRelevanceStatus()=====================");
+
 				cq.where(filter, filterx);
-
 			}
-
+			
+			if(criteria.getFloatStatus() != null && floatPredicate != null ) {
+				cq.where(filter, floatPredicate);
+			} 
+			//else if(criteria.getRelevanceStatus() == EntityRelevanceStatus.ALL) {
+//				cq.where(filter, filterxx);
+//			} else {
+//				cq.where(filter, filterx);
+//			}
+			
+			
 		}else {
 	
-			cq.where(filterx);
+			cq.where(filterxy);
 		}	
 
 		if (sortProperties != null && sortProperties.size() > 0) {
@@ -732,7 +750,7 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 
 		cq.select(community);
 
-System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.createQuery(cq)));
+		System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.createQuery(cq)));
 
 		return QueryHelper.getResultList(em, cq, first, max, this::toDto);
 	}
@@ -848,6 +866,8 @@ System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.crea
 			}
 		}
 		community = fillOrBuildEntity(dto, community, true);
+		
+		System.out.println(dto.getFloating() + "============================dto.getFloating()===============" + community.getFloating()); 
 		service.ensurePersisted(community);
 		return toDto(community);
 	}
@@ -939,7 +959,7 @@ System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.crea
 		dto.setClusterNumber(entity.getClusterNumber());
 		dto.setAreaname(entity.getDistrict().getRegion().getArea().getName());
 		dto.setAreaexternalId(entity.getDistrict().getRegion().getArea().getExternalId());
-
+		dto.setFloating(entity.getFloating());
 		return dto;
 	}
 	
@@ -962,7 +982,8 @@ System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.crea
 		dto.setClusterNumber(entity.getClusterNumber().toString());
 
 		dto.setcCode(entity.getExternalId());
-	
+//		dto.setFloating(entity.getFloating());
+
 		dto.setArea(entity.getDistrict().getRegion().getArea().getName());
 		
 		List<String> usersd = new ArrayList<>();
@@ -1099,7 +1120,7 @@ System.out.println("DEBUGGER QueryHelper Debugger  " + SQLExtractor.from(em.crea
 		target.setArchived(source.isArchived());
 		target.setExternalId(source.getExternalId());
 		target.setClusterNumber(source.getClusterNumber());
-
+		target.setFloating(source.getFloating());
 		return target;
 	}
 

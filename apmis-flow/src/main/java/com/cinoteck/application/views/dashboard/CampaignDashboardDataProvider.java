@@ -174,7 +174,7 @@ public class CampaignDashboardDataProvider {
 		int tracker = 0;
 
 		campaignDashboardDiagrams.clear();
-		System.out.println(getFormType() + "~~~~~~~444444444444444PATCHED4444444444444~~~~~~~~~~```    "+tracker++);
+//		System.out.println(getFormType() + "~~~~~~~444444444444444PATCHED4444444444444~~~~~~~~~~```    "+tracker++);
 
 		if (campaign != null) {
 			FacadeProvider.getCampaignFacade().validate(campaign, getFormType());

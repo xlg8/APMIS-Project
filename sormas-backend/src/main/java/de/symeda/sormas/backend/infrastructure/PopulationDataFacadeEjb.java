@@ -31,6 +31,7 @@ import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.campaign.CampaignTreeGridDto;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramCriteria;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
@@ -233,9 +234,9 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 			throws ValidationRuntimeException {
 
 		for (PopulationDataDto populationData : populationDataList) {
-			System.out.println(populationData.getAgeGroup() + "11111111133333" + populationData.getModality() + "11111111133333"+ populationData.getPopulation() +  populationData.getDistrictStatus());
-			
-			
+			System.out.println(populationData.getAgeGroup() + "11111111133333" + populationData.getModality()
+					+ "11111111133333" + populationData.getPopulation() + populationData.getDistrictStatus());
+
 			validate(populationData);
 			PopulationData entity = fromDto(populationData, false);
 			service.ensurePersisted(entity);
@@ -808,7 +809,6 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		target.setModality(source.getModality());
 		target.setDistrictStatus(source.getDistrictStatus());
 
-
 		return target;
 	}
 
@@ -917,7 +917,8 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 		Join<PopulationData, Campaign> campaignJoin = root.join(PopulationData.CAMPAIGN);
 		Join<PopulationData, District> districtJoin = root.join(PopulationData.DISTRICT);
 
-		System.out.println(districtUuid + "1111zzzzzzDEBUGGER 5678ijhyuioYYYYYY" + campaignUuid  + "1111zzzzzzDEBUGGER 5678ijhyuioYYYYYY" + agegroup);
+//		System.out.println(districtUuid + "1111zzzzzzDEBUGGER 5678ijhyuioYYYYYY" + campaignUuid
+//				+ "1111zzzzzzDEBUGGER 5678ijhyuioYYYYYY" + agegroup);
 
 		Predicate campaignFilter = cb.and(cb.equal(campaignJoin.get(Campaign.UUID), campaignUuid));
 		Predicate districtFilter = cb.and(cb.equal(districtJoin.get(District.UUID), districtUuid));
@@ -932,6 +933,31 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 
 		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void deletePopulationDataByDistrict(List<Long> populationDataList, String campaignUUID) {
+		// TODO Auto-generated method stub
+
+		for (Long populationDataListItems : populationDataList) {
+
+			String executeQuery = "DELETE FROM populationdata p \n" 
+								+ "USING district d, campaigns c \n"
+								+ "WHERE p.district_id = d.id \n" 
+								+ "AND p.campaign_id = c.id \n"
+								+ "AND d.id = " + populationDataListItems
+								+ " AND c.\"uuid\" = '" + campaignUUID + "';";
+
+			
+			System.out.println(executeQuery + "========Debuggerr ");
+			// Create a native query
+			Query query = em.createNativeQuery(executeQuery);
+
+			// Execute the query
+			query.executeUpdate();
+
+		}
+
 	}
 
 }

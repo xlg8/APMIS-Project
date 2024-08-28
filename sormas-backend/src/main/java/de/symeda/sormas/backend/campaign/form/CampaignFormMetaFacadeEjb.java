@@ -1,7 +1,6 @@
 package de.symeda.sormas.backend.campaign.form;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -25,8 +23,6 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -37,50 +33,31 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.model.Parameter.Source;
 import org.jsoup.safety.Whitelist;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.TextFormat.ParseException;
-
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
-import de.symeda.sormas.api.campaign.CampaignCriteria;
-import de.symeda.sormas.api.campaign.CampaignIndexDto;
 import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
-import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormCriteria;
 //import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
-import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
-import de.symeda.sormas.api.report.UserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
-import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.HtmlHelper;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
-import de.symeda.sormas.backend.campaign.Campaign;
-import de.symeda.sormas.backend.common.AbstractDomainObject;
-import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
-import de.symeda.sormas.backend.infrastructure.area.Area;
-import de.symeda.sormas.backend.infrastructure.district.District;
-import de.symeda.sormas.backend.infrastructure.facility.Facility;
-import de.symeda.sormas.backend.infrastructure.region.Region;
-import de.symeda.sormas.backend.location.Location;
-import de.symeda.sormas.backend.user.User;
-import de.symeda.sormas.backend.user.UserFacadeEjb;
+import de.symeda.sormas.backend.disease.DiseaseConfigurationFacadeEjb;
 import de.symeda.sormas.backend.user.UserService;
-import de.symeda.sormas.backend.user.event.UserUpdateEvent;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
@@ -399,15 +376,9 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		CriteriaQuery<CampaignFormMeta> cq = cb.createQuery(CampaignFormMeta.class);
 		Root<CampaignFormMeta> campaignFormMeta = cq.from(CampaignFormMeta.class);
 
-//		cq.multiselect(campaignFormMeta.get(CampaignFormMeta.FORM_ID), campaignFormMeta.get(CampaignFormMeta.FORM_NAME),
-//				campaignFormMeta.get(CampaignFormMeta.FORM_TYPE), campaignFormMeta.get(CampaignFormMeta.UUID),
-//				campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY),
-//				campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE));
-
 		Predicate filter = null;
 
 		if (campaignFormCriteria != null) {
-			System.out.println("DEBUGGER: 45fffffffiiilibraryii = " + campaignFormCriteria);
 			filter = service.buildCriteriaFilter(campaignFormCriteria, cb, campaignFormMeta);
 		}
 
@@ -415,26 +386,34 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			cq.where(filter);
 		}
 
-		if (sortProperties != null && sortProperties.size() > 0) {
+		List<CampaignFormMetaDto> results = QueryHelper.getResultList(em, cq, first, max,
+				CampaignFormMetaFacadeEjb::toDto);
+
+		if (results.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		if (sortProperties != null && !sortProperties.isEmpty()) {			
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
 				Expression<?> expression;
 				switch (sortProperty.propertyName) {
 				case CampaignFormMeta.UUID:
-				case CampaignFormMeta.MODALITY:
+				case CampaignFormMeta.FORM_ID:
+				case CampaignFormMeta.FORM_NAME:
+				case CampaignFormMeta.CREATION_DATE:
+				case CampaignFormMeta.CHANGE_DATE:
+				case CampaignFormMeta.FORM_CATEGORY:
 					expression = campaignFormMeta.get(sortProperty.propertyName);
 					break;
-				case CampaignFormMeta.FORM_NAME:
-					expression = campaignFormMeta.get(CampaignFormMeta.FORM_NAME);
+				case CampaignFormMeta.DAYSTOEXPIRE:
+					expression = campaignFormMeta.get(CampaignFormMeta.DAYSTOEXPIRE);
+					break;
+				case CampaignFormMeta.DISTRICTENTRY:
+					expression = campaignFormMeta.get(CampaignFormMeta.DISTRICTENTRY);
 					break;
 				case CampaignFormMeta.FORM_TYPE:
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_TYPE);
-					break;
-				case CampaignFormMeta.FORM_CATEGORY:
-					expression = campaignFormMeta.get(CampaignFormMeta.FORM_CATEGORY);
-					break;
-				case CampaignFormMeta.ARCHIVED:
-					expression = campaignFormMeta.get(CampaignFormMeta.ARCHIVED);
 					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -443,10 +422,10 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			}
 			cq.orderBy(order);
 		} else {
-			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
+			cq.orderBy(cb.asc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
 		}
-		cq.select(campaignFormMeta);
-		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
+
+		return results;
 	}
 
 	@Override
@@ -839,12 +818,16 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			return null;
 		}
 	}
-
+	
 	@LocalBean
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
+
+		public CampaignFormMetaFacadeEjbLocal() {
+		}
 	}
 
+	
 	
 
 }
