@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -33,6 +34,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import de.symeda.sormas.api.FacadeProvider;
+import de.symeda.sormas.api.PushResult;
 import de.symeda.sormas.api.caze.CriteriaWithSorting;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
@@ -90,10 +92,22 @@ public class UserResource {
 		return FacadeProvider.getUserFacade().getIndexPage(criteriaWithSorting.getCriteria(), offset, size, criteriaWithSorting.getSortProperties());
 	}
 	
+//	@POST
+//	@Path("/fcm/token/{username}/{token}")
+//	public boolean updateFcmToken(@PathParam("username") String username, @PathParam("token") String token) {
+//		return FacadeProvider.getUserFacade().updateFcmToken(username, token);
+//	}
+	
 	@POST
-	@Path("/fcm/token/{username}/{token}")
-	public boolean updateFcmToken(@PathParam("username") String username, @PathParam("token") String token) {
-		return FacadeProvider.getUserFacade().updateFcmToken(username, token);
+	@Path("/push")
+	public List<PushResult> postUserFcm(@Valid List<UserDto> dtos) {
+		System.out.println("Before e enter passed userdto from mobile to resttttttttttttttttt " + dtos.get(0).getName());
+		List<PushResult> resultlist = new ArrayList();
+		for (UserDto userDto : dtos) {
+			System.out.println("after e enter passed userdto from mobile to resttttttttttttttttt " + userDto.getName());
+			FacadeProvider.getUserFacade().saveUserFcmMobile(userDto);
+			resultlist.add(PushResult.OK);
+		} 			
+		return resultlist;
 	}
-
 }

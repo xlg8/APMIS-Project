@@ -16,6 +16,7 @@ import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -72,6 +73,10 @@ public class ImportClusterDataDialog extends Dialog {
 
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+	
+	DataImporter importer = null;
+	boolean checkForException = false;
 
 	public ImportClusterDataDialog() {
 
@@ -161,12 +166,17 @@ public class ImportClusterDataDialog extends Dialog {
 
 		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonIcon);
+		startImportDryRun.setIcon(startImportButtonIcon);
+
 		startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
 		upload.setAcceptedFileTypes("text/csv");
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -202,18 +212,20 @@ public class ImportClusterDataDialog extends Dialog {
 			try {
 				ClusterDataImporter importer = new ClusterDataImporter(file_, false, clusterDto, ValueSeparator.COMMA,
 						overWrite);
-				
-				//Trying to read the csv file to extract values of specific columns 
-				//Eventual Goal is to finally get the list of all clusters from the db by their districts 
-				//upon retrieval i'd be archiving any cluster external id that is not amongst the cCodeColumnValues
-				
-				
-				//Forseeable problem: If we are getting the list at this point the result of the imports is not being considered at this point 
-				
+
+				// Trying to read the csv file to extract values of specific columns
+				// Eventual Goal is to finally get the list of all clusters from the db by their
+				// districts
+				// upon retrieval i'd be archiving any cluster external id that is not amongst
+				// the cCodeColumnValues
+
+				// Forseeable problem: If we are getting the list at this point the result of
+				// the imports is not being considered at this point
+
 				cCodeColumnValues = importer.extractColumnValues("CCode"); // replace "Column_Name" with the
 				dCodeColumnValues = importer.extractColumnValues("DCode"); // replace "Column_Name" with the
 
-																		// actual column name
+				// actual column name
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 
 				// Process the column values as needed
@@ -224,10 +236,76 @@ public class ImportClusterDataDialog extends Dialog {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
 			} finally {
-				
-				System.out.println(dCodeColumnValues + "Column values " +  cCodeColumnValues);
 
+				System.out.println(dCodeColumnValues + "Column values " + cCodeColumnValues);
 
+			}
+		});
+		
+		startImportDryRun.addClickListener(ed -> {
+
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+
+				try {
+					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+					ImportProgressLayout progressLayout;
+					try {
+						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+
+						if (importer != null) {
+							progressLayout.makeClosable(() -> {
+								if (!checkForException && !importer.hasErrors()) {
+									startDataImport.setVisible(true);
+								}
+							});
+						}
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					;
+					if (!checkForException && importer != null && !importer.hasErrors()) {
+						startDataImport.setVisible(true);
+					}
+
+					if (!checkForException) {
+
+						progressLayout = null;
+						try {
+							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						} catch (CsvValidationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						boolean exceptionValue = progressLayout.hasImportErrors();
+
+						if (!exceptionValue) {
+							startDataImport.setVisible(true);
+						}
+
+					}
+				}
 			}
 		});
 
@@ -276,7 +354,7 @@ public class ImportClusterDataDialog extends Dialog {
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
 		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
-				upload, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
@@ -324,6 +402,15 @@ public class ImportClusterDataDialog extends Dialog {
 				timer.cancel();
 				timer.purge();
 			}
+
+		}
+	}
+	
+	private void truncateDryRunTable() {
+		try {
+//			FacadeProvider.getCommunityDryRunFacade().clearDryRunTable();
+
+		} catch (Exception e) {
 
 		}
 	}

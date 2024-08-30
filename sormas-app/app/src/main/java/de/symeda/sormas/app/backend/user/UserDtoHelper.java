@@ -56,14 +56,15 @@ public class UserDtoHelper extends AdoDtoHelper<User, UserDto> {
 		return RetroProvider.getUserFacade().pullByUuids(uuids);
 	}
 
-	protected Call<Boolean> updateFcmToken(String username, String token) throws NoConnectionException {
-		return RetroProvider.getUserFacade().updateFcmToken(username, token);
-	}
-
 	@Override
 	protected Call<List<PushResult>> pushAll(List<UserDto> userDtos) throws NoConnectionException {
 		throw new UnsupportedOperationException("Can't change users in app");
 	}
+
+//	@Override
+//	protected Call<List<PushResult>> pushAll(List<UserDto> userDtos) throws NoConnectionException {
+//		return RetroProvider.getUserFacade().pushAll(userDtos);
+//	}
 
 	protected void preparePulledResult(List<UserDto> result) {
 		Collections.sort(result, new Comparator<UserDto>() {
