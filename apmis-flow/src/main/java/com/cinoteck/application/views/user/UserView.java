@@ -727,6 +727,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
 			grid.addSelectionListener(event -> {
 				editUser(event.getFirstSelectedItem().get(), false);
+				grid.deselectAll();
 			});
 		}
 

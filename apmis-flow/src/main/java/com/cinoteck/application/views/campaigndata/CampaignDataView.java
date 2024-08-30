@@ -1894,6 +1894,8 @@ public class CampaignDataView extends VerticalLayout
 
 //				cam.verifyAndPublishButton.setText(I18nProperties.getCaption("Verify & Publish"));
 				System.out.println("2222222222222222222222" + formData.getUuid());
+				
+				grid.deselectAll();
 
 			});
 		}
