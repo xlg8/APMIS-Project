@@ -935,8 +935,8 @@ public class CampaignDataView extends VerticalLayout
 			CampaignDto campaignUuid = FacadeProvider.getCampaignFacade().getByUuid(campaignz.getValue().getUuid());
 
 			if (importFormData.getValue() != null) {
-				
-				startIntervalCallback();		
+
+				startIntervalCallback();
 				UI.getCurrent().addPollListener(event -> {
 					if (callbackRunning) {
 						UI.getCurrent().access(this::pokeFlow);
@@ -944,7 +944,7 @@ public class CampaignDataView extends VerticalLayout
 						stopPullers();
 					}
 				});
-				
+
 				// CampaignReferenceDto camapigndto, CampaignFormMetaDto campaignFormMetaDto
 				ImportCampaignsFormDataDialog dialogx = new ImportCampaignsFormDataDialog(campaignz.getValue(),
 						importFormData.getValue(), campaignUuid);
@@ -1159,7 +1159,6 @@ public class CampaignDataView extends VerticalLayout
 		});
 
 	}
-
 
 	public void removeColumnsSelectionn() {
 		grid.setSelectionMode(SelectionMode.NONE);
@@ -2048,8 +2047,7 @@ public class CampaignDataView extends VerticalLayout
 	private void pokeFlow() {
 		logger.debug("runingImport...");
 	}
-	
-	
+
 	private void startIntervalCallback() {
 		UI.getCurrent().setPollInterval(5000);
 		if (!callbackRunning) {
@@ -2072,11 +2070,9 @@ public class CampaignDataView extends VerticalLayout
 				timer.cancel();
 				timer.purge();
 			}
-
 		}
-		
 	}
-	
+
 	private void stopPullers() {
 		UI.getCurrent().setPollInterval(-1);
 	}
@@ -2101,7 +2097,6 @@ public class CampaignDataView extends VerticalLayout
 //			System.out.println("----------------------------");
 //		}
 //	}
-
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {

@@ -96,7 +96,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Dialog dialog = new Dialog();
 	Div aboutText = new Div();
 	Button notification = new Button("Notification");
-//	IdleNotification idleNotification = new IdleNotification();
+	IdleNotification idleNotification = new IdleNotification();
 //	private InactivityHandler inactivityHandler;
 
 	public MainLayout() {
@@ -148,7 +148,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			}
 		});
 		
-		IdleNotification idleNotification = new IdleNotification();
 		idleNotification.setMessage(
 				"Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT + " seconds.");
 		idleNotification.addExtendSessionButton("Extend session");
@@ -157,7 +156,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.setExtendSessionOnOutsideClick(true);
 		idleNotification.setRedirectAtTimeoutUrl("./");
 
-		UI.getCurrent().add(idleNotification);
+		UI.getCurrent().getSession().setAttribute(MainLayout.class, this);
+		UI.getCurrent().add(idleNotification);		
 
 //		addToNavbar(true, toggle, titleLayout);
 //
@@ -172,9 +172,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //        return inactivityHandler;
 //    }
 
-//	 public IdleNotification getIdleNotification() {
-//	        return idleNotification;
-//	    }
+	public IdleNotification getIdleNotification() {
+        return idleNotification;
+    }
 
 	private void addDrawerContent() {
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -203,7 +203,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		addToDrawer(header, scroller, versionadd);
 
 		addToDrawer(createFooter());
-
 	}
 
 	private AppNav createNavigation() {

@@ -13,7 +13,9 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
@@ -77,24 +79,22 @@ public class ImportClusterDataDialog extends Dialog {
 	
 	DataImporter importer = null;
 	boolean checkForException = false;
+	IdleNotification idleNotification;
 
 	public ImportClusterDataDialog() {
 
 		this.setHeaderTitle(I18nProperties.getString(Strings.clusterImportModule));
 //		this.getStyle().set("color" , "#0D6938");
+		
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
 
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
 
 		VerticalLayout dialog = new VerticalLayout();
-
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
 
 		H3 step2 = new H3();
 		step2.add(I18nProperties.getString(Strings.step1));
@@ -243,12 +243,12 @@ public class ImportClusterDataDialog extends Dialog {
 		});
 		
 		startImportDryRun.addClickListener(ed -> {
-
+			startIntervalCallback();
+			
 			try {
 				truncateDryRunTable();
 
 			} finally {
-//				startIntervalCallback();
 
 				try {
 					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
@@ -352,6 +352,14 @@ public class ImportClusterDataDialog extends Dialog {
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
 
 		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
 				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
@@ -377,7 +385,9 @@ public class ImportClusterDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		// Notification.show("dialog detected... User wont logout");
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
 	}
 
 	private void startIntervalCallback() {
@@ -389,7 +399,7 @@ public class ImportClusterDataDialog extends Dialog {
 				public void run() {
 					stopIntervalCallback();
 				}
-			}, 15000); // 10 minutes
+			}, 10000); // 10 minutes
 
 			callbackRunning = true;
 		}
@@ -437,9 +447,7 @@ public class ImportClusterDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
-																	// I18nProperties.getCaption(Captions.downloadErrorReport));
-																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
 
