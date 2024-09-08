@@ -735,3 +735,7 @@ tfoot#footer {
     text-overflow: clip;
     text-wrap: balance;
 }
+
+vaadin-vertical-layout#campaignFormLayout vaadin-tabsheet vaadin-tabs {
+	background: rgb(67, 67, 67) !important
+}

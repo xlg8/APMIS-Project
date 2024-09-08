@@ -70,5 +70,14 @@ public interface PopulationDataFacade {
 	void savePopulationDatax(@Valid List<PopulationDataDto> populationDataList,
 			@Valid List<PopulationDataFauxDto> fauxPopulationDataList, boolean isFauxData) throws ValidationRuntimeException;
 	
+	
+
 	void deletePopulationDataByDistrict(List<Long> populationDataList, String campaignUUID);
+
+//	void deletePopulationDataByDistrict(Long populationDataList,String ageGroup, String campaignUUID);
+	
+	void deletePopulationDataByUUId(String populationDataList,String ageGroup, String campaignUUID);
+	
+	
+	
 }

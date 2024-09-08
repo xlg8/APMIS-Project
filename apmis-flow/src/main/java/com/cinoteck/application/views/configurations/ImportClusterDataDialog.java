@@ -261,50 +261,8 @@ public class ImportClusterDataDialog extends Dialog {
 				} finally {
 
 					startDataImport.setVisible(true);
-					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
-					ImportProgressLayout progressLayout;
-					try {
-						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+			
 
-						if (importer != null) {
-							progressLayout.makeClosable(() -> {
-								if (!checkForException && !importer.hasErrors()) {
-									startDataImport.setVisible(true);
-								}
-							});
-						}
-					} catch (CsvValidationException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					;
-					if (!checkForException && importer != null && !importer.hasErrors()) {
-						startDataImport.setVisible(true);
-					}
-
-					if (!checkForException) {
-
-						progressLayout = null;
-						try {
-							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
-						} catch (CsvValidationException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-
-						boolean exceptionValue = progressLayout.hasImportErrors();
-
-						if (!exceptionValue) {
-							startDataImport.setVisible(true);
-						}
-
-					}
 				}
 			}
 		});
@@ -408,7 +366,7 @@ public class ImportClusterDataDialog extends Dialog {
 	
 	private void truncateDryRunTable() {
 		try {
-//			FacadeProvider.getCommunityDryRunFacade().clearDryRunTable();
+			FacadeProvider.getCommunityDryRunFacade().clearDryRunTable();
 
 		} catch (Exception e) {
 

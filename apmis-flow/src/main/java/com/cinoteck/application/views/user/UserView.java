@@ -725,15 +725,24 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setDataProvider(filterDataProvider);
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
+			
 			grid.addSelectionListener(event -> {
-				editUser(event.getFirstSelectedItem().get(), false);
-				grid.deselectAll();
+			    event.getFirstSelectedItem().ifPresent(item -> {
+			        editUser(item, false);
+			        grid.deselectAll(); // Deselect all items after processing the selected item
+			    });
 			});
+
+//			grid.addSelectionListener(event -> {
+//				editUser(event.getFirstSelectedItem().get(), false);
+//				grid.deselectAll();
+//			});
 		}
 
 		return;
 
 	}
+	
 
 	private void configureForm(UserDto user) {
 
@@ -748,6 +757,10 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		userForm.addCloseListener(e -> {
 //			UI.getCurrent().getPage().reload();
 			closeEditor();
+			
+//			UI.getCurrent().getPage().reload();
+
+//			grid.deselectAll();
 		});
 
 	}
@@ -912,6 +925,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setVisible(true);
 		removeClassName("editing");
 		userForm.setUser(new UserDto());
+		grid.deselectAll();
 	}
 
 	private void setFiltersVisible(boolean state) {

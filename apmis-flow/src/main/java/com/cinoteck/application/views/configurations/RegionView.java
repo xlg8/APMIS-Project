@@ -217,6 +217,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					System.out.println(
 							event.getValue().getUuid_() + "Area from grid is not nullll " + event.getValue().getUuid());
 				}
+				
+				grid.deselectAll();	
 			});
 		}
 

@@ -14,7 +14,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.ejb.TransactionRolledbackLocalException;
+import javax.persistence.EntityExistsException;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,6 +45,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -107,7 +112,7 @@ public class DistrictDataDryRunner extends DataImporter {
 
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
-			String[][] entityPropertyPaths, boolean firstLine) throws IOException, InterruptedException {
+			String[][] entityPropertyPaths, boolean firstLine) throws IOException, InterruptedException ,  InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
 
 		if (values.length > entityProperties.length) {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));

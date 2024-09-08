@@ -935,6 +935,58 @@ public class PopulationDataFacadeEjb implements PopulationDataFacade {
 				.collect(Collectors.toList());
 	}
 
+//	@Override
+//	public void deletePopulationDataByDistrict(Long populationDataList,String ageGroup, String campaignUUID) {
+//		// TODO Auto-generated method stub
+//
+////		for (Long populationDataListItems : populationDataList) {
+//
+//			String executeQuery = "DELETE FROM populationdata p \n" 
+//								+ "USING district d, campaigns c \n"
+//								+ "WHERE p.district_id = d.id \n" 
+//								+ "AND p.campaign_id = c.id \n"
+//								+ "AND d.id = " + populationDataList
+//								+ " AND agegroup = " + "AGE_" + ageGroup
+//								+ " AND c.\"uuid\" = '" + campaignUUID + "';";
+//
+//			
+//			System.out.println(executeQuery + "========Debuggerr ");
+//			// Create a native query
+//			Query query = em.createNativeQuery(executeQuery);
+//
+//			// Execute the query
+//			query.executeUpdate();
+//
+////		}
+//
+//	}
+	
+	@Override
+	public void deletePopulationDataByUUId(String populationDataList,String ageGroup, String campaignUUID) {
+		// TODO Auto-generated method stub
+
+//		for (Long populationDataListItems : populationDataList) {
+
+			String executeQuery = "DELETE FROM populationdata p \n" 
+								+ "USING district d, campaigns c \n"
+								+ "WHERE p.district_id = d.id \n" 
+								+ "AND p.campaign_id = c.id \n"
+								+ "AND p.uuid = '" + populationDataList + "'" 
+//								+ " AND agegroup = " + "AGE_" + ageGroup
+								+ " AND c.\"uuid\" = '" + campaignUUID + "';";
+
+			
+			System.out.println(executeQuery + "========Debuggerr ");
+			// Create a native query
+			Query query = em.createNativeQuery(executeQuery);
+
+			// Execute the query
+			query.executeUpdate();
+
+//		}
+
+	}
+
 	@Override
 	public void deletePopulationDataByDistrict(List<Long> populationDataList, String campaignUUID) {
 		// TODO Auto-generated method stub

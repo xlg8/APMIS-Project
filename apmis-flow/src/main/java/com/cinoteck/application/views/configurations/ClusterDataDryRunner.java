@@ -16,6 +16,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.ejb.EJBTransactionRolledbackException;
+import javax.ejb.TransactionRolledbackLocalException;
+import javax.persistence.EntityExistsException;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -45,6 +51,7 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.importexport.InvalidColumnException;
 import de.symeda.sormas.api.importexport.ValueSeparator;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
@@ -64,6 +71,7 @@ import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserFacade;
 import de.symeda.sormas.api.user.UserRole;
+import de.symeda.sormas.api.utils.ConstrainValidationHelper;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 
@@ -136,7 +144,8 @@ public class ClusterDataDryRunner extends DataImporter {
 
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
-			String[][] entityPropertyPaths, boolean firstLine) throws IOException, InterruptedException {
+			String[][] entityPropertyPaths, boolean firstLine) throws IOException, InterruptedException ,  InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
+
 
 		if (values.length > entityProperties.length) {
 			writeImportError(values, I18nProperties.getValidationError(Validations.importLineTooLong));
@@ -418,9 +427,16 @@ public class ClusterDataDryRunner extends DataImporter {
 
 		List<CommunityDryRunDto> newUserLinetoSave = new ArrayList<>();
 		
-		CommunityDryRunDto newUserLine = CommunityDryRunDto.build();
-
+		
 		if (isOverWrite && isOverWriteEnabledCode) {
+			CommunityDryRunDto newUserLine = CommunityDryRunDto.build();
+
+			newUserLine.setName(finalClustername);
+			newUserLine.setRegion(finalRegion);
+			newUserLine.setDistrict(finalDistrict);
+			newUserLine.setClusterNumber(clusterNo);
+			newUserLine.setExternalId(clusterid);
+
 			
 			if(clusters.size() != 0) {
 				CommunityDto newUserLine_ = FacadeProvider.getCommunityFacade().getByUuid(clusters.get(0).getUuid());
@@ -432,6 +448,11 @@ public class ClusterDataDryRunner extends DataImporter {
 
 				boolean usersDataHasImportError = insertRowIntoData(values, entityClasses, entityPropertyPaths, false,
 						new Function<ImportCellData, Exception>() {
+					
+//					boolean isSameData = checkSameInstances(clusters, clusterNameList);
+//					if (isSameData) {
+//						return ImportLineResult.SUCCESS;
+//					}
 
 							@Override
 							public Exception apply(ImportCellData cellData) {
@@ -474,6 +495,7 @@ public class ClusterDataDryRunner extends DataImporter {
 									 * REPEAT THE PROCESS IN THE ELSE STATEMENT WHEN THIS HAS BEEN FIXED 
 									 */
 									newUserLine_.setFloating("");
+									newUserLine.setFloating("Normal");
 									
 									
 									
@@ -497,6 +519,14 @@ public class ClusterDataDryRunner extends DataImporter {
 						return ImportLineResult.SUCCESS;
 					} catch (ValidationRuntimeException e) {
 						writeImportError(values, values + " already exists.");
+						return ImportLineResult.ERROR;
+					}catch (TransactionRolledbackLocalException ex) {
+//						checkExeption = true;
+						writeImportError(values, ex.getMessage());
+						return ImportLineResult.ERROR;
+					} catch (Exception e) {
+//						checkExeption = true;
+						writeImportError(values, e.getMessage());
 						return ImportLineResult.ERROR;
 					}
 				} else {
@@ -580,6 +610,14 @@ public class ClusterDataDryRunner extends DataImporter {
 					} catch (ValidationRuntimeException e) {
 						writeImportError(values, values + " already exists.");
 						return ImportLineResult.ERROR;
+					}catch (TransactionRolledbackLocalException ex) {
+//						checkExeption = true;
+						writeImportError(values, ex.getMessage());
+						return ImportLineResult.ERROR;
+					} catch (Exception e) {
+//						checkExeption = true;
+						writeImportError(values, e.getMessage());
+						return ImportLineResult.ERROR;
 					}
 				} else {
 					return ImportLineResult.ERROR;
@@ -589,6 +627,16 @@ public class ClusterDataDryRunner extends DataImporter {
 		
 
 		} else {
+			
+			CommunityDryRunDto newUserLine = CommunityDryRunDto.build();
+
+			newUserLine.setName(finalClustername);
+			newUserLine.setRegion(finalRegion);
+			newUserLine.setDistrict(finalDistrict);
+			newUserLine.setClusterNumber(clusterNo);
+			newUserLine.setExternalId(clusterid);
+
+			
 			CommunityDto newUserLine_ = CommunityDto.build();
 
 			System.out.println("++++++++++++++++existingPopulationData.NOTisPresent()++++++++++++++++ ");
@@ -609,20 +657,20 @@ public class ClusterDataDryRunner extends DataImporter {
 							try {
 
 								if (CommunityDto.NAME.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setName(cellData.getValue());
+									newUserLine.setName(cellData.getValue());
 								}
 								if (CommunityDto.CLUSTER_NUMBER.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setClusterNumber(Integer.parseInt(cellData.getValue()));
+									newUserLine.setClusterNumber(Integer.parseInt(cellData.getValue()));
 								}
 								if (CommunityDto.EXTERNAL_ID.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
-									newUserLine_.setExternalId(Long.parseLong(cellData.getValue()));
+									newUserLine.setExternalId(Long.parseLong(cellData.getValue()));
 								}
 								if (CommunityDto.REGION.equalsIgnoreCase(cellData.getEntityPropertyPath()[0])) {
 									Long externalId = Long.parseLong(cellData.getValue());
 									List<RegionReferenceDto> areasz = FacadeProvider.getRegionFacade()
 											.getByExternalId(externalId, false);
 									RegionReferenceDto areaReferenceDto = areasz.get(0);
-									newUserLine_.setRegion(areaReferenceDto);
+									newUserLine.setRegion(areaReferenceDto);
 //										newUserLine.setArea(cellData.getValue());
 								}
 
@@ -631,7 +679,7 @@ public class ClusterDataDryRunner extends DataImporter {
 									List<DistrictReferenceDto> areasz = FacadeProvider.getDistrictFacade()
 											.getByExternalId(externalId, false);
 									DistrictReferenceDto districtReferenceDto = areasz.get(0);
-									newUserLine_.setDistrict(districtReferenceDto);
+									newUserLine.setDistrict(districtReferenceDto);
 //										newUserLine.setArea(cellData.getValue());
 								}
 								
@@ -641,6 +689,7 @@ public class ClusterDataDryRunner extends DataImporter {
 								 * REPEAT THE PROCESS IN THE ELSE STATEMENT WHEN THIS HAS BEEN FIXED 
 								 */
 								newUserLine_.setFloating("");
+								newUserLine.setFloating("");
 								
 								
 
@@ -699,6 +748,19 @@ public class ClusterDataDryRunner extends DataImporter {
 			}
 		}
 
+	}
+	
+	public static boolean checkSameInstances(List<CommunityReferenceDto> list1, List<CommunityReferenceDto> list2) {
+		if (list1.size() != list2.size()) {
+			return false;
+		}
+
+		for (CommunityReferenceDto model : list1) {
+			if (!list2.contains(model)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

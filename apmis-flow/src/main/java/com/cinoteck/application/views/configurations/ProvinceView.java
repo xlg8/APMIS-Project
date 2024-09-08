@@ -231,6 +231,8 @@ public class ProvinceView extends VerticalLayout implements RouterLayout {
 				
 					createOrEditProvince(event.getValue());
 				}
+				
+				grid.deselectAll();
 			});
 		}
 
