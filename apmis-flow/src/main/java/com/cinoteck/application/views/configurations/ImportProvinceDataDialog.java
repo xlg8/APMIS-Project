@@ -11,7 +11,9 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
@@ -77,11 +79,17 @@ public class ImportProvinceDataDialog extends Dialog {
 
 	DataImporter importer = null;
 	boolean checkForException = false;
+	IdleNotification idleNotification;
 
 	public ImportProvinceDataDialog() {
 
 		this.setHeaderTitle(I18nProperties.getString(Strings.provinceImportModule));
 //		this.getStyle().set("color" , "#0D6938");
+		
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
 
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
@@ -185,7 +193,8 @@ public class ImportProvinceDataDialog extends Dialog {
 		UserDto userDto = usr.getUser();
 		RegionDto regionDto = new RegionDto();
 		startDataImport.addClickListener(ed -> {
-
+			startIntervalCallback();
+			
 			try {
 
 				// CampaignDto campaignDto =
@@ -202,7 +211,8 @@ public class ImportProvinceDataDialog extends Dialog {
 		});
 
 		startImportDryRun.addClickListener(ed -> {
-
+			startIntervalCallback();
+			
 			try {
 				truncateDryRunTable();
 
@@ -289,6 +299,15 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		anchorSpan.add(downloadErrorReportButton);
 
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
+		
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
 //		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -296,8 +315,6 @@ public class ImportProvinceDataDialog extends Dialog {
 //		startButton.addClickListener(e -> {
 //			startIntervalCallback();
 //		});
-
-//		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -312,7 +329,7 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
 			close();
-//			stopIntervalCallback();
+			stopIntervalCallback();
 
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
@@ -326,39 +343,40 @@ public class ImportProvinceDataDialog extends Dialog {
 
 	}
 
-//	private void pokeFlow() {
-////		Notification.show("dialog detected... User wont logout");
-//	}
+	private void pokeFlow() {
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
+	}
 
-//	private void startIntervalCallback() {
-//		UI.getCurrent().setPollInterval(5000);
-//		if (!callbackRunning) {
-//			timer = new Timer();
-//			timer.schedule(new TimerTask() {
-//				@Override
-//				public void run() {
+	private void startIntervalCallback() {
+		UI.getCurrent().setPollInterval(5000);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
 //					stopIntervalCallback();
-//				}
-//			}, 15000); // 10 minutes
-//
-//			callbackRunning = true;
-//		}
-//	}
-//
-//	private void stopIntervalCallback() {
-//		if (callbackRunning) {
-//			callbackRunning = false;
-//			if (timer != null) {
-//				timer.cancel();
-//				timer.purge();
-//			}
-//
-//		}
-//	}
+				}
+			}, 10000); // 10 minutes
 
-//	private void stopPullers() {
-//		UI.getCurrent().setPollInterval(-1);
-//	}
+			callbackRunning = true;
+		}
+	}
+
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+		}
+	}
+
+	private void stopPullers() {
+		UI.getCurrent().setPollInterval(-1);
+	}
 
 	private void refreshPage() {
 		// Get the current UI
@@ -387,9 +405,7 @@ public class ImportProvinceDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
-																	// I18nProperties.getCaption(Captions.downloadErrorReport));
-																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
 

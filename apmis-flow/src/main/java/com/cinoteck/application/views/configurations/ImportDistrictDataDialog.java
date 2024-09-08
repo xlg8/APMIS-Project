@@ -11,7 +11,9 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
@@ -64,22 +66,27 @@ public class ImportDistrictDataDialog extends Dialog {
 	private Timer timer;
 	private int pollCounter = 0;
 	private File file_;
-	public Checkbox overWriteExistingData = new Checkbox(I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
+	public Checkbox overWriteExistingData = new Checkbox(
+			I18nProperties.getCaption(Captions.overridaExistingEntriesWithImportedData));
 	boolean overWrite = false;
 
-	
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
 	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
 
-
 	DataImporter importer = null;
 	boolean checkForException = false;
+	IdleNotification idleNotification;
 
 	public ImportDistrictDataDialog() {
-		
+
 		this.setHeaderTitle(I18nProperties.getString(Strings.districtImportModule));
 //		this.getStyle().set("color" , "#0D6938");
+
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
 
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
@@ -97,7 +104,7 @@ public class ImportDistrictDataDialog extends Dialog {
 		H3 step2 = new H3();
 		step2.add(I18nProperties.getString(Strings.step1));
 		Label lblImportTemplateInfo = new Label(I18nProperties.getString(Strings.infoDownloadCaseImportTemplate));
-		
+
 		Icon downloadImportTemplateButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
 		downloadImportTemplate.setIcon(downloadImportTemplateButtonIcon);
 		downloadImportTemplate.addClickListener(e -> {
@@ -111,8 +118,7 @@ public class ImportDistrictDataDialog extends Dialog {
 				importFacade.generateDistrictImportTemplateFile();
 
 				templateFileName = "APMIS_District_Import_Template.csv";
-				
-				
+
 				templateFilePath = importFacade.getDistrictImportTemplateFilePath();
 
 				String content = FacadeProvider.getImportFacade().getImportTemplateContent(templateFilePath);
@@ -157,56 +163,55 @@ public class ImportDistrictDataDialog extends Dialog {
 			overWrite = e.getValue();
 		});
 		Label sd = new Label(I18nProperties.getCaption(Captions.upload));
-		
+
 //		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		FileUploader buffer = new FileUploader();  
-        Upload upload = new Upload(buffer);
-        
-        
-    	Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
-    	startDataImport.setIcon(startImportButtonIcon);
+		FileUploader buffer = new FileUploader();
+		Upload upload = new Upload(buffer);
+
+		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
+		startDataImport.setIcon(startImportButtonIcon);
 		startImportDryRun.setIcon(startImportButtonIcon);
 
-        startDataImport.setVisible(false);
+		startDataImport.setVisible(false);
 		startImportDryRun.setVisible(false);
 
-        upload.setAcceptedFileTypes("text/csv");
-        upload.addSucceededListener(event -> {
-        	
-        	file_ = new File(buffer.getFilename());
-        	startDataImport.setVisible(false);
+		upload.setAcceptedFileTypes("text/csv");
+		upload.addSucceededListener(event -> {
+
+			file_ = new File(buffer.getFilename());
+			startDataImport.setVisible(false);
 			startImportDryRun.setVisible(true);
 
-        });
-		
-        UserProvider usr = new UserProvider();
+		});
+
+		UserProvider usr = new UserProvider();
 		UserDto userDto = usr.getUser();
 		DistrictDto districtDto = new DistrictDto();
 		startDataImport.addClickListener(ed -> {
+			startIntervalCallback();
 
-			
 			try {
 
-				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
-				
-				DataImporter importer = new DistrictDataImporter(file_, false, districtDto, ValueSeparator.COMMA, overWrite);
+				// CampaignDto campaignDto =
+				// FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
+
+				DataImporter importer = new DistrictDataImporter(file_, false, districtDto, ValueSeparator.COMMA,
+						overWrite);
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
-				Notification.show(
-					I18nProperties.getString(Strings.headingImportFailed) +" : "+
-					I18nProperties.getString(Strings.messageImportFailed));
+				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+						+ I18nProperties.getString(Strings.messageImportFailed));
 			}
-			
-			
+
 		});
-		
+
 		startImportDryRun.addClickListener(ed -> {
+			startIntervalCallback();
 
 			try {
 				truncateDryRunTable();
 
 			} finally {
-//				startIntervalCallback();
 
 				try {
 					importer = new DistrictDataDryRunner(file_, false, districtDto, ValueSeparator.COMMA, overWrite);
@@ -267,11 +272,10 @@ public class ImportDistrictDataDialog extends Dialog {
 			}
 		});
 
-		
 		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");
 //		downloadErrorReportButton.setVisible(false);
-			
+
 		Icon downloadErrorButtonIcon = new Icon(VaadinIcon.DOWNLOAD);
 //		donloadUserLodReport.setIcon(downloadErrorButtonIcon);
 //		donloadUserLodReport.setVisible(false);
@@ -280,36 +284,33 @@ public class ImportDistrictDataDialog extends Dialog {
 //			
 //			downloadCredntialsReportButton.getElement().callJsFunction("click");
 //		});
-		
-		
-		
-		
-		
-		
-		
+
 		H3 step5 = new H3();
 		step5.add(I18nProperties.getString(Strings.step3));
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
 //		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");
-		//downloadErrorReportButton.setVisible(false);
+		// downloadErrorReportButton.setVisible(false);
 		donloadErrorReport.setVisible(false);
 		donloadErrorReport.setIcon(downloadErrorButtonIcon);
 		donloadErrorReport.addClickListener(e -> {
 //			Notification.show("Button clicke to download error "+downloadErrorReportButton.getHref());
-			
-		downloadErrorReportButton.getElement().callJsFunction("click");
+
+			downloadErrorReportButton.getElement().callJsFunction("click");
 		});
-		
-		
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-//		anchorSpanCredential.add(downloadCredntialsReportButton);
-		
-		
-		
-		
-		
+//		anchorSpanCredential.add(downloadCredntialsReportButton);		
+
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
+
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
 //		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -317,24 +318,24 @@ public class ImportDistrictDataDialog extends Dialog {
 //		startButton.addClickListener(e -> {
 //			startIntervalCallback();
 //		});
-		
+
 //		startIntervalCallback();
 
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
 
-		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile,overWriteExistingData, upload, startImportDryRun,  startDataImport,
-				step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
-		
-		//hacky: hide the anchor
+		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+
+		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
 //		anchorSpanCredential.getStyle().set("display", "none");
-		
+
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
 			close();
-//			stopIntervalCallback();
-			
+			stopIntervalCallback();
+
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 
@@ -347,38 +348,36 @@ public class ImportDistrictDataDialog extends Dialog {
 
 	}
 
-//	private void pokeFlow() {
-//		Notification.show("dialog detected... User wont logout");
-//	}
-//
-//	private void startIntervalCallback() {
-//		UI.getCurrent().setPollInterval(5000);
-//		if (!callbackRunning) {
-//			timer = new Timer();
-//			timer.schedule(new TimerTask() {
-//				@Override
-//				public void run() {
-//					stopIntervalCallback();
-//				}
-//			}, 15000); // 10 minutes
-//
-//			callbackRunning = true;
-//		}
-//	}
-//
-//	private void stopIntervalCallback() {
-//		if (callbackRunning) {
-//			callbackRunning = false;
-//			if (timer != null) {
-//				timer.cancel();
-//				timer.purge();
-//			}
-//
-//		}
-//	}
-	
-	
-	
+	private void pokeFlow() {
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
+	}
+
+	private void startIntervalCallback() {
+		UI.getCurrent().setPollInterval(5000);
+		if (!callbackRunning) {
+			timer = new Timer();
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					stopIntervalCallback();
+				}
+			}, 10000); // 10 minutes
+
+			callbackRunning = true;
+		}
+	}
+
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
+		}
+	}
 
 	private void stopPullers() {
 		UI.getCurrent().setPollInterval(-1);
@@ -392,7 +391,7 @@ public class ImportDistrictDataDialog extends Dialog {
 		Page page = ui.getPage();
 		page.reload();
 	}
-	
+
 	private void truncateDryRunTable() {
 		try {
 			FacadeProvider.getDistrictDryRunFacade().clearDryRunTable();
@@ -401,7 +400,6 @@ public class ImportDistrictDataDialog extends Dialog {
 
 		}
 	}
-	
 
 	protected void resetDownloadErrorReportButton() {
 		downloadErrorReportButton.removeAll();
@@ -412,15 +410,12 @@ public class ImportDistrictDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
-		
+
 		anchorSpan.add(downloadErrorReportButton);
-		
+
 	}
 
-
-	
-	
 }
