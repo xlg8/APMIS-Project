@@ -64,9 +64,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.themes.ValoTheme;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 
@@ -196,9 +198,8 @@ public class CampaignForm extends VerticalLayout {
 	Checkbox selectDistrictCheckbox = new Checkbox();
 
 	List<CampaignTreeGridDto> deletelist = new ArrayList<>();
-	
-	List<String> populationDataUuid = new ArrayList<>();
 
+	List<String> populationDataUuid = new ArrayList<>();
 
 	boolean isClickListenerAttached;
 	private boolean callbackRunning = false;
@@ -927,13 +928,14 @@ public class CampaignForm extends VerticalLayout {
 						treeGrid.select(dto);
 //						populationDataUuid.add(dto.getUuid());
 						deletelist.add(dto);
-						
-						System.out.println(dto.getAgeGroup() + "AGEGROYU[P ================================" + dto.getPopulationData5_10()
-						+ "AGEGROYU[P ================================" + dto.getPopulationData());
+
+						System.out.println(dto.getAgeGroup() + "AGEGROYU[P ================================"
+								+ dto.getPopulationData5_10() + "AGEGROYU[P ================================"
+								+ dto.getPopulationData());
 					} else {
 						treeGrid.deselect(dto);
 						deletelist.remove(dto);
-						
+
 //						populationDataUuid.remove(dto.getUuid());
 
 					}
@@ -1217,8 +1219,6 @@ public class CampaignForm extends VerticalLayout {
 		return assocCampaignLayout;
 
 	}
-
-
 
 	private Component configurePopulationPopEdit() {
 		VerticalLayout formx = populationEditorForm();
@@ -1527,14 +1527,14 @@ public class CampaignForm extends VerticalLayout {
 
 		deleteButton.addClickListener(delete -> {
 			if (!deletelist.isEmpty()) {
-				ConfirmDialog confirmationDialog = new ConfirmDialog();
-				confirmationDialog.setHeader("Delete Population Data");
-				confirmationDialog.setText("Are you sure you want to delete the population data for "
-						+ deletelist.size() + " selected districts?");
-				confirmationDialog.setCancelable(true);
-				confirmationDialog.setRejectable(false);
-				confirmationDialog.setConfirmText("Delete");
-				confirmationDialog.setCancelText("Cancel");
+//				ConfirmDialog confirmationDialog = new ConfirmDialog();
+//				confirmationDialog.setHeader("Delete Population Data");
+//				confirmationDialog.setText("Are you sure you want to delete the population data for "
+//						+ deletelist.size() + " selected districts?");
+//				confirmationDialog.setCancelable(true);
+//				confirmationDialog.setRejectable(false);
+//				confirmationDialog.setConfirmText("Delete");
+//				confirmationDialog.setCancelText("Cancel");
 
 //				confirmationDialog.addConfirmListener(event -> {
 //					try {
@@ -1568,31 +1568,105 @@ public class CampaignForm extends VerticalLayout {
 //					}
 //				});
 				
-				confirmationDialog.addConfirmListener(event -> {
-					try {
-						List<Long> districtIDs = new ArrayList<>();
-						for (CampaignTreeGridDto treeData : deletelist) {
-							districtIDs.add(treeData.getId());
+//				confirmationDialog.addConfirmListener(event -> {
+//					try {
+//						List<Long> districtIDs = new ArrayList<>();
+//						for (CampaignTreeGridDto treeData : deletelist) {
+//							districtIDs.add(treeData.getId());
+//
+//						}
+//
+//						FacadeProvider.getPopulationDataFacade().deletePopulationDataByDistrict(districtIDs,
+//								creatingUuid.getValue());
+//
+//					} catch (Exception e) {
+//						Notification.show("Error deleting population data: " + e.getMessage(), 10000,
+//								Notification.Position.MIDDLE);
+//					} finally {
+//						Notification.show("Population data deleted successfully. Please re-open the Campaign Basics form to recieve updated Population Data Table." , 5000,
+//								Notification.Position.MIDDLE);
+////						Notification.show("Population data deleted successfully.");
+//						treeGrid.getDataProvider().refreshAll();
+//						deletelist.clear();
+//						confirmationDialog.close();
+//					}
+//				});
 
-						}
+//				confirmationDialog.open();
+				
+				// Create the dialog box
+				Dialog ageGroupSelectionDialog = new Dialog();
+				ageGroupSelectionDialog.setHeaderTitle("Please Select the Age Group Data You Would Like to Delete");
 
-						FacadeProvider.getPopulationDataFacade().deletePopulationDataByDistrict(districtIDs,
-								creatingUuid.getValue());
+				// Create a RadioButtonGroup to ensure only one selection at a time
+				RadioButtonGroup<String> ageGroupRadio = new RadioButtonGroup<>();
+				ageGroupRadio.setLabel("Select Age Group");
+				ageGroupRadio.setItems("AGE_0_4", "AGE_5_10");
 
-					} catch (Exception e) {
-						Notification.show("Error deleting population data: " + e.getMessage(), 10000,
-								Notification.Position.MIDDLE);
-					} finally {
-						Notification.show("Population data deleted successfully. Please re-open the Campaign Basics form to recieve updated Population Data Table." , 5000,
-								Notification.Position.MIDDLE);
-//						Notification.show("Population data deleted successfully.");
-						treeGrid.getDataProvider().refreshAll();
-						deletelist.clear();
-						confirmationDialog.close();
-					}
+				// Add the RadioButtonGroup to a layout
+				VerticalLayout layout = new VerticalLayout(ageGroupRadio);
+				ageGroupSelectionDialog.add(layout);
+
+				// Create the confirm button
+				Button confirmAgeGroupSelection = new Button("Confirm");
+				
+				confirmAgeGroupSelection.addClickListener(confirm -> {
+				    String selectedAgeGroup = ageGroupRadio.getValue(); // Get the selected value
+				    
+				    if (selectedAgeGroup != null) {
+				        // Open a confirmation dialog to confirm deletion
+				    	ConfirmDialog confirmationDialog = new ConfirmDialog();
+						confirmationDialog.setHeader("Delete Population Data");
+						long distinctCount = deletelist.stream()
+						        .map(CampaignTreeGridDto::getId) // Extract the ID or any unique property
+						        .distinct() // Eliminate duplicates
+						        .count(); // Count distinct elements
+						confirmationDialog.setText("Are you sure you want to delete the population data for "
+								+ distinctCount + " selected districts?");
+						confirmationDialog.setCancelable(true);
+						confirmationDialog.setRejectable(false);
+						confirmationDialog.setConfirmText("Delete");
+						confirmationDialog.setCancelText("Cancel");
+						
+						confirmationDialog.addConfirmListener(event -> {
+							try {
+								List<Long> districtIDs = new ArrayList<>();
+								for (CampaignTreeGridDto treeData : deletelist) {
+									districtIDs.add(treeData.getId());
+
+								}
+
+								FacadeProvider.getPopulationDataFacade().deletePopulationDataByDistrictAndAgeGroup(districtIDs,
+										creatingUuid.getValue() , ageGroupRadio.getValue());
+
+							} catch (Exception e) {
+								Notification.show("Error deleting population data: " + e.getMessage(), 10000,
+										Notification.Position.MIDDLE);
+							} finally {
+								Notification.show("Population data deleted successfully. Please re-open the Campaign Basics form to recieve updated Population Data Table." , 5000,
+										Notification.Position.MIDDLE);
+//								Notification.show("Population data deleted successfully.");
+								treeGrid.getDataProvider().refreshAll();
+								deletelist.clear();
+								confirmationDialog.close();
+							}
+						});
+						
+						confirmationDialog.open();
+						
+
+				    } else {
+				        // Handle the case when no selection is made (optional)
+				        Notification.show("Please select an age group before confirming.", 3000, Notification.Position.MIDDLE);
+				    }
 				});
+				
+				ageGroupSelectionDialog.add(confirmAgeGroupSelection);
 
-				confirmationDialog.open();
+				// Open the dialog
+				ageGroupSelectionDialog.open();
+			
+			
 			} else {
 				Notification.show("Please select at least one district to delete.");
 			}

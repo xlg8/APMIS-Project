@@ -121,7 +121,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	SubMenu subMenu;
 	ListDataProvider<AreaDto> dataProvider;
 	int itemCount;// = dataProvider.getItems().size();
-
 	String uuidsz = "";
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
