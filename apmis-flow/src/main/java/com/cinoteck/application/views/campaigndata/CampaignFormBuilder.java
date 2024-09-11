@@ -766,10 +766,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
-		
 
 					toggle.setClassName("customTextWrap");
-
 
 					HashMap<Boolean, String> map = new HashMap<>();
 					map.put(true, "Yes");
@@ -793,8 +791,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 							return map.get(item);
 						}
 					});
-					
-					
 
 //					toggle.setItemLabelGenerator(item -> map.get(item));
 					toggle.getStyle().set("color", "Green");
@@ -1383,15 +1379,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 					((ToggleButtonGroup) field).setValue(dvalue);
 
 				}
-				
-				
 
-			}else {
-				
-		
-				
+			} else {
+
 				((ToggleButtonGroup) field).updateStyles();
-				
+
 			}
 
 			break;
@@ -2041,32 +2033,28 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				List<String> listLotNo = new ArrayList();
 				List<String> listLotClusterNo = new ArrayList();
-
+				
 				if (lotchecker.size() > 0) {
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-
 						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
 						if (lotOwnSec.contains(lotNo)) {
 							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
 						}
 
-						if (lotOwnSec.contains(lotClusterNo)) {
+						if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
 							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
 						}
 					}
 				}
 
-				for (String string : listLotNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
-					}
-				}
-
 				for (String string : listLotClusterNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
+					if (listLotNo.size() > 0) {// .isEmpty()
+						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+								&& (Long.parseLong(listLotNo.get(0))
+										- Long.parseLong(lotNo.getValue().toString()) == 0)) {
+							saveChecker = false;
+							break;
+						}
 					}
 				}
 
@@ -2132,29 +2120,25 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (lotchecker.size() > 0) {
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-
 						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
 						if (lotOwnSec.contains(lotNo)) {
 							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
 						}
 
-						if (lotOwnSec.contains(lotClusterNo)) {
+						if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
 							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
 						}
 					}
 				}
 
-				for (String string : listLotNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
-					}
-				}
-
 				for (String string : listLotClusterNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
+					if (listLotNo.size() > 0) {
+						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+								&& (Long.parseLong(listLotNo.get(0))
+										- Long.parseLong(lotNo.getValue().toString()) == 0)) {
+							saveChecker = false;
+							break;
+						}
 					}
 				}
 
