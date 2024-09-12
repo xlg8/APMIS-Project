@@ -659,7 +659,7 @@ public class CampaignDataView extends VerticalLayout
 			importanceSwitcher.clear();
 			importanceSwitcher.setReadOnly(false);
 			if (e.getValue() != null) {
-
+				
 				if (e.getValue().toString().equalsIgnoreCase("post-campaign")) {
 					verifiedStatusCombo.setVisible(true);
 					publishedStatusCombo.setVisible(true);
@@ -1906,7 +1906,7 @@ public class CampaignDataView extends VerticalLayout
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exportFileName = campaignz.getValue().toString() + "_"
-//				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
+				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 		exporter.setFileName(exportFileName);
 

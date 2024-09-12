@@ -709,6 +709,6 @@ public class ClusterDataImporter extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "province_Import_error_report.csv";
+		return "cluster_Import_error_report.csv";
 	}
 }
