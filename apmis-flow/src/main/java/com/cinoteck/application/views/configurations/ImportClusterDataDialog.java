@@ -175,8 +175,8 @@ public class ImportClusterDataDialog extends Dialog {
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(false);
-			startImportDryRun.setVisible(true);
+			startDataImport.setVisible(true);
+//			startImportDryRun.setVisible(true);
 
 		});
 
@@ -242,30 +242,30 @@ public class ImportClusterDataDialog extends Dialog {
 			}
 		});
 		
-		startImportDryRun.addClickListener(ed -> {
-			startIntervalCallback();
-			
-			try {
-				truncateDryRunTable();
-
-			} finally {
-
-				try {
-					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
-					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
-							true);
-				} catch (IOException | CsvValidationException e) {
-					checkForException = true;
-					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-							+ I18nProperties.getString(Strings.messageImportFailed));
-				} finally {
-
-					startDataImport.setVisible(true);
-			
-
-				}
-			}
-		});
+//		startImportDryRun.addClickListener(ed -> {
+//			startIntervalCallback();
+//			
+//			try {
+//				truncateDryRunTable();
+//
+//			} finally {
+//
+//				try {
+//					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
+//					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+//							true);
+//				} catch (IOException | CsvValidationException e) {
+//					checkForException = true;
+//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+//							+ I18nProperties.getString(Strings.messageImportFailed));
+//				} finally {
+//
+//					startDataImport.setVisible(true);
+//			
+//
+//				}
+//			}
+//		});
 
 		downloadErrorReportButton = new Anchor("beforechange");
 //		downloadCredntialsReportButton = new Anchor("beforechange");

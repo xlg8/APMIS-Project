@@ -739,3 +739,9 @@ tfoot#footer {
 vaadin-vertical-layout#campaignFormLayout vaadin-tabsheet vaadin-tabs {
 	background: rgb(67, 67, 67) !important
 }
+
+.red-cancel-button {
+    background-color: red;
+    color: white; /* This makes the text white for better visibility */
+    padding: 10px 20px; /* Optional: Adjust padding */
+}

@@ -167,9 +167,9 @@ public class ImportPopulationDataDialog extends Dialog {
 
 			file_ = new File(buffer.getFilename());
 
-			startDryRunImport.setVisible(true);
+//			startDryRunImport.setVisible(false);
 
-			startDataImport.setVisible(false);
+			startDataImport.setVisible(true);
 
 		});
 
@@ -211,42 +211,42 @@ public class ImportPopulationDataDialog extends Dialog {
 
 		Icon startDryRunImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
 		startDryRunImport.setIcon(startImportButtonnIcon);
-		startDryRunImport.addClickListener(ed -> {
-			startIntervalCallback();
-			try {
-				FacadeProvider.getPopulationDataDryRunFacade().truncateDryRunTable();
-
-			} finally {
-				try {
-					System.out.println("Start import DryRun  Clicked + 111111111111111111111111111111");
-
-					CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
-
-					DataImporter importer = new PopulationDataDryRunner(file_, srDto, acmpDto, ValueSeparator.COMMA,
-							overWrite);
-					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-				} catch (IOException e) {
-					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-							+ I18nProperties.getString(Strings.messageImportFailed));
-				} catch (CsvValidationException e1) {
-					// TODO Auto-generated catch block
-					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-							+ I18nProperties.getString(Strings.messageImportFailed));
-					e1.printStackTrace();
-				} finally {
-
-					startDataImport.setVisible(true);
-
-					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-					userActivitySummaryDto.setActionModule("Population Data Dry Run");
-					userActivitySummaryDto
-							.setAction("User Attempted Population Import Dry run to " + camapigndto.getName());
-					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
-					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-				}
-			}
-
-		});
+//		startDryRunImport.addClickListener(ed -> {
+//			startIntervalCallback();
+//			try {
+//				FacadeProvider.getPopulationDataDryRunFacade().truncateDryRunTable();
+//
+//			} finally {
+//				try {
+//					System.out.println("Start import DryRun  Clicked + 111111111111111111111111111111");
+//
+//					CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
+//
+//					DataImporter importer = new PopulationDataDryRunner(file_, srDto, acmpDto, ValueSeparator.COMMA,
+//							overWrite);
+//					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+//				} catch (IOException e) {
+//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+//							+ I18nProperties.getString(Strings.messageImportFailed));
+//				} catch (CsvValidationException e1) {
+//					// TODO Auto-generated catch block
+//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+//							+ I18nProperties.getString(Strings.messageImportFailed));
+//					e1.printStackTrace();
+//				} finally {
+//
+//					startDataImport.setVisible(true);
+//
+//					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+//					userActivitySummaryDto.setActionModule("Population Data Dry Run");
+//					userActivitySummaryDto
+//							.setAction("User Attempted Population Import Dry run to " + camapigndto.getName());
+//					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+//					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+//				}
+//			}
+//
+//		});
 
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");

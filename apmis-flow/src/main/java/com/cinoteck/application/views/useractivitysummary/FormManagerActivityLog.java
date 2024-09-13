@@ -151,8 +151,25 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 
 		
 		filterLayout.getStyle().set("align-items", "flex-end");
+		
+		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
-		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor);
+		resetFiltersButton.addClickListener(e -> {
+			startDatePicker.clear();
+			endDatePicker.clear();
+			searchField.clear();
+			
+			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
+					.getUsersActivityByModule("Form Manager");
+			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
+			dataProvider = new ListDataProvider<>(userActivityList);
+
+			grid.setItems(dataProvider);
+
+		});
+
+		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor ,resetFiltersButton);
 
 		vlayout.add(displayFilters, filterLayout);
 		vlayout.getStyle().set("margin-right", "1rem");
@@ -180,7 +197,7 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp"))
 		.setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-		.setSortable(false).setResizable(true);
+		.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 		

@@ -3,6 +3,7 @@ package com.cinoteck.application.views.useractivitysummary;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -150,7 +152,25 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.getStyle().set("align-items", "flex-end");
-		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor);
+		
+		
+		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
+
+		resetFiltersButton.addClickListener(e -> {
+			startDatePicker.clear();
+			endDatePicker.clear();
+			searchField.clear();
+			
+			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
+					.getUsersActivityByModule("login");
+			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
+			dataProvider = new ListDataProvider<>(userActivityList);
+
+			grid.setItems(dataProvider);
+
+		});
+		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor, resetFiltersButton);
 
 		vlayout.add(displayFilters, filterLayout);
 		vlayout.getStyle().set("margin-right", "1rem");
@@ -175,10 +195,20 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 
 		Column<UserActivitySummaryDto> userActionDateColumn = 
 		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false)
+//		.setSortOrderProvider(direction -> {
+//	        // Create a list of sort orders based on the desired column and sort direction
+//	        List<QuerySortOrder> sortOrders = new ArrayList<>();
+//	        if (direction.isAscending()) {
+//	            sortOrders.add(new QuerySortOrder("actionDate", SortDirection.ASCENDING));
+//	        } else {
+//	            sortOrders.add(new QuerySortOrder("actionDate", SortDirection.DESCENDING));
+//	        }
+//	        return sortOrders.stream();
+//	    })
 				.setResizable(true);
 		
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-				.setSortable(false).setResizable(true);
+				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 

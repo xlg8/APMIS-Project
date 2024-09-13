@@ -205,11 +205,12 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 
 		campaignYear.setValue(lastStarted.getCampaignYear());
 
-		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
-				.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
+		List<CampaignReferenceDto> allCampaigns = campaigns;//.stream()
+//				.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
 
 		campaignz.setItems(allCampaigns);
 		campaignz.setValue(lastStarted);
+		
 		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 
 		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
@@ -231,15 +232,15 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 		});
 
 		// Configure Comboboxes Value Change Listeners
-		campaignYear.addValueChangeListener(e -> {
-			campaignz.clear();
-			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream()
-					.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
-			campaignz.setItems(allCampaigns_);
-			campaignz.setValue(allCampaigns_.get(0));
-			filterGridData();
-
-		});
+//		campaignYear.addValueChangeListener(e -> {
+//			campaignz.clear();
+//			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream()
+//					.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
+//			campaignz.setItems(allCampaigns_);
+//			campaignz.setValue(allCampaigns_.get(0));
+//			filterGridData();
+//
+//		});
 
 		String language = userProvider.getUser().getLanguage().toString();
 
@@ -281,7 +282,7 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 				filterGridData();
 
 			} else {
-
+				filterGridData();
 			}
 
 		});
@@ -295,9 +296,43 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.getStyle().set("align-items", "flex-end");
+		
+		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
-		filterLayout.add(searchField, startDatePicker, endDatePicker, campaignYear, campaignz, campaignPhase,
-				campaignFormCombo, exportButton, anchor);
+		resetFiltersButton.addClickListener(e -> {
+			startDatePicker.clear();
+			endDatePicker.clear();
+			searchField.clear();
+			campaignz.clear();
+			campaignz.setItems(allCampaigns);
+			campaignz.setValue(lastStarted);
+			
+			campaignFormCombo.clear();
+			campaignFormCombo.setItems(campaignForms);
+			
+			campaignz.setPlaceholder("");
+			campaignPhase.setPlaceholder("");
+			campaignFormCombo.setPlaceholder("");
+			
+			
+			
+			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
+					.getUsersActivityByModule("Campaign Data");
+			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
+			dataProvider = new ListDataProvider<>(userActivityList);
+
+			grid.setItems(dataProvider);
+
+		});
+		
+		
+		campaignz.setPlaceholder("");
+		campaignPhase.setPlaceholder("");
+		campaignFormCombo.setPlaceholder("");
+
+		filterLayout.add(searchField, startDatePicker, endDatePicker,  campaignz, campaignPhase,
+				campaignFormCombo, exportButton, anchor, resetFiltersButton);
 
 		vlayout.add(displayFilters, filterLayout);
 		vlayout.getStyle().set("margin-right", "1rem");
@@ -331,8 +366,8 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 	private void filterGridData() {
 		CampaignReferenceDto selectedCampaign = campaignz.getValue() != null ? campaignz.getValue() : null;
 		String selectedForm = campaignFormCombo.getValue() != null ? campaignFormCombo.getValue().toString() : "";
-		System.out.println("selectedFormselectedForm " + selectedForm);
-		System.out.println("selectedCampaign " + selectedCampaign);
+//		System.out.println("selectedFormselectedForm " + selectedForm);
+//		System.out.println("selectedCampaign " + selectedCampaign);
 		// Apply the filter only if a campaign is selected
 		dataProvider.setFilter(userActivity -> {
 			String actionDescription = userActivity.getAction_logged(); // Example: "Edited Data: LQAS - Cluster Data
@@ -345,18 +380,18 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 
 			String[] splitFormNameDescription = splitDescription[0].trim().split("Edited Data: ");
 
-			System.out.println("splitDescription[0].trim()" + splitFormNameDescription[1].trim()
-					+ "splitDescription[1].trim()" + splitFormNameDescription[0].trim()
-					+ splitFormNameDescription.toString().equalsIgnoreCase(selectedForm.toString()));
+//			System.out.println("splitDescription[0].trim()" + splitFormNameDescription[1].trim()
+//					+ "splitDescription[1].trim()" + splitFormNameDescription[0].trim()
+//					+ splitFormNameDescription.toString().equalsIgnoreCase(selectedForm.toString()));
 
 			String extraxtedFormName = splitFormNameDescription[1].trim();
 			// Match the campaign name with the selected campaign
-			boolean matchesCampaign = selectedCampaign == null
-					|| campaignName.toString().equalsIgnoreCase(selectedCampaign.toString());
+			boolean matchesCampaign = (selectedCampaign == null
+					|| campaignName.toString().equalsIgnoreCase(selectedCampaign.toString()));
 
-			System.out.println(selectedForm.toString() + "====" + splitFormNameDescription.toString());
-			boolean matchesCampaignForm = selectedForm == null
-					|| extraxtedFormName.toString().equalsIgnoreCase(selectedForm.toString());
+//			System.out.println(selectedForm.toString() + "====" + splitFormNameDescription.toString());
+			boolean matchesCampaignForm = (selectedForm == null
+					|| extraxtedFormName.toString().equalsIgnoreCase(selectedForm.toString()));
 
 			return matchesCampaign && matchesCampaignForm;
 		});
@@ -407,7 +442,7 @@ public class CampaignDataEditActivityView extends VerticalLayout implements Rout
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
 				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-				.setSortable(false).setResizable(true);
+				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 

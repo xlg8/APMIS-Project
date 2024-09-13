@@ -295,8 +295,25 @@ public class CampaignDataImportActivityView extends VerticalLayout implements Ro
 
 		
 		filterLayout.getStyle().set("align-items", "flex-end");
+		
+		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
-		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor);// , campaignYear,
+		resetFiltersButton.addClickListener(e -> {
+			startDatePicker.clear();
+			endDatePicker.clear();
+			searchField.clear();
+			
+			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
+					.getUsersActivityByModule("Campaign Data Import");
+			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
+			dataProvider = new ListDataProvider<>(userActivityList);
+
+			grid.setItems(dataProvider);
+
+		});
+
+		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor, resetFiltersButton);// , campaignYear,
 																							// campaignz, campaignPhase,
 		// campaignFormCombo);
 
@@ -381,7 +398,7 @@ public class CampaignDataImportActivityView extends VerticalLayout implements Ro
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
 				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-				.setSortable(false).setResizable(true);
+				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 

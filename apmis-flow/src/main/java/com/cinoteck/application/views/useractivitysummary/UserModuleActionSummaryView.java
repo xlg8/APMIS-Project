@@ -70,15 +70,12 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 	private GridExporter<UserActivitySummaryDto> exporter;
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 
-
 	public UserModuleActionSummaryView() {
 		setSizeFull();
 		setHeightFull();
 		addFilters();
 		confiureLoginActivityGrid();
 	}
-	
-	
 
 	public void addFilters() {
 
@@ -164,8 +161,26 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.getStyle().set("align-items", "flex-end");
+		
+		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
+//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
-		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor);
+		resetFiltersButton.addClickListener(e -> {
+			startDatePicker.clear();
+			endDatePicker.clear();
+			searchField.clear();
+			
+			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
+					.getUsersActivityByModule("users");
+			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
+			dataProvider = new ListDataProvider<>(userActivityList);
+
+			grid.setItems(dataProvider);
+
+		});
+		
+
+		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor, resetFiltersButton);
 
 		vlayout.add(displayFilters, filterLayout);
 		vlayout.getStyle().set("margin-right", "1rem");
@@ -174,8 +189,6 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 		add(vlayout);
 
 	}
-
-
 
 	public void confiureLoginActivityGrid() {
 		grid.setSelectionMode(SelectionMode.NONE);
@@ -193,11 +206,10 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 			return dateFormat.format(timestamp);
 		});
 
-		Column<UserActivitySummaryDto> userActionDateColumn = 
-		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false)
-				.setResizable(true);
+		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
+				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-				.setSortable(false).setResizable(true);
+				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 
@@ -208,9 +220,9 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 		dataProvider = new ListDataProvider<>(userActivityList);
 
 		grid.setItems(dataProvider);
-		
-exporter = GridExporter.createFor(grid);
-		
+
+		exporter = GridExporter.createFor(grid);
+
 		exporter.setExportValue(userActionDateColumn, dto -> {
 			Date timestamp = dto.getActionDate();
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -232,7 +244,6 @@ exporter = GridExporter.createFor(grid);
 		icon.getStyle().set("margin-right", "8px");
 		icon.getStyle().set("font-size", "10px");
 		anchor.getElement().insertChild(0, icon.getElement());
-
 
 		add(grid);
 	}

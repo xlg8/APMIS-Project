@@ -57,7 +57,7 @@ public class UsersImportActivityView extends VerticalLayout implements RouterLay
 		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp"))
 		.setSortable(false).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
-		.setSortable(false).setResizable(true);
+		.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 		

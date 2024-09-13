@@ -249,11 +249,11 @@ public class CampaignFormDataDryRunFacadeEjb implements CampaignFormDataDryRunFa
 
 		return toDto(campaignFormData);
 	}
-	
+
 	@Override
 	public void truncateDryRunTable() {
 		
-		System.out.println("11111----------------------------------------------Credentials from backend OOOPPPPPP" );
+//		System.out.println("11111----------------------------------------------Credentials from backend OOOPPPPPP" );
 
 		final String joinBuilder = "truncate table campaignformdatadryrun;";
 		
@@ -267,6 +267,9 @@ public class CampaignFormDataDryRunFacadeEjb implements CampaignFormDataDryRunFa
 	}
 
 
+
+	
+//	final String joinBuilder = "truncate table campaignformdatadryrun;";
 
 
 }

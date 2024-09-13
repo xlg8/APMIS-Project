@@ -24,9 +24,10 @@ import javax.ejb.Remote;
 import javax.validation.Valid;
 
 @Remote
-public interface CampaignFormDataDryRunFacade {
+public interface CampaignFormDataDryRunFacade  {
 
 	CampaignFormDataDryRunDto saveCampaignFormData(@Valid CampaignFormDataDryRunDto dto);
+	
 	
 	void truncateDryRunTable();
 
