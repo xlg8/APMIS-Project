@@ -85,7 +85,8 @@ import de.symeda.sormas.backend.util.ModelConstants;
 import de.symeda.sormas.backend.util.QueryHelper;
 
 @Stateless(name = "DistrictDryRunFacade")
-public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictDryRun, DistrictDryRunService> implements DistrictDryRunFacade {
+public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictDryRun, DistrictDryRunService>
+		implements DistrictDryRunFacade {
 
 	private ErrorStatusEnum errorStatusEnum;
 
@@ -105,13 +106,14 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	}
 
 	@Inject
-	protected DistrictDryRunFacadeEjb(DistrictDryRunService service, FeatureConfigurationFacadeEjbLocal featureConfiguration) {
+	protected DistrictDryRunFacadeEjb(DistrictDryRunService service,
+			FeatureConfigurationFacadeEjbLocal featureConfiguration) {
 		super(service, featureConfiguration);
 	}
 
 	@Override
 	public List<DistrictReferenceDto> getAllActiveAsReference() {
-	return null;
+		return null;
 	}
 
 //	@Override
@@ -137,8 +139,9 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	public List<DistrictReferenceDto> getAllActiveByRegion(String regionUuid) {
 
 		Region region = regionService.getByUuid(regionUuid);
-		return region.getDistricts().stream().filter(d -> !d.isArchived() && d.getName() != null && d.getExternalId() != null).map(f -> toReferenceDto(f))
-				.collect(Collectors.toList());
+		return region.getDistricts().stream()
+				.filter(d -> !d.isArchived() && d.getName() != null && d.getExternalId() != null)
+				.map(f -> toReferenceDto(f)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -193,8 +196,9 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	public List<DistrictIndexDto> getIndexList(DistrictCriteria criteria, Integer first, Integer max,
 			List<SortProperty> sortProperties) {
 
-	return null; }
-	
+		return null;
+	}
+
 	public Page<DistrictIndexDto> getIndexPage(DistrictCriteria districtCriteria, Integer offset, Integer size,
 			List<SortProperty> sortProperties) {
 		List<DistrictIndexDto> districtIndexList = getIndexList(districtCriteria, offset, size, sortProperties);
@@ -305,9 +309,9 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 
 		if (district == null) {
 			List<DistrictReferenceDto> duplicates = getByName(dto.getName(), dto.getRegion(), true);
-			if((duplicates == null || duplicates.isEmpty()) && (dto.getName() != null || dto.getRegion()!=null)) {
-				
-			}else if (!duplicates.isEmpty() && (dto.getName() != null || dto.getRegion()!=null)){
+			if ((duplicates == null || duplicates.isEmpty()) && (dto.getName() != null || dto.getRegion() != null)) {
+
+			} else if (!duplicates.isEmpty() && (dto.getName() != null || dto.getRegion() != null)) {
 				if (allowMerge) {
 					String uuid = duplicates.get(0).getUuid();
 					district = service.getByUuid(uuid);
@@ -318,7 +322,7 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 							I18nProperties.getValidationError(Validations.importDistrictAlreadyExists));
 				}
 			}
-			
+
 			System.out.println(duplicates + " ============================ duplicatesduplicates");
 //			if (!duplicates.isEmpty()) {
 //				if (allowMerge) {
@@ -341,23 +345,27 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	@Override
 	public List<DistrictReferenceDto> getByName(String name, RegionReferenceDto regionRef,
 			boolean includeArchivedEntities) {
-		return null;//service.getByExternalId(ext_id, includeArchivedEntities, 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
+		return null;// service.getByExternalId(ext_id, includeArchivedEntities,
+					// 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
 //		.collect(Collectors.toList());
-}
+	}
+
 	@Override
 	public List<DistrictReferenceDto> getByExternalID(Long ext_id, RegionReferenceDto regionRef,
 			boolean includeArchivedEntities) {
 		// System.out.println("++++REGION IN USE TO QUERY DISTRICT b
 		// "+regionService.getByReferenceDto(regionRef));
-		return null;//service.getByExternalId(ext_id, includeArchivedEntities, 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
+		return null;// service.getByExternalId(ext_id, includeArchivedEntities,
+					// 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
 //		.collect(Collectors.toList());
-}
+	}
 
 	@Override
 	public List<DistrictReferenceDto> getByExternalId(Long externalId, boolean includeArchivedEntities) {
-		return null;//service.getByExternalId(ext_id, includeArchivedEntities, 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
+		return null;// service.getByExternalId(ext_id, includeArchivedEntities,
+					// 0).stream().map(RegionDryRunFacadeEjb::toReferenceDto)
 //		.collect(Collectors.toList());
-}
+	}
 
 	@Override
 	public List<DistrictReferenceDto> getReferencesByName(String name, boolean includeArchived) {
@@ -493,7 +501,8 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 		return dto;
 	}
 
-	private DistrictDryRun fillOrBuildEntity(@NotNull DistrictDryRunDto source, DistrictDryRun target, boolean checkChangeDate) {
+	private DistrictDryRun fillOrBuildEntity(@NotNull DistrictDryRunDto source, DistrictDryRun target,
+			boolean checkChangeDate) {
 
 		target = DtoHelper.fillOrBuildEntity(source, target, DistrictDryRun::new, checkChangeDate);
 
@@ -756,7 +765,16 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	@Override
 	public void clearDryRunTable() {
 		// TODO Auto-generated method stub
+
+	    String truncateQuery = "TRUNCATE TABLE districtdryrun";
+
+	    // Create a native query
+	    Query query = em.createNativeQuery(truncateQuery);
+
+	    // Execute the query
+	    query.executeUpdate();
 		
+
 	}
 
 }

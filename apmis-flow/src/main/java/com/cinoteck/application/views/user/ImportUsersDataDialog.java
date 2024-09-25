@@ -11,7 +11,9 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
@@ -67,24 +69,22 @@ public class ImportUsersDataDialog extends Dialog {
 	
 	Span anchorSpanCredential = new Span();
 	public Anchor downloadCredntialsReportButton;
+	IdleNotification idleNotification;
 	
 	public ImportUsersDataDialog() {
 		
 		this.setHeaderTitle("User Import Module");
 //		this.getStyle().set("color" , "#0D6938");
 
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
+		
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
 
 		VerticalLayout dialog = new VerticalLayout();
-
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
 
 		H3 step2 = new H3();
 		step2.add("Step 1: Download the Import Template");
@@ -232,11 +232,16 @@ public class ImportUsersDataDialog extends Dialog {
 		
 		
 		anchorSpan.add(downloadErrorReportButton);
-		anchorSpanCredential.add(downloadCredntialsReportButton);
+		anchorSpanCredential.add(downloadCredntialsReportButton);		
 		
-		
-		
-		
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
 		
 //		anchorSpan.setVisible(false);
 //		Button startButton = new Button("Start Interval__ Callback");
@@ -276,7 +281,9 @@ public class ImportUsersDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-	//	Notification.show("dialog detected... User wont logout");
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
 	}
 
 	private void startIntervalCallback() {
@@ -286,9 +293,9 @@ public class ImportUsersDataDialog extends Dialog {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					stopIntervalCallback();
+//					stopIntervalCallback();
 				}
-			}, 15000); // 10 minutes
+			}, 10000); // 10 minutes
 
 			callbackRunning = true;
 		}
@@ -331,7 +338,7 @@ public class ImportUsersDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
 		
@@ -340,11 +347,10 @@ public class ImportUsersDataDialog extends Dialog {
 	}
 
 	public void extendDownloadCredentialsReportButton(StreamResource streamResource) {
-		System.out.println("_________________________________________________ yahoooooooooo credentials ready");
 		anchorSpanCredential.remove(downloadCredntialsReportButton);
 		donloadUserLodReport.setVisible(true);
 
-		downloadCredntialsReportButton = new Anchor(streamResource, ".");//, I18nProperties.getCaption(Captions.downloadErrorReport));   I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadCredntialsReportButton = new Anchor(streamResource, ".");
 		downloadCredntialsReportButton.setHref(streamResource);
 		downloadCredntialsReportButton.setClassName("vaadin-button");
 		

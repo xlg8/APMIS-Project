@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 import de.symeda.sormas.api.action.ActionFacade;
 import de.symeda.sormas.api.bagexport.BAGExportFacade;
 import de.symeda.sormas.api.campaign.CampaignFacade;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataDryRunFacade;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataFacade;
 import de.symeda.sormas.api.campaign.diagram.CampaignDiagramDefinitionFacade;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryFacade;
@@ -70,6 +71,7 @@ import de.symeda.sormas.api.outbreak.OutbreakFacade;
 import de.symeda.sormas.api.person.PersonFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaDryRunFacade;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
+import de.symeda.sormas.api.infrastructure.community.CommunityDryRunFacade;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
 import de.symeda.sormas.api.infrastructure.continent.ContinentFacade;
 import de.symeda.sormas.api.infrastructure.country.CountryFacade;
@@ -254,6 +256,10 @@ public class FacadeProvider {
 
 	public static CommunityFacade getCommunityFacade() {
 		return get().lookupEjbRemote(CommunityFacade.class);
+	}
+	
+	public static CommunityDryRunFacade getCommunityDryRunFacade() {
+		return get().lookupEjbRemote(CommunityDryRunFacade.class);
 	}
 
 	public static UserFacade getUserFacade() {
@@ -505,6 +511,10 @@ public class FacadeProvider {
 
 	public static TestReportFacade getTestReportFacade() {
 		return get().lookupEjbRemote(TestReportFacade.class);
+	}
+	
+	public static CampaignFormDataDryRunFacade getCampaignFormDataDryRunFacade() {
+		return get().lookupEjbRemote(CampaignFormDataDryRunFacade.class);
 	}
 
 	@SuppressWarnings("unchecked")

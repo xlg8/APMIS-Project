@@ -73,7 +73,7 @@ public class PopulationDataImporter extends DataImporter {
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
 			String[][] entityPropertyPaths, boolean firstLine)
-					throws IOException, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
+					throws IOException, InvalidColumnException, InterruptedException  {//, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
 
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {
@@ -87,8 +87,8 @@ public class PopulationDataImporter extends DataImporter {
 		DistrictReferenceDto district = null;
 		CommunityReferenceDto community = null;
 		CampaignReferenceDto campaigns_ = null;
-		String modality_ = "";
-		String districtStatus_ = "";
+		String modality_ = null;
+		String districtStatus_ = null;
 
 //		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
 
@@ -188,6 +188,64 @@ public class PopulationDataImporter extends DataImporter {
 									new ImportErrorException(values[i], entityProperties[i]).getMessage());
 							// System.out.println("~!~!~!~!~!~!@!@!~ "+new ImportErrorException(values[i],
 							// entityProperties[i]).getMessage() +" ttttttttttttttttt 1111"+values[i]);
+							return ImportLineResult.ERROR;
+						}
+					}
+				}
+				
+				if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
+					if (DataHelper.isNullOrEmpty(values[i])) {
+						
+//						modality_ = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
+						return ImportLineResult.ERROR;
+//						modality_ = "H2H";
+					} else {
+
+						if (values[i].toString() != "" || values[i].toString() != null) {
+							modality_ = values[i];
+
+							if (modality_ == null) {
+								
+								
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+								// ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
+							
+
+						} else {
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
+						}
+					}
+				}
+
+				if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
+					if (DataHelper.isNullOrEmpty(values[i])) {
+						System.out.println("----------------------------------overrite districtsstatus");
+//						districtStatus_ = null;
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
+						return ImportLineResult.ERROR;
+					} else {
+
+						if (values[i].toString() != "" || values[i].toString() != null) {
+							districtStatus_ = values[i];
+
+							if (districtStatus_ == null) {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+								// ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
+
+						} else {
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
 							return ImportLineResult.ERROR;
 						}
 					}
@@ -473,7 +531,12 @@ public class PopulationDataImporter extends DataImporter {
 												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
 										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
 										existingPopulationData.get().setCollectionDate(collectionDate);
-//										existingPopulationData.setModality(moda);
+//										newPopulationData.setModality(modality);
+//										newPopulationData.setDistrictStatus(districtStatus);
+//									
+										existingPopulationData.get().setModality(modality);
+										existingPopulationData.get().setDistrictStatus(districtStatus);
+
 
 										modifiedPopulationDataList.add(existingPopulationData.get());
 									} else {

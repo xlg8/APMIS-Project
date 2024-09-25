@@ -11,7 +11,9 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
@@ -74,11 +76,17 @@ public class ImportAreaDataDialog extends Dialog {
 	public Anchor downloadErrorReportButton;
 
 	DataImporter importer = null;
+	IdleNotification idleNotification;
 
 	public ImportAreaDataDialog() {
 
 		this.setHeaderTitle(I18nProperties.getString(Strings.regionImportModule));
 //		this.getStyle().set("color" , "#0D6938");
+		
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
 
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
@@ -187,14 +195,13 @@ public class ImportAreaDataDialog extends Dialog {
 		});
 
 		startImportDryRun.addClickListener(ed -> {
-
+			startIntervalCallback();
+			
 			try {
 				truncateDryRunTable();
 				
 				
 			} finally {
-				System.out.println("Import Data Dry Run Table Truncated-------------------------------------");
-				startIntervalCallback();
 
 				try {
 					importer = new AreaDataDryRunner(file_, false, userDto, areaDto, ValueSeparator.COMMA, overWrite);
@@ -275,6 +282,15 @@ public class ImportAreaDataDialog extends Dialog {
 
 		
 		anchorSpan.add(downloadErrorReportButton);
+		
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
 
 		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
 				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
@@ -283,14 +299,12 @@ public class ImportAreaDataDialog extends Dialog {
 		anchorSpan.getStyle().set("display", "none");
 
 		Button doneButton = new Button(I18nProperties.getCaption(Captions.done), e -> {
-			UI.getCurrent().getPage().executeJs("window.inactivityHandler.stopTimer();");
-			UI.getCurrent().getPage().executeJs("window.inactivityHandler.resetTimer($0);", 60000);
-			close();
-			
-			UI.getCurrent().getPage().executeJs("window.inactivityHandler.startInactivityTimer(); "
-					+ "console.log(\"Time out function Reset-------------------------\");");
-//			stopIntervalCallback();
-
+//			UI.getCurrent().getPage().executeJs("window.inactivityHandler.stopTimer();");
+//			UI.getCurrent().getPage().executeJs("window.inactivityHandler.resetTimer($0);", 60000);
+			close();			
+//			UI.getCurrent().getPage().executeJs("window.inactivityHandler.startInactivityTimer(); "
+//					+ "console.log(\"Time out function Reset-------------------------\");");
+			stopIntervalCallback();
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 
@@ -304,7 +318,9 @@ public class ImportAreaDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		// Notification.show("dialog detected... User wont logout");
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
 	}
 
 	private void startIntervalCallback() {
@@ -314,11 +330,21 @@ public class ImportAreaDataDialog extends Dialog {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					stopIntervalCallback();
+//					stopIntervalCallback();
 				}
-			}, 15000); // 10 minutes
+			}, 10000); // 10 minutes
 
 			callbackRunning = true;
+		}
+	}
+	
+	private void stopIntervalCallback() {
+		if (callbackRunning) {
+			callbackRunning = false;
+			if (timer != null) {
+				timer.cancel();
+				timer.purge();
+			}
 		}
 	}
 
@@ -327,17 +353,6 @@ public class ImportAreaDataDialog extends Dialog {
 			FacadeProvider.getAreaDryRunFacade().clearDryRunTable();
 
 		} catch (Exception e) {
-
-		}
-	}
-
-	private void stopIntervalCallback() {
-		if (callbackRunning) {
-			callbackRunning = false;
-			if (timer != null) {
-				timer.cancel();
-				timer.purge();
-			}
 
 		}
 	}
@@ -364,14 +379,11 @@ public class ImportAreaDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
-																	// I18nProperties.getCaption(Captions.downloadErrorReport));
-																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
 
 		anchorSpan.add(downloadErrorReportButton);
-
 	}
 
 }

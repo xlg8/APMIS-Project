@@ -180,5 +180,7 @@ public interface CampaignFormDataFacade {
 	Integer getAllDataTotalRowCountByArchivedStatus(Boolean includeArchived);
 	
 	void updateReassignedDistrictData(String uuid);
-
+	
+	void updateFormDataUnitAssignment(String formDataUuid, String clusterUuid);
+	
 }

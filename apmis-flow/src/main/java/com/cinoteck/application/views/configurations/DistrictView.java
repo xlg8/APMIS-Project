@@ -263,6 +263,8 @@ public class DistrictView extends VerticalLayout {
 				if (event.getValue() != null) {
 					createOrEditDistrict(event.getValue());
 				}
+				
+				grid.deselectAll();
 			});
 		}
 

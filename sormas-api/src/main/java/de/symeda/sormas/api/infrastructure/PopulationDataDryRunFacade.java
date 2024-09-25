@@ -69,9 +69,11 @@ public interface PopulationDataDryRunFacade {
 
 	void savePopulationDatax(@Valid List<PopulationDataDryRunDto> populationDataList,
 			@Valid List<PopulationDataFauxDto> fauxPopulationDataList, boolean isFauxData) throws ValidationRuntimeException;
+//	void truncateDryRunTable();
 	
 	
 	boolean checkDuplicatePopulationData(String districtExternalID, String AgeGroup, String campaignUUId);
-	
+
 	void truncateDryRunTable();
+
 }

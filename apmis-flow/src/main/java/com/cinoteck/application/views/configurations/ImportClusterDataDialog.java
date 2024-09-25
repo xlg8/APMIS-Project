@@ -13,9 +13,12 @@ import java.util.TimerTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.campaigndata.CampaignFormDataImporter;
+import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
+import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
@@ -72,24 +75,26 @@ public class ImportClusterDataDialog extends Dialog {
 
 	Span anchorSpan = new Span();
 	public Anchor downloadErrorReportButton;
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+	
+	DataImporter importer = null;
+	boolean checkForException = false;
+	IdleNotification idleNotification;
 
 	public ImportClusterDataDialog() {
 
 		this.setHeaderTitle(I18nProperties.getString(Strings.clusterImportModule));
 //		this.getStyle().set("color" , "#0D6938");
+		
+		MainLayout mainLayout = (MainLayout) UI.getCurrent().getSession().getAttribute(MainLayout.class);
+		if (mainLayout != null) {
+			idleNotification = mainLayout.getIdleNotification();
+		}
 
 		Hr seperatorr = new Hr();
 		seperatorr.getStyle().set("color", " #0D6938");
 
 		VerticalLayout dialog = new VerticalLayout();
-
-//		UI.getCurrent().addPollListener(event -> {
-//			if (callbackRunning) {
-//				UI.getCurrent().access(this::pokeFlow);
-//			} else {
-//				stopPullers();
-//			}
-//		});
 
 		H3 step2 = new H3();
 		step2.add(I18nProperties.getString(Strings.step1));
@@ -161,12 +166,17 @@ public class ImportClusterDataDialog extends Dialog {
 
 		Icon startImportButtonIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonIcon);
+		startImportDryRun.setIcon(startImportButtonIcon);
+
 		startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
 		upload.setAcceptedFileTypes("text/csv");
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -202,18 +212,20 @@ public class ImportClusterDataDialog extends Dialog {
 			try {
 				ClusterDataImporter importer = new ClusterDataImporter(file_, false, clusterDto, ValueSeparator.COMMA,
 						overWrite);
-				
-				//Trying to read the csv file to extract values of specific columns 
-				//Eventual Goal is to finally get the list of all clusters from the db by their districts 
-				//upon retrieval i'd be archiving any cluster external id that is not amongst the cCodeColumnValues
-				
-				
-				//Forseeable problem: If we are getting the list at this point the result of the imports is not being considered at this point 
-				
+
+				// Trying to read the csv file to extract values of specific columns
+				// Eventual Goal is to finally get the list of all clusters from the db by their
+				// districts
+				// upon retrieval i'd be archiving any cluster external id that is not amongst
+				// the cCodeColumnValues
+
+				// Forseeable problem: If we are getting the list at this point the result of
+				// the imports is not being considered at this point
+
 				cCodeColumnValues = importer.extractColumnValues("CCode"); // replace "Column_Name" with the
 				dCodeColumnValues = importer.extractColumnValues("DCode"); // replace "Column_Name" with the
 
-																		// actual column name
+				// actual column name
 				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 
 				// Process the column values as needed
@@ -224,10 +236,34 @@ public class ImportClusterDataDialog extends Dialog {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
 			} finally {
-				
-				System.out.println(dCodeColumnValues + "Column values " +  cCodeColumnValues);
 
+				System.out.println(dCodeColumnValues + "Column values " + cCodeColumnValues);
 
+			}
+		});
+		
+		startImportDryRun.addClickListener(ed -> {
+			startIntervalCallback();
+			
+			try {
+				truncateDryRunTable();
+
+			} finally {
+
+				try {
+					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+			
+
+				}
 			}
 		});
 
@@ -274,9 +310,17 @@ public class ImportClusterDataDialog extends Dialog {
 //		Button stopButton = new Button("Stop Interval Callback");
 //		stopButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 //		stopButton.addClickListener(e -> stopIntervalCallback());
+		startIntervalCallback();
+		UI.getCurrent().addPollListener(event -> {
+			if (callbackRunning) {
+				UI.getCurrent().access(this::pokeFlow);
+			} else {
+				stopPullers();
+			}
+		});
 
 		dialog.add(step2, lblImportTemplateInfo, downloadImportTemplate, step3, lblImportCsvFile, overWriteExistingData,
-				upload, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+				upload, startImportDryRun, startDataImport, step5, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		// hacky: hide the anchor
 		anchorSpan.getStyle().set("display", "none");
@@ -299,7 +343,9 @@ public class ImportClusterDataDialog extends Dialog {
 	}
 
 	private void pokeFlow() {
-		// Notification.show("dialog detected... User wont logout");
+		if (idleNotification.getSecondsBeforeNotification() < 121) {
+			idleNotification.setSecondsBeforeNotification(200);
+		}
 	}
 
 	private void startIntervalCallback() {
@@ -311,7 +357,7 @@ public class ImportClusterDataDialog extends Dialog {
 				public void run() {
 					stopIntervalCallback();
 				}
-			}, 15000); // 10 minutes
+			}, 10000); // 10 minutes
 
 			callbackRunning = true;
 		}
@@ -324,6 +370,15 @@ public class ImportClusterDataDialog extends Dialog {
 				timer.cancel();
 				timer.purge();
 			}
+
+		}
+	}
+	
+	private void truncateDryRunTable() {
+		try {
+			FacadeProvider.getCommunityDryRunFacade().clearDryRunTable();
+
+		} catch (Exception e) {
 
 		}
 	}
@@ -350,9 +405,7 @@ public class ImportClusterDataDialog extends Dialog {
 		anchorSpan.remove(downloadErrorReportButton);
 		donloadErrorReport.setVisible(true);
 
-		downloadErrorReportButton = new Anchor(streamResource, ".");// ,
-																	// I18nProperties.getCaption(Captions.downloadErrorReport));
-																	// I18nProperties.getCaption(Captions.importDownloadErrorReport)
+		downloadErrorReportButton = new Anchor(streamResource, ".");
 		downloadErrorReportButton.setHref(streamResource);
 		downloadErrorReportButton.setClassName("vaadin-button");
 

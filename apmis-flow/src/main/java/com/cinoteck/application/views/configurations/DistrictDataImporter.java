@@ -467,6 +467,6 @@ public class DistrictDataImporter extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "province_Import_error_report.csv";
+		return "district_Import_error_report.csv";
 	}
 }

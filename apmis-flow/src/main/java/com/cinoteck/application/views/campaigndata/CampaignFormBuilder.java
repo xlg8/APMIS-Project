@@ -117,6 +117,7 @@ import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
+import de.symeda.sormas.api.user.UserActivitySummaryDto;
 
 public class CampaignFormBuilder extends VerticalLayout {
 
@@ -167,6 +168,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 	ComboBox<RegionReferenceDto> cbRegion = new ComboBox<>(I18nProperties.getCaption(Captions.region));
 	ComboBox<DistrictReferenceDto> cbDistrict = new ComboBox<>(I18nProperties.getCaption(Captions.district));
 	ComboBox<CommunityReferenceDto> cbCommunity = new ComboBox<>(I18nProperties.getCaption(Captions.community));
+	Button reassignDataConfigUnit = new Button(I18nProperties.getCaption("Reassign Data"));
 
 	FormLayout vertical = new FormLayout();
 
@@ -485,7 +487,72 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		});
 
-		vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+		HorizontalLayout reassigmentLayout = new HorizontalLayout();
+		Button updateFormDataUnitAssignment = new Button("Update Form Data Unit");
+		updateFormDataUnitAssignment.setVisible(false);
+
+		reassignDataConfigUnit.addClickListener(e -> {
+//			cbArea.setReadOnly(false);
+//			;
+//			cbRegion.setReadOnly(false);
+//			;
+//			cbDistrict.setReadOnly(false);
+//			;
+			cbCommunity.setReadOnly(false);
+			;
+//			formDate.setReadOnly(false);
+			updateFormDataUnitAssignment.setVisible(true);
+
+		});
+
+		this.openData = openData;
+		this.uuidForm = uuidForm;
+//		this.formElements = formElements;
+		this.campaignReferenceDto = campaignReferenceDto;
+		this.campaignFormMeta = campaignFormMetaUUID;
+		this.isDistrictEntry = isDistrictEntry;
+		this.formName = formName;
+
+		updateFormDataUnitAssignment.addClickListener(e -> {
+
+			try {
+
+				System.out.println("openData=-" + openData);
+				System.out.println("uuidForm=-" + uuidForm);
+				System.out.println("campaignFormMeta=-" + campaignFormMeta.getUuid());
+				System.out.println("campaignReferenceDto=-" + campaignReferenceDto.getUuid());
+				System.out.println("cbCommunity=-" + cbCommunity.getValue().toString() + "ttt" + cbCommunity.getValue().getUuid().toString());
+				FacadeProvider.getCampaignFormDataFacade().updateFormDataUnitAssignment(uuidForm, cbCommunity.getValue().getUuid().toString());
+			} catch (Exception ex) {
+
+			} finally {
+				
+				Notification.show("Form Configuration Unit Updated Succesfully");
+				cbCommunity.setReadOnly(true);
+				updateFormDataUnitAssignment.setVisible(false);
+				
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Population Data Import");
+				userActivitySummaryDto
+						.setAction("User Updated Form Data Cluster Assignment " + cbCampaign.getValue().toString());
+				UserProvider usr = new UserProvider();
+
+				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				
+
+			}
+		});
+
+		reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment);
+
+		if (uuidForm != null) {
+			vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity, reassigmentLayout);
+
+		} else {
+			vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+
+		}
 
 		vertical_.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("520px", 2),
 				new ResponsiveStep("1000px", 3));
@@ -766,10 +833,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					ToggleButtonGroup<Boolean> toggle = new ToggleButtonGroup<>(
 							get18nCaption(formElement.getId(), formElement.getCaption()), List.of(true, false));
 					toggle.setId(formElement.getId());
-		
 
 					toggle.setClassName("customTextWrap");
-
 
 					HashMap<Boolean, String> map = new HashMap<>();
 					map.put(true, "Yes");
@@ -793,8 +858,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 							return map.get(item);
 						}
 					});
-					
-					
 
 //					toggle.setItemLabelGenerator(item -> map.get(item));
 					toggle.getStyle().set("color", "Green");
@@ -1383,15 +1446,11 @@ public class CampaignFormBuilder extends VerticalLayout {
 					((ToggleButtonGroup) field).setValue(dvalue);
 
 				}
-				
-				
 
-			}else {
-				
-		
-				
+			} else {
+
 				((ToggleButtonGroup) field).updateStyles();
-				
+
 			}
 
 			break;
@@ -2044,29 +2103,25 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (lotchecker.size() > 0) {
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-
 						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
 						if (lotOwnSec.contains(lotNo)) {
 							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
 						}
 
-						if (lotOwnSec.contains(lotClusterNo)) {
+						if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
 							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
 						}
 					}
 				}
 
-				for (String string : listLotNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
-					}
-				}
-
 				for (String string : listLotClusterNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
+					if (listLotNo.size() > 0) {// .isEmpty()
+						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+								&& (Long.parseLong(listLotNo.get(0))
+										- Long.parseLong(lotNo.getValue().toString()) == 0)) {
+							saveChecker = false;
+							break;
+						}
 					}
 				}
 
@@ -2132,29 +2187,25 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				if (lotchecker.size() > 0) {
 					for (CampaignFormDataIndexDto campaignFormDataIndexDto : lotchecker) {
-
 						List<CampaignFormDataEntry> lotOwnSec = campaignFormDataIndexDto.getFormValues();
 						if (lotOwnSec.contains(lotNo)) {
 							listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
 						}
 
-						if (lotOwnSec.contains(lotClusterNo)) {
+						if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
 							listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
 						}
 					}
 				}
 
-				for (String string : listLotNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
-					}
-				}
-
 				for (String string : listLotClusterNo) {
-					if (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0) {
-						saveChecker = false;
-						break;
+					if (listLotNo.size() > 0) {
+						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+								&& (Long.parseLong(listLotNo.get(0))
+										- Long.parseLong(lotNo.getValue().toString()) == 0)) {
+							saveChecker = false;
+							break;
+						}
 					}
 				}
 

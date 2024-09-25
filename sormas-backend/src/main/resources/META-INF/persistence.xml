@@ -93,10 +93,13 @@
 		<class>de.symeda.sormas.backend.vaccination.FirstVaccinationDate</class>
 		<class>de.symeda.sormas.backend.labmessage.TestReport</class>
 		<class>de.symeda.sormas.backend.infrastructure.ConfigurationChangeLog</class>
+		<class>de.symeda.sormas.backend.campaign.data.CampaignFormDataDryRun</class>
+		<class>de.symeda.sormas.backend.infrastructure.community.CommunityDryRun</class>
 		<class>de.symeda.sormas.backend.infrastructure.area.AreaDryRun</class>
 		<class>de.symeda.sormas.backend.infrastructure.region.RegionDryRun</class>
 		<class>de.symeda.sormas.backend.infrastructure.district.DistrictDryRun</class>
-		<class>de.symeda.sormas.backend.infrastructure.PopulationDataDryRun</class>
+		<class>de.symeda.sormas.backend.infrastructure.PopulationDataDryRun</class>	
+			
 				
 				
 				

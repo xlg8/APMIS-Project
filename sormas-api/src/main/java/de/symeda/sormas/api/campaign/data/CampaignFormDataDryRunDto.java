@@ -1,0 +1,260 @@
+/*
+ * ******************************************************************************
+ * * SORMAS® - Surveillance Outbreak Response Management & Analysis System
+ * * Copyright © 2016-2020 Helmholtz-Zentrum für Infektionsforschung GmbH (HZI)
+ * *
+ * * This program is free software: you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation, either version 3 of the License, or
+ * * (at your option) any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful,
+ * * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * * GNU General Public License for more details.
+ * *
+ * * You should have received a copy of the GNU General Public License
+ * * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * ******************************************************************************
+ */
+
+package de.symeda.sormas.api.campaign.data;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.validation.Valid;
+
+import de.symeda.sormas.api.EntityDto;
+import de.symeda.sormas.api.ImportIgnore;
+import de.symeda.sormas.api.campaign.CampaignReferenceDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.utils.DataHelper;
+
+public class CampaignFormDataDryRunDto extends EntityDto { 
+
+	private static final long serialVersionUID = -8087195060395038093L;
+
+	public static final String I18N_PREFIX = "CampaignFormDataDryRun";
+
+	public static final String CAMPAIGN = "campaign";
+	public static final String CAMPAIGN_FORM_META = "campaignFormMeta";
+	public static final String FORM_DATE = "formDate";
+	public static final String AREA = "area";
+	public static final String REGION = "region";
+	public static final String DISTRICT = "district";
+	public static final String COMMUNITY = "community";
+	public static final String CREATING_USER = "creatingUser";
+	public static final String FORM_TYPE = "formType";
+	public static final String LATITUDE = "latitude";
+	public static final String LONGITUDE = "longitude";
+	public static final String FORMCATEGORY = "formcategory";
+	public static final String SOURCE = "source";
+	
+	@Valid
+	private List<CampaignFormDataEntry> formValues;
+	private CampaignReferenceDto campaign;
+	@Valid
+	private CampaignFormMetaReferenceDto campaignFormMeta;
+	private Date formDate;
+	private AreaReferenceDto area;
+	private RegionReferenceDto region;
+	private DistrictReferenceDto district;
+	private CommunityReferenceDto community;
+	private UserReferenceDto creatingUser;
+	private String formType;
+	private String formCategory;
+	private String source;
+	private boolean archived;
+	private boolean ispublished;
+	private boolean isverified;
+	//private Double latitude;
+	//private Double longitude;
+
+	public static CampaignFormDataDryRunDto build(
+		CampaignReferenceDto campaign,
+		CampaignFormMetaReferenceDto campaignFormMeta,
+		AreaReferenceDto area,
+		RegionReferenceDto region,
+		DistrictReferenceDto district,
+		CommunityReferenceDto community) {
+		CampaignFormDataDryRunDto campaignFormData = new CampaignFormDataDryRunDto();
+		campaignFormData.setUuid(DataHelper.createUuid());
+		campaignFormData.setCampaign(campaign);
+		campaignFormData.setCampaignFormMeta(campaignFormMeta);
+		campaignFormData.setArea(area);
+		campaignFormData.setRegion(region);
+		campaignFormData.setDistrict(district);
+		campaignFormData.setCommunity(community);
+		campaignFormData.setFormDate(new Date());
+		campaignFormData.setFormType(campaignFormMeta.getFormType());
+
+		return campaignFormData;
+	}
+
+	public static CampaignFormDataDryRunDto build() {
+		CampaignFormDataDryRunDto campaignFormData = new CampaignFormDataDryRunDto();
+		campaignFormData.setUuid(DataHelper.createUuid());
+		return campaignFormData;
+	}
+
+	public List<CampaignFormDataEntry> getFormValues() {
+		return formValues;
+	}
+
+	public void setFormValues(List<CampaignFormDataEntry> formValues) {
+		this.formValues = formValues;
+	}
+
+	@ImportIgnore
+	public CampaignFormMetaReferenceDto getCampaignFormMeta() {
+		return campaignFormMeta;
+	}
+
+	public void setCampaignFormMeta(CampaignFormMetaReferenceDto campaignFormMeta) {
+		this.campaignFormMeta = campaignFormMeta;
+	}
+
+	@ImportIgnore
+	public CampaignReferenceDto getCampaign() {
+		return campaign;
+	}
+
+	public void setCampaign(CampaignReferenceDto campaign) {
+		this.campaign = campaign;
+	}
+
+	public Date getFormDate() {
+		return formDate;
+	}
+
+	public void setFormDate(Date formDate) {
+		this.formDate = formDate;
+	}
+	
+	
+
+	public String getFormType() {
+		return formType;
+	}
+
+	public void setFormType(String formType) {
+		this.formType = formType;
+	}
+	
+
+	public AreaReferenceDto getArea() {
+		return area;
+	}
+
+	public void setArea(AreaReferenceDto area) {
+		this.area = area;
+	}
+
+	public RegionReferenceDto getRegion() {
+		return region;
+	}
+
+	public void setRegion(RegionReferenceDto region) {
+		this.region = region;
+	}
+
+	public DistrictReferenceDto getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(DistrictReferenceDto district) {
+		this.district = district;
+	}
+
+	public CommunityReferenceDto getCommunity() {
+		return community;
+	}
+
+	public void setCommunity(CommunityReferenceDto community) {
+		this.community = community;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public UserReferenceDto getCreatingUser() {
+		return creatingUser;
+	}
+
+	public void setCreatingUser(UserReferenceDto creatingUser) {
+		this.creatingUser = creatingUser;
+	}
+
+	public String getFormCategory() {
+		
+		return campaignFormMeta.getFormCategory() != null ? campaignFormMeta.getFormCategory().toString() : null;
+	}
+
+	public void setFormCategory(String formCategory) {
+		this.formCategory = formCategory;
+	}
+
+	public boolean isArchived() {
+		return archived;
+	}
+
+	public void setArchived(boolean archived) {
+		this.archived = archived;
+	}
+
+	public boolean isIspublished() {
+		return ispublished;
+	}
+
+	public void setIspublished(boolean ispublished) {
+		this.ispublished = ispublished;
+	}
+
+	public boolean isIsverified() {
+		return isverified;
+	}
+
+	public void setIsverified(boolean isverified) {
+		this.isverified = isverified;
+	}
+
+
+
+
+	
+	//This is the implementation of the open street map for form submission
+	/*public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		latitude = Math.round(latitude * 10000000) / 10000000.0;
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		longitude = Math.round(longitude * 10000000) / 10000000.0;
+		this.longitude = longitude;
+	}
+*/
+	
+	
+	
+
+}

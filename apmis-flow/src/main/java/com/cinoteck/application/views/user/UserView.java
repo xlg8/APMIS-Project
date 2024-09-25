@@ -1,4 +1,4 @@
-package com.cinoteck.application.views.user;
+	package com.cinoteck.application.views.user;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +42,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.MultiSortPriority;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
@@ -106,7 +108,9 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
-	private ComboBox<UserRole> userRolesFilter = new ComboBox<UserRole>();
+	private MultiSelectComboBox<UserRole> userRolesFilter = new MultiSelectComboBox<UserRole>();
+//	private ComboBox<UserRole> userRolesFilter = new ComboBox<>();
+
 	private ComboBox<AreaReferenceDto> areaFilter;
 	private ComboBox<RegionReferenceDto> regionFilter;
 	private ComboBox<DistrictReferenceDto> districtFilter;
@@ -354,37 +358,100 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		filterLayout.add(activeFilter);
 
-		userRolesFilter = new ComboBox<UserRole>();
-		userRolesFilter.setWidth("145px");
+//		userRolesFilter = new ComboBox<UserRole>();
+//		userRolesFilter.setWidth("145px");
+//
+//		userRolesFilter.setId(UserDto.USER_ROLES);
+//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+//		userRolesFilter.getStyle().set("padding-top", "0px!important");
+//		userRolesFilter.setClearButtonVisible(true);
+//	
+//		
+//		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+//		roles.remove(UserRole.BAG_USER);
+//
+//		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+//		roles.remove(UserRole.BAG_USER);
+//
+//		// Sorting the user roles usng comprtor
+//		Collections.sort(rolesz, new UserRoleCustomComparator());
+//		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+//
+//		userRolesFilter.setItems(sortedUserRoless);
+//		userRolesFilter.addValueChangeListener(e -> {
+//
+//			UserRole userRole = e.getValue();
+//			criteria.userRole(userRole);
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//			updateRowCount();
+//
+//		});
+		
+//		Recieve FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles(); into an appropriate collection 
+//		convert the system into a list 
+//		sort the items in the list and add them back 
+//		as fo
+//		if current user - who user remoe baguser and admin 
+//		while if current user is eoc remove cluster cordinatoe 
+//		Remove the role BagUser
+		
+		
 
+		userRolesFilter = new MultiSelectComboBox<>();
+		userRolesFilter.setWidth("145px");
 		userRolesFilter.setId(UserDto.USER_ROLES);
 		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
 		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
 		userRolesFilter.getStyle().set("margin-left", "0.1rem");
 		userRolesFilter.getStyle().set("padding-top", "0px!important");
 		userRolesFilter.setClearButtonVisible(true);
+
 		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
 		roles.remove(UserRole.BAG_USER);
+		List<UserRole> rolesList = new ArrayList<>(roles);
 
-		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
-		roles.remove(UserRole.BAG_USER);
+		// Sorting the user roles using comparator
+		Collections.sort(rolesList, new UserRoleCustomComparator());
+		Set<UserRole> sortedUserRoles = new LinkedHashSet<>(rolesList);
 
-		// Sorting the user roles usng comprtor
-		Collections.sort(rolesz, new UserRoleCustomComparator());
-		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+		userRolesFilter.setItems(sortedUserRoles);
 
-		userRolesFilter.setItems(sortedUserRoless);
+		
+		Div selectedRolesLabel = new Div();
+		selectedRolesLabel.getStyle().set("font-size", "0.8em");
+		selectedRolesLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
 		userRolesFilter.addValueChangeListener(e -> {
-
-			UserRole userRole = e.getValue();
-			criteria.userRole(userRole);
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-			updateRowCount();
-
+		    Set<UserRole> selectedRoles = e.getValue();
+		    if (selectedRoles.isEmpty()) {
+		        criteria.userRole(null);
+		        criteria.userRoleSet(null);
+		    } else {
+		        criteria.userRoleSet(selectedRoles);
+		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+		    }
+		    filterDataProvider.setFilter(criteria);
+		    filterDataProvider.refreshAll();
+		    updateRowCount();
 		});
+//		
+//		// Add a custom label to show all selected roles
+//		Div selectedRolesLabel = new Div();
+//		selectedRolesLabel.getStyle().set("font-size", "0.8em");
+//		selectedRolesLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
+//
+//		userRolesFilter.addValueChangeListener(e -> {
+//		    Set<UserRole> selectedRoles = e.getValue();
+//		    if (selectedRoles.isEmpty()) {
+//		        selectedRolesLabel.setText("");
+//		    } else {
+//		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+//		    }
+//		});
 
-		filterLayout.add(userRolesFilter);
+		filterLayout.add(userRolesFilter, selectedRolesLabel);
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
@@ -725,14 +792,24 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setDataProvider(filterDataProvider);
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
+			
 			grid.addSelectionListener(event -> {
-				editUser(event.getFirstSelectedItem().get(), false);
+			    event.getFirstSelectedItem().ifPresent(item -> {
+			        editUser(item, false);
+			        grid.deselectAll(); // Deselect all items after processing the selected item
+			    });
 			});
+
+//			grid.addSelectionListener(event -> {
+//				editUser(event.getFirstSelectedItem().get(), false);
+//				grid.deselectAll();
+//			});
 		}
 
 		return;
 
 	}
+	
 
 	private void configureForm(UserDto user) {
 
@@ -747,6 +824,10 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		userForm.addCloseListener(e -> {
 //			UI.getCurrent().getPage().reload();
 			closeEditor();
+			
+//			UI.getCurrent().getPage().reload();
+
+//			grid.deselectAll();
 		});
 
 	}
@@ -911,6 +992,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setVisible(true);
 		removeClassName("editing");
 		userForm.setUser(new UserDto());
+		grid.deselectAll();
 	}
 
 	private void setFiltersVisible(boolean state) {
@@ -1275,7 +1357,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	}
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
-		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
+		private final String[] customOrder = {"Admin", "National Data Manager", "National Officer",
 				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",
 				"Provincial Observer", "Provincial Data Clerk", "Provincial Officer", "District Officer",
 				"District Observer" };

@@ -872,6 +872,21 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 			return null;
 		}
 	}
+//	@Override
+//	public void truncateDryRunTable() {
+//		
+//		System.out.println("11111----------------------------------------------Credentials from backend OOOPPPPPP" );
+//
+//		final String joinBuilder = "truncate table populationdatadryrun;";
+//		
+//		
+//		  Query query = em.createNativeQuery(joinBuilder);
+//
+//		    // Execute the query
+//		    query.executeUpdate();
+////		em.createNativeQuery(joinBuilder);
+//
+//	}
 
 	@Override
 	public List<PopulationDataDryRunDto> getDistrictModalityByUUIDsandCampaignUUIdAndAgeGroup(String districtUuid,
@@ -899,6 +914,9 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 		return em.createQuery(cq).getResultStream().map(populationData -> toDto(populationData))
 				.collect(Collectors.toList());
 	}
+	
+
+
 
 	@Override
 	public boolean checkDuplicatePopulationData(String districtExternalID, String AgeGroup,
@@ -917,23 +935,20 @@ public class PopulationDataDryRunFacadeEjb implements PopulationDataDryRunFacade
 		}
 	
 	}
-	
+
 	@Override
 	public void truncateDryRunTable() {
+		// TODO Auto-generated method stub
 		
-		System.out.println("11111----------------------------------------------Credentials from backend OOOPPPPPP" );
-
-		final String joinBuilder = "truncate table populationdatadryrun;";
+		String query = "select * from users where username is not null";
 		
-		
-		  Query query = em.createNativeQuery(joinBuilder);
-
-		    // Execute the query
-		    query.executeUpdate();
-//		em.createNativeQuery(joinBuilder);
-
 	}
 
+	
+	
 
+
+	
+	
 
 }

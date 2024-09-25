@@ -45,6 +45,7 @@ public class CamapignDataFilter extends VerticalLayout {
 //
 //	private final Button addNewBtnn = new Button();
 //
+	
 //	private TextField searchField = new TextField();
 	public ComboBox<String> campaignYear;
 	public ComboBox<CampaignReferenceDto> campaign = new ComboBox<>();

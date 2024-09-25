@@ -10343,6 +10343,289 @@ ALTER TABLE public.districtdryrun ADD CONSTRAINT fk_districtdryrun_region_id FOR
 INSERT INTO schema_version (version_number, comment) VALUES (471, 'Implementing Region Dry Run Functionality');
 
 
+CREATE TABLE public.communitydryrun (
+	id int8 NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	"name" varchar(255) NULL,
+	"uuid" varchar(36) NOT NULL,
+	district_id int8 NOT NULL,
+	archived bool DEFAULT false NULL,
+	externalid_ varchar(512) NULL,
+	growthrate float4 NULL,
+	externalid int8 NULL,
+	region varchar(21) NULL,
+	district varchar(23) NULL,
+	clusternumber int4 NULL,
+	fa_af varchar(100) NULL,
+	ps_af varchar(100) NULL,
+	clusterenum varchar NULL,
+	floating varchar(36) DEFAULT ''::character varying NOT NULL,
+	CONSTRAINT communitydryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT communitydryrun_unique_extgernal_id UNIQUE (externalid),
+	CONSTRAINT communitydryrun_uuid_key UNIQUE (uuid)
+);
+
+
+-- public.community foreign keys
+
+ALTER TABLE public.communitydryrun ADD CONSTRAINT fk_communitydryrun_district_id FOREIGN KEY (district_id) REFERENCES public.district(id);
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (472, 'Implementing CLuster Dry Run Functionality');
+
+
+
+
+CREATE TABLE if not exists public.campaignformdatadryrun (
+	id int8 NOT NULL,
+	"uuid" varchar(36) NOT NULL,
+	changedate timestamp NOT NULL,
+	creationdate timestamp NOT NULL,
+	formvalues json NULL,
+	campaign_id int8 NOT NULL,
+	campaignformmeta_id int8 NOT NULL,
+	region_id int8 NOT NULL,
+	district_id int8 NOT NULL,
+	community_id int8 NULL,
+	sys_period tstzrange NULL,
+	archived bool DEFAULT false NOT NULL,
+	formdate timestamp NULL,
+	creatinguser_id int8 NULL,
+	area_id int8 NULL,
+	formtype varchar(255) DEFAULT 'pre-campaign'::character varying NULL,
+	lat float8 NULL,
+	lon float8 NULL,
+	"source" varchar(11) NULL,
+	lastupdated timestamp NULL,
+	isverified bool DEFAULT false NOT NULL,
+	ispublished bool DEFAULT false NOT NULL,
+	CONSTRAINT campaignformdatadryrun_pkey PRIMARY KEY (id),
+	CONSTRAINT campaignformdatadryrun_uuid_key UNIQUE (uuid)
+);
+
+--Table Functions 
+
+CREATE OR REPLACE FUNCTION public.tbl_ins_updryrun_before()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'ADMIN'  AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormDataDryRun SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'ADMIN'  AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+END
+$function$
+;
+
+-- DROP FUNCTION public.tbl_ins_up_before_modality_post();
+
+CREATE OR REPLACE FUNCTION public.tbl_ins_up_beforedryrun_modality_post()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_POST' AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormDataDryRun SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_POST' AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+end
+$function$
+;
+
+
+-- DROP FUNCTION public.tbl_ins_up_before_modality_pre();
+
+CREATE OR REPLACE FUNCTION public.tbl_ins_up_beforedryrun_modality_pre()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+
+IF EXISTS (SELECT *
+                     FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_PRE' AND rec_info.archived = false
+                     )
+then
+UPDATE campaignFormDataDryRun SET archived = true where id in (SELECT rec_info.id
+                    FROM campaignFormDataDryRun rec_info inner join campaignformmeta c on rec_info.campaignformmeta_id = c.id 
+                     WHERE rec_info.campaign_id=NEW.campaign_id AND rec_info.campaignFormMeta_id=NEW.campaignFormMeta_id AND rec_info.community_id = NEW.community_id
+                     AND c.formCategory = 'MODALITY_PRE' AND rec_info.archived = false
+                     );
+   RETURN NEW;
+END IF;
+
+RETURN NEW;
+
+end
+$function$
+;
+
+CREATE OR REPLACE FUNCTION public.update_updateddryrun_on_user_task()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.lastupdated = now();
+    RETURN NEW;
+END;
+$function$
+;
+
+
+-- DROP FUNCTION public.verify_and_publish_data_byphase();
+
+CREATE OR REPLACE FUNCTION public.verify_and_publishdryrun_data_byphase()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    UPDATE campaignFormDataDryRun
+    SET 
+        isverified = CASE
+            WHEN EXISTS (
+                SELECT 1 FROM campaignformmeta 
+                WHERE campaignFormDataDryRun.campaignformmeta_id = campaignformmeta.id  
+                  AND campaignformmeta.formtype = 'post-campaign'
+            )
+            THEN false
+            ELSE true
+        END,
+        ispublished = CASE
+            WHEN EXISTS (
+                SELECT 1 FROM campaignformmeta 
+                WHERE campaignFormDataDryRun.campaignformmeta_id = campaignformmeta.id  
+                  AND campaignformmeta.formtype = 'post-campaign'
+            )
+            THEN false
+            ELSE true
+        END
+    WHERE campaignFormDataDryRun.id = NEW.id;
+
+    RETURN NEW;
+END;
+$function$
+;
+
+
+-- Table Triggers
+
+create trigger dryrundeduplicator before
+insert
+    on
+    public.campaignformdatadryrun for each row execute function tbl_ins_updryrun_before();
+create trigger dryrunmodality_post_deduplicator before
+insert
+    on
+    public.campaignformdatadryrun for each row execute function tbl_ins_up_beforedryrun_modality_post();
+create trigger dryrunmodality_pre_deduplicator before
+insert
+    on
+    public.campaignformdatadryrun for each row execute function tbl_ins_up_beforedryrun_modality_pre();
+create trigger update_campaigndatadryrun_lastupdatecolumn before
+insert
+    or
+update
+    on
+    public.campaignformdatadryrun for each row execute function update_updated_on_user_task();
+create trigger verify_and_publishdryrun_data_byphase_trigger after
+insert
+    on
+    public.campaignformdatadryrun for each row execute function verify_and_publishdryrun_data_byphase();
+
+   
+   -- DROP FUNCTION public.update_updated_on_user_task();
+
+
+
+-- public.campaignformdata foreign keys
+
+ALTER TABLE public.campaignformdatadryrun ADD CONSTRAINT fk_campaignformdatadryrun_campaign_id FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id);
+ALTER TABLE public.campaignformdatadryrun ADD CONSTRAINT fk_campaignformdatadryrun_campaignformmeta_id FOREIGN KEY (campaignformmeta_id) REFERENCES public.campaignformmeta(id);
+ALTER TABLE public.campaignformdatadryrun ADD CONSTRAINT fk_campaignformdatadryrun_creatinguser_id FOREIGN KEY (creatinguser_id) REFERENCES public.users(id);
+ALTER TABLE public.campaignformdatadryrun ADD CONSTRAINT fk_campaignformdatadryrun_district_id FOREIGN KEY (district_id) REFERENCES public.district(id);
+ALTER TABLE public.campaignformdatadryrun ADD CONSTRAINT fk_campaignformdatadryrun_region_id FOREIGN KEY (region_id) REFERENCES public.region(id);
+
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (473, 'Implementing Campaign Data Dry Run Functionality');
+
+
+UPDATE populationdata pd1
+SET districtstatus = (
+    SELECT pd2.districtstatus
+    FROM populationdata pd2
+    WHERE pd2.district_id = pd1.district_id
+    AND pd2.campaign_id = pd1.campaign_id
+    AND pd2.agegroup = 'AGE_0_4'
+)
+WHERE pd1.agegroup = 'AGE_5_10'
+AND EXISTS (
+    SELECT 1
+    FROM populationdata pd2
+    WHERE pd2.district_id = pd1.district_id
+    AND pd2.campaign_id = pd1.campaign_id
+    AND pd2.agegroup = 'AGE_0_4'
+);
+
+
+UPDATE populationdata pd1
+SET modality = (
+    SELECT pd2.modality
+    FROM populationdata pd2
+    WHERE pd2.district_id = pd1.district_id
+    AND pd2.campaign_id = pd1.campaign_id
+    AND pd2.agegroup = 'AGE_0_4'
+)
+WHERE pd1.agegroup = 'AGE_5_10'
+AND EXISTS (
+    SELECT 1
+    FROM populationdata pd2
+    WHERE pd2.district_id = pd1.district_id
+    AND pd2.campaign_id = pd1.campaign_id
+    AND pd2.agegroup = 'AGE_0_4'
+);
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (474, 'Admin units should be unique in Associate Campaign #677');
+
+
+
+update community set floating = 'Normal' where floating = '';
+
+INSERT INTO schema_version (version_number, comment) VALUES (475, 'Set clusters floating status to normal #693');
+
+
 
 
 
