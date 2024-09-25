@@ -471,6 +471,6 @@ public class AreaDataDryRunner extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "area_Import_error_report.csv";
+		return "region_dryrun_Import_error_report.csv";
 	}
 }

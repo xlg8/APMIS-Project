@@ -483,6 +483,6 @@ public class DistrictDataDryRunner extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "province_Import_error_report.csv";
+		return "district_dryrun_Import_error_report.csv";
 	}
 }

@@ -184,8 +184,8 @@ public class ImportProvinceDataDialog extends Dialog {
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
-//			startImportDryRun.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -210,73 +210,73 @@ public class ImportProvinceDataDialog extends Dialog {
 
 		});
 
-//		startImportDryRun.addClickListener(ed -> {
-//			startIntervalCallback();
-//			
-//			try {
-//				truncateDryRunTable();
-//
-//			} finally {
-////				startIntervalCallback();
-//
-//				try {
-//					importer = new ProvinceDataDryRunner(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
-//					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
-//							true);
-//				} catch (IOException | CsvValidationException e) {
-//					checkForException = true;
-//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-//							+ I18nProperties.getString(Strings.messageImportFailed));
-//				} finally {
-//
-//					startDataImport.setVisible(true);
-//					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
-//					ImportProgressLayout progressLayout;
-//					try {
-//						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
-//
-//						if (importer != null) {
-//							progressLayout.makeClosable(() -> {
-//								if (!checkForException && !importer.hasErrors()) {
-//									startDataImport.setVisible(true);
-//								}
-//							});
-//						}
-//					} catch (CsvValidationException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					} catch (IOException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
-//					;
-//					if (!checkForException && importer != null && !importer.hasErrors()) {
-//						startDataImport.setVisible(true);
-//					}
-//
-//					if (!checkForException) {
-//
-//						progressLayout = null;
-//						try {
-//							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
-//						} catch (CsvValidationException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						} catch (IOException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						}
-//
-//						boolean exceptionValue = progressLayout.hasImportErrors();
-//
-//						if (!exceptionValue) {
-//							startDataImport.setVisible(true);
-//						}
-//
-//					}
-//				}
-//			}
-//		});
+		startImportDryRun.addClickListener(ed -> {
+			startIntervalCallback();
+			
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+
+				try {
+					importer = new ProvinceDataDryRunner(file_, false, regionDto, ValueSeparator.COMMA, overWrite);
+					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+							true);
+				} catch (IOException | CsvValidationException e) {
+					checkForException = true;
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
+					ImportProgressLayout progressLayout;
+					try {
+						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+
+						if (importer != null) {
+							progressLayout.makeClosable(() -> {
+								if (!checkForException && !importer.hasErrors()) {
+									startDataImport.setVisible(true);
+								}
+							});
+						}
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					;
+					if (!checkForException && importer != null && !importer.hasErrors()) {
+						startDataImport.setVisible(true);
+					}
+
+					if (!checkForException) {
+
+						progressLayout = null;
+						try {
+							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						} catch (CsvValidationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+
+						boolean exceptionValue = progressLayout.hasImportErrors();
+
+						if (!exceptionValue) {
+							startDataImport.setVisible(true);
+						}
+
+					}
+				}
+			}
+		});
 
 		downloadErrorReportButton = new Anchor("beforechange");
 		downloadErrorReportButton.setVisible(false);

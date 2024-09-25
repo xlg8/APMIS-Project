@@ -191,8 +191,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		upload.addSucceededListener(event -> {
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
-//			startImportDryRun.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -222,34 +222,34 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		});
 		
-//		startImportDryRun.addClickListener(ed -> {
-//			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
-//			
-//
-//			try {
-//				truncateDryRunTable();
-//
-//			} finally {
-////				startIntervalCallback();
-//				
-//				try {
-//
-//					DataImporter importer = new CampaignFormDataImportDryRunner(file_, false, userDto, campaignForm.getUuid(),
-//							campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
-//					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-//				} catch (IOException | CsvValidationException e) {
-//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-//							+ I18nProperties.getString(Strings.messageImportFailed));
-//				} finally {
-//
-//					startDataImport.setVisible(true);
-//				}
-//
-//			
-//			}
-//
-//		});
+		startImportDryRun.addClickListener(ed -> {
+			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
+			
 
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+				
+				try {
+
+					DataImporter importer = new CampaignFormDataImportDryRunner(file_, false, userDto, campaignForm.getUuid(),
+							campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
+					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				} catch (IOException | CsvValidationException e) {
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+				}
+
+			
+			}
+
+		});
+		
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));

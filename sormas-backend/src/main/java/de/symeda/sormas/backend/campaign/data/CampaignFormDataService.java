@@ -502,7 +502,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createNativeQuery(cdvv).executeUpdate();
 	}
 	
-	public  int updateReassignedDistrictData(String uuidx) {
+	public int updateReassignedDistrictData(String uuidx) {
 		// TODO Auto-generated method stub
 		String cdvv = "";
 		cdvv = "UPDATE campaignformdata c SET region_id = d.region_id, area_id = d.area_id \n"
@@ -514,6 +514,21 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		
 //		System.err.println(cdvv + "Query to unpublishing from the service ");
 		return em.createNativeQuery(cdvv).executeUpdate();
+	}
+
+	public int updateFormDataUnitAssignment(String formDataUuid, String clusterUuid) {
+		// TODO Auto-generated method stub
+		
+		String updateFormDataClusterQuery = "";
+		updateFormDataClusterQuery = 
+				"UPDATE campaignformdata c SET community_id = (\n"
+				+ "SELECT id FROM community cluster \n"
+				+ "where cluster.uuid = '" + clusterUuid + "')\n"
+				+ "where c.uuid = '" + formDataUuid + "';";
+		
+	
+return em.createNativeQuery(updateFormDataClusterQuery).executeUpdate();
+		
 	}
 
 }

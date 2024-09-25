@@ -1,11 +1,23 @@
 package com.cinoteck.application.views.campaign;
 
 import java.io.ByteArrayInputStream;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,6 +45,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.upload.Upload;
@@ -167,9 +181,9 @@ public class ImportPopulationDataDialog extends Dialog {
 
 			file_ = new File(buffer.getFilename());
 
-//			startDryRunImport.setVisible(false);
+			startDryRunImport.setVisible(true);
 
-			startDataImport.setVisible(true);
+			startDataImport.setVisible(false);
 
 		});
 
@@ -181,72 +195,107 @@ public class ImportPopulationDataDialog extends Dialog {
 		startDataImport.addClickListener(ed -> {
 			startIntervalCallback();
 
-			try {
+			try (FileReader reader = new FileReader(file_)) {
+				CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
+				// Get headers
+				List<String> headerStrings = new ArrayList<>();
 
-				System.out.println("Start import Clicked + 111111111111111111111111111111");
+				for (String header : parser.getHeaderMap().keySet()) {
 
-				CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
+					headerStrings.add(header);
+					System.out.println("Header: " + header);
+				}
 
-				DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA,
-						overWrite);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-			} catch (IOException e) {
-				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-						+ I18nProperties.getString(Strings.messageImportFailed));
-			} catch (CsvValidationException e1) {
+				if (headerStrings.contains("TOTAL_AGE_0_4") && headerStrings.contains("TOTAL_AGE_5_10")) {
+
+					try {
+						System.out.println("Start import Clicked + 111111111111111111111111111111");
+
+						CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
+
+						DataImporter importer = new PopulationDataImporter(file_, srDto, acmpDto, ValueSeparator.COMMA,
+								overWrite);
+						importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+					} catch (IOException e) {
+						Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+								+ I18nProperties.getString(Strings.messageImportFailed));
+					} catch (CsvValidationException e1) {
+						// TODO Auto-generated catch block
+						Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+								+ I18nProperties.getString(Strings.messageImportFailed));
+						e1.printStackTrace();
+					} finally {
+						UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+						userActivitySummaryDto.setActionModule("Population Data Import");
+						userActivitySummaryDto
+								.setAction("User Attempted Population Import to " + camapigndto.getName());
+						userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+						FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+					}
+
+				} else {
+					
+					Notification notification = 	Notification.show(
+							"Please Check to ensure Columns for Population Age Groups 0-4 and 5-10 are respectively available in the import template.");
+
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+				
+				}
+			} catch (FileNotFoundException e2) {
 				// TODO Auto-generated catch block
-				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-						+ I18nProperties.getString(Strings.messageImportFailed));
-				e1.printStackTrace();
-			} finally {
-
-				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-				userActivitySummaryDto.setActionModule("Population Data Import");
-				userActivitySummaryDto.setAction("User Attempted Population Import to " + camapigndto.getName());
-				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
-				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				e2.printStackTrace();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
 			}
 
 		});
 
 		Icon startDryRunImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
 		startDryRunImport.setIcon(startImportButtonnIcon);
-//		startDryRunImport.addClickListener(ed -> {
-//			startIntervalCallback();
-//			try {
-//				FacadeProvider.getPopulationDataDryRunFacade().truncateDryRunTable();
-//
-//			} finally {
-//				try {
-//					System.out.println("Start import DryRun  Clicked + 111111111111111111111111111111");
-//
-//					CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
-//
-//					DataImporter importer = new PopulationDataDryRunner(file_, srDto, acmpDto, ValueSeparator.COMMA,
-//							overWrite);
-//					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
-//				} catch (IOException e) {
-//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-//							+ I18nProperties.getString(Strings.messageImportFailed));
-//				} catch (CsvValidationException e1) {
-//					// TODO Auto-generated catch block
-//					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
-//							+ I18nProperties.getString(Strings.messageImportFailed));
-//					e1.printStackTrace();
-//				} finally {
-//
-//					startDataImport.setVisible(true);
-//
-//					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-//					userActivitySummaryDto.setActionModule("Population Data Dry Run");
-//					userActivitySummaryDto
-//							.setAction("User Attempted Population Import Dry run to " + camapigndto.getName());
-//					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
-//					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-//				}
-//			}
-//
-//		});
+		startDryRunImport.addClickListener(ed -> {
+			startIntervalCallback();
+			try {
+				
+				
+				
+				FacadeProvider.getPopulationDataDryRunFacade().truncateDryRunTable();
+
+				
+				
+				
+			} finally {
+				try {
+					System.out.println("Start import DryRun  Clicked + 111111111111111111111111111111");
+
+					CampaignDto acmpDto = FacadeProvider.getCampaignFacade().getByUuid(camapigndto.getUuid());
+
+					DataImporter importer = new PopulationDataDryRunner(file_, srDto, acmpDto, ValueSeparator.COMMA,
+							overWrite);
+					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				} catch (IOException e) {
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} catch (CsvValidationException e1) {
+					// TODO Auto-generated catch block
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+					e1.printStackTrace();
+				} finally {
+
+					startDataImport.setVisible(true);
+
+					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+					userActivitySummaryDto.setActionModule("Population Data Dry Run");
+					userActivitySummaryDto
+							.setAction("User Attempted Population Import Dry run to " + camapigndto.getName());
+					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+				}
+			}
+
+		});
 
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");
@@ -268,7 +317,7 @@ public class ImportPopulationDataDialog extends Dialog {
 		dialog.add(seperatorr, // startButton, stopButton,
 //				lblCollectionDateInfo, campaignFilter, lblCollectionDateInfo,
 				step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, overWriteExistingData,
-				upload, startDryRunImport, startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+				upload, startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();

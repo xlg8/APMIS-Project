@@ -10621,6 +10621,12 @@ INSERT INTO schema_version (version_number, comment) VALUES (474, 'Admin units s
 
 
 
+update community set floating = 'Normal' where floating = '';
+
+INSERT INTO schema_version (version_number, comment) VALUES (475, 'Set clusters floating status to normal #693');
+
+
+
 
 
 

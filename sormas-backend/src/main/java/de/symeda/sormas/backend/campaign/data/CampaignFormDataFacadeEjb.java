@@ -3898,6 +3898,14 @@ resultData.addAll(resultList.stream()
 	}
 	
 	
+	@Override
+	public  void updateFormDataUnitAssignment(String formDataUuid, String clusterUuid) {
+		// TODO Auto-generated method stub
+		
+		campaignFormDataService.updateFormDataUnitAssignment(formDataUuid, clusterUuid);
+		
+	}
+	
 	
 
 	@LocalBean

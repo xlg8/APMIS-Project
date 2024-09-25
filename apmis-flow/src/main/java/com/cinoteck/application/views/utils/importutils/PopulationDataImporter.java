@@ -73,7 +73,7 @@ public class PopulationDataImporter extends DataImporter {
 	@Override
 	protected ImportLineResult importDataFromCsvLine(String[] values, String[] entityClasses, String[] entityProperties,
 			String[][] entityPropertyPaths, boolean firstLine)
-					throws IOException, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
+					throws IOException, InvalidColumnException, InterruptedException  {//, InvalidColumnException, InterruptedException, ConstraintViolationException ,PersistenceException  ,TransactionRolledbackLocalException, EJBTransactionRolledbackException , EntityExistsException{
 
 		// Check whether the new line has the same length as the header line
 		if (values.length > entityProperties.length) {
@@ -531,8 +531,11 @@ public class PopulationDataImporter extends DataImporter {
 												"++++++++++++++++existingPopulationData.isPresent()++++++++++++++++ ");
 										existingPopulationData.get().setPopulation(newPopulationData.getPopulation());
 										existingPopulationData.get().setCollectionDate(collectionDate);
-//										existingPopulationData.setModality(modality_);
-										existingPopulationData.get().setModality(newPopulationData.getModality());
+//										newPopulationData.setModality(modality);
+//										newPopulationData.setDistrictStatus(districtStatus);
+//									
+										existingPopulationData.get().setModality(modality);
+										existingPopulationData.get().setDistrictStatus(districtStatus);
 
 
 										modifiedPopulationDataList.add(existingPopulationData.get());

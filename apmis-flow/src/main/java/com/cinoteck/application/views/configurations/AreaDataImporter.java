@@ -366,6 +366,6 @@ public class AreaDataImporter extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "user_Import_error_report.csv";
+		return "region_Import_error_report.csv";
 	}
 }

@@ -774,6 +774,6 @@ public class ClusterDataDryRunner extends DataImporter {
 
 	@Override
 	protected String getErrorReportFileName() {
-		return "cluster_Import_error_report.csv";
+		return "cluster_dryrun_Import_error_report.csv";
 	}
 }
