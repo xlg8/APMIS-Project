@@ -126,7 +126,9 @@ public class CommunityDryRunFacadeEjb extends AbstractInfrastructureEjb<Communit
 
 		if (community == null) {
 			List<CommunityReferenceDto> duplicates = getByName(dto.getName(), dto.getDistrict(), true);
-			if (!duplicates.isEmpty()) {
+			if ((duplicates == null || duplicates.isEmpty()) && (dto.getName() != null || dto.getDistrict() != null)) {
+
+			}else if (!duplicates.isEmpty()  && (dto.getName() != null || dto.getDistrict() != null)) {
 				if (allowMerge) {
 					String uuid = duplicates.get(0).getUuid();
 					community = service.getByUuid(uuid);

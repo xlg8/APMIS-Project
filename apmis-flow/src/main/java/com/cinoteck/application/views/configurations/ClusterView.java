@@ -330,6 +330,8 @@ public class ClusterView extends VerticalLayout {
 				if (event.getValue() != null) {
 					createOrEditCluster(event.getValue());
 				}
+				
+				grid.deselectAll();
 			});
 		}
 

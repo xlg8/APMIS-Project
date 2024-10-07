@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
+
+import com.cinoteck.application.views.configurations.ClusterDataDryRunner;
+
 import com.cinoteck.application.views.MainLayout;
 import com.cinoteck.application.views.utils.IdleNotification;
 import com.cinoteck.application.views.utils.importutils.DataImporter;
@@ -72,7 +75,10 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	protected final Logger logger = LoggerFactory.getLogger(getClass());
 	CampaignDto campaignDto = new CampaignDto();
 	private CampaignFormMetaReferenceDto campaignFormMetaReferenceDto;
-	UserProvider usr = new UserProvider();
+	UserProvider usr = new UserProvider();;
+	
+	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
+;
 	IdleNotification idleNotification;
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
@@ -176,13 +182,17 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		Icon startImportButtonnIcon = new Icon(VaadinIcon.UPLOAD);
 		startDataImport.setIcon(startImportButtonnIcon);
+		startImportDryRun.setIcon(startImportButtonnIcon);
+
 		startDataImport.setVisible(false);
+		startImportDryRun.setVisible(false);
+
 		upload.setAcceptedFileTypes("text/csv");
 
 		upload.addSucceededListener(event -> {
-
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(true);
+			startDataImport.setVisible(false);
+			startImportDryRun.setVisible(true);
 
 		});
 
@@ -211,7 +221,35 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 			}
 
 		});
+		
+		startImportDryRun.addClickListener(ed -> {
+			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
+			
 
+			try {
+				truncateDryRunTable();
+
+			} finally {
+//				startIntervalCallback();
+				
+				try {
+
+					DataImporter importer = new CampaignFormDataImportDryRunner(file_, false, userDto, campaignForm.getUuid(),
+							campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
+					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				} catch (IOException | CsvValidationException e) {
+					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
+							+ I18nProperties.getString(Strings.messageImportFailed));
+				} finally {
+
+					startDataImport.setVisible(true);
+				}
+
+			
+			}
+
+		});
+		
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");
 		Label lblDnldErrorReport = new Label(I18nProperties.getString(Strings.infoDownloadErrorReport));
@@ -239,7 +277,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		});
 
 		dialog.add(seperatorr, step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload,
-				startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
+				startImportDryRun, startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
 		Button doneButton = new Button("Done", e -> {
 			close();
@@ -319,5 +357,20 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		anchorSpan.add(downloadErrorReportButton);
 
 	}
+	
+	
+	
+	
+	private void truncateDryRunTable() {
+		try {
+			
+			
+			FacadeProvider.getCampaignFormDataDryRunFacade().truncateDryRunTable();
+
+		} catch (Exception e) {
+
+		}
+	}
+
 
 }

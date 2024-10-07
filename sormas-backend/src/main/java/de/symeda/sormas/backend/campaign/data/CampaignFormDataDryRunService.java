@@ -79,22 +79,22 @@ import de.symeda.sormas.utils.CaseJoins;
 
 @Stateless
 @LocalBean
-public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFormData> {
+public class CampaignFormDataDryRunService extends AdoServiceWithUserFilter<CampaignFormDataDryRun> {
 
-	public CampaignFormDataService() {
-		super(CampaignFormData.class);
+	public CampaignFormDataDryRunService() {
+		super(CampaignFormDataDryRun.class);
 	}
 
 	public Predicate createCriteriaFilter(CampaignFormDataCriteria criteria, CriteriaBuilder cb,
-			Root<CampaignFormData> root) {
-		Join<CampaignFormData, Campaign> campaignJoin = root.join(CampaignFormData.CAMPAIGN, JoinType.LEFT);
-		Join<CampaignFormData, CampaignFormMeta> campaignFormJoin = root.join(CampaignFormData.CAMPAIGN_FORM_META,
+			Root<CampaignFormDataDryRun> root) {
+		Join<CampaignFormDataDryRun, Campaign> campaignJoin = root.join(CampaignFormDataDryRun.CAMPAIGN, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, CampaignFormMeta> campaignFormJoin = root.join(CampaignFormDataDryRun.CAMPAIGN_FORM_META,
 				JoinType.LEFT);
-		Join<CampaignFormData, Area> areaJoin = root.join(CampaignFormData.AREA, JoinType.LEFT);
-		Join<CampaignFormData, Region> regionJoin = root.join(CampaignFormData.REGION, JoinType.LEFT);
-		Join<CampaignFormData, District> districtJoin = root.join(CampaignFormData.DISTRICT, JoinType.LEFT);
-		Join<CampaignFormData, Community> communityJoin = root.join(CampaignFormData.COMMUNITY, JoinType.LEFT);
-		Join<CampaignFormData, User> userJoin = root.join(CampaignFormData.CREATED_BY, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, Area> areaJoin = root.join(CampaignFormDataDryRun.AREA, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, Region> regionJoin = root.join(CampaignFormDataDryRun.REGION, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, District> districtJoin = root.join(CampaignFormDataDryRun.DISTRICT, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, Community> communityJoin = root.join(CampaignFormDataDryRun.COMMUNITY, JoinType.LEFT);
+		Join<CampaignFormDataDryRun, User> userJoin = root.join(CampaignFormDataDryRun.CREATED_BY, JoinType.LEFT);
 		Predicate filter = null;
 
 		boolean isEoc = false;
@@ -109,13 +109,13 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 					filter = CriteriaBuilderHelper.and(cb, filter,
 							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
 
-							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
-							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED)));
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISPUBLISHED)));
 				} else {
 					filter = CriteriaBuilderHelper.and(cb, filter,
 							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
 
-							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)));
 				}
 
 			} else {
@@ -132,8 +132,8 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 									criteria.getFormType().toLowerCase())),
 							cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
 							cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
-							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
-							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISPUBLISHED))
 
 					);
 				}else {
@@ -142,7 +142,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 								criteria.getFormType().toLowerCase())),
 						cb.equal(campaignJoin.get(Campaign.UUID), criteria.getCampaign().getUuid()),
 						cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+						cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)));
 				}
 
 			} else {
@@ -164,15 +164,15 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 					filter = CriteriaBuilderHelper.and(cb, filter,
 							cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
 									criteria.getFormType().toLowerCase()), cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
-									cb.isFalse(campaignJoin.get(Campaign.DELETED))),cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
-							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+									cb.isFalse(campaignJoin.get(Campaign.DELETED))),cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISPUBLISHED))
 							);
 				}else {
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.and(cb.equal(campaignFormJoin.get(CampaignFormMeta.FORM_TYPE),
 								criteria.getFormType().toLowerCase()), cb.isFalse(campaignJoin.get(Campaign.ARCHIVED)),
 								cb.isFalse(campaignJoin.get(Campaign.DELETED))),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)));
+						cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)));
 				}
 
 			} else {
@@ -188,8 +188,8 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 					filter = CriteriaBuilderHelper.and(cb, filter,
 							cb.or(cb.equal(campaignJoin.get(Campaign.ARCHIVED), false),
 									cb.isNull(campaignJoin.get(Campaign.ARCHIVED))),
-							cb.isTrue(root.get(CampaignFormData.ISVERIFIED)),
-							cb.isTrue(root.get(CampaignFormData.ISPUBLISHED))
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)),
+							cb.isTrue(root.get(CampaignFormDataDryRun.ISPUBLISHED))
 							)
 							
 							;
@@ -197,7 +197,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 				filter = CriteriaBuilderHelper.and(cb, filter,
 						cb.or(cb.equal(campaignJoin.get(Campaign.ARCHIVED), false),
 								cb.isNull(campaignJoin.get(Campaign.ARCHIVED))),
-						cb.isTrue(root.get(CampaignFormData.ISVERIFIED)))
+						cb.isTrue(root.get(CampaignFormDataDryRun.ISVERIFIED)))
 
 				;
 				}
@@ -216,7 +216,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(campaignFormJoin.get(CampaignFormMeta.UUID), criteria.getCampaignFormMeta().getUuid()));
 
-			filter = CriteriaBuilderHelper.and(cb, filter, cb.isFalse(root.get(CampaignFormData.ARCHIVED)));
+			filter = CriteriaBuilderHelper.and(cb, filter, cb.isFalse(root.get(CampaignFormDataDryRun.ARCHIVED)));
 		}
 		if (criteria.getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
@@ -236,22 +236,22 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		}
 		if (criteria.getFormDate() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.greaterThanOrEqualTo(root.get(CampaignFormData.FORM_DATE),
+					cb.greaterThanOrEqualTo(root.get(CampaignFormDataDryRun.FORM_DATE),
 							DateHelper.getStartOfDay(criteria.getFormDate())),
-					cb.lessThanOrEqualTo(root.get(CampaignFormData.FORM_DATE),
+					cb.lessThanOrEqualTo(root.get(CampaignFormDataDryRun.FORM_DATE),
 							DateHelper.getEndOfDay(criteria.getFormDate())));
 
 		}
 
 		if (criteria.getIsVerified() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(root.get(CampaignFormData.ISVERIFIED), criteria.getIsVerified()));
+					cb.equal(root.get(CampaignFormDataDryRun.ISVERIFIED), criteria.getIsVerified()));
 //					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
 		}
 		
 		if (criteria.getIsPublished() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
-					cb.equal(root.get(CampaignFormData.ISPUBLISHED), criteria.getIsPublished()));
+					cb.equal(root.get(CampaignFormDataDryRun.ISPUBLISHED), criteria.getIsPublished()));
 //					cb.equal(communityJoin.get(Community.UUID), criteria.getCommunity().getUuid()));
 		}
 
@@ -259,7 +259,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 	}
 
 	@Override
-	public Predicate createUserFilter(CriteriaBuilder cb, CriteriaQuery cq, From<?, CampaignFormData> campaignPath) {
+	public Predicate createUserFilter(CriteriaBuilder cb, CriteriaQuery cq, From<?, CampaignFormDataDryRun> campaignPath) {
 		final User currentUser = getCurrentUser();
 		if (currentUser == null) {
 			return null;
@@ -274,21 +274,21 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 				final Area area = currentUser.getArea();
 				if (area != null) {
 					filter = CriteriaBuilderHelper.or(cb, filter,
-							cb.equal(campaignPath.get(CampaignFormData.AREA).get(Area.ID), area.getId()));
+							cb.equal(campaignPath.get(CampaignFormDataDryRun.AREA).get(Area.ID), area.getId()));
 				}
 				break;
 			case REGION:
 				final Region region = currentUser.getRegion();
 				if (region != null) {
 					filter = CriteriaBuilderHelper.or(cb, filter,
-							cb.equal(campaignPath.get(CampaignFormData.REGION).get(Region.ID), region.getId()));
+							cb.equal(campaignPath.get(CampaignFormDataDryRun.REGION).get(Region.ID), region.getId()));
 				}
 				break;
 			case DISTRICT:
 				final District district = currentUser.getDistrict();
 				if (district != null) {
 					filter = CriteriaBuilderHelper.or(cb, filter,
-							cb.equal(campaignPath.get(CampaignFormData.DISTRICT).get(District.ID), district.getId()));
+							cb.equal(campaignPath.get(CampaignFormDataDryRun.DISTRICT).get(District.ID), district.getId()));
 				}
 				break;
 			case COMMUNITY:
@@ -296,11 +296,11 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 				if (community != null) {
 					for (Community com : community) {
 						filter = CriteriaBuilderHelper.or(cb, filter,
-								cb.equal(campaignPath.get(CampaignFormData.COMMUNITY).get(Community.ID), com.getId()));
+								cb.equal(campaignPath.get(CampaignFormDataDryRun.COMMUNITY).get(Community.ID), com.getId()));
 					}
 					// filter = CriteriaBuilderHelper.or(cb, filter, cb
 					// .isMember(community.stream().map(Community::getId).collect(Collectors.toList()),
-					// campaignPath.get(CampaignFormData.COMMUNITY).get(Community.ID)));
+					// campaignPath.get(CampaignFormDataDryRun.COMMUNITY).get(Community.ID)));
 				}
 				break;
 			default:
@@ -315,13 +315,13 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 	public List<String> getAllActiveUuids() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<String> cq = cb.createQuery(String.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 
 		if (getCurrentUser() != null) {
 			Predicate userFilter = createUserFilter(cb, cq, from);
-			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)), userFilter);
+			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormDataDryRun.ARCHIVED)), userFilter);
 		}
 
 		cq.where(filter);
@@ -330,16 +330,16 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActiveAfter(Date date, List<Long> idList, List<Long> commIdList, List<Long> distrIdList) {
+	public List<CampaignFormDataDryRun> getAllActiveAfter(Date date, List<Long> idList, List<Long> commIdList, List<Long> distrIdList) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		CriteriaQuery<CampaignFormDataDryRun> cq = cb.createQuery(CampaignFormDataDryRun.class);
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 
 		if (getCurrentUser() != null) {
 			Predicate userFilter = createUserFilter(cb, cq, from);
-			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)), userFilter);
+			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormDataDryRun.ARCHIVED)), userFilter);
 		}
 
 		if (date != null) {
@@ -351,16 +351,16 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		
 		 // Filter based on IDs
 	    if (idList != null && !idList.isEmpty()) {
-	        filter = cb.and(filter, from.get(CampaignFormData.CAMPAIGN_FORM_META).in(idList));
+	        filter = cb.and(filter, from.get(CampaignFormDataDryRun.CAMPAIGN_FORM_META).in(idList));
 	    }
 	    
 	    if (commIdList != null && !commIdList.isEmpty()) {
-	        filter = cb.and(filter, from.get(CampaignFormData.COMMUNITY).in(commIdList));
+	        filter = cb.and(filter, from.get(CampaignFormDataDryRun.COMMUNITY).in(commIdList));
 	    }
 	    
 	    //TODO improve this by adding isDistrict too campaignformdata while saving the form so that it will be easier to filter district entered data
 	    if (distrIdList != null && !distrIdList.isEmpty()) {
-	        filter = cb.and(filter, from.get(CampaignFormData.DISTRICT).in(distrIdList));
+	        filter = cb.and(filter, from.get(CampaignFormDataDryRun.DISTRICT).in(distrIdList));
 	    }
 
 		cq.where(filter);
@@ -373,16 +373,16 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActive() {
+	public List<CampaignFormDataDryRun> getAllActive() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		CriteriaQuery<CampaignFormDataDryRun> cq = cb.createQuery(CampaignFormDataDryRun.class);
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 
 		if (getCurrentUser() != null) {
 			Predicate userFilter = createUserFilter(cb, cq, from);
-			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)), userFilter);
+			filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormDataDryRun.ARCHIVED)), userFilter);
 		}
 
 		cq.where(filter);
@@ -391,22 +391,22 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
+	public List<CampaignFormDataDryRun> getAllActiveData(Integer first, Integer max, Boolean includeArchived) {
 
-		List<CampaignFormData> emptyList = new ArrayList<>();
+		List<CampaignFormDataDryRun> emptyList = new ArrayList<>();
 		if (max > 1000 || max == null || first == null || max < 0 || first < 0) {
 			return emptyList;
 		}
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		CriteriaQuery<CampaignFormDataDryRun> cq = cb.createQuery(CampaignFormDataDryRun.class);
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 		
 		if (includeArchived != null) {
 			if (!includeArchived) {
-				filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)));
+				filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormDataDryRun.ARCHIVED)));
 				cq.where(filter);
 			}
 
@@ -420,16 +420,16 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		// return em.createQuery(cq).getResultList();
 	}
 
-	public List<CampaignFormData> getByCampaignFormMeta_id(Long meta_id) {
+	public List<CampaignFormDataDryRun> getByCampaignFormMeta_id(Long meta_id) {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<CampaignFormData> cq = cb.createQuery(CampaignFormData.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		CriteriaQuery<CampaignFormDataDryRun> cq = cb.createQuery(CampaignFormDataDryRun.class);
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 
 		// if (getCurrentUser() != null) {
 		Predicate userFilter = createUserFilter(cb, cq, from);
-		filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormData.ARCHIVED)), userFilter);
+		filter = CriteriaBuilderHelper.and(cb, cb.isFalse(from.get(CampaignFormDataDryRun.ARCHIVED)), userFilter);
 		// }
 
 		Predicate predicateForMetaId = cb.equal(from.get(CampaignFormMeta.ID), meta_id);
@@ -446,11 +446,11 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<MapCampaignDataDto> cq = cb.createQuery(MapCampaignDataDto.class);
-		Root<CampaignFormData> caze = cq.from(getElementClass());
+		Root<CampaignFormDataDryRun> caze = cq.from(getElementClass());
 
 		List<MapCampaignDataDto> result;
 
-		cq.multiselect(caze.get(CampaignFormData.UUID), caze.get(CampaignFormData.LAT), caze.get(CampaignFormData.LON));
+		cq.multiselect(caze.get(CampaignFormDataDryRun.UUID), caze.get(CampaignFormDataDryRun.LAT), caze.get(CampaignFormDataDryRun.LON));
 
 		result = em.createQuery(cq).getResultList();
 
@@ -461,7 +461,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		// TODO Auto-generated method stub
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<CampaignFormDataIndexDto> cq = cb.createQuery(CampaignFormDataIndexDto.class);
-		Root<CampaignFormData> from = cq.from(getElementClass());
+		Root<CampaignFormDataDryRun> from = cq.from(getElementClass());
 
 		Predicate filter = cb.and();
 		cq.where(filter);
@@ -502,7 +502,7 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		return em.createNativeQuery(cdvv).executeUpdate();
 	}
 	
-	public int updateReassignedDistrictData(String uuidx) {
+	public  int updateReassignedDistrictData(String uuidx) {
 		// TODO Auto-generated method stub
 		String cdvv = "";
 		cdvv = "UPDATE campaignformdata c SET region_id = d.region_id, area_id = d.area_id \n"
@@ -514,21 +514,6 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 		
 //		System.err.println(cdvv + "Query to unpublishing from the service ");
 		return em.createNativeQuery(cdvv).executeUpdate();
-	}
-
-	public int updateFormDataUnitAssignment(String formDataUuid, String clusterUuid) {
-		// TODO Auto-generated method stub
-		
-		String updateFormDataClusterQuery = "";
-		updateFormDataClusterQuery = 
-				"UPDATE campaignformdata c SET community_id = (\n"
-				+ "SELECT id FROM community cluster \n"
-				+ "where cluster.uuid = '" + clusterUuid + "')\n"
-				+ "where c.uuid = '" + formDataUuid + "';";
-		
-	
-return em.createNativeQuery(updateFormDataClusterQuery).executeUpdate();
-		
 	}
 
 }

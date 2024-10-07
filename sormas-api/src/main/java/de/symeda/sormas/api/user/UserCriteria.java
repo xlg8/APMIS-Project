@@ -1,6 +1,7 @@
 package de.symeda.sormas.api.user;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -15,11 +16,20 @@ public class UserCriteria extends BaseCriteria implements Serializable {
 
 	private Boolean active;
 	private UserRole userRole;
+	private Set<UserRole> userRoleSet;
 	private AreaReferenceDto area;
 	private RegionReferenceDto region;
 	private DistrictReferenceDto district;
 	private FormAccess formAccess;
 	private String freeText;
+	
+    private Set<UserRole> userRoles;
+
+    public UserCriteria userRolesMulti(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
+        return this;
+    }
+
 
 	public UserCriteria active(Boolean active) {
 		this.active = active;
@@ -33,6 +43,16 @@ public class UserCriteria extends BaseCriteria implements Serializable {
 	public UserCriteria userRole(UserRole userRole) {
 		this.userRole = userRole;
 		return this;
+	}
+	
+	public UserCriteria userRoleSet(Set<UserRole> userRoleSet) {
+		
+		this.userRoleSet = userRoleSet;
+		return this;
+	}
+	
+	public Set<UserRole> getUserRoleSet() {
+		return userRoleSet;
 	}
 
 	public UserRole getUserRole() {

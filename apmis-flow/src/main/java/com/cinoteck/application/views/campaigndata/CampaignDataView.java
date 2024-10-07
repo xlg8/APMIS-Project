@@ -1751,7 +1751,7 @@ public class CampaignDataView extends VerticalLayout
 			grid.addColumn(CampaignFormDataIndexDto.AREA).setHeader(I18nProperties.getCaption(Captions.area))
 //					createHeaderComponent(I18nProperties.getCaption(Captions.area), I18nProperties.getCaption(Captions.area)))
 					.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getArea())
-					.setFooter(CampaignFormDataIndexDto.AREA);
+					.setFooter(I18nProperties.getCaption(Captions.area).toLowerCase());//.setFooter(CampaignFormDataIndexDto.AREA);
 			grid.addColumn(CampaignFormDataIndexDto.RCODE)
 					.setHeader(I18nProperties.getCaption(Captions.Area_externalId))
 //							createHeaderComponent(I18nProperties.getCaption(Captions.Area_externalId), I18nProperties.getCaption(Captions.Area_externalId)))
@@ -1761,7 +1761,7 @@ public class CampaignDataView extends VerticalLayout
 			grid.addColumn(CampaignFormDataIndexDto.REGION).setHeader(I18nProperties.getCaption(Captions.region))
 //					createHeaderComponent(I18nProperties.getCaption(Captions.region), I18nProperties.getCaption(Captions.region)))
 					.setSortable(true).setResizable(true).setAutoWidth(true).setTooltipGenerator(e -> e.getRegion())
-					.setFooter(CampaignFormDataIndexDto.REGION);
+					.setFooter(I18nProperties.getCaption(Captions.region).toLowerCase());
 
 			grid.addColumn(CampaignFormDataIndexDto.PCODE)
 					.setHeader(I18nProperties.getCaption(Captions.Region_externalID))
@@ -1893,6 +1893,8 @@ public class CampaignDataView extends VerticalLayout
 
 //				cam.verifyAndPublishButton.setText(I18nProperties.getCaption("Verify & Publish"));
 				System.out.println("2222222222222222222222" + formData.getUuid());
+				
+				grid.deselectAll();
 
 			});
 		}
@@ -1909,6 +1911,11 @@ public class CampaignDataView extends VerticalLayout
 				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 		exporter.setFileName(exportFileName);
+//		exporter.getCsvStreamResource().getHeaders().replace("area", "Region");
+//		exporter.getCsvStreamResource().getHeaders().replace("region", "Province");
+		
+//		exporter.getCsvStreamResource().getId().replace("area", "Region");
+//		exporter.getCsvStreamResource().getId().replace("region", "Province");
 
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);

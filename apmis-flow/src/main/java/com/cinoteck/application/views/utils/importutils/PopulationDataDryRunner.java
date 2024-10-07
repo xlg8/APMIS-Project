@@ -13,6 +13,8 @@ import javax.ejb.TransactionRolledbackLocalException;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import com.google.firebase.database.core.operation.Overwrite;
+
 import de.symeda.sormas.api.AgeGroup;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -88,8 +90,8 @@ public class PopulationDataDryRunner extends DataImporter {
 		DistrictReferenceDto district = null;
 		CommunityReferenceDto community = null;
 		CampaignReferenceDto campaigns_ = null;
-		String modality_ = "";
-		String districtStatus_ = "";
+		String modality_ = null;
+		String districtStatus_ =  null;
 
 //		System.out.println("++++++++++++++++++===============: "+entityProperties.length);
 
@@ -187,29 +189,121 @@ public class PopulationDataDryRunner extends DataImporter {
 				
 				
 				
-				
-				if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
-					if (DataHelper.isNullOrEmpty(values[i])) {
-						modality_ = "H2H";
-					} else {
+				if(isOverWrite) {
+					if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+							
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
+							// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+							// ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
+//							modality_ = "H2H";
+						} else {
 
-						if (values[i].toString() != "" || values[i].toString() != null) {
-							modality_ = values[i];
+							if (values[i].toString() != "" || values[i].toString() != null) {
+								modality_ = values[i];
 
-							if (modality_ == null) {
-								
-								
+								if (modality_ == null) {
+									
+									
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+									// ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+
+							} else {
 								writeImportError(values,
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
-								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
-								// ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
-
-						} else {
+						}
+					}
+					
+					
+					
+					if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
+						
+						if (DataHelper.isNullOrEmpty(values[i])) {
+							
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
+							// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+							// ImportErrorException(values[i], entityProperties[i]).getMessage());
 							return ImportLineResult.ERROR;
+//							districtStatus_ = "Full District";
+						} else {
+
+							if (values[i].toString() != "" || values[i].toString() != null) {
+								districtStatus_ = values[i];
+
+								if (districtStatus_ == null) {
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+									// ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+
+							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
+						}
+					}
+				}else {
+					if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+							modality_ = "H2H";
+						} else {
+
+							if (values[i].toString() != "" || values[i].toString() != null) {
+								modality_ = values[i];
+
+								if (modality_ == null) {
+									
+									
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+									// ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+
+							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
+						}
+					}
+					
+					
+					if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
+						
+						if (DataHelper.isNullOrEmpty(values[i])) {
+							districtStatus_ = "Full District";
+						} else {
+
+							if (values[i].toString() != "" || values[i].toString() != null) {
+								districtStatus_ = values[i];
+
+								if (districtStatus_ == null) {
+									writeImportError(values,
+											new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
+									// ImportErrorException(values[i], entityProperties[i]).getMessage());
+									return ImportLineResult.ERROR;
+								}
+
+							} else {
+								writeImportError(values,
+										new ImportErrorException(values[i], entityProperties[i]).getMessage());
+								return ImportLineResult.ERROR;
+							}
 						}
 					}
 				}
@@ -217,29 +311,7 @@ public class PopulationDataDryRunner extends DataImporter {
 				
 				
 				
-				if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
-					if (DataHelper.isNullOrEmpty(values[i])) {
-						districtStatus_ = "Full District";
-					} else {
-
-						if (values[i].toString() != "" || values[i].toString() != null) {
-							districtStatus_ = values[i];
-
-							if (districtStatus_ == null) {
-								writeImportError(values,
-										new ImportErrorException(values[i], entityProperties[i]).getMessage());
-								// System.out.println("~~~~~~~~~~~~~~~~~~~````"+new
-								// ImportErrorException(values[i], entityProperties[i]).getMessage());
-								return ImportLineResult.ERROR;
-							}
-
-						} else {
-							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
-							return ImportLineResult.ERROR;
-						}
-					}
-				}
+		
 				
 				
 //			} 	

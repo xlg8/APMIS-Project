@@ -766,13 +766,15 @@ public class DistrictDryRunFacadeEjb extends AbstractInfrastructureEjb<DistrictD
 	public void clearDryRunTable() {
 		// TODO Auto-generated method stub
 
-		String truncateQuery = "TRUNCATE TABLE districtdryrun";
+	    String truncateQuery = "TRUNCATE TABLE districtdryrun";
 
-		// Create a native query
-		Query query = em.createNativeQuery(truncateQuery);
+	    // Create a native query
+	    Query query = em.createNativeQuery(truncateQuery);
 
-		// Execute the query
-		query.executeUpdate();
+	    // Execute the query
+	    query.executeUpdate();
+		
+
 	}
 
 }

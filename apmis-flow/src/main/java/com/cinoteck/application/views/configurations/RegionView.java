@@ -121,7 +121,6 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 	SubMenu subMenu;
 	ListDataProvider<AreaDto> dataProvider;
 	int itemCount;// = dataProvider.getItems().size();
-
 	String uuidsz = "";
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -217,6 +216,8 @@ public class RegionView extends VerticalLayout implements RouterLayout {
 					System.out.println(
 							event.getValue().getUuid_() + "Area from grid is not nullll " + event.getValue().getUuid());
 				}
+				
+				grid.deselectAll();	
 			});
 		}
 
