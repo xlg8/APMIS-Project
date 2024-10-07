@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.utils.ValidationException;
 import de.symeda.sormas.app.BaseEditActivity;
@@ -37,6 +38,7 @@ import de.symeda.sormas.app.BaseEditFragment;
 import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.campaign.Campaign;
 import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
+import de.symeda.sormas.app.backend.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.backend.common.DaoException;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
@@ -61,6 +63,7 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
     private AsyncTask saveTask;
     private Campaign campaign;
     private CampaignFormMeta campaignFormMeta;
+    private CampaignFormDataCriteria criteria = new CampaignFormDataCriteria();
 
     public static void startActivity(Context context, String campaignUUID, String campaignFormMetaUUID) {
         BaseEditActivity.startActivity(context, CampaignFormDataNewActivity.class,
@@ -90,7 +93,6 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
         activityRootData.setCampaign(campaign);
         activityRootData.setCampaignFormMeta(campaignFormMeta);
 
-        System.out.println(activityRootData.getDistrict() + "------------------------------------------------------------------------------");
         BaseEditFragment campaignFormDataNewFragment = CampaignFormDataNewFragment.newInstance(activityRootData);
         campaignFormDataNewFragment.setLiveValidationDisabled(true);
         return campaignFormDataNewFragment;
@@ -106,6 +108,11 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
         }
 
         final CampaignFormData campaignFormDataToSave = getStoredRootEntity();
+        boolean saveChecker = true;
+        criteria.setCampaign(campaign);
+        criteria.setCampaignFormMeta(campaignFormMeta);
+        criteria.setCommunity(campaignFormDataToSave.getCommunity());
+        List<CampaignFormData> lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
 
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
 
@@ -116,7 +123,7 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
                     campaignFormDataToSave.setCommunity(newCommunities_.get(0));
                 }
             }
-            }
+        }
 
         try {
             FragmentValidator.validate(getContext(), getActiveFragment().getContentBinding());
@@ -127,35 +134,80 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
 
         final List<CampaignFormDataEntry> formValues = campaignFormDataToSave.getFormValues();
         final List<CampaignFormDataEntry> filledFormValues = new ArrayList<>();
-        formValues.forEach(campaignFormDataEntry -> {
+
+        CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
+        CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
+
+//        formValues.forEach(campaignFormDataEntry ->
+        for(CampaignFormDataEntry campaignFormDataEntry : formValues) {
             if (campaignFormDataEntry.getId() != null && campaignFormDataEntry.getValue() != null) {
                 filledFormValues.add(campaignFormDataEntry);
+                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotNo")) {
+                    lotNo = campaignFormDataEntry;
+                }
+                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotClusterNo")) {
+                    lotClusterNo = campaignFormDataEntry;
+                }
             }
-        });
+        };
+//        );
+
+        List<String> listLotNo = new ArrayList();
+        List<String> listLotClusterNo = new ArrayList();
+
+        if (lotchecker.size() > 0) {
+            for (CampaignFormData campaignFormDataData : lotchecker) {
+                List<CampaignFormDataEntry> lotOwnSec = campaignFormDataData.getFormValues();
+                if (lotOwnSec.contains(lotNo)) {
+                    listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
+                }
+
+                if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
+                    listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
+                }
+            }
+        }
+
+        for (String string : listLotClusterNo) {
+            if (listLotNo.size() > 0) {
+            if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+                        && (Long.parseLong(listLotNo.get(0))
+                        - Long.parseLong(lotNo.getValue().toString()) == 0)
+            ) {
+                saveChecker = false;
+                break;
+            }
+            }
+        }
         campaignFormDataToSave.setFormValues(filledFormValues);
 
         CampaignFormDataNewFragment activeFragment = (CampaignFormDataNewFragment) getActiveFragment();
         activeFragment.setLiveValidationDisabled(false);
 
-        saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
+        if (saveChecker) {
+            saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 
-            @Override
-            public void doInBackground(TaskResultHolder resultHolder) throws DaoException {
+                @Override
+                public void doInBackground(TaskResultHolder resultHolder) throws DaoException {
 
-                DatabaseHelper.getCampaignFormDataDao().saveAndSnapshot(campaignFormDataToSave);
-            }
-
-            @Override
-            protected void onPostExecute(AsyncTaskResult<TaskResultHolder> taskResult) {
-                hidePreloader();
-                super.onPostExecute(taskResult);
-                if (taskResult.getResultStatus().isSuccess()) {
-                    finish();
-                    CampaignFormDataEditActivity.startActivity(getContext(), campaignFormDataToSave.getUuid());
+                    DatabaseHelper.getCampaignFormDataDao().saveAndSnapshot(campaignFormDataToSave);
                 }
-                saveTask = null;
-            }
-        }.executeOnThreadPool();
+
+                @Override
+                protected void onPostExecute(AsyncTaskResult<TaskResultHolder> taskResult) {
+                    hidePreloader();
+                    super.onPostExecute(taskResult);
+                    if (taskResult.getResultStatus().isSuccess()) {
+                        finish();
+                        CampaignFormDataEditActivity.startActivity(getContext(), campaignFormDataToSave.getUuid());
+                    }
+                    saveTask = null;
+                }
+            }.executeOnThreadPool();
+        } else {
+            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist");
+            return;
+        }
     }
 
     @Override

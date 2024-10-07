@@ -2048,7 +2048,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 
 				for (String string : listLotClusterNo) {
-					if (listLotNo.size() > 0) {// .isEmpty()
+					if (listLotNo.size() > 0) {
 						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
 								&& (Long.parseLong(listLotNo.get(0))
 										- Long.parseLong(lotNo.getValue().toString()) == 0)) {
