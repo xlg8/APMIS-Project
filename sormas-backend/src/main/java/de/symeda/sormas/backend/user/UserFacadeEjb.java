@@ -30,12 +30,14 @@ import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
@@ -51,6 +53,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
@@ -735,6 +738,12 @@ public class UserFacadeEjb implements UserFacade {
 
 		cq.select(user);
 
+		TypedQuery<User> query = em.createQuery(cq);
+		String sql = query.unwrap(org.hibernate.query.Query.class).getQueryString();
+
+		// Print the SQL query
+		System.out.println("Generated SQL from index list  : " + sql);
+
 		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto);
 	}
 
@@ -756,6 +765,13 @@ public class UserFacadeEjb implements UserFacade {
 		}
 
 		cq.select(cb.count(root));
+
+		TypedQuery<Long> query = em.createQuery(cq);
+		String sql = query.unwrap(org.hibernate.query.Query.class).getQueryString();
+
+		// Print the SQL query
+		System.out.println("Generated SQL from count : " + sql);
+
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -1126,5 +1142,38 @@ public class UserFacadeEjb implements UserFacade {
 		User fromDto = fromDto(dto, false);
 		userService.ensurePersisted(fromDto);
 		return toDto(fromDto);
+	}
+
+	@Override
+	public void updateLastLoginDate(Date lastUserLoginDate, String username) {
+		// TODO Auto-generated method stub
+		User user = userService.getByUserName(username);
+
+//		System.out.println(user + " =============uservuseruseruser" +lastUserLoginDate );
+		user.setLastLoginDate(lastUserLoginDate);
+		userService.ensurePersisted(user);
+		userUpdateEvent.fire(new UserUpdateEvent(user));
+
+	}
+
+	@Schedule(second = "0", minute = "48", hour = "19", persistent = false)
+	public void deactivateInactiveUsers() {
+		try {
+			runScheduledTask();
+		} catch (Exception e) {
+			System.err.println(
+					e.toString() + " An Error Occured While Trying to Update Users Active Status After Inactivity.");
+		}
+
+	}
+
+	public void runScheduledTask() {
+		final String joinBuilder = "UPDATE users SET active = false WHERE lastlogindate <= CURRENT_DATE - INTERVAL "
+				+ "'" + "60 days" + "';";
+
+		System.out.println("Scheduled task executed at: " + new java.util.Date());
+
+		em.createNativeQuery(joinBuilder).executeUpdate();
+
 	}
 }

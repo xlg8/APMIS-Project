@@ -345,6 +345,7 @@ public class CampaignDataImportActivityView extends VerticalLayout implements Ro
 		}
 
 	}
+	
 
 	private void filterGridData() {
 		CampaignReferenceDto selectedCampaign = campaignz.getValue() != null ? campaignz.getValue() : null;

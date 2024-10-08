@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -101,7 +102,7 @@ import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 
 @PageTitle("APMIS-User Management")
-@Route(value = "user", layout = MainLayout.class)
+@Route(value = "usersmanegement", layout = UsersViewParent.class)
 public class UserView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	HorizontalLayout mainContainer = new HorizontalLayout();
@@ -420,22 +421,61 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		userRolesFilter.setItems(sortedUserRoles);
 
 		
-		Div selectedRolesLabel = new Div();
-		selectedRolesLabel.getStyle().set("font-size", "0.8em");
-		selectedRolesLabel.getStyle().set("color", "var(--lumo-secondary-text-color)");
 		userRolesFilter.addValueChangeListener(e -> {
 		    Set<UserRole> selectedRoles = e.getValue();
+
+		    // Convert UserRole to String (if needed, use another method to get role names)
+		    Set<String> roleNames = selectedRoles.stream()
+		        .map(UserRole::toString) // You could use .getName() if UserRole has a specific method for names
+		        .collect(Collectors.toSet());
+
+		    // If no roles are selected, clear the filter criteria
 		    if (selectedRoles.isEmpty()) {
 		        criteria.userRole(null);
 		        criteria.userRoleSet(null);
 		    } else {
+		        // Clear existing filters
+		        criteria.userRole(null);
+		        criteria.userRoleSet(null);
 		        criteria.userRoleSet(selectedRoles);
-		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+
+		        // Now set the filter using the role names
+		        criteria.setRoleNames(roleNames); // Ensure you have a setRoleNames method in your criteria
 		    }
+
+		    // Debugging output
+		    System.out.println("Selected roles: " + roleNames);
+
+		    // Apply the filter to the data provider
 		    filterDataProvider.setFilter(criteria);
 		    filterDataProvider.refreshAll();
 		    updateRowCount();
 		});
+
+		
+		
+//		userRolesFilter.addValueChangeListener(e -> {
+//		    Set<UserRole> selectedRoles =  new HashSet(); //.getValue();
+//		    selectedRoles = e.getValue();
+//
+//		    String names = selectedRoles.stream()
+//		    	    .map(UserRole::toString) // or use another method to get a specific string representation of UserRole
+//		    	    .collect(Collectors.joining(","));
+//		    if (selectedRoles.isEmpty()) {
+//		        criteria.userRole(null);
+//		        criteria.userRoleSet(null);
+//		    } else {
+//		    	criteria.userRole(null);
+//		        criteria.userRoleSet(null);
+//		        criteria.userRoleSet(selectedRoles);
+////		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+//		    }
+//		    
+//		    System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet());
+//		    filterDataProvider.setFilter(criteria);
+//		    filterDataProvider.refreshAll();
+//		    updateRowCount();
+//		});
 //		
 //		// Add a custom label to show all selected roles
 //		Div selectedRolesLabel = new Div();
@@ -451,7 +491,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //		    }
 //		});
 
-		filterLayout.add(userRolesFilter, selectedRolesLabel);
+		filterLayout.add(userRolesFilter);
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
 		areaFilter.setId(CaseDataDto.AREA);
@@ -789,7 +829,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setHeightFull();
 		grid.setAllRowsVisible(false);
 
-		grid.setDataProvider(filterDataProvider);
+		grid.setItems(filterDataProvider);
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
 			

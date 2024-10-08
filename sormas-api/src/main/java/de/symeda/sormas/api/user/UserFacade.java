@@ -24,6 +24,8 @@ import java.util.Set;
 import javax.ejb.Remote;
 import javax.validation.Valid;
 
+import org.springframework.scheduling.annotation.Scheduled;
+
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogCriteria;
@@ -39,7 +41,7 @@ import de.symeda.sormas.api.utils.SortProperty;
 public interface UserFacade {
 
 	UserDto getByUuid(String uuid);
-	
+
 	UserDto saveUserFcmMobile(@Valid UserDto dto);
 
 	UserDto saveUser(@Valid UserDto dto);
@@ -114,10 +116,11 @@ public interface UserFacade {
 	void disableUsers(List<String> userUuids);
 
 	UserActivitySummaryDto saveUserActivitySummary(UserActivitySummaryDto campaignLogDto);
-	
+
 	List<UserActivitySummaryDto> getUsersActivityByModule(String module);
-	
-	List<ConfigurationChangeLogDto>  getUsersConfigurationChangeLog(ConfigurationChangeLogCriteria criteria, Integer first, Integer max, List<SortProperty> sortProperties);
+
+	List<ConfigurationChangeLogDto> getUsersConfigurationChangeLog(ConfigurationChangeLogCriteria criteria,
+			Integer first, Integer max, List<SortProperty> sortProperties);
 
 	public void updateFormAccessUsers(List<String> userUuids, Set<FormAccess> accesses);
 
@@ -128,4 +131,8 @@ public interface UserFacade {
 	List<String> getUserForFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas,
 			Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
 			Set<CommunityReferenceDto> communities);
+
+	public void updateLastLoginDate(Date lastUserLoginDate, String userName);
+
+	public void deactivateInactiveUsers();
 }

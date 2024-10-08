@@ -180,6 +180,11 @@ public class CampaignDataView extends VerticalLayout
 
 	HorizontalLayout actionButtonlayout = new HorizontalLayout();
 	Button exportTransposedDataButton = new Button(I18nProperties.getCaption(Captions.export) + " Transposed Data");
+	
+	
+	GridMultiSelectionModel<CampaignFormDataIndexDto> selectionModel;
+    private Set<CampaignFormDataIndexDto> selectedItems = new HashSet<>();
+
 
 	// Counters for tracking creation
 	private int transposdeDataAnchorCreationCount = 0;
@@ -188,6 +193,8 @@ public class CampaignDataView extends VerticalLayout
 	boolean isClickListenerAttached;
 	private boolean callbackRunning = false;
 	private Timer timer;
+	
+
 	protected final org.slf4j.Logger logger = LoggerFactory.getLogger(getClass());
 
 	public CampaignDataView() {
@@ -524,19 +531,7 @@ public class CampaignDataView extends VerticalLayout
 				publishDataBulkItem.setVisible(false);
 
 			}
-			selectAllButton = new Button("");
 
-			selectAllButton.addClickListener(event -> {
-				if (!grid.getSelectedItems().isEmpty()) {
-					grid.deselectAll();
-					selectAllButtonpLACEHOLDER.setText("Select All");
-					checkboxx.setValue(false);
-
-				} else {
-					selectAllButtonpLACEHOLDER.setText("Deselect All");
-					checkboxx.setValue(true);
-				}
-			});
 
 		}
 
@@ -1054,12 +1049,24 @@ public class CampaignDataView extends VerticalLayout
 		actionButtonlayout.add(enterBulkEdit);
 
 		enterBulkEdit.addClickListener(e -> {
-
-			selectAllButtonpLACEHOLDER.setText("Select All");
 			dropdownBulkOperations.setVisible(true);
-			selectAllButtonpLACEHOLDER.setVisible(true);
 
-			grid.setSelectionMode(Grid.SelectionMode.MULTI);
+	        
+			selectionModel = 
+					(GridMultiSelectionModel<CampaignFormDataIndexDto>) grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+			selectionModel.setSelectAllCheckboxVisibility(GridMultiSelectionModel.SelectAllCheckboxVisibility.VISIBLE);
+
+			
+		    selectionModel.addSelectionListener(event -> {
+		            if (event.getAllSelectedItems().isEmpty()) {
+		                selectedItems.clear();
+		            } else if (event.getAllSelectedItems().size() == getDataProviderSize()) {
+		                selectedItems.addAll(fetchAllItems());
+		            }
+		            grid.getDataProvider().refreshAll();
+		        });
+
 
 			ComponentRenderer<Checkbox, CampaignFormDataIndexDto> checkboxRenderer = new ComponentRenderer<>(item -> {
 				checkboxx.setValue(grid.getSelectedItems().contains(item)); // Set the initial value
@@ -1072,6 +1079,8 @@ public class CampaignDataView extends VerticalLayout
 				});
 				return checkboxx;
 			});
+			
+			
 
 			grid.addColumn(checkboxRenderer).setHeader(selectAllButton).setSortable(false).setResizable(true)
 					.setAutoWidth(true).setVisible(false);
@@ -1119,6 +1128,24 @@ public class CampaignDataView extends VerticalLayout
 
 		add(filterBlock);
 	}
+	
+    private int getDataProviderSize() {
+        return dataProvider.size(new Query<>());
+    }
+
+    private Set<CampaignFormDataIndexDto> fetchAllItems() {
+        Stream<CampaignFormDataIndexDto> stream = dataProvider.fetch(new Query<>());
+        Set<CampaignFormDataIndexDto> allItems = new HashSet<>();
+        stream.forEach(allItems::add);
+        return allItems;
+    }
+
+    // Method to get currently selected items
+    public Set<CampaignFormDataIndexDto> getSelectedItems() {
+    	
+        return new HashSet<>(selectedItems);
+    }
+
 
 	public void checkIfExportTransposedDataButtonIsAttached() {
 		boolean exportButtonExists = actionButtonlayout.getChildren()

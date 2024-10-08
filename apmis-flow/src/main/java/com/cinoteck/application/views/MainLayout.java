@@ -2,6 +2,8 @@ package com.cinoteck.application.views;
 
 import javax.validation.constraints.NotNull;
 
+import org.springframework.scheduling.annotation.Scheduled;
+
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
@@ -24,7 +26,8 @@ import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
-import com.cinoteck.application.views.user.UserView;
+//import com.cinoteck.application.views.user.UserView;
+import com.cinoteck.application.views.user.UsersViewParent;
 import com.cinoteck.application.views.useractivitysummary.UserActivitySummary;
 import com.cinoteck.application.views.utils.IdleNotification;
 //import com.cinoteck.application.views.utils.InactivityHandler;
@@ -115,7 +118,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		addDrawerContent();
 		addHeaderContent();
 
+
 	}
+	
 
 	private void addHeaderContent() {
 		DrawerToggle toggle = new DrawerToggle();
@@ -249,7 +254,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			if (userProvider.hasUserRight(UserRight.USER_VIEW)) {
-				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
+				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UsersViewParent.class,
 						VaadinIcon.USERS, "navitem"));
 			}
 //			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)

@@ -56,7 +56,6 @@ import de.symeda.sormas.api.user.UserType;
 @SuppressWarnings("serial")
 @Route(layout = UserActivitySummary.class)
 public class PopulationDataImportActivityView extends VerticalLayout implements RouterLayout {
-
 	/**
 	 * 
 	 */

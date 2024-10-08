@@ -257,7 +257,10 @@ public class PopulationDataDryRunner extends DataImporter {
 				}else {
 					if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
 						if (DataHelper.isNullOrEmpty(values[i])) {
-							modality_ = "H2H";
+//							modality_ = "H2H";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
 						} else {
 
 							if (values[i].toString() != "" || values[i].toString() != null) {
@@ -285,7 +288,10 @@ public class PopulationDataDryRunner extends DataImporter {
 					if (PopulationDataDto.DISTRICT_STATUS.equalsIgnoreCase(entityProperties[i])) {
 						
 						if (DataHelper.isNullOrEmpty(values[i])) {
-							districtStatus_ = "Full District";
+//							districtStatus_ = "Full District";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+							return ImportLineResult.ERROR;
 						} else {
 
 							if (values[i].toString() != "" || values[i].toString() != null) {

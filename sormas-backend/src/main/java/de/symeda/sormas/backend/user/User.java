@@ -20,6 +20,7 @@ package de.symeda.sormas.backend.user;
 import static de.symeda.sormas.api.utils.FieldConstraints.CHARACTER_LIMIT_DEFAULT;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -93,6 +94,7 @@ public class User extends AbstractDomainObject {
 	public static final String LANGUAGE = "language";
 	public static final String HAS_CONSENTED_TO_GDPR = "hasConsentedToGdpr";
 	public static final String TOKEN = "token";
+	public static final String LAST_LOGIN_DATE = "lastlogindate";
 
 	private String userName;
 	private String password;
@@ -137,6 +139,8 @@ public class User extends AbstractDomainObject {
 	private boolean hasConsentedToGdpr;
 	
 	private String token;
+	
+	private Date lastLoginDate;
 
 	@Column(nullable = false, length = CHARACTER_LIMIT_DEFAULT)
 	public String getUserName() {
@@ -217,6 +221,16 @@ public class User extends AbstractDomainObject {
 
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
+	}
+	
+	
+
+	public Date getLastLoginDate() {
+		return lastLoginDate;
+	}
+
+	public void setLastLoginDate(Date lastLoginDate) {
+		this.lastLoginDate = lastLoginDate;
 	}
 
 	public String getPhone() {

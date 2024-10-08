@@ -33,9 +33,12 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * UI content when the user is not logged in yet.
@@ -118,8 +121,17 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginFormCarrier.setClassName("login-form-carrier");
 		
 		loginInformation.add(loginFormCarrier);
+		
+		triggerUser();
+		
 		add(loginInformation);
 	}
+	
+	@Scheduled(cron = "*/15 * * * * *")
+	public void triggerUser() {
+		FacadeProvider.getUserFacade().deactivateInactiveUsers();
+	}
+
 
 	private void login(LoginForm.LoginEvent event) {
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
@@ -150,6 +162,8 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				userActivitySummaryDto.setAction("User Logged In");
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
+				Date todaysDate = new Date();
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			} else {
 
@@ -163,6 +177,8 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				userActivitySummaryDto.setActionModule("Login");
 				userActivitySummaryDto.setAction("User Logged In");
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+				Date todaysDate = new Date();
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 
 			}
