@@ -60,6 +60,8 @@ public class CampaignFormData extends PseudonymizableAdo {
 
     public static final String LOTCLUSTERNO = "lotClusterNo";
 
+    public static final String COMMUNITY = "community";
+
     @Column(name = "formValues")
     private String formValuesJson;
     private List<CampaignFormDataEntry> formValues;
@@ -102,6 +104,9 @@ public class CampaignFormData extends PseudonymizableAdo {
 
     @Column(name = "lotclusterno")
     private String lotClusterNo;
+
+    @Column(name = "lotno")
+    private String lotNo;
 
     /**
      * JsonRawValue annotation is used to handle this differently when merging data
@@ -239,7 +244,15 @@ public class CampaignFormData extends PseudonymizableAdo {
         this.lotClusterNo = lotClusterNo;
     }
 
-//    public String getFormCategory() {
+    public String getLotNo() {
+        return lotNo;
+    }
+
+    public void setLotNo(String lotNo) {
+        this.lotNo = lotNo;
+    }
+
+    //    public String getFormCategory() {
 //        return campaignFormMeta.getFormCategory();
 //    }
 
