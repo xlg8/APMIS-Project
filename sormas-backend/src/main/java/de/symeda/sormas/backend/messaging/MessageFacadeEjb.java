@@ -227,12 +227,12 @@ public class MessageFacadeEjb implements MessageFacade {
 		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
 		Root<Message> from = cq.from(Message.class);
 
-		Predicate filter = null;	
+		Predicate filter = null;
 		Predicate filterMain = null;
 		Predicate filterArea = null;
-		Predicate filterRegion= null;
+		Predicate filterRegion = null;
 		Predicate filterDistrict = null;
-		
+
 		if (messageCriteria != null) {
 			filterMain = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
 			filter = filterMain;
@@ -241,31 +241,40 @@ public class MessageFacadeEjb implements MessageFacade {
 		if (messageCriteria.getArea() != null) {
 			filterArea = messageService.buildCriteriaFilterArea(messageCriteria, cb, from);
 			if (filter != null) {
-		        filter = cb.and(filter, filterArea);
-		    } else {
-		        filter = filterArea;
-		    }
-		}
-		
+				filter = cb.and(filter, filterArea);
+			} else {
+				filter = filterArea;
+			}
+		} //else {
+//			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
+//			filter = cb.and(filter, cb.isNull(joinAreas));
+//		}
+
 		if (messageCriteria.getRegion() != null) {
 			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
-			
+
 			if (filter != null) {
-		        filter = cb.and(filter, filterRegion);
-		    } else {
-		        filter = filterRegion;
-		    }
-		}
-		
+				filter = cb.and(filter, filterRegion);
+			} else {
+				filter = filterRegion;
+			}
+		} //else {
+//			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
+//			filter = cb.and(filter, cb.isNull(joinRegion));
+//		}
+
 		if (messageCriteria.getDistrict() != null) {
 			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
-			
+
 			if (filter != null) {
-		        filter = cb.and(filter, filterDistrict);
-		    } else {
-		        filter = filterDistrict;
-		    }
-		}
+				filter = cb.and(filter, filterDistrict);
+			} else {
+				filter = filterDistrict;
+			}
+		} //else {
+//			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
+//			filter = cb.and(filter, cb.isNull(joinDistrict));
+//		}
 
 		if (filter != null) {
 			cq.where(filter);

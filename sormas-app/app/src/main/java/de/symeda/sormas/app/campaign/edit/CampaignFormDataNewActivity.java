@@ -205,7 +205,7 @@ public class CampaignFormDataNewActivity extends BaseEditActivity<CampaignFormDa
                 }
             }.executeOnThreadPool();
         } else {
-            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist");
+            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
             return;
         }
     }
