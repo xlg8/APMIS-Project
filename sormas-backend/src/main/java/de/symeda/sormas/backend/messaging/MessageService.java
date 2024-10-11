@@ -131,15 +131,21 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 		Predicate filter = null;
 		if (userRoles.size() > 0) {
 			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
-			Predicate rolesFilter = joinRoles.in(userRoles);
+			Predicate rolesFilter = cb.or(joinRoles.in(userRoles), cb.isNull(joinRoles));
 			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
-		}
+		} //else {
+//			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
+//	        filter = cb.and(filter, cb.isNull(joinRoles));
+//		}
 		
 		if (formAccess.size() > 0) {
 			Join<Message, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
-			Predicate formAccessFilter = joinFormAccess.in(formAccess);
+			Predicate formAccessFilter = cb.or(joinFormAccess.in(formAccess), cb.isNull(joinFormAccess));
 			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
-		}
+		} //else {
+//			Join<Message, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
+//	        filter = cb.and(filter, cb.isNull(joinFormAccess));
+//		}
 		
 		return filter;
 	}

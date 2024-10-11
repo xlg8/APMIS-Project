@@ -189,12 +189,11 @@ public class FormBuilderLayout extends VerticalLayout {
 		Button saved = new Button("Save", saveIcon);
 
 		Icon downloadIcon = new Icon(VaadinIcon.DOWNLOAD);
-		Button downloadButton = new Button("Download JSON", downloadIcon);
-		downloadButton.getStyle().set("color", "green");		
-		downloadButton.setIcon(downloadIcon);
+		Button downloadButton = new Button("Export JSON", downloadIcon);
+		downloadButton.setText("Export JSON");
 		
-		Anchor downloadLink = new Anchor("", "Download JSON");
-	    downloadLink.getElement().setAttribute("download", true); // Sets download attribute to the anchor
+		Anchor downloadLink = new Anchor("", "Export JSON");
+	    downloadLink.getElement().setAttribute("download", true);
 	    downloadLink.add(downloadButton);	   
 	    
 		HorizontalLayout buttonLayout = new HorizontalLayout(downloadButton, downloadLink, discardChanges, saved);
@@ -209,32 +208,24 @@ public class FormBuilderLayout extends VerticalLayout {
 		});
 		
 		downloadButton.addClickListener(event -> {
-            // Generate the JSON content dynamically
             StreamResource resource = createJsonStreamResource();
-
-            downloadLink.setHref(resource);  // Set the StreamResource as the href of the anchor
-//            downloadLink.getElement().executeJs("this.click();");
+            downloadLink.setHref(resource);  
             downloadLink.getElement().callJsFunction("click");
         });
 	}
 	
 	private StreamResource createJsonStreamResource() {
-        // Example data to export
-//        User user = new User("John Doe", 30, "john.doe@example.com");
 
-        // Use Jackson to generate JSON
         ObjectMapper objectMapper = new ObjectMapper();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         try {
-            // Write the JSON to the output stream
             objectMapper.writeValue(outputStream, campaignFormMetaDto.getCampaignFormElements());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Create the StreamResource that Vaadin uses to trigger the download
-        return new StreamResource("formelements.json", () -> {
+        return new StreamResource(campaignFormMetaDto.getFormName()+".json", () -> {
             byte[] jsonBytes = outputStream.toByteArray();
             return new ByteArrayInputStream(jsonBytes);
         });

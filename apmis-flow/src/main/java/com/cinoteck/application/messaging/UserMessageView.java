@@ -78,14 +78,18 @@ public class UserMessageView extends VerticalLayout{
 
 		if(userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
 			UserDto user = FacadeProvider.getUserFacade().getByUserName(userProvider.getUser().getUserName());
+			System.out.println("xxxxxxxxxxxxxxxxx");
 			if(user.getArea() != null) {
 				messageCriteria.area(user.getArea());
+				System.out.println("aaaaaaaaaaaaaaaaa");
 			}
 			if(user.getRegion() != null) {
 				messageCriteria.region(user.getRegion());
+				System.out.println("rrrrrrrrrrrrrrrrr");
 			}
 			if(user.getDistrict() != null) {
 				messageCriteria.district(user.getDistrict());
+				System.out.println("ddddddddddddddddddddddd");
 			}			
 		}
 
