@@ -10626,6 +10626,10 @@ update community set floating = 'Normal' where floating = '';
 INSERT INTO schema_version (version_number, comment) VALUES (475, 'Set clusters floating status to normal #693');
 
 
+ALTER TABLE users ADD COLUMN lastlogindate DATE DEFAULT current_date;
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (476, 'User login deactivation after extended time period #691');
 
 
 

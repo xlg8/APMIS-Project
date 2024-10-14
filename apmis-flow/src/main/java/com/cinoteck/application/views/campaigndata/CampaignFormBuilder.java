@@ -118,6 +118,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.user.UserActivitySummaryDto;
+import de.symeda.sormas.api.user.UserRole;
 
 public class CampaignFormBuilder extends VerticalLayout {
 
@@ -178,9 +179,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 	private boolean checkDistrictEntry = false;
 	private String formName;
 
-	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
-			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
-			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm,
+	public CampaignFormBuilder(List<CampaignFormElement> formElements, 
+			List<CampaignFormDataEntry> formValues,
+			CampaignReferenceDto campaignReferenceDto,
+			List<CampaignFormTranslations> translations, 
+			String formName,
+			CampaignFormMetaReferenceDto campaignFormMetaUUID, 
+			boolean openData, 
+			String uuidForm,
 			boolean isDistrictEntry) {
 
 		logger.debug("+++++++++++CampaignFormBuilder+++++: " + openData);
@@ -376,6 +382,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					cbCommunity.clear();
 					cbCommunity.setReadOnly(false);
 					;
+					communities.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
+
 					cbCommunity.setItems(communities);
 					cbCommunity.setValue(communities.get(0));
 					cbCommunity.setItemLabelGenerator(itm -> {
@@ -407,6 +415,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 					cbCommunity.clear();
 					cbCommunity.setReadOnly(false);
 					;
+					communities.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
+
 					cbCommunity.setItems(communities);
 					cbCommunity.setItemLabelGenerator(itm -> {
 						CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
@@ -492,12 +502,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 		updateFormDataUnitAssignment.setVisible(false);
 
 		reassignDataConfigUnit.addClickListener(e -> {
-//			cbArea.setReadOnly(false);
-//			;
-//			cbRegion.setReadOnly(false);
-//			;
-//			cbDistrict.setReadOnly(false);
-//			;
+
 			cbCommunity.setReadOnly(false);
 			;
 //			formDate.setReadOnly(false);
@@ -521,16 +526,18 @@ public class CampaignFormBuilder extends VerticalLayout {
 				System.out.println("uuidForm=-" + uuidForm);
 				System.out.println("campaignFormMeta=-" + campaignFormMeta.getUuid());
 				System.out.println("campaignReferenceDto=-" + campaignReferenceDto.getUuid());
-				System.out.println("cbCommunity=-" + cbCommunity.getValue().toString() + "ttt" + cbCommunity.getValue().getUuid().toString());
-				FacadeProvider.getCampaignFormDataFacade().updateFormDataUnitAssignment(uuidForm, cbCommunity.getValue().getUuid().toString());
+				System.out.println("cbCommunity=-" + cbCommunity.getValue().toString() + "ttt"
+						+ cbCommunity.getValue().getUuid().toString());
+				FacadeProvider.getCampaignFormDataFacade().updateFormDataUnitAssignment(uuidForm,
+						cbCommunity.getValue().getUuid().toString());
 			} catch (Exception ex) {
 
 			} finally {
-				
+
 				Notification.show("Form Configuration Unit Updated Succesfully");
 				cbCommunity.setReadOnly(true);
 				updateFormDataUnitAssignment.setVisible(false);
-				
+
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Population Data Import");
 				userActivitySummaryDto
@@ -539,7 +546,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 				userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-				
 
 			}
 		});
@@ -547,7 +553,13 @@ public class CampaignFormBuilder extends VerticalLayout {
 		reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment);
 
 		if (uuidForm != null) {
-			vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity, reassigmentLayout);
+			if (currentUser.getUserRoles().contains(UserRole.ADMIN)
+					|| currentUser.getUserRoles().contains(UserRole.COMMUNITY_INFORMANT)) {
+				vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity, reassigmentLayout);
+			} else {
+				vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+
+			}
 
 		} else {
 			vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
@@ -632,12 +644,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 			cbDistrict.setReadOnly(true);
 			;
 
-			List<CommunityReferenceDto> districts = FacadeProvider.getCommunityFacade()
+			List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade()
 					.getAllActiveByDistrict(userProvider.getUser().getDistrict().getUuid());
+			
+			communities.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
+
+			
 			cbCommunity.clear();
 			cbCommunity.setReadOnly(false);
 			;
-			cbCommunity.setItems(districts);
+			
+		
+			cbCommunity.setItems(communities);
+			
 			cbCommunity.setItemLabelGenerator(itm -> {
 				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
 				return dcfv.getNumber() + " | " + dcfv.getCaption();
@@ -645,21 +664,38 @@ public class CampaignFormBuilder extends VerticalLayout {
 		}
 
 		if (userProvider.getUser().getCommunity() != null) {
+			
 			cbCommunity.clear();
+			
 			List<CommunityReferenceDto> items = userProvider.getUser().getCommunity().stream()
 					.collect(Collectors.toList());
+			
+			
 			for (CommunityReferenceDto item : items) {
 				item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
 			}
-			Collections.sort(items, CommunityReferenceDto.clusternumber);
+			
+//			System.out.println(item  +  " Item caption ");
+			
+			System.out.println(items +  " items from form builder ");
+			System.out.println(CommunityReferenceDto.clusternumber +  " items from form builder ");
+
+//			Collections.sort(items, CommunityReferenceDto.clusternumber);
+			items.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
+
 			cbCommunity.setItems(items);
 		}
 
 		if (openData) {
 			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
 					.getCampaignFormDataByUuid(uuidForm);
+			
+			System.out.println( formData +  "checking if formm data is null fom form builder");
 
 			LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			
+			System.out.println( localDate +  "checking if localDate is null fom form builder" + formData.getFormDate());
+
 
 			formDate.setValue(localDate);
 			cbArea.clear();
@@ -2115,7 +2151,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 				}
 
 				for (String string : listLotClusterNo) {
-					if (listLotNo.size() > 0) {// .isEmpty()
+					if (listLotNo.size() > 0) {
 						if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
 								&& (Long.parseLong(listLotNo.get(0))
 										- Long.parseLong(lotNo.getValue().toString()) == 0)) {

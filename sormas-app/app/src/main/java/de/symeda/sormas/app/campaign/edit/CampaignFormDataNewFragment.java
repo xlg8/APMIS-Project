@@ -1007,7 +1007,6 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                     if (type == CampaignFormElementType.DROPDOWN && campaignFormElement.getId().equalsIgnoreCase("lotClusterNo")) {
 //                        System.out.println(record.getLotClusterNo() + "++++++++_______________222__________lotClusterNo");
                         dynamicField.addValueChangedListener(field -> {
-
                             baseEditActivity.setDataModified(true);
                             if (field.getValue() != null) {
                                 record.setLotClusterNo((String) field.getValue());
@@ -1067,7 +1066,6 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
 
                         });
                     }
-
 
                     if (type == CampaignFormElementType.NUMBER && campaignFormElement.getId().equalsIgnoreCase("villageCode")) {
                         dynamicField.addValueChangedListener(e->{

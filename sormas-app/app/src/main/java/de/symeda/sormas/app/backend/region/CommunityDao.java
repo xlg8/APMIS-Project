@@ -40,7 +40,7 @@ public class CommunityDao extends AbstractInfrastructureAdoDao<Community> {
 	}
 
 	public List<Community> getByDistrict(District district) {
-		return queryActiveForEq(Community.DISTRICT + "_id", district, Community.NAME, true);
+		return queryActiveForEq(Community.DISTRICT + "_id", district, Community.CLUSTERNUMBER, true);
 	}
 
 	@Override

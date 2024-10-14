@@ -325,7 +325,7 @@ public class CampaignForm extends VerticalLayout {
 		hort.add(creatingUuid, creatingUser, campaaignYear);
 		hort.setJustifyContentMode(JustifyContentMode.BETWEEN);
 
-		round.setItems("NID", "SNID", "CRC", "Mopping-Up", "Training");
+		round.setItems("NID", "SNID", "CRC","SIA", "Mopping-Up", "Training");
 
 		if (creatingUuid.getValue() == "") {
 

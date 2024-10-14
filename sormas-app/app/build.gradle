@@ -9,7 +9,6 @@ android {
     // ideally: minSdkVersion (lowest possible) <= targetSdkVersion == compileSdkVersion (latest SDK)
     compileSdkVersion 33
     // always use the latest
-    buildToolsVersion '28.0.3'
 
     defaultConfig {
  //       applicationId "de.symeda.sormas.app.debug"
@@ -131,7 +130,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'me.dm7.barcodescanner:zxing:1.9.13'
+    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
     implementation 'io.crowdcode.sormas.lbds:lbds-http-android:1.2.9'
     implementation 'io.crowdcode.sormas.lbds:lbds-android-messaging:1.4.6'
     implementation 'com.jakewharton:process-phoenix:2.0.0'

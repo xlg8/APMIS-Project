@@ -535,4 +535,40 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.ispublished = ispublished;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(analysis_a, analysis_a_, analysis_b, analysis_b_, analysis_c, analysis_c_, analysis_d,
+				analysis_d_, area, campaign, campaign_id, ccode, clusternumber, clusternumber_, community, creatingUser,
+				creatingUserType, dcode, district, error_status, form, formDate, formType, formValues, ispublished,
+				isverified, pcode, personTitle, rcode, region, source, uuid);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CampaignFormDataIndexDto other = (CampaignFormDataIndexDto) obj;
+		return Objects.equals(analysis_a, other.analysis_a) && Objects.equals(analysis_a_, other.analysis_a_)
+				&& Objects.equals(analysis_b, other.analysis_b) && Objects.equals(analysis_b_, other.analysis_b_)
+				&& Objects.equals(analysis_c, other.analysis_c) && Objects.equals(analysis_c_, other.analysis_c_)
+				&& Objects.equals(analysis_d, other.analysis_d) && Objects.equals(analysis_d_, other.analysis_d_)
+				&& Objects.equals(area, other.area) && Objects.equals(campaign, other.campaign)
+				&& Objects.equals(campaign_id, other.campaign_id) && Objects.equals(ccode, other.ccode)
+				&& Objects.equals(clusternumber, other.clusternumber)
+				&& Objects.equals(clusternumber_, other.clusternumber_) && Objects.equals(community, other.community)
+				&& Objects.equals(creatingUser, other.creatingUser)
+				&& Objects.equals(creatingUserType, other.creatingUserType) && Objects.equals(dcode, other.dcode)
+				&& Objects.equals(district, other.district) && Objects.equals(error_status, other.error_status)
+				&& Objects.equals(form, other.form) && Objects.equals(formDate, other.formDate)
+				&& Objects.equals(formType, other.formType) && Objects.equals(formValues, other.formValues)
+				&& ispublished == other.ispublished && isverified == other.isverified
+				&& Objects.equals(pcode, other.pcode) && Objects.equals(personTitle, other.personTitle)
+				&& Objects.equals(rcode, other.rcode) && Objects.equals(region, other.region)
+				&& Objects.equals(source, other.source) && Objects.equals(uuid, other.uuid);
+	}
+
 }

@@ -34,6 +34,9 @@ public final class DownloadTransposedDaywiseDataUtility {
 		CampaignFormDataCriteria criteriax = new CampaignFormDataCriteria() ;
 		
 		criteriax = criteria;
+		
+		System.out.println(" Criteriaxxxx form each of the selcetions " + criteriax.getRegion() + "region  " +  criteriax.getArea() +  "arear" +  criteriax.getDistrict() +  "districty "  + criteriax.getCommunity());
+
 		String exportFileName =  "APMIS_"+ formName + "_" + campaignName +".csv";// createFileNameWithCurrentDateandEntityNameString(formName+ "_" + campaignName, ".csv");
 
 		// Using the index list method to get the day-wise form data since it already
@@ -139,6 +142,7 @@ public final class DownloadTransposedDaywiseDataUtility {
 						new OutputStreamWriter(byteStream, StandardCharsets.UTF_8.name()),
 						FacadeProvider.getConfigFacade().getCsvSeparator())) {
 
+					writer.writeNext(columnNames.toArray(new String[0]));
 					writer.writeNext(columnNames.toArray(new String[0]));
 
 					for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {

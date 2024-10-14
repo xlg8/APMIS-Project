@@ -76,7 +76,11 @@ public class CampaignFormDataDao extends AbstractAdoDao<CampaignFormData> {
 		}
 
 		if (criteria.getCampaignFormMeta() != null) {
-			whereStatements.add((where.eq(CampaignFormData.CAMPAIGN_FORM_META +  "_id", criteria.getCampaignFormMeta().getId())));
+			whereStatements.add((where.eq(CampaignFormData.CAMPAIGN_FORM_META + "_id", criteria.getCampaignFormMeta().getId())));
+		}
+
+		if (criteria.getCommunity() != null) {
+			whereStatements.add((where.eq(CampaignFormData.COMMUNITY +  "_id", criteria.getCommunity())));
 		}
 
 		if (!whereStatements.isEmpty()) {

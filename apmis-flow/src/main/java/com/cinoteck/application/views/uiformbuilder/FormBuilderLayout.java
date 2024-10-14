@@ -1,5 +1,7 @@
 package com.cinoteck.application.views.uiformbuilder;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cinoteck.application.UserProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -15,6 +18,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
@@ -31,6 +35,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
 import de.symeda.sormas.api.FacadeProvider;
@@ -183,7 +188,16 @@ public class FormBuilderLayout extends VerticalLayout {
 		saveIcon.getStyle().set("color", "green");
 		Button saved = new Button("Save", saveIcon);
 
-		HorizontalLayout buttonLayout = new HorizontalLayout(discardChanges, saved);
+		Icon downloadIcon = new Icon(VaadinIcon.DOWNLOAD);
+		Button downloadButton = new Button("Export JSON", downloadIcon);
+		downloadButton.setText("Export JSON");
+		
+		Anchor downloadLink = new Anchor("", "Export JSON");
+	    downloadLink.getElement().setAttribute("download", true);
+	    downloadLink.add(downloadButton);	   
+	    
+		HorizontalLayout buttonLayout = new HorizontalLayout(downloadButton, downloadLink, discardChanges, saved);
+		downloadLink.getStyle().set("display", "none");
 		buttonLayout.getStyle().set("margin-left", "auto");
 
 		add(buttonLayout);
@@ -192,7 +206,30 @@ public class FormBuilderLayout extends VerticalLayout {
 		saved.addClickListener(e -> {
 			validateAndSave();
 		});
+		
+		downloadButton.addClickListener(event -> {
+            StreamResource resource = createJsonStreamResource();
+            downloadLink.setHref(resource);  
+            downloadLink.getElement().callJsFunction("click");
+        });
 	}
+	
+	private StreamResource createJsonStreamResource() {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try {
+            objectMapper.writeValue(outputStream, campaignFormMetaDto.getCampaignFormElements());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new StreamResource(campaignFormMetaDto.getFormName()+".json", () -> {
+            byte[] jsonBytes = outputStream.toByteArray();
+            return new ByteArrayInputStream(jsonBytes);
+        });
+    }
 
 	public void setForm(CampaignFormMetaDto formData) {
 		binder.setBean(formData);
