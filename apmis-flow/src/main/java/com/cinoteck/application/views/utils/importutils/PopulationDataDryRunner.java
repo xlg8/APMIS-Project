@@ -62,6 +62,9 @@ public class PopulationDataDryRunner extends DataImporter {
 	private final String dtoIdentifier;
 
 	private static final String PROVINCE = "province";
+	private static final String TOTAL_0_4 = "TOTAL_AGE_0_4";
+	private static final String TOTAL_5_10 = "TOTAL_AGE_5_10";
+
 
 	public PopulationDataDryRunner(File inputFile, UserDto currentUser, CampaignDto campaignDto,
 			ValueSeparator csvSeparator, boolean overwrite) throws IOException {
@@ -254,6 +257,31 @@ public class PopulationDataDryRunner extends DataImporter {
 							}
 						}
 					}
+					
+					if (TOTAL_0_4.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+//							districtStatus_ = "Full District";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+							return ImportLineResult.ERROR;
+						} else {
+
+				
+						}
+					}
+					
+					if (TOTAL_5_10.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+//							districtStatus_ = "Full District";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+							return ImportLineResult.ERROR;
+						} else {
+
+				
+						}
+					}
+					
 				}else {
 					if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
 						if (DataHelper.isNullOrEmpty(values[i])) {
@@ -310,6 +338,30 @@ public class PopulationDataDryRunner extends DataImporter {
 										new ImportErrorException(values[i], entityProperties[i]).getMessage());
 								return ImportLineResult.ERROR;
 							}
+						}
+					}
+					
+					if (TOTAL_0_4.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+//							districtStatus_ = "Full District";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+							return ImportLineResult.ERROR;
+						} else {
+
+				
+						}
+					}
+					
+					if (TOTAL_5_10.equalsIgnoreCase(entityProperties[i])) {
+						if (DataHelper.isNullOrEmpty(values[i])) {
+//							districtStatus_ = "Full District";
+							writeImportError(values,
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+							return ImportLineResult.ERROR;
+						} else {
+
+				
 						}
 					}
 				}

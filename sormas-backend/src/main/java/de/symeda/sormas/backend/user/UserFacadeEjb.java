@@ -35,6 +35,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -736,7 +737,7 @@ public class UserFacadeEjb implements UserFacade {
 			cq.orderBy(cb.desc(user.get(User.CHANGE_DATE)));
 		}
 
-		cq.select(user);
+		cq.select(user);// .distinct(true);
 
 		TypedQuery<User> query = em.createQuery(cq);
 		String sql = query.unwrap(org.hibernate.query.Query.class).getQueryString();
@@ -744,7 +745,8 @@ public class UserFacadeEjb implements UserFacade {
 		// Print the SQL query
 		System.out.println("Generated SQL from index list  : " + sql);
 
-		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto);
+		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto).stream().distinct()
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -765,13 +767,6 @@ public class UserFacadeEjb implements UserFacade {
 		}
 
 		cq.select(cb.count(root));
-
-		TypedQuery<Long> query = em.createQuery(cq);
-		String sql = query.unwrap(org.hibernate.query.Query.class).getQueryString();
-
-		// Print the SQL query
-		System.out.println("Generated SQL from count : " + sql);
-
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -1156,7 +1151,7 @@ public class UserFacadeEjb implements UserFacade {
 
 	}
 
-	@Schedule(second = "0", minute = "48", hour = "19", persistent = false)
+	@Schedule(second = "0", minute = "0", hour = "2", persistent = false)
 	public void deactivateInactiveUsers() {
 		try {
 			runScheduledTask();
@@ -1169,11 +1164,57 @@ public class UserFacadeEjb implements UserFacade {
 
 	public void runScheduledTask() {
 		final String joinBuilder = "UPDATE users SET active = false WHERE lastlogindate <= CURRENT_DATE - INTERVAL "
-				+ "'" + "60 days" + "';";
+				+ "'" + "270 days" + "';";
 
 		System.out.println("Scheduled task executed at: " + new java.util.Date());
 
 		em.createNativeQuery(joinBuilder).executeUpdate();
 
 	}
+//
+//	@Override
+//	public Date checkUsersActiveStatusByUsernameandActiveStatus(String username) {
+//		// Use a parameterized query to prevent SQL injection
+//		String getlastLoginDateQuery = "SELECT u.lastlogindate FROM users u WHERE u.username ilike " + "'" + username
+//				+ "';";
+//
+//		// Use parameterized query with createNativeQuery
+//		Query seriesDataQuery = em.createNativeQuery(getlastLoginDateQuery);
+//		seriesDataQuery.setParameter("username", username);
+//
+//		// Execute query and cast result to Date
+//		return seriesDataQuery.getSingleResult();
+//
+//	}
+	
+	@Override
+    public Date checkUsersActiveStatusByUsernameandActiveStatus(String username) {
+        String getLastLoginDateQuery = "SELECT u.lastlogindate FROM users u WHERE LOWER(u.username) = LOWER(:username)";
+        
+        try {
+            Query query = em.createNativeQuery(getLastLoginDateQuery)
+                            .setParameter("username", username);
+            
+            Object result = query.getSingleResult();
+            
+            if (result instanceof Date) {
+                return (Date) result;
+            } else if (result instanceof java.sql.Timestamp) {
+                return new Date(((java.sql.Timestamp) result).getTime());
+            } else {
+             
+                System.err.println("Unexpected result type: " + (result != null ? result.getClass().getName() : "null"));
+                return null;
+            }
+        } catch (NoResultException e) {
+            // No result found for the given username
+            System.err.println("Unexpected result type: No result found for the given username.");
+
+            return null;
+        } catch (Exception e) {
+            // Log the exception
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -1,9 +1,7 @@
 package de.symeda.sormas.api.user;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -26,18 +24,6 @@ public class UserCriteria extends BaseCriteria implements Serializable {
 	private String freeText;
 	
     private Set<UserRole> userRoles;
-    
-    private Set<String> roleNames;
-    
-    // Method to set role names for filtering
-    public void setRoleNames(Set<String> roleNames) {
-        this.roleNames = roleNames;
-    }
-
-    // Getter method
-    public Set<String> getRoleNames() {
-        return this.roleNames;
-    }
 
     public UserCriteria userRolesMulti(Set<UserRole> userRoles) {
         this.userRoles = userRoles;
@@ -119,19 +105,4 @@ public class UserCriteria extends BaseCriteria implements Serializable {
 	public String getFreeText() {
 		return freeText;
 	}
-	
-    // Filtering logic based on role names in your data provider
-    public boolean matches(UserDto user) {
-        if (roleNames == null || roleNames.isEmpty()) {
-            return true; // No filtering if no roles are selected
-        }
-
-        // Example logic: Check if user has any of the selected role names
-        Set<String> userRoleNames = user.getUserRoles().stream()
-            .map(UserRole::toString) // Again, use a specific method if needed
-            .collect(Collectors.toSet());
-
-        // Check if user's roles match any of the selected role names
-        return !Collections.disjoint(userRoleNames, roleNames);
-    }
 }

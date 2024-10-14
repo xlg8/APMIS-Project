@@ -547,6 +547,7 @@ public class UserForm extends FormLayout {
 				sortedUserRoles.remove(UserRole.REST_USER);
 				sortedUserRoles.remove(UserRole.PUBLISH_USER);
 
+
 				userRoles.setItems(sortedUserRoles);
 			}
 
@@ -557,19 +558,8 @@ public class UserForm extends FormLayout {
 		});
 
 		formAccess.setLabel(I18nProperties.getCaption(Captions.formAccess));
-//		preCampformAccess.setLabel(I18nProperties.getCaption(Captions.preCampaign) + " : ");
-//		intraCampformAccess.setLabel(I18nProperties.getCaption(Captions.intraCampaign) + " : ");
-//		postCampformAccess.setLabel(I18nProperties.getCaption(Captions.postCampaign) + " : ");
 
 		formAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-//		preCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-//		intraCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-//		postCampformAccess.setItemLabelGenerator(FormAccess::getDisplayName);
-
-//		formAccess.addSelectionListener(this::handleSelectionChange);
-//		preCampformAccess.addSelectionListener(this::handleSelectionChange);
-//		intraCampformAccess.addSelectionListener(this::handleSelectionChange);
-//		postCampformAccess.addSelectionListener(this::handleSelectionChange);
 
 		this.setColspan(activeCheck, 2);
 		activeCheck.setLabel(I18nProperties.getCaption(Captions.User_active));
@@ -592,6 +582,7 @@ public class UserForm extends FormLayout {
 			formAccessesList.add(FormAccess.EAG_FMS);
 			formAccessesList.add(FormAccess.EAG_LQAS);
 			formAccessesList.add(FormAccess.MODALITY_POST);
+			formAccessesList.add(FormAccess.VALIDATION);
 			formAccess.setItems(formAccessesList);
 			// preCampformAccess.setItems(preCampformAccessesList);
 			// intraCampformAccess.setItems(intraCampformAccessesList);

@@ -120,7 +120,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 	}
 
 	public User getByUserName(String userName) {
-	//	System.out.println("+++++++_+__+_+ " + userName);
+		// System.out.println("+++++++_+__+_+ " + userName);
 		User entity = new User();
 		if (userName != null) {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -546,15 +546,39 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRole())));
 		}
-		
-		if (userCriteria.getUserRoleSet() != null) {
+
+		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {
 			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-			
+
+////			for (UserRole role : userCriteria.getUserRoleSet()) {
+////				if (role != null) {
+//					filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
+////				}
+//
+//			}
+					
+//					Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+//
+//				    // Initialize a predicate that will hold the AND conditions for roles
+//				    Predicate rolePredicate = cb.conjunction();  // 'True' predicate to start adding conditions
+//
+//				    // Iterate over each role in the set and add an AND condition for each role
+//				    for (UserRole role : userCriteria.getUserRoleSet()) {
+//				        if (role != null) {
+//				            rolePredicate = cb.and(rolePredicate, joinRoles.in(role));
+//				        }
+//				    }
+//
+//				    // Combine the rolePredicate with the existing filter
+//				    filter = CriteriaBuilderHelper.and(cb, filter, rolePredicate);
+//
+//				    System.out.println("Role Predicate: " + filter);
+
 			System.out.println("Role Predicate: " + filter);
-		
+
 		}
-		
+
 		if (userCriteria.getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.join(Case.AREA, JoinType.LEFT).get(Area.UUID), userCriteria.getArea().getUuid()));
@@ -613,55 +637,50 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 
 		return filter;
 	}
-	
+
 	public Predicate buildCriteriaFilterFCM(Set<FormAccess> formAccesses, Set<AreaReferenceDto> areas,
 			Set<RegionReferenceDto> regions, Set<DistrictReferenceDto> districts,
 			Set<CommunityReferenceDto> communities, CriteriaBuilder cb, Root<User> from) {
-		
-		Predicate filter = null;	
+
+		Predicate filter = null;
 		Set<UserRole> mobileuser = new HashSet<>();
 		mobileuser.add(UserRole.REST_USER);
 		mobileuser.add(UserRole.COMMUNITY_OFFICER);
-		
+
 		if (mobileuser.size() > 0) {
 			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
 			Predicate rolesFilter = joinRoles.in(mobileuser);
 			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
 		}
-		
+
 		if (formAccesses.size() > 0) {
 			Join<User, FormAccess> joinFormAccess = from.join(User.USER_FORM_ACCESS, JoinType.LEFT);
 			Predicate formAccessFilter = joinFormAccess.in(formAccesses);
 			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
 		}
-		
+
 		if (areas.size() > 0) {
-			Join<User, Area> joinAreas = from.join(User.AREA, JoinType.LEFT);			
-			List<String> areaUuids = areas.stream()
-		            .map(area -> area.getUuid())
-		            .collect(Collectors.toList());
-		    Predicate areaFilter = joinAreas.in(areaService.getByUuids(areaUuids));
+			Join<User, Area> joinAreas = from.join(User.AREA, JoinType.LEFT);
+			List<String> areaUuids = areas.stream().map(area -> area.getUuid()).collect(Collectors.toList());
+			Predicate areaFilter = joinAreas.in(areaService.getByUuids(areaUuids));
 			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
 		}
-		
+
 		if (regions.size() > 0) {
-			Join<User, Region> joinRegion = from.join(User.REGION, JoinType.LEFT);			
-			List<String> regionUuids = regions.stream()
-		            .map(region -> region.getUuid())
-		            .collect(Collectors.toList());			
+			Join<User, Region> joinRegion = from.join(User.REGION, JoinType.LEFT);
+			List<String> regionUuids = regions.stream().map(region -> region.getUuid()).collect(Collectors.toList());
 			Predicate regionFilter = joinRegion.in(regionService.getByUuids(regionUuids));
 			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
 		}
-		
+
 		if (districts.size() > 0) {
-			Join<User, District> joinDistrict = from.join(User.DISTRICT, JoinType.LEFT);			
-			List<String> districtUuids = districts.stream()
-		            .map(district -> district.getUuid())
-		            .collect(Collectors.toList());			
+			Join<User, District> joinDistrict = from.join(User.DISTRICT, JoinType.LEFT);
+			List<String> districtUuids = districts.stream().map(district -> district.getUuid())
+					.collect(Collectors.toList());
 			Predicate districtFilter = joinDistrict.in(districtService.getByUuids(districtUuids));
 			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
 		}
-		
+
 //		if (communities.size() > 0) {
 //			Join<User, Community> joinCommunity = from.join(User.COMMUNITY, JoinType.LEFT);			
 //			List<String> communityUuids = districts.stream()
@@ -670,7 +689,7 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 //			Predicate communityFilter = joinCommunity.in(communityService.getByUuids(communityUuids));
 //			filter = CriteriaBuilderHelper.and(cb, filter, communityFilter);
 //		}
-		
+
 		return filter;
 	}
 

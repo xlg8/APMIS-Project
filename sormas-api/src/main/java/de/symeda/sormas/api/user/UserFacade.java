@@ -135,4 +135,6 @@ public interface UserFacade {
 	public void updateLastLoginDate(Date lastUserLoginDate, String userName);
 
 	public void deactivateInactiveUsers();
+	
+	public Date checkUsersActiveStatusByUsernameandActiveStatus(String username);
 }
