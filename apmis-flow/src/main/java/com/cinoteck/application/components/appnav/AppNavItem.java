@@ -161,13 +161,14 @@ public class AppNavItem extends Component {
 	 */
 
 	public AppNavItem(String label, VaadinIcon iconClass, String style, Button button,
-			Class<? extends Component> view) {
+			Class<? extends Component> view, String classname) {
 
 		setLabel(label);
 		setIcon(iconClass.create());
 		setId(style);
 		setButton(button);
 		setPath(view);
+		getElement().getClassList().add(classname);
 	}
 
 	/**

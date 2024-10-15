@@ -133,19 +133,13 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
 			Predicate rolesFilter = cb.or(joinRoles.in(userRoles), cb.isNull(joinRoles));
 			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
-		} //else {
-//			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
-//	        filter = cb.and(filter, cb.isNull(joinRoles));
-//		}
+		} 
 		
 		if (formAccess.size() > 0) {
 			Join<Message, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
 			Predicate formAccessFilter = cb.or(joinFormAccess.in(formAccess), cb.isNull(joinFormAccess));
 			filter = CriteriaBuilderHelper.and(cb, filter, formAccessFilter);
-		} //else {
-//			Join<Message, FormAccess> joinFormAccess = from.join(Message.MESSAGE_FORM_ACCESS, JoinType.LEFT);
-//	        filter = cb.and(filter, cb.isNull(joinFormAccess));
-//		}
+		}
 		
 		return filter;
 	}
@@ -155,8 +149,8 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 		Predicate filter = null;		
 		if (messageCriteria.getArea() != null) {
 			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
-			Predicate areaFilter = joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid()));
-			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);	
+			Predicate areaFilter = cb.or(joinAreas.in(areaService.getByUuid(messageCriteria.getArea().getUuid())), cb.isNull(joinAreas));
+			filter = CriteriaBuilderHelper.and(cb, filter, areaFilter);
 		}
 		return filter;
 	}
@@ -166,8 +160,8 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 		Predicate filter = null;		
 		if (messageCriteria.getRegion() != null) {
 			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
-			Predicate regionFilter = joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid()));
-			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);
+			Predicate regionFilter = cb.or(joinRegion.in(regionService.getByUuid(messageCriteria.getRegion().getUuid())), cb.isNull(joinRegion));
+			filter = CriteriaBuilderHelper.and(cb, filter, regionFilter);			
 		}
 		return filter;
 	}
@@ -177,7 +171,7 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 		Predicate filter = null;		
 		if (messageCriteria.getDistrict() != null) {
 			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
-			Predicate districtFilter = joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid()));
+			Predicate districtFilter = cb.or(joinDistrict.in(districtService.getByUuid(messageCriteria.getDistrict().getUuid())), cb.isNull(joinDistrict));
 			filter = CriteriaBuilderHelper.and(cb, filter, districtFilter);
 		}
 		return filter;
@@ -188,7 +182,7 @@ public class MessageService extends AdoServiceWithUserFilter<Message> {
 		Predicate filter = null;		
 		if (messageCriteria.getCommunity() != null) {
 			Join<Message, Community> joinCommunity = from.join(Message.COMMUNITY, JoinType.LEFT);
-			Predicate communityFilter = joinCommunity.in(communityService.getByUuid(messageCriteria.getCommunity().getUuid()));
+			Predicate communityFilter = cb.or(joinCommunity.in(communityService.getByUuid(messageCriteria.getCommunity().getUuid())), cb.isNull(joinCommunity));
 			filter = CriteriaBuilderHelper.and(cb, filter, communityFilter);
 		}
 		return filter;

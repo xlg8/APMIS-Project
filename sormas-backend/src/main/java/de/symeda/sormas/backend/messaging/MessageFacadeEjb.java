@@ -245,10 +245,7 @@ public class MessageFacadeEjb implements MessageFacade {
 			} else {
 				filter = filterArea;
 			}
-		} //else {
-//			Join<Message, Area> joinAreas = from.join(Message.AREA, JoinType.LEFT);
-//			filter = cb.and(filter, cb.isNull(joinAreas));
-//		}
+		} 
 
 		if (messageCriteria.getRegion() != null) {
 			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
@@ -258,10 +255,7 @@ public class MessageFacadeEjb implements MessageFacade {
 			} else {
 				filter = filterRegion;
 			}
-		} //else {
-//			Join<Message, Region> joinRegion = from.join(Message.REGION, JoinType.LEFT);
-//			filter = cb.and(filter, cb.isNull(joinRegion));
-//		}
+		} 
 
 		if (messageCriteria.getDistrict() != null) {
 			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
@@ -271,10 +265,7 @@ public class MessageFacadeEjb implements MessageFacade {
 			} else {
 				filter = filterDistrict;
 			}
-		} //else {
-//			Join<Message, District> joinDistrict = from.join(Message.DISTRICT, JoinType.LEFT);
-//			filter = cb.and(filter, cb.isNull(joinDistrict));
-//		}
+		}
 
 		if (filter != null) {
 			cq.where(filter);

@@ -745,3 +745,19 @@ vaadin-vertical-layout#campaignFormLayout vaadin-tabsheet vaadin-tabs {
     color: white; /* This makes the text white for better visibility */
     padding: 10px 20px; /* Optional: Adjust padding */
 }
+
+.new-notification {
+    background-color: red !important;
+    color: white !important;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+}
+
+.custom-class {
+    background-color: #f0f0f0;
+    color: #333;
+}
