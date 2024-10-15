@@ -92,7 +92,7 @@ public class Community extends InfrastructureAdo {
 
 	@Override
 	public String toString() {
-		return getName() +" : "+ getClusterNumber();
+		return getClusterNumber()  +" : "+ getName();
 	}
 
 	@Override

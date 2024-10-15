@@ -317,6 +317,7 @@ public class ClusterView extends VerticalLayout {
 		criteria.relevanceStatus(EntityRelevanceStatus.ACTIVE);
 		refreshGridData();
 
+		
 //		dataProvider = DataProvider
 //				.fromStream(FacadeProvider.getCommunityFacade().getIndexList(criteria, null, null, null).stream());
 		dataProvider = DataProvider.fromStream(fetchClusterData(query));

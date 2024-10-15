@@ -87,6 +87,7 @@ public class UsersImportActivityView extends VerticalLayout implements RouterLay
 	public UsersImportActivityView() {
 		setSizeFull();
 		setHeightFull();
+		addFilters();
 		confiureDataImportActivityGrid();
 	}
 	

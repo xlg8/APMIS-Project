@@ -89,9 +89,15 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 					campaignFormMetaDto.getFormname_fa_af(), campaignFormMetaReferenceDto, openData, uuidForm,
 					campaignFormMetaDtox);
 		} else {
-			campaignFormBuilder = new CampaignFormBuilder(campaignFormMetaDto.getCampaignFormElements(), null,
-					campaignReferenceDto, campaignFormMetaDto.getCampaignFormTranslations(),
-					campaignFormMetaDto.getFormName(), campaignFormMetaReferenceDto, openData, uuidForm,
+			campaignFormBuilder = new CampaignFormBuilder(
+					campaignFormMetaDto.getCampaignFormElements(),
+					null,
+					campaignReferenceDto, 
+					campaignFormMetaDto.getCampaignFormTranslations(),
+					campaignFormMetaDto.getFormName(), 
+					campaignFormMetaReferenceDto, 
+					openData, 
+					uuidForm,
 					campaignFormMetaDtox);
 		}
 

@@ -3673,6 +3673,8 @@ if(criteria.getUserLanguage() != null) {
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
 				+ "    VALUES ('" + tabled + "', NOW(), " + isLocked_ + ")\n" + "    ON CONFLICT (table_name)\n"
 				+ "    DO UPDATE SET last_updated = NOW(), isLocked = " + isLocked_ + ";";
+		
+		System.out.println("```````111111111111111111updateTrakerTable(    :" + joinBuilder);
 
 		em.createNativeQuery(joinBuilder).executeUpdate();
 

@@ -33,9 +33,12 @@ import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * UI content when the user is not logged in yet.
@@ -47,6 +50,12 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private String intendedRoute;
 
 	private final UserProvider userProvider = new UserProvider();
+	LoginForm loginForm = new LoginForm();
+	final LoginI18n i18n = LoginI18n.createDefault();
+	VerticalLayout loginInformation = new VerticalLayout();
+	UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+	Date todaysDate = new Date();
+
 
 	/**
 	 * 
@@ -68,7 +77,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		setClassName("login-screen");
 		
 		
-		LoginForm loginForm = new LoginForm();
 		loginForm.setI18n(createLoginI18n());
 		loginForm.addLoginListener(this::login);
 		loginForm.addForgotPasswordListener(event -> {
@@ -100,7 +108,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		});
 		
 
-		VerticalLayout loginInformation = new VerticalLayout();
 
 		loginInformation.setSizeFull();
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -118,8 +125,17 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		loginFormCarrier.setClassName("login-form-carrier");
 		
 		loginInformation.add(loginFormCarrier);
+		
+		triggerUser();
+		
 		add(loginInformation);
 	}
+	
+	@Scheduled(cron = "*/15 * * * * *")
+	public void triggerUser() {
+		FacadeProvider.getUserFacade().deactivateInactiveUsers();
+	}
+
 
 	private void login(LoginForm.LoginEvent event) {
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
@@ -145,11 +161,11 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				} else {
 					getUI().get().navigate("/" + intendedRoute);
 				}
-				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Login");
 				userActivitySummaryDto.setAction("User Logged In");
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 			} else {
 
@@ -163,18 +179,56 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 				userActivitySummaryDto.setActionModule("Login");
 				userActivitySummaryDto.setAction("User Logged In");
 				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+				Date todaysDate = new Date();
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 
 			}
 
 		} else {
-			event.getSource().setError(true);
+			Date usersLastLoginDate = FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername());
+			
+			System.out.println( usersLastLoginDate + event.getUsername() +  "usersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate" +  usersLastLoginDate.getTime());
+			System.out.println( todaysDate.getTime() +  "xxusersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate");
+
+			
+			// Calculate the difference in days between today and the user's last login date
+			long differenceInMilliSeconds = todaysDate.getTime() - usersLastLoginDate.getTime();
+			long differenceInDays = differenceInMilliSeconds / (1000 * 60 * 60 * 24);
+
+			
+			System.out.println(differenceInDays + "differenceInDaysdifferenceInDaysdifferenceInDays" );
+			
+			if (differenceInDays >= 60) {
+				 loginForm.setI18n(createInactiveUserLoginI18n());
+				event.getSource().setError(true);
+			}else {
+				 loginForm.setI18n(createLoginI18n());
+
+				event.getSource().setError(true);
+				
+			}
+			
+			
+			
 		}
+	}
+	
+    private LoginI18n createInactiveUserLoginI18n() {
+        i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg_inactiveuser"));
+		i18n.setHeader(new LoginI18n.Header());
+		i18n.getForm().setUsername(resourceBundle.getString("username"));
+		i18n.getForm().setTitle(resourceBundle.getString("login"));
+		i18n.getForm().setSubmit(resourceBundle.getString("login"));
+		i18n.getForm().setPassword(resourceBundle.getString("password"));
+		i18n.getForm().setForgotPassword(resourceBundle.getString("forgot_pass"));
+		i18n.getErrorMessage().setTitle(resourceBundle.getString("login_error_title"));
+//		i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg"));
+		return i18n;
 	}
 
 
 	private LoginI18n createLoginI18n() {
-		final LoginI18n i18n = LoginI18n.createDefault();
 
 		i18n.setHeader(new LoginI18n.Header());
 		i18n.getForm().setUsername(resourceBundle.getString("username"));

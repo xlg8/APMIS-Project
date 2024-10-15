@@ -36,7 +36,8 @@ public enum FormAccess {
     EAG_FMS("EAG-FMS"),
     EAG_LQAS("EAG-LQAS"),
     MODALITY_PRE("MODALITY_PRE"),
-    MODALITY_POST("MODALITY_POST");
+    MODALITY_POST("MODALITY_POST"),
+	VALIDATION("VALIDATION");
 
     private String displayName;
 
