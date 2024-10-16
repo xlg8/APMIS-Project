@@ -27,4 +27,6 @@ public interface MessageFacade {
 	List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
 			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess);
 
+	long getNewMessage(MessageCriteria messageCriteria, UserType userType, Integer first,
+			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess);
 }

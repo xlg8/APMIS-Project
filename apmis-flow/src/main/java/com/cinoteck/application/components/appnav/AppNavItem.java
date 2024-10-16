@@ -159,6 +159,16 @@ public class AppNavItem extends Component {
 	 * @param view      the view to link to
 	 * @param iconClass the CSS class to use for showing the icon
 	 */
+	
+	public AppNavItem(String label, VaadinIcon iconClass, String style, Button button,
+			Class<? extends Component> view) {
+
+		setLabel(label);
+		setIcon(iconClass.create());
+		setId(style);
+		setButton(button);
+		setPath(view);
+	}
 
 	public AppNavItem(String label, VaadinIcon iconClass, String style, Button button,
 			Class<? extends Component> view, String classname) {
@@ -168,7 +178,7 @@ public class AppNavItem extends Component {
 		setId(style);
 		setButton(button);
 		setPath(view);
-		getElement().getClassList().add(classname);
+		setId(classname);
 	}
 
 	/**

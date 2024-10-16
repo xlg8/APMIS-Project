@@ -245,7 +245,7 @@ public class MessageFacadeEjb implements MessageFacade {
 			} else {
 				filter = filterArea;
 			}
-		} 
+		}
 
 		if (messageCriteria.getRegion() != null) {
 			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
@@ -255,7 +255,7 @@ public class MessageFacadeEjb implements MessageFacade {
 			} else {
 				filter = filterRegion;
 			}
-		} 
+		}
 
 		if (messageCriteria.getDistrict() != null) {
 			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
@@ -273,6 +273,61 @@ public class MessageFacadeEjb implements MessageFacade {
 
 		cq.distinct(true).orderBy(cb.desc(from.get(Message.CHANGE_DATE)));
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
+	}
+
+	@Override
+	public long getNewMessage(MessageCriteria messageCriteria, UserType userType, Integer first, Integer max,
+			Set<UserRole> userRoles, Set<FormAccess> formAccess) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Message> from = cq.from(Message.class);
+
+		Predicate filter = null;
+		Predicate filterMain = null;
+		Predicate filterArea = null;
+		Predicate filterRegion = null;
+		Predicate filterDistrict = null;
+
+		if (messageCriteria != null) {
+			filterMain = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
+			filter = filterMain;
+		}
+
+		if (messageCriteria.getArea() != null) {
+			filterArea = messageService.buildCriteriaFilterArea(messageCriteria, cb, from);
+			if (filter != null) {
+				filter = cb.and(filter, filterArea);
+			} else {
+				filter = filterArea;
+			}
+		}
+
+		if (messageCriteria.getRegion() != null) {
+			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
+			if (filter != null) {
+				filter = cb.and(filter, filterRegion);
+			} else {
+				filter = filterRegion;
+			}
+		}
+
+		if (messageCriteria.getDistrict() != null) {
+			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
+			if (filter != null) {
+				filter = cb.and(filter, filterDistrict);
+			} else {
+				filter = filterDistrict;
+			}
+		}
+
+		if (filter != null) {
+			cq.where(filter);
+		}
+
+		cq.select(cb.count(from));
+
+		return em.createQuery(cq).getSingleResult();	
 	}
 
 }
