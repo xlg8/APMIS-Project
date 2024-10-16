@@ -30,6 +30,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.QuerySortOrder;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
@@ -53,7 +54,6 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
 	TextField searchField = new TextField();
 	HorizontalLayout filterLayout = new HorizontalLayout();
-	private ListDataProvider<UserActivitySummaryDto> dataProvider;
 	private DatePicker startDatePicker = new DatePicker();
 	private DatePicker endDatePicker = new DatePicker();
 	Button displayFilters;
@@ -62,14 +62,17 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 	private GridExporter<UserActivitySummaryDto> exporter;
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
 
+	List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade().getUsersActivityByModule("login");
+	private ListDataProvider<UserActivitySummaryDto> dataProvider = new ListDataProvider<>(userActivityList);;
+
 	public LoginReportView() {
 		setSizeFull();
 		setHeightFull();
-		addFilters();
+		addFilters(dataProvider);
 		confiureLoginActivityGrid();
 	}
 
-	public void addFilters() {
+	public void addFilters(ListDataProvider<UserActivitySummaryDto> dataProvider) {
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -88,62 +91,11 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 			}
 		});
 
-		searchField.setLabel("Search");
-		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Username");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setClearButtonVisible(true);
-		searchField.setWidth("145px");
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-			String searchTerm = e.getValue().trim();
-
-			if (searchTerm != null && !searchTerm.isEmpty()) {
-				dataProvider.setFilter(userActivity -> {
-					// Check if the username contains the search term (case insensitive)
-					boolean usernameMatches = userActivity.getCreatingUser_string().toLowerCase()
-							.contains(searchTerm.toLowerCase());
-					return usernameMatches;
-				});
-			} else {
-				// Clear the filter when search field is empty
-				dataProvider.clearFilters();
-			}
-		});
-
-		// DatePickers for range filter
-		startDatePicker.setLabel("From Date");
-		startDatePicker.setPlaceholder("Start Date");
-		startDatePicker.setClearButtonVisible(true);
-
-		endDatePicker.setLabel("To Date");
-		endDatePicker.setPlaceholder("End Date");
-		endDatePicker.setClearButtonVisible(true);
-
-		// Add value change listeners for the date pickers
-		ValueChangeListener<AbstractField.ComponentValueChangeEvent<DatePicker, LocalDate>> dateRangeFilterListener = e -> {
-			LocalDate startDate = startDatePicker.getValue();
-			LocalDate endDate = endDatePicker.getValue();
-
-			// Apply date range filter if both start and end dates are selected
-			if (startDate != null && endDate != null) {
-				dataProvider.setFilter(userActivity -> {
-					LocalDate activityDate = userActivity.getActionDate().toInstant().atZone(ZoneId.systemDefault())
-							.toLocalDate();
-					return (activityDate.isEqual(startDate) || activityDate.isAfter(startDate))
-							&& (activityDate.isEqual(endDate) || activityDate.isBefore(endDate));
-
-				});
-			} else {
-				dataProvider.clearFilters(); // Clear the filter when no range is selected
-			}
-		};
-
-		// Attach the listener to both date pickers
-		startDatePicker.addValueChangeListener(dateRangeFilterListener);
-		endDatePicker.addValueChangeListener(dateRangeFilterListener);
+		ActivityFilteringUtil filteringSystem = new ActivityFilteringUtil(dataProvider, searchField, startDatePicker,
+				endDatePicker);
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
+
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		exportButton.addClickListener(e -> {
@@ -152,24 +104,13 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.getStyle().set("align-items", "flex-end");
-		
-		
+
 		Button resetFiltersButton = new Button(I18nProperties.getCaption(Captions.resetFilters));
-//		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		resetFiltersButton.addClickListener(e -> {
-			startDatePicker.clear();
-			endDatePicker.clear();
-			searchField.clear();
-			
-			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
-					.getUsersActivityByModule("login");
-			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
-			dataProvider = new ListDataProvider<>(userActivityList);
-
-			grid.setItems(dataProvider);
-
+			filteringSystem.clearAllFilters();
 		});
+
 		filterLayout.add(searchField, startDatePicker, endDatePicker, exportButton, anchor, resetFiltersButton);
 
 		vlayout.add(displayFilters, filterLayout);
@@ -193,36 +134,20 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 			return dateFormat.format(timestamp);
 		});
 
-		Column<UserActivitySummaryDto> userActionDateColumn = 
-		grid.addColumn(actionDateRenderer).setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false)
-//		.setSortOrderProvider(direction -> {
-//	        // Create a list of sort orders based on the desired column and sort direction
-//	        List<QuerySortOrder> sortOrders = new ArrayList<>();
-//	        if (direction.isAscending()) {
-//	            sortOrders.add(new QuerySortOrder("actionDate", SortDirection.ASCENDING));
-//	        } else {
-//	            sortOrders.add(new QuerySortOrder("actionDate", SortDirection.DESCENDING));
-//	        }
-//	        return sortOrders.stream();
-//	    })
-				.setResizable(true);
-		
+		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
+				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
+
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
 				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 
 		// Retrieve the data from your data source (e.g., from a facade)
-		List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
-				.getUsersActivityByModule("login");
-
-		// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
-		dataProvider = new ListDataProvider<>(userActivityList);
 
 		grid.setItems(dataProvider);
 
 		exporter = GridExporter.createFor(grid);
-		
+
 		exporter.setExportValue(userActionDateColumn, dto -> {
 			Date timestamp = dto.getActionDate();
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");

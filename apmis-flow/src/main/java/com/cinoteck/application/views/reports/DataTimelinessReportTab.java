@@ -253,16 +253,16 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		
 		configureFiltersByUserRoles(formAccess);
 
-//		errorFilter.setClearButtonVisible(true);
-//		errorFilter.setLabel("Error Status");
-//		errorFilter.setPlaceholder("Error Status");
-//		errorFilter.setItems("Error Report", "None Error Report");
-//		errorFilter.addValueChangeListener(e -> {
-////			DistrictReferenceDto selectedDistrict = e.getValue();
-//			criteria.setError_status(e.getValue());
-//			refreshGridData(formAccess);
-//
-//		});
+		errorFilter.setClearButtonVisible(true);
+		errorFilter.setLabel("Error Status");
+		errorFilter.setPlaceholder("Error Status");
+		errorFilter.setItems("Error Report", "None Error Report");
+		errorFilter.addValueChangeListener(e -> {
+//			DistrictReferenceDto selectedDistrict = e.getValue();
+			criteria.setError_status(e.getValue());
+			refreshGridData(formAccess);
+
+		});
 
 		resetButton = new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e -> {

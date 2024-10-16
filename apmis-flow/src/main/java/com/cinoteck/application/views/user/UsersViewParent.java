@@ -33,7 +33,7 @@ import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.user.UserRight;
 
 @PageTitle("APMIS-User Management")
-@Route(value = "users", layout = MainLayout.class)
+@Route(value = "usersmanagement", layout = MainLayout.class)
 public class UsersViewParent extends VerticalLayout implements RouterLayout {
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();
 	Anchor anchor;

@@ -1508,7 +1508,10 @@ if(criteria.getUserLanguage() != null) {
 						((BigInteger) result[4]).longValue(),  
 						((String) result[5]).toString(), 
 						((String) result[6]).toString(), 
-						((String) result[7]).toString(),
+						((String) result[7]).toString() != null 
+						|| !((String) result[7]).toString().isEmpty() 
+						? ((String) result[7]).toString() 
+								: "No Title",
 						((String) result[8]).toString()
 					)).collect(Collectors.toList()));
 		

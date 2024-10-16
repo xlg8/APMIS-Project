@@ -43,6 +43,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.keycloak.representations.idm.UserFederationProviderFactoryRepresentation;
@@ -548,34 +549,23 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 		}
 
 		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {
-			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-
-////			for (UserRole role : userCriteria.getUserRoleSet()) {
-////				if (role != null) {
-//					filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-////				}
+//			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+//			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
 //
+//			System.out.println("Role Predicate: " + filter);
+			
+//			if (userCriteria.getUserRoleSet().size() > 0) {
+				Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+				Predicate rolesFilter = joinRoles.in(userCriteria.getUserRoleSet());
+				filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
+//			}else {
+//				Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+//				Predicate rolesFilter = joinRoles.in(userCriteria.getUserRoleSet());
+//				filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
+//				
 //			}
-					
-//					Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-//
-//				    // Initialize a predicate that will hold the AND conditions for roles
-//				    Predicate rolePredicate = cb.conjunction();  // 'True' predicate to start adding conditions
-//
-//				    // Iterate over each role in the set and add an AND condition for each role
-//				    for (UserRole role : userCriteria.getUserRoleSet()) {
-//				        if (role != null) {
-//				            rolePredicate = cb.and(rolePredicate, joinRoles.in(role));
-//				        }
-//				    }
-//
-//				    // Combine the rolePredicate with the existing filter
-//				    filter = CriteriaBuilderHelper.and(cb, filter, rolePredicate);
-//
-//				    System.out.println("Role Predicate: " + filter);
-
-			System.out.println("Role Predicate: " + filter);
+//			
+			
 
 		}
 

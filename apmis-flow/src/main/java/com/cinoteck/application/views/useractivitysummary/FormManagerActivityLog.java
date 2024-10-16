@@ -50,7 +50,7 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
 	TextField searchField = new TextField();
 	HorizontalLayout filterLayout = new HorizontalLayout();
-	private ListDataProvider<UserActivitySummaryDto> dataProvider;
+
 	private DatePicker startDatePicker = new DatePicker();
 	private DatePicker endDatePicker = new DatePicker();
 	Button displayFilters;
@@ -58,16 +58,22 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 	private String exportFileName;
 	private GridExporter<UserActivitySummaryDto> exporter;
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	
+	List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade().getUsersActivityByModule("Form Manager");
+
+	
+	private ListDataProvider<UserActivitySummaryDto> dataProvider = new ListDataProvider<>(userActivityList);
+
 
 
 	public FormManagerActivityLog() {
 		setSizeFull();
 		setHeightFull();
-		addFilters();
+		addFilters(dataProvider);
 		confiureFormManagerActivityGrid();
 	}
 	
-	public void addFilters() {
+	public void addFilters(ListDataProvider<UserActivitySummaryDto> dataProvider) {
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -86,60 +92,9 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 			}
 		});
 
-		searchField.setLabel("Search");
-		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Username");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setClearButtonVisible(true);
-		searchField.setWidth("145px");
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-			String searchTerm = e.getValue().trim();
 
-			if (searchTerm != null && !searchTerm.isEmpty()) {
-				dataProvider.setFilter(userActivity -> {
-					// Check if the username contains the search term (case insensitive)
-					boolean usernameMatches = userActivity.getCreatingUser_string().toLowerCase()
-							.contains(searchTerm.toLowerCase());
-					return usernameMatches;
-				});
-			} else {
-				// Clear the filter when search field is empty
-				dataProvider.clearFilters();
-			}
-		});
-
-		// DatePickers for range filter
-		startDatePicker.setLabel("From Date");
-		startDatePicker.setPlaceholder("Start Date");
-		startDatePicker.setClearButtonVisible(true);
-
-		endDatePicker.setLabel("To Date");
-		endDatePicker.setPlaceholder("End Date");
-		endDatePicker.setClearButtonVisible(true);
-
-		// Add value change listeners for the date pickers
-		ValueChangeListener<AbstractField.ComponentValueChangeEvent<DatePicker, LocalDate>> dateRangeFilterListener = e -> {
-			LocalDate startDate = startDatePicker.getValue();
-			LocalDate endDate = endDatePicker.getValue();
-
-			// Apply date range filter if both start and end dates are selected
-			if (startDate != null && endDate != null) {
-				dataProvider.setFilter(userActivity -> {
-					LocalDate activityDate = userActivity.getActionDate().toInstant().atZone(ZoneId.systemDefault())
-							.toLocalDate();
-					return (activityDate.isEqual(startDate) || activityDate.isAfter(startDate))
-							&& (activityDate.isEqual(endDate) || activityDate.isBefore(endDate));
-
-				});
-			} else {
-				dataProvider.clearFilters(); // Clear the filter when no range is selected
-			}
-		};
-
-		// Attach the listener to both date pickers
-		startDatePicker.addValueChangeListener(dateRangeFilterListener);
-		endDatePicker.addValueChangeListener(dateRangeFilterListener);
+		ActivityFilteringUtil filteringSystem = new ActivityFilteringUtil(dataProvider, searchField, startDatePicker,
+				endDatePicker);
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
@@ -156,16 +111,8 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 //		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		resetFiltersButton.addClickListener(e -> {
-			startDatePicker.clear();
-			endDatePicker.clear();
-			searchField.clear();
-			
-			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
-					.getUsersActivityByModule("Form Manager");
-			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
-			dataProvider = new ListDataProvider<>(userActivityList);
+			filteringSystem.clearAllFilters();
 
-			grid.setItems(dataProvider);
 
 		});
 
@@ -201,10 +148,6 @@ public class FormManagerActivityLog extends VerticalLayout implements RouterLayo
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 		
-		List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade().getUsersActivityByModule("Form Manager");
-
-		
-		dataProvider = new ListDataProvider<>(userActivityList);
 
 		grid.setItems(dataProvider);
 		
