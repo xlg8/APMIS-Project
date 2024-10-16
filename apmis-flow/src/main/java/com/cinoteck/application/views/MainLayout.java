@@ -153,7 +153,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 				isToggleOpen = !isToggleOpen;
 			}
 		});
-		
+
 		idleNotification.setMessage(
 				"Your session will expire in " + IdleNotification.MessageFormatting.SECS_TO_TIMEOUT + " seconds.");
 		idleNotification.addExtendSessionButton("Extend session");
@@ -163,7 +163,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		idleNotification.setRedirectAtTimeoutUrl("./");
 
 		UI.getCurrent().getSession().setAttribute(MainLayout.class, this);
-		UI.getCurrent().add(idleNotification);		
+		UI.getCurrent().add(idleNotification);
 
 //		addToNavbar(true, toggle, titleLayout);
 //
@@ -173,14 +173,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		addToNavbar(true, toggle, titleLayout);
 	}
-	
+
 //	public InactivityHandler getInactivityHandler() {
 //        return inactivityHandler;
 //    }
 
 	public IdleNotification getIdleNotification() {
-        return idleNotification;
-    }
+		return idleNotification;
+	}
 
 	private void addDrawerContent() {
 		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
@@ -229,18 +229,19 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 //		if (userProvider.hasUserRight(UserRight.DASHBOARD_CAMPAIGNS_ACCESS)) {
-			// NOTE : On the long run if we would not be using an external link here
-			// remeber that we can pass the subdomain url here to open in a new tab
-			//
-			AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard), AnalyticsDashboardView.class, 
-					VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/", "navitem");
+		// NOTE : On the long run if we would not be using an external link here
+		// remeber that we can pass the subdomain url here to open in a new tab
+		//
+		AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
+				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
+				"navitem");
 
-			if (userProvider.getUser().getLanguage().toString().equals("Pashto")
-					|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
-				newDashboardNavItem.getElement().getStyle().set("display", "math");
-			}
+		if (userProvider.getUser().getLanguage().toString().equals("Pashto")
+				|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
+			newDashboardNavItem.getElement().getStyle().set("display", "math");
+		}
 
-			nav.addItem(newDashboardNavItem);
+		nav.addItem(newDashboardNavItem);
 //		}
 
 		if (userProvider.hasUserRight(UserRight.CONFIGURATION_ACCESS)) {
@@ -307,8 +308,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-			nav.addItem(
-					new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
+			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification,
+					UserMessageView.class, "notification"));
 		}
 
 
@@ -317,7 +318,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 		return nav;
-
 	}
 
 	private void rtlswitcher() {

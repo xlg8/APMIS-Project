@@ -1,6 +1,7 @@
 package com.cinoteck.application.views.configurations;
 
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -270,7 +271,8 @@ public class ConfigurationChangeLogView extends VerticalLayout {
 			}
 		});
 
-		grid.addColumn(dateRenderer).setHeader(I18nProperties.getCaption("Date")).setSortable(true).setResizable(true);
+		grid.addColumn(dateRenderer).setHeader(I18nProperties.getCaption("Date")).setSortable(true)
+		.setComparator(Comparator.comparing(ConfigurationChangeLogDto::getAction_date)).setResizable(true);
 
 		grid.addColumn(ConfigurationChangeLogDto.AUDIT_USER).setHeader(I18nProperties.getCaption("Username"))
 		.setSortable(true).setResizable(true);		

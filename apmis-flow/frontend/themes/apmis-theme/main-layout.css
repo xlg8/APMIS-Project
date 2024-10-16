@@ -194,6 +194,26 @@ vcf-nav-item#navitem:active a, vcf-nav-item#menuItems:active a {
 	color: white !important;
 }
 
+/* Add red color and red dot for vcf-nav-item with id 'notification' */
+vcf-nav-item#notification {
+	color: red !important; /* Red color for text */
+	font-family: Lato;       /* Keep the font-family */
+	font-weight: 300 !important; /* Ensure font-weight remains applied */
+	position: relative;    /* Ensure dot is positioned relative to the item */
+}
+
+/* Add the red dot */
+vcf-nav-item#notification::before {
+	content: '';
+	position: absolute;
+	top: 20px;          /* Adjust as necessary to position vertically */
+	right: 10px;         /* Adjust as necessary to position horizontally */
+	width: 15px;
+	height: 15px;
+	background-color: red;
+	border-radius: 50%; /* Makes the dot circular */
+}
+
 /*vcf-nav-item#navitem @active, vcf-nav-item#menuItems @active {
 	background: #F08F3E !important;
 	color: white !important;
@@ -744,4 +764,20 @@ vaadin-vertical-layout#campaignFormLayout vaadin-tabsheet vaadin-tabs {
     background-color: red;
     color: white; /* This makes the text white for better visibility */
     padding: 10px 20px; /* Optional: Adjust padding */
+}
+
+.new-notification {
+    background-color: red !important;
+    color: white !important;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+}
+
+.custom-class {
+    background-color: #f0f0f0;
+    color: #333;
 }
