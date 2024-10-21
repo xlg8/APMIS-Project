@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.core.io.ByteArrayResource;
 
-@PageTitle("APMIS-Configurations")
+@PageTitle("APMIS-Geography")
 @Route(value = "configurations", layout = MainLayout.class)
 public class ConfigurationsView extends VerticalLayout implements RouterLayout {
 	private Map<Tab, Component> tabComponentMap = new LinkedHashMap<>();

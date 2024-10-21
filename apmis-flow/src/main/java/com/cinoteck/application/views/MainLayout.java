@@ -53,12 +53,15 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
+import de.symeda.sormas.api.messaging.MessageCriteria;
+import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserType;
 
@@ -100,6 +103,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Div aboutText = new Div();
 	Button notification = new Button("Notification");
 	IdleNotification idleNotification = new IdleNotification();
+	private long messageLength;
+	private MessageCriteria messageCriteria;
 //	private InactivityHandler inactivityHandler;
 
 	public MainLayout() {
@@ -118,9 +123,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		addDrawerContent();
 		addHeaderContent();
 
-
 	}
-	
 
 	private void addHeaderContent() {
 		DrawerToggle toggle = new DrawerToggle();
@@ -297,8 +300,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification,
-					UserMessageView.class, "notification"));
+			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, 
+							UserMessageView.class, "notification"));
 		}
 
 		if (nav != null) {
