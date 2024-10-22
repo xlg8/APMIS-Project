@@ -19,7 +19,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 
 @PageTitle("APMIS-Analytics Dashboard")
-@Route(value = "dashbords", layout = MainLayout.class)
+@Route(value = "dashbords")
 
 public class AnalyticsDashboardView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 

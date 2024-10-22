@@ -233,13 +233,28 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// remeber that we can pass the subdomain url here to open in a new tab
 		//
 		AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
-				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
+				 VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
 				"navitem");
 
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")
 				|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			newDashboardNavItem.getElement().getStyle().set("display", "math");
 		}
+		
+		// Handle the middle-click and modify the context menu behavior
+		newDashboardNavItem.getElement().executeJs(
+		    "const link = $0;" +
+		    "link.addEventListener('mousedown', (e) => {" +
+		    "  if (e.button === 1 || e.button === 2) {" +  // Middle click or right click
+		    "    e.preventDefault();" +
+		    "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');" +
+		    "  }" +
+		    "});" +
+		    // Override the href just before the context menu appears
+		    "link.addEventListener('contextmenu', (e) => {" +
+		    "  link.href = 'https://dashboard.afghanistan-apmis.com/';" +
+		    "});"
+		, newDashboardNavItem.getElement());
 
 		nav.addItem(newDashboardNavItem);
 //		}
