@@ -75,7 +75,12 @@ class CsvInputStreamFactory<T> extends BaseInputStreamFactory<T> {
       new Thread(() -> {
         try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
         	LOGGER.error("Problem generating export headerrrrrrrrrrrr");
-          writer.writeNext(headers);
+            // Write UTF-8 BOM
+            out.write(0xEF);
+            out.write(0xBB);
+            out.write(0xBF);
+            
+        	writer.writeNext(headers);
           
           if (footers.length > 0) {
         	  LOGGER.error("Problem generating export footerrrrrrrrrrr");
@@ -109,7 +114,8 @@ class CsvInputStreamFactory<T> extends BaseInputStreamFactory<T> {
     exporter.columns.forEach(column -> {
       Object value = exporter.extractValueFromColumn(item, column);
 
-      result[currentColumn[0]] = "" + value;
+      result[currentColumn[0]] = "" + value != null ? new String(value.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8) : "";
+      
       currentColumn[0] = currentColumn[0] + 1;
     });
     return result;

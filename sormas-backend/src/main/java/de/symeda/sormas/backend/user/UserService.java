@@ -43,6 +43,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.keycloak.representations.idm.UserFederationProviderFactoryRepresentation;

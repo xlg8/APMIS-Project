@@ -26,6 +26,7 @@ import com.cinoteck.application.views.myaccount.MyAccountView;
 import com.cinoteck.application.views.reports.ReportView;
 import com.cinoteck.application.views.support.SupportView;
 import com.cinoteck.application.views.uiformbuilder.FormBuilderView;
+import com.cinoteck.application.views.user.UserView;
 //import com.cinoteck.application.views.user.UserView;
 import com.cinoteck.application.views.user.UsersViewParent;
 import com.cinoteck.application.views.useractivitysummary.UserActivitySummary;
@@ -235,13 +236,28 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// remeber that we can pass the subdomain url here to open in a new tab
 		//
 		AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
-				AnalyticsDashboardView.class, VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
+				 VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
 				"navitem");
 
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")
 				|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			newDashboardNavItem.getElement().getStyle().set("display", "math");
 		}
+		
+		// Handle the middle-click and modify the context menu behavior
+		newDashboardNavItem.getElement().executeJs(
+		    "const link = $0;" +
+		    "link.addEventListener('mousedown', (e) => {" +
+		    "  if (e.button === 1 || e.button === 2) {" +  // Middle click or right click
+		    "    e.preventDefault();" +
+		    "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');" +
+		    "  }" +
+		    "});" +
+		    // Override the href just before the context menu appears
+		    "link.addEventListener('contextmenu', (e) => {" +
+		    "  link.href = 'https://dashboard.afghanistan-apmis.com/';" +
+		    "});"
+		, newDashboardNavItem.getElement());
 
 		nav.addItem(newDashboardNavItem);
 //		}
@@ -258,9 +274,16 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			if (userProvider.hasUserRight(UserRight.USER_VIEW)) {
-				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UsersViewParent.class,
+				
+			
+				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
 						VaadinIcon.USERS, "navitem"));
 			}
+//			
+//			if (userProvider.hasUserRight(UserRight.USER_VIEW)) {
+//				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
+//						VaadinIcon.USERS, "navitem"));
+//			}
 //			if ((permitted(UserRole.ADMIN) || permitted(UserRole.AREA_ADMIN_SUPERVISOR)
 //					|| permitted(UserRole.ADMIN_SUPERVISOR) || permitted(UserRole.COMMUNITY_INFORMANT))) {
 
@@ -282,6 +305,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 
+		
+		
+		
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
 			nav.addItem(new AppNavItem("Form Manager", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
@@ -303,6 +329,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, 
 							UserMessageView.class));
 		}
+
 
 		if (nav != null) {
 			nav.addClassName("active");

@@ -53,8 +53,8 @@ public class UsersDataProvider extends AbstractBackEndDataProvider<UserDto, User
 		// TODO Auto-generated method stub
 		
 		//FacadeProvider.getUserFacade()
-		return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
-		//return (int) fetchFromBackEnd(query).count();
+//		return (int) FacadeProvider.getUserFacade().count(query.getFilter().orElse(null));
+		return (int) fetchFromBackEnd(query).count();
 	}
 	
 	private static Comparator<UserDto> sortComparator(List<QuerySortOrder> sortOrders) {
