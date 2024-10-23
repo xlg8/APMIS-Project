@@ -1214,49 +1214,56 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 		String orderby = "";
 
 		if (sortProperties != null && sortProperties.size() > 0) {
+			
+			System.out.println(sortProperties +  " sort propertiesn by ejbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 			for (SortProperty sortProperty : sortProperties) {
+				
+				System.out.println(sortProperty.propertyName +  " sort propertiesn by ejbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+	
 				switch (sortProperty.propertyName) {
+				
+				
+				case "capaignname":
+					orderby = orderby.isEmpty() ? " order by capaignname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", capaignname " + (sortProperty.ascending ? "asc" : "desc");
+				break;
+				
+				case "formname":
+				
+				if(criteria.getUserLanguage() != null) {
+					if(criteria.getUserLanguage().equalsIgnoreCase("pashto")) {
+						orderby = orderby.isEmpty() ? " order by formmeta.formname_ps_af " + (sortProperty.ascending ? "asc" : "desc") : orderby+", formmeta.formname_ps_af " + (sortProperty.ascending ? "asc" : "desc");
+					}else if(criteria.getUserLanguage().equalsIgnoreCase("dari")) {
+						orderby = orderby.isEmpty() ? " order by formmeta.formname_fa_af " + (sortProperty.ascending ? "asc" : "desc") : orderby+", formmeta.formname_fa_af " + (sortProperty.ascending ? "asc" : "desc");
+					}else {
+						orderby = orderby.isEmpty() ? " order by formmeta.formname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", formmeta.formname " + (sortProperty.ascending ? "asc" : "desc");
+					}				
+				}else {
+					orderby = orderby.isEmpty() ? " order by formmeta.formname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", formmeta.formname " + (sortProperty.ascending ? "asc" : "desc");
+
+				}
+				
+				break;
+				
 				case "region":
-					orderby = orderby.isEmpty() ? " order by area_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", area_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by areaname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", areaname " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
 				case "province":
-					orderby = orderby.isEmpty() ? " order by region_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", region_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by regionname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", regionname " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 					
 				case "district":
-					orderby = orderby.isEmpty() ? " order by district_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", district_ " + (sortProperty.ascending ? "asc" : "desc");
+					orderby = orderby.isEmpty() ? " order by districtname " + (sortProperty.ascending ? "asc" : "desc") : orderby+", districtname " + (sortProperty.ascending ? "asc" : "desc");
 				break;	
 				
-				case "clusterNumber":
-					orderby = orderby.isEmpty() ? " order by clusternumber_ " + (sortProperty.ascending ? "asc" : "desc") : orderby+", clusternumber_ " + (sortProperty.ascending ? "asc" : "desc");
+				case "latecount":
+					orderby = orderby.isEmpty() ? " order by dst.count " + (sortProperty.ascending ? "asc" : "desc") : orderby+", dst.count " + (sortProperty.ascending ? "asc" : "desc");
 				break;
 				
-				case "ccode":
-					orderby = orderby.isEmpty() ? " order by ccode " + (sortProperty.ascending ? "asc" : "desc") : orderby+", ccode " + (sortProperty.ascending ? "asc" : "desc");
+				case "percentage":
+					orderby = orderby.isEmpty() ? " order by perc " + (sortProperty.ascending ? "asc" : "desc") : orderby+", perc " + (sortProperty.ascending ? "asc" : "desc");
 				break;
-				
-				case "supervisor":
-					orderby = orderby.isEmpty() ? " order by supervisor " + (sortProperty.ascending ? "asc" : "desc") : orderby+", supervisor " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "revisit":
-					orderby = orderby.isEmpty() ? " order by revisit " + (sortProperty.ascending ? "asc" : "desc") : orderby+", revisit " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "household":
-					orderby = orderby.isEmpty() ? " order by household " + (sortProperty.ascending ? "asc" : "desc") : orderby+", household " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "teammonitori":
-					orderby = orderby.isEmpty() ? " order by teammonitori " + (sortProperty.ascending ? "asc" : "desc") : orderby+", teammonitori " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				case "errorfilter":
-					orderby = orderby.isEmpty() ? " order by error_status " + (sortProperty.ascending ? "asc" : "desc") : orderby+", error_status " + (sortProperty.ascending ? "asc" : "desc");
-				break;
-				
-				
+
 				
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
@@ -1303,7 +1310,8 @@ if(criteria.getUserLanguage() != null) {
 
 				+ "LEFT JOIN areas ON region.area_id = areas.id" + whereclause 
 //				
-//				+ orderby
+				+ orderby
+				
 				+ " limit "+max+" offset "+first+";";
 //		
 	System.out.println( max + "dfdf"+ first +"=====seriesDataQuery======== "+joinBuilder );
@@ -1508,7 +1516,10 @@ if(criteria.getUserLanguage() != null) {
 						((BigInteger) result[4]).longValue(),  
 						((String) result[5]).toString(), 
 						((String) result[6]).toString(), 
-						((String) result[7]).toString(),
+						((String) result[7]).toString() != null 
+						|| !((String) result[7]).toString().isEmpty() 
+						? ((String) result[7]).toString() 
+								: "No Title",
 						((String) result[8]).toString()
 					)).collect(Collectors.toList()));
 		
@@ -3673,7 +3684,7 @@ if(criteria.getUserLanguage() != null) {
 		final String joinBuilder = "INSERT INTO tracktableupdates (table_name, last_updated, islocked)\n"
 				+ "    VALUES ('" + tabled + "', NOW(), " + isLocked_ + ")\n" + "    ON CONFLICT (table_name)\n"
 				+ "    DO UPDATE SET last_updated = NOW(), isLocked = " + isLocked_ + ";";
-		
+
 		System.out.println("```````111111111111111111updateTrakerTable(    :" + joinBuilder);
 
 		em.createNativeQuery(joinBuilder).executeUpdate();

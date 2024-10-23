@@ -18,9 +18,11 @@
 package de.symeda.sormas.api.infrastructure;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import de.symeda.sormas.api.EntityRelevanceStatus;
 import de.symeda.sormas.api.ErrorStatusEnum;
+import de.symeda.sormas.api.campaign.CampaignCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
@@ -38,6 +40,7 @@ public class ConfigurationChangeLogCriteria extends BaseCriteria implements Seri
 	private String unitType;
 	private String action;
 	private String freeText;
+	private Date actionDate;
 
 	public String getUnitName() {
 		return unitName;
@@ -62,6 +65,15 @@ public class ConfigurationChangeLogCriteria extends BaseCriteria implements Seri
 	}
 	public void setAction(String action) {
 		this.action = action;
+	}
+	
+	public ConfigurationChangeLogCriteria actionDate(Date actionDate) {
+		this.actionDate = actionDate;
+		return this;
+	}
+
+	public Date getActiondate() {
+		return actionDate;
 	}
 	
 	public ConfigurationChangeLogCriteria freeText(String freeText) {

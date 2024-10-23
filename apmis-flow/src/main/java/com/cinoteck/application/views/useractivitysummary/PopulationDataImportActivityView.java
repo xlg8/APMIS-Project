@@ -63,7 +63,6 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 	private Grid<UserActivitySummaryDto> grid = new Grid<>(UserActivitySummaryDto.class, false);
 	TextField searchField = new TextField();
 	HorizontalLayout filterLayout = new HorizontalLayout();
-	private ListDataProvider<UserActivitySummaryDto> dataProvider;
 	private DatePicker startDatePicker = new DatePicker();
 	private DatePicker endDatePicker = new DatePicker();
 	Button displayFilters;
@@ -81,16 +80,21 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 	private String exportFileName;
 	private GridExporter<UserActivitySummaryDto> exporter;
 	Icon icon = VaadinIcon.UPLOAD_ALT.create();
+	
+	private List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade().getUsersActivityByModule("Population Data Import");
+
+	private ListDataProvider<UserActivitySummaryDto> dataProvider =  new ListDataProvider<>(userActivityList);
+
 
 
 	public PopulationDataImportActivityView() {
 		setSizeFull();
 		setHeightFull();
-		addFilters();
+		addFilters(dataProvider);
 		confiureDataImportActivityGrid();
 	}
 	
-	public void addFilters() {
+	public void addFilters(ListDataProvider<UserActivitySummaryDto> dataProvider) {
 
 		HorizontalLayout vlayout = new HorizontalLayout();
 		vlayout.setPadding(false);
@@ -108,181 +112,11 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 				displayFilters.setText(I18nProperties.getCaption(Captions.showFilters));
 			}
 		});
+		
+		ActivityFilteringUtil filteringSystem = new ActivityFilteringUtil(dataProvider, searchField, startDatePicker,
+				endDatePicker);
 
-		searchField.setLabel("Search");
 
-		searchField.addClassName("searchField");
-		searchField.setPlaceholder("Search Username");
-		searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
-		searchField.setClearButtonVisible(true);
-		searchField.setWidth("145px");
-		searchField.setValueChangeMode(ValueChangeMode.EAGER);
-		searchField.addValueChangeListener(e -> {
-			String searchTerm = e.getValue().trim();
-
-			if (searchTerm != null && !searchTerm.isEmpty()) {
-				dataProvider.setFilter(userActivity -> {
-					// Check if the username contains the search term (case insensitive)
-					boolean usernameMatches = userActivity.getCreatingUser_string().toLowerCase()
-							.contains(searchTerm.toLowerCase());
-					return usernameMatches;
-				});
-			} else {
-				// Clear the filter when search field is empty
-				dataProvider.clearFilters();
-			}
-		});
-
-		// DatePickers for range filter
-		endDatePicker.setLabel("To Date");
-
-		startDatePicker.setPlaceholder("Start Date");
-		startDatePicker.setClearButtonVisible(true);
-
-		endDatePicker.setLabel("To Date");
-
-		endDatePicker.setPlaceholder("End Date");
-		endDatePicker.setClearButtonVisible(true);
-
-		// Add value change listeners for the date pickers
-		ValueChangeListener<AbstractField.ComponentValueChangeEvent<DatePicker, LocalDate>> dateRangeFilterListener = e -> {
-			LocalDate startDate = startDatePicker.getValue();
-			LocalDate endDate = endDatePicker.getValue();
-
-			// Apply date range filter if both start and end dates are selected
-			if (startDate != null && endDate != null) {
-				dataProvider.setFilter(userActivity -> {
-					LocalDate activityDate = userActivity.getActionDate().toInstant().atZone(ZoneId.systemDefault())
-							.toLocalDate();
-					return (activityDate.isEqual(startDate) || activityDate.isAfter(startDate))
-							&& (activityDate.isEqual(endDate) || activityDate.isBefore(endDate));
-				});
-			} else {
-				dataProvider.clearFilters(); // Clear the filter when no range is selected
-			}
-		};
-
-		// Attach the listener to both date pickers
-		startDatePicker.addValueChangeListener(dateRangeFilterListener);
-		endDatePicker.addValueChangeListener(dateRangeFilterListener);
-
-		campaignYear.setLabel(I18nProperties.getCaption(Captions.campaignYear));
-		campaignYear.getStyle().set("padding-top", "0px !important");
-		campaignYear.setClassName("col-sm-6, col-xs-6");
-
-		campaignz.setLabel(I18nProperties.getCaption(Captions.Campaigns));
-		campaignz.getStyle().set("padding-top", "0px !important");
-		campaignz.setClassName("col-sm-6, col-xs-6");
-
-		campaignPhase.setLabel(I18nProperties.getCaption(Captions.Campaign_phase));
-		campaignPhase.getStyle().set("padding-top", "0px !important");
-		campaignPhase.setClearButtonVisible(true);
-		campaignz.setClassName("col-sm-6, col-xs-6");
-
-		campaignFormCombo.setLabel(I18nProperties.getCaption(Captions.campaignCampaignForm));
-		campaignFormCombo.getStyle().set("padding-top", "0px !important");
-		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
-		campaignFormCombo.setClassName("col-sm-6, col-xs-6");
-		campaignFormCombo.setClearButtonVisible(true);
-
-		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
-		if (userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-			campaignPhase.setItems(CampaignPhase.values());
-			campaignPhase.setValue(CampaignPhase.INTRA);
-		} else {
-			campaignPhase.setItems(CampaignPhase.values());
-			campaignPhase.setValue(CampaignPhase.PRE);
-		}
-
-		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
-		CampaignReferenceDto lastStarted = FacadeProvider.getCampaignFacade().getLastStartedCampaign();
-		List<String> camYearList = campaigns.stream().map(CampaignReferenceDto::getCampaignYear).distinct()
-				.collect(Collectors.toList());
-
-		campaignYear.setItems(camYearList);
-
-		campaignYear.setValue(lastStarted.getCampaignYear());
-
-		List<CampaignReferenceDto> allCampaigns = campaigns.stream()
-				.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
-
-		campaignz.setItems(allCampaigns);
-		campaignz.setValue(lastStarted);
-		campaignFormCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
-
-		campaignPhase.setItemLabelGenerator(this::getLabelForEnum);
-
-		campaignPhase.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-
-				campaignFormCombo.clear();
-				campaignForms = FacadeProvider.getCampaignFormMetaFacade()
-						.getAllCampaignFormMetasAsReferencesByRoundandCampaign(e.getValue().toString().toLowerCase(),
-								campaignz.getValue().getUuid());
-//				campaignFormCombo.setValue(campaignForms.get(0));
-				campaignFormCombo.setItems(campaignForms);
-				filterGridData();
-
-			}
-
-		});
-
-		// Configure Comboboxes Value Change Listeners
-		campaignYear.addValueChangeListener(e -> {
-			campaignz.clear();
-			List<CampaignReferenceDto> allCampaigns_ = campaigns.stream()
-					.filter(c -> c.getCampaignYear().equals(campaignYear.getValue())).collect(Collectors.toList());
-			campaignz.setItems(allCampaigns_);
-			campaignz.setValue(allCampaigns_.get(0));
-			filterGridData();
-
-		});
-
-		String language = userProvider.getUser().getLanguage().toString();
-
-		Set<FormAccess> xx = new HashSet<FormAccess>();
-		xx = userProvider.getUser().getFormAccess();
-
-		List<CampaignFormMetaReferenceDto> filterdList = new ArrayList<>();
-
-		campaignForms = FacadeProvider.getCampaignFormMetaFacade()
-				.getAllCampaignFormMetasAsReferencesByRoundandCampaign(
-						campaignPhase.getValue().toString().toLowerCase(), campaignz.getValue().getUuid());
-
-		campaignForms.removeIf(e -> e.getFormCategory() == null);
-
-		for (FormAccess n : xx) {
-			boolean yn = campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
-					.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()).size() > 0;
-			if (yn) {
-				filterdList.addAll(campaignForms.stream().filter(e -> !e.getFormCategory().equals(null))
-						.filter(ee -> ee.getFormCategory().equals(n)).collect(Collectors.toList()));
-			}
-		}
-
-		filterdList.sort(Comparator.comparing(CampaignFormMetaReferenceDto::getCaption));
-
-		campaignz.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				campaignFormCombo.clear();
-				filterGridData();
-//				campaignFormCombo.setValue(campaignForms.get(0));
-
-			}
-		});
-
-		campaignFormCombo.setItems(filterdList);
-		campaignFormCombo.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-				System.out.println("Grid Filtered from campaign form combo ");
-				filterGridData();
-
-			} else {
-
-			}
-
-		});
 
 		Button exportButton = new Button(I18nProperties.getCaption(Captions.export));
 		exportButton.setIcon(new Icon(VaadinIcon.UPLOAD));
@@ -299,16 +133,7 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 //		resetFiltersButton.setIcon(new Icon(VaadinIcon.UPLOAD));
 
 		resetFiltersButton.addClickListener(e -> {
-			startDatePicker.clear();
-			endDatePicker.clear();
-			searchField.clear();
-			
-			List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade()
-					.getUsersActivityByModule("Campaign Data Import");
-			// Wrap the List<UserActivitySummaryDto> in a ListDataProvider
-			dataProvider = new ListDataProvider<>(userActivityList);
-
-			grid.setItems(dataProvider);
+			filteringSystem.clearAllFilters();
 
 		});
 
@@ -324,59 +149,6 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 
 	}
 	
-	private void filterGridData() {
-		CampaignReferenceDto selectedCampaign = campaignz.getValue() != null ? campaignz.getValue() : null;
-		String selectedForm = campaignFormCombo.getValue() != null ? campaignFormCombo.getValue().toString() : "";
-
-		// Apply the filter only if a campaign is selected
-		dataProvider.setFilter(userActivity -> {
-			String actionDescription = userActivity.getAction_logged(); // Example: "Edited Data: LQAS - Cluster Data
-																		// Collection Form (5-10) in Nov SNID 2023"
-
-			// Extract the substring after "in " (case-sensitive, can adjust if needed)
-			String[] splitDescription = actionDescription.split(" in ");
-			String campaignName = splitDescription.length > 1 ? splitDescription[1].trim() : "";
-			String formName = splitDescription.length > 1 ? splitDescription[0].trim() : "";
-
-			String[] splitFormNameDescription = splitDescription[0].trim().split("User Attempted ");
-
-			System.out.println("splitDescription[0].trim()" + splitFormNameDescription[1].trim()
-					+ "splitDescription[1].trim()" + splitFormNameDescription[0].trim()
-					+ splitFormNameDescription.toString().equalsIgnoreCase(selectedForm.toString()));
-
-			String extraxtedFormName = splitFormNameDescription[1].trim();
-			// Match the campaign name with the selected campaign
-			boolean matchesCampaign = selectedCampaign == null
-					|| campaignName.toString().equalsIgnoreCase(selectedCampaign.toString());
-
-			System.out.println(selectedForm.toString() + "====" + splitFormNameDescription.toString());
-			boolean matchesCampaignForm = selectedForm == null
-					|| extraxtedFormName.toString().equalsIgnoreCase(selectedForm.toString());
-
-			return matchesCampaign && matchesCampaignForm;
-		});
-	}
-
-	private String getLabelForEnum(CampaignPhase campaignPhase) {
-		if (campaignPhase != null) {
-			switch (campaignPhase) {
-			case PRE:
-				return "Pre-Campaign";
-
-			case POST:
-				return "Post-Campaign";
-
-			case INTRA:
-				return "Intra-Campaign";
-
-			default:
-				return campaignPhase.toString();
-			}
-		} else {
-			return "Intra-Campaign";
-		}
-
-	}
 
 	public void confiureDataImportActivityGrid() {
 		grid.setSelectionMode(SelectionMode.NONE);
@@ -401,10 +173,7 @@ public class PopulationDataImportActivityView extends VerticalLayout implements 
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
 				.setSortable(false).setResizable(true);
 		
-		List<UserActivitySummaryDto> userActivityList = FacadeProvider.getUserFacade().getUsersActivityByModule("Population Data Import");
-
-		dataProvider = new ListDataProvider<>(userActivityList);
-
+		
 		grid.setItems(dataProvider);
 		
 		exporter = GridExporter.createFor(grid);

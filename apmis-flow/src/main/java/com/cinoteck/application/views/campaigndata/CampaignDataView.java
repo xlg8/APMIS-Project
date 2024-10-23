@@ -994,7 +994,6 @@ public class CampaignDataView extends VerticalLayout
 		importanceSwitcher.setClearButtonVisible(true);
 		importanceSwitcher.setTooltipText(I18nProperties.getDescription(Descriptions.campaign_importance));
 		importanceSwitcher.addValueChangeListener(e -> {
-			System.out.println(isGridInMultiselectMode + "isGridInMultiselectModeisGridInMultiselectMode");
 
 			formMetaReference = FacadeProvider.getCampaignFormMetaFacade()
 					.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
@@ -1035,9 +1034,17 @@ public class CampaignDataView extends VerticalLayout
 
 			configureColumnStyles(criteria);
 
-			if (isGridInMultiselectMode) {
-				configureGridMultiSelect();
+			if (leaveBulkEdit.isVisible()) {
+				leaveBulkEdit.setVisible(false);
+//				bulkActionsItem.setVisible(false);
+				dropdownBulkOperations.setVisible(false);
+
+				enterBulkEdit.setVisible(true);
 			}
+
+//			if (isGridInMultiselectMode) {
+//				configureGridMultiSelect();
+//			}
 
 		});
 
@@ -1119,7 +1126,6 @@ public class CampaignDataView extends VerticalLayout
 			enterBulkEdit.setVisible(true);
 			leaveBulkEdit.setVisible(false);
 			selectAllButtonpLACEHOLDER.setVisible(false);
-			isGridInMultiselectMode = false;
 
 			dropdownBulkOperations.setVisible(false);
 		});
@@ -1532,7 +1538,7 @@ public class CampaignDataView extends VerticalLayout
 					leaveBulkEdit.setVisible(false);
 					enterBulkEdit.setVisible(true);
 					grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-					isGridInMultiselectMode = false;
+
 					dropdownBulkOperations.setVisible(false);
 					selectAllButtonpLACEHOLDER.setVisible(false);
 

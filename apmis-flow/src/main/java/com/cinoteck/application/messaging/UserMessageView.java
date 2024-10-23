@@ -24,6 +24,7 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -34,7 +35,7 @@ import de.symeda.sormas.api.user.UserRole;
 
 @PageTitle("APMIS-Notification")
 @Route(value = "UserNotification", layout = MainLayout.class)
-public class UserMessageView extends VerticalLayout{
+public class UserMessageView extends VerticalLayout {
 
 	/**
 	 * 
@@ -50,6 +51,8 @@ public class UserMessageView extends VerticalLayout{
 	MessageCriteria messageCriteria;
 	Dialog dialog = new Dialog();
 	Date thirtyDaysAgo;
+
+	Date usersLastLoginDate;
 
 	public UserMessageView() {
 
@@ -72,25 +75,25 @@ public class UserMessageView extends VerticalLayout{
 
 		dialog.open();
 		add(dialog);
+//		VaadinSession.getCurrent().getSession().setAttribute("messageLength", "0");
 	}
 
 	private void campaignsGrid() {
 
-		if(userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
+		if (userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
 			UserDto user = FacadeProvider.getUserFacade().getByUserName(userProvider.getUser().getUserName());
-			System.out.println("xxxxxxxxxxxxxxxxx");
-			if(user.getArea() != null) {
+			usersLastLoginDate = FacadeProvider.getUserFacade()
+					.checkUsersActiveStatusByUsernameandActiveStatus(userProvider.getUser().getUserName());
+			if (user.getArea() != null) {
 				messageCriteria.area(user.getArea());
-				System.out.println("aaaaaaaaaaaaaaaaa");
+				System.out.println("aaaaaaaaaaaaaaaaa " + usersLastLoginDate);
 			}
-			if(user.getRegion() != null) {
+			if (user.getRegion() != null) {
 				messageCriteria.region(user.getRegion());
-				System.out.println("rrrrrrrrrrrrrrrrr");
 			}
-			if(user.getDistrict() != null) {
+			if (user.getDistrict() != null) {
 				messageCriteria.district(user.getDistrict());
-				System.out.println("ddddddddddddddddddddddd");
-			}			
+			}
 		}
 
 		grid.setSelectionMode(SelectionMode.SINGLE);
@@ -105,28 +108,27 @@ public class UserMessageView extends VerticalLayout{
 		});
 
 		grid.addColumn(MessageDto.MESSAGE_CONTENT).setHeader("Message").setSortable(true).setResizable(true);
-		grid.addColumn(changeDateRenderer).setHeader("Broadcasted at").setSortable(true).setResizable(true);		
+		grid.addColumn(changeDateRenderer).setHeader("Broadcasted at").setSortable(true).setResizable(true);
 
 		List<MessageDto> listOfMessagesToRemoveExpiredMessages = FacadeProvider.getMessageFacade()
 				.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 10,
 						userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess());
-		
-		List<MessageDto> mainMessagesList = new ArrayList<>();
-		
-		for (MessageDto messages : listOfMessagesToRemoveExpiredMessages) {
-            if (messages.getChangeDate().after(thirtyDaysAgo) || messages.getChangeDate().equals(thirtyDaysAgo)) {
-            	mainMessagesList.add(messages);
-            }
-        }
-		
-		ListDataProvider<MessageDto> dataProvider = DataProvider
-				.fromStream(mainMessagesList.stream());
-		
-		dataView = grid.setItems(dataProvider);
-		
-		grid.asSingleSelect().addValueChangeListener(event -> showMessage(event.getValue()));
-	}		
 	
+		List<MessageDto> mainMessagesList = new ArrayList<>();
+
+		for (MessageDto messages : listOfMessagesToRemoveExpiredMessages) {
+			if (messages.getChangeDate().after(thirtyDaysAgo) || messages.getChangeDate().equals(thirtyDaysAgo)) {
+				mainMessagesList.add(messages);
+			}
+		}
+
+		ListDataProvider<MessageDto> dataProvider = DataProvider.fromStream(mainMessagesList.stream());
+
+		dataView = grid.setItems(dataProvider);
+
+		grid.asSingleSelect().addValueChangeListener(event -> showMessage(event.getValue()));
+	}
+
 	private void showMessage(MessageDto messageDto) {
 
 		TextArea message = new TextArea("Message");
@@ -135,7 +137,7 @@ public class UserMessageView extends VerticalLayout{
 		message.getStyle().set("margin", "10px");
 		message.setHeight("300px");
 		message.setWidth("700px");
-		
+
 		Dialog messageDetails = new Dialog();
 		messageDetails.setWidth("800px");
 		messageDetails.setHeight("400px");
@@ -151,12 +153,12 @@ public class UserMessageView extends VerticalLayout{
 		messageDetails.setClassName("show-message");
 		messageDetails.getFooter().add(closePreviewButton);
 	}
-	
+
 	public static Date subtractDaysFromDate(Date date, int days) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DAY_OF_YEAR, -days);
-        return calendar.getTime();
-    }
-	
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.DAY_OF_YEAR, -days);
+		return calendar.getTime();
+	}
+
 }

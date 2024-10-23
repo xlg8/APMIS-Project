@@ -1,4 +1,4 @@
-	package com.cinoteck.application.views.user;
+package com.cinoteck.application.views.user;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
@@ -102,14 +102,14 @@ import de.symeda.sormas.api.user.UserType;
 //import de.symeda.sormas.ui.utils.DownloadUtil;
 
 @PageTitle("APMIS-User Management")
-@Route(value = "usersmanegement", layout = UsersViewParent.class)
+@Route(value = "users", layout = MainLayout.class)
 public class UserView extends VerticalLayout implements RouterLayout, BeforeEnterObserver {
 
 	HorizontalLayout mainContainer = new HorizontalLayout();
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
-	private MultiSelectComboBox<UserRole> userRolesFilter = new MultiSelectComboBox<UserRole>();
+	private ComboBox<UserRole> userRolesFilter = new ComboBox<UserRole>();
 //	private ComboBox<UserRole> userRolesFilter = new ComboBox<>();
 
 	private ComboBox<AreaReferenceDto> areaFilter;
@@ -130,6 +130,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 	private UsersDataProvider usersDataProvider = new UsersDataProvider();
 	private ConfigurableFilterDataProvider<UserDto, Void, UserCriteria> filterDataProvider;
+	Set<UserRole> selectedRolesX = new HashSet(); // .getValue();
+
 
 	UserForm userForm;
 
@@ -282,7 +284,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		subMenu.addItem(I18nProperties.getCaption(Captions.actionEnableUsers), e -> enableUserPopup());
 		subMenu.addItem(I18nProperties.getCaption(Captions.actionDisableUsers), e -> disableUserPopup());
-		subMenu.addItem(I18nProperties.getCaption(Captions.actionBulkEditUserFormFields), e -> handleUserBulkEditDialog(grid.getSelectedItems(), userDto, filterDataProvider));
+		subMenu.addItem(I18nProperties.getCaption(Captions.actionBulkEditUserFormFields),
+				e -> handleUserBulkEditDialog(grid.getSelectedItems(), userDto, filterDataProvider));
 
 		menuBar.getStyle().set("margin-top", "5px");
 //		enable.addClickListener(e -> enableUserPopup());
@@ -359,38 +362,38 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		filterLayout.add(activeFilter);
 
-//		userRolesFilter = new ComboBox<UserRole>();
-//		userRolesFilter.setWidth("145px");
-//
-//		userRolesFilter.setId(UserDto.USER_ROLES);
-//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
-//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
-//		userRolesFilter.getStyle().set("padding-top", "0px!important");
-//		userRolesFilter.setClearButtonVisible(true);
-//	
-//		
-//		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-//		roles.remove(UserRole.BAG_USER);
-//
-//		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
-//		roles.remove(UserRole.BAG_USER);
-//
-//		// Sorting the user roles usng comprtor
-//		Collections.sort(rolesz, new UserRoleCustomComparator());
-//		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
-//
-//		userRolesFilter.setItems(sortedUserRoless);
-//		userRolesFilter.addValueChangeListener(e -> {
-//
-//			UserRole userRole = e.getValue();
-//			criteria.userRole(userRole);
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//			updateRowCount();
-//
-//		});
+		userRolesFilter = new ComboBox<UserRole>();
+		userRolesFilter.setWidth("145px");
+
+		userRolesFilter.setId(UserDto.USER_ROLES);
+		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+		userRolesFilter.getStyle().set("padding-top", "0px!important");
+		userRolesFilter.setClearButtonVisible(true);
+	
 		
+		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+		roles.remove(UserRole.BAG_USER);
+
+		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+		roles.remove(UserRole.BAG_USER);
+
+		// Sorting the user roles usng comprtor
+		Collections.sort(rolesz, new UserRoleCustomComparator());
+		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+
+		userRolesFilter.setItems(sortedUserRoless);
+		userRolesFilter.addValueChangeListener(e -> {
+
+			UserRole userRole = e.getValue();
+			criteria.userRole(userRole);
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+			updateRowCount();
+
+		});
+
 //		Recieve FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles(); into an appropriate collection 
 //		convert the system into a list 
 //		sort the items in the list and add them back 
@@ -398,29 +401,26 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //		if current user - who user remoe baguser and admin 
 //		while if current user is eoc remove cluster cordinatoe 
 //		Remove the role BagUser
-		
-		
 
-		userRolesFilter = new MultiSelectComboBox<>();
-		userRolesFilter.setWidth("145px");
-		userRolesFilter.setId(UserDto.USER_ROLES);
-		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
-		userRolesFilter.getStyle().set("margin-left", "0.1rem");
-		userRolesFilter.getStyle().set("padding-top", "0px!important");
-		userRolesFilter.setClearButtonVisible(true);
+//		userRolesFilter = new MultiSelectComboBox<>();
+//		userRolesFilter.setWidth("145px");
+//		userRolesFilter.setId(UserDto.USER_ROLES);
+//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+//		userRolesFilter.getStyle().set("padding-top", "0px!important");
+//		userRolesFilter.setClearButtonVisible(true);
+//
+//		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+//		roles.remove(UserRole.BAG_USER);
+//		List<UserRole> rolesList = new ArrayList<>(roles);
+//
+//		// Sorting the user roles using comparator
+//		Collections.sort(rolesList, new UserRoleCustomComparator());
+//		Set<UserRole> sortedUserRoles = new LinkedHashSet<>(rolesList);
+//
+//		userRolesFilter.setItems(sortedUserRoles);
 
-		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-		roles.remove(UserRole.BAG_USER);
-		List<UserRole> rolesList = new ArrayList<>(roles);
-
-		// Sorting the user roles using comparator
-		Collections.sort(rolesList, new UserRoleCustomComparator());
-		Set<UserRole> sortedUserRoles = new LinkedHashSet<>(rolesList);
-
-		userRolesFilter.setItems(sortedUserRoles);
-
-		
 //		userRolesFilter.addValueChangeListener(e -> {
 //		    Set<UserRole> selectedRoles = e.getValue();
 //
@@ -452,31 +452,29 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //		    updateRowCount();
 //		});
 
-		
-		
-		userRolesFilter.addValueChangeListener(e -> {
-		    Set<UserRole> selectedRoles =  new HashSet(); //.getValue();
-		    selectedRoles = e.getValue();
+//		userRolesFilter.addValueChangeListener(e -> {
+//			selectedRolesX = e.getValue();
+//
+//			String names = selectedRolesX.stream().map(UserRole::toString) // or use another method to get a specific
+//																			// string representation of UserRole
+//					.collect(Collectors.joining(","));
+//			if (selectedRolesX.isEmpty()) {
+//				criteria.userRole(null);
+//				criteria.userRoleSet(null);
+//			} else {
+//				criteria.userRole(null);
+//				criteria.userRoleSet(null);
+//				criteria.userRoleSet(selectedRolesX);
+////		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+//			}
+//
+//			System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet()
+//					+ selectedRolesX + "<=========");
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//			updateRowCount();
+//		});
 
-		    String names = selectedRoles.stream()
-		    	    .map(UserRole::toString) // or use another method to get a specific string representation of UserRole
-		    	    .collect(Collectors.joining(","));
-		    if (selectedRoles.isEmpty()) {
-		        criteria.userRole(null);
-		        criteria.userRoleSet(null);
-		    } else {
-		    	criteria.userRole(null);
-		        criteria.userRoleSet(null);
-		        criteria.userRoleSet(selectedRoles);
-//		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
-		    }
-		    
-		    System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet() + selectedRoles + "<=========");
-		    filterDataProvider.setFilter(criteria);
-		    filterDataProvider.refreshAll();
-		    updateRowCount();
-		});
-		
 //		// Add a custom label to show all selected roles
 //		Div selectedRolesLabel = new Div();
 //		selectedRolesLabel.getStyle().set("font-size", "0.8em");
@@ -494,6 +492,9 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		filterLayout.add(userRolesFilter);
 
 		areaFilter = new ComboBox<AreaReferenceDto>();
+		regionFilter = new ComboBox<RegionReferenceDto>();
+		districtFilter = new ComboBox<DistrictReferenceDto>();
+
 		areaFilter.setId(CaseDataDto.AREA);
 		areaFilter.setWidth("145px");
 
@@ -515,6 +516,22 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		areaFilter.setClearButtonVisible(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getArea() != null) {
 			areaFilter.setValue(userProvider.getUser().getArea());
+
+			if (areaFilter.getValue() != null) {
+
+				System.out.println(areaFilter.getValue().getUuid()
+						+ "areaFilter.getValue().getUuid()areaFilter.getValue().getUuid()");
+
+				provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(areaFilter.getValue().getUuid());
+
+				System.out.println(
+						provinces + "provincesprovincesareaFilter.getValue().getUuid()areaFilter.getValue().getUuid()");
+
+				regionFilter.clear();
+
+				regionFilter.setItems(provinces);
+			}
+
 			if (regionFilter != null) {
 				regionFilter.clear();
 				if (userProvider.getUser().getArea().getUuid() != null) {
@@ -571,7 +588,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		filterLayout.add(areaFilter);
 
-		regionFilter = new ComboBox<RegionReferenceDto>();
 		regionFilter.setId(CaseDataDto.REGION);
 		regionFilter.setWidth(145, Unit.PIXELS);
 		regionFilter.setLabel(
@@ -583,6 +599,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		if (userProvider.getUser() != null && userProvider.getUser().getRegion() != null) {
 			regionFilter.setItems(userProvider.getUser().getRegion());
 			regionFilter.setValue(userProvider.getUser().getRegion());
+			regionFilter.setEnabled(false);
+
 			if (districtFilter != null) {
 				districtFilter.clear();
 				if (userProvider.getUser().getRegion().getUuid() != null) {
@@ -600,7 +618,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 				}
 			}
 			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
-			regionFilter.setEnabled(false);
+
 		} else if (userProvider.getUser().getRegion() == null) {
 
 		}
@@ -637,7 +655,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		filterLayout.add(regionFilter);
 
-		districtFilter = new ComboBox<DistrictReferenceDto>();
 		districtFilter.setId(CaseDataDto.DISTRICT);
 		districtFilter.setWidth(145, Unit.PIXELS);
 		districtFilter.setLabel(I18nProperties.getCaption(Captions.district));
@@ -647,14 +664,43 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		districtFilter.setClearButtonVisible(true);
 		districtFilter.setReadOnly(true);
 		if (userProvider.getUser() != null && userProvider.getUser().getDistrict() != null) {
+			
+			System.out.println( userProvider.getUser().getDistrict() +  "======userProvider.getUser().getDistrict() userProvider.getUser().getDistrict() ");
+
 			districtFilter.setItems(userProvider.getUser().getDistrict());
 
 			districtFilter.setValue(userProvider.getUser().getDistrict());
 
 			filterDataProvider.setFilter(criteria.region(userProvider.getUser().getRegion()));
+
 			districtFilter.setEnabled(false);
 
+		} else if (regionFilter.getValue() != null && userProvider.getUser() != null
+				&& userProvider.getUser().getArea() != null && userProvider.getUser().getRegion() != null) {
+			
+			System.out.println( userProvider.getUser().getDistrict() + "9999"  + regionFilter.getValue().getUuid() + "elseif ======userProvider.getUser().getDistrict() userProvider.getUser().getDistrict() ");
+
+			districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(regionFilter.getValue().getUuid());
+			if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+				districtFilter.setItems(FacadeProvider.getDistrictFacade()
+						.getAllActiveByRegionPashto(regionFilter.getValue().getUuid()));
+			} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+				districtFilter.setItems(
+						FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(regionFilter.getValue().getUuid()));
+			} else {
+				System.out.println( districts +  " elseifdistrcus  ======userProvider.getUser().getDistrict() userProvider.getUser().getDistrict() ");
+
+				districtFilter.setItems(districts);
+				districtFilter.setEnabled(true);
+				districtFilter.setReadOnly(false);
+			}
+			
+			System.out.println( districts +  " elseifdistrcus  ======userProvider.getUser().getDistrict() userProvider.getUser().getDistrict() ");
+
+			districtFilter.setEnabled(true);
+
 		}
+		
 		districtFilter.addValueChangeListener(e -> {
 
 			if (e.getValue() != null) {
@@ -684,8 +730,9 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		add(layout, vlayout);
 	}
 
-	public void handleUserBulkEditDialog(Set<UserDto> selectedItems, UserDto userDto, ConfigurableFilterDataProvider filterDataProvider) {
-		if(selectedItems.size() == 0 || selectedItems.size() <1) {
+	public void handleUserBulkEditDialog(Set<UserDto> selectedItems, UserDto userDto,
+			ConfigurableFilterDataProvider filterDataProvider) {
+		if (selectedItems.size() == 0 || selectedItems.size() < 1) {
 
 			Notification notification = new Notification();
 			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
@@ -697,7 +744,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 				notification.close();
 			});
 
-			Paragraph text = new Paragraph("Error : Please Select at least 1 user to proceed with the bulk edit process.");
+			Paragraph text = new Paragraph(
+					"Error : Please Select at least 1 user to proceed with the bulk edit process.");
 
 			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 			layout.setAlignItems(Alignment.CENTER);
@@ -705,8 +753,9 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 			notification.add(layout);
 			notification.open();
 			return;
-		}else {
-			BulkUsersEditDataDialog bulkUsersEditDataDialog = new BulkUsersEditDataDialog(selectedItems, userDto, filterDataProvider);
+		} else {
+			BulkUsersEditDataDialog bulkUsersEditDataDialog = new BulkUsersEditDataDialog(selectedItems, userDto,
+					filterDataProvider);
 			bulkUsersEditDataDialog.open();
 
 		}
@@ -832,12 +881,12 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		grid.setItems(filterDataProvider);
 
 		if (userProvider.hasUserRight(UserRight.USER_EDIT)) {
-			
+
 			grid.addSelectionListener(event -> {
-			    event.getFirstSelectedItem().ifPresent(item -> {
-			        editUser(item, false);
-			        grid.deselectAll(); // Deselect all items after processing the selected item
-			    });
+				event.getFirstSelectedItem().ifPresent(item -> {
+					editUser(item, false);
+					grid.deselectAll(); // Deselect all items after processing the selected item
+				});
 			});
 
 //			grid.addSelectionListener(event -> {
@@ -849,7 +898,6 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		return;
 
 	}
-	
 
 	private void configureForm(UserDto user) {
 
@@ -864,7 +912,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		userForm.addCloseListener(e -> {
 //			UI.getCurrent().getPage().reload();
 			closeEditor();
-			
+
 //			UI.getCurrent().getPage().reload();
 
 //			grid.deselectAll();
@@ -949,67 +997,65 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //		return ValidationResult.error("Username culd not be validated ");
 //	}
 //}
-	
+
 	public void editUser(boolean isEditMode) {
-	    isNewUser = true;
-	    UserDto user = new UserDto();
+		isNewUser = true;
+		UserDto user = new UserDto();
 
-	    mainContainer.remove(userForm);
-	    configureForm(user);
-	    mainContainer.add(userForm);
+		mainContainer.remove(userForm);
+		configureForm(user);
+		mainContainer.add(userForm);
 
-	    userForm.createPassword.setVisible(false);
-	    userForm.setUser(user);
-	    userForm.setVisible(true);
-	    userForm.setSizeFull();
-	    grid.setVisible(false);
-	    setFiltersVisible(false);
+		userForm.createPassword.setVisible(false);
+		userForm.setUser(user);
+		userForm.setVisible(true);
+		userForm.setSizeFull();
+		grid.setVisible(false);
+		setFiltersVisible(false);
 
-	    // Set up the binder for the username field
-	    userForm.binder.forField(userForm.userName)
-	        .withValidator(this::validateUserName)
-	        .asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
-	        .bind(UserDto::getUserName, UserDto::setUserName);
+		// Set up the binder for the username field
+		userForm.binder.forField(userForm.userName).withValidator(this::validateUserName)
+				.asRequired(I18nProperties.getCaption(Captions.pleaseFillOutFirstLastname))
+				.bind(UserDto::getUserName, UserDto::setUserName);
 
-	    userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
-	    userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
-	    userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
-	    userForm.userName.addValueChangeListener(e -> checkIfUserNameIsExisting());
+		userForm.save.addClickListener(event -> userForm.validateAndSaveNew());
+		userForm.firstName.addValueChangeListener(e -> suggestUserNameWorking());
+		userForm.lastName.addValueChangeListener(e -> suggestUserNameWorking());
+		userForm.userName.addValueChangeListener(e -> checkIfUserNameIsExisting());
 	}
 
 	public ValidationResult validateUserName(String value, ValueContext context) {
-	    try {
-	        UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
+		try {
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(value);
 
-	        if (checkNewusernamefromDB != null) {
-	            userForm.save.setEnabled(false);
-	            userForm.userName.clear();
+			if (checkNewusernamefromDB != null) {
+				userForm.save.setEnabled(false);
+				userForm.userName.clear();
 //	            ValidationResult.error("Username Exists");
-	            return ValidationResult.error("Username Exists");
-	        } else {
-	            userForm.save.setEnabled(true);
-	            return ValidationResult.ok();
-	        }
-	    } catch (Exception e) {
-	        return ValidationResult.error("Username could not be validated");
-	    }
+				return ValidationResult.error("Username Exists");
+			} else {
+				userForm.save.setEnabled(true);
+				return ValidationResult.ok();
+			}
+		} catch (Exception e) {
+			return ValidationResult.error("Username could not be validated");
+		}
 	}
 
 	public void checkIfUserNameIsExisting() {
-	    ValidationResult result = validateUserName(userForm.userName.getValue(), new ValueContext());
-	    if (result.isError()) {
-	    	Notification notification = Notification.show("Username Exists", 5000, Position.MIDDLE);
-	    	notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		ValidationResult result = validateUserName(userForm.userName.getValue(), new ValueContext());
+		if (result.isError()) {
+			Notification notification = Notification.show("Username Exists", 5000, Position.MIDDLE);
+			notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
-	        userForm.userName.setErrorMessage(result.getErrorMessage());
-	        userForm.userName.setInvalid(true);
-	        userForm.save.setEnabled(false);
-	    } else {
-	        userForm.userName.setInvalid(false);
-	        userForm.save.setEnabled(true);
-	    }
+			userForm.userName.setErrorMessage(result.getErrorMessage());
+			userForm.userName.setInvalid(true);
+			userForm.save.setEnabled(false);
+		} else {
+			userForm.userName.setInvalid(false);
+			userForm.save.setEnabled(true);
+		}
 	}
-
 
 	private void updateRowCount() {
 
@@ -1106,9 +1152,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	private void suggestUserNameWorking() {
 
 		if (!userForm.firstName.isEmpty() && !userForm.lastName.isEmpty() && userForm.userName.isEmpty()) {
-			
-			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
-					.getByUserName(userForm.userName.getValue());
+
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(userForm.userName.getValue());
 			if (checkNewusernamefromDB == null) {
 //				fireEvent(new SaveEvent(this, binder.getBean()));
 				userForm.userName.setValue(
@@ -1118,65 +1163,59 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 				userForm.userName.setErrorMessage("Username exists");
 			}
-			
-		}else {
-			
+
+		} else {
+
 //			System.out.println("else kicked ----------------------------+ userForm.lastName.getValue()" + userForm.lastName.getValue());
 //			System.out.println("else kicked ---------------------------- userForm.userName.getValue() +" + userForm.userName.getValue() );
 
 			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
 					.getByUserName(userForm.userName.getValue() + userForm.lastName.getValue());
-			
+
 //			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB +  "yyyy "+userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
 
-			
 			if (checkNewusernamefromDB == null) {
 //				fireEvent(new SaveEvent(this, binder.getBean()));
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 				userForm.save.setEnabled(true);
 			} else {
-				
+
 //				System.out.println("222222222222222 kicked ----------------------------");
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 				userForm.save.setEnabled(false);
 				Notification notification = Notification.show("Username Exists", 5000, Position.MIDDLE);
-		    	notification.addThemeVariants(NotificationVariant.LUMO_ERROR);				
+				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 //				Notification.show("Username Exists");
-				
-				userForm.userName.addValueChangeListener(e->{
-					UserDto checkNewusernamefromDBx = FacadeProvider.getUserFacade()
-							.getByUserName(e.getValue());
-					
+
+				userForm.userName.addValueChangeListener(e -> {
+					UserDto checkNewusernamefromDBx = FacadeProvider.getUserFacade().getByUserName(e.getValue());
+
 					if (checkNewusernamefromDBx == null) {
 						userForm.save.setEnabled(true);
-					}else {
+					} else {
 						userForm.save.setEnabled(false);
 						Notification.show("Username Exists", 5000, Position.MIDDLE);
 					}
-					
+
 				});
-				
-				
+
 //				userForm.save.setTooltipText("Username exists");
 //				userForm.userName.setThemeName("error");
 //				userForm.userName.setErrorMessage("Username exists");
 			}
-			
+
 		}
 
 	}
-	
-	
+
 	private void checkIfUserNameExists() {
 
 		if (!userForm.userName.isEmpty()) {
-			
-			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
-					.getByUserName(userForm.userName.getValue());
-			
-			
+
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(userForm.userName.getValue());
+
 			if (checkNewusernamefromDB == null) {
 //				fireEvent(new SaveEvent(this, binder.getBean()));
 				userForm.userName.setValue(
@@ -1185,70 +1224,67 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 				System.out.println("else11111111111 kicked ----------------------------");
 
 				userForm.userName.setErrorMessage("Username exists");
-				Notification.show("Eror Userame exists " );
-				
-				userForm.userName.addValueChangeListener(e->{
-					if (userForm.userName.getValue().toString() != UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue())){
-						UserDto checkNewusernamefromDBc = FacadeProvider.getUserFacade()
-								.getByUserName(e.getValue());
-						
-						if(checkNewusernamefromDBc == null ) {
+				Notification.show("Eror Userame exists ");
+
+				userForm.userName.addValueChangeListener(e -> {
+					if (userForm.userName.getValue().toString() != UserHelper
+							.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue())) {
+						UserDto checkNewusernamefromDBc = FacadeProvider.getUserFacade().getByUserName(e.getValue());
+
+						if (checkNewusernamefromDBc == null) {
 							userForm.userName.setValue(e.getValue());
 							userForm.save.setEnabled(true);
 							return;
 						}
-						
-				}
-					
-				});
-				
-			}
-			
-		}else {
-			
-			System.out.println("else kicked ----------------------------");
-			
-			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade()
-					.getByUserName(userForm.userName.getValue());
-			
-			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB +  "yyyy "+userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
 
-			
+					}
+
+				});
+
+			}
+
+		} else {
+
+			System.out.println("else kicked ----------------------------");
+
+			UserDto checkNewusernamefromDB = FacadeProvider.getUserFacade().getByUserName(userForm.userName.getValue());
+
+			System.out.println("else kicked ----------------------------" + checkNewusernamefromDB + "yyyy "
+					+ userForm.userName.getValue() + "xxx" + userForm.lastName.getValue());
+
 			if (checkNewusernamefromDB == null) {
 //				fireEvent(new SaveEvent(this, binder.getBean()));
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 				userForm.save.setEnabled(true);
 			} else {
-				
+
 				System.out.println("222222222222222 kicked ----------------------------");
 				userForm.userName.setValue(
 						UserHelper.getSuggestedUsername(userForm.firstName.getValue(), userForm.lastName.getValue()));
 				userForm.save.setEnabled(false);
 				Notification.show("Username Exists", 5000, Position.MIDDLE);
 //				NotificationVariant.LUMO_ERROR;
-				
+
 //				Notification.show("Username Exists");
-				
-				userForm.userName.addValueChangeListener(e->{
-					UserDto checkNewusernamefromDBx = FacadeProvider.getUserFacade()
-							.getByUserName(e.getValue());
-					
+
+				userForm.userName.addValueChangeListener(e -> {
+					UserDto checkNewusernamefromDBx = FacadeProvider.getUserFacade().getByUserName(e.getValue());
+
 					if (checkNewusernamefromDBx == null) {
 						userForm.save.setEnabled(true);
-					}else {
+					} else {
 						userForm.save.setEnabled(false);
 						Notification.show("Username Exists", 5000, Position.MIDDLE);
 					}
-					
+
 				});
-				
-				
+
 //				userForm.save.setTooltipText("Username exists");
 //				userForm.userName.setThemeName("error");
 //				userForm.userName.setErrorMessage("Username exists");
 			}
-			
+
 		}
 
 	}
@@ -1397,7 +1433,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	}
 
 	class UserRoleCustomComparator implements Comparator<UserRole> {
-		private final String[] customOrder = {"Admin", "National Data Manager", "National Officer",
+		private final String[] customOrder = { "Admin", "National Data Manager", "National Officer",
 				"National Observer / Partner", "Regional Observer", "Regional Data Manager", "Regional Officer",
 				"Provincial Observer", "Provincial Data Clerk", "Provincial Officer", "District Officer",
 				"District Observer" };

@@ -253,16 +253,16 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		
 		configureFiltersByUserRoles(formAccess);
 
-//		errorFilter.setClearButtonVisible(true);
-//		errorFilter.setLabel("Error Status");
-//		errorFilter.setPlaceholder("Error Status");
-//		errorFilter.setItems("Error Report", "None Error Report");
-//		errorFilter.addValueChangeListener(e -> {
-////			DistrictReferenceDto selectedDistrict = e.getValue();
-//			criteria.setError_status(e.getValue());
-//			refreshGridData(formAccess);
-//
-//		});
+		errorFilter.setClearButtonVisible(true);
+		errorFilter.setLabel("Error Status");
+		errorFilter.setPlaceholder("Error Status");
+		errorFilter.setItems("Error Report", "None Error Report");
+		errorFilter.addValueChangeListener(e -> {
+//			DistrictReferenceDto selectedDistrict = e.getValue();
+			criteria.setError_status(e.getValue());
+			refreshGridData(formAccess);
+
+		});
 
 		resetButton = new Button(I18nProperties.getCaption(Captions.actionResetFilters));
 		resetButton.addClickListener(e -> {
@@ -334,10 +334,10 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		grid.setSizeFull();
 		grid.setColumnReorderingAllowed(true);
 
-		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getCampaign).setHeader(I18nProperties.getCaption(Captions.Campaigns)).setSortProperty("capaignname").setSortable(true).setResizable(true);
 		//Creating user Model Getter was used to get the data for Form Name on the Grid 
 		//TODO Create Pojo and i18Ln Captionalso 
-		grid.addColumn(CampaignFormDataIndexDto::getCreatingUser).setHeader("Form Name").setSortable(true).setResizable(true);
+		grid.addColumn(CampaignFormDataIndexDto::getCreatingUser).setHeader("Form Name").setSortProperty("formname").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getArea).setHeader(I18nProperties.getCaption(Captions.area))
 				.setSortProperty("region").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getRegion).setHeader(I18nProperties.getCaption(Captions.region))
@@ -349,10 +349,10 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		//Analysis A  && B Model Getter was used to get the data for Late Form Count while B is uses to get the %  on the Grid 
 				//TODO Create Pojo and i18Ln Caption also 
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_a)
-				.setHeader(I18nProperties.getCaption(Captions.dataTimeLinessLateFormCount)).setSortProperty("supervisor")
+				.setHeader(I18nProperties.getCaption(Captions.dataTimeLinessLateFormCount)).setSortProperty("latecount")
 				.setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormDataIndexDto::getAnalysis_b)
-				.setHeader(I18nProperties.getCaption(Captions.percentage)).setSortProperty("revisit").setSortable(true)
+				.setHeader(I18nProperties.getCaption(Captions.percentage)).setSortProperty("percentage").setSortable(true)
 				.setResizable(true);
 	
 		grid.setVisible(true);

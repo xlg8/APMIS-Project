@@ -114,12 +114,12 @@ public class AppNavItem extends Component {
 	 * @param iconClass the CSS class to use for showing the icon ##Segun
 	 */
 	// This APp Nav would work for opening the url in another tab - segun
-	public AppNavItem(String label, Class<? extends Component> view, VaadinIcon iconClass, String path, String style) {
+	public AppNavItem(String label, VaadinIcon iconClass, String path, String style) {
 
 		setLabel(label);
 		setIcon(iconClass.create());
 		setId(style);
-		setPath(view);
+	
 		// If the path is a URL, use JavaScript to open it in a new tab
 		if (path.startsWith("http://") || path.startsWith("https://")) {
 
@@ -159,7 +159,7 @@ public class AppNavItem extends Component {
 	 * @param view      the view to link to
 	 * @param iconClass the CSS class to use for showing the icon
 	 */
-
+	
 	public AppNavItem(String label, VaadinIcon iconClass, String style, Button button,
 			Class<? extends Component> view) {
 
@@ -168,6 +168,17 @@ public class AppNavItem extends Component {
 		setId(style);
 		setButton(button);
 		setPath(view);
+	}
+
+	public AppNavItem(String label, VaadinIcon iconClass, String style, Button button,
+			Class<? extends Component> view, String classname) {
+
+		setLabel(label);
+		setIcon(iconClass.create());
+		setId(style);
+		setButton(button);
+		setPath(view);
+		setId(classname);
 	}
 
 	/**
