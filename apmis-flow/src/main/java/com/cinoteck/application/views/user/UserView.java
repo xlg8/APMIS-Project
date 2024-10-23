@@ -465,8 +465,8 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 		        criteria.userRole(null);
 		        criteria.userRoleSet(null);
 		    } else {
-		    	criteria.userRole(null);
-		        criteria.userRoleSet(null);
+//		    	criteria.userRole(null);
+//		        criteria.userRoleSet(null);
 		        criteria.userRoleSet(selectedRoles);
 //		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
 		    }

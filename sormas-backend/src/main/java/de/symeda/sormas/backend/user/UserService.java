@@ -547,50 +547,27 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRole())));
 		}
 
-		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {
-			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-
-////			for (UserRole role : userCriteria.getUserRoleSet()) {
-////				if (role != null) {
-//					filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-////				}
-//
-//			}
-					
-//					Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-//
-//				    // Initialize a predicate that will hold the AND conditions for roles
-//				    Predicate rolePredicate = cb.conjunction();  // 'True' predicate to start adding conditions
-//
-//				    // Iterate over each role in the set and add an AND condition for each role
-//				    for (UserRole role : userCriteria.getUserRoleSet()) {
-//				        if (role != null) {
-//				            rolePredicate = cb.and(rolePredicate, joinRoles.in(role));
-//				        }
-//				    }
-//
-//				    // Combine the rolePredicate with the existing filter
-//				    filter = CriteriaBuilderHelper.and(cb, filter, rolePredicate);
-//
-//				    System.out.println("Role Predicate: " + filter);
-
-			System.out.println("Role Predicate: " + filter);
-
+		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {			
+			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
+			Predicate rolesFilter = cb.or(joinRoles.in(userCriteria.getUserRoleSet()), cb.isNull(joinRoles));
+			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
 		}
 
 		if (userCriteria.getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.join(Case.AREA, JoinType.LEFT).get(Area.UUID), userCriteria.getArea().getUuid()));
 		}
+		
 		if (userCriteria.getRegion() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb
 					.equal(from.join(Case.REGION, JoinType.LEFT).get(Region.UUID), userCriteria.getRegion().getUuid()));
 		}
+		
 		if (userCriteria.getDistrict() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(
 					from.join(Case.DISTRICT, JoinType.LEFT).get(District.UUID), userCriteria.getDistrict().getUuid()));
 		}
+		
 		if (userCriteria.getFreeText() != null) {
 			String[] textFilters = userCriteria.getFreeText().split("\\s+");
 			for (String textFilter : textFilters) {

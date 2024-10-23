@@ -113,7 +113,7 @@ public class UserMessageView extends VerticalLayout {
 		List<MessageDto> listOfMessagesToRemoveExpiredMessages = FacadeProvider.getMessageFacade()
 				.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 10,
 						userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess());
-	
+
 		List<MessageDto> mainMessagesList = new ArrayList<>();
 
 		for (MessageDto messages : listOfMessagesToRemoveExpiredMessages) {

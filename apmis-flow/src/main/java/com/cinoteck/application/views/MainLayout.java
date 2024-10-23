@@ -250,7 +250,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 					|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
-						ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+						ConfigurationsView.class, VaadinIcon.GLOBE, "navitem"));
 			}
 
 		}
@@ -301,7 +301,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
 			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, 
-							UserMessageView.class, "notification"));
+							UserMessageView.class));
 		}
 
 		if (nav != null) {
