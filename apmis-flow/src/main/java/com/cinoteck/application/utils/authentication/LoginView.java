@@ -56,7 +56,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 	Date todaysDate = new Date();
 
-
 	/**
 	 * 
 	 */
@@ -75,39 +74,35 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 	private void buildUI() {
 		setSizeFull();
 		setClassName("login-screen");
-		
-		
+
 		loginForm.setI18n(createLoginI18n());
 		loginForm.addLoginListener(this::login);
 		loginForm.addForgotPasswordListener(event -> {
-			 com.vaadin.flow.component.page.Page page = UI.getCurrent().getPage();
-			    page.executeJs("window.location.href = 'http://afghanistan-apmis.com/forgot-password'");
-			});
-		
+			com.vaadin.flow.component.page.Page page = UI.getCurrent().getPage();
+			page.executeJs("window.location.href = 'http://afghanistan-apmis.com/forgot-password'");
+		});
+
 //		Router router = RouteConfiguration.forSessionScope().getRouter();
 //
 //		String url = VaadinServletService.getCurrentServletRequest().getRequestURI();
 //		boolean isStagingInUrl = url.contains("localhost");
-		
+
 		UI.getCurrent().getPage().executeJs("return window.location.href;").then(String.class, url -> {
-		    if (url != null) {
-		        boolean isStagingInUrl = url.contains("staging");
-		        boolean isTestInUrl = url.contains("test");
+			if (url != null) {
+				boolean isStagingInUrl = url.contains("staging");
+				boolean isTestInUrl = url.contains("test");
 
-
-		        if (isStagingInUrl || isTestInUrl) {
-				    // The string "staging" is found in the URL
+				if (isStagingInUrl || isTestInUrl) {
+					// The string "staging" is found in the URL
 					loginForm.setForgotPasswordButtonVisible(false);
 				} else {
-				    // The string "staging" is not found in the URL
+					// The string "staging" is not found in the URL
 					loginForm.setForgotPasswordButtonVisible(true);
 
 				}
 
-		    }
+			}
 		});
-		
-
 
 		loginInformation.setSizeFull();
 		loginInformation.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -123,19 +118,18 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		VerticalLayout loginFormCarrier = new VerticalLayout();
 		loginFormCarrier.add(imageDiv, loginForm);
 		loginFormCarrier.setClassName("login-form-carrier");
-		
+
 		loginInformation.add(loginFormCarrier);
-		
+
 		triggerUser();
-		
+
 		add(loginInformation);
 	}
-	
-	@Scheduled(cron = "*/15 * * * * *")
+
+//	@Scheduled(cron = "*/15 * * * * *")
 	public void triggerUser() {
 		FacadeProvider.getUserFacade().deactivateInactiveUsers();
 	}
-
 
 	private void login(LoginForm.LoginEvent event) {
 		WrappedSession httpSession = VaadinSession.getCurrent().getSession();
@@ -144,78 +138,85 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 			intendedRoute = (String) httpSession.getAttribute("intendedRoute");
 		}
 
-		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
+		// When the username doesnt exist print an error message
+			if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
+				VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
 
-			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
+				if (intendedRoute != null) {
+//					loginNavigationControl();
+					if (userProvider.getUser().getUsertype() == UserType.COMMON_USER
+							&& intendedRoute.equals("campaigndata")) {
+						getUI().get().navigate("/campaigndata");
+					}
+					if (intendedRoute.equals("logout")) {
+						getUI().get().navigate("/campaigndata");
+					} else if (intendedRoute.equals("/")) {
+						getUI().get().navigate("/campaigndata");
+					} else {
+						getUI().get().navigate("/" + intendedRoute);
+					}
+					userActivitySummaryDto.setActionModule("Login");
+					userActivitySummaryDto.setAction("User Logged In");
+					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
-			if (intendedRoute != null) {
-//				loginNavigationControl();
-				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER && intendedRoute.equals("campaigndata")) {
-					getUI().get().navigate("/campaigndata");
-				}
-				if (intendedRoute.equals("logout")) {
-					getUI().get().navigate("/campaigndata");
-				} else if (intendedRoute.equals("/")) {
-					getUI().get().navigate("/campaigndata");
+					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 				} else {
-					getUI().get().navigate("/" + intendedRoute);
-				}
-				userActivitySummaryDto.setActionModule("Login");
-				userActivitySummaryDto.setAction("User Logged In");
-				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
-				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
-				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+					if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
+						getUI().get().navigate("/campaigndata");
+					} else {
+						getUI().get().navigate("/campaigndata");
+					}
+
+					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+					userActivitySummaryDto.setActionModule("Login");
+					userActivitySummaryDto.setAction("User Logged In");
+					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+					Date todaysDate = new Date();
+					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
+					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+
+				}
+
 			} else {
+				
+				
+				
+				Date usersLastLoginDate = FacadeProvider.getUserFacade()
+						.checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername());
+				
+				System.out.println(usersLastLoginDate + "usersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate");				
+				if (usersLastLoginDate != null) {
+					
+					long differenceInMilliSeconds = todaysDate.getTime() - usersLastLoginDate.getTime();
+					long differenceInDays = differenceInMilliSeconds / (1000 * 60 * 60 * 24);
 
-				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
-					getUI().get().navigate("/campaigndata");
-				} else {
-					getUI().get().navigate("/campaigndata");
+					System.out.println(differenceInDays + "differenceInDaysdifferenceInDaysdifferenceInDays");
+
+					if (differenceInDays >= 60) {
+						loginForm.setI18n(createInactiveUserLoginI18n());
+						event.getSource().setError(true);
+					} else {
+						loginForm.setI18n(createLoginI18n());
+
+						event.getSource().setError(true);
+
+					}
+
+				}else {					
+					loginForm.setI18n(createLoginI18n());
+					event.getSource().setError(true);					
 				}
-				
-				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-				userActivitySummaryDto.setActionModule("Login");
-				userActivitySummaryDto.setAction("User Logged In");
-				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
-				Date todaysDate = new Date();
-				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
-				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
-
 			}
 
-		} else {
-			Date usersLastLoginDate = FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername());
-			
-			System.out.println( usersLastLoginDate + event.getUsername() +  "usersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate" +  usersLastLoginDate.getTime());
-			System.out.println( todaysDate.getTime() +  "xxusersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate");
 
-			
-			// Calculate the difference in days between today and the user's last login date
-			long differenceInMilliSeconds = todaysDate.getTime() - usersLastLoginDate.getTime();
-			long differenceInDays = differenceInMilliSeconds / (1000 * 60 * 60 * 24);
 
-			
-			System.out.println(differenceInDays + "differenceInDaysdifferenceInDaysdifferenceInDays" );
-			
-			if (differenceInDays >= 60) {
-				 loginForm.setI18n(createInactiveUserLoginI18n());
-				event.getSource().setError(true);
-			}else {
-				 loginForm.setI18n(createLoginI18n());
-
-				event.getSource().setError(true);
-				
-			}
-			
-			
-			
-		}
 	}
-	
-    private LoginI18n createInactiveUserLoginI18n() {
-        i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg_inactiveuser"));
+
+	private LoginI18n createInactiveUserLoginI18n() {
+		i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg_inactiveuser"));
 		i18n.setHeader(new LoginI18n.Header());
 		i18n.getForm().setUsername(resourceBundle.getString("username"));
 		i18n.getForm().setTitle(resourceBundle.getString("login"));
@@ -226,7 +227,6 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 //		i18n.getErrorMessage().setMessage(resourceBundle.getString("login_error_msg"));
 		return i18n;
 	}
-
 
 	private LoginI18n createLoginI18n() {
 
@@ -247,12 +247,11 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		// page
 		UI.getCurrent().getPage().executeJs("return document.location.pathname").then(String.class, pageTitle -> {
 			if (pageTitle.contains("main/")) {
-				
-				if(pageTitle.split("main/").length > 0)
-				intendedRoute = pageTitle.split("main/")[1];
+
+				if (pageTitle.split("main/").length > 0)
+					intendedRoute = pageTitle.split("main/")[1];
 			}
 		});
-
 
 	}
 }
