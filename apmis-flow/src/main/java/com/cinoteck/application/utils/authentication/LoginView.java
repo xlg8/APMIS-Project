@@ -160,6 +160,10 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 					userActivitySummaryDto.setAction("User Logged In");
 					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
+//					FacadeProvider.getUserFacade().updatePreviousLoginDate(
+//							FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername()),
+//							event.getUsername());
+					
 					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 				} else {
@@ -175,6 +179,11 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 					userActivitySummaryDto.setAction("User Logged In");
 					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 					Date todaysDate = new Date();
+					
+//					FacadeProvider.getUserFacade().updatePreviousLoginDate(
+//							FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername()),
+//							event.getUsername());
+					
 					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
 					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 

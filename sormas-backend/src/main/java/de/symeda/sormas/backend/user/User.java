@@ -95,7 +95,7 @@ public class User extends AbstractDomainObject {
 	public static final String HAS_CONSENTED_TO_GDPR = "hasConsentedToGdpr";
 	public static final String TOKEN = "token";
 	public static final String LAST_LOGIN_DATE = "lastlogindate";
-	public static final String PREVIOUS_LOGIN_DATE = "previouslogindate";
+//	public static final String PREVIOUS_LOGIN_DATE = "previouslogindate";
 
 	private String userName;
 	private String password;
@@ -143,7 +143,7 @@ public class User extends AbstractDomainObject {
 	
 	private Date lastLoginDate;
 	
-	private Date previouslogindate;
+//	private Date previouslogindate;
 
 	@Column(nullable = false, length = CHARACTER_LIMIT_DEFAULT)
 	public String getUserName() {
@@ -226,13 +226,13 @@ public class User extends AbstractDomainObject {
 		this.userEmail = userEmail;
 	}	
 
-	public Date getPreviouslogindate() {
-		return previouslogindate;
-	}
-
-	public void setPreviouslogindate(Date previouslogindate) {
-		this.previouslogindate = previouslogindate;
-	}
+//	public Date getPreviouslogindate() {
+//		return previouslogindate;
+//	}
+//
+//	public void setPreviouslogindate(Date previouslogindate) {
+//		this.previouslogindate = previouslogindate;
+//	}
 
 	public Date getLastLoginDate() {
 		return lastLoginDate;

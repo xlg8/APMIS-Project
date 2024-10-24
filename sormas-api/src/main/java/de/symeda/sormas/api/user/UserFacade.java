@@ -134,11 +134,11 @@ public interface UserFacade {
 
 	public void updateLastLoginDate(Date lastUserLoginDate, String userName);
 	
-	public void updatePreviousLoginDate(Date previousUserLoginDate, String userName);
+//	public void updatePreviousLoginDate(Date previousUserLoginDate, String userName);
 
 	public void deactivateInactiveUsers();
 	
 	public Date checkUsersActiveStatusByUsernameandActiveStatus(String username);
 	
-	public Date getPreviousLoginDateByUsername(String username);
+//	public Date getPreviousLoginDateByUsername(String username);
 }

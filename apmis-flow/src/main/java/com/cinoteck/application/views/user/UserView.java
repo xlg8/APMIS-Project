@@ -421,59 +421,47 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		userRolesFilter.setItems(sortedUserRoles);
 
-		userRolesFilter.addValueChangeListener(e -> {
-		    Set<UserRole> selectedRoles = e.getValue();
-
-		    // Convert UserRole to String (if needed, use another method to get role names)
-		    Set<String> roleNames = selectedRoles.stream()
-		        .map(UserRole::toString) // You could use .getName() if UserRole has a specific method for names
-		        .collect(Collectors.toSet());
-
-		    // If no roles are selected, clear the filter criteria
-		    if (selectedRoles.isEmpty()) {
-		        criteria.userRole(null);
-		        criteria.userRoleSet(null);
-		    } else {
-		        // Clear existing filters
-		        criteria.userRole(null);
-		        criteria.userRoleSet(null);
-		        criteria.userRoleSet(selectedRoles);
-
-		        // Now set the filter using the role names
-//		        criteria.setRoleNames(roleNames); // Ensure you have a setRoleNames method in your criteria
-		    }
-
-		    // Debugging output
-//		    System.out.println("Selected roles: " + roleNames);
-
-		    // Apply the filter to the data provider
-//		    filterDataProvider.setFilter(criteria.setRoleNames(roleNames));
-		    filterDataProvider.refreshAll();
-		    updateRowCount();
-		});
-
 //		userRolesFilter.addValueChangeListener(e -> {
-//			selectedRolesX = e.getValue();
+//		    Set<UserRole> selectedRoles = e.getValue();
 //
-//			String names = selectedRolesX.stream().map(UserRole::toString) // or use another method to get a specific
-//																			// string representation of UserRole
-//					.collect(Collectors.joining(","));
-//			if (selectedRolesX.isEmpty()) {
-//				criteria.userRole(null);
-//				criteria.userRoleSet(null);
-//			} else {
-//				criteria.userRole(null);
-//				criteria.userRoleSet(null);
-//				criteria.userRoleSet(selectedRolesX);
-////		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
-//			}
+//		    // Convert UserRole to String (if needed, use another method to get role names)
+//		    Set<String> roleNames = selectedRoles.stream()
+//		        .map(UserRole::toString) // You could use .getName() if UserRole has a specific method for names
+//		        .collect(Collectors.toSet());
 //
-//			System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet()
-//					+ selectedRolesX + "<=========");
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//			updateRowCount();
+//		    // If no roles are selected, clear the filter criteria
+//		    if (selectedRoles.isEmpty()) {
+//		        criteria.userRoleSet(null);
+//		    } else {
+//		        criteria.userRoleSet(selectedRoles);
+//		    }
+//		    filterDataProvider.setFilter(criteria);
+//		    filterDataProvider.refreshAll();
+//		    updateRowCount();
 //		});
+
+		userRolesFilter.addValueChangeListener(e -> {
+			selectedRolesX = e.getValue();
+
+			String names = selectedRolesX.stream().map(UserRole::toString) // or use another method to get a specific
+																			// string representation of UserRole
+					.collect(Collectors.joining(","));
+			if (selectedRolesX.isEmpty()) {
+//				criteria.userRole(null);
+				criteria.userRoleSet(null);
+			} else {
+//				criteria.userRole(null);
+				criteria.userRoleSet(null);
+				criteria.userRoleSet(selectedRolesX);
+//		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+			}
+
+			System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet()
+					+ selectedRolesX + "<=========");
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+			updateRowCount();
+		});
 
 
 //		// Add a custom label to show all selected roles

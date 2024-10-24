@@ -548,10 +548,9 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRole())));
 		}
 
-		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {			
-			Join<Message, UserRole> joinRoles = from.join(Message.USER_ROLES, JoinType.LEFT);
-			Predicate rolesFilter = cb.or(joinRoles.in(userCriteria.getUserRoleSet()), cb.isNull(joinRoles));
-			filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
+		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {						
+			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
 		}
 
 		if (userCriteria.getArea() != null) {
