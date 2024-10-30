@@ -57,6 +57,7 @@ import de.symeda.sormas.api.utils.HtmlHelper;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
 import de.symeda.sormas.backend.disease.DiseaseConfigurationFacadeEjb;
+import de.symeda.sormas.backend.user.User;
 import de.symeda.sormas.backend.user.UserService;
 import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.ModelConstants;
@@ -386,13 +387,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			cq.where(filter);
 		}
 
-		List<CampaignFormMetaDto> results = QueryHelper.getResultList(em, cq, first, max,
-				CampaignFormMetaFacadeEjb::toDto);
-
-		if (results.isEmpty()) {
-			return Collections.emptyList();
-		}
-
 		if (sortProperties != null && !sortProperties.isEmpty()) {			
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
@@ -401,8 +395,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				case CampaignFormMeta.UUID:
 				case CampaignFormMeta.FORM_ID:
 				case CampaignFormMeta.FORM_NAME:
-				case CampaignFormMeta.CREATION_DATE:
-				case CampaignFormMeta.CHANGE_DATE:
 				case CampaignFormMeta.FORM_CATEGORY:
 					expression = campaignFormMeta.get(sortProperty.propertyName);
 					break;
@@ -415,6 +407,9 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 				case CampaignFormMeta.FORM_TYPE:
 					expression = campaignFormMeta.get(CampaignFormMeta.FORM_TYPE);
 					break;
+				case CampaignFormMeta.CHANGE_DATE:
+					expression = campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE);
+					break;
 				default:
 					throw new IllegalArgumentException(sortProperty.propertyName);
 				}
@@ -422,10 +417,12 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			}
 			cq.orderBy(order);
 		} else {
-			cq.orderBy(cb.asc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
+			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
 		}
+		
+		cq.select(campaignFormMeta);
 
-		return results;
+		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
 	}
 
 	@Override

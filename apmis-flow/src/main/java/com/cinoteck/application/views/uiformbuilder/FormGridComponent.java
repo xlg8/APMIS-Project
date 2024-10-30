@@ -89,7 +89,8 @@ public class FormGridComponent extends VerticalLayout {
 
 	private boolean isNewForm = false;
 //	ObjectMapper objectMapper = new ObjectMapper();
-	Dialog dialog;// = new Dialog();
+	Dialog dialog;
+	Button save = new Button("Save");
 
 	public FormGridComponent(CampaignFormMetaDto campaignFormMetaDto) {
 
@@ -155,8 +156,7 @@ public class FormGridComponent extends VerticalLayout {
 		caption.addValueChangeListener(event -> {
 			String sourceValue = event.getValue();
 			String generatedValue = generateValueBasedOnSource(sourceValue);
-
-			formId.setValue(generatedValue);
+//			formId.setValue(generatedValue);
 		});
 
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
@@ -233,7 +233,8 @@ public class FormGridComponent extends VerticalLayout {
 
 		Icon saveIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		saveIcon.getStyle().set("color", "green");
-		Button save = new Button("Save", saveIcon);
+		save.setIcon(saveIcon);
+//		Button save = new Button("Save", saveIcon);
 
 		formLayout.setVisible(false);
 		vr3.setVisible(false);
@@ -613,25 +614,45 @@ public class FormGridComponent extends VerticalLayout {
 					newForm.setDefaultvalue(defaultValues.getValue());
 				}
 
-				if (checkForUniqueId(formId.getValue())) {
-					if (campaignFormMetaDto.getCampaignFormElements() == null) {
-						elementList.add(newForm);
-						campaignFormMetaDto.setCampaignFormElements(elementList);
-						logger.debug("Campaignformelement is empty here at the moment");
-						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-					} else {
-						elementList = new ArrayList<>();
-						elementList.addAll(campaignFormMetaDto.getCampaignFormElements());
-						elementList.add(newForm);
-						campaignFormMetaDto.setCampaignFormElements(elementList);
-						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-						logger.debug("Campaignformelement is not empty here");
-					}
+				if (!formId.getValue().toString().isEmpty()) {
+					if (checkForUniqueId(formId.getValue())) {
+						if (campaignFormMetaDto.getCampaignFormElements() == null) {
+							elementList.add(newForm);
+							campaignFormMetaDto.setCampaignFormElements(elementList);
+							logger.debug("Campaignformelement is empty here at the moment");
+							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+						} else {
+							elementList = new ArrayList<>();
+							elementList.addAll(campaignFormMetaDto.getCampaignFormElements());
+							elementList.add(newForm);
+							campaignFormMetaDto.setCampaignFormElements(elementList);
+							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+							logger.debug("Campaignformelement is not empty here");
+						}
 
-					getGridData();
-					Notification notification = new Notification("New Form Element Saved", 3000, Position.MIDDLE);
-					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-					notification.open();
+						getGridData();
+						Notification notification = new Notification("New Form Element Saved", 3000, Position.MIDDLE);
+						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+						notification.open();
+					}
+				} else {
+					Notification notification = new Notification();
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					notification.setPosition(Position.MIDDLE);
+					Button closeButton = new Button(new Icon("lumo", "cross"));
+					closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+					closeButton.getElement().setAttribute("aria-label", "Close");
+					closeButton.addClickListener(event -> {
+						notification.close();
+					});
+
+					Paragraph text = new Paragraph(
+							"You must provide a id for this Form Elements");
+					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+					layout.setAlignItems(Alignment.CENTER);
+
+					notification.add(layout);
+					notification.open();			
 				}
 
 			} else {
@@ -766,8 +787,8 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					if (!comment.getValue().isEmpty()) {
-						System.out.println(" dsfsgdgetwreqdacsvsf  " +comment.getValue() + "       hhhhhhhhhhhhhhh");
-						newForm.setComment(comment.getValue());	
+						System.out.println(" dsfsgdgetwreqdacsvsf  " + comment.getValue() + "       hhhhhhhhhhhhhhh");
+						newForm.setComment(comment.getValue());
 					}
 
 					if (!defaultValues.getValue().isEmpty()) {
@@ -782,7 +803,7 @@ public class FormGridComponent extends VerticalLayout {
 
 						using.set(index, newForm);
 						campaignFormMetaDto.setCampaignFormElements(using);
-						grid.setItems(campaignFormMetaDto.getCampaignFormElements());							
+						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 						getGridData();
 						Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
