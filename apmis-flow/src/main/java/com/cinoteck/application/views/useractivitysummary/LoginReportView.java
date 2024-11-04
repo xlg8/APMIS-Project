@@ -135,21 +135,11 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			return dateFormat.format(timestamp);
 		});
-		
-//		TextRenderer<ConfigurationChangeLogDto> dateRenderer = new TextRenderer<>(dto -> {
-//			Date timestamp = dto.getAction_date();
-//			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-//			if (timestamp != null) {
-//				return dateFormat.format(timestamp);
-//
-//			} else {
-//				return "";
-//			}
-//		});
-		
+
 
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
-				.setHeader(I18nProperties.getCaption("Timestamp")).setComparator(Comparator.comparing(UserActivitySummaryDto::getActionDate)).setSortable(true).setResizable(true);
+				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(true)
+				.setComparator(Comparator.comparing(UserActivitySummaryDto::getActionDate)).setResizable(true);
 
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
 				.setSortable(true).setResizable(true);
