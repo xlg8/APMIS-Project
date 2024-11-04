@@ -48,6 +48,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -132,9 +133,14 @@ public class CampaignDataView extends VerticalLayout
 	ComboBox<CampaignReferenceDto> campaignz = new ComboBox<>();
 	ComboBox<CampaignPhase> campaignPhase = new ComboBox<>();
 	ComboBox<CampaignFormMetaReferenceDto> campaignFormCombo = new ComboBox<>();
-	ComboBox<AreaReferenceDto> regionCombo = new ComboBox<>();
-	ComboBox<RegionReferenceDto> provinceCombo = new ComboBox<>();
-	ComboBox<DistrictReferenceDto> districtCombo = new ComboBox<>();
+//	ComboBox<AreaReferenceDto> regionCombo = new ComboBox<>();
+	MultiSelectComboBox<AreaReferenceDto> regionCombo = new MultiSelectComboBox<>();
+//	ComboBox<RegionReferenceDto> provinceCombo = new ComboBox<>();
+	MultiSelectComboBox<RegionReferenceDto> provinceCombo = new MultiSelectComboBox<>();
+
+//	ComboBox<DistrictReferenceDto> districtCombo = new ComboBox<>();
+	MultiSelectComboBox<DistrictReferenceDto> districtCombo = new MultiSelectComboBox<>();
+
 	ComboBox<CommunityReferenceDto> clusterCombo = new ComboBox<>();
 	ComboBox<String> verifiedStatusCombo = new ComboBox<>();
 	ComboBox<String> publishedStatusCombo = new ComboBox<>();
@@ -422,11 +428,26 @@ public class CampaignDataView extends VerticalLayout
 					districtCombo.setValue(userProvider.getUser().getDistrict());
 					districtCombo.setEnabled(false);
 					if (districtCombo.getValue() != null) {
+						List<CommunityReferenceDto> allClusters = new ArrayList<>();
+						
+						for(DistrictReferenceDto selectedUUID : districtCombo.getValue()) {
+							String uuid = selectedUUID.getUuid();
+							communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(uuid);
+							allClusters.addAll(communities);
+						}
 
-						communities = FacadeProvider.getCommunityFacade()
-								.getAllActiveByDistrict(districtCombo.getValue().getUuid());
+//						communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+						clusterCombo.setItemLabelGenerator(itm -> {
+							CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
+							return dcfv.getNumber() + " | " + dcfv.getCaption();
+						});
+								
+
+//						communities = FacadeProvider.getCommunityFacade()
+//								.getAllActiveByDistrict(districtCombo.getValue().getUuid());
 						clusterCombo.clear();
-						clusterCombo.setItems(communities);
+//						clusterCombo.setItems(communities);
+						clusterCombo.setItems(allClusters);
 						clusterCombo.setEnabled(true);
 					}
 				} else if (userProvider.getUser().getDistrict() != null
@@ -832,24 +853,73 @@ public class CampaignDataView extends VerticalLayout
 //		});
 
 		regionCombo.setClearButtonVisible(true);
-		regionCombo.addValueChangeListener(e -> {
-
-			if (e.getValue() != null) {
-				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
-					provinceCombo.setItems(provinces);
-				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
-					provinceCombo.setItems(provinces);
-				} else {
-					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-					provinceCombo.setItems(provinces);
-				}
-				provinceCombo.setEnabled(true);
-//				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
-//					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(), criteria);
+//		
+//		regionCombo.addValueChangeListener(e -> {
+//
+//			if (e.getValue() != null) {
+//				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+//					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+//					provinceCombo.setItems(provinces);
+//				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+//					provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+//					provinceCombo.setItems(provinces);
+//				} else {
+//					provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+//					provinceCombo.setItems(provinces);
 //				}
+//				provinceCombo.setEnabled(true);
+////				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+////					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(), criteria);
+////				}
+//
+//			} else {
+//				if (provinceCombo.getValue() != null) {
+//					provinceCombo.clear();
+//				}
+//				provinceCombo.setEnabled(false);
+//			}
+//			reload();
+//			updateRowCount();
+//
+//			if (e.getValue() != null) {
+//				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+//					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(),
+//							criteria);
+//				}
+//			}
+//		});
 
+		
+		
+		regionCombo.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				List<RegionReferenceDto> allProvinces = new ArrayList<>();
+					if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+						for(AreaReferenceDto selectedUUID : e.getValue()) {
+							String uuid = selectedUUID.getUuid();
+							provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(uuid);
+							allProvinces.addAll(provinces);
+						}
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+						provinceCombo.setItems(allProvinces);
+					} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+						for(AreaReferenceDto selectedUUID : e.getValue()) {
+							String uuid = selectedUUID.getUuid();
+							provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(uuid);
+							allProvinces.addAll(provinces);
+						}
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+						provinceCombo.setItems(allProvinces);
+					} else {
+						for(AreaReferenceDto selectedUUID : e.getValue()) {
+							String uuid = selectedUUID.getUuid();
+							provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(uuid);
+							allProvinces.addAll(provinces);
+						}
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+						provinceCombo.setItems(allProvinces);
+					}
+					provinceCombo.setEnabled(true);
 			} else {
 				if (provinceCombo.getValue() != null) {
 					provinceCombo.clear();
@@ -871,16 +941,32 @@ public class CampaignDataView extends VerticalLayout
 
 		provinceCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-
+				List<DistrictReferenceDto> allDistricts = new ArrayList<>();
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
-					districtCombo.setItems(districts);
+						for(RegionReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(uuid);
+						allDistricts.addAll(districts);
+					}
+//					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
+					districtCombo.setItems(allDistricts);
 				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
-					districtCombo.setItems(districts);
+					for(RegionReferenceDto selectedUUID : e.getValue()) {
+					String uuid = selectedUUID.getUuid();
+					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(uuid);
+					allDistricts.addAll(districts);
+				}
+					
+//					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
+					districtCombo.setItems(allDistricts);
 				} else {
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
-					districtCombo.setItems(districts);
+					for(RegionReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(uuid);
+						allDistricts.addAll(districts);
+					}
+//					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());
+					districtCombo.setItems(allDistricts);
 				}
 				districtCombo.setEnabled(true);
 
@@ -909,12 +995,20 @@ public class CampaignDataView extends VerticalLayout
 
 		districtCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
-				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
+				List<CommunityReferenceDto> allClusters = new ArrayList<>();
+				
+				for(DistrictReferenceDto selectedUUID : e.getValue()) {
+					String uuid = selectedUUID.getUuid();
+					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(uuid);
+					allClusters.addAll(communities);
+				}
+
+//				communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(e.getValue().getUuid());
 				clusterCombo.setItemLabelGenerator(itm -> {
 					CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
 					return dcfv.getNumber() + " | " + dcfv.getCaption();
 				});
-				clusterCombo.setItems(communities);
+				clusterCombo.setItems(allClusters);
 
 				clusterCombo.setEnabled(true);
 
@@ -1676,9 +1770,12 @@ public class CampaignDataView extends VerticalLayout
 		criteria.campaign(campaignz.getValue());
 		criteria.setFormType(campaignPhase.getValue().toString());
 		criteria.setCampaignFormMeta(campaignFormCombo.getValue());
-		criteria.area(regionCombo.getValue());
-		criteria.region(provinceCombo.getValue());
-		criteria.district(districtCombo.getValue());
+//		criteria.area(regionCombo.getValue());
+		criteria.areaSet(regionCombo.getValue());
+//		criteria.region(provinceCombo.getValue());
+		criteria.regionSet(provinceCombo.getValue());
+//		criteria.district(districtCombo.getValue());
+		criteria.districtSet(districtCombo.getValue());
 		criteria.community(clusterCombo.getValue());
 
 		grid.getDataProvider().refreshAll();

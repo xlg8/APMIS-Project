@@ -2,7 +2,10 @@ package com.cinoteck.application.views.uiformbuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -96,6 +99,8 @@ public class FormBuilderView extends VerticalLayout {
 	private ConfigurableFilterDataProvider<CampaignFormMetaDto, Void, CampaignFormCriteria> filterDataProvider;
 
 	CampaignFormCriteria criteria = new CampaignFormCriteria();
+	
+	private List<FormAccess> listofformsAccesses = new ArrayList<>();
 
 	private Grid<CampaignFormMetaDto> grid = new Grid<>(CampaignFormMetaDto.class, false);
 	private GridListDataView<CampaignFormMetaDto> dataView;
@@ -186,19 +191,59 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		formType.addValueChangeListener(e -> {
-			if (e.getValue() != null) {
-
+			listofformsAccesses = new ArrayList<>();
+			formAccess.clear();
+			if (e.getValue() != null) {				
+				Collections.addAll(listofformsAccesses, FormAccess.values());
+				if(e.getValue().toString().equalsIgnoreCase("post-campaign")) {
+					listofformsAccesses.remove(FormAccess.ARCHIVE);
+					listofformsAccesses.remove(FormAccess.EAG);
+					listofformsAccesses.remove(FormAccess.FLW);
+					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
+					listofformsAccesses.remove(FormAccess.TRAINING);
+					listofformsAccesses.remove(FormAccess.ICM);
+					listofformsAccesses.remove(FormAccess.ADMIN);
+					listofformsAccesses.remove(FormAccess.EAG_ICM);
+					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
+				} else if (e.getValue().toString().equalsIgnoreCase("intra-campaign")) {
+					listofformsAccesses.remove(FormAccess.ARCHIVE);
+					listofformsAccesses.remove(FormAccess.EAG);
+					listofformsAccesses.remove(FormAccess.FLW);
+					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
+					listofformsAccesses.remove(FormAccess.TRAINING);					
+					listofformsAccesses.remove(FormAccess.PCA);
+					listofformsAccesses.remove(FormAccess.FMS);
+					listofformsAccesses.remove(FormAccess.LQAS);
+					listofformsAccesses.remove(FormAccess.EAG_PCA);
+					listofformsAccesses.remove(FormAccess.EAG_FMS);
+					listofformsAccesses.remove(FormAccess.EAG_LQAS);
+					listofformsAccesses.remove(FormAccess.MODALITY_POST);
+					listofformsAccesses.remove(FormAccess.VALIDATION);
+				} else if (e.getValue().toString().equalsIgnoreCase("pre-campaign")) {
+					listofformsAccesses.remove(FormAccess.ARCHIVE);
+					listofformsAccesses.remove(FormAccess.EAG);
+					listofformsAccesses.remove(FormAccess.ICM);
+					listofformsAccesses.remove(FormAccess.ADMIN);
+					listofformsAccesses.remove(FormAccess.EAG_ICM);
+					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
+					listofformsAccesses.remove(FormAccess.PCA);
+					listofformsAccesses.remove(FormAccess.FMS);
+					listofformsAccesses.remove(FormAccess.LQAS);
+					listofformsAccesses.remove(FormAccess.EAG_PCA);
+					listofformsAccesses.remove(FormAccess.EAG_FMS);
+					listofformsAccesses.remove(FormAccess.EAG_LQAS);
+					listofformsAccesses.remove(FormAccess.MODALITY_POST);
+					listofformsAccesses.remove(FormAccess.VALIDATION);
+				} 
 				criteria.setFormType(e.getValue().toString().toLowerCase());
 				filterDataProvider.setFilter(criteria);
 
-//				filterDataProvider.refreshAll();
+				formAccess.setItems(listofformsAccesses);
 				refreshGridData();
 			} else {
-
 				criteria.setFormType(null);
 				filterDataProvider.setFilter(criteria);
-
-//				filterDataProvider.refreshAll();
+				formAccess.setItems(listofformsAccesses);
 				refreshGridData();
 			}
 		});
@@ -323,7 +368,8 @@ public class FormBuilderView extends VerticalLayout {
 		grid.addColumn(CampaignFormMetaDto.FORM_TYPE).setHeader("Campaign Phase").setSortable(true).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto::getModality).setHeader("Modality").setSortable(true).setResizable(true);
 //		grid.addColumn(creationDateRenderer).setHeader("Creation Date").setSortable(true).setResizable(true);
-//		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true).setResizable(true);
+		grid.addColumn(changeDateRenderer).setHeader("Change Date").setSortable(true)
+		.setComparator(Comparator.comparing(CampaignFormMetaDto::getChangeDate)).setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DAYSTOEXPIRE).setHeader("Days To Expire").setSortable(true)
 				.setResizable(true);
 		grid.addColumn(CampaignFormMetaDto.DISTRICTENTRY).setHeader("District Data Entry").setSortable(true)

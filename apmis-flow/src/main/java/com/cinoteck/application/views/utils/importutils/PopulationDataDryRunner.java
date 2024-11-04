@@ -104,17 +104,28 @@ public class PopulationDataDryRunner extends DataImporter {
 
 //			if (isOverWrite) {
 				if ( PROVINCE.equalsIgnoreCase(entityProperties[i])) {
-					List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
-							.getByExternalId(Long.parseLong(values[i]), false);
-					if (regions.size() != 1) {
-						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage());
+					if (DataHelper.isNullOrEmpty(values[i])) {
+//						region = null;
+						
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
 						return ImportLineResult.ERROR;
+					} else {
+						List<RegionReferenceDto> regions = FacadeProvider.getRegionFacade()
+								.getByExternalId(Long.parseLong(values[i]), false);
+						if (regions.size() != 1) {
+							writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage() );
+							return ImportLineResult.ERROR;
+						}
+						region = regions.get(0);
 					}
-					region = regions.get(0);
+					
 				}
 				if (PopulationDataDto.DISTRICT.equalsIgnoreCase(entityProperties[i])) {
 					if (DataHelper.isNullOrEmpty(values[i])) {
-						district = null;
+//						district = null;
+//						
+						writeImportError(values, new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
+						return ImportLineResult.ERROR;
 					} else {
 						List<DistrictReferenceDto> districts = FacadeProvider.getDistrictFacade()
 								.getByExternalID(Long.parseLong(values[i]), region, false);
@@ -262,7 +273,7 @@ public class PopulationDataDryRunner extends DataImporter {
 						if (DataHelper.isNullOrEmpty(values[i])) {
 //							districtStatus_ = "Full District";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Population Data Values Cannot be Empty");
 							return ImportLineResult.ERROR;
 						} else {
 
@@ -274,7 +285,7 @@ public class PopulationDataDryRunner extends DataImporter {
 						if (DataHelper.isNullOrEmpty(values[i])) {
 //							districtStatus_ = "Full District";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Population Data Values Cannot be Empty");
 							return ImportLineResult.ERROR;
 						} else {
 
@@ -284,10 +295,10 @@ public class PopulationDataDryRunner extends DataImporter {
 					
 				}else {
 					if (PopulationDataDto.MODALITY.equalsIgnoreCase(entityProperties[i])) {
-						if (DataHelper.isNullOrEmpty(values[i])) {
+						if (DataHelper.isNullOrEmpty(values[i]) ) {
 //							modality_ = "H2H";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
 							return ImportLineResult.ERROR;
 						} else {
 
@@ -318,7 +329,7 @@ public class PopulationDataDryRunner extends DataImporter {
 						if (DataHelper.isNullOrEmpty(values[i])) {
 //							districtStatus_ = "Full District";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage());
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Cannot be empty");
 							return ImportLineResult.ERROR;
 						} else {
 
@@ -345,7 +356,7 @@ public class PopulationDataDryRunner extends DataImporter {
 						if (DataHelper.isNullOrEmpty(values[i])) {
 //							districtStatus_ = "Full District";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Population Data Values Cannot be Empty");
 							return ImportLineResult.ERROR;
 						} else {
 
@@ -357,7 +368,7 @@ public class PopulationDataDryRunner extends DataImporter {
 						if (DataHelper.isNullOrEmpty(values[i])) {
 //							districtStatus_ = "Full District";
 							writeImportError(values,
-									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " POPULATION DATA CANNOT BE LEFT EMPTY");
+									new ImportErrorException(values[i], entityProperties[i]).getMessage() + " Population Data Values Cannot be Empty");
 							return ImportLineResult.ERROR;
 						} else {
 

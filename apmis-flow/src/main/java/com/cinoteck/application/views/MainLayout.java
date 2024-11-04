@@ -1,5 +1,9 @@
 package com.cinoteck.application.views;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -62,8 +66,10 @@ import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.api.messaging.MessageCriteria;
+import de.symeda.sormas.api.messaging.MessageDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 
 /**
@@ -104,8 +110,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Div aboutText = new Div();
 	Button notification = new Button("Notification");
 	IdleNotification idleNotification = new IdleNotification();
-	private long messageLength;
 	private MessageCriteria messageCriteria;
+	Date usersPreviousLoginDate;
+	List<MessageDto> messageSize = new ArrayList<>();
 //	private InactivityHandler inactivityHandler;
 
 	public MainLayout() {
@@ -117,13 +124,12 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
-		}
+		}	
 
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
 		addDrawerContent();
 		addHeaderContent();
-
 	}
 
 	private void addHeaderContent() {
@@ -236,28 +242,36 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		// remeber that we can pass the subdomain url here to open in a new tab
 		//
 		AppNavItem newDashboardNavItem = new AppNavItem(I18nProperties.getCaption(Captions.mainMenuDashboard),
-				 VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/",
-				"navitem");
+				VaadinIcon.GRID_BIG_O, "https://dashboard.afghanistan-apmis.com/", "navitem");
 
 		if (userProvider.getUser().getLanguage().toString().equals("Pashto")
 				|| userProvider.getUser().getLanguage().toString().equals("Dari")) {
 			newDashboardNavItem.getElement().getStyle().set("display", "math");
 		}
-		
+
 		// Handle the middle-click and modify the context menu behavior
+//		newDashboardNavItem.getElement().executeJs("const link = $0;" + "link.addEventListener('mousedown', (e) => {"
+//				+ "  if (e.button === 1 || e.button === 2) {" + // Middle click or right click
+//				"    e.preventDefault();" + "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');"
+//				+ "  }" + "});" +
+//				// Override the href just before the context menu appears
+//				"link.addEventListener('contextmenu', (e) => {"
+//				+ "  link.href = 'https://dashboard.afghanistan-apmis.com/';" + "});",
+//				newDashboardNavItem.getElement());
+		
 		newDashboardNavItem.getElement().executeJs(
-		    "const link = $0;" +
-		    "link.addEventListener('mousedown', (e) => {" +
-		    "  if (e.button === 1 || e.button === 2) {" +  // Middle click or right click
-		    "    e.preventDefault();" +
-		    "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');" +
-		    "  }" +
-		    "});" +
-		    // Override the href just before the context menu appears
-		    "link.addEventListener('contextmenu', (e) => {" +
-		    "  link.href = 'https://dashboard.afghanistan-apmis.com/';" +
-		    "});"
-		, newDashboardNavItem.getElement());
+			    "const link = $0;" +
+			    // Prevent right-click menu from showing
+			    "link.addEventListener('contextmenu', (e) => { e.preventDefault(); });" +
+			    // Handle middle-click (mouse button 1)
+			    "link.addEventListener('mousedown', (e) => {" +
+			    "  if (e.button === 1) {" +
+			    "    e.preventDefault();" +
+			    "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');" +
+			    "  }" +
+			    "});",
+			    newDashboardNavItem.getElement()
+			);
 
 		nav.addItem(newDashboardNavItem);
 //		}
@@ -266,7 +280,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 					|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuConfiguration),
-						ConfigurationsView.class, VaadinIcon.COG_O, "navitem"));
+						ConfigurationsView.class, VaadinIcon.GLOBE, "navitem"));
 			}
 
 		}
@@ -274,8 +288,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
 			if (userProvider.hasUserRight(UserRight.USER_VIEW)) {
-				
-			
+
 				nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuUsers), UserView.class,
 						VaadinIcon.USERS, "navitem"));
 			}
@@ -305,9 +318,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
 				"navitem"));
 
-		
-		
-		
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
 			nav.addItem(new AppNavItem("Form Manager", FormBuilderView.class, VaadinIcon.BUILDING, "navitem"));
@@ -325,11 +335,18 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			nav.addItem(new AppNavItem("Notification", MessagingView.class, VaadinIcon.SERVER, "navitem"));
 		}
 
-		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-			nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, 
-							UserMessageView.class, "notification"));
-		}
-
+//		if (!messageSize.isEmpty() || messageSize != null) {
+//			if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
+//				nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "notification", notification,
+//						UserMessageView.class));
+//				System.out.println("deyyyyyyyyyyyyyyyyyyyyyy");
+//			}
+//		} else {
+			if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
+				nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification,
+						UserMessageView.class));	
+			}
+//		}
 
 		if (nav != null) {
 			nav.addClassName("active");

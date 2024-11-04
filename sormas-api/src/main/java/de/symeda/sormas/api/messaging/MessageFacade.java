@@ -1,5 +1,6 @@
 package de.symeda.sormas.api.messaging;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +27,9 @@ public interface MessageFacade {
 
 	List<MessageDto> getMessageByUserRoles(MessageCriteria messageCriteria, UserType userType, Integer first,
 			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess);
+	
+	List<MessageDto> getMessageByDate(MessageCriteria messageCriteria, UserType userType, Integer first,
+			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess, Date date);
 
 	long getNewMessage(MessageCriteria messageCriteria, UserType userType, Integer first,
 			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess);

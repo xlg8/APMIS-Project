@@ -536,6 +536,43 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 
 		return password;
 	}
+	
+	public boolean setCustomPassword(String userUuid, String customPassword) {
+
+		User user = getByUuid(userUuid);
+
+		if (user == null || customPassword == null || customPassword.isEmpty()) {
+//			logger.warn("resetPassword() for unknown user '{}'", realmUserUuid);
+			
+			return false;
+//			return null;
+		}
+
+		String password = customPassword;
+		user.setSeed(PasswordHelper.createPass(16));
+		user.setPassword(PasswordHelper.encodePassword(password, user.getSeed()));
+		ensurePersisted(user);
+
+		return true;// password;
+	}
+	
+	public String createMemorablePassword(String userUuid) {
+	    User user = getByUuid(userUuid);
+	    if (user == null) {
+	        // logger.warn("resetPassword() for unknown user '{}'", realmUserUuid);
+	        return null;
+	    }
+	    
+	    // Use provided password or generate a memorable one if customPassword is null/empty
+	    String password =  PasswordHelper.createMemorablePassword(true, true);
+	    
+	    // Generate new seed and encode password
+	    user.setSeed(PasswordHelper.createPass(16));
+	    user.setPassword(PasswordHelper.encodePassword(password, user.getSeed()));
+	    
+	    ensurePersisted(user);
+	    return password;
+	}
 
 	public Predicate buildCriteriaFilter(UserCriteria userCriteria, CriteriaBuilder cb, Root<User> from) {
 
@@ -548,39 +585,26 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRole())));
 		}
 
-		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {
-//			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-//			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
-//
-//			System.out.println("Role Predicate: " + filter);
-			
-//			if (userCriteria.getUserRoleSet().size() > 0) {
-				Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-				Predicate rolesFilter = joinRoles.in(userCriteria.getUserRoleSet());
-				filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
-//			}else {
-//				Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
-//				Predicate rolesFilter = joinRoles.in(userCriteria.getUserRoleSet());
-//				filter = CriteriaBuilderHelper.and(cb, filter, rolesFilter);
-//				
-//			}
-//			
-			
-
+		if (userCriteria.getUserRoleSet() != null && !userCriteria.getUserRoleSet().isEmpty()) {						
+			Join<User, UserRole> joinRoles = from.join(User.USER_ROLES, JoinType.LEFT);
+			filter = CriteriaBuilderHelper.and(cb, filter, joinRoles.in(Arrays.asList(userCriteria.getUserRoleSet())));
 		}
 
 		if (userCriteria.getArea() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(from.join(Case.AREA, JoinType.LEFT).get(Area.UUID), userCriteria.getArea().getUuid()));
 		}
+		
 		if (userCriteria.getRegion() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb
 					.equal(from.join(Case.REGION, JoinType.LEFT).get(Region.UUID), userCriteria.getRegion().getUuid()));
 		}
+		
 		if (userCriteria.getDistrict() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter, cb.equal(
 					from.join(Case.DISTRICT, JoinType.LEFT).get(District.UUID), userCriteria.getDistrict().getUuid()));
 		}
+		
 		if (userCriteria.getFreeText() != null) {
 			String[] textFilters = userCriteria.getFreeText().split("\\s+");
 			for (String textFilter : textFilters) {

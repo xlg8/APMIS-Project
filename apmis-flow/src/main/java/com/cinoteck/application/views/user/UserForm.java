@@ -690,6 +690,9 @@ public class UserForm extends FormLayout {
 
 	public void makeNewPassword(String userUuid, String userEmail, String userName) {
 		String newPassword = FacadeProvider.getUserFacade().resetPassword(userUuid);
+		
+//		String newPassword = FacadeProvider.getUserFacade().createMemorablePassword(userUuid);
+
 
 		if (StringUtils.isBlank(userEmail)
 				|| AuthProvider.getProvider(FacadeProvider.getConfigFacade()).isDefaultProvider()) {

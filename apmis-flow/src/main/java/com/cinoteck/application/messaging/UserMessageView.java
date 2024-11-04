@@ -52,7 +52,7 @@ public class UserMessageView extends VerticalLayout {
 	Dialog dialog = new Dialog();
 	Date thirtyDaysAgo;
 
-	Date usersLastLoginDate;
+	Date usersPreviousLoginDate;
 
 	public UserMessageView() {
 
@@ -82,11 +82,10 @@ public class UserMessageView extends VerticalLayout {
 
 		if (userProvider.getUser().getUserRoles().contains(UserRole.REST_USER)) {
 			UserDto user = FacadeProvider.getUserFacade().getByUserName(userProvider.getUser().getUserName());
-			usersLastLoginDate = FacadeProvider.getUserFacade()
-					.checkUsersActiveStatusByUsernameandActiveStatus(userProvider.getUser().getUserName());
+//			usersPreviousLoginDate = FacadeProvider.getUserFacade()
+//					.getPreviousLoginDateByUsername(userProvider.getUser().getUserName());
 			if (user.getArea() != null) {
 				messageCriteria.area(user.getArea());
-				System.out.println("aaaaaaaaaaaaaaaaa " + usersLastLoginDate);
 			}
 			if (user.getRegion() != null) {
 				messageCriteria.region(user.getRegion());
@@ -113,7 +112,7 @@ public class UserMessageView extends VerticalLayout {
 		List<MessageDto> listOfMessagesToRemoveExpiredMessages = FacadeProvider.getMessageFacade()
 				.getMessageByUserRoles(messageCriteria, userProvider.getUser().getUsertype(), 0, 10,
 						userProvider.getUser().getUserRoles(), userProvider.getUser().getFormAccess());
-	
+
 		List<MessageDto> mainMessagesList = new ArrayList<>();
 
 		for (MessageDto messages : listOfMessagesToRemoveExpiredMessages) {

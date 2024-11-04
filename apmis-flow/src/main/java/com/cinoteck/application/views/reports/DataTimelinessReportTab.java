@@ -299,7 +299,7 @@ public class DataTimelinessReportTab extends VerticalLayout implements RouterLay
 		anchor.getStyle().set("display", "none");
 
 		filterLayout.setClassName("row pl-3");
-		filterLayout.add(campaign, campaignFormCombo,  regionFilter, provinceFilter, districtFilter, errorFilter, resetButton, exportReport,
+		filterLayout.add(campaign, campaignFormCombo,  regionFilter, provinceFilter, districtFilter,  resetButton, exportReport,
 				anchor);
 
 		HorizontalLayout layout = new HorizontalLayout();

@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Random;
 
 import javax.validation.ValidationException;
 
@@ -30,6 +31,45 @@ public final class PasswordHelper {
 	private PasswordHelper() {
 		// Hide Utility Class Constructor
 	}
+
+    private static final String[] ADJECTIVES = {
+            "brave", "swift", "bright", "calm", "wise", "quick", "strong", "smart", "blue", "green", "red", "swift", "brave", "cloud", "star", "moon",
+            "river", "mountain", "forest"
+        };
+        
+        private static final String[] NOUNS = {
+            "tiger", "eagle", "river", "mountain", "forest", "ocean", "wind", "storm", "ocean", "sunny", "happy", "light",
+            "bird", "tiger", "lion", "eagle", "wolf"
+        };
+        
+        private static final String SPECIAL_CHARS = "!@#$%^&*";
+        
+        public static String createMemorablePassword(boolean includeNumber, boolean includeSpecial) {
+            Random random = new Random();
+            StringBuilder password = new StringBuilder();
+            
+            //doing adjective with capital first letter
+            String adjective = ADJECTIVES[random.nextInt(ADJECTIVES.length)];
+            password.append(Character.toUpperCase(adjective.charAt(0)))
+                   .append(adjective.substring(1));
+            
+            // now adding noun
+            String noun = NOUNS[random.nextInt(NOUNS.length)];
+            password.append(noun);
+            
+            // Add numbers if requested
+            if (includeNumber) {
+                // Generate number between 100 and 999
+                password.append(100 + random.nextInt(900));
+            }
+            
+            // Add special char if requested
+            if (includeSpecial) {
+                password.append(SPECIAL_CHARS.charAt(random.nextInt(SPECIAL_CHARS.length())));
+            }
+            
+            return password.toString();
+        }
 
 	private static final char[] PASSWORD_CHARS = new char[26 - 2 + 26 - 3 + 8];
 	static {

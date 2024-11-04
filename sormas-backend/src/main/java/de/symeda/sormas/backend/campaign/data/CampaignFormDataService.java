@@ -21,6 +21,7 @@
 package de.symeda.sormas.backend.campaign.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -52,8 +53,10 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataReferenceDto;
 import de.symeda.sormas.api.campaign.data.MapCampaignDataDto;
 import de.symeda.sormas.api.caze.MapCaseDto;
 import de.symeda.sormas.api.caze.NewCaseDateType;
+import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.JurisdictionLevel;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.DateHelper;
@@ -222,13 +225,38 @@ public class CampaignFormDataService extends AdoServiceWithUserFilter<CampaignFo
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(areaJoin.get(Area.UUID), criteria.getArea().getUuid()));
 		}
+		
+		if (criteria.getAreaSet() != null && !criteria.getAreaSet().isEmpty()) {
+		    filter = CriteriaBuilderHelper.and(cb, filter,
+		            areaJoin.get(Area.UUID).in(criteria.getAreaSet().stream()
+		                    .map(AreaReferenceDto::getUuid)  // Extract UUIDs from AreaReferenceDto
+		                    .collect(Collectors.toList())));
+		}
+
+		
+		
 		if (criteria.getRegion() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(regionJoin.get(Region.UUID), criteria.getRegion().getUuid()));
 		}
+		
+		if (criteria.getRegionSet() != null && !criteria.getRegionSet().isEmpty()) {
+		    filter = CriteriaBuilderHelper.and(cb, filter,
+		    		regionJoin.get(Region.UUID).in(criteria.getRegionSet().stream()
+		                    .map(RegionReferenceDto::getUuid)  
+		                    .collect(Collectors.toList())));
+		}
+		
 		if (criteria.getDistrict() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,
 					cb.equal(districtJoin.get(District.UUID), criteria.getDistrict().getUuid()));
+		}
+		
+		if (criteria.getDistrictSet() != null && !criteria.getDistrictSet().isEmpty()) {
+		    filter = CriteriaBuilderHelper.and(cb, filter,
+		    		districtJoin.get(District.UUID).in(criteria.getDistrictSet().stream()
+		                    .map(DistrictReferenceDto::getUuid)  
+		                    .collect(Collectors.toList())));
 		}
 		if (criteria.getCommunity() != null) {
 			filter = CriteriaBuilderHelper.and(cb, filter,

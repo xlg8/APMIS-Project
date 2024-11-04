@@ -3,6 +3,7 @@ package com.cinoteck.application.views.utils;
 import com.cinoteck.application.utils.authentication.AccessControl;
 import com.cinoteck.application.utils.authentication.AccessControlFactory;
 import com.cinoteck.application.utils.authentication.LoginView;
+import com.cinoteck.application.utils.authentication.ResetPasswordView;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 //import org.vaadin.example.bookstore.authentication.AccessControl;
@@ -22,28 +23,26 @@ public class APMISInitListener implements VaadinServiceInitListener {
 	private static final long serialVersionUID = 8385570446755288676L;
 
 	@Override
-    public void serviceInit(ServiceInitEvent initEvent) {
-        final AccessControl accessControl = AccessControlFactory.getInstance()
-                .createAccessControl();
+	public void serviceInit(ServiceInitEvent initEvent) {
+		final AccessControl accessControl = AccessControlFactory.getInstance().createAccessControl();
 
-        initEvent.getSource().addUIInitListener(uiInitEvent -> {
-            uiInitEvent.getUI().addBeforeEnterListener(enterEvent -> {
-            	
-            	
-          System.out.println(accessControl.isUserSignedIn()+"+++++++++++++++++++++++++++________________"+enterEvent.getNavigationTarget());
-            	
-            	
-           if (!accessControl.isUserSignedIn() && !LoginView.class.equals(enterEvent.getNavigationTarget())) {
-                    enterEvent.rerouteTo(LoginView.class);
-            } else if (accessControl.isUserSignedIn() && LoginView.class.equals(enterEvent.getNavigationTarget())) {
-            	
-            	
-            	
-            	
-            	
-            	
-            }
-            });
-            });
+		initEvent.getSource().addUIInitListener(uiInitEvent -> {
+			uiInitEvent.getUI().addBeforeEnterListener(enterEvent -> {
+
+				System.out.println(accessControl.isUserSignedIn() + "+++++++++++++++++++++++++++________________"
+						+ enterEvent.getNavigationTarget());
+
+				if (!accessControl.isUserSignedIn()) {
+					if (ResetPasswordView.class.equals(enterEvent.getNavigationTarget())) {
+						enterEvent.rerouteTo(ResetPasswordView.class);
+					} else if (!LoginView.class.equals(enterEvent.getNavigationTarget())) {
+						enterEvent.rerouteTo(LoginView.class);
+					}
+
+				} else if (accessControl.isUserSignedIn() && LoginView.class.equals(enterEvent.getNavigationTarget())) {
+
+				}
+			});
+		});
 	}
 }

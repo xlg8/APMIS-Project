@@ -49,7 +49,11 @@ public interface UserFacade {
 	boolean isLoginUnique(String uuid, String userName);
 
 	String resetPassword(String uuid);
-
+	
+	String createMemorablePassword(String uuid);
+	
+	boolean setCustomPassword(String uuid, String customPassword);
+	
 	String changePassword(String uuid, String pass);
 
 	List<UserDto> getAllAfter(Date date);
@@ -133,8 +137,12 @@ public interface UserFacade {
 			Set<CommunityReferenceDto> communities);
 
 	public void updateLastLoginDate(Date lastUserLoginDate, String userName);
+	
+//	public void updatePreviousLoginDate(Date previousUserLoginDate, String userName);
 
 	public void deactivateInactiveUsers();
 	
 	public Date checkUsersActiveStatusByUsernameandActiveStatus(String username);
+	
+//	public Date getPreviousLoginDateByUsername(String username);
 }

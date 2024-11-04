@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -147,11 +148,12 @@ public class UserModuleActionSummaryView extends VerticalLayout implements Route
 		});
 
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
-				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
+				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(true)
+				.setComparator(Comparator.comparing(UserActivitySummaryDto::getActionDate)).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
 				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
-				.setSortable(false).setResizable(true);
+				.setSortable(true).setResizable(true);
 
 		grid.setItems(dataProvider);
 

@@ -1,11 +1,10 @@
 package de.symeda.sormas.backend.messaging;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -31,6 +30,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.util.Value;
 import com.google.gson.Gson;
+
 import de.symeda.sormas.api.messaging.FCMDto;
 import de.symeda.sormas.api.messaging.FCMResponseDto;
 import de.symeda.sormas.api.messaging.MessageCriteria;
@@ -275,6 +275,69 @@ public class MessageFacadeEjb implements MessageFacade {
 		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
 	}
 
+	
+	@Override
+	public List<MessageDto> getMessageByDate(MessageCriteria messageCriteria, UserType userType, Integer first,
+			Integer max, Set<UserRole> userRoles, Set<FormAccess> formAccess, Date date) {
+
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Message> cq = cb.createQuery(Message.class);
+		Root<Message> from = cq.from(Message.class);
+
+		Predicate filter = null;
+		Predicate filterMain = null;
+		Predicate filterArea = null;
+		Predicate filterRegion = null;
+		Predicate filterDistrict = null;
+		Predicate dateFilter = null;
+
+		if (messageCriteria != null) {
+			filterMain = messageService.buildCriteriaFilterCustom(messageCriteria, cb, from, userRoles, formAccess);
+			filter = filterMain;
+		}
+
+		if (messageCriteria.getArea() != null) {
+			filterArea = messageService.buildCriteriaFilterArea(messageCriteria, cb, from);
+			if (filter != null) {
+				filter = cb.and(filter, filterArea);
+			} else {
+				filter = filterArea;
+			}
+		}
+
+		if (messageCriteria.getRegion() != null) {
+			filterRegion = messageService.buildCriteriaFilterRegion(messageCriteria, cb, from);
+
+			if (filter != null) {
+				filter = cb.and(filter, filterRegion);
+			} else {
+				filter = filterRegion;
+			}
+		}
+
+		if (messageCriteria.getDistrict() != null) {
+			filterDistrict = messageService.buildCriteriaFilterDistrict(messageCriteria, cb, from);
+
+			if (filter != null) {
+				filter = cb.and(filter, filterDistrict);
+			} else {
+				filter = filterDistrict;
+			}
+		}
+		
+		 if (date != null) {
+		        dateFilter = cb.greaterThan(from.get("changeDate"), date);
+		        filter = filter != null ? cb.and(filter, dateFilter) : dateFilter;
+		    }
+
+		if (filter != null) {
+			cq.where(filter);
+		}
+
+		cq.distinct(true).orderBy(cb.desc(from.get(Message.CHANGE_DATE)));
+		return QueryHelper.getResultList(em, cq, first, max, MessageFacadeEjb::toDto);
+	}
+	
 	@Override
 	public long getNewMessage(MessageCriteria messageCriteria, UserType userType, Integer first, Integer max,
 			Set<UserRole> userRoles, Set<FormAccess> formAccess) {

@@ -737,16 +737,12 @@ public class UserFacadeEjb implements UserFacade {
 			cq.orderBy(cb.desc(user.get(User.CHANGE_DATE)));
 		}
 
-		cq.select(user);// .distinct(true);
+		cq.select(user).distinct(true);
 
 		TypedQuery<User> query = em.createQuery(cq);
 		String sql = query.unwrap(org.hibernate.query.Query.class).getQueryString();
 
-		// Print the SQL query
-		System.out.println("Generated SQL from index list  : " + sql);
-
-		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto).stream().distinct()
-				.collect(Collectors.toList());
+		return QueryHelper.getResultList(em, cq, first, max, UserFacadeEjb::toDto); 
 	}
 
 	@Override
@@ -766,7 +762,7 @@ public class UserFacadeEjb implements UserFacade {
 			cq.where(filter);
 		}
 
-		cq.select(cb.count(root));
+		 cq.select(cb.countDistinct(root));
 		return em.createQuery(cq).getSingleResult();
 	}
 
@@ -834,6 +830,22 @@ public class UserFacadeEjb implements UserFacade {
 		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
 		return resetPassword;
 	}
+	
+	@Override
+	public String createMemorablePassword(String uuid) {
+		String resetPassword = userService.createMemorablePassword(uuid);
+		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
+		return resetPassword;
+	}
+		
+
+	@Override
+	public boolean setCustomPassword(String uuid, String customPassword) {
+		boolean resetPassword = userService.setCustomPassword(uuid, customPassword);
+		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
+		return resetPassword;
+	}
+	
 
 	@Override
 	public UserDto getCurrentUser() {
@@ -1150,6 +1162,15 @@ public class UserFacadeEjb implements UserFacade {
 		userUpdateEvent.fire(new UserUpdateEvent(user));
 
 	}
+	
+//	@Override
+//	public void updatePreviousLoginDate(Date previousUserLoginDate, String username) {
+//		User user = userService.getByUserName(username);
+//
+//		user.setPreviouslogindate(previousUserLoginDate);
+//		userService.ensurePersisted(user);
+//		userUpdateEvent.fire(new UserUpdateEvent(user));
+//	}
 
 	@Schedule(second = "0", minute = "0", hour = "2", persistent = false)
 	public void deactivateInactiveUsers() {
@@ -1217,4 +1238,36 @@ public class UserFacadeEjb implements UserFacade {
             return null;
         }
     }
+	
+//	@Override
+//    public Date getPreviousLoginDateByUsername(String username) {
+//        String getPreviousLoginDateQuery = "SELECT u.previouslogindate FROM users u WHERE LOWER(u.username) = LOWER(:username)";
+//        
+//        try {
+//            Query query = em.createNativeQuery(getPreviousLoginDateQuery)
+//                            .setParameter("username", username);
+//            
+//            Object result = query.getSingleResult();
+//            
+//            if (result instanceof Date) {
+//                return (Date) result;
+//            } else if (result instanceof java.sql.Timestamp) {
+//                return new Date(((java.sql.Timestamp) result).getTime());
+//            } else {
+//             
+//                System.err.println("Unexpected result type: " + (result != null ? result.getClass().getName() : "null"));
+//                return null;
+//            }
+//        } catch (NoResultException e) {
+//            // No result found for the given username
+//            System.err.println("Unexpected result type: No result found for the given username.");
+//
+//            return null;
+//        } catch (Exception e) {
+//            // Log the exception
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+	
 }

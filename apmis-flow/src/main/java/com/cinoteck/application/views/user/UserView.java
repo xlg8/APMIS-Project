@@ -109,7 +109,7 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 	Binder<UserDto> binder = new BeanValidationBinder<>(UserDto.class, false);
 	boolean overide = false;
 	private ComboBox<String> activeFilter;
-	private ComboBox<UserRole> userRolesFilter = new ComboBox<UserRole>();
+	private MultiSelectComboBox<UserRole> userRolesFilter = new MultiSelectComboBox<UserRole>();
 //	private ComboBox<UserRole> userRolesFilter = new ComboBox<>();
 
 	private ComboBox<AreaReferenceDto> areaFilter;
@@ -362,37 +362,37 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 
 		filterLayout.add(activeFilter);
 
-		userRolesFilter = new ComboBox<UserRole>();
-		userRolesFilter.setWidth("145px");
-
-		userRolesFilter.setId(UserDto.USER_ROLES);
-		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
-		userRolesFilter.getStyle().set("margin-left", "0.1rem");
-		userRolesFilter.getStyle().set("padding-top", "0px!important");
-		userRolesFilter.setClearButtonVisible(true);
-	
-		
-		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-		roles.remove(UserRole.BAG_USER);
-
-		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
-		roles.remove(UserRole.BAG_USER);
-
-		// Sorting the user roles usng comprtor
-		Collections.sort(rolesz, new UserRoleCustomComparator());
-		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
-
-		userRolesFilter.setItems(sortedUserRoless);
-		userRolesFilter.addValueChangeListener(e -> {
-
-			UserRole userRole = e.getValue();
-			criteria.userRole(userRole);
-			filterDataProvider.setFilter(criteria);
-			filterDataProvider.refreshAll();
-			updateRowCount();
-
-		});
+//		userRolesFilter = new ComboBox<UserRole>();
+//		userRolesFilter.setWidth("145px");
+//
+//		userRolesFilter.setId(UserDto.USER_ROLES);
+//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+//		userRolesFilter.getStyle().set("padding-top", "0px!important");
+//		userRolesFilter.setClearButtonVisible(true);
+//	
+//		
+//		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+//		roles.remove(UserRole.BAG_USER);
+//
+//		List<UserRole> rolesz = new ArrayList<>(roles); // Convert Set to List
+//		roles.remove(UserRole.BAG_USER);
+//
+//		// Sorting the user roles usng comprtor
+//		Collections.sort(rolesz, new UserRoleCustomComparator());
+//		Set<UserRole> sortedUserRoless = new TreeSet<>(rolesz);
+//
+//		userRolesFilter.setItems(sortedUserRoless);
+//		userRolesFilter.addValueChangeListener(e -> {
+//
+//			UserRole userRole = e.getValue();
+//			criteria.userRole(userRole);
+//			filterDataProvider.setFilter(criteria);
+//			filterDataProvider.refreshAll();
+//			updateRowCount();
+//
+//		});
 
 //		Recieve FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles(); into an appropriate collection 
 //		convert the system into a list 
@@ -402,24 +402,24 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //		while if current user is eoc remove cluster cordinatoe 
 //		Remove the role BagUser
 
-//		userRolesFilter = new MultiSelectComboBox<>();
-//		userRolesFilter.setWidth("145px");
-//		userRolesFilter.setId(UserDto.USER_ROLES);
-//		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
-//		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
-//		userRolesFilter.getStyle().set("margin-left", "0.1rem");
-//		userRolesFilter.getStyle().set("padding-top", "0px!important");
-//		userRolesFilter.setClearButtonVisible(true);
-//
-//		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
-//		roles.remove(UserRole.BAG_USER);
-//		List<UserRole> rolesList = new ArrayList<>(roles);
-//
-//		// Sorting the user roles using comparator
-//		Collections.sort(rolesList, new UserRoleCustomComparator());
-//		Set<UserRole> sortedUserRoles = new LinkedHashSet<>(rolesList);
-//
-//		userRolesFilter.setItems(sortedUserRoles);
+		userRolesFilter = new MultiSelectComboBox<>();
+		userRolesFilter.setWidth("145px");
+		userRolesFilter.setId(UserDto.USER_ROLES);
+		userRolesFilter.setLabel(I18nProperties.getPrefixCaption(UserDto.I18N_PREFIX, UserDto.USER_ROLES));
+		userRolesFilter.setPlaceholder(I18nProperties.getCaption(Captions.User_userRoles));
+		userRolesFilter.getStyle().set("margin-left", "0.1rem");
+		userRolesFilter.getStyle().set("padding-top", "0px!important");
+		userRolesFilter.setClearButtonVisible(true);
+
+		Set<UserRole> roles = FacadeProvider.getUserRoleConfigFacade().getEnabledUserRoles();
+		roles.remove(UserRole.BAG_USER);
+		List<UserRole> rolesList = new ArrayList<>(roles);
+
+		// Sorting the user roles using comparator
+		Collections.sort(rolesList, new UserRoleCustomComparator());
+		Set<UserRole> sortedUserRoles = new LinkedHashSet<>(rolesList);
+
+		userRolesFilter.setItems(sortedUserRoles);
 
 //		userRolesFilter.addValueChangeListener(e -> {
 //		    Set<UserRole> selectedRoles = e.getValue();
@@ -431,49 +431,38 @@ public class UserView extends VerticalLayout implements RouterLayout, BeforeEnte
 //
 //		    // If no roles are selected, clear the filter criteria
 //		    if (selectedRoles.isEmpty()) {
-//		        criteria.userRole(null);
 //		        criteria.userRoleSet(null);
 //		    } else {
-//		        // Clear existing filters
-//		        criteria.userRole(null);
-//		        criteria.userRoleSet(null);
 //		        criteria.userRoleSet(selectedRoles);
-//
-//		        // Now set the filter using the role names
-//		        criteria.setRoleNames(roleNames); // Ensure you have a setRoleNames method in your criteria
 //		    }
-//
-//		    // Debugging output
-//		    System.out.println("Selected roles: " + roleNames);
-//
-//		    // Apply the filter to the data provider
-//		    filterDataProvider.setFilter(criteria.setRoleNames(roleNames));
+//		    filterDataProvider.setFilter(criteria);
 //		    filterDataProvider.refreshAll();
 //		    updateRowCount();
 //		});
 
-//		userRolesFilter.addValueChangeListener(e -> {
-//			selectedRolesX = e.getValue();
-//
-//			String names = selectedRolesX.stream().map(UserRole::toString) // or use another method to get a specific
-//																			// string representation of UserRole
-//					.collect(Collectors.joining(","));
-//			if (selectedRolesX.isEmpty()) {
+		userRolesFilter.addValueChangeListener(e -> {
+			selectedRolesX = e.getValue();
+
+			String names = selectedRolesX.stream().map(UserRole::toString) // or use another method to get a specific
+																			// string representation of UserRole
+					.collect(Collectors.joining(","));
+			if (selectedRolesX.isEmpty()) {
 //				criteria.userRole(null);
-//				criteria.userRoleSet(null);
-//			} else {
+				criteria.userRoleSet(null);
+			} else {
 //				criteria.userRole(null);
-//				criteria.userRoleSet(null);
-//				criteria.userRoleSet(selectedRolesX);
-////		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
-//			}
-//
-//			System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet()
-//					+ selectedRolesX + "<=========");
-//			filterDataProvider.setFilter(criteria);
-//			filterDataProvider.refreshAll();
-//			updateRowCount();
-//		});
+				criteria.userRoleSet(null);
+				criteria.userRoleSet(selectedRolesX);
+//		        selectedRolesLabel.setText("Selected: " + String.join(", ", selectedRoles.stream().map(UserRole::toString).collect(Collectors.toList())));
+			}
+
+			System.out.println(criteria.getUserRole() + "user roles =====set " + criteria.getUserRoleSet()
+					+ selectedRolesX + "<=========");
+			filterDataProvider.setFilter(criteria);
+			filterDataProvider.refreshAll();
+			updateRowCount();
+		});
+
 
 //		// Add a custom label to show all selected roles
 //		Div selectedRolesLabel = new Div();

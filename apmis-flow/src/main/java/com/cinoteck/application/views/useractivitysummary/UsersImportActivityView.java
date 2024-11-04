@@ -165,7 +165,8 @@ public class UsersImportActivityView extends VerticalLayout implements RouterLay
 		});
 
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
-				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
+				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(true)
+				.setComparator(Comparator.comparing(UserActivitySummaryDto::getActionDate)).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
 				.setSortable(true).setResizable(true);
 		grid.addColumn(UserActivitySummaryDto.ACTION_logged).setHeader(I18nProperties.getCaption("Action"))
