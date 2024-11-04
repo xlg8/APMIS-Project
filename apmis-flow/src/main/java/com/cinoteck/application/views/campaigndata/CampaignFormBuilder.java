@@ -172,6 +172,10 @@ public class CampaignFormBuilder extends VerticalLayout {
 	Button reassignDataConfigUnit = new Button(I18nProperties.getCaption("Reassign Data"));
 
 	FormLayout vertical = new FormLayout();
+	HorizontalLayout reassigmentLayout = new HorizontalLayout();
+	Button updateFormDataUnitAssignment = new Button("Update Form Data Unit");
+	Button cancelFormDataUnitAssignment = new Button("Cancel");
+
 
 	DatePicker formDate = new DatePicker();
 	private boolean openData = false;
@@ -496,17 +500,24 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 
 		});
-
-		HorizontalLayout reassigmentLayout = new HorizontalLayout();
-		Button updateFormDataUnitAssignment = new Button("Update Form Data Unit");
+		
+		
+		
+		Icon cancelIcon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
+		cancelIcon.getStyle().set("color", "red !important");
+		
+		cancelFormDataUnitAssignment.setIcon(cancelIcon);
+		cancelFormDataUnitAssignment.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		
+		updateFormDataUnitAssignment.setIcon(VaadinIcon.CHECK_CIRCLE_O.create());
+		
 		updateFormDataUnitAssignment.setVisible(false);
+		cancelFormDataUnitAssignment.setVisible(false);
 
 		reassignDataConfigUnit.addClickListener(e -> {
-
 			cbCommunity.setReadOnly(false);
-			;
-//			formDate.setReadOnly(false);
 			updateFormDataUnitAssignment.setVisible(true);
+			cancelFormDataUnitAssignment.setVisible(true);
 
 		});
 
@@ -517,8 +528,39 @@ public class CampaignFormBuilder extends VerticalLayout {
 		this.campaignFormMeta = campaignFormMetaUUID;
 		this.isDistrictEntry = isDistrictEntry;
 		this.formName = formName;
+		
+		cancelFormDataUnitAssignment.addClickListener(e -> {
+			if (updateFormDataUnitAssignment.isVisible() || cbCommunity.isEnabled()) {
+				updateFormDataUnitAssignment.setVisible(false);
+				cbCommunity.setReadOnly(true);
+				cancelFormDataUnitAssignment.setVisible(false);
+			}
+			
+			
+			
+		});
 
 		updateFormDataUnitAssignment.addClickListener(e -> {
+			
+			/*
+			 * Add a validation for admin forms to avoid overriding the cluster on admin data if the cliuster already exists with data
+			 * 
+			 * Also confirm if it is fine to ovveride data of clusters that already have data 
+			 * 
+			 * 
+			 * 
+			 */
+			
+//			String campaignuuid = ""; 
+//			
+//			String formUuid = ""; 
+//			
+//			String clusterUUid  = ""; 
+//			
+//			String formCategory  = ""; 
+//
+//
+
 
 			try {
 
@@ -537,6 +579,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				Notification.show("Form Configuration Unit Updated Succesfully");
 				cbCommunity.setReadOnly(true);
 				updateFormDataUnitAssignment.setVisible(false);
+				cancelFormDataUnitAssignment.setVisible(false);
+
 
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Population Data Import");
@@ -550,7 +594,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 		});
 
-		reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment);
+		reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment , cancelFormDataUnitAssignment);
 
 		if (uuidForm != null) {
 			if (currentUser.getUserRoles().contains(UserRole.ADMIN)

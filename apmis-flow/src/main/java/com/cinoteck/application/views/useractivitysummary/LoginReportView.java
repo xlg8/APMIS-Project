@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 
@@ -133,9 +135,21 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			return dateFormat.format(timestamp);
 		});
+		
+//		TextRenderer<ConfigurationChangeLogDto> dateRenderer = new TextRenderer<>(dto -> {
+//			Date timestamp = dto.getAction_date();
+//			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+//			if (timestamp != null) {
+//				return dateFormat.format(timestamp);
+//
+//			} else {
+//				return "";
+//			}
+//		});
+		
 
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
-				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(false).setResizable(true);
+				.setHeader(I18nProperties.getCaption("Timestamp")).setComparator(Comparator.comparing(UserActivitySummaryDto::getActionDate)).setSortable(true).setResizable(true);
 
 		grid.addColumn(UserActivitySummaryDto::getCreatingUser_string).setHeader(I18nProperties.getCaption("Username"))
 				.setSortable(true).setResizable(true);
