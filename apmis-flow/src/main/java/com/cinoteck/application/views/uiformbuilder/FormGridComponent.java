@@ -786,9 +786,9 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setErrormessage(errorMessage.getValue());
 					}
 
-					if (!comment.getValue().isEmpty()) {
-						System.out.println(" dsfsgdgetwreqdacsvsf  " + comment.getValue() + "       hhhhhhhhhhhhhhh");
+					if (!comment.getValue().isEmpty()) {						
 						newForm.setComment(comment.getValue());
+						newForm.setErrormessage(errorMessage.getValue());
 					}
 
 					if (!defaultValues.getValue().isEmpty()) {
@@ -997,6 +997,8 @@ public class FormGridComponent extends VerticalLayout {
 //				.setResizable(true);
 		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
 				.setResizable(true);
+//		grid.addColumn(CampaignFormElement::getComment).setHeader("Comment").setSortable(true)
+//		.setResizable(true);
 
 		List<CampaignFormElement> existingElements = campaignFormMetaDto.getCampaignFormElements();
 
