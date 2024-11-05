@@ -114,6 +114,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Date usersPreviousLoginDate;
 	List<MessageDto> messageSize = new ArrayList<>();
 //	private InactivityHandler inactivityHandler;
+	String currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -124,7 +125,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 			I18nProperties.setUserLanguage(userProvider.getUser().getLanguage());
 			I18nProperties.getUserLanguage();
 			FacadeProvider.getI18nFacade().setUserLanguage(userProvider.getUser().getLanguage());
-		}	
+		}
 
 		rtlswitcher();
 		setPrimarySection(Section.DRAWER);
@@ -227,9 +228,14 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Button myButton = new Button();
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
-
-			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,
-					VaadinIcon.CLIPBOARD, "navitem"));
+//			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,
+//					VaadinIcon.CLIPBOARD, "navitem"));
+			AppNavItem campaignNavItem = new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData),
+					CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");
+			if (currentRoute.isEmpty()) {
+				campaignNavItem.getElement().getStyle().set("background", "#F08F3E");
+			}
+			nav.addItem(campaignNavItem);
 		}
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
@@ -328,10 +334,10 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 //				System.out.println("deyyyyyyyyyyyyyyyyyyyyyy");
 //			}
 //		} else {
-			if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
-				nav.addItem(new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification,
-						UserMessageView.class));	
-			}
+		if (userProvider.hasUserRight(UserRight.NON_ADMIN_ACCESS)) {
+			nav.addItem(
+					new AppNavItem("Notification", VaadinIcon.SERVER, "navitem", notification, UserMessageView.class));
+		}
 //		}
 
 		if (nav != null) {
