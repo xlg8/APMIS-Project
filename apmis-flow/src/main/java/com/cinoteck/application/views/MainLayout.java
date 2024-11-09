@@ -114,7 +114,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	Date usersPreviousLoginDate;
 	List<MessageDto> messageSize = new ArrayList<>();
 //	private InactivityHandler inactivityHandler;
-	String currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+	private String currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+	private AppNavItem campaignNavItem;
+	private AppNavItem about;
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -228,13 +230,8 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		Button myButton = new Button();
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
-//			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData), CampaignDataView.class,
-//					VaadinIcon.CLIPBOARD, "navitem"));
-			AppNavItem campaignNavItem = new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData),
-					CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");
-			if (currentRoute.isEmpty()) {
-				campaignNavItem.getElement().getStyle().set("background", "#F08F3E");
-			}
+			campaignNavItem = new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData),
+					CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");		
 			nav.addItem(campaignNavItem);
 		}
 
@@ -307,8 +304,10 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.support), SupportView.class, VaadinIcon.CHAT,
 				"navitem"));
-		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
-				"navitem"));
+		
+		about = new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
+				"navitem");		
+		nav.addItem(about);
 
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
 				&& userProvider.hasUserRight(UserRight.FORM_BUILDER_ACCESS)) {
@@ -435,6 +434,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		confirmButton.getStyle().set("width", "35%");
 
 		cancelButton = new Button(I18nProperties.getCaption(Captions.actionCancel), event -> {
+			dialog.close();
 		});
 		cancelButton.getStyle().set("width", "35%");
 		cancelButton.getStyle().set("background", "white");
@@ -464,6 +464,21 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		super.afterNavigation();
 		rtlswitcher();
 		viewTitle.setText(getCurrentPageTitle());
+		currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
+		
+		/*
+		 * The condition below handles setting backgroud color for default nav on users first login
+		 */
+		if (currentRoute.equalsIgnoreCase("campaigndata")) {
+	        campaignNavItem.getElement().getStyle().set("background", "#F08F3E");
+	        about.getElement().getStyle().remove("background");
+	    } else if(currentRoute.equalsIgnoreCase("about")) {
+	    	about.getElement().getStyle().set("background", "#F08F3E");
+	    	campaignNavItem.getElement().getStyle().remove("background");
+	    } else {	       
+	        campaignNavItem.getElement().getStyle().remove("background");
+	        about.getElement().getStyle().remove("background");
+	    }
 	}
 
 	private String getCurrentPageTitle() {
