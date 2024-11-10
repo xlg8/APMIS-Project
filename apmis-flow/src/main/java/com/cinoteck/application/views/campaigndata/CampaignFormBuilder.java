@@ -176,21 +176,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 	Button updateFormDataUnitAssignment = new Button("Update Form Data Unit");
 	Button cancelFormDataUnitAssignment = new Button("Cancel");
 
-
 	DatePicker formDate = new DatePicker();
 	private boolean openData = false;
 	private String uuidForm;
 	private boolean checkDistrictEntry = false;
 	private String formName;
 
-	public CampaignFormBuilder(List<CampaignFormElement> formElements, 
-			List<CampaignFormDataEntry> formValues,
-			CampaignReferenceDto campaignReferenceDto,
-			List<CampaignFormTranslations> translations, 
-			String formName,
-			CampaignFormMetaReferenceDto campaignFormMetaUUID, 
-			boolean openData, 
-			String uuidForm,
+	public CampaignFormBuilder(List<CampaignFormElement> formElements, List<CampaignFormDataEntry> formValues,
+			CampaignReferenceDto campaignReferenceDto, List<CampaignFormTranslations> translations, String formName,
+			CampaignFormMetaReferenceDto campaignFormMetaUUID, boolean openData, String uuidForm,
 			boolean isDistrictEntry) {
 
 		logger.debug("+++++++++++CampaignFormBuilder+++++: " + openData);
@@ -500,17 +494,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 
 		});
-		
-		
-		
+
 		Icon cancelIcon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
 		cancelIcon.getStyle().set("color", "red !important");
-		
+
 		cancelFormDataUnitAssignment.setIcon(cancelIcon);
 		cancelFormDataUnitAssignment.addThemeVariants(ButtonVariant.LUMO_ERROR);
-		
+
 		updateFormDataUnitAssignment.setIcon(VaadinIcon.CHECK_CIRCLE_O.create());
-		
+
 		updateFormDataUnitAssignment.setVisible(false);
 		cancelFormDataUnitAssignment.setVisible(false);
 
@@ -528,48 +520,19 @@ public class CampaignFormBuilder extends VerticalLayout {
 		this.campaignFormMeta = campaignFormMetaUUID;
 		this.isDistrictEntry = isDistrictEntry;
 		this.formName = formName;
-		
+
 		cancelFormDataUnitAssignment.addClickListener(e -> {
 			if (updateFormDataUnitAssignment.isVisible() || cbCommunity.isEnabled()) {
 				updateFormDataUnitAssignment.setVisible(false);
 				cbCommunity.setReadOnly(true);
 				cancelFormDataUnitAssignment.setVisible(false);
 			}
-			
-			
-			
+
 		});
 
 		updateFormDataUnitAssignment.addClickListener(e -> {
-			
-			/*
-			 * Add a validation for admin forms to avoid overriding the cluster on admin data if the cliuster already exists with data
-			 * 
-			 * Also confirm if it is fine to ovveride data of clusters that already have data 
-			 * 
-			 * 
-			 * 
-			 */
-			
-//			String campaignuuid = ""; 
-//			
-//			String formUuid = ""; 
-//			
-//			String clusterUUid  = ""; 
-//			
-//			String formCategory  = ""; 
-//
-//
-
 
 			try {
-
-				System.out.println("openData=-" + openData);
-				System.out.println("uuidForm=-" + uuidForm);
-				System.out.println("campaignFormMeta=-" + campaignFormMeta.getUuid());
-				System.out.println("campaignReferenceDto=-" + campaignReferenceDto.getUuid());
-				System.out.println("cbCommunity=-" + cbCommunity.getValue().toString() + "ttt"
-						+ cbCommunity.getValue().getUuid().toString());
 				FacadeProvider.getCampaignFormDataFacade().updateFormDataUnitAssignment(uuidForm,
 						cbCommunity.getValue().getUuid().toString());
 			} catch (Exception ex) {
@@ -580,7 +543,6 @@ public class CampaignFormBuilder extends VerticalLayout {
 				cbCommunity.setReadOnly(true);
 				updateFormDataUnitAssignment.setVisible(false);
 				cancelFormDataUnitAssignment.setVisible(false);
-
 
 				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
 				userActivitySummaryDto.setActionModule("Population Data Import");
@@ -594,7 +556,9 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 		});
 
-		reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment , cancelFormDataUnitAssignment);
+		if(!isDistrictEntry) {
+			reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment, cancelFormDataUnitAssignment);
+		}
 
 		if (uuidForm != null) {
 			if (currentUser.getUserRoles().contains(UserRole.ADMIN)
@@ -690,17 +654,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			List<CommunityReferenceDto> communities = FacadeProvider.getCommunityFacade()
 					.getAllActiveByDistrict(userProvider.getUser().getDistrict().getUuid());
-			
+
 			communities.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
 
-			
 			cbCommunity.clear();
 			cbCommunity.setReadOnly(false);
 			;
-			
-		
+
 			cbCommunity.setItems(communities);
-			
+
 			cbCommunity.setItemLabelGenerator(itm -> {
 				CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
 				return dcfv.getNumber() + " | " + dcfv.getCaption();
@@ -708,21 +670,20 @@ public class CampaignFormBuilder extends VerticalLayout {
 		}
 
 		if (userProvider.getUser().getCommunity() != null) {
-			
+
 			cbCommunity.clear();
-			
+
 			List<CommunityReferenceDto> items = userProvider.getUser().getCommunity().stream()
 					.collect(Collectors.toList());
-			
-			
+
 			for (CommunityReferenceDto item : items) {
 				item.setCaption(item.getNumber() != null ? item.getNumber().toString() : item.getCaption());
 			}
-			
+
 //			System.out.println(item  +  " Item caption ");
-			
-			System.out.println(items +  " items from form builder ");
-			System.out.println(CommunityReferenceDto.clusternumber +  " items from form builder ");
+
+			System.out.println(items + " items from form builder ");
+			System.out.println(CommunityReferenceDto.clusternumber + " items from form builder ");
 
 //			Collections.sort(items, CommunityReferenceDto.clusternumber);
 			items.sort(Comparator.comparingInt(CommunityReferenceDto::getNumber));
@@ -733,13 +694,12 @@ public class CampaignFormBuilder extends VerticalLayout {
 		if (openData) {
 			CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
 					.getCampaignFormDataByUuid(uuidForm);
-			
-			System.out.println( formData +  "checking if formm data is null fom form builder");
+
+			System.out.println(formData + "checking if formm data is null fom form builder");
 
 			LocalDate localDate = formData.getFormDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-			
-			System.out.println( localDate +  "checking if localDate is null fom form builder" + formData.getFormDate());
 
+			System.out.println(localDate + "checking if localDate is null fom form builder" + formData.getFormDate());
 
 			formDate.setValue(localDate);
 			cbArea.clear();
@@ -1613,8 +1573,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 		case DECIMAL:
 			if (value != null) {
-
-				((TextField) field).setValue(value != null ? value.toString() : null);
+				((BigDecimalField) field).setValue(value != null ? new BigDecimal(value.toString()) : null);
+//				((BigDecimalField) field).setValue(value != null ? value.toString() : null);
 			}
 			break;
 		case TEXTBOX:

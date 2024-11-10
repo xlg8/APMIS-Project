@@ -1,33 +1,23 @@
 package com.cinoteck.application.views.campaigndata;
 
-import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
-import java.lang.System.Logger;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.sound.midi.SysexMessage;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.Form;
-
-import org.jsoup.select.Evaluator.ContainsData;
 import org.slf4j.LoggerFactory;
 
 import com.cinoteck.application.UserProvider;
@@ -35,15 +25,11 @@ import com.cinoteck.application.UserProvider.HasUserProvider;
 import com.cinoteck.application.ViewModelProviders;
 import com.cinoteck.application.ViewModelProviders.HasViewModelProviders;
 import com.cinoteck.application.views.MainLayout;
-import com.cinoteck.application.views.campaign.CampaignDataImportDialog;
-import com.cinoteck.application.views.campaign.CampaignForm;
-import com.cinoteck.application.views.campaign.ImportPopulationDataDialog;
 import com.cinoteck.application.views.utils.DownloadTransposedDaywiseDataUtility;
-import com.cinoteck.application.views.utils.IdleNotification;
+import com.cinoteck.application.views.utils.DownloadTransposedLqasDataUtility;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -57,18 +43,12 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.grid.GridMultiSelectionModel;
-import com.vaadin.flow.component.grid.GridMultiSelectionModel.SelectAllCheckboxVisibility;
-import com.vaadin.flow.component.grid.GridSelectionModel;
-import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -77,15 +57,11 @@ import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.selection.MultiSelect;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinSession;
-
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.Language;
 import de.symeda.sormas.api.campaign.CampaignDto;
@@ -100,14 +76,12 @@ import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.Descriptions;
 import de.symeda.sormas.api.i18n.I18nProperties;
-import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.user.FormAccess;
-import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserRight;
 import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
@@ -429,8 +403,8 @@ public class CampaignDataView extends VerticalLayout
 					districtCombo.setEnabled(false);
 					if (districtCombo.getValue() != null) {
 						List<CommunityReferenceDto> allClusters = new ArrayList<>();
-						
-						for(DistrictReferenceDto selectedUUID : districtCombo.getValue()) {
+
+						for (DistrictReferenceDto selectedUUID : districtCombo.getValue()) {
 							String uuid = selectedUUID.getUuid();
 							communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(uuid);
 							allClusters.addAll(communities);
@@ -441,7 +415,6 @@ public class CampaignDataView extends VerticalLayout
 							CommunityReferenceDto dcfv = (CommunityReferenceDto) itm;
 							return dcfv.getNumber() + " | " + dcfv.getCaption();
 						});
-								
 
 //						communities = FacadeProvider.getCommunityFacade()
 //								.getAllActiveByDistrict(districtCombo.getValue().getUuid());
@@ -582,6 +555,12 @@ public class CampaignDataView extends VerticalLayout
 		publishedStatusCombo.setClassName("col-sm-6, col-xs-6");
 		publishedStatusCombo.getStyle().set("--vaadin-combo-box-overlay-width", "350px");
 		publishedStatusCombo.setItems("All Data", "Published", "Unpublished");
+
+		Button transposeLqasButton = new Button("Transpose LQAS Data");
+
+		transposeLqasButton.addClickListener(e -> {
+			buildLqasTransposedData(criteria);
+		});
 
 		// Initialize Item lists
 		List<CampaignReferenceDto> campaigns = FacadeProvider.getCampaignFacade().getAllCampaignByStartDate();
@@ -767,7 +746,7 @@ public class CampaignDataView extends VerticalLayout
 				}
 
 				// Check if the value contains "Day 1" and add new components
-				if (e.getValue().toString().contains("Day 1")) {
+				if (e.getValue().toString().contains("Day 1") || e.getValue().toString().contains("LQAS")) {
 					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(),
 							criteria);
 				}
@@ -889,37 +868,35 @@ public class CampaignDataView extends VerticalLayout
 //			}
 //		});
 
-		
-		
 		regionCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				List<RegionReferenceDto> allProvinces = new ArrayList<>();
-					if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-						for(AreaReferenceDto selectedUUID : e.getValue()) {
-							String uuid = selectedUUID.getUuid();
-							provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(uuid);
-							allProvinces.addAll(provinces);
-						}
-//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
-						provinceCombo.setItems(allProvinces);
-					} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-						for(AreaReferenceDto selectedUUID : e.getValue()) {
-							String uuid = selectedUUID.getUuid();
-							provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(uuid);
-							allProvinces.addAll(provinces);
-						}
-//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
-						provinceCombo.setItems(allProvinces);
-					} else {
-						for(AreaReferenceDto selectedUUID : e.getValue()) {
-							String uuid = selectedUUID.getUuid();
-							provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(uuid);
-							allProvinces.addAll(provinces);
-						}
-//						provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
-						provinceCombo.setItems(allProvinces);
+				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
+					for (AreaReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(uuid);
+						allProvinces.addAll(provinces);
 					}
-					provinceCombo.setEnabled(true);
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaPashto(e.getValue().getUuid());
+					provinceCombo.setItems(allProvinces);
+				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
+					for (AreaReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(uuid);
+						allProvinces.addAll(provinces);
+					}
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByAreaDari(e.getValue().getUuid());
+					provinceCombo.setItems(allProvinces);
+				} else {
+					for (AreaReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(uuid);
+						allProvinces.addAll(provinces);
+					}
+//						provinces = FacadeProvider.getRegionFacade().getAllActiveByArea(e.getValue().getUuid());
+					provinceCombo.setItems(allProvinces);
+				}
+				provinceCombo.setEnabled(true);
 			} else {
 				if (provinceCombo.getValue() != null) {
 					provinceCombo.clear();
@@ -930,7 +907,8 @@ public class CampaignDataView extends VerticalLayout
 			updateRowCount();
 
 			if (e.getValue() != null) {
-				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+				if (campaignFormCombo.getValue() != null && (campaignFormCombo.getValue().toString().contains("Day 1")
+						|| campaignFormCombo.getValue().toString().contains("LQAS"))) {
 					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(),
 							criteria);
 				}
@@ -943,7 +921,7 @@ public class CampaignDataView extends VerticalLayout
 			if (e.getValue() != null) {
 				List<DistrictReferenceDto> allDistricts = new ArrayList<>();
 				if (userProvider.getUser().getLanguage().toString().equals("Pashto")) {
-						for(RegionReferenceDto selectedUUID : e.getValue()) {
+					for (RegionReferenceDto selectedUUID : e.getValue()) {
 						String uuid = selectedUUID.getUuid();
 						districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(uuid);
 						allDistricts.addAll(districts);
@@ -951,16 +929,16 @@ public class CampaignDataView extends VerticalLayout
 //					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionPashto(e.getValue().getUuid());
 					districtCombo.setItems(allDistricts);
 				} else if (userProvider.getUser().getLanguage().toString().equals("Dari")) {
-					for(RegionReferenceDto selectedUUID : e.getValue()) {
-					String uuid = selectedUUID.getUuid();
-					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(uuid);
-					allDistricts.addAll(districts);
-				}
-					
+					for (RegionReferenceDto selectedUUID : e.getValue()) {
+						String uuid = selectedUUID.getUuid();
+						districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(uuid);
+						allDistricts.addAll(districts);
+					}
+
 //					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegionDari(e.getValue().getUuid());
 					districtCombo.setItems(allDistricts);
 				} else {
-					for(RegionReferenceDto selectedUUID : e.getValue()) {
+					for (RegionReferenceDto selectedUUID : e.getValue()) {
 						String uuid = selectedUUID.getUuid();
 						districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(uuid);
 						allDistricts.addAll(districts);
@@ -984,7 +962,8 @@ public class CampaignDataView extends VerticalLayout
 			updateRowCount();
 
 			if (e.getValue() != null) {
-				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+				if (campaignFormCombo.getValue() != null && (campaignFormCombo.getValue().toString().contains("Day 1")
+						|| campaignFormCombo.getValue().toString().contains("LQAS"))) {
 					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(),
 							criteria);
 				}
@@ -996,8 +975,8 @@ public class CampaignDataView extends VerticalLayout
 		districtCombo.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				List<CommunityReferenceDto> allClusters = new ArrayList<>();
-				
-				for(DistrictReferenceDto selectedUUID : e.getValue()) {
+
+				for (DistrictReferenceDto selectedUUID : e.getValue()) {
 					String uuid = selectedUUID.getUuid();
 					communities = FacadeProvider.getCommunityFacade().getAllActiveByDistrict(uuid);
 					allClusters.addAll(communities);
@@ -1023,7 +1002,8 @@ public class CampaignDataView extends VerticalLayout
 			updateRowCount();
 
 			if (e.getValue() != null) {
-				if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+				if (campaignFormCombo.getValue() != null && (campaignFormCombo.getValue().toString().contains("Day 1")
+						|| campaignFormCombo.getValue().toString().contains("LQAS"))) {
 					generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(),
 							criteria);
 				}
@@ -1035,7 +1015,8 @@ public class CampaignDataView extends VerticalLayout
 			reload();
 			updateRowCount();
 
-			if (campaignFormCombo.getValue() != null && campaignFormCombo.getValue().toString().contains("Day 1")) {
+			if (campaignFormCombo.getValue() != null && (campaignFormCombo.getValue().toString().contains("Day 1")
+					|| campaignFormCombo.getValue().toString().contains("LQAS"))) {
 				generateTransposeDataFunctions(actionButtonlayout, campaignFormCombo.getValue().toString(), criteria);
 			}
 
@@ -1244,6 +1225,10 @@ public class CampaignDataView extends VerticalLayout
 		add(filterBlock);
 	}
 
+	public void buildLqasTransposedData(CampaignFormDataCriteria criteria) {
+//		FacadeProvider.getCampaignFormDataFacade().getTransposedCampaignFormDataLQAS(criteria);
+	};
+
 	private void configureGridMultiSelect() {
 		selectionModel = (GridMultiSelectionModel<CampaignFormDataIndexDto>) grid
 				.setSelectionMode(Grid.SelectionMode.MULTI);
@@ -1311,6 +1296,7 @@ public class CampaignDataView extends VerticalLayout
 
 	public void generateTransposeDataFunctions(HorizontalLayout actionButionLayout, String formName,
 			CampaignFormDataCriteria criteria) {
+
 		if (exportTransposedDataButton.isVisible()) {
 
 			actionButionLayout.remove(exportTransposedDataButton, transposdeDataAnchor);
@@ -1328,14 +1314,20 @@ public class CampaignDataView extends VerticalLayout
 		CampaignFormDataCriteria transposedDataCriteria = new CampaignFormDataCriteria();
 		transposedDataCriteria = criteria;
 
-		System.out.println(" Criteria form each of the selcetions " + transposedDataCriteria.getRegion() + "region  "
-				+ transposedDataCriteria.getArea() + "arear" + transposedDataCriteria.getDistrict() + "districty "
-				+ transposedDataCriteria.getCommunity());
-
 		actionButionLayout.add(exportTransposedDataButton, transposdeDataAnchor);
-		DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
-		transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility
-				.createTransposedDataFromIndexList(transposedDataCriteria, formName, campaignz.getValue().toString()));
+
+		if (formName.toString().contains("Day 1")) {
+
+			DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
+			transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexList(
+					transposedDataCriteria, formName, campaignz.getValue().toString()));
+
+		} else if (formName.toString().contains("LQAS")) {
+
+			DownloadTransposedLqasDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedLqasDataUtility();
+			transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedLqasDataFromIndexList(
+					transposedDataCriteria, formName, campaignz.getValue().toString()));
+		}
 
 		exportTransposedDataButton.addClickListener(ex -> {
 			transposdeDataAnchor.getElement().setAttribute("download", true);
@@ -2113,23 +2105,12 @@ public class CampaignDataView extends VerticalLayout
 		}
 
 		exporter = GridExporter.createFor(grid);
-//		exporter.addColumnHeaderCustomizer((header, column) -> {
-//		    // Customize the appearance of the column headers here
-//		    header.getStyle().set("color", "blue");
-//		    header.setText(header.getText() + " Customized"); // Add custom text to the header
-//		});
 		exporter.setAutoAttachExportButtons(false);
 		exporter.setTitle(I18nProperties.getCaption(Captions.campaignDataInformation));
 		exportFileName = campaignz.getValue().toString() + "_"
 				+ campaignFormCombo.getValue().toString().replaceAll("[^a-zA-Z0-9]+", " ") + "_"
 				+ new SimpleDateFormat("yyyyddMM").format(Calendar.getInstance().getTime());
 		exporter.setFileName(exportFileName);
-//		exporter.getCsvStreamResource().getHeaders().replace("area", "Region");
-//		exporter.getCsvStreamResource().getHeaders().replace("region", "Province");
-
-//		exporter.getCsvStreamResource().getId().replace("area", "Region");
-//		exporter.getCsvStreamResource().getId().replace("region", "Province");
-
 		anchor.setHref(exporter.getCsvStreamResource());
 		anchor.getElement().setAttribute("download", true);
 		anchor.setClassName("exportJsonGLoss");
