@@ -191,54 +191,54 @@ public class FormBuilderView extends VerticalLayout {
 		});
 
 		formType.addValueChangeListener(e -> {
-			listofformsAccesses = new ArrayList<>();
-			formAccess.clear();
+//			listofformsAccesses = new ArrayList<>();
+//			formAccess.clear();
 			if (e.getValue() != null) {				
-				Collections.addAll(listofformsAccesses, FormAccess.values());
-				if(e.getValue().toString().equalsIgnoreCase("post-campaign")) {
-					listofformsAccesses.remove(FormAccess.ARCHIVE);
-					listofformsAccesses.remove(FormAccess.EAG);
-					listofformsAccesses.remove(FormAccess.FLW);
-					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
-					listofformsAccesses.remove(FormAccess.TRAINING);
-					listofformsAccesses.remove(FormAccess.ICM);
-					listofformsAccesses.remove(FormAccess.ADMIN);
-					listofformsAccesses.remove(FormAccess.EAG_ICM);
-					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
-				} else if (e.getValue().toString().equalsIgnoreCase("intra-campaign")) {
-					listofformsAccesses.remove(FormAccess.ARCHIVE);
-					listofformsAccesses.remove(FormAccess.EAG);
-					listofformsAccesses.remove(FormAccess.FLW);
-					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
-					listofformsAccesses.remove(FormAccess.TRAINING);					
-					listofformsAccesses.remove(FormAccess.PCA);
-					listofformsAccesses.remove(FormAccess.FMS);
-					listofformsAccesses.remove(FormAccess.LQAS);
-					listofformsAccesses.remove(FormAccess.EAG_PCA);
-					listofformsAccesses.remove(FormAccess.EAG_FMS);
-					listofformsAccesses.remove(FormAccess.EAG_LQAS);
-					listofformsAccesses.remove(FormAccess.MODALITY_POST);
-					listofformsAccesses.remove(FormAccess.VALIDATION);
-				} else if (e.getValue().toString().equalsIgnoreCase("pre-campaign")) {
-					listofformsAccesses.remove(FormAccess.ARCHIVE);
-					listofformsAccesses.remove(FormAccess.EAG);
-					listofformsAccesses.remove(FormAccess.ICM);
-					listofformsAccesses.remove(FormAccess.ADMIN);
-					listofformsAccesses.remove(FormAccess.EAG_ICM);
-					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
-					listofformsAccesses.remove(FormAccess.PCA);
-					listofformsAccesses.remove(FormAccess.FMS);
-					listofformsAccesses.remove(FormAccess.LQAS);
-					listofformsAccesses.remove(FormAccess.EAG_PCA);
-					listofformsAccesses.remove(FormAccess.EAG_FMS);
-					listofformsAccesses.remove(FormAccess.EAG_LQAS);
-					listofformsAccesses.remove(FormAccess.MODALITY_POST);
-					listofformsAccesses.remove(FormAccess.VALIDATION);
-				} 
+//				Collections.addAll(listofformsAccesses, FormAccess.values());
+//				if(e.getValue().toString().equalsIgnoreCase("post-campaign")) {
+//					listofformsAccesses.remove(FormAccess.ARCHIVE);
+//					listofformsAccesses.remove(FormAccess.EAG);
+//					listofformsAccesses.remove(FormAccess.FLW);
+//					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
+//					listofformsAccesses.remove(FormAccess.TRAINING);
+//					listofformsAccesses.remove(FormAccess.ICM);
+//					listofformsAccesses.remove(FormAccess.ADMIN);
+//					listofformsAccesses.remove(FormAccess.EAG_ICM);
+//					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
+//				} else if (e.getValue().toString().equalsIgnoreCase("intra-campaign")) {
+//					listofformsAccesses.remove(FormAccess.ARCHIVE);
+//					listofformsAccesses.remove(FormAccess.EAG);
+//					listofformsAccesses.remove(FormAccess.FLW);
+//					listofformsAccesses.remove(FormAccess.MODALITY_PRE);
+//					listofformsAccesses.remove(FormAccess.TRAINING);					
+//					listofformsAccesses.remove(FormAccess.PCA);
+//					listofformsAccesses.remove(FormAccess.FMS);
+//					listofformsAccesses.remove(FormAccess.LQAS);
+//					listofformsAccesses.remove(FormAccess.EAG_PCA);
+//					listofformsAccesses.remove(FormAccess.EAG_FMS);
+//					listofformsAccesses.remove(FormAccess.EAG_LQAS);
+//					listofformsAccesses.remove(FormAccess.MODALITY_POST);
+//					listofformsAccesses.remove(FormAccess.VALIDATION);
+//				} else if (e.getValue().toString().equalsIgnoreCase("pre-campaign")) {
+//					listofformsAccesses.remove(FormAccess.ARCHIVE);
+//					listofformsAccesses.remove(FormAccess.EAG);
+//					listofformsAccesses.remove(FormAccess.ICM);
+//					listofformsAccesses.remove(FormAccess.ADMIN);
+//					listofformsAccesses.remove(FormAccess.EAG_ICM);
+//					listofformsAccesses.remove(FormAccess.EAG_ADMIN);
+//					listofformsAccesses.remove(FormAccess.PCA);
+//					listofformsAccesses.remove(FormAccess.FMS);
+//					listofformsAccesses.remove(FormAccess.LQAS);
+//					listofformsAccesses.remove(FormAccess.EAG_PCA);
+//					listofformsAccesses.remove(FormAccess.EAG_FMS);
+//					listofformsAccesses.remove(FormAccess.EAG_LQAS);
+//					listofformsAccesses.remove(FormAccess.MODALITY_POST);
+//					listofformsAccesses.remove(FormAccess.VALIDATION);
+//				} 
 				criteria.setFormType(e.getValue().toString().toLowerCase());
 				filterDataProvider.setFilter(criteria);
 
-				formAccess.setItems(listofformsAccesses);
+//				formAccess.setItems(listofformsAccesses);
 				refreshGridData();
 			} else {
 				criteria.setFormType(null);
@@ -397,7 +397,7 @@ public class FormBuilderView extends VerticalLayout {
 
 		FormBuilderLayout formLayout = new FormBuilderLayout(formData, false);
 		formLayout.setForm(formData);
-
+		
 		formLayout.addSaveListener(this::saveForm);
 		Dialog dialog = new Dialog();
 		dialog.add(formLayout);
@@ -534,7 +534,7 @@ public class FormBuilderView extends VerticalLayout {
 		}
 	}
 
-	private void saveForm(FormBuilderLayout.SaveEvent event) {
+	private void saveForm(FormBuilderLayout.SaveEvent event) {	
 		FacadeProvider.getCampaignFormMetaFacade().saveCampaignFormMeta(event.getForm());
 	}
 	

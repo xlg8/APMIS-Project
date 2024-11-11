@@ -646,13 +646,12 @@ public class FormGridComponent extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph(
-							"You must provide a id for this Form Elements");
+					Paragraph text = new Paragraph("You must provide a id for this Form Elements");
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);
 
 					notification.add(layout);
-					notification.open();			
+					notification.open();
 				}
 
 			} else {
@@ -780,16 +779,24 @@ public class FormGridComponent extends VerticalLayout {
 
 						newForm.setDependingOnValues(dependingOnValues.getValue().split(","));
 					}
-
+					
 					if (!errorMessage.getValue().isEmpty()) {
-
+						System.out.println("werttttttttttt " + errorMessage.getValue());
 						newForm.setErrormessage(errorMessage.getValue());
 					}
 
 					if (!comment.getValue().isEmpty()) {
-						System.out.println(" dsfsgdgetwreqdacsvsf  " + comment.getValue() + "       hhhhhhhhhhhhhhh");
+//						System.out.println("hereeeeeeeeeeeeeeee");
 						newForm.setComment(comment.getValue());
-					}
+//						
+//						if (!errorMessage.getValue().isEmpty()) {
+//							System.out.println("thiagooooooooooo " + errorMessage.getValue());
+//							newForm.setErrormessage(errorMessage.getValue());
+//						} else {
+//							newForm.setErrormessage(" ");
+//						}						
+//						System.out.println("weyyyyyyyyyyyy");
+					}					
 
 					if (!defaultValues.getValue().isEmpty()) {
 
@@ -997,6 +1004,8 @@ public class FormGridComponent extends VerticalLayout {
 //				.setResizable(true);
 		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
 				.setResizable(true);
+//		grid.addColumn(CampaignFormElement::getComment).setHeader("Comment").setSortable(true)
+//		.setResizable(true);
 
 		List<CampaignFormElement> existingElements = campaignFormMetaDto.getCampaignFormElements();
 
