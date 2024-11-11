@@ -2078,9 +2078,13 @@ public class CampaignDataView extends VerticalLayout
 					if (e.getValue() != null) {
 						CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
 								.getCampaignFormDataByUuid(e.getValue().getUuid());
+						
+						CampaignFormMetaDto formMeta= FacadeProvider.getCampaignFormMetaFacade()
+								.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
+
 
 						CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-								campaignz.getValue(), true, formData.getUuid(), grid, false);
+								campaignz.getValue(), true, formData.getUuid(), grid, formMeta.isDistrictentry());
 
 					}
 
@@ -2092,9 +2096,13 @@ public class CampaignDataView extends VerticalLayout
 			grid.asSingleSelect().addValueChangeListener(e -> {
 				CampaignFormDataDto formData = FacadeProvider.getCampaignFormDataFacade()
 						.getCampaignFormDataByUuid(e.getValue().getUuid());
+				
+				CampaignFormMetaDto formMeta= FacadeProvider.getCampaignFormMetaFacade()
+						.getCampaignFormMetaByUuid(campaignFormCombo.getValue().getUuid());
+
 
 				CampaignFormDataEditForm cam = new CampaignFormDataEditForm(formData.getCampaignFormMeta(),
-						campaignz.getValue(), true, formData.getUuid(), grid, false);
+						campaignz.getValue(), true, formData.getUuid(), grid, formMeta.isDistrictentry());
 
 //				cam.verifyAndPublishButton.setText(I18nProperties.getCaption("Verify & Publish"));
 				System.out.println("2222222222222222222222" + formData.getUuid());

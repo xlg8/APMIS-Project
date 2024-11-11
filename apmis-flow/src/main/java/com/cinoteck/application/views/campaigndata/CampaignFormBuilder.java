@@ -555,6 +555,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 			}
 		});
+		
+		System.out.println(isDistrictEntry + "campaignFormBuildercampaignFormBuildercampaignFormBuilder");
 
 		if(!isDistrictEntry) {
 			reassigmentLayout.add(reassignDataConfigUnit, updateFormDataUnitAssignment, cancelFormDataUnitAssignment);
@@ -563,7 +565,15 @@ public class CampaignFormBuilder extends VerticalLayout {
 		if (uuidForm != null) {
 			if (currentUser.getUserRoles().contains(UserRole.ADMIN)
 					|| currentUser.getUserRoles().contains(UserRole.COMMUNITY_INFORMANT)) {
-				vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity, reassigmentLayout);
+				System.out.println(isDistrictEntry + "campaignFormBuildercampaignFormBuildercampaignFormBuilder");
+				
+//				
+//					vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
+//
+//				}else {
+					vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity, reassigmentLayout);
+	
+//				}
 			} else {
 				vertical_.add(cbCampaign, formDate, cbArea, cbRegion, cbDistrict, cbCommunity);
 
