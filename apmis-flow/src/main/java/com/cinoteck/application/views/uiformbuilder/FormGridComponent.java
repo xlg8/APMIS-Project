@@ -112,6 +112,8 @@ public class FormGridComponent extends VerticalLayout {
 		comment.setVisible(false);
 		defaultValues.setVisible(false);
 
+		caption.setValueChangeMode(ValueChangeMode.EAGER);
+		
 		setSizeFull();
 		valueChange();
 		configureFields();
@@ -151,13 +153,7 @@ public class FormGridComponent extends VerticalLayout {
 		styles.setHelperText("Examples of all styles: inline, row, first, col-1, col-2, col-3, col-4, "
 				+ "col-5, col-6, col-7, col-8, col-9, col-10, col-11, col-12 add them in a comma seperated format");
 
-		caption.setValueChangeMode(ValueChangeMode.EAGER);
-
-		caption.addValueChangeListener(event -> {
-			String sourceValue = event.getValue();
-			String generatedValue = generateValueBasedOnSource(sourceValue);
-//			formId.setValue(generatedValue);
-		});
+		
 
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
@@ -402,7 +398,7 @@ public class FormGridComponent extends VerticalLayout {
 				campaignFormMetaDto = new CampaignFormMetaDto();
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
-
+		
 			grid.setHeight("auto !important");
 		});
 
@@ -779,9 +775,8 @@ public class FormGridComponent extends VerticalLayout {
 
 						newForm.setDependingOnValues(dependingOnValues.getValue().split(","));
 					}
-					
+
 					if (!errorMessage.getValue().isEmpty()) {
-						System.out.println("werttttttttttt " + errorMessage.getValue());
 						newForm.setErrormessage(errorMessage.getValue());
 					}
 
@@ -796,7 +791,7 @@ public class FormGridComponent extends VerticalLayout {
 //							newForm.setErrormessage(" ");
 //						}						
 //						System.out.println("weyyyyyyyyyyyy");
-					}					
+					}
 
 					if (!defaultValues.getValue().isEmpty()) {
 
@@ -829,7 +824,7 @@ public class FormGridComponent extends VerticalLayout {
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
 						} else {
-							System.out.println("nothing supppppppppppppppppppppppppppppppppppppppppppppp");
+							System.out.println("x-factor");
 						}
 					}
 
