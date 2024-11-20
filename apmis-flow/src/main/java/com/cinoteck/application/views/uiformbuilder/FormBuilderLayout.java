@@ -3,6 +3,7 @@ package com.cinoteck.application.views.uiformbuilder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -247,11 +248,14 @@ public class FormBuilderLayout extends VerticalLayout {
 
 			List<String> listofElement = formGridComponent.getGridData().stream().map(CampaignFormElement::getId)
 					.collect(Collectors.toList());
-			Set<String> setofElement = new LinkedHashSet<>(listofElement);
+
+			Set<String> seen = new HashSet<>();
 			
-			if (listofElement.size() == setofElement.size()) {
-				
-				
+			List<String> filteredList = listofElement.stream()
+		            .filter(s -> !seen.add(s))
+		            .collect(Collectors.toList());
+			 
+			if (filteredList.isEmpty()) {
 
 			try {
 				fireEvent(new SaveEvent(this, campaignFormMetaDto));
@@ -289,8 +293,8 @@ public class FormBuilderLayout extends VerticalLayout {
 				notification.close();
 			});
 
-			Paragraph text = new Paragraph("This Form cannot save because you have multiple elements with the same id");
-
+			Paragraph text = new Paragraph("This Form cannot save because you have multiple elements with the same id " + filteredList.get(0));
+			System.out.println("This Form cannot save because you have multiple elements with the same id " + filteredList.get(0));
 			HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 			layout.setAlignItems(Alignment.CENTER);
 

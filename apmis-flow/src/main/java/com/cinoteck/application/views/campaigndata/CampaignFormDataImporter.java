@@ -92,6 +92,8 @@ public class CampaignFormDataImporter extends DataImporter {
 	boolean areaExists = false;
 	boolean regionExists = false;
 	boolean districtExists = false;
+	
+	File file;
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -106,11 +108,11 @@ public class CampaignFormDataImporter extends DataImporter {
 	}
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> notused,
+	public void startImport(File file, Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> notused,
 			boolean notUsed, UI currentUI, boolean duplicatesPossible) throws IOException, CsvValidationException {
-
+this.file=file;
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, notused, false, currentUI, duplicatesPossible);
+		super.startImport(file, addErrorReportToLayoutCallback, notused, false, currentUI, duplicatesPossible);
 	}
 
 	@Override

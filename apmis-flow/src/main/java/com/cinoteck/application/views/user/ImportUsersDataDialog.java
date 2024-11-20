@@ -173,7 +173,7 @@ public class ImportUsersDataDialog extends Dialog {
 				//CampaignDto campaignDto = FacadeProvider.getCampaignFacade().getByUuid(campaignFilter.getValue().getUuid());
 				
 				DataImporter importer = new UsersDataImporter(file_, false, userDto, ValueSeparator.COMMA);
-				importer.startImport(this::extendDownloadErrorReportButton, this::extendDownloadCredentialsReportButton, true, UI.getCurrent(), true);
+				importer.startImport(file_ ,this::extendDownloadErrorReportButton, this::extendDownloadCredentialsReportButton, true, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(
 					I18nProperties.getString(Strings.headingImportFailed) +" : "+

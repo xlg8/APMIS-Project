@@ -89,7 +89,7 @@ public class ClusterDataImporter extends DataImporter {
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	private ValueSeparator csvSeparator;
-
+	File file_;
     // Constructor and other methods...
 
     
@@ -125,12 +125,12 @@ public class ClusterDataImporter extends DataImporter {
 	
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
+	public void startImport(File file_, Consumer<StreamResource> addErrorReportToLayoutCallback,
 			Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
 
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, null, false, currentUI, false);
+		super.startImport(file_, addErrorReportToLayoutCallback, null, false, currentUI, false);
 	}
 
 	@Override

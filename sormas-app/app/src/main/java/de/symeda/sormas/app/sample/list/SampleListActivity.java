@@ -41,7 +41,7 @@ import de.symeda.sormas.app.PagedBaseListFragment;
 import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.sample.Sample;
-import de.symeda.sormas.app.barcode.BarcodeActivity;
+//import de.symeda.sormas.app.barcode.BarcodeActivity;
 import de.symeda.sormas.app.component.menu.PageMenuItem;
 import de.symeda.sormas.app.core.notification.NotificationHelper;
 import de.symeda.sormas.app.databinding.FilterSampleListLayoutBinding;
@@ -167,23 +167,24 @@ public class SampleListActivity extends PagedBaseListActivity {
 
 		pageMenu.addFilter(sampleListFilterView);
 
-		filterBinding.scanFieldSampleId.setOnClickListener(e -> {
-			Intent intent = new Intent(this, BarcodeActivity.class);
-			startActivityForResult(intent, BarcodeActivity.RC_BARCODE_CAPTURE);
-		});
+//		filterBinding.scanFieldSampleId.setOnClickListener(e -> {
+//			Intent intent = new Intent(this, BarcodeActivity.class);
+//			startActivityForResult(intent, BarcodeActivity.RC_BARCODE_CAPTURE);
+//		});
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == BarcodeActivity.RC_BARCODE_CAPTURE) {
-			if (resultCode == CommonStatusCodes.SUCCESS) {
-				showPreloader();
-				Sample sample = DatabaseHelper.getSampleDao().queryByFieldSampleId(data.getStringExtra(BarcodeActivity.BARCODE_RESULT));
-				if (sample != null)
-					SampleReadActivity.startActivity(getContext(), sample.getUuid());
-				else
-					NotificationHelper.showNotification(this, WARNING, getString(R.string.sample_not_found));
-			}
+		if (1 ==2 ){ //requestCode == BarcodeActivity.RC_BARCODE_CAPTURE) {
+//			if (resultCode == CommonStatusCodes.SUCCESS) {
+//				showPreloader();
+//				Sample sample = DatabaseHelper.getSampleDao().queryByFieldSampleId(data.getStringExtra(BarcodeActivity.BARCODE_RESULT));
+//				if (sample != null)
+//					SampleReadActivity.startActivity(getContext(), sample.getUuid());
+//				else
+//					NotificationHelper.showNotification(this, WARNING, getString(R.string.sample_not_found));
+//			}
+			return;
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}

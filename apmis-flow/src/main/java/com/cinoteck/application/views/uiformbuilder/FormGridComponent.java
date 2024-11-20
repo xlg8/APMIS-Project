@@ -112,6 +112,8 @@ public class FormGridComponent extends VerticalLayout {
 		comment.setVisible(false);
 		defaultValues.setVisible(false);
 
+		caption.setValueChangeMode(ValueChangeMode.EAGER);
+		
 		setSizeFull();
 		valueChange();
 		configureFields();
@@ -151,13 +153,7 @@ public class FormGridComponent extends VerticalLayout {
 		styles.setHelperText("Examples of all styles: inline, row, first, col-1, col-2, col-3, col-4, "
 				+ "col-5, col-6, col-7, col-8, col-9, col-10, col-11, col-12 add them in a comma seperated format");
 
-		caption.setValueChangeMode(ValueChangeMode.EAGER);
-
-		caption.addValueChangeListener(event -> {
-			String sourceValue = event.getValue();
-			String generatedValue = generateValueBasedOnSource(sourceValue);
-//			formId.setValue(generatedValue);
-		});
+		
 
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
@@ -402,7 +398,7 @@ public class FormGridComponent extends VerticalLayout {
 				campaignFormMetaDto = new CampaignFormMetaDto();
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
-
+		
 			grid.setHeight("auto !important");
 		});
 
@@ -646,13 +642,12 @@ public class FormGridComponent extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph(
-							"You must provide a id for this Form Elements");
+					Paragraph text = new Paragraph("You must provide a id for this Form Elements");
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);
 
 					notification.add(layout);
-					notification.open();			
+					notification.open();
 				}
 
 			} else {
@@ -782,13 +777,20 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					if (!errorMessage.getValue().isEmpty()) {
-
 						newForm.setErrormessage(errorMessage.getValue());
 					}
 
 					if (!comment.getValue().isEmpty()) {
-						System.out.println(" dsfsgdgetwreqdacsvsf  " + comment.getValue() + "       hhhhhhhhhhhhhhh");
+//						System.out.println("hereeeeeeeeeeeeeeee");
 						newForm.setComment(comment.getValue());
+//						
+//						if (!errorMessage.getValue().isEmpty()) {
+//							System.out.println("thiagooooooooooo " + errorMessage.getValue());
+//							newForm.setErrormessage(errorMessage.getValue());
+//						} else {
+//							newForm.setErrormessage(" ");
+//						}						
+//						System.out.println("weyyyyyyyyyyyy");
 					}
 
 					if (!defaultValues.getValue().isEmpty()) {
@@ -822,7 +824,7 @@ public class FormGridComponent extends VerticalLayout {
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
 						} else {
-							System.out.println("nothing supppppppppppppppppppppppppppppppppppppppppppppp");
+							System.out.println("x-factor");
 						}
 					}
 
@@ -997,6 +999,8 @@ public class FormGridComponent extends VerticalLayout {
 //				.setResizable(true);
 		grid.addColumn(CampaignFormElement::getErrormessage).setHeader("Error Message").setSortable(true)
 				.setResizable(true);
+//		grid.addColumn(CampaignFormElement::getComment).setHeader("Comment").setSortable(true)
+//		.setResizable(true);
 
 		List<CampaignFormElement> existingElements = campaignFormMetaDto.getCampaignFormElements();
 
