@@ -9,15 +9,20 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaIndexDto;
 import de.symeda.sormas.api.utils.CSVUtils;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
+
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -109,8 +114,10 @@ public final class DownloadTransposedLqasDataUtility {
 		columnNames.add("Form Phase");
 		columnNames.add("Source");
 		columnNames.add("Creating User");
-		columnNames.add("Day");
-		columnNames.add("House Total");
+		columnNames.add("isVerified");
+		columnNames.add("isPublished");
+		columnNames.add("House Number");
+		columnNames.add("HouseN");
 
 		fieldCaptions.add("Campaign");
 		fieldCaptions.add("Form");
@@ -121,13 +128,19 @@ public final class DownloadTransposedLqasDataUtility {
 		fieldCaptions.add("District");
 		fieldCaptions.add("Dcode");
 		fieldCaptions.add("Cluster");
-		fieldCaptions.add("Cluster Number");
+		fieldCaptions.add("clusternumber");
 		fieldCaptions.add("CCode");
-		fieldCaptions.add("Form Phase");
+		fieldCaptions.add("formType");
 		fieldCaptions.add("Source");
-		fieldCaptions.add("Creating User");
-		fieldCaptions.add("Day");
-		fieldCaptions.add("House Total");
+		fieldCaptions.add("creatingUser");
+		fieldCaptions.add("isVerified");
+		fieldCaptions.add("isPublished");
+		fieldCaptions.add("House Number");
+		fieldCaptions.add("House");
+		
+		 Set<String> fieldsNeedingHnSuffix = new HashSet<>(Arrays.asList(
+		            "FM", "Reasons", "Gender", "childrenAge", "House", "Total"
+		        ));
 
 
 		// Generate and write columns to CSV writer
@@ -135,7 +148,7 @@ public final class DownloadTransposedLqasDataUtility {
 		// remeber to increment the values when new columns are added below the defined
 		// columns
 		Map<String, Integer> fieldIdPositions = new HashMap<>();
-		int ageGroupIndex = 15;
+		int ageGroupIndex = 17;
 		for (String fieldGroup : fieldIDWithoutDaySuffix) {
 			columnNames.add(fieldGroup);
 			fieldIdPositions.put(fieldGroup, ageGroupIndex);
@@ -148,7 +161,8 @@ public final class DownloadTransposedLqasDataUtility {
 			fieldIdPositions.put(caption, ageGroupIndex);
 			ageGroupIndex += 1;
 		}
-
+		
+		
 		Map<String, Map<String, String>> dayValueMap = new HashMap<>();
 
 		for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
@@ -175,9 +189,6 @@ public final class DownloadTransposedLqasDataUtility {
 						// Handle non-H-suffix fields
 						uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(uniqueVariable);
 					}
-
-//					String variableID = uniqueVariable.replaceAll("(H\\d+|H\\d+)$", "");
-//					uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(variableID);
 				}
 
 				for (String day : extractUniqueDayValues(fieldIDsforColumnHeaders)) {
@@ -243,13 +254,6 @@ public final class DownloadTransposedLqasDataUtility {
 									// Handle non-H-suffix fields
 									uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(uniqueVariable);
 								}
-//								 else {
-//					                    // Handle non-H-suffix fields
-//					                    uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(uniqueVariable);
-//					                }
-
-//								String variableID = uniqueVariable.replaceAll("(H\\d+|H\\d+)$", "");
-//								uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(variableID);
 							}
 
 							for (String day : extractUniqueDayValues(fieldIDsforColumnHeaders)) {
@@ -283,27 +287,31 @@ public final class DownloadTransposedLqasDataUtility {
 										individualTransposedFormData.getCreatingUser() != null
 												? individualTransposedFormData.getCreatingUser().toString()
 												: "");
-								row.set(14, day);
+								
+								row.set(14, individualTransposedFormData.isIsverified()+ "" != null
+										? individualTransposedFormData.isIsverified()+ ""
+										: "");
+								
+								row.set(15, individualTransposedFormData.isIspublished()+ "" != null
+										? individualTransposedFormData.isIspublished()+ ""
+										: "");
+								
+								row.set(16, day);
 
 								String houseNumber = day.replaceAll("[^0-9]", "");
 
 								// Add House value matching the current day's number
 								String houseKey = "House" + houseNumber;
 								
-								  int houseColumnIndex = columnNames.indexOf("House Total");
-								
-							 
-//if(houseColumnIndex >= 0) {
-//	
-//}
-								
+								  int houseColumnIndex = columnNames.indexOf("HouseN");
+						
 								if (formDataMaxp.containsKey(houseKey)) {
 									
 									
 									// Add a new column for House if not already added
 									if (!columnNames.contains("House")) {
 										columnNames.add("House");
-										 houseColumnIndex = columnNames.size() - 1;
+										 houseColumnIndex = columnNames.size();
 										row.add(formDataMaxp.get(houseKey));
 									} else {
 									       if (houseColumnIndex >= 0 && formDataMaxp.containsKey(houseKey)) {
@@ -314,14 +322,8 @@ public final class DownloadTransposedLqasDataUtility {
 									            System.out.println("Failed to set house value. House Column Index: " + houseColumnIndex + 
 									                             ", House Key exists: " + formDataMaxp.containsKey(houseKey));
 									        }
-										
-										
-//										int houseColumnIndex = columnNames.indexOf("House Total");
-//										row.set(houseColumnIndex, formDataMaxp.get(houseKey));
 									}
 								}
-								
-								
 								
 								for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
 								    // Case 1: Handle House values
@@ -356,80 +358,7 @@ public final class DownloadTransposedLqasDataUtility {
 								        }
 								    }
 								}
-								
 
-//								for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
-//									String key = variable + day;
-//
-//									 // Handle House values
-//								    if (variable.startsWith("House")) {
-//								        String houseKeyz = variable + day;
-//								        if (formDataMaxp.containsKey(houseKeyz)) {
-//								            String houseValue = formDataMaxp.get(houseKeyz);
-//								            int houseColumnIndexz = columnNames.indexOf(variable);
-//								            if (houseColumnIndexz >= 0) {
-//								                row.set(houseColumnIndexz, houseValue);
-//								            }
-//								        }
-//								    } 
-//								    // Case 2: Handle fields ending with H1, H2, etc.
-//								    else if (variable.matches(".*H\\d+$")) {
-//								        if (formDataMaxp.containsKey(key)) {
-//								            String keyValue = formDataMaxp.get(key);
-//								            int colIndex = columnNames.indexOf(variable);
-//								            if (colIndex >= 0) {
-//								                row.set(colIndex, keyValue);
-//								            }
-//								        }
-//								    }
-//								    // Case 3: Handle regular fields (no House prefix or H-suffix)
-//								    else {
-//								        // Try to get the value directly from the map
-//								        if (formDataMaxp.containsKey(variable)) {
-//								            String keyValue = formDataMaxp.get(variable);
-//								            int colIndex = columnNames.indexOf(variable);
-//								            if (colIndex >= 0) {
-//								                row.set(colIndex, keyValue);
-//								            }
-//								        }
-//								    }
-//
-//									if (variable.matches(".*H\\d+$")) {
-//										String key = variable + day;
-//
-//										if (formDataMaxp.containsKey(key)) {
-//											String keyValue = formDataMaxp.get(key);
-//											int colIndex = columnNames.indexOf(variable);
-//											if (colIndex >= 0) {
-//												row.set(colIndex, keyValue);
-//											}
-//
-//										}
-//									} else if (!variable.startsWith("House")) { // Process non-House regular fields
-//										if (formDataMaxp.containsKey(variable)) {
-//											String keyValue = formDataMaxp.get(variable);
-//											int colIndex = columnNames.indexOf(variable);
-//											if (colIndex >= 0) {
-//												row.set(colIndex, keyValue);
-//											}
-//										}
-//									}else {
-//										
-//										String key = variable + day;
-//
-//										if (formDataMaxp.containsKey(key)) {
-//											String keyValue = formDataMaxp.get(key);
-//											int colIndex = columnNames.indexOf(variable);
-//											if (colIndex >= 0) {
-//												row.set(colIndex, keyValue);
-//											}
-//
-//										}
-//										
-//									}
-
-
-//								}
 
 								// Ensure proper encoding for each cell in the row
 								String[] rowArray = row.toArray(new String[0]);
@@ -475,23 +404,96 @@ public final class DownloadTransposedLqasDataUtility {
 	    
 	    return new ArrayList<>(variablePartsSet);
 	}
-
-//	public static List<String> extractUniqueVariableParts(List<String> formEntriesID) {
-//		Set<String> variablePartsSet = new HashSet<>();
-//		Pattern pattern = Pattern.compile("(^(.+)H\\d+|^(.+)H\\d+)$");
+	
+//public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
+//		
+//		
+//		return new StreamResource(criteria.getCampaignFormMeta().getCaption() +  ".csv", () -> {
+//			try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+//				// Write UTF-8 BOM
+//				byteStream.write(0xEF);
+//				byteStream.write(0xBB);
+//				byteStream.write(0xBF);
+//                try (BufferedWriter writer = new BufferedWriter(
+//                        new OutputStreamWriter(byteStream, StandardCharsets.UTF_8))) {
+//                    
+//                    // Fetch the data based on the criteria
+//                    List<CampaignFormMetaDto> data = exportToCsv(
+//    						FacadeProvider.getCampaignFormMetaFacade().getFormExpressions
+//    						(criteria.getCampaignFormMeta().getUuid()),
+//    						byteStream);
 //
-//		for (String id : formEntriesID) {
-//			Matcher matcher = pattern.matcher(id);
-//			if (matcher.find()) {
-//				variablePartsSet.add(matcher.group(1));
-//			} else if (!id.matches(".*H\\d+$")) {
-//				// Add keys that don't have H-suffix directly
-//				variablePartsSet.add(id);
+//                    // Write the header row
+//                    writer.write("Variable Name,Format,Variable Caption,Description");
+//                    writer.newLine();
+//
+//                    // Write data rows
+//                    for (CampaignFormMetaDto dto : data) {
+//                        writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\"",
+//                                escapeCsv(dto.getFieldId()),
+//                                escapeCsv(dto.getFielType()),
+//                                escapeCsv(dto.getFieldCaption()),
+//                                escapeCsv(dto.getFieldExpression())));
+//                        writer.newLine();
+//                    }
+//
+//                    writer.flush();
+//                }
+//                
+//
+//				return new ByteArrayInputStream(byteStream.toByteArray());
+//			} catch (IOException e) {
+//				// Handle exceptions and show a notification if needed
+//				return null;
 //			}
-//		}
-//		// System.out.println("extractUniqueVariableParts-----" + variablePartsSet);
-//		return new ArrayList<>(variablePartsSet);
+//		});
 //	}
+
+public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
+    return new StreamResource(criteria.getCampaignFormMeta().getCaption() + ".csv", () -> {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+             OutputStreamWriter writer = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8)) {
+
+            // Write BOM for UTF-8
+            writer.write("\uFEFF");
+
+            // Fetch data
+            List<CampaignFormMetaIndexDto> data = FacadeProvider.getCampaignFormMetaFacade()
+                    .getFormExpressions(criteria.getCampaignFormMeta().getUuid());
+
+            // Write headers
+            writer.write("Variable Name,Format,Variable Caption,Description\n");
+
+            // Write rows
+            for (CampaignFormMetaIndexDto dto : data) {
+                writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                        escapeCsv(dto.getFieldid()),
+                        escapeCsv(dto.getFieldtype()),
+                        escapeCsv(dto.getFieldcaption()),
+                        escapeCsv(dto.getFieldexpression())));
+            }
+            writer.flush();
+            return new ByteArrayInputStream(byteStream.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    });
+}
+
+	
+	
+    private static String escapeCsv(String value) {
+        if (value == null) {
+            return "";
+        }
+        String escaped = value.replace("\"", "\"\"");
+        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+            return "\"" + escaped + "\"";
+        }
+        return escaped;
+    }
+
 
 	
 	private static List<String> extractUniqueDayValues(List<String> formEntriesID) {
@@ -506,22 +508,6 @@ public final class DownloadTransposedLqasDataUtility {
 	    }
 	    return new ArrayList<>(dayValuesSet);
 	}
-
-//	private static List<String> extractUniqueDayValues(List<String> formEntriesID) {
-//		Set<String> dayValuesSet = new HashSet<>();
-//		Pattern pattern = Pattern.compile("(H\\d+|H\\d+)$");
-//
-//		for (String id : formEntriesID) {
-//			Matcher matcher1 = pattern.matcher(id);
-//			if (matcher1.find()) {
-//				dayValuesSet.add(matcher1.group());
-//			}
-//
-//		}
-//
-//		return new ArrayList<>(dayValuesSet);
-//	}
-
 
 	private static void debugPrintFormValues(Map<String, String> formDataMaxp, String variable, String day) {
 	    System.out.println("Processing variable: " + variable);

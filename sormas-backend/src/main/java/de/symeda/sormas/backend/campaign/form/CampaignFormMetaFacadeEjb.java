@@ -48,6 +48,7 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -387,7 +388,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			cq.where(filter);
 		}
 
-		if (sortProperties != null && !sortProperties.isEmpty()) {			
+		if (sortProperties != null && !sortProperties.isEmpty()) {
 			List<Order> order = new ArrayList<Order>(sortProperties.size());
 			for (SortProperty sortProperty : sortProperties) {
 				Expression<?> expression;
@@ -419,7 +420,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		} else {
 			cq.orderBy(cb.desc(campaignFormMeta.get(CampaignFormMeta.CHANGE_DATE)));
 		}
-		
+
 		cq.select(campaignFormMeta);
 
 		return QueryHelper.getResultList(em, cq, first, max, CampaignFormMetaFacadeEjb::toDto);
@@ -774,6 +775,41 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		return resultData;
 
 //
+	}
+
+	@Override
+	public List<CampaignFormMetaIndexDto> getFormExpressions(String formUuid) {
+
+		String getFormExpressionQuery = "SELECT \n" +
+			    "    elements->>'id' AS variableName, \n" +
+			    "    elements->>'type' AS format, \n" +
+			    "    elements->>'caption' AS variableCaption, \n" +
+			    "    elements->>'expression' AS description \n" +
+			    "FROM campaignformmeta, \n" +
+			    "     LATERAL json_array_elements(campaignformelements) AS elements \n" +
+			    "WHERE \n" +
+			    "    elements->>'expression' IS NOT NULL AND \n" +
+			    "    elements->>'caption' IS NOT NULL AND \n" +
+			    "    campaignformmeta.\"uuid\" = '" + formUuid + "';";
+		
+		Query getFormExpressionsQuery = em.createNativeQuery(getFormExpressionQuery);
+		//
+		List<CampaignFormMetaIndexDto> resultData = new ArrayList<>();
+		
+		@SuppressWarnings("unchecked")
+		
+		List<Object[]> resultList = getFormExpressionsQuery.getResultList();
+		// Iterate over the result list and create DTO objects
+		
+
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CampaignFormMetaIndexDto(
+				(String) result[0].toString() == null ? "" : (String) result[0].toString(), 
+				(String) result[1].toString() == null ? "" : (String) result[1].toString(),
+				(String) result[2].toString() == null ? "" : (String) result[2].toString(),
+				(String) result[3].toString() == null ? "" : (String) result[3].toString()
+				)).collect(Collectors.toList()));
+		return resultData;
 	}
 
 	@Override
