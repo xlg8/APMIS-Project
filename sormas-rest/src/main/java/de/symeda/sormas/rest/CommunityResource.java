@@ -47,43 +47,53 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-@RolesAllowed({
-	"USER",
-	"REST_USER" })
+@RolesAllowed({ "USER", "REST_USER" })
 public class CommunityResource {
-	
+
 	@GET
 	@Path("/all/{since}")
 	public List<CommunityDto> getAll(@PathParam("since") long since) {
 		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
 
-		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" +rdto.size());
-		if(rdto != null && rdto.size() > 0) {
+		System.out.println((rdto != null) + "List<CommunityDto> getAll(zdsvxxxxxxxxxxxxxxxxxxx" + rdto.size());
+		if (rdto != null && rdto.size() > 0) {
 			System.out.println("rdtordtordto != null :zdsvxxxxxxxxxxxxxxxxxxx");
 			List<CommunityDto> returnList = new ArrayList<>();
-			
-			for(CommunityReferenceDto lcs : rdto) {
+
+			for (CommunityReferenceDto lcs : rdto) {
 				returnList.add(FacadeProvider.getCommunityFacade().getByUuid(lcs.getUuid()));
 			}
-			
-			System.out.println("returnListvxxxxxxxxxxxxxxxxxxx"+returnList.size());
 
-			
-		return returnList;//FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
+			System.out.println("returnListvxxxxxxxxxxxxxxxxxxx" + returnList.size());
+
+			return returnList;// FacadeProvider.getCommunityFacade().getAllAfter(new Date(since)).stream()
 //				.filter(e -> rdto.stream().anyMatch(ee -> e.getUuid().equals(ee.getUuid()))).collect(Collectors.toList());
 		} else {
 			System.out.println("else :zdsvxxxxxxxxxxxxxxxxxxx");
 			final Set<DistrictReferenceDto> rDistdto = FacadeProvider.getUserFacade().getCurrentUser().getDistricts();
-			System.out.println(rDistdto+" :zdsvxxxxxxxxxxxxxxxxxxxx: " + rDistdto.size() +" :+_+_+_+_+_+_zzzzzzzzzzz");
-			if(rDistdto != null & rDistdto.size() > 0) {
+			System.out
+					.println(rDistdto + " :zdsvxxxxxxxxxxxxxxxxxxxx: " + rDistdto.size() + " :+_+_+_+_+_+_zzzzzzzzzzz");
+			if (rDistdto != null & rDistdto.size() > 0) {
 				return FacadeProvider.getCommunityFacade().getAllAfterWithDistrict(new Date(since), null);
-					
+
 			} else {
 				System.out.println("eCOMMUNITY RETUNRING NULLL CHECK xxxxxxxxxxxxxxxx");
-			return null;
+				return null;
 			}
 		}
 //		
+	}
+
+	@GET
+	@Path("/allClusters/{since}")
+	public List<CommunityDto> getAllClusters(@PathParam("since") long since) {
+
+		final Set<CommunityReferenceDto> rdto = FacadeProvider.getUserFacade().getCurrentUser().getCommunity();
+		if (rdto.size() == 0) {
+			return FacadeProvider.getCommunityFacade().getAllAfter(new Date(since));
+		} else {
+			return getAll(since);
+		}
 	}
 
 	@POST
@@ -92,7 +102,7 @@ public class CommunityResource {
 		List<CommunityDto> result = FacadeProvider.getCommunityFacade().getByUuids(uuids);
 		return result;
 	}
-	
+
 	@GET
 	@Path("/uuids")
 	public List<String> getAllUuids() {
@@ -132,11 +142,9 @@ public class CommunityResource {
 
 	@POST
 	@Path("/indexList")
-	public Page<CommunityDto> getIndexList(
-		@RequestBody CriteriaWithSorting<CommunityCriteriaNew> criteriaWithSorting,
-		@QueryParam("offset") int offset,
-		@QueryParam("size") int size) {
-		return FacadeProvider.getCommunityFacade()
-			.getIndexPage(criteriaWithSorting.getCriteria(), offset, size, criteriaWithSorting.getSortProperties());
+	public Page<CommunityDto> getIndexList(@RequestBody CriteriaWithSorting<CommunityCriteriaNew> criteriaWithSorting,
+			@QueryParam("offset") int offset, @QueryParam("size") int size) {
+		return FacadeProvider.getCommunityFacade().getIndexPage(criteriaWithSorting.getCriteria(), offset, size,
+				criteriaWithSorting.getSortProperties());
 	}
 }

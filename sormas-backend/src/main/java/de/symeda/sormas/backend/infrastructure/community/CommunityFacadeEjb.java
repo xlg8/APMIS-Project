@@ -194,7 +194,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 				root.get(Community.ARCHIVED), root.get(Community.NAME), root.get(Community.GROWTH_RATE),
 				region.get(Region.UUID), region.get(Region.NAME), region.get(Region.EXTERNAL_ID),
 				district.get(District.UUID), district.get(District.NAME), district.get(District.EXTERNAL_ID),
-				root.get(Community.EXTERNAL_ID), root.get(Community.CLUSTER_NUMBER));
+				root.get(Community.EXTERNAL_ID), root.get(Community.CLUSTER_NUMBER), root.get(Community.FLOATING_STATUS));
+		
+		
 	}
 
 	@Override
