@@ -93,6 +93,7 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 	boolean areaExists = false;
 	boolean regionExists = false;
 	boolean districtExists = false;
+	File file;
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -107,11 +108,12 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 	}
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> notused,
-			boolean notUsed, UI currentUI, boolean duplicatesPossible) throws IOException, CsvValidationException {
-
+	public void startImport(File file, Consumer<StreamResource> addErrorReportToLayoutCallback,
+			Consumer<StreamResource> notused, boolean notUsed, UI currentUI, boolean duplicatesPossible)
+			throws IOException, CsvValidationException {
+		this.file = file;
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, notused, false, currentUI, duplicatesPossible);
+		super.startImport(file, addErrorReportToLayoutCallback, notused, false, currentUI, duplicatesPossible);
 	}
 
 	@Override
@@ -202,21 +204,23 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 					return ImportLineResult.ERROR;
 				}
 			}
-			
+
 			if (D_CODE.equalsIgnoreCase(entityProperties[i]) && regionExists) {
 				logger.debug("there is dcode -------------------------------------------" + regionExists);
 
 				List<DistrictReferenceDto> selectedDistrictInCampaignxy = FacadeProvider.getDistrictFacade()
 						.getAllActiveByRegionAndSelectedInCampaign(selectedRegionUUid, campaignDto.getUuid());
-				
-				logger.debug( "selected district list  -------------------------------------------" + selectedDistrictInCampaignxy);
+
+				logger.debug("selected district list  -------------------------------------------"
+						+ selectedDistrictInCampaignxy);
 				district_xt_id = Long.parseLong(values[i]);
-				
+
 				for (DistrictReferenceDto districtExId : selectedDistrictInCampaignxy) {
-					DistrictDto selectedDistrictsFromDto = FacadeProvider.getDistrictFacade().getByUuid(districtExId.getUuid());
+					DistrictDto selectedDistrictsFromDto = FacadeProvider.getDistrictFacade()
+							.getByUuid(districtExId.getUuid());
 					Long selectedDistrictId = selectedDistrictsFromDto.getExternalId();
 					districtexternalIdList.add(selectedDistrictId);
-					
+
 					if (selectedDistrictId.equals(district_xt_id)) {
 						selectedDistrictUUid = districtExId.getUuid();
 						campaignFormData.setDistrict(districtExId);
@@ -239,56 +243,53 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 					logger.debug(district_xt_id + " does not exist in the list.");
 					writeImportError(values, I18nProperties.getCaption("District is not selected for this campaign"));
 					return ImportLineResult.ERROR;
-				} 
+				}
 			}
-			
+
 			if (C_CODE.equalsIgnoreCase(entityProperties[i]) && districtExists) {
-			try {
-				List<CommunityReferenceDto> community = FacadeProvider.getCommunityFacade()
-						.getByExternalID(Long.parseLong(values[i]), campaignFormData.getDistrict(), true);
-				if (community.isEmpty()) {
-					throw new ImportErrorException(I18nProperties.getValidationError(
-							Validations.importEntryDoesNotExistDbOrDistrict, values[i], entityProperties[i]));
-				} else if (community.size() > 1) {
-					throw new ImportErrorException(I18nProperties.getValidationError(
-							Validations.importCommunityNotUnique, values[i], entityProperties[i]));
-				} else {
-					campaignFormData.setCommunity(community.get(0));
+				try {
+					List<CommunityReferenceDto> community = FacadeProvider.getCommunityFacade()
+							.getByExternalID(Long.parseLong(values[i]), campaignFormData.getDistrict(), true);
+					if (community.isEmpty()) {
+						throw new ImportErrorException(I18nProperties.getValidationError(
+								Validations.importEntryDoesNotExistDbOrDistrict, values[i], entityProperties[i]));
+					} else if (community.size() > 1) {
+						throw new ImportErrorException(I18nProperties.getValidationError(
+								Validations.importCommunityNotUnique, values[i], entityProperties[i]));
+					} else {
+						campaignFormData.setCommunity(community.get(0));
 
+						try {
+							campaignFormData = insertImportRowIntoData(campaignFormData, values, entityProperties);
 
-					try {
-						campaignFormData = insertImportRowIntoData(campaignFormData, values, entityProperties);
-						
-						campaignFormData.setCampaign(campaignReferenceDto);
+							campaignFormData.setCampaign(campaignReferenceDto);
 
 //						CampaignFormDataDto existingData = FacadeProvider.getCampaignFormDataFacade()
 //								.getExistingData(new CampaignFormDataCriteria().campaign(campaignFormData.getCampaign())
 //										.campaignFormMeta(campaignFormData.getCampaignFormMeta())
 //										.community((CommunityReferenceDto) campaignFormData.getCommunity())
 //										.formDate(campaignFormData.getFormDate()));
-						logger.debug("1111111"+campaignFormData.getDistrict());
-						logger.debug("1111112"+campaignFormData.getRegion());
-						logger.debug("1111113"+campaignFormData.getCommunity());
-						logger.debug("1111114"+campaignFormData.getFormDate());
-						logger.debug("1111115"+campaignFormData.getArea());
-						logger.debug("1111116"+campaignFormData.getCampaignFormMeta());
-						logger.debug("1111116"+campaignFormData.getCampaign());
-						
-						FacadeProvider.getCampaignFormDataDryRunFacade().saveCampaignFormData(campaignFormData);
-					} catch (ImportErrorException | InvalidColumnException | ValidationRuntimeException e) {
-						logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddd: "+e.getMessage());
-						writeImportError(values, e.getLocalizedMessage());
-						return ImportLineResult.ERROR;
+							logger.debug("1111111" + campaignFormData.getDistrict());
+							logger.debug("1111112" + campaignFormData.getRegion());
+							logger.debug("1111113" + campaignFormData.getCommunity());
+							logger.debug("1111114" + campaignFormData.getFormDate());
+							logger.debug("1111115" + campaignFormData.getArea());
+							logger.debug("1111116" + campaignFormData.getCampaignFormMeta());
+							logger.debug("1111116" + campaignFormData.getCampaign());
+
+							FacadeProvider.getCampaignFormDataDryRunFacade().saveCampaignFormData(campaignFormData);
+						} catch (ImportErrorException | InvalidColumnException | ValidationRuntimeException e) {
+							logger.debug(e.getLocalizedMessage() + "ddddddddddddddddddddddd: " + e.getMessage());
+							writeImportError(values, e.getLocalizedMessage());
+							return ImportLineResult.ERROR;
+						}
+						return ImportLineResult.SUCCESS;
+
 					}
-					return ImportLineResult.SUCCESS;
-				
-				
-				
-				}
-			} catch(ImportErrorException e) {
-				logger.debug(e.getLocalizedMessage()+ "ddddddddddddddddddddddddddd: "+e.getMessage());
-				writeImportError(values, e.getLocalizedMessage());
-				return ImportLineResult.ERROR;
+				} catch (ImportErrorException e) {
+					logger.debug(e.getLocalizedMessage() + "ddddddddddddddddddddddddddd: " + e.getMessage());
+					writeImportError(values, e.getLocalizedMessage());
+					return ImportLineResult.ERROR;
 				}
 			}
 		}
@@ -310,8 +311,8 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 		return true;
 	}
 
-	private CampaignFormDataDryRunDto insertImportRowIntoData(CampaignFormDataDryRunDto campaignFormData, String[] entry, String[] entryHeaderPath)
-			throws InvalidColumnException, ImportErrorException {
+	private CampaignFormDataDryRunDto insertImportRowIntoData(CampaignFormDataDryRunDto campaignFormData,
+			String[] entry, String[] entryHeaderPath) throws InvalidColumnException, ImportErrorException {
 
 		logger.debug("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
@@ -378,18 +379,18 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 						}
 					}
 				} catch (InvocationTargetException | IllegalAccessException e) {
-					logger.debug("---ccccc---aaaa--"+e.getMessage());
+					logger.debug("---ccccc---aaaa--" + e.getMessage());
 					throw new ImportErrorException(
-							
+
 							I18nProperties.getValidationError(Validations.importErrorInColumn, propertyPath));
 				} catch (IntrospectionException e) {
-					logger.debug("---ccccc-----bbbb"+e.getMessage());
+					logger.debug("---ccccc-----bbbb" + e.getMessage());
 					// skip unknown fields
 				} catch (ImportErrorException e) {
-					logger.debug("---ccccc-----cccc"+e.getMessage());
+					logger.debug("---ccccc-----cccc" + e.getMessage());
 					throw e;
 				} catch (Exception e) {
-					logger.debug("---ccccc-----dddddd"+e.getMessage());
+					logger.debug("---ccccc-----dddddd" + e.getMessage());
 					LOGGER.error("Unexpected error when trying to import campaign form data: " + e.getMessage(), e);
 					throw new ImportErrorException(
 							I18nProperties.getValidationError(Validations.importUnexpectedError));
@@ -447,13 +448,15 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 		if (constraintErrors.isError()) {
 			throw new ImportErrorException(constraintErrors.getMessage());
 		}
-		
+
 		return campaignFormData;
 	}
 
 	@Override
 	protected boolean executeDefaultInvoke(PropertyDescriptor pd, Object element, String entry,
-			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException{//, ParseException {
+			String[] entryHeaderPath) throws InvocationTargetException, IllegalAccessException, ImportErrorException {// ,
+																														// ParseException
+																														// {
 
 		final boolean invokingSuccessful = super.executeDefaultInvoke(pd, element, entry, entryHeaderPath);
 		final Class<?> propertyType = pd.getPropertyType();
@@ -467,7 +470,7 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 								buildEntityProperty(entryHeaderPath)));
 			}
 		}
-		logger.debug("xxxxxxxxxxxxxxxinvokingSuccessful "+invokingSuccessful);
+		logger.debug("xxxxxxxxxxxxxxxinvokingSuccessful " + invokingSuccessful);
 		return invokingSuccessful;
 	}
 
@@ -536,4 +539,3 @@ public class CampaignFormDataImportDryRunner extends DataImporter {
 		}
 	}
 }
-

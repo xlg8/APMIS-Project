@@ -58,7 +58,7 @@ public class UsersDataImporter extends DataImporter {
 	private UI currentUI;
 	private Set<UserRole> userRole = new HashSet<>();
 	
-	
+	File file;
 	private static final String R_CODE = "RCode";
 	private static final String P_CODE = "PCode";
 	private static final String D_CODE = "DCode";
@@ -73,11 +73,12 @@ public class UsersDataImporter extends DataImporter {
 	}
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
+	public void startImport(File file, Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
+this.file = file;
 
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, true, currentUI, duplicatesPossible);
+		super.startImport(file, addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, true, currentUI, duplicatesPossible);
 	}
 
 	@Override

@@ -63,6 +63,7 @@ import de.symeda.sormas.api.utils.ValidationRuntimeException;
 /**
  * Data importer that is used to import population data.
  */
+
 public class AreaDataDryRunner extends DataImporter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AreaDataDryRunner.class);
@@ -81,6 +82,7 @@ public class AreaDataDryRunner extends DataImporter {
 	UserProvider userProvider = new UserProvider();
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	File file_;
 
 	// file_, true, userDto, campaignForm.getUuid(), campaignReferenceDto,
 	// ValueSeparator.COMMA
@@ -97,12 +99,12 @@ public class AreaDataDryRunner extends DataImporter {
 	public ImportAreaDataDialog importDataDialog = new ImportAreaDataDialog();
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
+	public void startImport(File file_ ,Consumer<StreamResource> addErrorReportToLayoutCallback,
 			Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
 
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, false, currentUI,
+		super.startImport(file_, addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, false, currentUI,
 				duplicatesPossible);
 	}
 

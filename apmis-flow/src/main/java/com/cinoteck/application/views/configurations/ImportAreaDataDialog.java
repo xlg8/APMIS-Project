@@ -1,13 +1,20 @@
 package com.cinoteck.application.views.configurations;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -18,6 +25,7 @@ import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
+import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -52,6 +60,9 @@ import de.symeda.sormas.api.infrastructure.InfrastructureType;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.utils.CSVCommentLineValidator;
+import de.symeda.sormas.api.utils.CSVUtils;
+import de.symeda.sormas.api.utils.CharsetHelper;
 import de.symeda.sormas.api.utils.DataHelper;
 
 public class ImportAreaDataDialog extends Dialog {
@@ -77,9 +88,14 @@ public class ImportAreaDataDialog extends Dialog {
 
 	DataImporter importer = null;
 	IdleNotification idleNotification;
+	private char csvSeparator;
+	
+	private final boolean hasEntityClassRow;
+
 
 	public ImportAreaDataDialog() {
 
+		this.hasEntityClassRow = true;
 		this.setHeaderTitle(I18nProperties.getString(Strings.regionImportModule));
 //		this.getStyle().set("color" , "#0D6938");
 		
@@ -186,7 +202,7 @@ public class ImportAreaDataDialog extends Dialog {
 			try {
 				DataImporter importer = new AreaDataImporter(file_, false, userDto, areaDto, ValueSeparator.COMMA,
 						overWrite);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				importer.startImport(file_ , this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
@@ -205,7 +221,7 @@ public class ImportAreaDataDialog extends Dialog {
 
 				try {
 					importer = new AreaDataDryRunner(file_, false, userDto, areaDto, ValueSeparator.COMMA, overWrite);
-					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+					importer.startDryRunImport(file_ , this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
 							true);
 				} catch (IOException | CsvValidationException e) {
 					checkForException = true;
@@ -217,7 +233,7 @@ public class ImportAreaDataDialog extends Dialog {
 					boolean hasErrors = checkForException || (importer != null && importer.hasErrors());
 					ImportProgressLayout progressLayout;
 					try {
-						progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+						progressLayout = importer.getImportProgressLayout(readImportFileLength(file_), UI.getCurrent(), true);
 
 						if (importer != null) {
 							progressLayout.makeClosable(() -> {
@@ -242,7 +258,7 @@ public class ImportAreaDataDialog extends Dialog {
 
 						progressLayout = null;
 						try {
-							progressLayout = importer.getImportProgressLayout(UI.getCurrent(), true);
+							progressLayout = importer.getImportProgressLayout(readImportFileLength(file_),UI.getCurrent(), true);
 						} catch (CsvValidationException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -315,6 +331,52 @@ public class ImportAreaDataDialog extends Dialog {
 		setCloseOnEsc(false);
 		setCloseOnOutsideClick(false);
 
+	}
+	
+	private CSVReader getCSVReader(File inputFile) throws IOException {
+		CharsetDecoder decoder = CharsetHelper.getDecoder(inputFile);
+		InputStream inputStream = Files.newInputStream(inputFile.toPath());
+		BOMInputStream bomInputStream = new BOMInputStream(inputStream);
+		Reader reader = new InputStreamReader(bomInputStream, decoder);
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		return CSVUtils.createCSVReader(bufferedReader, this.csvSeparator, new CSVCommentLineValidator());
+	}
+	
+	private String[] readNextValidLine(CSVReader csvReader) throws IOException, CsvValidationException {
+		String[] nextValidLine = null;
+		boolean isCommentLine;
+
+		do {
+			try {
+				nextValidLine = csvReader.readNext();
+				isCommentLine = false;
+			} catch (CsvValidationException e) {
+				if (StringUtils.contains(e.getMessage(), CSVCommentLineValidator.ERROR_MESSAGE)) {
+//					logger.debug("Found comment line. Skipping it");
+					csvReader.skip(1);
+					isCommentLine = true;
+				} else {
+					throw e;
+				}
+			}
+		} while (isCommentLine);
+		return nextValidLine;
+	}
+
+	protected int readImportFileLength(File inputFile) throws IOException, CsvValidationException {
+		int importFileLength = 0;
+		try (CSVReader caseCountReader = getCSVReader(inputFile)) {
+			while (readNextValidLine(caseCountReader) != null) {
+				importFileLength++;
+			}
+			// subtract header line(s)
+			importFileLength--;
+			if (hasEntityClassRow) {
+				importFileLength--;
+			}
+		}
+
+		return importFileLength;
 	}
 
 	private void pokeFlow() {
