@@ -195,7 +195,7 @@ public final class DownloadTransposedLqasDataUtility {
 					for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
 						String key = variable + day;
 
-						System.out.println("key666666666221222" + key);
+//						System.out.println("key666666666221222" + key);
 
 						if (formDataMaxp.containsKey(key)) {
 							String keyValue = formDataMaxp.get(key);
@@ -204,9 +204,9 @@ public final class DownloadTransposedLqasDataUtility {
 					}
 				}
 
-				System.out.println("fieldIDsforColumnHeaders" + fieldIDsforColumnHeaders);
-				System.out.println("uniqueVariablePartsWithoutDaySuffixForColumnHeader"
-						+ uniqueVariablePartsWithoutDaySuffixForColumnHeader);
+//				System.out.println("fieldIDsforColumnHeaders" + fieldIDsforColumnHeaders);
+//				System.out.println("uniqueVariablePartsWithoutDaySuffixForColumnHeader"
+//						+ uniqueVariablePartsWithoutDaySuffixForColumnHeader);
 
 			}
 		}
@@ -317,7 +317,7 @@ public final class DownloadTransposedLqasDataUtility {
 									       if (houseColumnIndex >= 0 && formDataMaxp.containsKey(houseKey)) {
 									            String houseValue = formDataMaxp.get(houseKey);
 									            row.set(houseColumnIndex, houseValue);
-									            System.out.println("Setting house value: " + houseValue + " for house key: " + houseKey);
+//									            System.out.println("Setting house value: " + houseValue + " for house key: " + houseKey);
 									        } else {
 									            System.out.println("Failed to set house value. House Column Index: " + houseColumnIndex + 
 									                             ", House Key exists: " + formDataMaxp.containsKey(houseKey));
