@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -56,7 +57,7 @@ public class FormGridComponent extends VerticalLayout {
 	private final org.slf4j.Logger loggers = LoggerFactory.getLogger(getClass());
 
 	ComboBox<CampaignFormElementType> formType = new ComboBox<CampaignFormElementType>("Type");
-	TextField formId = new TextField("Id");
+	TextField formId = new TextField("Id *");
 	TextField caption = new TextField("Label");
 	ComboBox<Boolean> important = new ComboBox<Boolean>("Important");
 	TextField options = new TextField("Option");
@@ -113,7 +114,7 @@ public class FormGridComponent extends VerticalLayout {
 		defaultValues.setVisible(false);
 
 		caption.setValueChangeMode(ValueChangeMode.EAGER);
-		
+
 		setSizeFull();
 		valueChange();
 		configureFields();
@@ -152,8 +153,6 @@ public class FormGridComponent extends VerticalLayout {
 		important.setItems(true, false);
 		styles.setHelperText("Examples of all styles: inline, row, first, col-1, col-2, col-3, col-4, "
 				+ "col-5, col-6, col-7, col-8, col-9, col-10, col-11, col-12 add them in a comma seperated format");
-
-		
 
 		List<CampaignFormElement> listofelements = campaignFormMetaDto.getCampaignFormElements();
 		List<String> listofthem = new ArrayList<>();
@@ -233,6 +232,7 @@ public class FormGridComponent extends VerticalLayout {
 //		Button save = new Button("Save", saveIcon);
 
 		formLayout.setVisible(false);
+		formLayout.setId("target-section");
 		vr3.setVisible(false);
 
 		vr1.add(plus, del);
@@ -245,6 +245,8 @@ public class FormGridComponent extends VerticalLayout {
 		grid.addSelectionListener(ee -> {
 
 			clearFields();
+			UI.getCurrent().getPage().executeJs(
+					"document.getElementById('target-section').scrollIntoView({ behavior: 'smooth', block: 'start' });");
 			int size = ee.getAllSelectedItems().size();
 			if (size > 0) {
 
@@ -398,7 +400,7 @@ public class FormGridComponent extends VerticalLayout {
 				campaignFormMetaDto = new CampaignFormMetaDto();
 				grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 			}
-		
+
 			grid.setHeight("auto !important");
 		});
 
@@ -465,9 +467,9 @@ public class FormGridComponent extends VerticalLayout {
 
 		save.addClickListener(e -> {
 
-			vr1.setVisible(true);
-			formLayout.setVisible(false);
-			vr3.setVisible(false);
+//			vr1.setVisible(true);
+//			formLayout.setVisible(false);
+//			vr3.setVisible(false);
 
 			if (((Button) e.getSource()).getText().equals("Save")) {
 
@@ -623,7 +625,10 @@ public class FormGridComponent extends VerticalLayout {
 							elementList.add(newForm);
 							campaignFormMetaDto.setCampaignFormElements(elementList);
 							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-							logger.debug("Campaignformelement is not empty here");
+							
+							vr1.setVisible(true);
+							formLayout.setVisible(false);
+							vr3.setVisible(false);
 						}
 
 						getGridData();
@@ -642,7 +647,7 @@ public class FormGridComponent extends VerticalLayout {
 						notification.close();
 					});
 
-					Paragraph text = new Paragraph("You must provide a id for this Form Elements");
+					Paragraph text = new Paragraph("Form Element Id Field cannot be left");
 					HorizontalLayout layout = new HorizontalLayout(text, closeButton);
 					layout.setAlignItems(Alignment.CENTER);
 
@@ -798,20 +803,8 @@ public class FormGridComponent extends VerticalLayout {
 						newForm.setDefaultvalue(defaultValues.getValue());
 					}
 
-					if (formBeenEdited.getId().equals(formId.getValue())) {
-						List<CampaignFormElement> using = new LinkedList<>();
-						using = campaignFormMetaDto.getCampaignFormElements();
-						int index = using.indexOf(formBeenEdited);
-
-						using.set(index, newForm);
-						campaignFormMetaDto.setCampaignFormElements(using);
-						grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-						getGridData();
-						Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
-						notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-						notification.open();
-					} else {
-						if (checkForUniqueId(formId.getValue())) {
+					if (!formId.getValue().toString().isEmpty()) {
+						if (formBeenEdited.getId().equals(formId.getValue())) {
 							List<CampaignFormElement> using = new LinkedList<>();
 							using = campaignFormMetaDto.getCampaignFormElements();
 							int index = using.indexOf(formBeenEdited);
@@ -820,12 +813,55 @@ public class FormGridComponent extends VerticalLayout {
 							campaignFormMetaDto.setCampaignFormElements(using);
 							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 							getGridData();
+							
+							vr1.setVisible(true);
+							formLayout.setVisible(false);
+							vr3.setVisible(false);
+							
 							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
 						} else {
-							System.out.println("x-factor");
+							if (checkForUniqueId(formId.getValue())) {
+								List<CampaignFormElement> using = new LinkedList<>();
+								using = campaignFormMetaDto.getCampaignFormElements();
+								int index = using.indexOf(formBeenEdited);
+
+								using.set(index, newForm);
+								campaignFormMetaDto.setCampaignFormElements(using);
+								grid.setItems(campaignFormMetaDto.getCampaignFormElements());
+								getGridData();
+								
+								vr1.setVisible(true);
+								formLayout.setVisible(false);
+								vr3.setVisible(false);
+								
+								Notification notification = new Notification("Form Element Updated", 3000,
+										Position.MIDDLE);
+								notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+								notification.open();
+							} else {
+								System.out.println("x-factor");
+							}
 						}
+					} else {
+						Notification notification = new Notification();
+						notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+						notification.setPosition(Position.MIDDLE);
+						Button closeButton = new Button(new Icon("lumo", "cross"));
+						closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+						closeButton.getElement().setAttribute("aria-label", "Close");
+						closeButton.addClickListener(event -> {
+							notification.close();
+						});
+
+						Paragraph text = new Paragraph("Form Element Id Field cannot be left");
+						HorizontalLayout layout = new HorizontalLayout(text, closeButton);
+						layout.setAlignItems(Alignment.CENTER);
+
+						notification.add(layout);
+						notification.open();
+
 					}
 
 				} else {
