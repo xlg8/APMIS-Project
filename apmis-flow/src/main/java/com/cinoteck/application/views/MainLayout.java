@@ -115,8 +115,10 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 	List<MessageDto> messageSize = new ArrayList<>();
 //	private InactivityHandler inactivityHandler;
 	private String currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
-	private AppNavItem campaignNavItem;
-	private AppNavItem about;
+	private AppNavItem campaignNavItem = new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData),
+			CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");
+	private AppNavItem about = new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
+			"navitem");
 
 	public MainLayout() {
 		if (I18nProperties.getUserLanguage() == null) {
@@ -231,7 +233,7 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		if (userProvider.hasUserRight(UserRight.CAMPAIGN_VIEW)) {
 			campaignNavItem = new AppNavItem(I18nProperties.getCaption(Captions.campaignCampaignData),
-					CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");		
+					CampaignDataView.class, VaadinIcon.CLIPBOARD, "navitem");
 			nav.addItem(campaignNavItem);
 		}
 
@@ -294,7 +296,6 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		if (userProvider.getUser().getUsertype() == UserType.WHO_USER
 				|| userProvider.getUser().getUsertype() == UserType.EOC_USER) {
-
 			nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.mainMenuReports), ReportView.class,
 					VaadinIcon.CHART_LINE, "navitem"));
 		}
@@ -304,9 +305,9 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 
 		nav.addItem(new AppNavItem(I18nProperties.getCaption(Captions.support), SupportView.class, VaadinIcon.CHAT,
 				"navitem"));
-		
+
 		about = new AppNavItem(I18nProperties.getCaption(Captions.about), AboutView.class, VaadinIcon.INFO_CIRCLE_O,
-				"navitem");		
+				"navitem");
 		nav.addItem(about);
 
 		if ((userProvider.getUser().getUsertype() == UserType.WHO_USER)
@@ -465,20 +466,29 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		rtlswitcher();
 		viewTitle.setText(getCurrentPageTitle());
 		currentRoute = UI.getCurrent().getInternals().getActiveViewLocation().getPath();
-		
+
 		/*
-		 * The condition below handles setting backgroud color for default nav on users first login
+		 * The condition below handles setting backgroud color for default nav menu on users
+		 * first login
 		 */
 		if (currentRoute.equalsIgnoreCase("campaigndata")) {
-	        campaignNavItem.getElement().getStyle().set("background", "#F08F3E");
-	        about.getElement().getStyle().remove("background");
-	    } else if(currentRoute.equalsIgnoreCase("about")) {
-	    	about.getElement().getStyle().set("background", "#F08F3E");
-	    	campaignNavItem.getElement().getStyle().remove("background");
-	    } else {	       
-	        campaignNavItem.getElement().getStyle().remove("background");
-	        about.getElement().getStyle().remove("background");
-	    }
+			campaignNavItem.getElement().getStyle().set("background", "#F08F3E");
+//			report.getElement().getStyle().remove("background");
+			about.getElement().getStyle().remove("background");
+		} else if (currentRoute.equalsIgnoreCase("about")) {
+			campaignNavItem.getElement().getStyle().remove("background");
+//			report.getElement().getStyle().remove("background");
+			about.getElement().getStyle().set("background", "#F08F3E");
+//		} 
+//		else if (currentRoute.equalsIgnoreCase("report")) {
+//			campaignNavItem.getElement().getStyle().remove("background");
+//			report.getElement().getStyle().set("background", "#F08F3E");
+//			about.getElement().getStyle().remove("background");			
+		} else {
+			campaignNavItem.getElement().getStyle().remove("background");
+//			report.getElement().getStyle().remove("background");
+			about.getElement().getStyle().remove("background");
+		}
 	}
 
 	private String getCurrentPageTitle() {

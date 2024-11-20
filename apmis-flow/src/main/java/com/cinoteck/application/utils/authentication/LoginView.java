@@ -139,88 +139,91 @@ public class LoginView extends FlexLayout implements BeforeEnterObserver {
 		}
 
 		// When the username doesnt exist print an error message
-			if (accessControl.signIn(event.getUsername(), event.getPassword())) {
+		if (accessControl.signIn(event.getUsername(), event.getPassword())) {
 
-				VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
+			VaadinSession.getCurrent().getSession().setMaxInactiveInterval((int) TimeUnit.MINUTES.toSeconds(20));
 
-				if (intendedRoute != null) {
+			if (intendedRoute != null) {
 //					loginNavigationControl();
-					if (userProvider.getUser().getUsertype() == UserType.COMMON_USER
-							&& intendedRoute.equals("campaigndata")) {
-						getUI().get().navigate("/campaigndata");
-					}
-					if (intendedRoute.equals("logout")) {
-						getUI().get().navigate("/campaigndata");
-					} else if (intendedRoute.equals("/")) {
-						getUI().get().navigate("/campaigndata");
-					} else {
-						getUI().get().navigate("/" + intendedRoute);
-					}
-					userActivitySummaryDto.setActionModule("Login");
-					userActivitySummaryDto.setAction("User Logged In");
-					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
-
-//					FacadeProvider.getUserFacade().updatePreviousLoginDate(
-//							FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername()),
-//							event.getUsername());
-					
-					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
-					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+//				if (userProvider.getUser().getUserRoles().contains(UserRole.AREA_STATE_OBSERVER)) {
+//					getUI().get().navigate("/about");
+//					System.out.println("1111111111111111111111111111111111111");
+//				}
+				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER
+						&& intendedRoute.equals("campaigndata")) {
+					getUI().get().navigate("/campaigndata");
+				}
+				if (intendedRoute.equals("logout")) {
+					getUI().get().navigate("/campaigndata");
+				} else if (intendedRoute.equals("/")) {
+					getUI().get().navigate("/campaigndata");
 				} else {
+					getUI().get().navigate("/" + intendedRoute);
+				}
+				userActivitySummaryDto.setActionModule("Login");
+				userActivitySummaryDto.setAction("User Logged In");
+				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
 
-					if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
-						getUI().get().navigate("/campaigndata");
-					} else {
-						getUI().get().navigate("/campaigndata");
-					}
-
-					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-					userActivitySummaryDto.setActionModule("Login");
-					userActivitySummaryDto.setAction("User Logged In");
-					userActivitySummaryDto.setCreatingUser_string(event.getUsername());
-					Date todaysDate = new Date();
-					
 //					FacadeProvider.getUserFacade().updatePreviousLoginDate(
 //							FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername()),
 //							event.getUsername());
-					
-					FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
-					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
 
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+			} else {
+
+				if (userProvider.getUser().getUsertype() == UserType.COMMON_USER) {
+					getUI().get().navigate("/campaigndata");
+				} else {
+					if (userProvider.getUser().getUserRoles().contains(UserRole.AREA_STATE_OBSERVER)) {
+						getUI().get().navigate("/about");
+					} else {
+						getUI().get().navigate("/campaigndata");
+					}
+				}
+
+				UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+				userActivitySummaryDto.setActionModule("Login");
+				userActivitySummaryDto.setAction("User Logged In");
+				userActivitySummaryDto.setCreatingUser_string(event.getUsername());
+				Date todaysDate = new Date();
+
+//					FacadeProvider.getUserFacade().updatePreviousLoginDate(
+//							FacadeProvider.getUserFacade().checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername()),
+//							event.getUsername());
+
+				FacadeProvider.getUserFacade().updateLastLoginDate(todaysDate, event.getUsername());
+				FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+
+			}
+
+		} else {
+
+			Date usersLastLoginDate = FacadeProvider.getUserFacade()
+					.checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername());
+
+			System.out.println(
+					usersLastLoginDate + "usersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate");
+			if (usersLastLoginDate != null) {
+
+				long differenceInMilliSeconds = todaysDate.getTime() - usersLastLoginDate.getTime();
+				long differenceInDays = differenceInMilliSeconds / (1000 * 60 * 60 * 24);
+
+				System.out.println(differenceInDays + "differenceInDaysdifferenceInDaysdifferenceInDays");
+
+				if (differenceInDays >= 60) {
+					loginForm.setI18n(createInactiveUserLoginI18n());
+					event.getSource().setError(true);
+				} else {
+					loginForm.setI18n(createLoginI18n());
+					event.getSource().setError(true);
 				}
 
 			} else {
-				
-				
-				
-				Date usersLastLoginDate = FacadeProvider.getUserFacade()
-						.checkUsersActiveStatusByUsernameandActiveStatus(event.getUsername());
-				
-				System.out.println(usersLastLoginDate + "usersLastLoginDateusersLastLoginDateusersLastLoginDateusersLastLoginDate");				
-				if (usersLastLoginDate != null) {
-					
-					long differenceInMilliSeconds = todaysDate.getTime() - usersLastLoginDate.getTime();
-					long differenceInDays = differenceInMilliSeconds / (1000 * 60 * 60 * 24);
-
-					System.out.println(differenceInDays + "differenceInDaysdifferenceInDaysdifferenceInDays");
-
-					if (differenceInDays >= 60) {
-						loginForm.setI18n(createInactiveUserLoginI18n());
-						event.getSource().setError(true);
-					} else {
-						loginForm.setI18n(createLoginI18n());
-
-						event.getSource().setError(true);
-
-					}
-
-				}else {					
-					loginForm.setI18n(createLoginI18n());
-					event.getSource().setError(true);					
-				}
+				loginForm.setI18n(createLoginI18n());
+				event.getSource().setError(true);
 			}
-
-
+		}
 
 	}
 

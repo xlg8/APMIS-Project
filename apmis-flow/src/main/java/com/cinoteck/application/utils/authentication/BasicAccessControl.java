@@ -65,11 +65,23 @@ public class BasicAccessControl implements AccessControl, HasUserProvider, HasVi
 		
 		if (status == AuthenticationStatus.SUCCESS) {
 			if (!VaadinServletService.getCurrentServletRequest().isUserInRole(UserRole._USER)) {
-
-				try {
-					VaadinServletService.getCurrentServletRequest().logout();
-				} catch (ServletException e) {
-					// just do not crash
+				try{
+					Language userLanguage = Language.EN;
+					userLanguage = FacadeProvider.getUserFacade().getByUserName(username).getLanguage();
+					
+					Language userLanguagex = FacadeProvider.getUserFacade().getByUserName(username).getLanguage();
+					I18nProperties.setUserLanguage(userLanguagex);
+					FacadeProvider.getI18nFacade().setUserLanguage(userLanguagex);
+	
+					CurrentUser.set(username);
+					return true;
+				}catch (Exception ex){
+					
+					try {
+						VaadinServletService.getCurrentServletRequest().logout();
+					} catch (ServletException e) {
+						// just do not crash
+					}
 				}
 				return false;
 			}
