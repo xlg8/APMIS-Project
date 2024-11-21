@@ -255,14 +255,28 @@ public class MainLayout extends AppLayout implements HasUserProvider, HasViewMod
 		}
 
 		// Handle the middle-click and modify the context menu behavior
-		newDashboardNavItem.getElement().executeJs("const link = $0;" + "link.addEventListener('mousedown', (e) => {"
-				+ "  if (e.button === 1 || e.button === 2) {" + // Middle click or right click
-				"    e.preventDefault();" + "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');"
-				+ "  }" + "});" +
-				// Override the href just before the context menu appears
-				"link.addEventListener('contextmenu', (e) => {"
-				+ "  link.href = 'https://dashboard.afghanistan-apmis.com/';" + "});",
-				newDashboardNavItem.getElement());
+//		newDashboardNavItem.getElement().executeJs("const link = $0;" + "link.addEventListener('mousedown', (e) => {"
+//				+ "  if (e.button === 1 || e.button === 2) {" + // Middle click or right click
+//				"    e.preventDefault();" + "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');"
+//				+ "  }" + "});" +
+//				// Override the href just before the context menu appears
+//				"link.addEventListener('contextmenu', (e) => {"
+//				+ "  link.href = 'https://dashboard.afghanistan-apmis.com/';" + "});",
+//				newDashboardNavItem.getElement());
+		
+		newDashboardNavItem.getElement().executeJs(
+			    "const link = $0;" +
+			    // Prevent right-click menu from showing
+			    "link.addEventListener('contextmenu', (e) => { e.preventDefault(); });" +
+			    // Handle middle-click (mouse button 1)
+			    "link.addEventListener('mousedown', (e) => {" +
+			    "  if (e.button === 1) {" +
+			    "    e.preventDefault();" +
+			    "    window.open('https://dashboard.afghanistan-apmis.com/', '_blank');" +
+			    "  }" +
+			    "});",
+			    newDashboardNavItem.getElement()
+			);
 
 		nav.addItem(newDashboardNavItem);
 //		}

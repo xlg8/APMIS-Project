@@ -80,6 +80,7 @@ public class DistrictDataImporter extends DataImporter {
 	
 	LocalDate localDate = LocalDate.now();
 	Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+File file;
 
 
 
@@ -94,12 +95,12 @@ public class DistrictDataImporter extends DataImporter {
 	}
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
+	public void startImport(File file, Consumer<StreamResource> addErrorReportToLayoutCallback,
 			Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
-
+this.file=file;
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, null, false, currentUI, false);
+		super.startImport(file,addErrorReportToLayoutCallback, null, false, currentUI, false);
 	}
 
 	@Override

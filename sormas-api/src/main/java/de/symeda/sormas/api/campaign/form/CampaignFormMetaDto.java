@@ -62,6 +62,16 @@ public class CampaignFormMetaDto extends EntityDto {
 
 	private boolean districtentry = false;
 	private boolean archived = false;
+	
+	private String fieldId;
+	private String fielType;
+	private String fieldCaption;
+	private String fieldExpression;
+	
+	
+
+
+
 
 	public boolean getArchived() {
 		return archived;
@@ -145,6 +155,38 @@ public class CampaignFormMetaDto extends EntityDto {
 		return formType;
 	}
 
+	public String getFieldId() {
+		return fieldId;
+	}
+
+	public void setFieldId(String fieldId) {
+		this.fieldId = fieldId;
+	}
+
+	public String getFielType() {
+		return fielType;
+	}
+
+	public void setFielType(String fielType) {
+		this.fielType = fielType;
+	}
+
+	public String getFieldCaption() {
+		return fieldCaption;
+	}
+
+	public void setFieldCaption(String fieldCaption) {
+		this.fieldCaption = fieldCaption;
+	}
+
+	public String getFieldExpression() {
+		return fieldExpression;
+	}
+
+	public void setFieldExpression(String fieldExpression) {
+		this.fieldExpression = fieldExpression;
+	}
+
 	public void setFormType(CampaignPhase formType) {
 		this.formType = formType;
 	}
@@ -172,4 +214,7 @@ public class CampaignFormMetaDto extends EntityDto {
 	public void setDistrictentry(boolean districtentry) {
 		this.districtentry = districtentry;
 	}
+	
+	
+	
 }

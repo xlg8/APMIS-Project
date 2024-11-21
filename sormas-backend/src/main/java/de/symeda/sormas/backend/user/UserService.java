@@ -536,6 +536,43 @@ public class UserService extends AdoServiceWithUserFilter<User> {
 
 		return password;
 	}
+	
+	public boolean setCustomPassword(String userUuid, String customPassword) {
+
+		User user = getByUuid(userUuid);
+
+		if (user == null || customPassword == null || customPassword.isEmpty()) {
+//			logger.warn("resetPassword() for unknown user '{}'", realmUserUuid);
+			
+			return false;
+//			return null;
+		}
+
+		String password = customPassword;
+		user.setSeed(PasswordHelper.createPass(16));
+		user.setPassword(PasswordHelper.encodePassword(password, user.getSeed()));
+		ensurePersisted(user);
+
+		return true;// password;
+	}
+	
+	public String createMemorablePassword(String userUuid) {
+	    User user = getByUuid(userUuid);
+	    if (user == null) {
+	        // logger.warn("resetPassword() for unknown user '{}'", realmUserUuid);
+	        return null;
+	    }
+	    
+	    // Use provided password or generate a memorable one if customPassword is null/empty
+	    String password =  PasswordHelper.createMemorablePassword(true, true);
+	    
+	    // Generate new seed and encode password
+	    user.setSeed(PasswordHelper.createPass(16));
+	    user.setPassword(PasswordHelper.encodePassword(password, user.getSeed()));
+	    
+	    ensurePersisted(user);
+	    return password;
+	}
 
 	public Predicate buildCriteriaFilter(UserCriteria userCriteria, CriteriaBuilder cb, Root<User> from) {
 

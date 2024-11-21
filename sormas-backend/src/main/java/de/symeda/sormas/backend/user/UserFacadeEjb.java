@@ -830,6 +830,22 @@ public class UserFacadeEjb implements UserFacade {
 		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
 		return resetPassword;
 	}
+	
+	@Override
+	public String createMemorablePassword(String uuid) {
+		String resetPassword = userService.createMemorablePassword(uuid);
+		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
+		return resetPassword;
+	}
+		
+
+	@Override
+	public boolean setCustomPassword(String uuid, String customPassword) {
+		boolean resetPassword = userService.setCustomPassword(uuid, customPassword);
+		passwordResetEvent.fire(new PasswordResetEvent(userService.getByUuid(uuid)));
+		return resetPassword;
+	}
+	
 
 	@Override
 	public UserDto getCurrentUser() {

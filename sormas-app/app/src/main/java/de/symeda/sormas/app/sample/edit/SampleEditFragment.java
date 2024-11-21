@@ -53,7 +53,7 @@ import de.symeda.sormas.app.backend.facility.Facility;
 import de.symeda.sormas.app.backend.sample.AdditionalTest;
 import de.symeda.sormas.app.backend.sample.PathogenTest;
 import de.symeda.sormas.app.backend.sample.Sample;
-import de.symeda.sormas.app.barcode.BarcodeActivity;
+//import de.symeda.sormas.app.barcode.BarcodeActivity;
 import de.symeda.sormas.app.component.Item;
 import de.symeda.sormas.app.databinding.FragmentSampleEditLayoutBinding;
 import de.symeda.sormas.app.sample.read.SampleReadActivity;
@@ -262,10 +262,10 @@ public class SampleEditFragment extends BaseEditFragment<FragmentSampleEditLayou
 		contentBinding.sampleShipmentDate.initializeDateField(getFragmentManager());
 
 		// Initialize on clicks
-		contentBinding.buttonScanFieldSampleId.setOnClickListener((View v) -> {
-			Intent intent = new Intent(getContext(), BarcodeActivity.class);
-			startActivityForResult(intent, BarcodeActivity.RC_BARCODE_CAPTURE);
-		});
+//		contentBinding.buttonScanFieldSampleId.setOnClickListener((View v) -> {
+//			Intent intent = new Intent(getContext(), BarcodeActivity.class);
+//			startActivityForResult(intent, BarcodeActivity.RC_BARCODE_CAPTURE);
+//		});
 
 		// Disable fields the user doesn't have access to - this involves almost all fields when
 		// the user is not the one that originally reported the sample
@@ -331,10 +331,11 @@ public class SampleEditFragment extends BaseEditFragment<FragmentSampleEditLayou
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if (requestCode == BarcodeActivity.RC_BARCODE_CAPTURE) {
-			if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
-				getContentBinding().sampleFieldSampleID.setValue(data.getStringExtra(BarcodeActivity.BARCODE_RESULT));
-			}
+		if (1 == 2) { //(requestCode == BarcodeActivity.RC_BARCODE_CAPTURE) {
+//			if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
+//				getContentBinding().sampleFieldSampleID.setValue(data.getStringExtra(BarcodeActivity.BARCODE_RESULT));
+//			}
+			return;
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}

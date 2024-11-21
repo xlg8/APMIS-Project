@@ -79,4 +79,6 @@ public interface CampaignFormMetaFacade {
 	
 	void archiveForms(List<String> userUuids);
 	
+	List<CampaignFormMetaIndexDto> getFormExpressions(String formUuid);
+	
 }

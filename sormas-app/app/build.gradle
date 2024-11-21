@@ -9,6 +9,7 @@ android {
     // ideally: minSdkVersion (lowest possible) <= targetSdkVersion == compileSdkVersion (latest SDK)
     compileSdkVersion 33
     // always use the latest
+    buildToolsVersion "33.0.0"
 
     defaultConfig {
  //       applicationId "de.symeda.sormas.app.debug"
@@ -42,12 +43,12 @@ android {
         }
     }
     packagingOptions {
-        exclude 'META-INF/maven/de.symeda.sormas/sormas-api/pom.properties'
-        exclude 'META-INF/maven/de.symeda.sormas/sormas-api/pom.xml'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/spring.*'
-        exclude 'META-INF/DEPENDENCIES'
+        jniLibs {
+            excludes += ['META-INF/spring.*']
+        }
+        resources {
+            excludes += ['META-INF/maven/de.symeda.sormas/sormas-api/pom.properties', 'META-INF/maven/de.symeda.sormas/sormas-api/pom.xml', 'META-INF/license.txt', 'META-INF/notice.txt', 'META-INF/spring.*', 'META-INF/DEPENDENCIES']
+        }
     }
     dataBinding {
         enabled = true
@@ -67,7 +68,8 @@ android {
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
     useLibrary 'android.test.mock'
-    lintOptions {
+    namespace 'de.symeda.sormas.app'
+    lint {
         abortOnError false
     }
 }
@@ -130,7 +132,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
-    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
+//    implementation 'me.dm7.barcodescanner:zxing:1.9.13'
     implementation 'io.crowdcode.sormas.lbds:lbds-http-android:1.2.9'
     implementation 'io.crowdcode.sormas.lbds:lbds-android-messaging:1.4.6'
     implementation 'com.jakewharton:process-phoenix:2.0.0'

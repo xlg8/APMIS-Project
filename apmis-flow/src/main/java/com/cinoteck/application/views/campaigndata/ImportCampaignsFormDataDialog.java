@@ -80,6 +80,10 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 	Button startImportDryRun = new Button(I18nProperties.getCaption(Captions.importImportData) + " Dry Run");
 ;
 	IdleNotification idleNotification;
+	
+	Button doneButton = new Button("Done"); 
+	
+	private ImportProgressLayout currentProgressLayout;
 
 	public ImportCampaignsFormDataDialog(CampaignReferenceDto campaignReferenceDto,
 			CampaignFormMetaReferenceDto campaignForm, CampaignDto campaignDto) {
@@ -206,7 +210,7 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),
 						campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
-				importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+				importer.startImport(file_ , this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 			} catch (IOException | CsvValidationException e) {
 				Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 						+ I18nProperties.getString(Strings.messageImportFailed));
@@ -222,21 +226,19 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		});
 		
+		
 		startImportDryRun.addClickListener(ed -> {
 			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
 			
-
 			try {
 				truncateDryRunTable();
-
+				 resetImportState();
 			} finally {
-//				startIntervalCallback();
-				
 				try {
 
 					DataImporter importer = new CampaignFormDataImportDryRunner(file_, false, userDto, campaignForm.getUuid(),
 							campaignReferenceDto, campaignDto, ValueSeparator.COMMA);
-					importer.startImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
+					importer.startDryRunImport(file_, this::extendDownloadErrorReportButton, null, false, UI.getCurrent(), true);
 				} catch (IOException | CsvValidationException e) {
 					Notification.show(I18nProperties.getString(Strings.headingImportFailed) + " : "
 							+ I18nProperties.getString(Strings.messageImportFailed));
@@ -249,6 +251,13 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 			}
 
 		});
+		
+		doneButton.addClickListener(e -> {
+			close();
+			stopIntervalCallback();
+		});
+		
+		
 		
 		H3 step3 = new H3();
 		step3.add("Step 3: Download Error Report");
@@ -279,10 +288,10 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		dialog.add(seperatorr, step1, lblImportTemplateInfo, downloadImportTemplate, step2, lblImportCsvFile, upload,
 				startImportDryRun, startDataImport, step3, lblDnldErrorReport, donloadErrorReport, anchorSpan);
 
-		Button doneButton = new Button("Done", e -> {
+		
+		doneButton.addClickListener(e -> {
 			close();
 			stopIntervalCallback();
-
 		});
 		Icon doneButtonIcon = new Icon(VaadinIcon.CHECK_CIRCLE_O);
 		doneButton.setIcon(doneButtonIcon);
@@ -292,6 +301,28 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 		setCloseOnEsc(false);
 		setCloseOnOutsideClick(false);
 
+	}
+	  @Override
+	    public void close() {
+	        resetImportState();
+	        super.close();
+	    }
+	  
+	 private void resetImportState() {
+	        if (currentProgressLayout != null) {
+	            currentProgressLayout = null;
+	        }
+	        stopIntervalCallback();
+	        if (timer != null) {
+	            timer.cancel();
+	            timer = null;
+	        }
+	        callbackRunning = false;
+	    }
+	
+public void terminateiImportThread(Runnable closeCallback)  {
+		
+		closeCallback.run();
 	}
 
 	private void pokeFlow() {
