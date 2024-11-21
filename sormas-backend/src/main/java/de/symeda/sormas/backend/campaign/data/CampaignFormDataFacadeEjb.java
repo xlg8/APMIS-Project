@@ -1465,7 +1465,18 @@ if(criteria.getUserLanguage() != null) {
 				+ "    community.externalid AS ccode,\n"
 				+ "    users.firstname as firstName,\n"
 				+ "    users.userposition as title,\n"
-				+ "    jsondata.value ->> 'value' as tazkiraNumber\n"
+				+ "    TO_CHAR(CAST(jsondata.value ->> 'value' AS NUMERIC), 'FM999999999999999999') as tazkiraNumber, \n"
+				 + "    CASE \n"
+				    + "        WHEN EXISTS (\n"
+				    + "            SELECT 1\n"
+				    + "            FROM campaignformdata c2\n"
+				    + "            CROSS JOIN LATERAL json_array_elements(c2.formvalues) j2(value)\n"
+				    + "            WHERE (j2.value ->> 'id') = 'TazkiraNo'\n"
+				    + "            AND (j2.value ->> 'value') = (jsondata.value ->> 'value')\n"
+				    + "            AND c2.id != campaignformdata.id\n"
+				    + "        ) THEN 'Error: Duplicate Tazkira number'\n"
+				    + "        ELSE 'No Error'\n"
+				    + "    END as error_status\n"
 				+ "FROM campaignformdata\n"
 				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
 				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
@@ -1579,15 +1590,15 @@ if(criteria.getUserLanguage() != null) {
 		} 
 
 		final String joinBuilder = ""
-				+ "SELECT \n"
-				+ "    areas.name AS area,\n"
-				+ "    region.name AS region,\n"
-				+ "    district.name AS district,\n"
-				+ "    community.clusternumber AS clusterNo,\n"
-				+ "    community.externalid AS ccode,\n"
-				+ "    users.firstname as firstName,\n"
-				+ "    users.userposition as title,\n"
-				+ "    jsondata.value ->> 'value' as tazkiraNumber\n"
+				+ "SELECT count(*) \n"
+//				+ "    areas.name AS area,\n"
+//				+ "    region.name AS region,\n"
+//				+ "    district.name AS district,\n"
+//				+ "    community.clusternumber AS clusterNo,\n"
+//				+ "    community.externalid AS ccode,\n"
+//				+ "    users.firstname as firstName,\n"
+//				+ "    users.userposition as title,\n"
+//				+ "    jsondata.value ->> 'value' as tazkiraNumber\n"
 				+ "FROM campaignformdata\n"
 				+ "LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id\n"
 				+ "LEFT JOIN region ON campaignformdata.region_id = region.id\n"
@@ -1607,14 +1618,19 @@ if(criteria.getUserLanguage() != null) {
 				+ "		FROM flwduplicateerrorreport\n"
 				+ "		GROUP BY value\n"
 				+ "		HAVING COUNT(*) > 1\n"
-				+ "    )";
+				+ "    )"
+//				+ " limit "+max+" offset "+first+";";
+;
 		
 	System.out.println("=====seriesDataQuery======== "+joinBuilder);
 		
 		
-		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
+//		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
 		
-	return seriesDataQuery.getResultList().size();
+		
+		return Integer.parseInt(((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString());
+
+//	return seriesDataQuery.getResultList().size();
 
 	}
 
@@ -3746,7 +3762,7 @@ if(criteria.getUserLanguage() != null) {
 		
 		
 
-		String orderby = "";
+		String orderby = " ";
 //		System.out.println(" ====orderbyorderb++ "+sortProperties.size());
 		
 		
@@ -3804,21 +3820,24 @@ if(criteria.getUserLanguage() != null) {
 		
 		
 		
-		final String joinBuilder = "select analyticz.area as area_, analyticz.region as region_, analyticz.district as district_, commut.\"name\" as communit_name, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
+		final String joinBuilder = "select analyticz.area as area_, analyticz.region as region_, analyticz.district as district_, commut.name as communit_name, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
 				+ "analyticz.day1, analyticz.day2, analyticz.day3, analyticz.day4, analyticz.campaigns_uuid\n"
 				+ "from camapaigndata_admin analyticz\n"
 				+ "left outer join community commut on analyticz.community_uuid = commut.uuid\n"
 				+ ""+joiner+"\n"
 				+ orderby
-				+ " limit "+max+" offset "+first+";";
+				+ " limit "+max+" offset "+first;
 		
-//	System.out.println("=====seriesDataQueryADMINN======== "+joinBuilder);
+	System.out.println("=====seriesDataQueryADMINNCmpletness======== "+joinBuilder);
 		
 		
 		Query seriesDataQuery = em.createNativeQuery(joinBuilder);
 		
 		List<CampaignFormDataIndexDto> resultData = new ArrayList<>();
 		
+		
+//		System.out.println("resultData -XXXXXXX "+ SQLExtractor.from(seriesDataQuery).toString());
+
 		
 		@SuppressWarnings("unchecked")
 		List<Object[]> resultList = seriesDataQuery.getResultList(); 
@@ -3877,8 +3896,26 @@ if(criteria.getUserLanguage() != null) {
 		
 		
 		System.out.println(joinBuilder+" ===========cont query ========== ");
+		
+		// Construct count query
+		final String countQuery = "select count(*) "
+		        + "from camapaigndata_admin analyticz "
+		        + "left outer join community commut on analyticz.community_uuid = commut.uuid "
+		        + joiner;
 
-	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
+		System.out.println("=====countQuery======== " + countQuery);
+
+		// Create the count query and execute it
+		Query seriesCountQuery = em.createNativeQuery(countQuery);
+		Long totalRecords = ((Number) seriesCountQuery.getSingleResult()).longValue();
+
+		System.out.println("Total Records - " + totalRecords);
+
+		return totalRecords.toString();
+		
+		
+
+//	return ((BigInteger) em.createNativeQuery(joinBuilder).getSingleResult()).toString();
 	}
 	
 	

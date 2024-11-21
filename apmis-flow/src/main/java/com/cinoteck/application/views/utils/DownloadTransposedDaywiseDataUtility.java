@@ -9,12 +9,16 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaIndexDto;
 import de.symeda.sormas.api.utils.CSVUtils;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.DateHelper;
+
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,6 +35,8 @@ import java.util.regex.Pattern;
 public final class DownloadTransposedDaywiseDataUtility {
 
 	CampaignFormDataCriteria criteria = new CampaignFormDataCriteria();
+	
+	
 
 	public static StreamResource createTransposedDataFromIndexList(CampaignFormDataCriteria criteria, String formName,
 			String campaignName) {
@@ -178,133 +184,6 @@ public final class DownloadTransposedDaywiseDataUtility {
 			}
 		}
 
-//		return new StreamResource(exportFileName, () -> {
-//			try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-//				try (CSVWriter writer = CSVUtils.createCSVWriter(
-//						new OutputStreamWriter(byteStream, StandardCharsets.UTF_8.name()),
-//						FacadeProvider.getConfigFacade().getCsvSeparator())) {
-//
-//					writer.writeNext(columnNames.toArray(new String[0]));
-//					writer.writeNext(columnNames.toArray(new String[0]));
-//
-//					for (CampaignFormDataIndexDto individualTransposedFormData : formDatafromIndexList) {
-//						if (individualTransposedFormData.getFormValues() != null) {
-//							Map<String, String> formDataMaxp = new HashMap<>();
-//							Set<String> fieldIDsFromFormValues = new HashSet<>();
-//
-//							for (CampaignFormDataEntry formValues : individualTransposedFormData.getFormValues()) {
-//								
-//								   String value = new String(formValues.getValue().toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-//		                            formDataMaxp.put(formValues.getId(), value);
-//		                            fieldIDsFromFormValues.add(formValues.getId());
-//		                            
-////								formDataMaxp.put(formValues.getId(), formValues.getValue().toString());
-////								fieldIDsFromFormValues.add(formValues.getId());
-//							}
-//
-//							List<String> fieldIDsforColumnHeaders = new ArrayList<>(
-//									fieldIDsFromFormValues);
-//
-//							Set<String> uniqueVariablePartsWithoutDaySuffixForColumnHeader = new HashSet<>();
-//
-//							for (String uniqueVariable : extractUniqueVariableParts(
-//									fieldIDsforColumnHeaders)) {
-//								String variableID = uniqueVariable.replaceAll("(_day\\d+|_days\\d+)$", "");
-//								uniqueVariablePartsWithoutDaySuffixForColumnHeader.add(variableID);
-//							}
-//
-//							
-//							
-//							for (String day : extractUniqueDayValues(fieldIDsforColumnHeaders)) {
-//								List<String> row = new ArrayList<>(Collections.nCopies(columnNames.size(), ""));
-//
-//								row.set(0, individualTransposedFormData.getCampaign().toString());
-//
-//								row.set(1, individualTransposedFormData.getForm().toString());
-//
-//								row.set(2, individualTransposedFormData.getArea().toString());
-//
-//								row.set(3, individualTransposedFormData.getRcode().toString());
-//
-//								row.set(4, individualTransposedFormData.getRegion().toString());
-//
-//								row.set(5, individualTransposedFormData.getPcode() + "");
-//
-//								row.set(6, individualTransposedFormData.getDistrict().toString());
-//
-//								row.set(7, individualTransposedFormData.getDcode() + "");
-//
-//								if (individualTransposedFormData.getCommunity() == null) {
-//									row.set(8, "");
-//
-//									row.set(9, "");
-//
-//									row.set(10, "");
-//
-//								} else {
-//									
-//									row.set(8, individualTransposedFormData.getCommunity().toString());
-//
-//									row.set(9, individualTransposedFormData.getClusternumber().toString());
-//
-//									row.set(10, individualTransposedFormData.getCcode().toString());
-//									
-//
-//								}
-//
-//								row.set(11, individualTransposedFormData.getFormType().toString());
-//
-//								if (individualTransposedFormData.getSource() == null) {
-//									row.set(12, "");
-//
-//								} else {
-//									row.set(12, individualTransposedFormData.getSource().toString());
-//
-//								}
-//
-//								if (individualTransposedFormData.getCreatingUser() == null) {
-//									row.set(13, "");
-//
-//								} else {
-//									row.set(13, individualTransposedFormData.getCreatingUser().toString());
-//
-//
-//								}
-//
-//								row.set(14, day);
-//								
-//								
-//
-//								for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
-//									
-//									String key = variable + "_" + day;
-//									
-//									if (formDataMaxp.containsKey(key)) {
-//										
-//										String keyValue = formDataMaxp.get(key);
-//										
-//										int colIndex = columnNames.indexOf(variable);
-//										
-//										if (colIndex >= 0) {
-//											row.set(colIndex, keyValue);
-//										}
-//									}
-//								}
-//
-//								writer.writeNext(row.toArray(new String[0]));
-//							}
-//						}
-//					}
-//
-//					writer.flush();
-//
-//				}
-//				return new ByteArrayInputStream(byteStream.toByteArray());
-//			} catch (IOException e) {
-//				// Handle exceptions and show a notification if needed
-//				return null;
-//			}
-//		});
 
 		return new StreamResource(exportFileName, () -> {
 			try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
@@ -411,6 +290,50 @@ public final class DownloadTransposedDaywiseDataUtility {
 			}
 		});
 	}
+	
+	public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
+	    return new StreamResource(criteria.getCampaignFormMeta().getCaption() + ".csv", () -> {
+	        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+	             OutputStreamWriter writer = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8)) {
+
+	            // Write BOM for UTF-8
+	            writer.write("\uFEFF");
+System.out.println(criteria.getCampaignFormMeta().getUuid() +  "criteria.getCampaignFormMeta().getUuid(criteria.getCampaignFormMeta().getUuid(");
+	            // Fetch data
+	            List<CampaignFormMetaIndexDto> data = FacadeProvider.getCampaignFormMetaFacade()
+	                    .getFormExpressions(criteria.getCampaignFormMeta().getUuid());
+
+	            // Write headers
+	            writer.write("Variable Name,Format,Variable Caption,Description\n");
+
+	            // Write rows
+	            for (CampaignFormMetaIndexDto dto : data) {
+	                writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\"\n",
+	                        escapeCsv(dto.getFieldid()),
+	                        escapeCsv(dto.getFieldtype()),
+	                        escapeCsv(dto.getFieldcaption()),
+	                        escapeCsv(dto.getFieldexpression())));
+	            }
+	            writer.flush();
+	            return new ByteArrayInputStream(byteStream.toByteArray());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    });
+	}
+		
+		
+	    private static String escapeCsv(String value) {
+	        if (value == null) {
+	            return "";
+	        }
+	        String escaped = value.replace("\"", "\"\"");
+	        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+	            return "\"" + escaped + "\"";
+	        }
+	        return escaped;
+	    }
 
 	public static List<String> extractUniqueVariableParts(List<String> formEntriesID) {
 		Set<String> variablePartsSet = new HashSet<>();

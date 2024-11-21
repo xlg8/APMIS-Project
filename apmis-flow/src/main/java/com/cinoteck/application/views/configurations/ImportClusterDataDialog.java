@@ -1,15 +1,22 @@
 package com.cinoteck.application.views.configurations;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cinoteck.application.UserProvider;
@@ -20,6 +27,7 @@ import com.cinoteck.application.views.utils.importutils.DataImporter;
 import com.cinoteck.application.views.utils.importutils.FileUploader;
 import com.cinoteck.application.views.utils.importutils.ImportProgressLayout;
 import com.cinoteck.application.views.utils.importutils.PopulationDataImporter;
+import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -56,6 +64,9 @@ import de.symeda.sormas.api.infrastructure.district.DistrictDto;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
 import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
+import de.symeda.sormas.api.utils.CSVCommentLineValidator;
+import de.symeda.sormas.api.utils.CSVUtils;
+import de.symeda.sormas.api.utils.CharsetHelper;
 import de.symeda.sormas.api.utils.DataHelper;
 
 public class ImportClusterDataDialog extends Dialog {
@@ -80,9 +91,15 @@ public class ImportClusterDataDialog extends Dialog {
 	DataImporter importer = null;
 	boolean checkForException = false;
 	IdleNotification idleNotification;
+	
+private char csvSeparator;
+	
+	private final boolean hasEntityClassRow;
+
 
 	public ImportClusterDataDialog() {
 
+		this.hasEntityClassRow = true;
 		this.setHeaderTitle(I18nProperties.getString(Strings.clusterImportModule));
 //		this.getStyle().set("color" , "#0D6938");
 		
@@ -226,7 +243,7 @@ public class ImportClusterDataDialog extends Dialog {
 				dCodeColumnValues = importer.extractColumnValues("DCode"); // replace "Column_Name" with the
 
 				// actual column name
-				importer.startImport(this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
+				importer.startImport(file_ ,this::extendDownloadErrorReportButton, null, true, UI.getCurrent(), true);
 
 				// Process the column values as needed
 //				columnValues.forEach(System.out::println);
@@ -252,7 +269,7 @@ public class ImportClusterDataDialog extends Dialog {
 
 				try {
 					importer = new ClusterDataDryRunner(file_, false, clusterDto, ValueSeparator.COMMA, overWrite);
-					importer.startDryRunImport(this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
+					importer.startDryRunImport(file_ ,this::extendDownloadErrorReportButton, null, false, UI.getCurrent(),
 							true);
 				} catch (IOException | CsvValidationException e) {
 					checkForException = true;
@@ -411,6 +428,53 @@ public class ImportClusterDataDialog extends Dialog {
 
 		anchorSpan.add(downloadErrorReportButton);
 
+	}
+	
+	
+	private CSVReader getCSVReader(File inputFile) throws IOException {
+		CharsetDecoder decoder = CharsetHelper.getDecoder(inputFile);
+		InputStream inputStream = Files.newInputStream(inputFile.toPath());
+		BOMInputStream bomInputStream = new BOMInputStream(inputStream);
+		Reader reader = new InputStreamReader(bomInputStream, decoder);
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		return CSVUtils.createCSVReader(bufferedReader, this.csvSeparator, new CSVCommentLineValidator());
+	}
+	
+	private String[] readNextValidLine(CSVReader csvReader) throws IOException, CsvValidationException {
+		String[] nextValidLine = null;
+		boolean isCommentLine;
+
+		do {
+			try {
+				nextValidLine = csvReader.readNext();
+				isCommentLine = false;
+			} catch (CsvValidationException e) {
+				if (StringUtils.contains(e.getMessage(), CSVCommentLineValidator.ERROR_MESSAGE)) {
+//					logger.debug("Found comment line. Skipping it");
+					csvReader.skip(1);
+					isCommentLine = true;
+				} else {
+					throw e;
+				}
+			}
+		} while (isCommentLine);
+		return nextValidLine;
+	}
+
+	protected int readImportFileLength(File inputFile) throws IOException, CsvValidationException {
+		int importFileLength = 0;
+		try (CSVReader caseCountReader = getCSVReader(inputFile)) {
+			while (readNextValidLine(caseCountReader) != null) {
+				importFileLength++;
+			}
+			// subtract header line(s)
+			importFileLength--;
+			if (hasEntityClassRow) {
+				importFileLength--;
+			}
+		}
+
+		return importFileLength;
 	}
 
 }

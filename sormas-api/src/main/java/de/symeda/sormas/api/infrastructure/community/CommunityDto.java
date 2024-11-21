@@ -31,6 +31,7 @@ import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.api.utils.FieldConstraints;
 
+
 public class CommunityDto extends EntityDto {
 
 	private static final long serialVersionUID = -8833267932522978860L;
@@ -74,7 +75,36 @@ public class CommunityDto extends EntityDto {
 	private String areaname;
 	private String floating;
 	
+	
+	public CommunityDto(
+			Date creationDate,
+			Date changeDate,
+			String uuid,
+			boolean archived,
+			String name,
+			Float growthRate,
+			String regionUuid,
+			String regionName,
+			Long regionExternalId,
+			String districtUuid,
+			String districtName,
+			Long districtExternalId,
+			Long externalId,
+			Integer clusterNumber,
+			String floating) {
 
+			super(creationDate, changeDate, uuid);
+			this.archived = archived;
+			this.name = name;
+			this.growthRate = growthRate;
+			this.region = new RegionReferenceDto(regionUuid, regionName, regionExternalId);
+			this.district = new DistrictReferenceDto(districtUuid, districtName, districtExternalId);
+			this.externalId = externalId;
+			this.clusterNumber = clusterNumber;
+			this.floating = floating;
+		}
+	
+	
 	public CommunityDto(
 		Date creationDate,
 		Date changeDate,

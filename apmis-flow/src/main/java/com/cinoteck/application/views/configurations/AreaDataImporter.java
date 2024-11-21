@@ -92,12 +92,12 @@ public class AreaDataImporter extends DataImporter {
 	public ImportAreaDataDialog importDataDialog = new ImportAreaDataDialog();
 
 	@Override
-	public void startImport(Consumer<StreamResource> addErrorReportToLayoutCallback,
+	public void startImport(File file_ ,Consumer<StreamResource> addErrorReportToLayoutCallback,
 			Consumer<StreamResource> addCredentialReportToLayoutCallback, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
 
 		this.currentUI = currentUI;
-		super.startImport(addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, false, currentUI,
+		super.startImport(file_, addErrorReportToLayoutCallback, addCredentialReportToLayoutCallback, false, currentUI,
 				duplicatesPossible);
 	}
 

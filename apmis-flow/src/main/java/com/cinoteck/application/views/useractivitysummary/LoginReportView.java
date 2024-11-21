@@ -41,6 +41,7 @@ import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.statistics.CampaignStatisticsDto;
 import de.symeda.sormas.api.i18n.Captions;
 import de.symeda.sormas.api.i18n.I18nProperties;
+import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.user.UserActivitySummaryDto;
 import de.symeda.sormas.api.user.UserDto;
 
@@ -134,6 +135,7 @@ public class LoginReportView extends VerticalLayout implements RouterLayout {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			return dateFormat.format(timestamp);
 		});
+
 
 		Column<UserActivitySummaryDto> userActionDateColumn = grid.addColumn(actionDateRenderer)
 				.setHeader(I18nProperties.getCaption("Timestamp")).setSortable(true)

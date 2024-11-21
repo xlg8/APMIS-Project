@@ -17,6 +17,7 @@ package de.symeda.sormas.api.campaign.data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
@@ -24,6 +25,8 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto; 
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.user.UserCriteria;
+import de.symeda.sormas.api.user.UserRole;
 import de.symeda.sormas.api.user.UserType;
 import de.symeda.sormas.api.utils.criteria.BaseCriteria;
 
@@ -52,8 +55,13 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 	private CampaignReferenceDto campaign;
 	private CampaignFormMetaReferenceDto campaignFormMeta;
 	private AreaReferenceDto area;
+	private Set<AreaReferenceDto> areaSet;
 	private RegionReferenceDto region;
+	private Set<RegionReferenceDto> regionSet;
+
+
 	private DistrictReferenceDto district;
+	private Set<DistrictReferenceDto> districtSet;
 	private CommunityReferenceDto community;
 	private Date formDate;
 	private String formType;
@@ -98,6 +106,14 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 		return area;
 	}
 
+	public Set<AreaReferenceDto> getAreaSet() {
+		return areaSet;
+	}
+
+	public void setAreaSet(Set<AreaReferenceDto> areaSet) {
+		this.areaSet = areaSet;
+	}
+
 	public void setArea(AreaReferenceDto area) {
 		this.area = area;
 	}
@@ -106,6 +122,13 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 		this.area = area;
 		return this;
 	}
+	
+	public CampaignFormDataCriteria areaSet(Set<AreaReferenceDto> areaSet) {
+		
+		this.areaSet = areaSet;
+		return this;
+	}
+	
 
 	public RegionReferenceDto getRegion() {
 		return region;
@@ -119,6 +142,20 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 		this.region = region;
 		return this;
 	}
+	
+	public Set<RegionReferenceDto> getRegionSet() {
+		return regionSet;
+	}
+
+	public void setRegionSet(Set<RegionReferenceDto> regionSet) {
+		this.regionSet = regionSet;
+	}
+
+	public CampaignFormDataCriteria regionSet(Set<RegionReferenceDto> regionSet) {
+		
+		this.regionSet = regionSet;
+		return this;
+	}
 
 	public DistrictReferenceDto getDistrict() {
 		return district;
@@ -130,6 +167,22 @@ public class CampaignFormDataCriteria extends BaseCriteria implements Serializab
 
 	public CampaignFormDataCriteria district(DistrictReferenceDto district) {
 		this.district = district;
+		return this;
+	}
+	
+
+	public Set<DistrictReferenceDto> getDistrictSet() {
+		return districtSet;
+	}
+
+	public void setDistrictSet(Set<DistrictReferenceDto> districtSet) {
+		this.districtSet = districtSet;
+	}
+	
+	
+	public CampaignFormDataCriteria districtSet(Set<DistrictReferenceDto> districtSet) {
+		
+		this.districtSet = districtSet;
 		return this;
 	}
 

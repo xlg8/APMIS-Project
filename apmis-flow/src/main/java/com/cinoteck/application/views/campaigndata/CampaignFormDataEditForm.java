@@ -24,6 +24,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -187,20 +188,43 @@ public class CampaignFormDataEditForm extends HorizontalLayout {
 		dialog.getFooter().add(saveButton);
 
 		saveButton.addClickListener(e -> {
-			if (campaignFormBuilder.saveFormValues()) {
+			if( openData && campaignFormBuilder.updateFormDataUnitAssignment.isVisible() && !campaignFormBuilder.cbCommunity.isReadOnly()) {
+//				 Notification notification = new Notification("Warning: You have unsaved changes in the cluster selection. Please click the Update Form "
+//				 		+ "Data Unit button to save your changes, or they will be lost.", 3000); // Duration is 3000 ms
+//				    notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+//				    notification.setPosition(Notification.Position.MIDDLE); // Center the notification
+//				    notification.open();
+				    
+				    
+					ConfirmDialog unsavedClusterEditWarninig = new ConfirmDialog();
+//					archiveDearchiveConfirmation.setCancelable(true);
+//					archiveDearchiveConfirmation.addCancelListener(ee -> archiveDearchiveConfirmation.close());
+					unsavedClusterEditWarninig.setRejectable(false);
+//					unsavedClusterEditWarninig.setRejectText("I understand");
+//					unsavedClusterEditWarninig.addRejectListener(ee -> unsavedClusterEditWarninig.close());
 
-				if (openData) {
-					UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
-					userActivitySummaryDto.setActionModule("Campaign Data");
-					userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in "
-							+ campaignReferenceDto.getCaption());
-					userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
-					FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+					unsavedClusterEditWarninig.setConfirmText("I understand");
+//					unsavedClusterEditWarninig.setHeader("Warn");
+					unsavedClusterEditWarninig.setText("Warning: You have unsaved changes in the cluster selection. To save these changes, please click 'Update Form Data Unit,' to update selection or select 'Cancel' to discard them, or you will be unable to save.");
+					unsavedClusterEditWarninig.open();
+					unsavedClusterEditWarninig.addConfirmListener(ee -> unsavedClusterEditWarninig.close());
+			}else {
+				if (campaignFormBuilder.saveFormValues()) {
+
+					if (openData) {
+						UserActivitySummaryDto userActivitySummaryDto = new UserActivitySummaryDto();
+						userActivitySummaryDto.setActionModule("Campaign Data");
+						userActivitySummaryDto.setAction("Edited Data: " + campaignFormMetaDto.getFormName() + " in "
+								+ campaignReferenceDto.getCaption());
+						userActivitySummaryDto.setCreatingUser_string(usr.getUser().getUserName());
+						FacadeProvider.getUserFacade().saveUserActivitySummary(userActivitySummaryDto);
+					}
+
+					dialog.close();
+					grid.getDataProvider().refreshAll();
 				}
-
-				dialog.close();
-				grid.getDataProvider().refreshAll();
 			}
+
 			// showConfirmationDialog();
 		});
 

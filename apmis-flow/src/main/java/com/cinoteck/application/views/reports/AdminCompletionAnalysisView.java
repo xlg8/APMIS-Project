@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.cinoteck.application.UserProvider;
 import com.cinoteck.application.views.utils.gridexporter.GridExporter;
@@ -72,17 +73,64 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 	private void refreshGridData(FormAccess formAccess) {
 		System.out.println("______________AMIN_____________");
 //   	int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
+//		dataProvider = DataProvider.fromFilteringCallbacks(
+//				query -> FacadeProvider.getCampaignFormDataFacade()
+//						.getByCompletionAnalysisAdmin(criteria, query.getOffset(), query.getLimit(),
+//								query.getSortOrders().stream()
+//										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//												sortOrder.getDirection() == SortDirection.ASCENDING))
+//										.collect(Collectors.toList()),
+//								null)
+//						.stream(),
+//				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
+//						.getByCompletionAnalysisCountAdmin(criteria, query.getOffset(), query.getLimit(), null, null)));
+		
 		dataProvider = DataProvider.fromFilteringCallbacks(
-				query -> FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysisAdmin(criteria, query.getOffset(), query.getLimit(),
-								query.getSortOrders().stream()
-										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-												sortOrder.getDirection() == SortDirection.ASCENDING))
-										.collect(Collectors.toList()),
-								null)
-						.stream(),
-				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysisCountAdmin(criteria, query.getOffset(), query.getLimit(), null, null)));
+			    // Fetching the data
+			    query -> {
+			        try {
+			            // Retrieve the data using the FacadeProvider
+			            return FacadeProvider.getCampaignFormDataFacade()
+			                .getByCompletionAnalysisAdmin(
+			                    criteria, 
+			                    query.getOffset(), 
+			                    query.getLimit(),
+			                    query.getSortOrders().stream()
+			                        .map(sortOrder -> new SortProperty(
+			                            sortOrder.getSorted(), 
+			                            sortOrder.getDirection() == SortDirection.ASCENDING
+			                        ))
+			                        .collect(Collectors.toList()),
+			                    null
+			                ).stream();
+			        } catch (Exception e) {
+			            // Log the exception and return an empty stream if an error occurs
+			            e.printStackTrace();
+			            return Stream.empty();
+			        }
+			    },
+			    // Counting the number of rows
+			    query -> {
+			        try {
+			            // Get the count from the FacadeProvider
+			            return Integer.parseInt(
+			                FacadeProvider.getCampaignFormDataFacade()
+			                    .getByCompletionAnalysisCountAdmin(
+			                        criteria, 
+			                        query.getOffset(), 
+			                        query.getLimit(), 
+			                        null, 
+			                        null
+			                    )
+			            );
+			        } catch (Exception e) {
+			            // Log the exception and return 0 if an error occurs
+			            e.printStackTrace();
+			            return 0;
+			        }
+			    }
+			);
+		
 
 //								);
 
@@ -432,17 +480,63 @@ public class AdminCompletionAnalysisView extends VerticalLayout {
 //				.getByCompletionAnalysisCount(null, null, null, null,formAccess );
 		criteria.campaign(lastStarted);
 //		int numberOfRows = Integer.parseInt(FacadeProvider.getCampaignFormDataFacade().getByCompletionAnalysisCountAdmin(null, null, null, null, null));
+//		dataProvider = DataProvider.fromFilteringCallbacks(
+//				query -> FacadeProvider.getCampaignFormDataFacade()
+//						.getByCompletionAnalysisAdmin(criteria, query.getOffset(), query.getLimit(),
+//								query.getSortOrders().stream()
+//										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
+//												sortOrder.getDirection() == SortDirection.ASCENDING))
+//										.collect(Collectors.toList()),
+//								null)
+//						.stream(),
+//				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
+//						.getByCompletionAnalysisCountAdmin(criteria, query.getOffset(), query.getLimit(), null, null)));
+		
 		dataProvider = DataProvider.fromFilteringCallbacks(
-				query -> FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysisAdmin(criteria, query.getOffset(), query.getLimit(),
-								query.getSortOrders().stream()
-										.map(sortOrder -> new SortProperty(sortOrder.getSorted(),
-												sortOrder.getDirection() == SortDirection.ASCENDING))
-										.collect(Collectors.toList()),
-								null)
-						.stream(),
-				query -> Integer.parseInt(FacadeProvider.getCampaignFormDataFacade()
-						.getByCompletionAnalysisCountAdmin(criteria, query.getOffset(), query.getLimit(), null, null)));
+			    // Fetching the data
+			    query -> {
+			        try {
+			            // Retrieve the data using the FacadeProvider
+			            return FacadeProvider.getCampaignFormDataFacade()
+			                .getByCompletionAnalysisAdmin(
+			                    criteria, 
+			                    query.getOffset(), 
+			                    query.getLimit(),
+			                    query.getSortOrders().stream()
+			                        .map(sortOrder -> new SortProperty(
+			                            sortOrder.getSorted(), 
+			                            sortOrder.getDirection() == SortDirection.ASCENDING
+			                        ))
+			                        .collect(Collectors.toList()),
+			                    null
+			                ).stream();
+			        } catch (Exception e) {
+			            // Log the exception and return an empty stream if an error occurs
+			            e.printStackTrace();
+			            return Stream.empty();
+			        }
+			    },
+			    // Counting the number of rows
+			    query -> {
+			        try {
+			            // Get the count from the FacadeProvider
+			            return Integer.parseInt(
+			                FacadeProvider.getCampaignFormDataFacade()
+			                    .getByCompletionAnalysisCountAdmin(
+			                        criteria, 
+			                        query.getOffset(), 
+			                        query.getLimit(), 
+			                        null, 
+			                        null
+			                    )
+			            );
+			        } catch (Exception e) {
+			            // Log the exception and return 0 if an error occurs
+			            e.printStackTrace();
+			            return 0;
+			        }
+			    }
+			);
 		grid_.setDataProvider(dataProvider);
 
 		GridExporter<CampaignFormDataIndexDto> exporter = GridExporter.createFor(grid_);

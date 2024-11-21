@@ -10633,6 +10633,94 @@ INSERT INTO schema_version (version_number, comment) VALUES (476, 'User login de
 
 
 
+DROP MATERIALIZED VIEW public.camapaigndata_admin;
+ 
+  
+CREATE MATERIALIZED VIEW public.camapaigndata_admin
+TABLESPACE pg_default
+as SELECT 
+    areas.name AS area,
+    region.name AS region,
+    district.name AS district,
+    community.name AS community,
+    areas.uuid AS areas_uuid,
+    region.uuid AS region_uuid,
+    district.uuid AS district_uuid,
+    campaigns.uuid AS campaigns_uuid,
+    community.uuid AS community_uuid,
+   campaignformmeta.uuid AS formuuid,
+    campaignformmeta.formid as formid,
+--    jsondata.value ->> 'id'::text AS fieldid,
+    MAX(CASE WHEN jsondata.value ->> 'id'::text = 'Admin_day4-readonly' THEN 
+        CASE WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'range'::text 
+             THEN CAST(jsondata.value ->> 'value'::text AS numeric)
+             ELSE 0  -- Adjust this value based on your logic
+        END
+    ELSE 1 END) AS day4,
+     MAX(CASE WHEN jsondata.value ->> 'id'::text = 'Admin_day3-readonly' THEN 
+        CASE WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'range'::text 
+             THEN CAST(jsondata.value ->> 'value'::text AS numeric)
+             ELSE 0  -- Adjust this value based on your logic
+        END
+    ELSE 1 END) AS day3,
+     MAX(CASE WHEN jsondata.value ->> 'id'::text = 'Admin_day2-readonly' THEN 
+        CASE WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'range'::text 
+             THEN CAST(jsondata.value ->> 'value'::text AS numeric)
+             ELSE 0  -- Adjust this value based on your logic
+        END
+    ELSE 1 END) AS day2,
+    MAX(CASE WHEN jsondata.value ->> 'id'::text = 'Admin_day1-readonly' THEN 
+        CASE WHEN (jsonmeta.value ->> 'type'::text) = 'number'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'decimal'::text OR 
+                  (jsonmeta.value ->> 'type'::text) = 'range'::text 
+             THEN CAST(jsondata.value ->> 'value'::text AS numeric)
+             ELSE 0  -- Adjust this value based on your logic
+        END
+    ELSE 1 END) AS day1
+FROM campaignformdata
+LEFT JOIN campaignformmeta ON campaignformdata.campaignformmeta_id = campaignformmeta.id
+LEFT JOIN region ON campaignformdata.region_id = region.id
+LEFT JOIN areas ON campaignformdata.area_id = areas.id
+LEFT JOIN district ON campaignformdata.district_id = district.id
+LEFT JOIN community ON campaignformdata.community_id = community.id
+LEFT JOIN campaigns ON campaignformdata.campaign_id = campaigns.id,
+LATERAL json_array_elements(campaignformdata.formvalues) jsondata(value),
+LATERAL json_array_elements(campaignformmeta.campaignformelements) jsonmeta(value)
+WHERE 
+    (jsondata.value ->> 'value'::text) IS NOT NULL 
+    AND (jsondata.value ->> 'id'::text) IN ('Admin_day4-readonly', 'Admin_day2-readonly')
+    AND (jsondata.value ->> 'id'::text) = (jsonmeta.value ->> 'id'::text) 
+    AND campaignformmeta.formcategory = 'ADMIN'
+GROUP BY 
+    areas.name, 
+    region.name, 
+    district.name,
+    areas.uuid, 
+    region.uuid, 
+    district.uuid, 
+    community.name, 
+    community.uuid,
+    campaignformmeta.uuid, 
+    campaignformmeta.formid,
+  --  (jsondata.value ->> 'id'::text),
+    campaigns.uuid
+  with data;  
+
+  -- View indexes:
+CREATE UNIQUE INDEX camapaigndata_admin_fieldid_idx ON public.camapaigndata_admin USING btree (formuuid, campaigns_uuid, community_uuid);
+
+INSERT INTO schema_version (version_number, comment) VALUES (477, 'Admin Data Completeness report formatting #716');
+
+update users u set "language" = 'EN' where "language" is null;
+
+INSERT INTO schema_version (version_number, comment) VALUES (478, 'Set default language of users to English. #738');
+
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

@@ -374,6 +374,8 @@ public class AppUpdateController {
 			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
 			StrictMode.setVmPolicy(builder.build());
 			fileUri = Uri.fromFile(file);
+
+			System.out.println(fileUri + "URIIIIIIIIIIIIIIIIIIIII" + fileName);
 		}
 		installIntent.setDataAndType(fileUri, "application/vnd.android.package-archive");
 		activity.startActivityForResult(installIntent, AppUpdateController.INSTALL_RESULT);
