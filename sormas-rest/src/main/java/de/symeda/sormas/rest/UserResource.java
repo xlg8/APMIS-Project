@@ -50,7 +50,9 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
 @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-@RolesAllowed("USER")
+@RolesAllowed({
+	"USER",
+	"REST_USER"})
 public class UserResource {
 
 	
