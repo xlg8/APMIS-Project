@@ -330,7 +330,7 @@ public abstract class DataImporter {
 			
 				FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getLanguage());
 				}
-				ImportResultStatus importResult = runImport();
+				ImportResultStatus importResult = runImport(currentUI);
 
 				// Display a window presenting the import result
 				currentUI.access(() -> {
@@ -791,9 +791,13 @@ public abstract class DataImporter {
 	            
 	            if (importedLineCallback != null) {
 	                // Ensure UI update happens in UI thread
-	                ui.access(() -> {
-	                    importedLineCallback.accept(lineResult);
-	                    ui.push(); // Force update to client
+	                ui
+	                .access(
+	                		() -> {
+	                    importedLineCallback.accept(
+	                    		lineResult);
+	                    ui
+	                    .push(); // Force update to client
 	                });
 	                
 	                // Small delay to allow UI to breathe
