@@ -625,7 +625,7 @@ public class FormGridComponent extends VerticalLayout {
 							elementList.add(newForm);
 							campaignFormMetaDto.setCampaignFormElements(elementList);
 							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
-							
+
 							vr1.setVisible(true);
 							formLayout.setVisible(false);
 							vr3.setVisible(false);
@@ -786,20 +786,10 @@ public class FormGridComponent extends VerticalLayout {
 					}
 
 					if (!comment.getValue().isEmpty()) {
-//						System.out.println("hereeeeeeeeeeeeeeee");
-						newForm.setComment(comment.getValue());
-//						
-//						if (!errorMessage.getValue().isEmpty()) {
-//							System.out.println("thiagooooooooooo " + errorMessage.getValue());
-//							newForm.setErrormessage(errorMessage.getValue());
-//						} else {
-//							newForm.setErrormessage(" ");
-//						}						
-//						System.out.println("weyyyyyyyyyyyy");
+							newForm.setComment(comment.getValue());	
 					}
 
 					if (!defaultValues.getValue().isEmpty()) {
-
 						newForm.setDefaultvalue(defaultValues.getValue());
 					}
 
@@ -813,11 +803,11 @@ public class FormGridComponent extends VerticalLayout {
 							campaignFormMetaDto.setCampaignFormElements(using);
 							grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 							getGridData();
-							
+
 							vr1.setVisible(true);
 							formLayout.setVisible(false);
 							vr3.setVisible(false);
-							
+
 							Notification notification = new Notification("Form Element Updated", 3000, Position.MIDDLE);
 							notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 							notification.open();
@@ -831,11 +821,11 @@ public class FormGridComponent extends VerticalLayout {
 								campaignFormMetaDto.setCampaignFormElements(using);
 								grid.setItems(campaignFormMetaDto.getCampaignFormElements());
 								getGridData();
-								
+
 								vr1.setVisible(true);
 								formLayout.setVisible(false);
 								vr3.setVisible(false);
-								
+
 								Notification notification = new Notification("Form Element Updated", 3000,
 										Position.MIDDLE);
 								notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
