@@ -19,10 +19,12 @@
 package de.symeda.sormas.app.campaign.edit;
 
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.symeda.sormas.api.MapperUtil;
@@ -53,9 +56,12 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.utils.DataHelper;
+import de.symeda.sormas.app.BaseEditActivity;
 import de.symeda.sormas.app.BaseEditFragment;
 import de.symeda.sormas.app.R;
+import de.symeda.sormas.app.backend.campaign.Campaign;
 import de.symeda.sormas.app.backend.campaign.data.CampaignFormData;
+import de.symeda.sormas.app.backend.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.app.backend.campaign.form.CampaignFormMeta;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
@@ -87,6 +93,7 @@ import static de.symeda.sormas.app.campaign.CampaignFormDataFragmentUtils.handle
 import static de.symeda.sormas.app.campaign.CampaignFormDataFragmentUtils.handleExpressionSec;
 import static de.symeda.sormas.app.campaign.CampaignFormDataFragmentUtils.setVisibilityDependency;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -118,7 +125,16 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
 
     //private List<CampaignFormTranslations> translationsOpt;
     private Map<String, String> userOptTranslations = null;
-
+    private Campaign campaign;
+//    private CampaignFormMeta campaignFormMeta;
+    private CampaignFormDataCriteria criteria = new CampaignFormDataCriteria();
+    private String initialLotNo = "";
+    private String lotChangedValue = "";
+    private String initialLotClusterNo = "";
+    private boolean lotNoChanged = false;
+    private boolean lotClusterNoChanged = false;
+    private boolean validateChecker = true;
+    int doubleLotChecker = 0;
 
     private SimpleDateFormat dateFormat;
 
@@ -133,6 +149,9 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
         final CampaignFormMeta campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().queryForId(record.getCampaignFormMeta().getId());
         final List<CampaignFormDataEntry> formValues = record.getFormValues();
         final List<CampaignFormTranslations> translationsOpt = record.getCampaignFormMeta().getCampaignFormTranslations();
+        campaign = DatabaseHelper.getCampaignDao().queryForId(record.getCampaign().getId());
+        criteria.setCampaign(campaign);
+        criteria.setCampaignFormMeta(campaignFormMeta);
 
 
         final Map<String, String> formValuesMap = new HashMap<>();
@@ -1077,7 +1096,23 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
                     } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                         dynamicField = createControlCheckBoxField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         ControlCheckBoxField.setValue((ControlCheckBoxField) dynamicField, Boolean.valueOf(value));
-                    } else if (type == CampaignFormElementType.NUMBER || type == CampaignFormElementType.DECIMAL) {
+                    }
+//                    else if (type == CampaignFormElementType.DROPDOWN ){
+//                        if(campaignFormElement.getId() == "LotClusterNo"){
+//                            dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
+//                            ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
+//                            dynamicField.addValueChangedListener(
+//                                  e->{
+//
+//                                      System.out.println("Value Changed ===============================" + e.getValue().toString());
+//                                  }
+//
+//                            );
+//                        }
+//                        dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
+//                        ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
+//                    }
+                    else if (type == CampaignFormElementType.DECIMAL) {
                         dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
                         ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
                     } else if (type == CampaignFormElementType.RANGE) {
@@ -1113,30 +1148,136 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
                         isdependingOn = true;
                     }
                     Boolean finalIsdependingOn = isdependingOn;
-                    dynamicField.addValueChangedListener(field -> {
-                        final Boolean isRangeandExpressionx = finalIsRangeandExpression;
-                        Boolean okk = field.getFocusedChild() != null ? true : false;
-                        final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
-                        campaignFormDataEntry.setValue(field.getValue());
-                        if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
-                            for (CampaignFormDataEntry det : formValues) {
-                                if (det.getValue() != null) {
-                                    if (det.getValue().toString().isEmpty()) {
-                                        det.setValue(null);
+                    if (type == CampaignFormElementType.RANGE && campaignFormElement.getId().equalsIgnoreCase("LotNo")) {
+                        initialLotNo = formValuesMap.get(campaignFormElement.getId());
+                        lotChangedValue = formValuesMap.get(campaignFormElement.getId());
+                        dynamicField.addValueChangedListener(field -> {
+                            if (field.getValue() != null) {
+                                if(initialLotNo != null) {
+                                    if ((Long.parseLong(field.getValue().toString()) - Long.parseLong(initialLotNo.toString()) != 0)) {
+                                        lotNoChanged = true;
                                     }
                                 }
+                                lotChangedValue = field.getValue().toString();
                             }
-                            expressionMap.forEach((formElement, controlPropertyField) ->
-                                    CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
-                        } else if (field.isFocused()) {
-                            System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" + fieldMap.get(campaignFormElement.getId()).getCaption());
+                        });
+                    }
+                    if (type == CampaignFormElementType.DROPDOWN && campaignFormElement.getId().equalsIgnoreCase("LotClusterNo")) {
+                        initialLotClusterNo = formValuesMap.get(campaignFormElement.getId());
+                        dynamicField.addValueChangedListener(field -> {
+                            baseEditActivity.setDataModified(true);
+                            criteria.setCommunity(record.getCommunity());
+                            List<CampaignFormData> lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
 
-                        }
-                        if (finalIsdependingOn && isRangeandExpressionx) {
-                            field.setVisibility(View.GONE);
-                        }
+                            List<String> listLotNo = new ArrayList();
+                            List<String> listLotClusterNo = new ArrayList();
 
-                    });
+                            if (field.getValue() != null) {
+
+                                if(initialLotClusterNo != null) {
+                                    if ((Long.parseLong(field.getValue().toString()) - Long.parseLong(initialLotClusterNo.toString()) != 0)) {
+                                        lotClusterNoChanged = true;
+                                    }
+                                }
+                                if(lotNoChanged || lotClusterNoChanged) {
+
+                                    CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
+                                    lotNo.setId("LotNo");
+                                    lotNo.setValue(lotChangedValue);
+                                    CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
+                                    lotClusterNo.setId("LotClusterNo");
+                                    lotClusterNo.setValue(field.getValue().toString());
+                                    if (lotchecker.size() > 0) {
+                                        for (CampaignFormData campaignFormDataData : lotchecker) {
+                                            List<CampaignFormDataEntry> lotOwnSec = campaignFormDataData.getFormValues();
+                                            for (CampaignFormDataEntry campaignFormDataEntry : lotOwnSec) {
+                                                if (campaignFormDataEntry.getId().equalsIgnoreCase(lotNo.getId().toString())) {
+                                                    listLotNo.add(campaignFormDataEntry.getValue().toString());
+                                                }
+                                                if (campaignFormDataEntry.getId().equalsIgnoreCase(lotClusterNo.getId().toString())) {
+                                                    listLotClusterNo.add(campaignFormDataEntry.getValue().toString());
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+                                    for (String string : listLotClusterNo) {
+                                    	
+                                        int index = listLotClusterNo.indexOf(string);
+                                        if (listLotNo.size() > 0) {
+                                            if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+                                                    && (Long.parseLong(listLotNo.get(index))
+                                                    - Long.parseLong(lotChangedValue) == 0)
+                                            ) {
+//                                                System.out.println((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+//                                                        && (Long.parseLong(listLotNo.get(index))
+//                                                        - Long.parseLong(lotNo.getValue().toString()) == 0));
+                                                doubleLotChecker = doubleLotChecker + 1;
+                                            }
+                                        }
+                                    }
+
+                                    if(doubleLotChecker > 0) {
+                                        validateChecker = false;
+                                    }
+                                    if (!validateChecker) {
+                                        showValidationError("Lot Cluster Number Already Exist for this Lot Number");
+                                    }
+                                } else {
+                                    System.out.println("didnt edit anythinggggggggggggggggggggggggggggg");
+                                }
+                            }
+                            final Boolean isRangeandExpressionx = finalIsRangeandExpression;
+                            Boolean okk = field.getFocusedChild() != null ? true : false;
+                            final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
+                            campaignFormDataEntry.setValue(field.getValue());
+                            if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
+                                for (CampaignFormDataEntry det : formValues) {
+                                    if (det.getValue() != null) {
+                                        if (det.getValue().toString().isEmpty()) {
+                                            det.setValue(null);
+                                        }
+                                    }
+                                }
+                                expressionMap.forEach((formElement, controlPropertyField) ->
+                                        CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
+                            } else if (field.isFocused()) {
+                                System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" + fieldMap.get(campaignFormElement.getId()).getCaption());
+
+                            }
+
+                            if (finalIsdependingOn && isRangeandExpressionx) {
+                                field.setVisibility(View.GONE);
+                            }
+
+                        });
+                    } else {
+                        dynamicField.addValueChangedListener(field -> {
+                            final Boolean isRangeandExpressionx = finalIsRangeandExpression;
+                            Boolean okk = field.getFocusedChild() != null ? true : false;
+                            final CampaignFormDataEntry campaignFormDataEntry = CampaignFormDataFragmentUtils.getOrCreateCampaignFormDataEntry(formValues, campaignFormElement);
+                            campaignFormDataEntry.setValue(field.getValue());
+                            if ((campaignFormElement.getExpression() == null && fieldMap.get(campaignFormElement.getId()) != null) || (okk && isRangeandExpressionx)) {
+                                for (CampaignFormDataEntry det : formValues) {
+                                    if (det.getValue() != null) {
+                                        if (det.getValue().toString().isEmpty()) {
+                                            det.setValue(null);
+                                        }
+                                    }
+                                }
+                                expressionMap.forEach((formElement, controlPropertyField) ->
+                                        CampaignFormDataFragmentUtils.handleExpressionSec(expressionParser, formValues, CampaignFormElementType.fromString(formElement.getType()), controlPropertyField, formElement.getExpression(), ignoreDisable, field.getValue()));
+                            } else if (field.isFocused()) {
+                                System.out.println(">>>>>>>>>>>>>>>>>ONFOCUSSS>>>>>>>>>>>>>>>>>>>>" + fieldMap.get(campaignFormElement.getId()).getCaption());
+
+                            }
+                            if (finalIsdependingOn && isRangeandExpressionx) {
+                                field.setVisibility(View.GONE);
+                            }
+
+                        });
+                    }
 
                     if (type == CampaignFormElementType.NUMBER && campaignFormElement.getId().equalsIgnoreCase("villageCode")) {
                         dynamicField.addValueChangedListener(e->{
@@ -1443,5 +1584,20 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
         if (user.getCommunity() != null) {
             contentBinding.campaignFormDataCommunity.setEnabled(false);
         }
+    }
+
+    private void showValidationError(String message) {
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+//                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(Color.RED);
+        });
+
+        dialog.show();
     }
 }
