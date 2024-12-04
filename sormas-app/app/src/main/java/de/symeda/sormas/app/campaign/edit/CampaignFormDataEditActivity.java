@@ -24,6 +24,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.PlatformEnum;
@@ -95,10 +96,12 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         campaign = DatabaseHelper.getCampaignDao().queryUuid(campaignFormDataToSave.getCampaign().getUuid());
         campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().queryUuid(campaignFormDataToSave.getCampaignFormMeta().getUuid());
         boolean saveChecker = true;
+        int doubleLotChecker = 0;
         criteria.setCampaign(campaign);
         criteria.setCampaignFormMeta(campaignFormMeta);
         criteria.setCommunity(campaignFormDataToSave.getCommunity());
-        List<CampaignFormData> lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
+        List<CampaignFormData> lotchecker = new ArrayList<>();
+        lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
 
         System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>edit>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>__");
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
@@ -142,34 +145,94 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         List<String> listLotNo = new ArrayList();
         List<String> listLotClusterNo = new ArrayList();
 
+        System.out.println(lotchecker.size() + " weweeeeeeeeeeeeeeeeeeeeeeeeeeeeedddddd");
         if (lotchecker.size() > 0) {
             for (CampaignFormData campaignFormDataData : lotchecker) {
                 List<CampaignFormDataEntry> lotOwnSec = campaignFormDataData.getFormValues();
-                if (lotOwnSec.contains(lotNo)) {
-                    listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
+
+                for (CampaignFormDataEntry campaignFormDataEntry : lotOwnSec) {
+                    System.out.println(lotOwnSec);
+                    System.out.println(campaignFormDataEntry.getId() + " all iddddddddddddddddddddddddddddddddddddddds");
+//                    &&
+//                    Objects.equals(Long.parseLong(campaignFormDataEntry.getValue().toString()), Long.parseLong(lotNo.getValue().toString()))
+                    if (campaignFormDataEntry.getId().equalsIgnoreCase(lotNo.getId().toString())) {
+
+                        System.out.println("iddd from for loop " + campaignFormDataEntry.getId()+" iddddddddddd from lotno "+ lotNo.getId().toString());
+                        System.out.println("result " + Objects.equals(Long.parseLong(campaignFormDataEntry.getValue().toString()), Long.parseLong(lotNo.getValue().toString())));
+                        System.out.println("lot no value from for loop " + Long.parseLong(campaignFormDataEntry.getValue().toString()));
+                        System.out.println("lot no value from lot number " + Long.parseLong(lotNo.getValue().toString()));
+
+                        listLotNo.add(campaignFormDataEntry.getValue().toString());
+                    }
+
+//                    &&
+//                    Objects.equals(Long.parseLong(campaignFormDataEntry.getValue().toString()), Long.parseLong(lotClusterNo.getValue().toString()))
+                    if (campaignFormDataEntry.getId().equalsIgnoreCase(lotClusterNo.getId().toString())) {//LotClusterNo
+
+                        System.out.println("iddd from for loop " + campaignFormDataEntry.getId()+" iddddddddddd from lotclusterno "+ lotClusterNo.getId().toString());
+                        System.out.println("result " + Objects.equals(Long.parseLong(campaignFormDataEntry.getValue().toString()), Long.parseLong(lotClusterNo.getValue().toString())));
+                        System.out.println("lotclusterno value from for loop " + Long.parseLong(campaignFormDataEntry.getValue().toString()));
+                        System.out.println("lotclusterno no value from lot number " + Long.parseLong(lotClusterNo.getValue().toString()));
+
+                        listLotClusterNo.add(campaignFormDataEntry.getValue().toString());
+                    }
+
                 }
 
-                if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
-                    listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
-                }
             }
         }
 
+//        if (lotchecker.size() > 0) {
+//            for (CampaignFormData campaignFormDataData : lotchecker) {
+//                List<CampaignFormDataEntry> lotOwnSec = campaignFormDataData.getFormValues();
+//                System.out.println(lotOwnSec);
+//                if (lotOwnSec.contains(lotNo)) {
+//                    System.out.println("lot number adding eeeeeeeeeeeeeeeeeeeeeeee");
+//                    listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
+//                }
+//                System.out.println("run hereeeeeeeeeeeeee");
+//                if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
+//                    System.out.println("lot cluster number adding trackerrrrrrrrrrrrrr " + lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
+//                    listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
+//                }
+//            }
+//        }
+
         for (String string : listLotClusterNo) {
+            int index = listLotClusterNo.indexOf(string);
+            System.out.println(string + " valueeeeeeeeeeeeeddddssssssss");
+            System.out.println(lotClusterNo.getValue().toString() + " ghghghghghghghghghghgh");
+            System.out.println(listLotNo.get(index) + " sizeeeeeeeeeeeeedededddddddddddddddd");
+            System.out.println(lotNo.getValue().toString() + "qaqaqaqaqaqqqqqqqaaaaaaaaaaa");
             if (listLotNo.size() > 0) {
             if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
-                        && (Long.parseLong(listLotNo.get(0))
+                        && (Long.parseLong(listLotNo.get(index))
                         - Long.parseLong(lotNo.getValue().toString()) == 0)
             ) {
-                saveChecker = false;
-                break;
+                System.out.println("ghhhhhhhhhhhhhhh " + (Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0));
+                System.out.println("jhhhhhhhhhhhhhhh " + (Long.parseLong(listLotNo.get(index)) - Long.parseLong(lotNo.getValue().toString()) == 0));
+                System.out.println((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
+                        && (Long.parseLong(listLotNo.get(index))
+                        - Long.parseLong(lotNo.getValue().toString()) == 0));
+                System.out.println();
+                System.out.println("cluster number " +string + " cluster number from form " + lotClusterNo.getValue().toString());
+                System.out.println("lot number " +listLotNo.get(index) + " lot number from form " + lotNo.getValue().toString());
+                System.out.println(doubleLotChecker + " beforeeeeeeeeeeeeeeeeeee");
+                doubleLotChecker = doubleLotChecker + 1;
+                System.out.println(doubleLotChecker + " afterrrrrrrrrrrrrrrrrrrr");
             }
             }
+        }
+
+        System.out.println("popopopopopopopopopopopopopopopopopopopopopopopopopopopopopopop");
+        if(doubleLotChecker > 1) {
+            System.out.println("falseeeeeeeeeeeeeeeeeeeeeeekikikikikiki");
+            saveChecker = false;
         }
         campaignFormDataToSave.setFormValues(filledFormValues);
         campaignFormDataToSave.setSoruce(PlatformEnum.MOBILE);
 
-        if (saveChecker) {
+//        if (saveChecker) {
         saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 
             @Override
@@ -189,10 +252,10 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
                 saveTask = null;
             }
         }.executeOnThreadPool();
-        } else {
-            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
-            return;
-        }
+//        } else {
+//            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
+//            return;
+//        }
     }
 
     @Override
