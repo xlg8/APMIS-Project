@@ -496,6 +496,7 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				switch (sortProperty.propertyName) {
 				case CampaignFormDataIndexDto.UUID:
 				case CampaignFormDataIndexDto.FORM_DATE:
+				case CampaignFormDataIndexDto.SOURCE:
 					expression = root.get(sortProperty.propertyName);
 					break;
 				case CampaignFormDataIndexDto.CAMPAIGN:
@@ -542,6 +543,10 @@ public class CampaignFormDataFacadeEjb implements CampaignFormDataFacade {
 				case CampaignFormDataIndexDto.ISPUBLISHED:
 					expression = campaignFormMetaJoin.get(CampaignFormData.ISPUBLISHED);
 					break;
+					
+				
+				
+
 
 				case CampaignFormDataIndexDto.FORM_VALUES:
 					System.out.println("formvaluee eee");
@@ -3744,6 +3749,7 @@ if(criteria.getUserLanguage() != null) {
 
 		if (!filterIsNull) {
 			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto campaignForm = criteria.getCampaignFormMeta();
 			final AreaReferenceDto area = criteria.getArea();
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
@@ -3751,21 +3757,15 @@ if(criteria.getUserLanguage() != null) {
 		//@formatter:off
 		
 		final String campaignFilter = campaign != null ? "analyticz.campaigns_uuid = '"+campaign.getUuid()+"'" : "";
+		final String campaignFormFilter = campaignForm != null ? " AND analyticz.formuuid = '"+campaignForm.getUuid()+"'" : "";
 		final String areaFilter = area != null ? "AND analyticz.areas_uuid = '"+area.getUuid()+"'" : "";
 		final String regionFilter = region != null ? " AND analyticz.region_uuid = '"+region.getUuid()+"'" : "";
 		final String districtFilter = district != null ? " AND analyticz.district_uuid = '"+district.getUuid()+"'" : "";
 		
-		joiner = "where " + campaignFilter + areaFilter + regionFilter + districtFilter ;
-		
-//		System.out.println(campaignFilter+" =========ADMINNN============ "+joiner);
+		joiner = "where " + campaignFilter + campaignFormFilter + areaFilter + regionFilter + districtFilter ;
 		}
-		
-		
 
 		String orderby = " ";
-//		System.out.println(" ====orderbyorderb++ "+sortProperties.size());
-		
-		
 		
 		if (sortProperties != null && sortProperties.size() > 0) {
 			for (SortProperty sortProperty : sortProperties) {
@@ -3821,8 +3821,8 @@ if(criteria.getUserLanguage() != null) {
 		
 		
 		final String joinBuilder = "select analyticz.area as area_, analyticz.region as region_, analyticz.district as district_, commut.name as communit_name, commut.clusternumber as clusternumber_, commut.externalid as ccode,\n"
-				+ "analyticz.day1, analyticz.day2, analyticz.day3, analyticz.day4, analyticz.campaigns_uuid\n"
-				+ "from camapaigndata_admin analyticz\n"
+				+ "analyticz.day1, analyticz.day2, analyticz.day3, analyticz.day4, analyticz.day5, analyticz.day6, analyticz.day7, analyticz.campaigns_uuid, analyticz.formuuid\n"
+				+ "from camapaigndata_adminxx analyticz\n"
 				+ "left outer join community commut on analyticz.community_uuid = commut.uuid\n"
 				+ ""+joiner+"\n"
 				+ orderby
@@ -3844,14 +3844,21 @@ if(criteria.getUserLanguage() != null) {
 		
 		
 		resultData.addAll(resultList.stream()
-				.map((result) -> new CampaignFormDataIndexDto((String) result[0].toString(), (String) result[1].toString(),
-						(String) result[2].toString(), (String) result[3].toString(),
+				.map((result) -> new CampaignFormDataIndexDto(
+						(String) result[0].toString(), 
+						(String) result[1].toString(),
+						(String) result[2].toString(), 
+						(String) result[3].toString(),
 						(Integer) result[4], 
 						((BigInteger) result[5]).longValue(),						
-						((BigDecimal) result[6]).intValue(),
-						((BigDecimal) result[7]).intValue(),
-						((BigDecimal) result[8]).intValue(),
-						((BigDecimal) result[9]).intValue()
+						(Integer) result[6],
+						(Integer)result[7],
+						(Integer) result[8],
+						(Integer) result[9],
+						(Integer) result[10],
+						(Integer)result[11],
+						(Integer)result[12],
+						((String) result[13]).toString()
 				)).collect(Collectors.toList()));
 		
 	//	//System.out.println("ending...." +resultData.size());
@@ -3876,22 +3883,24 @@ if(criteria.getUserLanguage() != null) {
 
 		if (!filterIsNull && criteria != null) {
 			final CampaignReferenceDto campaign = criteria.getCampaign();
+			final CampaignFormMetaReferenceDto campaignForm = criteria.getCampaignFormMeta();
 			final AreaReferenceDto area = criteria.getArea();
 			final RegionReferenceDto region = criteria.getRegion();
 			final DistrictReferenceDto district = criteria.getDistrict();
 
 			//@formatter:off
 			final String campaignFilter = campaign != null ? "campaigns_uuid = '"+campaign.getUuid()+"'" : "";
+			final String campaignFormFilter = campaignForm != null ? " AND analyticz.formuuid = '"+campaignForm.getUuid()+"'" : "";
 			final String areaFilter = area != null ? " AND  areas_uuid = '"+area.getUuid()+"'" : "";
 			final String regionFilter = region != null ? " AND region_uuid = '"+region.getUuid()+"'" : "";
 			final String districtFilter = district != null ? " AND district_uuid = '"+district.getUuid()+"'" : "";
-			joiner = "where "+campaignFilter +areaFilter + regionFilter + districtFilter ;
+			joiner = "where "+campaignFilter + campaignFormFilter + areaFilter + regionFilter + districtFilter ;
 			
 //			System.out.println(campaignFilter+" ===================== "+joiner);
 		}
 		
 		final String joinBuilder = "select count(*)\n"
-				+ "from camapaigndata_admin\n"
+				+ "from camapaigndata_adminxx\n"
 				+ ""+joiner+";";
 		
 		
@@ -3899,7 +3908,7 @@ if(criteria.getUserLanguage() != null) {
 		
 		// Construct count query
 		final String countQuery = "select count(*) "
-		        + "from camapaigndata_admin analyticz "
+		        + "from camapaigndata_adminxx analyticz "
 		        + "left outer join community commut on analyticz.community_uuid = commut.uuid "
 		        + joiner;
 

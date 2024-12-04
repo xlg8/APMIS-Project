@@ -193,7 +193,7 @@ private char csvSeparator;
 
 			file_ = new File(buffer.getFilename());
 			startDataImport.setVisible(false);
-			startImportDryRun.setVisible(true);
+//			startImportDryRun.setVisible(true);
 
 		});
 

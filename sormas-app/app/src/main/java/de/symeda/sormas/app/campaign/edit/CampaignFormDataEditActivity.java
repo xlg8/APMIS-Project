@@ -128,6 +128,7 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
 //        formValues.forEach(campaignFormDataEntry ->
         for(CampaignFormDataEntry campaignFormDataEntry : formValues) {
             if (campaignFormDataEntry.getId() != null && campaignFormDataEntry.getValue() != null) {
+                campaignFormDataEntry.getValue().toString().replaceAll(".0","");
                 filledFormValues.add(campaignFormDataEntry);
                 if (campaignFormDataEntry.getId().equalsIgnoreCase("LotNo")) {
                     lotNo = campaignFormDataEntry;
@@ -155,21 +156,11 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
             }
         }
 
-        for (String string : listLotClusterNo) {
-            if (listLotNo.size() > 0) {
-            if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
-                        && (Long.parseLong(listLotNo.get(0))
-                        - Long.parseLong(lotNo.getValue().toString()) == 0)
-            ) {
-                saveChecker = false;
-                break;
-            }
-            }
-        }
+
         campaignFormDataToSave.setFormValues(filledFormValues);
         campaignFormDataToSave.setSoruce(PlatformEnum.MOBILE);
 
-        if (saveChecker) {
+//        if (saveChecker) {
         saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 
             @Override
@@ -189,10 +180,11 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
                 saveTask = null;
             }
         }.executeOnThreadPool();
-        } else {
-            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
-            return;
-        }
+//        }
+//        else {
+//            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
+//            return;
+//        }
     }
 
     @Override

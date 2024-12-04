@@ -80,6 +80,7 @@ import de.symeda.sormas.api.campaign.CampaignPhase;
 import de.symeda.sormas.api.campaign.CampaignReferenceDto;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataCriteria;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataDto;
+import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.CampaignFormDataIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormElement;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
@@ -1350,17 +1351,18 @@ public class CampaignDataView extends VerticalLayout
 
 		if (formName.toString().contains("Day 1")) {
 
-			DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedDaywiseDataUtility();
-			transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFromIndexList(
+			DownloadTransposedDaywiseDataUtility downloadTransposedDaywiseICMDataUtility = new DownloadTransposedDaywiseDataUtility();
+			transposdeDataAnchor.setHref(downloadTransposedDaywiseICMDataUtility.createTransposedDataFromIndexList(
 					transposedDataCriteria, formName, campaignz.getValue().toString()));
-			transposdeDataDictionaryAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFormExpressions(transposedDataCriteria));
+			transposdeDataDictionaryAnchor.setHref(downloadTransposedDaywiseICMDataUtility.createTransposedDataFormExpressions(transposedDataCriteria));
+
 
 		} else if (formName.toString().contains("LQAS")) {
 
-			DownloadTransposedLqasDataUtility downloadTransposedDaywiseDataUtility = new DownloadTransposedLqasDataUtility();
-			transposdeDataAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedLqasDataFromIndexList(
+			DownloadTransposedLqasDataUtility downloadTransposedLqasDaywiseDataUtility = new DownloadTransposedLqasDataUtility();
+			transposdeDataAnchor.setHref(downloadTransposedLqasDaywiseDataUtility.createTransposedLqasDataFromIndexList(
 					transposedDataCriteria, formName, campaignz.getValue().toString()));
-			transposdeDataDictionaryAnchor.setHref(downloadTransposedDaywiseDataUtility.createTransposedDataFormExpressions(transposedDataCriteria));
+			transposdeDataDictionaryAnchor.setHref(downloadTransposedLqasDaywiseDataUtility.createTransposedDataFormExpressions(transposedDataCriteria));
 
 		}
 
@@ -2243,19 +2245,48 @@ public class CampaignDataView extends VerticalLayout
 	public void addCustomColumn(String property, String caption) {
 		if (!property.toString().contains("readonly")) {
 //			System.out.println(caption + "_--------------------UUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
-			grid.addColumn(
-					e -> e.getFormValues().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null))
-					.setHeader(caption)
-//							createHeaderComponent(caption, caption))
-					.setFooter(property).setSortProperty(property).setSortable(false).setResizable(true)
-					.setAutoWidth(true)
-					.setTooltipGenerator(e -> caption + " : " + e.getFormValues().stream()
-							.filter(v -> v.getId().equals(property)).findFirst().orElse(null))
-					.setClassNameGenerator(item -> "full-width-column");
+			grid.addColumn(e -> {
+		    return removeTrailingDecimal(e.getFormValues().stream()
+	                    .filter(v -> v.getId().equals(property))
+	                    .findFirst()
+	                    .orElse(null));
+			})
+			.setHeader(caption)
+			.setFooter(property)
+			.setSortProperty(property)
+			.setSortable(false)
+			.setResizable(true)
+			.setAutoWidth(true)
+			.setTooltipGenerator(e -> caption + " : " + 
+				    removeTrailingDecimal(e.getFormValues().stream()
+				    .filter(v -> v.getId().equals(property))
+				    .findFirst()
+				    .orElse(null)))
+			.setClassNameGenerator(item -> "full-width-column");
+
+			
+//			grid.addColumn(
+//					e -> e.getFormValues().stream().filter(v -> v.getId().equals(property)).findFirst().orElse(null))
+//			 		.setHeader(caption)
+////							createHeaderComponent(caption, caption))
+//					.setFooter(property).setSortProperty(property).setSortable(false).setResizable(true)
+//					.setAutoWidth(true)
+//					.setTooltipGenerator(e -> caption + " : " + e.getFormValues().stream()
+//							.filter(v -> v.getId().equals(property)).findFirst().orElse(null))
+//					.setClassNameGenerator(item -> "full-width-column");
 
 		}
 
 	}
+	
+	private String removeTrailingDecimal(CampaignFormDataEntry value) {
+		String valueCleaned = value == null ? null :  value.toString();
+	    if (valueCleaned != null && valueCleaned.endsWith(".0")) {
+	        return valueCleaned.substring(0, valueCleaned.length() - 2);
+	    }
+	    return valueCleaned;
+	}
+
 
 	public void updateRowCount() {
 		int numberOfRows = (int) FacadeProvider.getCampaignFormDataFacade().count(criteria);

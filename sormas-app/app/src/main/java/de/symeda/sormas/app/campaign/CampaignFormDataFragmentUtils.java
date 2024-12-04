@@ -97,10 +97,10 @@ public class CampaignFormDataFragmentUtils {
                          //   System.out.println(orginalValue+ "++++++++++++22222222++++++++++++++++ " + valudex);
                             if (orginalValue != null) {
                                 if (!orginalValue.toString().equals(valudex)) {
-                                  //  System.out.println(orginalValue + "++++++++++++2222333++++++++++++++++ " + valudex);
+                                    System.out.println(orginalValue + "from handlesec++++++++++++2222333++++++++++++++++ " + valudex);
                                     if (!(orginalValue.toString().isEmpty() && valudex == null)) {
                                         //   if (!valudex.isEmpty() && !orginalValue.toString().equals(valudex)) {
-                                   //     System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
+                                        System.out.println("from handlesec++++++++++++333333333++++++++++++++++ " + valudex);
                                         ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString().equals("0") ? null : expressionValue.toString().endsWith(".0") ? expressionValue.toString().replace(".0", "") : expressionValue.toString());
                                         // }
                                     }
@@ -132,9 +132,27 @@ public class CampaignFormDataFragmentUtils {
                         // }
                     }
 
+                    // Segun alleged Fix
+//                    else{
+//                        System.out.println(dynamicField.getCaption() + "EXPRESSION VALUE IS NOT NULLLLLLLLLLLLLLL+++++++++++111111+++++++++++++++++ " + valuex);
+//                        if (type == CampaignFormElementType.RANGE) {
+//                            System.out.println("+++++++++++111111+++++++++++++++++ " + valuex);
+//                            String valudex = valuex.equals("0") ? null : valuex.endsWith(".0") ? valuex.replace(".0", "") : valuex;
+//                            System.out.println("++++++++++++22222222++++++++++++++++ " + valudex);
+//                            if (valudex != null) {
+//                                if (!valudex.isEmpty()) {
+//                                    System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
+//                                    ControlTextEditField.setValue((ControlTextEditField) dynamicField, valudex);
+//                                }
+//                            }
+//                        }
+//                    }
+
 
                 }
 
+
+            }else{
 
             }
         } catch (SpelEvaluationException e) {
@@ -180,11 +198,11 @@ public class CampaignFormDataFragmentUtils {
                             if (valudex != null) {
                                 if (!valudex.isEmpty()) {
                                     System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
-                                    ControlTextEditField.setValue((ControlTextEditField) dynamicField, valudex);
+                                    ControlTextEditField.setValue((ControlTextEditField) dynamicField, valudex.replace(".0",""));
                                 }
                             }
                         } else if (type == CampaignFormElementType.NUMBER) {
-                            ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString().equals("0") ? "0" : (expressionValue.toString().endsWith(".0") ? expressionValue.toString().replace(".0", "") : expressionValue.toString()));
+                            ControlTextEditField.setValue((ControlTextEditField) dynamicField, expressionValue.toString().equals("0") ? "0" : (expressionValue.toString().contains(".0") ? expressionValue.toString().replace(".0", "") : expressionValue.toString()));
 
                         } else if (expressionValue.getClass().isAssignableFrom(Boolean.class)) {
                             ControlTextEditField.setValue((ControlTextEditField) dynamicField, (Double) (!Double.isFinite((double) expressionValue) ? 0 : expressionValue.toString().endsWith(".0") ? expressionValue.toString().replace(".0", "") : df.format((double) expressionValue)));
@@ -198,6 +216,21 @@ public class CampaignFormDataFragmentUtils {
                         //     dynamicField.setEnabled(isDisIgnore);
                         // }
                     }
+                    // Segun alleged Fix
+//                    else{
+//                        System.out.println(dynamicField.getCaption() + "EXPRESSION VALUE IS NOT NULLLLLLLLLLLLLLL+++++++++++111111+++++++++++++++++ " + valuex);
+//                        if (type == CampaignFormElementType.RANGE) {
+//                            System.out.println("+++++++++++111111+++++++++++++++++ " + valuex);
+//                            String valudex = valuex.equals("0") ? null : valuex.endsWith(".0") ? valuex.replace(".0", "") : valuex;
+//                            System.out.println("++++++++++++22222222++++++++++++++++ " + valudex);
+//                            if (valudex != null) {
+//                                if (!valudex.isEmpty()) {
+//                                    System.out.println("++++++++++++333333333++++++++++++++++ " + valudex);
+//                                    ControlTextEditField.setValue((ControlTextEditField) dynamicField, valudex);
+//                                }
+//                            }
+//                        }
+//                    }
 
 
                 }
@@ -296,6 +329,9 @@ public class CampaignFormDataFragmentUtils {
             dependingOnValues = dependingOnValues.replace("!", "");
             if (dependingOnValues.contains(parsedDependingOnFieldValue)) {
                 field.setVisibility(View.GONE);
+                if(field.getValue() != null){
+                    field.setValue(null);
+                }
             } else {
 
                 field.setVisibility(View.VISIBLE);
@@ -310,6 +346,9 @@ public class CampaignFormDataFragmentUtils {
                 System.out.println(parsedDependingOnFieldValue+ " GONE   "+field.getCaption()+"   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22>>>>>>>> "+dependingOnFieldValue);
 
                  field.setVisibility(View.GONE);
+                 if(field.getValue() != null){
+                     field.setValue(null);
+                 }
             }
         }
     }

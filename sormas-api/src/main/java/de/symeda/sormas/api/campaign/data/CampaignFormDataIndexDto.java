@@ -94,6 +94,10 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 	private Integer analysis_b_;
 	private Integer analysis_c_;
 	private Integer analysis_d_;
+	private Integer analysis_e_;
+	private Integer analysis_f_;
+	private Integer analysis_g_;
+
 
 	private boolean isverified;
 	private boolean ispublished;
@@ -239,6 +243,45 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 		this.analysis_b_ = analysis_b_;
 		this.analysis_c_ = analysis_c_;
 		this.analysis_d_ = analysis_d_;
+	}
+	
+	public CampaignFormDataIndexDto(String area, String region, String district, String community, Integer clusternumer,
+			// Long clusternumber_,
+			Long ccode, Integer analysis_a_, Integer analysis_b_, Integer analysis_c_, Integer analysis_d_, String form) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.clusternumber = clusternumer;
+		// this.clusternumber_ = clusternumber_;
+		this.ccode = ccode;
+		this.analysis_a_ = analysis_a_;
+		this.analysis_b_ = analysis_b_;
+		this.analysis_c_ = analysis_c_;
+		this.analysis_d_ = analysis_d_;
+		this.form = form;
+	}
+	
+	public CampaignFormDataIndexDto(
+			String area, String region, String district, String community, 
+			Integer clusternumer,
+			// Long clusternumber_,
+			Long ccode, Integer analysis_a_, Integer analysis_b_, Integer analysis_c_, Integer analysis_d_, Integer analysis_e_, Integer analysis_f_, Integer analysis_g_, String form) {
+		this.area = area;
+		this.region = region;
+		this.district = district;
+		this.community = community;
+		this.clusternumber = clusternumer;
+		// this.clusternumber_ = clusternumber_;
+		this.ccode = ccode;
+		this.analysis_a_ = analysis_a_;
+		this.analysis_b_ = analysis_b_;
+		this.analysis_c_ = analysis_c_;
+		this.analysis_d_ = analysis_d_;
+		this.analysis_e_ = analysis_e_;
+		this.analysis_f_ = analysis_f_;
+		this.analysis_g_ = analysis_g_;
+		this.form = form;
 	}
 
 	public CampaignFormDataIndexDto(String uuid, String campaign, String form, Object formValues, String area,
@@ -465,6 +508,32 @@ public class CampaignFormDataIndexDto implements Serializable, Cloneable {
 
 	public void setAnalysis_d_(Integer analysis_d_) {
 		this.analysis_d_ = analysis_d_;
+	}
+	
+	
+
+	public Integer getAnalysis_e_() {
+		return analysis_e_;
+	}
+
+	public void setAnalysis_e_(Integer analysis_e_) {
+		this.analysis_e_ = analysis_e_;
+	}
+
+	public Integer getAnalysis_f_() {
+		return analysis_f_;
+	}
+
+	public void setAnalysis_f_(Integer analysis_f_) {
+		this.analysis_f_ = analysis_f_;
+	}
+
+	public Integer getAnalysis_g_() {
+		return analysis_g_;
+	}
+
+	public void setAnalysis_g_(Integer analysis_g_) {
+		this.analysis_g_ = analysis_g_;
 	}
 
 	public String getError_status() {

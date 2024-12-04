@@ -198,8 +198,8 @@ private char csvSeparator;
 		upload.addSucceededListener(event -> {
 
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(false);
-			startImportDryRun.setVisible(true);
+			startDataImport.setVisible(true);
+//			startImportDryRun.setVisible(true);
 
 		});
 

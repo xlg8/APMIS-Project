@@ -181,9 +181,9 @@ public class ImportPopulationDataDialog extends Dialog {
 
 			file_ = new File(buffer.getFilename());
 
-			startDryRunImport.setVisible(true);
+//			startDryRunImport.setVisible(false);
 
-			startDataImport.setVisible(false);
+			startDataImport.setVisible(true);
 
 		});
 

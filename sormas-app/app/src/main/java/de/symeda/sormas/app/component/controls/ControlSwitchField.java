@@ -506,9 +506,10 @@ public class ControlSwitchField extends ControlPropertyEditField<Object> {
 			if (enumClass != null) {
 			view.setEnumClass((Class<? extends Enum>) enumClass);
 		}
+		System.out.println(value + "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV888888888888888888888888");
 
 		if (value != null) {
-			value = value.equals("YES") || value.equals("Yes") ? 0 : 1;
+			value = value.toString().equalsIgnoreCase("yes") || value.toString().equalsIgnoreCase("true") ? 0 : value.toString().equalsIgnoreCase("no") || value.toString().equalsIgnoreCase("false") ? 1 : 0;
 		} else{
 			value = defaultValue;
 		}
