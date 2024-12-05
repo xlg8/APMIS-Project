@@ -1096,23 +1096,7 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
                     } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                         dynamicField = createControlCheckBoxField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         ControlCheckBoxField.setValue((ControlCheckBoxField) dynamicField, Boolean.valueOf(value));
-                    }
-//                    else if (type == CampaignFormElementType.DROPDOWN ){
-//                        if(campaignFormElement.getId() == "LotClusterNo"){
-//                            dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
-//                            ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
-//                            dynamicField.addValueChangedListener(
-//                                  e->{
-//
-//                                      System.out.println("Value Changed ===============================" + e.getValue().toString());
-//                                  }
-//
-//                            );
-//                        }
-//                        dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
-//                        ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
-//                    }
-                    else if (type == CampaignFormElementType.DECIMAL) {
+                    } else if (type == CampaignFormElementType.DECIMAL) {
                         dynamicField = CampaignFormDataFragmentUtils.createControlTextEditField(campaignFormElement, requireContext(), CampaignFormDataFragmentUtils.getUserTranslations(campaignFormMeta), true, campaignFormElement.isImportant());
                         ControlTextEditField.setValue((ControlTextEditField) dynamicField, value);
                     } else if (type == CampaignFormElementType.RANGE) {

@@ -95,13 +95,6 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         final CampaignFormData campaignFormDataToSave = getStoredRootEntity();
         campaign = DatabaseHelper.getCampaignDao().queryUuid(campaignFormDataToSave.getCampaign().getUuid());
         campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().queryUuid(campaignFormDataToSave.getCampaignFormMeta().getUuid());
-        boolean saveChecker = true;
-        int doubleLotChecker = 0;
-        criteria.setCampaign(campaign);
-        criteria.setCampaignFormMeta(campaignFormMeta);
-        criteria.setCommunity(campaignFormDataToSave.getCommunity());
-        List<CampaignFormData> lotchecker = new ArrayList<>();
-        lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
 
         System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>edit>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>__");
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
@@ -125,19 +118,10 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         final List<CampaignFormDataEntry> formValues = campaignFormDataToSave.getFormValues();
         final List<CampaignFormDataEntry> filledFormValues = new ArrayList<>();
 
-        CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
-        CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
-
 //        formValues.forEach(campaignFormDataEntry ->
         for(CampaignFormDataEntry campaignFormDataEntry : formValues) {
             if (campaignFormDataEntry.getId() != null && campaignFormDataEntry.getValue() != null) {
                 filledFormValues.add(campaignFormDataEntry);
-                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotNo")) {
-                    lotNo = campaignFormDataEntry;
-                }
-                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotClusterNo")) {
-                    lotClusterNo = campaignFormDataEntry;
-                }
             }
         }
 //        );
@@ -146,7 +130,6 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         campaignFormDataToSave.setFormValues(filledFormValues);
         campaignFormDataToSave.setSoruce(PlatformEnum.MOBILE);
 
-//        if (saveChecker) {
         saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 
             @Override
@@ -166,7 +149,6 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
                 saveTask = null;
             }
         }.executeOnThreadPool();
-
     }
 
     @Override
