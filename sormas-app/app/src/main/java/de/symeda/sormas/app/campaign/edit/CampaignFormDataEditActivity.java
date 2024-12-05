@@ -125,11 +125,12 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         final List<CampaignFormDataEntry> formValues = campaignFormDataToSave.getFormValues();
         final List<CampaignFormDataEntry> filledFormValues = new ArrayList<>();
 
-   
+        CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
+        CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
+
 //        formValues.forEach(campaignFormDataEntry ->
         for(CampaignFormDataEntry campaignFormDataEntry : formValues) {
             if (campaignFormDataEntry.getId() != null && campaignFormDataEntry.getValue() != null) {
-                campaignFormDataEntry.getValue().toString().replaceAll(".0","");
                 filledFormValues.add(campaignFormDataEntry);
                 if (campaignFormDataEntry.getId().equalsIgnoreCase("LotNo")) {
                     lotNo = campaignFormDataEntry;

@@ -149,9 +149,9 @@ public class CampaignFormDataEditFragment extends BaseEditFragment<FragmentCampa
         final CampaignFormMeta campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().queryForId(record.getCampaignFormMeta().getId());
         final List<CampaignFormDataEntry> formValues = record.getFormValues();
         final List<CampaignFormTranslations> translationsOpt = record.getCampaignFormMeta().getCampaignFormTranslations();
-        campaign = DatabaseHelper.getCampaignDao().queryForId(record.getCampaign().getId());
-        criteria.setCampaign(campaign);
-        criteria.setCampaignFormMeta(campaignFormMeta);
+//        campaign = DatabaseHelper.getCampaignDao().queryForId(record.getCampaign().getId());
+//        criteria.setCampaign(campaign);
+//        criteria.setCampaignFormMeta(campaignFormMeta);
 
 
         final Map<String, String> formValuesMap = new HashMap<>();
