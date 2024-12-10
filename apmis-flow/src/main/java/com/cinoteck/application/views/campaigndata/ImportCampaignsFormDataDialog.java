@@ -195,8 +195,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		upload.addSucceededListener(event -> {
 			file_ = new File(buffer.getFilename());
-			startDataImport.setVisible(false);
-			startImportDryRun.setVisible(true);
+			startDataImport.setVisible(true);
+//			startImportDryRun.setVisible(true);
 
 		});
 
@@ -205,7 +205,8 @@ public class ImportCampaignsFormDataDialog extends Dialog {
 
 		startDataImport.addClickListener(ed -> {
 			I18nProperties.setUserLanguage(usr.getUser().getLanguage());
-			startIntervalCallback();
+//			startIntervalCallback();
+			resetImportState();
 			try {
 
 				DataImporter importer = new CampaignFormDataImporter(file_, false, userDto, campaignForm.getUuid(),

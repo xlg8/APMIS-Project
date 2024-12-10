@@ -3172,6 +3172,39 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 					break;
 
+				case 344:
+					currentVersion = 344;
+					getDao(CampaignFormData.class).executeRaw(
+							"CREATE TRIGGER remove_dot_zero_from_formvalues \n" +
+							"AFTER INSERT ON campaignformdata \n" +
+							"BEGIN \n" +
+							"UPDATE campaignformdata \n" +
+							"SET formvalues = ( \n" +
+							"SELECT json_group_array( \n" +
+							"json_object( \n" +
+							"'id', json_extract(item.value, '$.id'), \n" +
+							"'value', \n" +
+							"CASE \n" +
+
+							"WHEN json_type(json_extract(item.value, '$.value')) = 'number' \n" +
+							"AND json_extract(item.value, '$.value') LIKE '%.0' \n" +
+							"THEN CAST(json_extract(item.value, '$.value') AS INTEGER) \n" +
+
+
+							"WHEN json_type(json_extract(item.value, '$.value')) = 'text' \n" +
+							"AND json_extract(item.value, '$.value') LIKE '%.0' \n" +
+							"THEN SUBSTR(json_extract(item.value, '$.value'), 1, LENGTH(json_extract(item.value, '$.value')) - 2) \n" +
+
+
+							"ELSE json_extract(item.value, '$.value') \n" +
+							"END \n" +
+							") \n" +
+							") \n" +
+							"FROM json_each(formvalues) AS item \n" +
+							") \n" +
+							"WHERE rowid = NEW.rowid; \n" +
+							"END;");
+
 
 				default:
 					throw new IllegalStateException("onUpgrade() with unknown oldVersion " + oldVersion);

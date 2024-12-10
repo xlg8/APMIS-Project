@@ -106,11 +106,12 @@ public class CampaignFormDataImporter extends DataImporter {
 		this.campaignDto = campaignDto;
 		this.userFacade = FacadeProvider.getUserFacade();
 	}
+	
 
 	@Override
 	public void startImport(File file, Consumer<StreamResource> addErrorReportToLayoutCallback, Consumer<StreamResource> notused,
 			boolean notUsed, UI currentUI, boolean duplicatesPossible) throws IOException, CsvValidationException {
-this.file=file;
+		this.file=file;
 		this.currentUI = currentUI;
 		super.startImport(file, addErrorReportToLayoutCallback, notused, false, currentUI, duplicatesPossible);
 	}

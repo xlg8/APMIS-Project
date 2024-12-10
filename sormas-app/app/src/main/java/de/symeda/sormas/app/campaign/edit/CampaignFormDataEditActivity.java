@@ -24,6 +24,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import de.symeda.sormas.api.campaign.data.CampaignFormDataEntry;
 import de.symeda.sormas.api.campaign.data.PlatformEnum;
@@ -94,11 +95,6 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         final CampaignFormData campaignFormDataToSave = getStoredRootEntity();
         campaign = DatabaseHelper.getCampaignDao().queryUuid(campaignFormDataToSave.getCampaign().getUuid());
         campaignFormMeta = DatabaseHelper.getCampaignFormMetaDao().queryUuid(campaignFormDataToSave.getCampaignFormMeta().getUuid());
-        boolean saveChecker = true;
-        criteria.setCampaign(campaign);
-        criteria.setCampaignFormMeta(campaignFormMeta);
-        criteria.setCommunity(campaignFormDataToSave.getCommunity());
-        List<CampaignFormData> lotchecker = DatabaseHelper.getCampaignFormDataDao().queryByCriteria(criteria, 0, 100);
 
         System.out.println(campaignFormDataToSave.getCampaignFormMeta().getFormCategory()+">>>>>edit>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>__");
         campaignFormDataToSave.setFormCategory(campaignFormDataToSave.getCampaignFormMeta().getFormCategory());
@@ -122,54 +118,18 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
         final List<CampaignFormDataEntry> formValues = campaignFormDataToSave.getFormValues();
         final List<CampaignFormDataEntry> filledFormValues = new ArrayList<>();
 
-        CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
-        CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();
-
 //        formValues.forEach(campaignFormDataEntry ->
         for(CampaignFormDataEntry campaignFormDataEntry : formValues) {
             if (campaignFormDataEntry.getId() != null && campaignFormDataEntry.getValue() != null) {
                 filledFormValues.add(campaignFormDataEntry);
-                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotNo")) {
-                    lotNo = campaignFormDataEntry;
-                }
-                if (campaignFormDataEntry.getId().equalsIgnoreCase("LotClusterNo")) {
-                    lotClusterNo = campaignFormDataEntry;
-                }
             }
         }
 //        );
 
-        List<String> listLotNo = new ArrayList();
-        List<String> listLotClusterNo = new ArrayList();
 
-        if (lotchecker.size() > 0) {
-            for (CampaignFormData campaignFormDataData : lotchecker) {
-                List<CampaignFormDataEntry> lotOwnSec = campaignFormDataData.getFormValues();
-                if (lotOwnSec.contains(lotNo)) {
-                    listLotNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotNo)).getValue().toString());
-                }
-
-                if (lotOwnSec.contains(lotClusterNo) && lotOwnSec.contains(lotNo)) {
-                    listLotClusterNo.add(lotOwnSec.get(lotOwnSec.indexOf(lotClusterNo)).getValue().toString());
-                }
-            }
-        }
-
-        for (String string : listLotClusterNo) {
-            if (listLotNo.size() > 0) {
-            if ((Long.parseLong(string) - Long.parseLong(lotClusterNo.getValue().toString()) == 0)
-                        && (Long.parseLong(listLotNo.get(0))
-                        - Long.parseLong(lotNo.getValue().toString()) == 0)
-            ) {
-                saveChecker = false;
-                break;
-            }
-            }
-        }
         campaignFormDataToSave.setFormValues(filledFormValues);
         campaignFormDataToSave.setSoruce(PlatformEnum.MOBILE);
 
-        if (saveChecker) {
         saveTask = new SavingAsyncTask(getRootView(), campaignFormDataToSave) {
 
             @Override
@@ -189,10 +149,6 @@ public class CampaignFormDataEditActivity extends BaseEditActivity<CampaignFormD
                 saveTask = null;
             }
         }.executeOnThreadPool();
-        } else {
-            NotificationHelper.showNotification(this, WARNING, "Lot Cluster Number Already Exist for this Lot Number");
-            return;
-        }
     }
 
     @Override

@@ -304,6 +304,8 @@ public abstract class DataImporter {
 			Consumer<StreamResource> userCredentialReportConsumer, boolean isUserCreation, UI currentUI,
 			boolean duplicatesPossible) throws IOException, CsvValidationException {
 
+		currentUI.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
+		
 		Anchor achrdum_ = new Anchor();
 
 		ImportProgressLayout progressLayout = getImportProgressLayout(readImportFileLength(file), currentUI, duplicatesPossible);
@@ -323,14 +325,14 @@ public abstract class DataImporter {
 			try {
 				currentUI.access(() -> {
 					// how often should the front end be updated
-					currentUI.setPollInterval(300);
+					currentUI.setPollInterval(3);
 				});
 				if(isUserCreation) {
 					I18nProperties.setUserLanguage(currentUser.getLanguage());
 			
 				FacadeProvider.getI18nFacade().setUserLanguage(currentUser.getLanguage());
 				}
-				ImportResultStatus importResult = runImport();
+				ImportResultStatus importResult = runImport(currentUI);
 
 				// Display a window presenting the import result
 				currentUI.access(() -> {
@@ -341,20 +343,24 @@ public abstract class DataImporter {
 						progressLayout.displaySuccessIcon();
 						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportSuccessful),
 								VaadinIcon.CHECK, "badge success");
+						setHasErrors(false);
 					} else if (importResult == ImportResultStatus.COMPLETED_WITH_ERRORS) {
 						progressLayout.displayWarningIcon();
 						progressLayout.setInfoLabelText(
 								I18nProperties.getString(Strings.messageImportPartiallySuccessful), VaadinIcon.WARNING,
 								"badge primary");
+						setHasErrors(true);
 
 					} else if (importResult == ImportResultStatus.CANCELED) {
 						progressLayout.displaySuccessIcon();
 						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceled),
 								VaadinIcon.CLOSE_CIRCLE_O, "badge primary");
+						setHasErrors(true);
 					} else {
 						progressLayout.displayWarningIcon();
 						progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportCanceledErrors),
 								VaadinIcon.WARNING, "badge error");
+						setHasErrors(true);
 					}
 
 					window.addOpenedChangeListener(e -> {
@@ -391,6 +397,7 @@ public abstract class DataImporter {
 							VaadinIcon.HAND, "badge contrast");
 
 					currentUI.setPollInterval(-1);
+					setHasErrors(true);
 				});
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -402,6 +409,7 @@ public abstract class DataImporter {
 					progressLayout.setInfoLabelText(I18nProperties.getString(Strings.messageImportFailedFull),
 							VaadinIcon.EXCLAMATION_CIRCLE_O, "red");
 					currentUI.setPollInterval(-1);
+					setHasErrors(true);
 				});
 			}
 		});
@@ -536,6 +544,8 @@ public abstract class DataImporter {
 //	}
 //
 //	
+	
+	//DryRun
 
 	public void startDryRunImport(File file , Consumer<StreamResource> errorReportConsumer,
 			Consumer<StreamResource> userCredentialReportConsumer, boolean isUserCreation, UI currentUI,
@@ -791,13 +801,17 @@ public abstract class DataImporter {
 	            
 	            if (importedLineCallback != null) {
 	                // Ensure UI update happens in UI thread
-	                ui.access(() -> {
-	                    importedLineCallback.accept(lineResult);
-	                    ui.push(); // Force update to client
+	                ui
+	                .access(
+	                		() -> {
+	                    importedLineCallback.accept(
+	                    		lineResult);
+	                    ui
+	                    .push(); // Force update to client
 	                });
 	                
 	                // Small delay to allow UI to breathe
-	                Thread.sleep(10);
+	                Thread.sleep(2);
 	            }
 
 	            if (cancelAfterCurrent) {

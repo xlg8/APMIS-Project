@@ -852,6 +852,37 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		}
 	}
 	
+	@Override
+	public List<CampaignFormMetaReferenceDto> getCampaignFormByCampaignAndFormType(String campaignUuid,
+			String formType) {
+		
+		
+		String getFormExpressionQuery = "SELECT cfm.uuid, cfm.formname, cfm.formcategory FROM campaignformmeta cfm WHERE cfm.formcategory = 'ADMIN' "
+				+ "AND cfm.id IN ("
+				+ "SELECT xx.campaignformmeta_id FROM campaign_campaignformmeta xx "
+				+ "LEFT JOIN campaigns c ON c.id = xx.campaign_id "
+				+ "where c.uuid = '" + campaignUuid + "');";
+		
+		Query getFormExpressionsQuery = em.createNativeQuery(getFormExpressionQuery);
+		//
+		List<CampaignFormMetaReferenceDto> resultData = new ArrayList<>();
+		
+		@SuppressWarnings("unchecked")
+		
+		List<Object[]> resultList = getFormExpressionsQuery.getResultList();
+		// Iterate over the result list and create DTO objects
+		
+
+		resultData.addAll(resultList.stream()
+				.map((result) -> new CampaignFormMetaReferenceDto(
+				(String) result[0].toString() == null ? "" : (String) result[0].toString(), 
+				(String) result[1].toString() == null ? "" : (String) result[1].toString(),
+				(String) result[2].toString() == null ? "" : (String) result[2].toString()
+				)).collect(Collectors.toList()));
+		return resultData;
+					}
+
+	
 	@LocalBean
 	@Stateless
 	public static class CampaignFormMetaFacadeEjbLocal extends CampaignFormMetaFacadeEjb {
@@ -859,6 +890,7 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 		public CampaignFormMetaFacadeEjbLocal() {
 		}
 	}
+
 
 	
 	

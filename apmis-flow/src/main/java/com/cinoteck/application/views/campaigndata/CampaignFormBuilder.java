@@ -1479,8 +1479,14 @@ public class CampaignFormBuilder extends VerticalLayout {
 
 	public <T extends Component> void setFieldValue(T field, CampaignFormElementType type, Object value,
 			Map<String, String> options, String defaultvalue, Boolean isErrored, Object defaultErrorMsgr) {
+		
+	
+		
 		Boolean isExpressionValue = false;
 		switch (type) {
+		
+		
+
 		case YES_NO:
 
 			if (value != null) {
@@ -1532,21 +1538,77 @@ public class CampaignFormBuilder extends VerticalLayout {
 				// Notification.show("Error found", tempz.toString(),
 				// Notification.TYPE_TRAY_NOTIFICATION);
 			}
-
+			
 			if (value != null) {
+				
+//				System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============");
+				
 				if (value.toString().equals("")) {
+//					System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============IFFFF-----");
 
 //					logger.debug("))))))))))))))))))))))))))):setting empty value to nulll --- not sure");
 					((IntegerField) field).setValue(null);
 				} else {
-					((IntegerField) field).setValue(Integer.parseInt(value.toString()));
+					
+//					System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============ELSE-----");
+					String cleanValue = value.toString().replace(".0", "");
+					
+					
+					System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============ELSE-----" + cleanValue);
+
+					
+//					System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============ELSE-----");
+					
+					    String cleancleanvalue = value.toString(); // Assuming getValue() retrieves the value as a String
+					    if (cleancleanvalue.endsWith(".0")) {
+					    	cleancleanvalue = cleancleanvalue.substring(0, cleancleanvalue.length() - 2); // Remove the ".0"
+					    }
+					
+					    System.out.println( value + " VALUE FROM FORMBUILDER RANGE +===============ELSE-----" + cleancleanvalue);
+
+					
+					((IntegerField) field).setValue(Integer.parseInt(cleancleanvalue));
 				}
 
 			} else if (defaultvalue != null) {
+				
+//				System.out.println( defaultvalue + " defaultvalue FROM FORMBUILDER RANGE +===============ELSE-----");
+
 				((IntegerField) field).setValue(Integer.parseInt(defaultvalue));
 			} else {
+//				System.out.println( "not nullllllll  defaultvalue FROM FORMBUILDER RANGE +===============ELSE-----");
 				((IntegerField) field).setValue(null);
 			}
+
+
+//			if (value != null) {
+//
+//			    if (value.toString().equals("")) {
+//			        // Set empty value to null
+//			        ((IntegerField) field).setValue(null);
+//			    } else {
+//			        try {
+//			            // Parse the value to a Double to check for decimal or whole number
+//			            double numericValue = Double.parseDouble(value.toString());
+//
+//			            // If it's a whole number (e.g., ends with .0), convert to an integer
+//			            if (numericValue % 1 == 0) {
+//			                ((IntegerField) field).setValue((int) numericValue); // Set whole number
+//			            } else {
+//			                // Value is a decimal, round or truncate as per your requirements
+//			                ((IntegerField) field).setValue((int) numericValue); // Truncate decimal part
+//			            }
+//			        } catch (NumberFormatException e) {
+//			            // Handle cases where the value is not a valid number
+//			            System.err.println("Value is not a valid number: " + value);
+//			            ((IntegerField) field).setValue(null); // Set to null for invalid input
+//			        }
+//			    }
+//			} else if (defaultvalue != null) {
+//				((IntegerField) field).setValue(Integer.parseInt(defaultvalue));
+//			} else {
+//				((IntegerField) field).setValue(null);
+//			}
 
 			// ((IntegerField) field).setValue(value != null ?
 			// Integer.parseInt(value.toString()) : defaultvalue != null ?
@@ -1563,7 +1625,7 @@ public class CampaignFormBuilder extends VerticalLayout {
 			}
 			break;
 		case NUMBER:
-
+			
 			if (value != null) {
 				String cvalue = value.toString().replace("null", "").trim();
 				if (cvalue.equals("") || cvalue.equals("null")) {
@@ -2127,6 +2189,8 @@ public class CampaignFormBuilder extends VerticalLayout {
 				boolean saveChecker = true;
 				UserProvider userProvider = new UserProvider();
 				List<CampaignFormDataEntry> entries = getFormValues();
+				
+				
 
 				CampaignFormDataEntry lotNo = new CampaignFormDataEntry();
 				CampaignFormDataEntry lotClusterNo = new CampaignFormDataEntry();

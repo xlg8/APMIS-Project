@@ -449,50 +449,102 @@ public final class DownloadTransposedLqasDataUtility {
 //		});
 //	}
 
-public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
-    return new StreamResource(criteria.getCampaignFormMeta().getCaption() + ".csv", () -> {
-        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-             OutputStreamWriter writer = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8)) {
+	public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
+	    return new StreamResource(criteria.getCampaignFormMeta().getCaption() + ".csv", () -> {
+	        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+	             OutputStreamWriter writer = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8);
+	             CSVWriter csvWriter = new CSVWriter(writer)) {
+	            
+	            // Write headers
+	            csvWriter.writeNext(new String[]{"Variable Name", "Format", "Variable Caption", "Description"});
+	            
+	            // Fetch data
+	            List<CampaignFormMetaIndexDto> data = FacadeProvider.getCampaignFormMetaFacade()
+	                    .getFormExpressions(criteria.getCampaignFormMeta().getUuid());
+	            
+	            // Write rows
+	            for (CampaignFormMetaIndexDto dto : data) {
+	            	String captionWithoutDelimiter = dto.getFieldcaption();
+	            	if (captionWithoutDelimiter.contains(",")) {
+	            	    int commaIndex = captionWithoutDelimiter.indexOf(",");
+	            	    captionWithoutDelimiter = captionWithoutDelimiter.replace(",", " ");
+	            	    System.out.println("Comma found at index: " + commaIndex);
+	            	    System.out.println("Updated string: " + captionWithoutDelimiter);
+	            	} else {
+	            		captionWithoutDelimiter = dto.getFieldcaption();
+	            	}
+	                csvWriter.writeNext(new String[]{
+	                    dto.getFieldid(),
+	                    dto.getFieldtype(),
+	                    captionWithoutDelimiter,
+	                    dto.getFieldexpression()
+	                });
+	            }
+	            
+	            csvWriter.flush();
+	            return new ByteArrayInputStream(byteStream.toByteArray());
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    });
+	}
 
-            // Write BOM for UTF-8
-            writer.write("\uFEFF");
-
-            // Fetch data
-            List<CampaignFormMetaIndexDto> data = FacadeProvider.getCampaignFormMetaFacade()
-                    .getFormExpressions(criteria.getCampaignFormMeta().getUuid());
-
-            // Write headers
-            writer.write("Variable Name,Format,Variable Caption,Description\n");
-
-            // Write rows
-            for (CampaignFormMetaIndexDto dto : data) {
-                writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                        escapeCsv(dto.getFieldid()),
-                        escapeCsv(dto.getFieldtype()),
-                        escapeCsv(dto.getFieldcaption()),
-                        escapeCsv(dto.getFieldexpression())));
-            }
-            writer.flush();
-            return new ByteArrayInputStream(byteStream.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    });
-}
+//public static StreamResource createTransposedDataFormExpressions(CampaignFormDataCriteria criteria) {
+//    return new StreamResource(criteria.getCampaignFormMeta().getCaption() + ".csv", () -> {
+//        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+//             OutputStreamWriter writer = new OutputStreamWriter(byteStream, StandardCharsets.UTF_8)) {
+//
+//            // Write BOM for UTF-8
+//            writer.write("\uFEFF");
+//
+//            // Fetch data
+//            List<CampaignFormMetaIndexDto> data = FacadeProvider.getCampaignFormMetaFacade()
+//                    .getFormExpressions(criteria.getCampaignFormMeta().getUuid());
+//
+//            // Write headers
+//            writer.write("Variable Name,Format,Variable Caption,Description\n");
+//
+//            // Write rows
+//            for (CampaignFormMetaIndexDto dto : data) {
+//                writer.write(String.format("\"%s\",\"%s\",\"%s\",\"%s\"\n",
+//                        escapeCsv(dto.getFieldid()),
+//                        escapeCsv(dto.getFieldtype()),
+//                        escapeCsv( dto.getFieldcaption()),
+//                        escapeCsv(dto.getFieldexpression())));
+//            }
+//            writer.flush();
+//            return new ByteArrayInputStream(byteStream.toByteArray());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    });
+//}
+//
+//private static String escapeCsv(String value) {
+//    if (value == null) {
+//        return "";
+//    }
+//    // Always escape double quotes by doubling them
+//    String escaped = value.replace("\"", "\"\"");
+//    
+//    // Always wrap the value in quotes, regardless of content
+//    return "\"" + escaped + "\"";
+//}
 
 	
-	
-    private static String escapeCsv(String value) {
-        if (value == null) {
-            return "";
-        }
-        String escaped = value.replace("\"", "\"\"");
-        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
-            return "\"" + escaped + "\"";
-        }
-        return escaped;
-    }
+//	
+//    private static String escapeCsv(String value) {
+//        if (value == null) {
+//            return "";
+//        }
+//        String escaped = value.replace("\"", "\"\"");
+//        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+//            return "\"" + escaped + "\"";
+//        }
+//        return escaped;
+//    }
 
 
 	

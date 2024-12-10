@@ -24,7 +24,11 @@ import de.symeda.sormas.api.user.UserDto;
 import de.symeda.sormas.api.user.UserReferenceDto;
 import de.symeda.sormas.app.backend.common.AdoDtoHelper;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
+import de.symeda.sormas.app.backend.facility.FacilityDtoHelper;
+import de.symeda.sormas.app.backend.infrastructure.PointOfEntryDtoHelper;
 import de.symeda.sormas.app.backend.location.LocationDtoHelper;
+import de.symeda.sormas.app.backend.region.DistrictDtoHelper;
+import de.symeda.sormas.app.backend.region.RegionDtoHelper;
 import de.symeda.sormas.app.rest.NoConnectionException;
 import de.symeda.sormas.app.rest.RetroProvider;
 import retrofit2.Call;
@@ -56,15 +60,15 @@ public class UserDtoHelper extends AdoDtoHelper<User, UserDto> {
 		return RetroProvider.getUserFacade().pullByUuids(uuids);
 	}
 
-	@Override
-	protected Call<List<PushResult>> pushAll(List<UserDto> userDtos) throws NoConnectionException {
-		throw new UnsupportedOperationException("Can't change users in app");
-	}
-
 //	@Override
 //	protected Call<List<PushResult>> pushAll(List<UserDto> userDtos) throws NoConnectionException {
-//		return RetroProvider.getUserFacade().pushAll(userDtos);
+//		throw new UnsupportedOperationException("Can't change users in app");
 //	}
+
+	@Override
+	protected Call<List<PushResult>> pushAll(List<UserDto> userDtos) throws NoConnectionException {
+		return RetroProvider.getUserFacade().pushAll(userDtos);
+	}
 
 	protected void preparePulledResult(List<UserDto> result) {
 		Collections.sort(result, new Comparator<UserDto>() {
@@ -101,6 +105,7 @@ public class UserDtoHelper extends AdoDtoHelper<User, UserDto> {
 
 		target.setAssociatedOfficer(DatabaseHelper.getUserDao().getByReferenceDto(source.getAssociatedOfficer()));
 		target.setLimitedDisease(source.getLimitedDisease());
+//		target.setToken(source.getToken());
 
 		target.setAddress(locationHelper.fillOrCreateFromDto(target.getAddress(), source.getAddress()));
 		target.setPhone(source.getPhone());
@@ -108,9 +113,30 @@ public class UserDtoHelper extends AdoDtoHelper<User, UserDto> {
 	}
 
 	@Override
-	protected void fillInnerFromAdo(UserDto userDto, User user) {
+	protected void fillInnerFromAdo(UserDto target, User source) {
 		// TODO
 		throw new UnsupportedOperationException("Can't change users in app");
+//		target.setActive(source.isActive());
+//		target.setUserName(source.getUserName().toLowerCase());
+//		target.setFirstName(source.getFirstName());
+//		target.setLastName(source.getLastName());
+//		target.setUserEmail(source.getUserEmail());
+//
+//		if (source.getUserRoles().size() > 0) {
+//			target.setUserRoles(source.getUserRoles());
+//		}
+//
+//		target.setRegion(RegionDtoHelper.toReferenceDto(source.getRegion()));
+//		target.setDistrict(DistrictDtoHelper.toReferenceDto(source.getDistrict()));
+//		//target.setCommunity(DatabaseHelper.getCommunityDao().getByReferenceDto(source.getCommunity()));
+//		target.setHealthFacility(FacilityDtoHelper.toReferenceDto(source.getHealthFacility()));
+//		target.setPointOfEntry(PointOfEntryDtoHelper.toReferenceDto(source.getPointOfEntry()));
+//
+//		target.setAssociatedOfficer(UserDtoHelper.toReferenceDto(source));
+//		target.setLimitedDisease(source.getLimitedDisease());
+//		target.setToken(source.getToken());
+//		target.setAddress(locationHelper.adoToDto(source.getAddress()));
+//		target.setPhone(source.getPhone());
 	}
 
 	public static UserReferenceDto toReferenceDto(User ado) {

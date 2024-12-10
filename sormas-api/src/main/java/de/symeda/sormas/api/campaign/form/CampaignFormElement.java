@@ -26,6 +26,7 @@ public class CampaignFormElement implements Serializable {
 	public static final String MAX = "max";
 	public static final String MIN = "min";
 	public static final String ERRORMESSAGE = "errormessage";
+	public static final String COMMENT = "comment";
 	public static final String DEFAULTVALUE = "defaultvalue";
 
 	private static final long serialVersionUID = 5553496750859734167L;
@@ -237,6 +238,7 @@ public class CampaignFormElement implements Serializable {
 				&& Arrays.equals(dependingOnValues, that.dependingOnValues)
 				&& Objects.equals(warnonerror, that.warnonerror)
 				&& Objects.equals(errormessage, that.errormessage)
+				&& Objects.equals(comment, that.comment)
 				&& Objects.equals(defaultvalue, that.defaultvalue);
 	}
 

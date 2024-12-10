@@ -169,15 +169,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = view.findViewById(R.id.tabSheet1);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
-
-
-
-
+                        String yes_no = "";
                         if (value != null) {
 
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -231,13 +238,24 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet2);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
-
+                        String yes_no = "";
 
                         if (value != null) {
 
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -291,13 +309,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet3);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -349,13 +376,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet4);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if ( type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -407,13 +443,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet5);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -465,13 +510,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet6);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if ( type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -523,13 +577,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet7);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -581,13 +644,22 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                     final LinearLayout dynamicLayout = mTabHost.findViewById(R.id.tabSheet8);
                     if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                         String value = formValuesMap.get(campaignFormElement.getId());
+                        value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+                        String yes_no = "";
                         ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                         dynamicField.setShowCaption(true);
 
 
                         if (value != null) {
-
-                            if (type == CampaignFormElementType.YES_NO || type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                            if (type == CampaignFormElementType.YES_NO) {
+                                if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
+                                    yes_no = "Yes";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
+                                    yes_no = "No";
+                                    ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
+                                }
+                            } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                             } else if(type == CampaignFormElementType.DROPDOWN){
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, optionsValues.get(value), null, null, null);
@@ -641,6 +713,9 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
                 final LinearLayout dynamicLayout = view.findViewById(R.id.dynamicLayoutxXRd);
                 if (type != CampaignFormElementType.SECTION && type != CampaignFormElementType.LABEL) {
                     String value = formValuesMap.get(campaignFormElement.getId());
+                    value = value == null ? null : value.endsWith(".0") ? value.substring(0, value.length() - 2): value;
+
+
                     ControlPropertyField dynamicField = createControlTextReadField(campaignFormElement, requireContext(), getUserTranslations(campaignFormMeta));
                     dynamicField.setShowCaption(true);
 
@@ -651,16 +726,15 @@ public class CampaignFormDataReadFragment extends BaseReadFragment<FragmentCampa
 
 
                     if (value != null) {
-
                         if (type == CampaignFormElementType.YES_NO) {
-                            if(value.equalsIgnoreCase("yes")){
+                            if(value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("true")){
                                 yes_no = resources.getString(R.string.yes);
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
-                            } else if(value.equalsIgnoreCase("no")){
+                            } else if(value.equalsIgnoreCase("no") || value.equalsIgnoreCase("false")){
                                 yes_no = resources.getString(R.string.no);
                                 ControlTextReadField.setValue((ControlTextReadField) dynamicField, yes_no, null, null);
                             }
-                         } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
+                        } else if (type == CampaignFormElementType.CHECKBOX || type == CampaignFormElementType.RADIO || type == CampaignFormElementType.CHECKBOXBASIC || type == CampaignFormElementType.RADIOBASIC) {
                             ControlTextReadField.setValue((ControlTextReadField) dynamicField, value, null, null);
                         } else if(type == CampaignFormElementType.DROPDOWN){
                             //TODO get the tranlated version
