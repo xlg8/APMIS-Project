@@ -286,10 +286,11 @@ public class ControlTextReadField extends ControlPropertyField<String> {
 		"defaultValue" }, requireAll = false)
 	public static void setValue(ControlTextReadField textField, String stringValue, String appendValue, String valueFormat, String defaultValue) {
 		System.out.println(stringValue +" setValuesetValuesetValue");
+		String cleanStringValue  = stringValue == null ? null : stringValue.endsWith(".0") ? stringValue.substring(0, stringValue.length() - 2): stringValue;
 
-		String cleanStringValue = stringValue.replaceAll(".0","");
 
-		System.out.println(stringValue +" cleanStringValuecleanStringValuecleanStringValuecleanStringValue");
+
+		System.out.println(stringValue +" cleanStringValuecleanStringValuecleanStringValuecleanStringValue" + cleanStringValue);
 		setValue(textField, cleanStringValue, appendValue, valueFormat, defaultValue, stringValue);
 	}
 
