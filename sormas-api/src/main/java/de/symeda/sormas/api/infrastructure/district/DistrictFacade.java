@@ -28,7 +28,6 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.GeoLocationFacade;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
-
 @Remote
 public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictIndexDto, DistrictReferenceDto, DistrictCriteria> {
 
@@ -83,4 +82,6 @@ public interface DistrictFacade extends GeoLocationFacade<DistrictDto, DistrictI
 	List<DistrictReferenceDto> getAllActiveByRegionAndSelectedInCampaign(String uuid, String campaingUUID);
 
 	String getMapDiagramDistrictHascByUuid(String districtUuid);
+	
+	List<DistrictHistoryExtractDto> getDistrictsHistory(String uuid);
 }

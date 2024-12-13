@@ -38,8 +38,10 @@ import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictCriteria;
 import de.symeda.sormas.api.infrastructure.district.DistrictDto;
+import de.symeda.sormas.api.infrastructure.district.DistrictHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictIndexDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionHistoryExtractDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 /**
@@ -120,5 +122,13 @@ public class DistrictResource {
 		@QueryParam("size") int size) {
 		return FacadeProvider.getDistrictFacade()
 			.getIndexPage(criteriaWithSorting.getCriteria(), offset, size, criteriaWithSorting.getSortProperties());
+	}
+	
+	
+	@GET
+	@Path("/districtsHistory")
+	public List<DistrictHistoryExtractDto> getDistrictsHistory(@QueryParam("getDistrictHistory") String uuid) {
+		System.out.println(uuid + "UUUID from province resource");
+		return FacadeProvider.getDistrictFacade().getDistrictsHistory(uuid);
 	}
 }

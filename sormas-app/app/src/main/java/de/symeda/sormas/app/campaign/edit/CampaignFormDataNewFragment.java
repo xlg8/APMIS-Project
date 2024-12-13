@@ -1144,6 +1144,8 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
                 mTabHost.getTabWidget().getChildAt(2).getLayoutParams().width = 140;
             }
             if (countr > 3) {
+                System.out.println("333333333333333333334444444444444444444");
+
                 spec = mTabHost.newTabSpec("tab4").setIndicator("D4",//caption_1,
                                 res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet4);
@@ -1152,6 +1154,8 @@ public class CampaignFormDataNewFragment extends BaseEditFragment<FragmentCampai
             }
 
             if (countr > 3 && countr == 5) { // 3 DAY DaywiseForm
+
+                System.out.println("33333333333333333333555555555555555555555");
                 spec = mTabHost.newTabSpec("tab5").setIndicator(" ",//caption_1,
                                 res.getDrawable(R.drawable.ic_clear_black_24dp))
                         .setContent(R.id.tabSheet5);

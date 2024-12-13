@@ -83,4 +83,6 @@ public interface CampaignFormMetaFacade {
 	
 	List<CampaignFormMetaReferenceDto> getCampaignFormByCampaignAndFormType(String campaignUuid, String formType);
 	
+	List<CampaignFormMetaHistoryExtractDto> getFormsMetaHistory(String formUuid);
+	
 }

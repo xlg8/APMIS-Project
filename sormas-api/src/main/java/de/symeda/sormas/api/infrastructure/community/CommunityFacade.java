@@ -74,4 +74,6 @@ public interface CommunityFacade extends GeoLocationFacade<CommunityDto, Communi
 
 	List<CommunityDto> getAllAfterWithDistrict(Date date, Set<DistrictReferenceDto> rDistdto);
 	
+	List<CommunityHistoryExtractDto> getClustersHistory(String uuid);
+	
 }

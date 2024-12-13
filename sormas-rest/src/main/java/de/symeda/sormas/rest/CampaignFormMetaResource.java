@@ -12,11 +12,13 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 
 @Path("/campaignFormMeta")
@@ -86,5 +88,12 @@ public class CampaignFormMetaResource extends EntityDtoResource {
 	@Path("/formswithexp")
 	public List<CampaignFormMetaExpiryDto> getAllFormsWithExpiry() {
 		return FacadeProvider.getCampaignFormMetaFacade().getFormsWithExpiry();
+	}
+	
+	
+	@GET
+	@Path("/getFormMetaHistory")
+	public List<CampaignFormMetaHistoryExtractDto> getFormsMetaHistory(@QueryParam("getFormMetaHistory") String formUuid) {
+		return FacadeProvider.getCampaignFormMetaFacade().getFormsMetaHistory(formUuid);
 	}
 }

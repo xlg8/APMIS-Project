@@ -1,6 +1,9 @@
 package de.symeda.sormas.backend.campaign.form;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +37,11 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDateTime;
 import org.jsoup.safety.Whitelist;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.symeda.sormas.api.Modality;
 import de.symeda.sormas.api.ReferenceDto;
@@ -48,11 +55,13 @@ import de.symeda.sormas.api.campaign.form.CampaignFormElementType;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaExpiryDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaFacade;
+import de.symeda.sormas.api.campaign.form.CampaignFormMetaHistoryExtractDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaIndexDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormMetaReferenceDto;
 import de.symeda.sormas.api.campaign.form.CampaignFormTranslations;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
+import de.symeda.sormas.api.infrastructure.community.CommunityHistoryExtractDto;
 import de.symeda.sormas.api.user.FormAccess;
 import de.symeda.sormas.api.utils.HtmlHelper;
 import de.symeda.sormas.api.utils.SortProperty;
@@ -851,6 +860,130 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 			return null;
 		}
 	}
+
+	@Override
+	public List<CampaignFormMetaHistoryExtractDto> getFormsMetaHistory (String formUuid){
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		List<CampaignFormMetaHistoryExtractDto> resultData = new ArrayList<>();
+		
+		
+		StringBuilder queryStringBuilder = new StringBuilder();
+		queryStringBuilder.append("WITH current_data AS (")
+		                  .append("SELECT id, uuid, CAST(campaignformelements AS TEXT) AS campaignformelements, formid, formname, changedate AS start_date, ")
+		                  .append("LEAD(changedate) OVER (PARTITION BY uuid ORDER BY changedate) AS end_date ")
+		                  .append("FROM campaignformmeta_history ");
+
+		if (formUuid != null) {
+		    queryStringBuilder.append("WHERE uuid = '").append(formUuid).append("' ");
+		}
+
+		queryStringBuilder.append("), ")
+		                  .append("updated_end_date AS (")
+		                  .append("SELECT cd.id, cd.uuid, cd.campaignformelements, cd.formid, cd.formname, cd.start_date, ")
+		                  .append("COALESCE(cd.end_date, (SELECT changedate FROM campaignformmeta WHERE campaignformmeta.uuid = cd.uuid)) AS end_date ")
+		                  .append("FROM current_data cd) ")
+		                  .append("SELECT uuid, formname, campaignformelements, formid,  start_date, end_date ")
+		                  .append("FROM updated_end_date ")
+		                  .append("ORDER BY start_date ASC;");
+		
+		String queryString = queryStringBuilder.toString();
+		
+		Query seriesDataQuery = em.createNativeQuery(queryString);
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		
+//		resultData.addAll(resultList.stream()
+//			    .map(result -> {
+//			    	
+////			    	String campaignFormElementsJson = (String) result[2];
+////			    	Map<String, Object> campaignFormElements = Collections.emptyMap();
+////			    	if (campaignFormElementsJson != null && !campaignFormElementsJson.trim().isEmpty()) {
+////			    	    try {
+////			    	        campaignFormElements = objectMapper.readValue(outputStream, Map.class);
+////			    	    } catch (Exception e) {
+////			    	        e.printStackTrace();
+////			    	    }
+////			    	}else {
+////			    		System.out.println("Null Discovered ");
+////			    	}
+//
+////			        String campaignFormElementsJson = (String) result[2];
+////			        Map<String, Object> campaignFormElements = null;
+////			        try {
+////			            campaignFormElements = objectMapper.readValue(campaignFormElementsJson, Map.class);
+////			        } catch (Exception e) {
+////			            e.printStackTrace();
+////			        }
+//			        return new CampaignFormMetaHistoryExtractDto(
+//			            (String) result[0], // UUID
+//			            (String) result[1], // Name
+//			            ((String) result[1]).toString(), // Campaign Form Elements
+//			            (String) result[3], // External ID
+//			            ((Timestamp) result[4]).toLocalDateTime(), // Start Date
+//			            result[5] != null ? ((Timestamp) result[5]).toLocalDateTime() : LocalDateTime.now() // End Date
+//			        );
+//			    })
+//			    .collect(Collectors.toList()));
+//		
+//		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+//		resultData.addAll(resultList.stream()
+//		    .map(result -> {
+//		        String campaignFormElementsJson = (String) result[2];
+//		        Map<String, Object> campaignFormElements = new HashMap<>();
+//		        if (campaignFormElementsJson != null && !campaignFormElementsJson.trim().isEmpty()) {
+//		            try {
+//		                campaignFormElements = objectMapper.readValue(campaignFormElementsJson, Map.class);
+//		            } catch (Exception e) {
+//		                // Log error or handle appropriately
+//		                e.printStackTrace();
+//		            }
+//		        }
+//		        return new CampaignFormMetaHistoryExtractDto(
+//		            (String) result[0],
+//		            (String) result[1],
+//		            campaignFormElements,
+//		            (String) result[3],
+//		            ((Timestamp) result[4]).toLocalDateTime(),
+//		            result[5] != null ? ((Timestamp) result[5]).toLocalDateTime() : LocalDateTime.now()
+//		        );
+//		    })
+//		    .collect(Collectors.toList()));
+		
+		 resultData.addAll(resultList.stream()
+		            .map(result -> {
+		                String campaignFormElementsJson = (String) result[2];
+		                List<CampaignFormElement> campaignFormElements = new ArrayList<>();
+		                
+		                if (campaignFormElementsJson != null && !campaignFormElementsJson.trim().isEmpty()) {
+		                    try {
+		                        campaignFormElements = objectMapper.readValue(
+		                            campaignFormElementsJson, 
+		                            new TypeReference<List<CampaignFormElement>>() {}
+		                        );
+		                    } catch (Exception e) {
+//		                        logger.error("Error parsing JSON for campaign form elements", e);
+		                    }
+		                }
+		                
+		                return new CampaignFormMetaHistoryExtractDto(
+		                    (String) result[0],
+		                    (String) result[1],
+		                    (String) result[2],
+		                    (String) result[3],
+		                    ((Timestamp) result[4]).toLocalDateTime(),
+		                    result[5] != null 
+		                        ? ((Timestamp) result[5]).toLocalDateTime() 
+		                        : LocalDateTime.now()
+		                );
+		            })
+		            .collect(Collectors.toList()));
+
+		return resultData;
+	}
+	
 	
 	@Override
 	public List<CampaignFormMetaReferenceDto> getCampaignFormByCampaignAndFormType(String campaignUuid,
@@ -892,7 +1025,6 @@ public class CampaignFormMetaFacadeEjb implements CampaignFormMetaFacade {
 	}
 
 
-	
 	
 
 }

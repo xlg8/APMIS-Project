@@ -342,18 +342,25 @@ public class CampaignFormBuilder extends VerticalLayout {
 				} else {
 					List<DistrictReferenceDto> districtsList = FacadeProvider.getDistrictFacade()
 							.getAllActiveByRegion(e.getValue().getUuid());
+					
+					System.out.println(districtsList + "districtsListdistrictsListdistrictsListdistrictsList============================");
 					List<DistrictReferenceDto> allDistrictList = new ArrayList<>();
 
 					popDto.forEach(popDtoc -> allDistrictList.add(popDtoc.getDistrict()));
+					
+					System.out.println(allDistrictList + "allDistrictListallDistrictListallDistrictList=============2222222222222222222222");
+
 
 					List<DistrictReferenceDto> filteredDistrictListwithDup = districtsList.stream()
 							.filter(allDistrictList::contains).collect(Collectors.toList());
+					
 
 					// Remove duplicates using Set
 					Set<DistrictReferenceDto> uniqueSet = new HashSet<>(filteredDistrictListwithDup);
 
 					// Convert the set back to a list (if needed)
 					List<DistrictReferenceDto> filteredDistrictList = new ArrayList<>(uniqueSet);
+					System.out.println(filteredDistrictList + "filteredDistrictListfilteredDistrictListfilteredDistrictList=============3333333333333333");
 
 					districts = filteredDistrictList;
 //					districts = FacadeProvider.getDistrictFacade().getAllActiveByRegion(e.getValue().getUuid());

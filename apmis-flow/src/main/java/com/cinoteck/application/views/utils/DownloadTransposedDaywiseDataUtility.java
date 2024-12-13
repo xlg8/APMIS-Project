@@ -182,10 +182,10 @@ public final class DownloadTransposedDaywiseDataUtility {
                                         individualTransposedFormData.getCreatingUser() != null
                                                 ? individualTransposedFormData.getCreatingUser().toString()
                                                 : "");
-                                row.set(14, day);
+                                row.set(14, day.split("_")[1]);
 
                                 for (String variable : uniqueVariablePartsWithoutDaySuffixForColumnHeader) {
-                                    String key = variable + "_" + day;
+                                    String key = variable +  day;
                                     if (formDataMaxp.containsKey(key)) {
                                         String keyValue = formDataMaxp.get(key);
                                         int colIndex = columnNames.indexOf(variable);

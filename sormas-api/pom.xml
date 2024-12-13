@@ -79,6 +79,8 @@
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-json-jackson</artifactId>
 		</dependency>
+		
+		
 
 		<dependency>
 			<groupId>com.github.mpkorstanje</groupId>
@@ -105,6 +107,17 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.20.0</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.vladmihalcea</groupId>
+   			 <artifactId>hibernate-types-52</artifactId>
+   			 <version>2.21.1</version>
+		</dependency>
+		<dependency>
+   			 <groupId>com.fasterxml.jackson.core</groupId>
+   			 <artifactId>jackson-databind</artifactId>
+    			<version>2.13.0</version>
 		</dependency>
 	</dependencies>
 
