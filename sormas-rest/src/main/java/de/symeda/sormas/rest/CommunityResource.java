@@ -40,8 +40,10 @@ import de.symeda.sormas.api.caze.CriteriaWithSorting;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
+import de.symeda.sormas.api.infrastructure.community.CommunityHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionHistoryExtractDto;
 import de.symeda.sormas.api.user.UserDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
@@ -146,5 +148,13 @@ public class CommunityResource {
 			@QueryParam("offset") int offset, @QueryParam("size") int size) {
 		return FacadeProvider.getCommunityFacade().getIndexPage(criteriaWithSorting.getCriteria(), offset, size,
 				criteriaWithSorting.getSortProperties());
+	}
+	
+	
+	@GET
+	@Path("/clustersHistory")
+	public List<CommunityHistoryExtractDto> getClustersHistory(@QueryParam("getClusterHistory") String uuid) {
+		System.out.println(uuid + "UUUID from province resource");
+		return FacadeProvider.getCommunityFacade().getClustersHistory(uuid);
 	}
 }

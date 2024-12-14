@@ -32,8 +32,10 @@ import javax.ws.rs.core.MediaType;
 import de.symeda.sormas.api.FacadeProvider;
 import de.symeda.sormas.api.caze.CriteriaWithSorting;
 import de.symeda.sormas.api.common.Page;
+import de.symeda.sormas.api.infrastructure.area.AreaHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.region.RegionCriteria;
 import de.symeda.sormas.api.infrastructure.region.RegionDto;
+import de.symeda.sormas.api.infrastructure.region.RegionHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.region.RegionIndexDto;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
@@ -76,5 +78,12 @@ public class RegionResource {
 		@QueryParam("size") int size) {
 		return FacadeProvider.getRegionFacade()
 			.getIndexPage(criteriaWithSorting.getCriteria(), offset, size, criteriaWithSorting.getSortProperties());
+	}
+	
+	@GET
+	@Path("/provincesHistory")
+	public List<RegionHistoryExtractDto> getProvincesHistory(@QueryParam("getProvinceHistory") String uuid) {
+		System.out.println(uuid + "UUUID from province resource");
+		return FacadeProvider.getRegionFacade().getProvincesHistory(uuid);
 	}
 }

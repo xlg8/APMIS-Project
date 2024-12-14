@@ -25,7 +25,6 @@ import javax.ejb.Remote;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.infrastructure.GeoLocationFacade;
 import de.symeda.sormas.api.utils.SortProperty;
-
 import de.symeda.sormas.api.campaign.CampaignDto;
 
 @Remote
@@ -75,4 +74,6 @@ public interface RegionFacade extends GeoLocationFacade<RegionDto, RegionIndexDt
 	List<RegionIndexDto> getAllRegions();
 
 	String getMapDiagramRegionHascByUuid(String chartrandom);
+	
+	List<RegionHistoryExtractDto> getProvincesHistory(String uuid);
 }

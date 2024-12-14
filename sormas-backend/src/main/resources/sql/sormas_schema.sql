@@ -10798,6 +10798,43 @@ CREATE UNIQUE INDEX camapaigndata_admin_fieldid_idxxx ON public.camapaigndata_ad
 
 INSERT INTO schema_version (version_number, comment) VALUES (479, 'Admin Data Completeness report formatting - data source selection');
 
+--Create Versioning table for Province/District/Cluster
+
+--region
+CREATE TABLE region_history (LIKE region);
+CREATE TRIGGER versioning_trigger BEFORE INSERT OR UPDATE OR DELETE ON region
+FOR EACH ROW EXECUTE PROCEDURE versioning('sys_period', 'region_history', true);
+ALTER TABLE region_history OWNER TO sormas_user;
+
+ALTER TABLE region ADD COLUMN sys_period tstzrange NOT NULL DEFAULT tstzrange(now(), null);
+ALTER TABLE region_history ADD COLUMN sys_period tstzrange NOT NULL;
+
+
+--District
+CREATE TABLE district_history (LIKE district);
+CREATE TRIGGER versioning_trigger BEFORE INSERT OR UPDATE OR DELETE ON district
+FOR EACH ROW EXECUTE PROCEDURE versioning('sys_period', 'district_history', true);
+ALTER TABLE district_history OWNER TO sormas_user;
+
+ALTER TABLE district ADD COLUMN sys_period tstzrange NOT NULL DEFAULT tstzrange(now(), null);
+ALTER TABLE district_history ADD COLUMN sys_period tstzrange NOT NULL;
+
+--Clusters
+
+CREATE TABLE community_history (LIKE community);
+CREATE TRIGGER versioning_trigger BEFORE INSERT OR UPDATE OR DELETE ON community
+FOR EACH ROW EXECUTE PROCEDURE versioning('sys_period', 'community_history', true);
+ALTER TABLE community_history OWNER TO sormas_user;
+
+ALTER TABLE community ADD COLUMN sys_period tstzrange NOT NULL DEFAULT tstzrange(now(), null);
+ALTER TABLE community_history ADD COLUMN sys_period tstzrange NOT NULL;
+
+
+
+
+INSERT INTO schema_version (version_number, comment) VALUES (480, 'Geography: Tracking Active Status over Time #750');
+
+
 
 -- *** Insert new sql commands BEFORE this line. Remember to always consider _history tables. ***
 

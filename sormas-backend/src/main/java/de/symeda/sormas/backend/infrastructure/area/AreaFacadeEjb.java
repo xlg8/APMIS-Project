@@ -1,6 +1,7 @@
 package de.symeda.sormas.backend.infrastructure.area;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -25,6 +26,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.joda.time.LocalDateTime;
+
 import de.symeda.sormas.api.campaign.CampaignDto;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.i18n.Validations;
@@ -32,6 +35,7 @@ import de.symeda.sormas.api.infrastructure.ConfigurationChangeLogDto;
 import de.symeda.sormas.api.infrastructure.area.AreaCriteria;
 import de.symeda.sormas.api.infrastructure.area.AreaDto;
 import de.symeda.sormas.api.infrastructure.area.AreaFacade;
+import de.symeda.sormas.api.infrastructure.area.AreaHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
@@ -481,5 +485,76 @@ public class AreaFacadeEjb extends AbstractInfrastructureEjb<Area, AreaService> 
 		}
 
 		return dtos;
+	}
+
+	@Override
+	public List<AreaHistoryExtractDto> getAreasHistory(String external){
+		
+		List<AreaHistoryExtractDto> resultData = new ArrayList<>();
+		
+//		if(external != null) {
+//			String whereclause = "WHERE  uuid = ' " + external + "'";
+//		}
+//		String queryStringBuilder = "WITH current_data AS (select id, uuid, archived, externalid, name, changedate AS start_date, \n"
+//				+ "LEAD(changedate) OVER (PARTITION BY uuid ORDER BY changedate) AS end_date FROM areas_history \n"
+//				+ (external != null ? "WHERE uuid = ? " : "")
+//				+ "),"
+//				+ "updated_end_date AS (SELECT  cd.id,  cd.uuid, cd.archived, cd.externalid,  cd.name, cd.start_date, \n"
+//				+ "COALESCE(cd.end_date, (SELECT changedate FROM areas WHERE areas.uuid = cd.uuid)) AS end_date  FROM  current_data cd ) \n"
+//				+ "SELECT  id, uuid, archived, externalid, name, start_date, end_date FROM  updated_end_date \n"
+//				+ "ORDER BY  start_date ASC;";
+		
+		StringBuilder queryStringBuilder = new StringBuilder();
+		queryStringBuilder.append("WITH current_data AS (")
+		                  .append("SELECT id, uuid, archived, externalid, name, changedate AS start_date, ")
+		                  .append("LEAD(changedate) OVER (PARTITION BY uuid ORDER BY changedate) AS end_date ")
+		                  .append("FROM areas_history ");
+
+		if (external != null) {
+		    queryStringBuilder.append("WHERE uuid = '").append(external).append("' ");
+		}
+
+		queryStringBuilder.append("), ")
+		                  .append("updated_end_date AS (")
+		                  .append("SELECT cd.id, cd.uuid, cd.archived, cd.externalid, cd.name, cd.start_date, ")
+		                  .append("COALESCE(cd.end_date, (SELECT changedate FROM areas WHERE areas.uuid = cd.uuid)) AS end_date ")
+		                  .append("FROM current_data cd) ")
+		                  .append("SELECT uuid, name, archived, externalid,  start_date, end_date ")
+		                  .append("FROM updated_end_date ")
+		                  .append("ORDER BY start_date ASC;");
+		
+		String queryString = queryStringBuilder.toString();
+
+		Query seriesDataQuery = em.createNativeQuery(queryString);
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		resultData.addAll(resultList.stream()
+			    .map(result -> new AreaHistoryExtractDto(
+			        (String) result[0], // UUID
+			        (String) result[1], // Name
+			        (Boolean) result[2], // Archived
+			        result[3] != null ? ((BigInteger) result[3]).longValue() : 0L, // External ID
+			        ((Timestamp) result[4]).toLocalDateTime(), // Start Date
+			        result[5] != null ? ((Timestamp) result[5]).toLocalDateTime() : LocalDateTime.now() // End Date
+			    ))
+			    .collect(Collectors.toList()));
+
+//		resultData.addAll(resultList.stream()
+//			    .map(result -> new AreaDto(
+//			        (String) result[0].toString(),
+//			        (String) result[1].toString(),
+//			        (Boolean) result[2],
+//			        result[3] != null ? ((BigInteger) result[3]).longValue() : 0L,
+//			        ((Timestamp) result[4]).toLocalDateTime(),
+//			        result[5] != null ? ((Timestamp) result[5]).toLocalDateTime() : ""
+//			    ))
+//			    .collect(Collectors.toList()));
+
+		
+		
+
+
+		return resultData;
+		
 	}
 }

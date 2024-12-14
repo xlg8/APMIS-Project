@@ -1,6 +1,7 @@
 package de.symeda.sormas.backend.infrastructure.community;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,8 @@ import javax.print.attribute.standard.MediaSize.ISO;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.joda.time.LocalDateTime;
+
 import com.vladmihalcea.hibernate.type.util.SQLExtractor;
 
 import de.symeda.sormas.api.ClusterFloatStatus;
@@ -48,8 +51,10 @@ import de.symeda.sormas.api.infrastructure.area.AreaReferenceDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityCriteriaNew;
 import de.symeda.sormas.api.infrastructure.community.CommunityDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityFacade;
+import de.symeda.sormas.api.infrastructure.community.CommunityHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
+import de.symeda.sormas.api.infrastructure.region.RegionHistoryExtractDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
 import de.symeda.sormas.api.report.CommunityUserReportModelDto;
 import de.symeda.sormas.api.user.FormAccess;
@@ -1186,7 +1191,51 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);
 		// TODO Auto-generated method stub
 	
-	}@Override
+	}
+	
+	@Override
+	public List <CommunityHistoryExtractDto> getClustersHistory(String uuid){
+	List<CommunityHistoryExtractDto> resultData = new ArrayList<>();
+		
+		StringBuilder queryStringBuilder = new StringBuilder();
+		queryStringBuilder.append("WITH current_data AS (")
+		                  .append("SELECT id, uuid, archived, externalid, name, changedate AS start_date, ")
+		                  .append("LEAD(changedate) OVER (PARTITION BY uuid ORDER BY changedate) AS end_date ")
+		                  .append("FROM community_history ");
+
+		if (uuid != null) {
+		    queryStringBuilder.append("WHERE uuid = '").append(uuid).append("' ");
+		}
+
+		queryStringBuilder.append("), ")
+		                  .append("updated_end_date AS (")
+		                  .append("SELECT cd.id, cd.uuid, cd.archived, cd.externalid, cd.name, cd.start_date, ")
+		                  .append("COALESCE(cd.end_date, (SELECT changedate FROM community WHERE community.uuid = cd.uuid)) AS end_date ")
+		                  .append("FROM current_data cd) ")
+		                  .append("SELECT uuid, name, archived, externalid,  start_date, end_date ")
+		                  .append("FROM updated_end_date ")
+		                  .append("ORDER BY start_date ASC;");
+		
+		String queryString = queryStringBuilder.toString();
+		
+		Query seriesDataQuery = em.createNativeQuery(queryString);
+		@SuppressWarnings("unchecked")
+		List<Object[]> resultList = seriesDataQuery.getResultList();
+		resultData.addAll(resultList.stream()
+			    .map(result -> new CommunityHistoryExtractDto(
+			        (String) result[0], // UUID
+			        (String) result[1], // Name
+			        (Boolean) result[2], // Archived
+			        result[3] != null ? ((BigInteger) result[3]).longValue() : 0L, // External ID
+			        ((Timestamp) result[4]).toLocalDateTime(), // Start Date
+			        result[5] != null ? ((Timestamp) result[5]).toLocalDateTime() : LocalDateTime.now() // End Date
+			    ))
+			    .collect(Collectors.toList()));
+
+		return resultData;
+	}
+	
+	@Override
 	public List<CommunityDto> getAllCommunities() {
 		CriteriaBuilder cb = em.getCriteriaBuilder();
 		CriteriaQuery<Community> cq = cb.createQuery(Community.class);
@@ -1243,5 +1292,9 @@ public class CommunityFacadeEjb extends AbstractInfrastructureEjb<Community, Com
 			//if(isCounter)
 			return QueryHelper.getResultList(em, cq, null, null, this::toDtoList);//.stream().filter(e -> e.getMessage() != "Correctly assigned").collect(Collectors.toList());
 		}
+	
+	
+
+	
 
 }

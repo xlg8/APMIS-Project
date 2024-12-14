@@ -1,5 +1,7 @@
 package de.symeda.sormas.api.infrastructure.area;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +44,10 @@ public class AreaDto extends EntityDto {
 	private Long areaid;
 	private String uuid_;
 	private boolean isDryRun;
+	
+	private LocalDateTime startDate;
+	private LocalDateTime endDate;
+	
 
   
   //TODO check if you want to leave this here 
@@ -64,6 +70,24 @@ public class AreaDto extends EntityDto {
 		this.uuid_ = uuid_;
 		this.externalId = cxternalID;
 	}
+	
+	public AreaDto(String uuid, String name, Boolean archived, Long externalID, LocalDateTime startDate, LocalDateTime endDate) {
+	    this.uuid_ = uuid;
+	    this.name = name;
+	    this.archived = archived;
+	    this.externalId = externalID;
+	    this.startDate = startDate;
+	    this.endDate = endDate;
+	}
+    public AreaDto(String string, String string2, Boolean boolean1, long l, LocalDateTime localDateTime, Object object) {
+        this.uuid_ = string;
+        this.name = string2;
+        this.archived = boolean1;
+        this.externalId = l;
+        this.startDate = localDateTime;
+        this.endDate = (object instanceof LocalDateTime) ? (LocalDateTime) object : null;
+    }
+
 
 	public AreaReferenceDto toReference() {
 		return new AreaReferenceDto(getUuid());
